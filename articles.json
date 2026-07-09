@@ -1,42 +1,49 @@
-[
-  {
-    "source": "industry-shots",
-    "url": "https://playbookmedia.substack.com/p/industry-shots-djokovic-entra-a-general",
-    "title": "Djokovic entra a General Atlantic para invertir en deporte",
-    "desc": "El movimiento del serbio al private equity abre otra conversación sobre atletas, capital y negocios de performance.",
-    "author": "Guillermo Mejía",
-    "date": "30 jun 2026",
-    "cover_image": "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=900&q=80",
-    "cover_label": "Private equity"
-  },
-  {
-    "source": "industry-shots",
-    "url": "https://playbookmedia.substack.com/p/industry-shots-karim-lopez-puede",
-    "title": "Karim López puede cambiar el mercado NBA en México",
-    "desc": "Un prospecto mexicano puede darle a la NBA algo que todavía no ha tenido: un rostro local con potencial real de estrella.",
-    "author": "Guillermo Mejía",
-    "date": "23 jun 2026",
-    "cover_image": "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900&q=80",
-    "cover_label": "NBA México"
-  },
-  {
-    "source": "la-lana",
-    "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion",
-    "title": "¿La pausa de hidratación es el primer timeout comercial del fútbol?",
-    "desc": "Una medida nacida para cuidar jugadores abrió una conversación incómoda sobre televisoras, pausas y experiencia del fan.",
-    "author": "Guillermo Mejía",
-    "date": "19 jun 2026",
-    "cover_image": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=900&q=80",
-    "cover_label": "Fan experience"
-  },
-  {
-    "source": "industry-shots",
-    "url": "https://playbookmedia.substack.com/p/industry-shots-el-mercado-hispano",
-    "title": "El mercado hispano ya le dio su primer récord al Mundial",
-    "desc": "Audiencia, consumo, medios y oportunidad comercial para marcas alrededor de Norteamérica 2026.",
-    "author": "Guillermo Mejía",
-    "date": "16 jun 2026",
-    "cover_image": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=900&q=80",
-    "cover_label": "Audiencias"
-  }
-]
+{
+  "lastUpdated": "2026-07-10T00:00:00Z",
+  "articles": [
+    {
+      "id": "industry-shots-djokovic",
+      "title": "Djokovic entra a General Atlantic para invertir en deporte",
+      "excerpt": "El movimiento del serbio al private equity abre otra conversación sobre atletas, capital y negocios de performance.",
+      "author": "Guillermo Mejía",
+      "date": "2026-06-30",
+      "dateFormatted": "30 jun 2026",
+      "publication": "Industry Shots",
+      "tag": "Private equity",
+      "url": "https://playbookmedia.substack.com/p/industry-shots-djokovic-entra-a-general"
+    },
+    {
+      "id": "industry-shots-karim",
+      "title": "Karim López puede cambiar el mercado NBA en México",
+      "excerpt": "Un prospecto mexicano puede darle a la NBA algo que todavía no ha tenido: un rostro local con potencial real de estrella.",
+      "author": "Guillermo Mejía",
+      "date": "2026-06-23",
+      "dateFormatted": "23 jun 2026",
+      "publication": "Industry Shots",
+      "tag": "NBA México",
+      "url": "https://playbookmedia.substack.com/p/industry-shots-karim-lopez-puede"
+    },
+    {
+      "id": "lana-pausa-hidratacion",
+      "title": "¿La pausa de hidratación es el primer timeout comercial del fútbol?",
+      "excerpt": "Una medida nacida para cuidar jugadores abrió una conversación incómoda sobre televisoras, pausas y experiencia del fan.",
+      "author": "Guillermo Mejía",
+      "date": "2026-06-19",
+      "dateFormatted": "19 jun 2026",
+      "publication": "La Lana del Mundial",
+      "tag": "Fan experience",
+      "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion"
+    },
+    {
+      "id": "industry-shots-mercado-hispano",
+      "title": "El mercado hispano ya le dio su primer récord al Mundial",
+      "excerpt": "Audiencia, consumo, medios y oportunidad comercial para marcas alrededor de Norteamérica 2026.",
+      "author": "Guillermo Mejía",
+      "date": "2026-06-16",
+      "dateFormatted": "16 jun 2026",
+      "publication": "Industry Shots",
+      "tag": "Audiencias",
+      "url": "https://playbookmedia.substack.com/p/industry-shots-el-mercado-hispano"
+    }
+  ]
+}
