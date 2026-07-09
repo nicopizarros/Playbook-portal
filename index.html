@@ -417,7 +417,7 @@
             <h2>Último en Playbook</h2>
             <p>Lo más reciente para leer la industria con contexto.</p>
           </div>
-          <a class="section-link" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener">Ver archivo</a>
+          <a class="section-link" id="btn-ver-archivo" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener">Ver archivo</a>
         </div>
 
         <!-- v13: Filtro de fuentes — funciona con JS al final del documento -->
@@ -430,64 +430,11 @@
         </div>
 
         <div class="stories-grid" id="stories-container">
-
-          <!-- FRAMER CMS item — publicacion: industry-shots -->
-          <a class="story card" data-source="industry-shots"
-             href="https://playbookmedia.substack.com/p/industry-shots-djokovic-entra-a-general" target="_blank" rel="noopener">
-            <div>
-              <span class="src-badge industry">Industry Shots</span>
-              <h3>Djokovic entra a General Atlantic para invertir en deporte</h3>
-              <p class="desc">El movimiento del serbio al private equity abre otra conversación sobre atletas, capital y negocios de performance.</p>
-              <div class="story-meta"><span>Guillermo Mejía</span><span>·</span><span>30 jun 2026</span></div>
-            </div>
-            <div class="story-cover" style="background-image:url('https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=900&q=80')">
-              <span class="cover-label">Private equity</span>
-            </div>
-          </a>
-
-          <!-- FRAMER CMS item — publicacion: industry-shots -->
-          <a class="story card" data-source="industry-shots"
-             href="https://playbookmedia.substack.com/p/industry-shots-karim-lopez-puede" target="_blank" rel="noopener">
-            <div>
-              <span class="src-badge industry">Industry Shots</span>
-              <h3>Karim López puede cambiar el mercado NBA en México</h3>
-              <p class="desc">Un prospecto mexicano puede darle a la NBA algo que todavía no ha tenido: un rostro local con potencial real de estrella.</p>
-              <div class="story-meta"><span>Guillermo Mejía</span><span>·</span><span>23 jun 2026</span></div>
-            </div>
-            <div class="story-cover" style="background-image:url('https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900&q=80')">
-              <span class="cover-label">NBA México</span>
-            </div>
-          </a>
-
-          <!-- FRAMER CMS item — publicacion: la-lana -->
-          <a class="story card" data-source="la-lana"
-             href="https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion" target="_blank" rel="noopener">
-            <div>
-              <span class="src-badge lana">La Lana del Mundial</span>
-              <h3>¿La pausa de hidratación es el primer timeout comercial del fútbol?</h3>
-              <p class="desc">Una medida nacida para cuidar jugadores abrió una conversación incómoda sobre televisoras, pausas y experiencia del fan.</p>
-              <div class="story-meta"><span>Guillermo Mejía</span><span>·</span><span>19 jun 2026</span></div>
-            </div>
-            <div class="story-cover" style="background-image:url('https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=900&q=80')">
-              <span class="cover-label">Fan experience</span>
-            </div>
-          </a>
-
-          <!-- FRAMER CMS item — publicacion: industry-shots -->
-          <a class="story card" data-source="industry-shots"
-             href="https://playbookmedia.substack.com/p/industry-shots-el-mercado-hispano" target="_blank" rel="noopener">
-            <div>
-              <span class="src-badge industry">Industry Shots</span>
-              <h3>El mercado hispano ya le dio su primer récord al Mundial</h3>
-              <p class="desc">Audiencia, consumo, medios y oportunidad comercial para marcas alrededor de Norteamérica 2026.</p>
-              <div class="story-meta"><span>Guillermo Mejía</span><span>·</span><span>16 jun 2026</span></div>
-            </div>
-            <div class="story-cover" style="background-image:url('https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=900&q=80')">
-              <span class="cover-label">Audiencias</span>
-            </div>
-          </a>
-
+          <!-- v14: artículos cargados dinámicamente desde articles.json -->
+          <p id="pb-loading" style="grid-column:1/-1;padding:16px 0;color:var(--muted);font-size:13px;">Cargando artículos...</p>
         </div>
+        <!-- v14: archivo — visible al hacer clic en "Ver archivo" -->
+        <div class="stories-grid" id="archivo-container" style="display:none;margin-top:8px;"></div>
       </section>
 
       <aside class="side-col">
@@ -723,18 +670,108 @@
     </div>
   </footer>
 
-  <!-- v13: Source filter JavaScript -->
+  <!-- v14: carga dinámica articles.json + filtros + archivo -->
   <script>
-    document.querySelectorAll(".filter-btn").forEach(function(btn) {
-      btn.addEventListener("click", function() {
-        document.querySelectorAll(".filter-btn").forEach(function(b) { b.classList.remove("active"); });
-        this.classList.add("active");
-        var src = this.dataset.source;
-        document.querySelectorAll("#stories-container .story").forEach(function(s) {
-          s.style.display = (src === "all" || s.dataset.source === src) ? "grid" : "none";
-        });
+  (function () {
+    'use strict';
+
+    const RECENT_MAX = 4; // artículos visibles sin abrir archivo
+    let allArticles  = [];
+    let activeSource = 'all';
+    let archivoVisible = false;
+
+    const BADGE = {
+      'industry-shots': 'industry',
+      'la-lana':        'lana',
+      'infinitas':      'infinitas',
+      'playbook':       'playbook'
+    };
+
+    function storyCard(a) {
+      const cls = BADGE[a.source] || 'playbook';
+      const img = a.imageUrl
+        ? `<div class="story-cover" style="background-image:url('${a.imageUrl}')"><span class="cover-label">${a.tag}</span></div>`
+        : '';
+      return `<a class="story card" data-source="${a.source}" href="${a.url}" target="_blank" rel="noopener">
+        <div>
+          <span class="src-badge ${cls}">${a.publication}</span>
+          <h3>${a.title}</h3>
+          <p class="desc">${a.excerpt}</p>
+          <div class="story-meta"><span>${a.author}</span><span>·</span><span>${a.dateFormatted}</span></div>
+        </div>${img}
+      </a>`;
+    }
+
+    function render() {
+      const filtered = activeSource === 'all'
+        ? allArticles
+        : allArticles.filter(a => a.source === activeSource);
+
+      const recent  = filtered.slice(0, RECENT_MAX);
+      const archivo = filtered.slice(RECENT_MAX);
+
+      // Render artículos recientes
+      const cont = document.getElementById('stories-container');
+      cont.innerHTML = recent.length
+        ? recent.map(storyCard).join('')
+        : '<p style="grid-column:1/-1;padding:16px 0;color:var(--muted);font-size:13px;">Sin artículos en esta categoría todavía.</p>';
+
+      // Render archivo (oculto por defecto)
+      const arch = document.getElementById('archivo-container');
+      arch.innerHTML = archivo.map(storyCard).join('');
+      arch.style.display = (archivoVisible && archivo.length > 0) ? 'grid' : 'none';
+
+      // Actualizar botón "Ver archivo"
+      const btn = document.getElementById('btn-ver-archivo');
+      if (archivo.length > 0) {
+        btn.removeAttribute('href');
+        btn.removeAttribute('target');
+        btn.style.cursor = 'pointer';
+        btn.textContent = archivoVisible
+          ? 'Ocultar archivo'
+          : `Ver archivo (${archivo.length} más)`;
+      } else {
+        btn.href    = 'https://playbookmedia.substack.com/';
+        btn.target  = '_blank';
+        btn.textContent = 'Ver en Substack';
+      }
+    }
+
+    // Cargar articles.json
+    fetch('/articles.json?t=' + Date.now())
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => {
+        allArticles = data.articles || [];
+        const loader = document.getElementById('pb-loading');
+        if (loader) loader.remove();
+        render();
+      })
+      .catch(() => {
+        const loader = document.getElementById('pb-loading');
+        if (loader) loader.textContent = 'No se pudieron cargar los artículos.';
+      });
+
+    // Filtros de publicación
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        activeSource = this.dataset.source;
+        archivoVisible = false;
+        render();
       });
     });
+
+    // Toggle archivo
+    document.getElementById('btn-ver-archivo').addEventListener('click', function (e) {
+      if (!this.getAttribute('href')) {
+        e.preventDefault();
+        archivoVisible = !archivoVisible;
+        render();
+      }
+    });
+
+  })();
   </script>
 
 </body>
