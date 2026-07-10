@@ -1,6 +1,7 @@
 'use strict';
 
 import {
+  navLinksTemplate,
   opinionSectionHeadTemplate, opinionGridTemplate,
   productsSectionHeadTemplate, productsGridTemplate,
   midCtaTemplate,
@@ -20,6 +21,19 @@ const DEFAULT_TAB_ORDER = [
   'articles', 'opinion', 'video', 'infinitas', 'products',
   'stats', 'testimonials', 'about', 'midCta', 'nav', 'footer'
 ];
+const CONTENT_SECTION_KEYS = [
+  'nav', 'opinionSection', 'productsSection', 'midCta', 'videoSection',
+  'infinitasSection', 'statsSection', 'testimonialsSection', 'aboutSection', 'footer'
+];
+
+// Kept in sync with js/articles.js by hand: those constants decide what the
+// live homepage actually shows, this mirrors it so the admin preview and
+// the "en portada / archivo" badges match reality.
+const LEAD_COUNT = 1;
+const LIST_COUNT = 6;
+const STRIP_COUNT = 0;
+const TICKER_COUNT = 6;
+const MAIN_PAGE_COUNT = LEAD_COUNT + LIST_COUNT + STRIP_COUNT;
 
 const state = {
   token: sessionStorage.getItem(TOKEN_KEY) || null,
@@ -66,6 +80,17 @@ function labeledField(labelText, helpText, inputEl, errorEl) {
   return el('label', { class: 'field' }, children);
 }
 
+// Like labeledField, but for controls that hold more than one clickable
+// element (e.g. the star picker). A <label> wrapping several buttons makes
+// the browser ALSO fire an implicit click on the first one whenever any of
+// them is clicked, so this uses a plain <div> instead.
+function plainField(labelText, helpText, contentEl) {
+  const children = [el('span', { class: 'field-label', text: labelText })];
+  if (helpText) children.push(el('span', { class: 'field-help', text: helpText }));
+  children.push(contentEl);
+  return el('div', { class: 'field' }, children);
+}
+
 function textField(obj, key, labelText, opts = {}) {
   const isUrl = opts.type === 'url';
   const input = el(opts.multiline ? 'textarea' : 'input', {
@@ -76,18 +101,18 @@ function textField(obj, key, labelText, opts = {}) {
 
   let errorEl = null;
   let touched = false;
+  const isRequired = () => (typeof opts.required === 'function' ? opts.required() : !!opts.required);
   if (isUrl) {
-    errorEl = el('span', {
-      class: 'field-error',
-      text: opts.required
-        ? 'Este enlace es obligatorio y debe empezar con https://'
-        : 'El enlace debe empezar con https:// (o déjalo vacío)'
-    });
+    errorEl = el('span', { class: 'field-error' });
     errorEl.hidden = true;
     const runValidation = () => {
       const value = input.value.trim();
       const empty = value === '';
-      const ok = (opts.required ? !empty : true) && isValidUrlValue(value);
+      const required = isRequired();
+      const ok = (required ? !empty : true) && isValidUrlValue(value);
+      errorEl.textContent = required
+        ? 'Este enlace es obligatorio y debe empezar con https://'
+        : 'El enlace debe empezar con https:// (o déjalo vacío)';
       input.classList.toggle('is-invalid', touched && !ok);
       errorEl.hidden = !(touched && !ok);
       return ok;
@@ -113,6 +138,54 @@ function selectField(obj, key, labelText, options, help) {
     onDirty();
   });
   return labeledField(labelText, help, select);
+}
+
+// A 1-5 star picker for article importance. onChange fires after the value
+// updates, so callers can re-validate fields that depend on the new rating
+// (e.g. the hero-image hard lock) before the user even touches them.
+function starPickerField(obj, key, labelText, help, onChange) {
+  const row = el('div', { class: 'star-picker' });
+  const value = () => Number(obj[key]) || 0;
+  function rerenderStars() {
+    row.innerHTML = '';
+    for (let n = 1; n <= 5; n++) {
+      row.appendChild(el('button', {
+        type: 'button',
+        class: 'star-btn' + (n <= value() ? ' is-filled' : ''),
+        text: '★',
+        'aria-label': `${n} de 5 estrellas`,
+        onclick: () => {
+          obj[key] = n;
+          rerenderStars();
+          onDirty();
+          if (onChange) onChange(obj[key]);
+        }
+      }));
+    }
+  }
+  rerenderStars();
+  return plainField(labelText, help, row);
+}
+
+// Mirrors the sort used on the live site (js/articles.js): stars desc, then
+// date desc, with array order as the final stable tiebreak.
+function rankArticles(list) {
+  return (list || [])
+    .map((article, index) => ({ article, index }))
+    .sort((a, b) => {
+      const sa = Number(a.article.priority) || 0;
+      const sb = Number(b.article.priority) || 0;
+      if (sb !== sa) return sb - sa;
+      const da = a.article.date || '';
+      const db = b.article.date || '';
+      if (db !== da) return db.localeCompare(da);
+      return a.index - b.index;
+    })
+    .map(x => x.article);
+}
+
+function mainPageArticleSet(list) {
+  return new Set(rankArticles(list).slice(0, MAIN_PAGE_COUNT));
 }
 
 // ---------------------------------------------------------------- Collapsible drag-reorder array editor
@@ -169,6 +242,8 @@ function arrayEditor(arr, opts) {
       }) : null;
 
       const chevron = el('span', { class: 'array-item-chevron', 'aria-hidden': 'true', text: isOpen ? '▾' : '▸' });
+      const badge = opts.itemBadge ? opts.itemBadge(item, i) : null;
+      const badgeEl = badge ? el('span', { class: 'badge-pill' + (badge.kind ? ' is-' + badge.kind : ''), text: badge.text }) : null;
 
       const header = el('div', { class: 'array-item-header' }, [
         handle,
@@ -177,8 +252,9 @@ function arrayEditor(arr, opts) {
           onclick: () => { if (expanded.has(item)) expanded.delete(item); else expanded.add(item); rerender(); }
         }, [
           chevron,
-          el('span', { class: 'array-item-title', text: opts.itemTitle ? opts.itemTitle(item, i) : `#${i + 1}` })
-        ]),
+          el('span', { class: 'array-item-title', text: opts.itemTitle ? opts.itemTitle(item, i) : `#${i + 1}` }),
+          badgeEl
+        ].filter(Boolean)),
         el('div', { class: 'array-item-actions' }, [removeBtn].filter(Boolean))
       ]);
 
@@ -192,6 +268,7 @@ function arrayEditor(arr, opts) {
 
       list.appendChild(card);
     });
+    if (opts.onListChange) opts.onListChange();
   }
 
   if (opts.addable) {
@@ -210,6 +287,7 @@ function arrayEditor(arr, opts) {
   wrap.appendChild(addBar);
   wrap.appendChild(list);
   rerender();
+  wrap.rerender = rerender;
   return wrap;
 }
 
@@ -267,56 +345,94 @@ function safeMount(id, templateFn, arg) {
   }
 }
 
-function articleRowTemplate(a) {
+function leadTemplate(a) {
+  const source = KNOWN_SOURCES.indexOf(a.source) !== -1 ? a.source : 'playbook';
+  const photo = a.imageUrl
+    ? `<div class="lead-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title || '')}" decoding="async" /></div>`
+    : '';
+  return `<article class="lead-story reveal is-visible" data-source="${escapeHtml(source)}">
+      ${photo}
+      <span class="tag">${escapeHtml(a.publication || '')}</span>
+      <h1>${escapeHtml(a.title || '')}</h1>
+      <p class="desc">${escapeHtml(a.excerpt || '')}</p>
+      <div class="byline"><b>${escapeHtml(a.author || '')}</b> · ${escapeHtml(a.dateFormatted || '')}</div>
+    </article>`;
+}
+
+function rowTemplate(a, heading) {
+  const H = heading || 'h3';
   const source = KNOWN_SOURCES.indexOf(a.source) !== -1 ? a.source : 'playbook';
   return `<a class="news-row reveal is-visible" data-source="${escapeHtml(source)}" href="${escapeHtml(safeUrl(a.url))}" target="_blank" rel="noopener noreferrer">
-    <span class="tag-mini ${escapeHtml(source)}">${escapeHtml(a.publication || '')}</span>
-    <h3>${escapeHtml(a.title || '')}</h3>
-    <div class="byline">${escapeHtml(a.dateFormatted || '')}</div>
-  </a>`;
+      <span class="tag-mini ${escapeHtml(source)}">${escapeHtml(a.publication || '')}</span>
+      <${H}>${escapeHtml(a.title || '')}</${H}>
+      <div class="byline">${escapeHtml(a.dateFormatted || '')}</div>
+    </a>`;
 }
 
-function articlesPreviewList(articlesData) {
-  const list = (articlesData && Array.isArray(articlesData.articles)) ? articlesData.articles.slice() : [];
-  list.sort((a, b) => {
-    const pa = typeof a.priority === 'number' ? a.priority : 0;
-    const pb = typeof b.priority === 'number' ? b.priority : 0;
-    if (pb !== pa) return pb - pa;
-    return (b.date || '').localeCompare(a.date || '');
-  });
-  return list.slice(0, 8).map(articleRowTemplate).join('');
+function newsGridTemplate(ranked) {
+  const lead = ranked.slice(0, LEAD_COUNT);
+  const list = ranked.slice(LEAD_COUNT, LEAD_COUNT + LIST_COUNT);
+  if (!ranked.length) return '<p class="empty-state">Sin artículos todavía.</p>';
+  return lead.map(leadTemplate).join('') + `<div class="news-list">${list.map(a => rowTemplate(a, 'h3')).join('')}</div>`;
 }
 
-function renderContentInto(prefix, content, articlesData) {
-  if (!content) return;
-  safeMount(`${prefix}-articles-head`, () => '<div><h2>Noticias</h2></div>');
-  safeMount(`${prefix}-articles-list`, articlesPreviewList, articlesData);
-  safeMount(`${prefix}-opinion-head`, opinionSectionHeadTemplate, content.opinionSection);
-  safeMount(`${prefix}-opinion-grid`, opinionGridTemplate, content.opinionSection);
-  safeMount(`${prefix}-products-head`, productsSectionHeadTemplate, content.productsSection);
-  safeMount(`${prefix}-products-grid`, productsGridTemplate, content.productsSection);
-  safeMount(`${prefix}-mid-cta`, midCtaTemplate, content.midCta);
-  safeMount(`${prefix}-video-head`, videoSectionHeadTemplate, content.videoSection);
-  safeMount(`${prefix}-video-feature`, videoFeatureTemplate, content.videoSection.featured);
-  safeMount(`${prefix}-video-feature-copy`, videoFeatureCopyTemplate, content.videoSection.featured);
-  safeMount(`${prefix}-video-clips`, videoClipsTemplate, content.videoSection);
-  safeMount(`${prefix}-infinitas-head`, infinitasSectionHeadTemplate, content.infinitasSection);
-  safeMount(`${prefix}-infinitas-wrap`, infinitasWrapTemplate, content.infinitasSection);
-  safeMount(`${prefix}-stats-heading`, statsHeadingTemplate, content.statsSection);
-  safeMount(`${prefix}-stats-grid`, statsGridTemplate, content.statsSection);
-  safeMount(`${prefix}-testimonials-head`, testimonialsSectionHeadTemplate, content.testimonialsSection);
-  safeMount(`${prefix}-testimonials-grid`, testimonialsGridTemplate, content.testimonialsSection);
-  safeMount(`${prefix}-about-card`, aboutCardTemplate, content.aboutSection);
-  safeMount(`${prefix}-footer-content`, footerContentTemplate, content.footer);
-  safeMount(`${prefix}-footer-copyright`, footerCopyrightTemplate, content.footer);
+function newsStripTemplate(ranked) {
+  const strip = ranked.slice(LEAD_COUNT + LIST_COUNT, LEAD_COUNT + LIST_COUNT + STRIP_COUNT);
+  return strip.map(a => rowTemplate(a, 'h4')).join('');
+}
+
+function tickerTemplate(ranked) {
+  return ranked.slice(0, TICKER_COUNT).map(a => `<span class="ticker-item">${escapeHtml(a.title || '')}</span>`).join('');
 }
 
 function renderPreview() {
-  if (state.content) renderContentInto('preview', state.content, state.articles);
+  const content = state.content;
+  const articlesData = state.articles;
+  if (!content) return;
+
+  safeMount('preview-nav-links', navLinksTemplate, content.nav);
+
+  const ranked = rankArticles(articlesData && articlesData.articles);
+  safeMount('preview-news-grid', newsGridTemplate, ranked);
+  safeMount('preview-news-strip', newsStripTemplate, ranked);
+  document.getElementById('preview-news-strip').style.display = STRIP_COUNT > 0 ? '' : 'none';
+  safeMount('preview-ticker-content', tickerTemplate, ranked);
+
+  safeMount('preview-opinion-head', opinionSectionHeadTemplate, content.opinionSection);
+  safeMount('preview-opinion-grid', opinionGridTemplate, content.opinionSection);
+  safeMount('preview-products-head', productsSectionHeadTemplate, content.productsSection);
+  safeMount('preview-products-grid', productsGridTemplate, content.productsSection);
+  safeMount('preview-mid-cta', midCtaTemplate, content.midCta);
+  safeMount('preview-video-head', videoSectionHeadTemplate, content.videoSection);
+  safeMount('preview-video-feature', videoFeatureTemplate, content.videoSection.featured);
+  safeMount('preview-video-feature-copy', videoFeatureCopyTemplate, content.videoSection.featured);
+  safeMount('preview-video-clips', videoClipsTemplate, content.videoSection);
+  safeMount('preview-infinitas-head', infinitasSectionHeadTemplate, content.infinitasSection);
+  safeMount('preview-infinitas-wrap', infinitasWrapTemplate, content.infinitasSection);
+  safeMount('preview-stats-heading', statsHeadingTemplate, content.statsSection);
+  safeMount('preview-stats-grid', statsGridTemplate, content.statsSection);
+  safeMount('preview-testimonials-head', testimonialsSectionHeadTemplate, content.testimonialsSection);
+  safeMount('preview-testimonials-grid', testimonialsGridTemplate, content.testimonialsSection);
+  safeMount('preview-about-card', aboutCardTemplate, content.aboutSection);
+  safeMount('preview-footer-content', footerContentTemplate, content.footer);
+  safeMount('preview-footer-copyright', footerCopyrightTemplate, content.footer);
+
+  updateChangeBadges();
 }
 
-function renderBaselinePreview() {
-  if (state.contentBaseline) renderContentInto('preview-base', state.contentBaseline, state.articlesBaseline);
+// Deep-compares each content section (and the articles list) against the
+// snapshot loaded at boot, and flags the matching .preview-section so
+// editors can see at a glance which blocks of the live page they've touched.
+function updateChangeBadges() {
+  if (!state.content || !state.contentBaseline) return;
+  CONTENT_SECTION_KEYS.forEach(key => {
+    const changed = JSON.stringify(state.content[key]) !== JSON.stringify(state.contentBaseline[key]);
+    const section = document.querySelector(`.preview-section[data-key="${key}"]`);
+    if (section) section.classList.toggle('is-changed', changed);
+  });
+  const articlesChanged = JSON.stringify(state.articles) !== JSON.stringify(state.articlesBaseline);
+  const articlesSection = document.querySelector('.preview-section[data-key="articles"]');
+  if (articlesSection) articlesSection.classList.toggle('is-changed', articlesChanged);
 }
 
 // ---------------------------------------------------------------- API calls
@@ -373,28 +489,66 @@ function buildArticlesTab(container) {
     el('strong', { text: 'La automatización de Make.com sigue activa. ' }),
     el('span', { text: 'Los artículos nuevos siguen llegando solos desde el RSS. Esta pestaña es una capa de corrección manual encima de eso: úsala para arreglar un error, borrar un artículo o subir la prioridad de uno a mano — no para reemplazar la automatización.' })
   ]));
-  container.appendChild(arrayEditor(list, {
+
+  const summaryEl = el('p', { class: 'admin-section-desc' });
+  container.appendChild(summaryEl);
+  function refreshSummary() {
+    const mainSet = mainPageArticleSet(list);
+    summaryEl.textContent = `${mainSet.size} de ${list.length} artículos aparecen en la portada (el destacado + los ${LIST_COUNT} siguientes por estrellas y fecha). El resto queda en el archivo automáticamente — no hace falta archivarlos a mano.`;
+  }
+
+  const editorEl = arrayEditor(list, {
     removable: true, addable: true, addLabel: '+ Agregar artículo manualmente',
     itemTitle: (item) => item.title || 'Artículo sin título',
+    itemBadge: (item) => mainPageArticleSet(list).has(item)
+      ? { text: '★ En portada', kind: 'hero' }
+      : { text: 'Archivo', kind: 'archive' },
     emptyHint: 'No hay artículos cargados todavía.',
+    onListChange: refreshSummary,
     newItem: () => ({
       id: '', title: '', excerpt: '', author: '', date: '', dateFormatted: '',
-      publication: 'Playbook', source: 'playbook', tag: '', priority: 0, url: '', imageUrl: ''
+      publication: 'Playbook', source: 'playbook', tag: '', priority: 3, url: '', imageUrl: ''
     }),
-    renderItem: (item) => [
-      textField(item, 'title', 'Título', { help: 'El titular del artículo tal como se muestra en Noticias.' }),
-      textField(item, 'excerpt', 'Extracto', { multiline: true, help: 'Uno o dos renglones que resumen el artículo.' }),
-      textField(item, 'author', 'Autor', { help: 'El nombre de quien escribió el artículo.' }),
-      textField(item, 'publication', 'Publicación', { help: 'El nombre de la publicación de origen.' }),
-      selectField(item, 'source', 'Fuente', KNOWN_SOURCES.map(v => ({ value: v, label: v })), 'A qué categoría pertenece — define el color de su etiqueta.'),
-      textField(item, 'tag', 'Etiqueta', { help: 'Una etiqueta corta de tema (ej. Audiencias).' }),
-      textField(item, 'date', 'Fecha (AAAA-MM-DD)', { help: 'Se usa para ordenar los artículos por fecha.' }),
-      textField(item, 'dateFormatted', 'Fecha en texto', { help: 'Cómo se muestra la fecha en el sitio (ej. 9 jul 2026).' }),
-      textField(item, 'priority', 'Prioridad', { type: 'number', help: 'Un número: mientras más alto, más arriba aparece en la lista.' }),
-      textField(item, 'url', 'Enlace del artículo', { type: 'url', required: true, help: 'A dónde lleva el artículo al hacer clic.' }),
-      textField(item, 'imageUrl', 'Imagen (opcional)', { type: 'url', help: 'El link a una imagen para el artículo, si tiene.' })
-    ]
-  }));
+    renderItem: (item) => {
+      const imageField = textField(item, 'imageUrl', 'Imagen', {
+        type: 'url',
+        required: () => Number(item.priority) === 5,
+        help: 'El link a una imagen para el artículo. Obligatoria cuando el artículo tiene 5 estrellas: se muestra grande en el puesto principal.'
+      });
+      const imageInput = imageField.querySelector('input');
+
+      const otherHero = list.find(a => a !== item && Number(a.priority) === 5);
+      const heroNote = el('div', { class: 'admin-hero-note' + (Number(item.priority) === 5 ? '' : ' is-hidden') }, [
+        el('strong', { text: '5 estrellas = tratamiento de portada (hero). ' }),
+        el('span', { text: 'Normalmente debe haber solo un artículo con 5 estrellas a la vez.' }),
+        otherHero ? el('div', { class: 'admin-hero-warning', text:
+          `Ya hay otro artículo con 5 estrellas: "${otherHero.title || 'sin título'}". Solo el más reciente de los dos se mostrará como principal.`
+        }) : null
+      ].filter(Boolean));
+
+      const stars = starPickerField(item, 'priority', 'Importancia', 'De 1 a 5 estrellas. Junto con la fecha, decide el orden: más estrellas y más reciente aparece primero.', (newValue) => {
+        heroNote.classList.toggle('is-hidden', Number(newValue) !== 5);
+        if (imageInput._playbookValidate) imageInput._playbookValidate();
+        editorEl.rerender();
+      });
+
+      return [
+        textField(item, 'title', 'Título', { help: 'El titular del artículo tal como se muestra en Noticias.' }),
+        textField(item, 'excerpt', 'Extracto', { multiline: true, help: 'Uno o dos renglones que resumen el artículo.' }),
+        textField(item, 'author', 'Autor', { help: 'El nombre de quien escribió el artículo.' }),
+        textField(item, 'publication', 'Publicación', { help: 'El nombre de la publicación de origen.' }),
+        selectField(item, 'source', 'Fuente', KNOWN_SOURCES.map(v => ({ value: v, label: v })), 'A qué categoría pertenece — define el color de su etiqueta.'),
+        textField(item, 'tag', 'Etiqueta', { help: 'Una etiqueta corta de tema (ej. Audiencias).' }),
+        textField(item, 'date', 'Fecha (AAAA-MM-DD)', { help: 'Se usa para ordenar los artículos por fecha — lo más reciente siempre pesa.' }),
+        textField(item, 'dateFormatted', 'Fecha en texto', { help: 'Cómo se muestra la fecha en el sitio (ej. 9 jul 2026).' }),
+        stars,
+        heroNote,
+        textField(item, 'url', 'Enlace del artículo', { type: 'url', required: true, help: 'A dónde lleva el artículo al hacer clic.' }),
+        imageField
+      ];
+    }
+  });
+  container.appendChild(editorEl);
 }
 
 function buildOpinionTab(container) {
@@ -745,6 +899,7 @@ async function handleSave() {
       state.articlesBaseline = JSON.parse(JSON.stringify(state.articles));
       setStatus('Artículos guardados', 'ok');
       showToast('Guardado. El sitio se actualiza en 1-2 min.');
+      renderPreview();
     } else {
       const result = await apiSave('content', state.content, state.contentSha);
       state.contentDirty = false;
@@ -753,7 +908,6 @@ async function handleSave() {
       setStatus('Contenido guardado', 'ok');
       showToast('Guardado. El sitio se actualiza en 1-2 min.');
       renderPreview();
-      if (!document.getElementById('preview-col-baseline').hidden) renderBaselinePreview();
     }
     updateDirtyIndicator();
   } catch (err) {
@@ -800,17 +954,6 @@ function logout() {
   window.location.replace('/admin');
 }
 
-function initCompareToggle() {
-  const toggle = document.getElementById('compare-toggle');
-  const baselineCol = document.getElementById('preview-col-baseline');
-  const body = document.getElementById('admin-preview-body');
-  toggle.addEventListener('change', () => {
-    baselineCol.hidden = !toggle.checked;
-    body.classList.toggle('is-comparing', toggle.checked);
-    if (toggle.checked) renderBaselinePreview();
-  });
-}
-
 async function enterEditor() {
   const whoEl = document.getElementById('admin-whoami');
   if (whoEl) whoEl.textContent = state.username ? `Sesión: ${state.username}` : '';
@@ -834,7 +977,6 @@ async function enterEditor() {
 
   document.getElementById('save-btn').addEventListener('click', handleSave);
   document.getElementById('logout-btn').addEventListener('click', logout);
-  initCompareToggle();
   updateSaveButtonLabel();
 
   window.addEventListener('beforeunload', (e) => {

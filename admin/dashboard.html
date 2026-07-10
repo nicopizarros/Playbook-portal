@@ -52,80 +52,121 @@
       <section class="admin-form-pane" id="admin-form-pane" aria-label="Edición de contenido"></section>
       <aside class="admin-preview-pane" aria-label="Vista previa en vivo">
         <div class="admin-preview-toolbar">
-          <div class="admin-preview-label">Vista previa en vivo</div>
-          <label class="admin-compare-toggle">
-            <input type="checkbox" id="compare-toggle" />
-            <span>Comparar con lo publicado</span>
-          </label>
+          <div class="admin-preview-label">Vista previa en vivo — página completa</div>
+          <div class="admin-preview-hint"><span class="preview-hint-dot" aria-hidden="true"></span>Los bloques marcados tienen cambios sin guardar</div>
         </div>
         <div class="admin-preview-body" id="admin-preview-body">
-          <div class="admin-preview-col" id="preview-col-live" data-prefix="preview">
-            <div id="preview-articles-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div class="news-list" id="preview-articles-list"></div>
+          <div class="admin-preview-page">
 
-            <div id="preview-opinion-head" class="section-head reveal is-visible"></div>
-            <div id="preview-opinion-grid" class="opinion-grid"></div>
+            <div class="preview-section" data-key="nav">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <header class="topbar">
+                <div class="container nav">
+                  <a href="#" class="brand" aria-label="Playbook">
+                    <img src="/assets/img/playbook-logo.webp" width="160" height="40" alt="Playbook" />
+                  </a>
+                  <nav class="nav-links" id="preview-nav-links"></nav>
+                </div>
+                <div class="ticker">
+                  <div class="ticker-label"><span class="dot" aria-hidden="true"></span>Playbook hoy</div>
+                  <div class="ticker-track"><div class="ticker-content" id="preview-ticker-content"></div></div>
+                </div>
+              </header>
+            </div>
 
-            <div id="preview-products-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div id="preview-products-grid" class="product-grid"></div>
+            <div class="preview-section" data-key="articles">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <main class="container news-section">
+                <div class="section-head" style="border-bottom:none;margin-bottom:0;padding-top:0;">
+                  <div><h2>Último en Playbook</h2></div>
+                </div>
+                <div class="news-grid" id="preview-news-grid"></div>
+                <div class="news-strip" id="preview-news-strip"></div>
+              </main>
+            </div>
 
-            <div class="mid-cta-box reveal is-visible" id="preview-mid-cta"></div>
+            <div class="preview-section" data-key="opinionSection">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="container">
+                <div id="preview-opinion-head" class="section-head reveal is-visible"></div>
+                <div id="preview-opinion-grid" class="opinion-grid"></div>
+              </section>
+            </div>
 
-            <div id="preview-video-head" class="section-head reveal is-visible"></div>
-            <div class="video-feature-card reveal is-visible" id="preview-video-feature"></div>
-            <div class="video-feature-copy reveal is-visible" id="preview-video-feature-copy"></div>
-            <div class="clips-row" id="preview-video-clips"></div>
+            <div class="preview-section" data-key="productsSection">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="products">
+                <div class="container" style="padding:44px 24px;">
+                  <div id="preview-products-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
+                  <div id="preview-products-grid" class="product-grid"></div>
+                </div>
+              </section>
+            </div>
 
-            <div id="preview-infinitas-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div class="infinitas-wrap" id="preview-infinitas-wrap"></div>
+            <div class="preview-section" data-key="midCta">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="mid-cta">
+                <div class="container">
+                  <div class="mid-cta-box reveal is-visible" id="preview-mid-cta"></div>
+                </div>
+              </section>
+            </div>
 
-            <h2 id="preview-stats-heading" style="font-family:var(--serif-display);font-weight:400;font-size:22px;text-transform:uppercase;"></h2>
-            <div class="proof-grid" id="preview-stats-grid"></div>
+            <div class="preview-section" data-key="videoSection">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="video-section">
+                <div class="container" style="padding:0 24px 46px;">
+                  <div id="preview-video-head" class="section-head reveal is-visible"></div>
+                  <div class="video-grid">
+                    <div class="video-top">
+                      <div class="video-feature-card reveal is-visible" id="preview-video-feature"></div>
+                      <div class="video-feature-copy reveal is-visible" id="preview-video-feature-copy"></div>
+                    </div>
+                    <div class="clips-row" id="preview-video-clips"></div>
+                  </div>
+                </div>
+              </section>
+            </div>
 
-            <div id="preview-testimonials-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div class="testimonial-grid" id="preview-testimonials-grid"></div>
+            <div class="preview-section" data-key="infinitasSection">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="container" style="padding:44px 24px;">
+                <div id="preview-infinitas-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
+                <div class="infinitas-wrap" id="preview-infinitas-wrap"></div>
+              </section>
+            </div>
 
-            <div class="about-card" id="preview-about-card"></div>
+            <div class="preview-section" data-key="statsSection">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="container proof">
+                <h2 id="preview-stats-heading" style="text-align:center;font-family:var(--serif-display);font-weight:400;font-size:22px;text-transform:uppercase;margin-bottom:18px;"></h2>
+                <div class="proof-grid" id="preview-stats-grid"></div>
+              </section>
+            </div>
 
-            <footer style="border-radius:14px;">
-              <div class="footer-grid" id="preview-footer-content"></div>
-              <div class="footer-copyright" id="preview-footer-copyright"></div>
-            </footer>
-          </div>
+            <div class="preview-section" data-key="testimonialsSection">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="container" style="padding:44px 24px;">
+                <div id="preview-testimonials-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
+                <div class="testimonial-grid" id="preview-testimonials-grid"></div>
+              </section>
+            </div>
 
-          <div class="admin-preview-col admin-preview-col-baseline" id="preview-col-baseline" data-prefix="preview-base" hidden>
-            <div class="admin-preview-col-tag">Publicado ahora</div>
-            <div id="preview-base-articles-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div class="news-list" id="preview-base-articles-list"></div>
+            <div class="preview-section" data-key="aboutSection">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <section class="container">
+                <div class="about-card" id="preview-about-card"></div>
+              </section>
+            </div>
 
-            <div id="preview-base-opinion-head" class="section-head reveal is-visible"></div>
-            <div id="preview-base-opinion-grid" class="opinion-grid"></div>
+            <div class="preview-section" data-key="footer">
+              <span class="preview-section-tag">● Cambios sin guardar</span>
+              <footer>
+                <div class="container footer-grid" id="preview-footer-content"></div>
+                <div class="container footer-copyright" id="preview-footer-copyright"></div>
+              </footer>
+            </div>
 
-            <div id="preview-base-products-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div id="preview-base-products-grid" class="product-grid"></div>
-
-            <div class="mid-cta-box reveal is-visible" id="preview-base-mid-cta"></div>
-
-            <div id="preview-base-video-head" class="section-head reveal is-visible"></div>
-            <div class="video-feature-card reveal is-visible" id="preview-base-video-feature"></div>
-            <div class="video-feature-copy reveal is-visible" id="preview-base-video-feature-copy"></div>
-            <div class="clips-row" id="preview-base-video-clips"></div>
-
-            <div id="preview-base-infinitas-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div class="infinitas-wrap" id="preview-base-infinitas-wrap"></div>
-
-            <h2 id="preview-base-stats-heading" style="font-family:var(--serif-display);font-weight:400;font-size:22px;text-transform:uppercase;"></h2>
-            <div class="proof-grid" id="preview-base-stats-grid"></div>
-
-            <div id="preview-base-testimonials-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
-            <div class="testimonial-grid" id="preview-base-testimonials-grid"></div>
-
-            <div class="about-card" id="preview-base-about-card"></div>
-
-            <footer style="border-radius:14px;">
-              <div class="footer-grid" id="preview-base-footer-content"></div>
-              <div class="footer-copyright" id="preview-base-footer-copyright"></div>
-            </footer>
           </div>
         </div>
       </aside>

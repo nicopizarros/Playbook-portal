@@ -11,7 +11,7 @@
       "publication": "Playbook",
       "source": "playbook",
       "tag": "Audiencias",
-      "priority": 100,
+      "priority": 5,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": "https://abcnoticias.mx/u/fotografias/m/2026/7/9/f1280x720-353840_485515_5050.jpg"
     },
@@ -25,7 +25,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Streaming",
-      "priority": 90,
+      "priority": 4,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -39,7 +39,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Sedes",
-      "priority": 85,
+      "priority": 4,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -53,7 +53,7 @@
       "publication": "Playbook",
       "source": "playbook",
       "tag": "Olímpico",
-      "priority": 80,
+      "priority": 4,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -67,7 +67,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Clubes",
-      "priority": 75,
+      "priority": 3,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -81,7 +81,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Canadá",
-      "priority": 70,
+      "priority": 3,
       "url": "https://playbookmedia.substack.com/p/industry-shots-10c",
       "imageUrl": ""
     },
@@ -95,7 +95,7 @@
       "publication": "Playbook",
       "source": "playbook",
       "tag": "Venues",
-      "priority": 65,
+      "priority": 3,
       "url": "https://playbookmedia.substack.com/p/industry-shots-10c",
       "imageUrl": ""
     },
@@ -109,7 +109,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Europa",
-      "priority": 60,
+      "priority": 3,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -123,7 +123,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "TV",
-      "priority": 55,
+      "priority": 2,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -137,7 +137,7 @@
       "publication": "Infinitas",
       "source": "infinitas",
       "tag": "Femenil",
-      "priority": 50,
+      "priority": 2,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -151,7 +151,7 @@
       "publication": "Playbook",
       "source": "playbook",
       "tag": "Redes",
-      "priority": 45,
+      "priority": 2,
       "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
       "imageUrl": ""
     },
@@ -165,7 +165,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Private equity",
-      "priority": 40,
+      "priority": 2,
       "url": "https://playbookmedia.substack.com/p/industry-shots-djokovic-entra-a-general",
       "imageUrl": "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=900&q=80"
     },
@@ -179,7 +179,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "NBA México",
-      "priority": 35,
+      "priority": 1,
       "url": "https://playbookmedia.substack.com/p/industry-shots-karim-lopez-puede",
       "imageUrl": "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900&q=80"
     },
@@ -193,7 +193,7 @@
       "publication": "La Lana del Mundial",
       "source": "la-lana",
       "tag": "Fan experience",
-      "priority": 30,
+      "priority": 1,
       "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion",
       "imageUrl": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=900&q=80"
     },
@@ -207,7 +207,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Audiencias",
-      "priority": 25,
+      "priority": 1,
       "url": "https://playbookmedia.substack.com/p/industry-shots-el-mercado-hispano",
       "imageUrl": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=900&q=80"
     }
