@@ -149,287 +149,137 @@
   </div>
 </main>
 
-<!-- ============================================================ ARTÍCULOS DE OPINIÓN -->
+<!-- ============================================================ ARTÍCULOS DE OPINIÓN
+     Contenido dinámico desde content.json (opinionSection) vía js/content.js -->
 <section class="container" id="analisis">
-  <div class="section-head reveal">
-    <div>
-      <h2>Artículos de opinión</h2>
-    </div>
-    <a class="section-link" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Ver archivo</a>
+  <div class="section-head reveal" id="opinion-section-head">
+    <div><h2>Artículos de opinión</h2></div>
   </div>
-  <div class="opinion-grid">
-    <a class="opinion-card reveal" href="https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa" target="_blank" rel="noopener noreferrer">
-      <div class="masthead">La Lana del Mundial</div>
-      <h3>¿Por qué FIFA nunca pierde con el Mundial?</h3>
-      <p>El Modelo FIFA explica cómo controla las ganancias del Mundial mientras otros cargan con los riesgos operativos del evento.</p>
-    </a>
-    <a class="opinion-card reveal" href="https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion" target="_blank" rel="noopener noreferrer">
-      <div class="masthead">La Lana del Mundial</div>
-      <h3>¿La pausa de hidratación es el primer timeout comercial del fútbol?</h3>
-      <p>Una medida nacida para cuidar jugadores abrió una conversación incómoda sobre televisoras, pausas y experiencia del fan.</p>
-    </a>
-    <a class="opinion-card tfbr reveal" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">
-      <img src="/assets/img/tfbr-banner.webp" width="900" height="160" alt="The Futbol Business Review" loading="lazy" decoding="async" />
-      <div class="tfbr-copy">
-        <h3>The Futbol Business Review</h3>
-        <p>El formato en inglés, hecho con Interticket, para leer fútbol desde negocio, mercado y estrategia.</p>
-      </div>
-    </a>
+  <div class="opinion-grid" id="opinion-grid">
+    <div class="skel" style="height:220px;border-radius:14px;"></div>
+    <div class="skel" style="height:220px;border-radius:14px;"></div>
+    <div class="skel" style="height:220px;border-radius:14px;"></div>
   </div>
 </section>
 
-<!-- ============================================================ PRODUCTOS EDITORIALES -->
+<!-- ============================================================ PRODUCTOS EDITORIALES
+     Contenido dinámico desde content.json (productsSection) vía js/content.js -->
 <section class="products" id="newsletters">
   <div class="container" style="padding:44px 24px;">
-    <div class="section-head reveal" style="padding-top:0;">
-      <div>
-        <h2>Productos editoriales</h2>
-      </div>
+    <div class="section-head reveal" style="padding-top:0;" id="products-section-head">
+      <div><h2>Productos editoriales</h2></div>
     </div>
-    <div class="product-grid">
-      <a class="product reveal" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">
-        <div class="product-mark"><span class="glyph" aria-hidden="true">☕</span><span class="word">INDUSTRY SHOTS</span></div>
-        <div class="product-copy">
-          <p>Noticias rápidas con contexto y opinión Playbook.</p>
-          <span class="meta">Martes / Jueves</span>
-          <span class="product-arrow" aria-hidden="true">→</span>
-        </div>
-      </a>
-      <a class="product reveal" href="https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa" target="_blank" rel="noopener noreferrer">
-        <img class="product-banner" src="/assets/img/lana-banner.webp" width="900" height="160" alt="La Lana del Mundial" loading="lazy" decoding="async" />
-        <div class="product-copy">
-          <p>Deep Dives sobre el negocio del Mundial 2026.</p>
-          <span class="meta">Viernes</span>
-          <span class="product-arrow" aria-hidden="true">→</span>
-        </div>
-      </a>
-      <a class="product reveal" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">
-        <img class="product-banner" src="/assets/img/tfbr-banner.webp" width="900" height="160" alt="The Futbol Business Review" loading="lazy" decoding="async" />
-        <div class="product-copy">
-          <p>Fútbol leído como negocio, en inglés, con Interticket.</p>
-          <span class="product-arrow" aria-hidden="true">→</span>
-        </div>
-      </a>
-      <a class="product reveal" href="https://soninfinitas.substack.com/" target="_blank" rel="noopener noreferrer">
-        <img class="product-banner" src="/assets/img/infinitas-banner.webp" width="900" height="181" alt="Infinitas" loading="lazy" decoding="async" />
-        <div class="product-copy">
-          <p>Deporte femenil leído como industria.</p>
-          <span class="meta">Semanal</span>
-          <span class="product-arrow" aria-hidden="true">→</span>
-        </div>
-      </a>
+    <div class="product-grid" id="products-grid">
+      <div class="skel" style="height:150px;border-radius:14px;"></div>
+      <div class="skel" style="height:150px;border-radius:14px;"></div>
+      <div class="skel" style="height:150px;border-radius:14px;"></div>
+      <div class="skel" style="height:150px;border-radius:14px;"></div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ CTA SECUNDARIO -->
+<!-- ============================================================ CTA SECUNDARIO
+     Contenido dinámico desde content.json (midCta) vía js/content.js -->
 <section class="mid-cta">
   <div class="container">
-    <div class="mid-cta-box reveal">
-      <div>
-        <h2>Con Playbook estás <em>un paso adelante</em></h2>
-        <p>Lo que mueve al deporte, sin tanto rollo. Noticias, contexto y lectura de negocio directo a tu correo.</p>
-      </div>
-      <form class="pill-form mid-cta-form" action="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">
-        <div class="nl-fields">
-          <label class="visually-hidden" for="nl-email-2">Correo electrónico</label>
-          <input id="nl-email-2" name="email" type="text" inputmode="email" placeholder="Tu correo" aria-label="Correo electrónico" autocomplete="email" required />
-          <button class="btn" type="submit">Suscríbete gratis</button>
-        </div>
-        <p class="nl-success" role="status">¡Listo! Revisa tu correo.</p>
-        <span class="nl-error" role="alert"></span>
-      </form>
+    <div class="mid-cta-box reveal" id="mid-cta-box">
+      <div class="skel" style="height:120px;border-radius:14px;"></div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ VIDEO -->
+<!-- ============================================================ VIDEO
+     Contenido dinámico desde content.json (videoSection) vía js/content.js -->
 <section class="video-section" id="video">
   <div class="container" style="padding:0 24px 46px;">
-    <div class="section-head reveal">
-      <div>
-        <h2>Video Playbook</h2>
-        <p class="sub">Al Banquillo + clips cortos para mover la conversación.</p>
-      </div>
-      <a class="section-link" href="https://www.youtube.com/@AldoSalesPlaybook" target="_blank" rel="noopener noreferrer">Ir al canal</a>
+    <div class="section-head reveal" id="video-section-head">
+      <div><h2>Video Playbook</h2></div>
     </div>
     <div class="video-grid">
       <div class="video-top">
-        <div class="video-feature-card reveal">
-          <div class="frame">
-            <iframe src="https://www.youtube.com/embed/ihHFQ30NE5c" title="Al Banquillo: ¿La FIFA está arruinando el Mundial?" loading="lazy" allowfullscreen></iframe>
-          </div>
+        <div class="video-feature-card reveal" id="video-feature">
+          <div class="skel" style="height:280px;border-radius:14px;"></div>
         </div>
-        <div class="video-feature-copy reveal">
-          <span class="eyebrow">Al Banquillo</span>
-          <h3>¿La FIFA está arruinando el Mundial?</h3>
-          <p>Cada semana, un acontecimiento del deporte mexicano sube al estrado: se presentan los hechos, se arman los argumentos y se señala a los responsables.</p>
-          <p>El negocio detrás de la cancha, sin filtro.</p>
-          <div class="more-eps">
-            <a href="https://www.youtube.com/@AldoSalesPlaybook" target="_blank" rel="noopener noreferrer">El negocio detrás del Mundial 2026 <span>Ver episodio</span></a>
-            <a href="https://www.youtube.com/@AldoSalesPlaybook" target="_blank" rel="noopener noreferrer">Lo que nadie te explicó de los derechos de TV <span>Ver episodio</span></a>
-          </div>
+        <div class="video-feature-copy reveal" id="video-feature-copy">
+          <div class="skel" style="height:180px;border-radius:14px;"></div>
         </div>
       </div>
 
-      <div class="clips-row">
-        <a class="clip-card reveal" href="https://www.youtube.com/shorts/-K1C51IkVQs" target="_blank" rel="noopener noreferrer">
-          <div class="frame">
-            <img src="https://i.ytimg.com/vi/-K1C51IkVQs/hqdefault.jpg" width="480" height="360" alt="El Mundial también se juega fuera de la cancha" loading="lazy" decoding="async" />
-            <span class="platform-badge">YouTube</span>
-            <div class="play-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.35)"/><path d="M10 8l6 4-6 4V8z" fill="#fff"/></svg></div>
-            <div class="clip-copy"><span>@AldoSalesPlaybook</span><h4>El Mundial también se juega fuera de la cancha</h4></div>
-          </div>
-        </a>
-        <a class="clip-card reveal" href="https://www.youtube.com/shorts/PsZWYh74gd0" target="_blank" rel="noopener noreferrer">
-          <div class="frame">
-            <img src="https://i.ytimg.com/vi/PsZWYh74gd0/hqdefault.jpg" width="480" height="360" alt="El Mundial copia el modelo del Super Bowl" loading="lazy" decoding="async" />
-            <span class="platform-badge">YouTube</span>
-            <div class="play-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.35)"/><path d="M10 8l6 4-6 4V8z" fill="#fff"/></svg></div>
-            <div class="clip-copy"><span>@AldoSalesPlaybook</span><h4>El Mundial copia el modelo del Super Bowl</h4></div>
-          </div>
-        </a>
-        <a class="clip-card reveal" href="https://www.instagram.com/reel/DZwUUG6hqB7/" target="_blank" rel="noopener noreferrer">
-          <div class="frame ig-visual">
-            <div class="ig-phone">@playbook.la<br><br>La FIFA está copiando a la NFL</div>
-            <span class="platform-badge">Instagram</span>
-            <div class="clip-copy"><span>@playbook.la</span><h4>La FIFA está copiando a la NFL</h4></div>
-          </div>
-        </a>
-        <a class="clip-card reveal" href="https://www.instagram.com/salesaldo/reel/DY5xm3CP0Bc/" target="_blank" rel="noopener noreferrer">
-          <div class="frame ig-visual aldo">
-            <div class="ig-phone">@salesaldo<br><br>Calor extremo y deporte</div>
-            <span class="platform-badge">Instagram</span>
-            <div class="clip-copy"><span>@salesaldo</span><h4>El calor extremo también cambia la experiencia deportiva</h4></div>
-          </div>
-        </a>
+      <div class="clips-row" id="video-clips">
+        <div class="skel" style="height:200px;border-radius:14px;"></div>
+        <div class="skel" style="height:200px;border-radius:14px;"></div>
+        <div class="skel" style="height:200px;border-radius:14px;"></div>
+        <div class="skel" style="height:200px;border-radius:14px;"></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ INFINITAS -->
+<!-- ============================================================ INFINITAS
+     Contenido dinámico desde content.json (infinitasSection) vía js/content.js -->
 <section class="container" id="infinitas" style="padding:44px 24px;">
-  <div class="section-head reveal" style="padding-top:0;">
-    <div>
-      <h2>Infinitas</h2>
-      <p class="sub">Deporte femenil leído como industria.</p>
-    </div>
-    <a class="section-link" href="https://soninfinitas.substack.com/" target="_blank" rel="noopener noreferrer">Ir a Infinitas</a>
+  <div class="section-head reveal" style="padding-top:0;" id="infinitas-section-head">
+    <div><h2>Infinitas</h2></div>
   </div>
-  <div class="infinitas-wrap">
-    <a class="inf-card reveal" href="https://soninfinitas.substack.com/p/alexia-se-va-del-barca-la-grandeza" target="_blank" rel="noopener noreferrer">
-      <img class="inf-bg" src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&q=80" width="1200" height="750" alt="" loading="lazy" decoding="async" />
-      <div class="inf-content">
-        <span class="eyebrow">Infinitas</span>
-        <h3>Alexia se va del Barça, la grandeza de su legado</h3>
-        <p>Una pieza para leer carrera, marca, legado y movimiento de poder dentro del fútbol femenil.</p>
-      </div>
-    </a>
+  <div class="infinitas-wrap" id="infinitas-wrap">
+    <div class="skel" style="height:340px;border-radius:14px;"></div>
     <div class="inf-side">
-      <a class="inf-card reveal" href="https://soninfinitas.substack.com/p/el-futbol-femenil-empieza-a-dejar" target="_blank" rel="noopener noreferrer">
-        <img class="inf-bg" src="https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=1200&q=80" width="1200" height="480" alt="" loading="lazy" decoding="async" />
-        <div class="inf-content"><span class="eyebrow">Industria</span><h4>El fútbol femenil empieza a dejar los espacios prestados</h4></div>
-      </a>
-      <a class="inf-card reveal" href="https://soninfinitas.substack.com/p/mas-que-un-triunfo-lo-que-mexicobrasil" target="_blank" rel="noopener noreferrer">
-        <img class="inf-bg" src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&q=80" width="1200" height="480" alt="" loading="lazy" decoding="async" />
-        <div class="inf-content"><span class="eyebrow">Selección</span><h4>Más que un triunfo: lo que México–Brasil cambia</h4></div>
-      </a>
+      <div class="skel" style="height:160px;border-radius:14px;"></div>
+      <div class="skel" style="height:160px;border-radius:14px;"></div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ PLAYBOOK EN NÚMEROS -->
+<!-- ============================================================ PLAYBOOK EN NÚMEROS
+     Contenido dinámico desde content.json (statsSection) vía js/content.js -->
 <section class="container proof">
   <div class="reveal" style="text-align:center;margin-bottom:18px;">
-    <h2 style="justify-content:center;display:flex;align-items:center;gap:7px;font-family:var(--serif-display);font-weight:400;font-size:24px;text-transform:uppercase;color:var(--ink);letter-spacing:.01em;">Playbook en números</h2>
+    <h2 id="stats-heading" style="justify-content:center;display:flex;align-items:center;gap:7px;font-family:var(--serif-display);font-weight:400;font-size:24px;text-transform:uppercase;color:var(--ink);letter-spacing:.01em;">Playbook en números</h2>
   </div>
-  <div class="proof-grid">
-    <div class="stat reveal"><b>3.5M+</b><span>reproducciones mensuales en YouTube</span></div>
-    <div class="stat reveal"><b>80K+</b><span>personas en comunidad Playbook y Aldo Sales</span></div>
-    <div class="stat reveal"><b>15+</b><span>países alcanzados</span></div>
+  <div class="proof-grid" id="stats-grid">
+    <div class="skel" style="height:70px;border-radius:14px;"></div>
+    <div class="skel" style="height:70px;border-radius:14px;"></div>
+    <div class="skel" style="height:70px;border-radius:14px;"></div>
   </div>
 </section>
 
-<!-- ============================================================ TESTIMONIOS -->
+<!-- ============================================================ TESTIMONIOS
+     Contenido dinámico desde content.json (testimonialsSection) vía js/content.js -->
 <section class="container" style="padding:44px 24px;">
-  <div class="section-head reveal" style="padding-top:0;">
+  <div class="section-head reveal" style="padding-top:0;" id="testimonials-section-head">
     <div><h2>Lo que dice la comunidad</h2></div>
   </div>
-  <div class="testimonial-grid">
-    <div class="quote reveal">
-      <p>"Aldo sabe qué decir, qué promover y cómo entender el negocio de los deportes."</p>
-      <div class="attribution">
-        <span class="avatar" aria-hidden="true"></span>
-        <div><b>Bárbara González Briseño</b><span>Co-CEO de Fillip</span></div>
-      </div>
-    </div>
-    <div class="quote reveal">
-      <p>"Playbook conecta noticias, contexto y decisiones de negocio sin hacerlo pesado."</p>
-      <div class="attribution">
-        <span class="avatar" aria-hidden="true"></span>
-        <div><b>Adriana Briz</b><span>Commercial Director en Fillip</span></div>
-      </div>
-    </div>
-    <div class="quote reveal">
-      <p>"Una lectura útil para entender hacia dónde se está moviendo la industria."</p>
-      <div class="attribution">
-        <span class="avatar" aria-hidden="true"></span>
-        <div><b>Juan Pablo Robert</b><span>Head of YouTube M&amp;E (Hispanic Latin America)</span></div>
-      </div>
-    </div>
+  <div class="testimonial-grid" id="testimonials-grid">
+    <div class="skel" style="height:130px;border-radius:14px;"></div>
+    <div class="skel" style="height:130px;border-radius:14px;"></div>
+    <div class="skel" style="height:130px;border-radius:14px;"></div>
   </div>
 </section>
 
-<!-- ============================================================ ACERCA -->
+<!-- ============================================================ ACERCA
+     Contenido dinámico desde content.json (aboutSection) vía js/content.js -->
 <section class="container" id="acerca">
-  <div class="about-card">
-    <a class="about-visual reveal" href="https://www.youtube.com/@AldoSalesPlaybook" target="_blank" rel="noopener noreferrer" aria-label="Ver Al Banquillo en YouTube">
-      <img src="https://i.ytimg.com/vi/ihHFQ30NE5c/maxresdefault.jpg" width="1280" height="720" alt="Aldo Sales presentando Al Banquillo, el programa de video de Playbook" loading="lazy" decoding="async" />
-      <div class="about-visual-badge">
-        <span>Aldo Sales / Playbook</span>
-        <strong>La mirada detrás del proyecto</strong>
-      </div>
-    </a>
-    <div class="about-copy reveal">
-      <span class="eyebrow">Acerca de Playbook</span>
-      <p class="pull">Tú ves el partido<span class="punct">.</span> <em>Nosotros vemos el negocio<span class="punct">.</span></em></p>
-      <p>Playbook es el medio para líderes —y futuros líderes— del deporte en LATAM: el dinero, los medios, las marcas, los datos y la relación con el fan, contados con contexto.</p>
-      <div class="products-line">Industry Shots · La Lana del Mundial · The Futbol Business Review · Infinitas <span>— cuatro formatos, una misma casa editorial.</span></div>
-      <div class="about-actions">
-        <a class="btn light" href="https://www.youtube.com/@AldoSalesPlaybook" target="_blank" rel="noopener noreferrer">Ver YouTube</a>
-        <a class="btn accent" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Suscríbete gratis</a>
-      </div>
-    </div>
+  <div class="about-card" id="about-card">
+    <div class="skel" style="height:320px;border-radius:14px;"></div>
   </div>
 </section>
 
-<!-- ============================================================ FOOTER -->
+<!-- ============================================================ FOOTER
+     Contenido dinámico desde content.json (footer) vía js/content.js -->
 <footer>
-  <div class="container footer-grid">
+  <div class="container footer-grid" id="footer-content">
     <div class="footer-brand">
       <img src="/assets/img/playbook-logo.webp" width="180" height="44" alt="Playbook" loading="lazy" decoding="async" />
-      <p>El medio para líderes del deporte en LATAM. Industry Shots, La Lana del Mundial, The Futbol Business Review e Infinitas: noticias, análisis y video del negocio deportivo, todo en una misma casa editorial.</p>
-    </div>
-    <div>
-      <div class="social-row">
-        <a class="pill" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Substack</a>
-        <a class="pill" href="https://www.youtube.com/@AldoSalesPlaybook" target="_blank" rel="noopener noreferrer">YouTube</a>
-        <a class="pill" href="https://www.instagram.com/playbook.la/" target="_blank" rel="noopener noreferrer">Instagram</a>
-        <a class="pill" href="https://www.linkedin.com/company/91306437/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a class="pill" href="https://www.tiktok.com/@playbook.la" target="_blank" rel="noopener noreferrer">TikTok</a>
-      </div>
-      <div style="margin-top:12px;">
-        <a class="pill inf-pill" href="https://soninfinitas.substack.com/" target="_blank" rel="noopener noreferrer">Infinitas</a>
-      </div>
     </div>
   </div>
-  <div class="container footer-copyright">© 2026 Playbook Media · playbook.la</div>
+  <div class="container footer-copyright" id="footer-copyright">© 2026 Playbook Media · playbook.la</div>
 </footer>
 
 <!-- Carga dinámica de articles.json, ranking por prioridad, filtros de fuente y archivo -->
 <script type="module" src="/js/articles.js"></script>
 <script type="module" src="/js/search.js"></script>
+<!-- Carga dinámica de content.json: nav, opinión, productos, video, Infinitas, stats, testimonios, acerca, footer -->
+<script type="module" src="/js/content.js"></script>
 <script type="module" src="/js/nav.js"></script>
 <script type="module" src="/js/ui.js"></script>
 
