@@ -1,0 +1,23 @@
+:root{
+  --ink:#0a0a0a;
+  --paper:#ffffff;
+  --paper-soft:#f7f8fa;
+  --rule:#e5ebf4;
+  --gray-txt:#5b6472;
+  --gray-dark:#2b2f36;
+  --green:#9aea39;
+  --serif-display:'Anton', sans-serif;
+  --sans:'Inter', sans-serif;
+  --maxw:1180px;
+  --src-industry:#1c2b4a;
+  --src-lana:#b5850a;
+  --src-infinitas:#6b2fbf;
+  --src-playbook:#5b6472;
+
+  /* Motion system */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+  --duration-fast: 120ms;
+  --duration-base: 220ms;
+  --duration-slow: 380ms;
+}
