@@ -417,7 +417,19 @@ function renderPreview() {
   safeMount('preview-footer-content', footerContentTemplate, content.footer);
   safeMount('preview-footer-copyright', footerCopyrightTemplate, content.footer);
 
+  revealPreviewCards();
   updateChangeBadges();
+}
+
+// templates.js marks individual cards with just class="... reveal" (opacity:0
+// until the live site's scroll-triggered IntersectionObserver in js/ui.js
+// adds "is-visible"). The admin preview never runs that observer, so without
+// this every opinion/product/stat/testimonial/clip/infinitas card would sit
+// at opacity:0 forever — present in the DOM, but invisible.
+function revealPreviewCards() {
+  document.querySelectorAll('#admin-preview-body .reveal:not(.is-visible)').forEach(el => {
+    el.classList.add('is-visible');
+  });
 }
 
 // Deep-compares each content section (and the articles list) against the
