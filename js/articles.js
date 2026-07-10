@@ -3,7 +3,7 @@
 const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook'];
 const LEAD_COUNT = 1;
 const LIST_COUNT = 6;
-const STRIP_COUNT = 4;
+const STRIP_COUNT = 0;
 const TICKER_COUNT = 6;
 const FILTER_FADE_MS = 180;
 const SUBSTACK_URL = 'https://playbookmedia.substack.com/';

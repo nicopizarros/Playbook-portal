@@ -144,18 +144,25 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
   color: var(--gray-txt);
 }
-.admin-compare-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--gray-txt); cursor: pointer; }
-.admin-compare-toggle input { accent-color: var(--ink); width: 15px; height: 15px; }
+.admin-preview-hint { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--gray-txt); }
+.preview-hint-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; box-shadow: 0 0 0 2px rgba(154, 234, 57, .25); }
 
-.admin-preview-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
-.admin-preview-col { padding: 20px; display: flex; flex-direction: column; gap: 28px; overflow-y: auto; flex: 1 1 100%; }
-.admin-preview-body.is-comparing .admin-preview-col { flex: 1 1 50%; min-width: 0; }
-.admin-preview-col-baseline { border-left: 1px dashed var(--rule); }
-.admin-preview-col-tag {
-  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
-  color: var(--gray-txt); background: var(--paper); border: 1px solid var(--rule);
-  border-radius: 999px; padding: 4px 10px; align-self: flex-start;
+.admin-preview-body { flex: 1; min-height: 0; overflow-y: auto; }
+.admin-preview-page { background: var(--paper); }
+
+/* Wraps each renderable block of the real homepage so we can flag which
+   ones differ from what's currently published, without duplicating the
+   whole page a second time. */
+.preview-section { position: relative; transition: outline-color .15s ease; outline: 2px solid transparent; outline-offset: -2px; }
+.preview-section.is-changed { outline: 2px dashed var(--green); }
+.preview-section-tag {
+  display: none; position: absolute; top: 8px; right: 8px; z-index: 6;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .04em;
+  background: var(--ink); color: var(--green); padding: 4px 10px; border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
 }
+.preview-section.is-changed .preview-section-tag { display: inline-flex; }
+.admin-preview-page header.topbar { position: static; }
 
 /* ---------- Form building blocks ---------- */
 
@@ -196,6 +203,32 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .array-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .array-item-body { padding: 4px 14px 16px 34px; border-top: 1px solid var(--rule); padding-top: 14px; }
 .array-item.is-static .array-item-body { padding-left: 14px; border-top: none; padding-top: 0; }
+
+.badge-pill {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+  padding: 3px 8px; border-radius: 999px; flex-shrink: 0; white-space: nowrap;
+  background: var(--paper-soft); color: var(--gray-txt); border: 1px solid var(--rule);
+}
+.badge-pill.is-hero { background: var(--ink); color: var(--green); border-color: var(--ink); }
+.badge-pill.is-archive { background: var(--paper-soft); color: var(--gray-txt); }
+
+/* ---------- Star rating (article importance) ---------- */
+
+.star-picker { display: flex; gap: 4px; }
+.star-btn {
+  border: none; background: transparent; cursor: pointer; font-size: 22px; line-height: 1; padding: 2px;
+  color: var(--rule);
+}
+.star-btn.is-filled { color: var(--green); }
+.star-btn:hover { color: var(--ink); }
+
+.admin-hero-note {
+  font-size: 12px; line-height: 1.5; color: var(--gray-dark); background: var(--paper-soft);
+  border: 1px solid var(--rule); border-left: 3px solid var(--green); border-radius: 8px;
+  padding: 10px 12px; margin: -6px 0 14px;
+}
+.admin-hero-note.is-hidden { display: none; }
+.admin-hero-warning { margin-top: 8px; color: #a3550f; font-weight: 600; }
 
 .btn-mini {
   border: 1px solid var(--rule); background: var(--paper); border-radius: 7px;
