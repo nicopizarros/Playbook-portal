@@ -32,6 +32,7 @@ function initScrollReveal() {
 
   observeNew();
   document.addEventListener('playbook:rendered', observeNew);
+  document.addEventListener('playbook:content-rendered', observeNew);
 }
 
 function isValidEmail(value) {
@@ -39,7 +40,8 @@ function isValidEmail(value) {
 }
 
 function initNewsletterForms() {
-  document.querySelectorAll('form.pill-form').forEach(form => {
+  document.querySelectorAll('form.pill-form:not([data-nl-bound])').forEach(form => {
+    form.setAttribute('data-nl-bound', 'true');
     const input = form.querySelector('input');
     const errorEl = form.querySelector('.nl-error');
     if (!input) return;
@@ -85,7 +87,7 @@ function animateCount(el) {
 }
 
 function initStatCounters() {
-  const stats = document.querySelectorAll('.stat b');
+  const stats = document.querySelectorAll('.stat b:not([data-counted])');
   if (!stats.length || !('IntersectionObserver' in window)) return;
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
@@ -94,9 +96,17 @@ function initStatCounters() {
       observer.unobserve(entry.target);
     });
   }, { threshold: 0.4 });
-  stats.forEach(el => observer.observe(el));
+  stats.forEach(el => {
+    el.setAttribute('data-counted', 'true');
+    observer.observe(el);
+  });
 }
 
 initScrollReveal();
 initNewsletterForms();
 initStatCounters();
+
+document.addEventListener('playbook:content-rendered', () => {
+  initNewsletterForms();
+  initStatCounters();
+});

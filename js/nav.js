@@ -29,9 +29,14 @@ function initMobileDrawer() {
 
   overlay.addEventListener('click', closeDrawer);
 
-  drawer.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', closeDrawer);
-  });
+  function bindDrawerLinks() {
+    drawer.querySelectorAll('a:not([data-drawer-bound])').forEach(link => {
+      link.setAttribute('data-drawer-bound', 'true');
+      link.addEventListener('click', closeDrawer);
+    });
+  }
+  bindDrawerLinks();
+  document.addEventListener('playbook:content-rendered', bindDrawerLinks);
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
@@ -58,9 +63,13 @@ function initScrollShrink() {
   update();
 }
 
+let activeSectionObserver = null;
+
 function initActiveSection() {
   const links = document.querySelectorAll('.nav-links a[href^="#"]');
   if (!links.length || !('IntersectionObserver' in window)) return;
+  if (activeSectionObserver) activeSectionObserver.disconnect();
+
   const map = new Map();
   links.forEach(link => {
     const id = link.getAttribute('href').slice(1);
@@ -69,7 +78,7 @@ function initActiveSection() {
   });
   if (!map.size) return;
 
-  const observer = new IntersectionObserver(entries => {
+  activeSectionObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       const link = map.get(entry.target);
       if (!link) return;
@@ -80,7 +89,7 @@ function initActiveSection() {
     });
   }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
 
-  map.forEach((_, section) => observer.observe(section));
+  map.forEach((_, section) => activeSectionObserver.observe(section));
 }
 
 function initCtaPulse() {
@@ -96,3 +105,5 @@ initMobileDrawer();
 initScrollShrink();
 initActiveSection();
 initCtaPulse();
+
+document.addEventListener('playbook:content-rendered', initActiveSection);

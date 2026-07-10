@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Playbook — Panel de contenido</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<link rel="stylesheet" href="/css/reset.css" />
+<link rel="stylesheet" href="/css/tokens.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<link rel="stylesheet" href="/css/components.css" />
+<link rel="stylesheet" href="/css/header.css" />
+<link rel="stylesheet" href="/css/hero.css" />
+<link rel="stylesheet" href="/css/sections.css" />
+<link rel="stylesheet" href="/css/responsive.css" />
+<link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body class="admin-body">
+
+<!-- ============================================================ LOGIN -->
+<div id="login-screen" class="admin-login">
+  <form id="login-form" class="admin-login-card">
+    <img src="/assets/img/playbook-logo.webp" width="180" height="44" alt="Playbook" class="admin-login-logo" />
+    <h1>Panel de contenido</h1>
+    <p class="admin-login-sub">Acceso para el equipo editorial de Playbook.</p>
+    <label class="admin-field">
+      <span>Usuario</span>
+      <input type="text" id="login-username" autocomplete="username" placeholder="aldo / nico / guillermo" required />
+    </label>
+    <label class="admin-field">
+      <span>Contraseña</span>
+      <input type="password" id="login-password" autocomplete="current-password" required />
+    </label>
+    <button type="submit" class="btn accent" id="login-submit">Entrar</button>
+    <p class="admin-error" id="login-error" role="alert"></p>
+  </form>
+</div>
+
+<!-- ============================================================ EDITOR -->
+<div id="editor-screen" class="admin-editor" hidden>
+  <header class="admin-topbar">
+    <div class="admin-topbar-brand">
+      <img src="/assets/img/playbook-logo.webp" width="140" height="34" alt="Playbook" />
+      <span>Panel de contenido</span>
+    </div>
+    <div class="admin-topbar-actions">
+      <span class="admin-status" id="admin-whoami"></span>
+      <span class="admin-status" id="admin-status" role="status"></span>
+      <button type="button" class="btn" id="save-btn">Guardar cambios</button>
+      <button type="button" class="btn light" id="logout-btn">Salir</button>
+    </div>
+  </header>
+
+  <nav class="admin-tabs" id="admin-tabs" aria-label="Secciones del sitio"></nav>
+
+  <main class="admin-main">
+    <section class="admin-form-pane" id="admin-form-pane" aria-label="Edición de contenido"></section>
+    <aside class="admin-preview-pane" aria-label="Vista previa en vivo">
+      <div class="admin-preview-label">Vista previa en vivo</div>
+      <div class="admin-preview-frame" id="admin-preview-frame">
+        <div id="preview-opinion-head" class="section-head reveal is-visible"></div>
+        <div id="preview-opinion-grid" class="opinion-grid"></div>
+
+        <div id="preview-products-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
+        <div id="preview-products-grid" class="product-grid"></div>
+
+        <div class="mid-cta-box reveal is-visible" id="preview-mid-cta"></div>
+
+        <div id="preview-video-head" class="section-head reveal is-visible"></div>
+        <div class="video-feature-card reveal is-visible" id="preview-video-feature"></div>
+        <div class="video-feature-copy reveal is-visible" id="preview-video-feature-copy"></div>
+        <div class="clips-row" id="preview-video-clips"></div>
+
+        <div id="preview-infinitas-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
+        <div class="infinitas-wrap" id="preview-infinitas-wrap"></div>
+
+        <h2 id="preview-stats-heading" style="font-family:var(--serif-display);font-weight:400;font-size:22px;text-transform:uppercase;"></h2>
+        <div class="proof-grid" id="preview-stats-grid"></div>
+
+        <div id="preview-testimonials-head" class="section-head reveal is-visible" style="padding-top:0;"></div>
+        <div class="testimonial-grid" id="preview-testimonials-grid"></div>
+
+        <div class="about-card" id="preview-about-card"></div>
+
+        <footer style="border-radius:14px;">
+          <div class="footer-grid" id="preview-footer-content"></div>
+          <div class="footer-copyright" id="preview-footer-copyright"></div>
+        </footer>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script type="module" src="/admin/admin.js"></script>
+</body>
+</html>

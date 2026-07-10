@@ -1,0 +1,226 @@
+{
+  "lastUpdated": "2026-07-10T00:00:00Z",
+  "nav": {
+    "links": [
+      { "label": "Noticias", "href": "#noticias" },
+      { "label": "Análisis", "href": "#analisis" },
+      { "label": "Newsletters", "href": "#newsletters" },
+      { "label": "Video", "href": "#video" },
+      { "label": "Infinitas", "href": "#infinitas", "variant": "infinitas" }
+    ],
+    "ctaLabel": "Suscríbete gratis",
+    "ctaUrl": "https://playbookmedia.substack.com/"
+  },
+  "opinionSection": {
+    "heading": "Artículos de opinión",
+    "archiveLinkLabel": "Ver archivo",
+    "archiveLinkUrl": "https://playbookmedia.substack.com/",
+    "cards": [
+      {
+        "variant": "standard",
+        "masthead": "La Lana del Mundial",
+        "title": "¿Por qué FIFA nunca pierde con el Mundial?",
+        "excerpt": "El Modelo FIFA explica cómo controla las ganancias del Mundial mientras otros cargan con los riesgos operativos del evento.",
+        "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa",
+        "image": ""
+      },
+      {
+        "variant": "standard",
+        "masthead": "La Lana del Mundial",
+        "title": "¿La pausa de hidratación es el primer timeout comercial del fútbol?",
+        "excerpt": "Una medida nacida para cuidar jugadores abrió una conversación incómoda sobre televisoras, pausas y experiencia del fan.",
+        "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion",
+        "image": ""
+      },
+      {
+        "variant": "banner",
+        "masthead": "",
+        "title": "The Futbol Business Review",
+        "excerpt": "El formato en inglés, hecho con Interticket, para leer fútbol desde negocio, mercado y estrategia.",
+        "url": "https://playbookmedia.substack.com/",
+        "image": "/assets/img/tfbr-banner.webp",
+        "imageAlt": "The Futbol Business Review"
+      }
+    ]
+  },
+  "productsSection": {
+    "heading": "Productos editoriales",
+    "products": [
+      {
+        "variant": "glyph",
+        "glyph": "☕",
+        "wordmark": "INDUSTRY SHOTS",
+        "description": "Noticias rápidas con contexto y opinión Playbook.",
+        "meta": "Martes / Jueves",
+        "url": "https://playbookmedia.substack.com/",
+        "image": "",
+        "imageAlt": ""
+      },
+      {
+        "variant": "banner",
+        "glyph": "",
+        "wordmark": "",
+        "description": "Deep Dives sobre el negocio del Mundial 2026.",
+        "meta": "Viernes",
+        "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa",
+        "image": "/assets/img/lana-banner.webp",
+        "imageAlt": "La Lana del Mundial"
+      },
+      {
+        "variant": "banner",
+        "glyph": "",
+        "wordmark": "",
+        "description": "Fútbol leído como negocio, en inglés, con Interticket.",
+        "meta": "",
+        "url": "https://playbookmedia.substack.com/",
+        "image": "/assets/img/tfbr-banner.webp",
+        "imageAlt": "The Futbol Business Review"
+      },
+      {
+        "variant": "banner",
+        "glyph": "",
+        "wordmark": "",
+        "description": "Deporte femenil leído como industria.",
+        "meta": "Semanal",
+        "url": "https://soninfinitas.substack.com/",
+        "image": "/assets/img/infinitas-banner.webp",
+        "imageAlt": "Infinitas"
+      }
+    ]
+  },
+  "midCta": {
+    "headingMain": "Con Playbook estás",
+    "headingEm": "un paso adelante",
+    "body": "Lo que mueve al deporte, sin tanto rollo. Noticias, contexto y lectura de negocio directo a tu correo.",
+    "buttonLabel": "Suscríbete gratis",
+    "formUrl": "https://playbookmedia.substack.com/",
+    "successMessage": "¡Listo! Revisa tu correo."
+  },
+  "videoSection": {
+    "heading": "Video Playbook",
+    "sub": "Al Banquillo + clips cortos para mover la conversación.",
+    "channelLinkLabel": "Ir al canal",
+    "channelLinkUrl": "https://www.youtube.com/@AldoSalesPlaybook",
+    "featured": {
+      "embedId": "ihHFQ30NE5c",
+      "embedTitle": "Al Banquillo: ¿La FIFA está arruinando el Mundial?",
+      "eyebrow": "Al Banquillo",
+      "title": "¿La FIFA está arruinando el Mundial?",
+      "paragraphs": [
+        "Cada semana, un acontecimiento del deporte mexicano sube al estrado: se presentan los hechos, se arman los argumentos y se señala a los responsables.",
+        "El negocio detrás de la cancha, sin filtro."
+      ],
+      "episodeLinks": [
+        { "label": "El negocio detrás del Mundial 2026", "url": "https://www.youtube.com/@AldoSalesPlaybook" },
+        { "label": "Lo que nadie te explicó de los derechos de TV", "url": "https://www.youtube.com/@AldoSalesPlaybook" }
+      ]
+    },
+    "clips": [
+      {
+        "platform": "youtube",
+        "url": "https://www.youtube.com/shorts/-K1C51IkVQs",
+        "thumbnail": "https://i.ytimg.com/vi/-K1C51IkVQs/hqdefault.jpg",
+        "title": "El Mundial también se juega fuera de la cancha",
+        "handle": "@AldoSalesPlaybook",
+        "variant": ""
+      },
+      {
+        "platform": "youtube",
+        "url": "https://www.youtube.com/shorts/PsZWYh74gd0",
+        "thumbnail": "https://i.ytimg.com/vi/PsZWYh74gd0/hqdefault.jpg",
+        "title": "El Mundial copia el modelo del Super Bowl",
+        "handle": "@AldoSalesPlaybook",
+        "variant": ""
+      },
+      {
+        "platform": "instagram",
+        "url": "https://www.instagram.com/reel/DZwUUG6hqB7/",
+        "igText": "La FIFA está copiando a la NFL",
+        "title": "La FIFA está copiando a la NFL",
+        "handle": "@playbook.la",
+        "variant": ""
+      },
+      {
+        "platform": "instagram",
+        "url": "https://www.instagram.com/salesaldo/reel/DY5xm3CP0Bc/",
+        "igText": "Calor extremo y deporte",
+        "title": "El calor extremo también cambia la experiencia deportiva",
+        "handle": "@salesaldo",
+        "variant": "aldo"
+      }
+    ]
+  },
+  "infinitasSection": {
+    "heading": "Infinitas",
+    "sub": "Deporte femenil leído como industria.",
+    "linkLabel": "Ir a Infinitas",
+    "linkUrl": "https://soninfinitas.substack.com/",
+    "featured": {
+      "image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&q=80",
+      "eyebrow": "Infinitas",
+      "title": "Alexia se va del Barça, la grandeza de su legado",
+      "body": "Una pieza para leer carrera, marca, legado y movimiento de poder dentro del fútbol femenil.",
+      "url": "https://soninfinitas.substack.com/p/alexia-se-va-del-barca-la-grandeza"
+    },
+    "sideCards": [
+      {
+        "image": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=1200&q=80",
+        "eyebrow": "Industria",
+        "title": "El fútbol femenil empieza a dejar los espacios prestados",
+        "url": "https://soninfinitas.substack.com/p/el-futbol-femenil-empieza-a-dejar"
+      },
+      {
+        "image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&q=80",
+        "eyebrow": "Selección",
+        "title": "Más que un triunfo: lo que México–Brasil cambia",
+        "url": "https://soninfinitas.substack.com/p/mas-que-un-triunfo-lo-que-mexicobrasil"
+      }
+    ]
+  },
+  "statsSection": {
+    "heading": "Playbook en números",
+    "stats": [
+      { "value": "3.5M+", "label": "reproducciones mensuales en YouTube" },
+      { "value": "80K+", "label": "personas en comunidad Playbook y Aldo Sales" },
+      { "value": "15+", "label": "países alcanzados" }
+    ]
+  },
+  "testimonialsSection": {
+    "heading": "Lo que dice la comunidad",
+    "testimonials": [
+      { "quote": "Aldo sabe qué decir, qué promover y cómo entender el negocio de los deportes.", "name": "Bárbara González Briseño", "role": "Co-CEO de Fillip" },
+      { "quote": "Playbook conecta noticias, contexto y decisiones de negocio sin hacerlo pesado.", "name": "Adriana Briz", "role": "Commercial Director en Fillip" },
+      { "quote": "Una lectura útil para entender hacia dónde se está moviendo la industria.", "name": "Juan Pablo Robert", "role": "Head of YouTube M&E (Hispanic Latin America)" }
+    ]
+  },
+  "aboutSection": {
+    "image": "https://i.ytimg.com/vi/ihHFQ30NE5c/maxresdefault.jpg",
+    "imageAlt": "Aldo Sales presentando Al Banquillo, el programa de video de Playbook",
+    "videoUrl": "https://www.youtube.com/@AldoSalesPlaybook",
+    "badgeEyebrow": "Aldo Sales / Playbook",
+    "badgeTitle": "La mirada detrás del proyecto",
+    "eyebrow": "Acerca de Playbook",
+    "pullQuoteMain": "Tú ves el partido",
+    "pullQuoteEm": "Nosotros vemos el negocio",
+    "body": "Playbook es el medio para líderes —y futuros líderes— del deporte en LATAM: el dinero, los medios, las marcas, los datos y la relación con el fan, contados con contexto.",
+    "productsLine": "Industry Shots · La Lana del Mundial · The Futbol Business Review · Infinitas",
+    "productsLineNote": "— cuatro formatos, una misma casa editorial.",
+    "actions": [
+      { "label": "Ver YouTube", "url": "https://www.youtube.com/@AldoSalesPlaybook", "style": "light" },
+      { "label": "Suscríbete gratis", "url": "https://playbookmedia.substack.com/", "style": "accent" }
+    ]
+  },
+  "footer": {
+    "brandBlurb": "El medio para líderes del deporte en LATAM. Industry Shots, La Lana del Mundial, The Futbol Business Review e Infinitas: noticias, análisis y video del negocio deportivo, todo en una misma casa editorial.",
+    "socialLinks": [
+      { "label": "Substack", "url": "https://playbookmedia.substack.com/" },
+      { "label": "YouTube", "url": "https://www.youtube.com/@AldoSalesPlaybook" },
+      { "label": "Instagram", "url": "https://www.instagram.com/playbook.la/" },
+      { "label": "LinkedIn", "url": "https://www.linkedin.com/company/91306437/" },
+      { "label": "TikTok", "url": "https://www.tiktok.com/@playbook.la" }
+    ],
+    "infinitasLinkLabel": "Infinitas",
+    "infinitasLinkUrl": "https://soninfinitas.substack.com/",
+    "copyrightText": "© 2026 Playbook Media · playbook.la"
+  }
+}
