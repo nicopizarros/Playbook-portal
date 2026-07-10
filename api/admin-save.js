@@ -16,10 +16,32 @@ const CONTENT_SECTION_KEYS = [
   'infinitasSection', 'statsSection', 'testimonialsSection', 'aboutSection', 'footer'
 ];
 
+// Spot-check the list fields every template function relies on being an
+// array (nav.links.map(...), etc.) — a save that passed the shallow
+// top-level-key check but left one of these as the wrong type used to throw
+// mid-render on the live site with no isolation between sections.
+const CONTENT_ARRAY_FIELDS = [
+  ['nav', 'links'],
+  ['opinionSection', 'cards'],
+  ['productsSection', 'products'],
+  ['videoSection', 'clips'],
+  ['videoSection.featured', 'episodeLinks'],
+  ['videoSection.featured', 'paragraphs'],
+  ['infinitasSection', 'sideCards'],
+  ['statsSection', 'stats'],
+  ['testimonialsSection', 'testimonials'],
+  ['aboutSection', 'actions'],
+  ['footer', 'socialLinks']
+];
+
 function isValidShape(fileKey, data) {
   if (!data || typeof data !== 'object') return false;
   if (fileKey === 'articles') return Array.isArray(data.articles);
-  return CONTENT_SECTION_KEYS.every(k => k in data);
+  if (!CONTENT_SECTION_KEYS.every(k => k in data)) return false;
+  return CONTENT_ARRAY_FIELDS.every(([path, field]) => {
+    const obj = path.split('.').reduce((o, k) => (o && typeof o === 'object' ? o[k] : undefined), data);
+    return obj && Array.isArray(obj[field]);
+  });
 }
 
 export default async function handler(req, res) {
@@ -47,8 +69,8 @@ export default async function handler(req, res) {
     : { name: 'Playbook Admin', email: 'admin@playbook.la' };
 
   try {
-    await writeFile(file, payload, sha, `[Admin] Actualiza ${file}`, committer);
-    return res.status(200).json({ status: 'ok' });
+    const result = await writeFile(file, payload, sha, `[Admin] Actualiza ${file}`, committer);
+    return res.status(200).json({ status: 'ok', sha: result.content.sha });
   } catch (err) {
     return res.status(err.status || 500).json({ error: err.message });
   }

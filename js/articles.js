@@ -183,7 +183,7 @@ export function whenArticlesReady(callback) {
 function init() {
   renderSkeleton();
 
-  fetch('/articles.json?t=' + Date.now())
+  fetch('/articles.json')
     .then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
     .then(data => {
       const rawArticles = Array.isArray(data.articles) ? data.articles : [];

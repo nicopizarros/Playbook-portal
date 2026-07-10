@@ -22,40 +22,55 @@ function mount(id, html) {
   if (el) el.innerHTML = html;
 }
 
+// Renders one section in isolation: a malformed field in one section (a bad
+// manual edit, a save that slipped past validation) throws and logs instead
+// of aborting every section rendered after it.
+function safeMount(id, templateFn, arg) {
+  try {
+    mount(id, templateFn(arg));
+  } catch (err) {
+    console.error(`[Playbook] Error rendering #${id}:`, err);
+  }
+}
+
 function render(data) {
-  mount('nav-links', navLinksTemplate(data.nav));
-  const navCta = document.getElementById('nav-cta');
-  if (navCta) {
-    navCta.setAttribute('href', data.nav.ctaUrl);
-    navCta.textContent = data.nav.ctaLabel;
+  safeMount('nav-links', navLinksTemplate, data.nav);
+  try {
+    const navCta = document.getElementById('nav-cta');
+    if (navCta) {
+      navCta.setAttribute('href', data.nav.ctaUrl);
+      navCta.textContent = data.nav.ctaLabel;
+    }
+  } catch (err) {
+    console.error('[Playbook] Error rendering #nav-cta:', err);
   }
 
-  mount('opinion-section-head', opinionSectionHeadTemplate(data.opinionSection));
-  mount('opinion-grid', opinionGridTemplate(data.opinionSection));
+  safeMount('opinion-section-head', opinionSectionHeadTemplate, data.opinionSection);
+  safeMount('opinion-grid', opinionGridTemplate, data.opinionSection);
 
-  mount('products-section-head', productsSectionHeadTemplate(data.productsSection));
-  mount('products-grid', productsGridTemplate(data.productsSection));
+  safeMount('products-section-head', productsSectionHeadTemplate, data.productsSection);
+  safeMount('products-grid', productsGridTemplate, data.productsSection);
 
-  mount('mid-cta-box', midCtaTemplate(data.midCta));
+  safeMount('mid-cta-box', midCtaTemplate, data.midCta);
 
-  mount('video-section-head', videoSectionHeadTemplate(data.videoSection));
-  mount('video-feature', videoFeatureTemplate(data.videoSection.featured));
-  mount('video-feature-copy', videoFeatureCopyTemplate(data.videoSection.featured));
-  mount('video-clips', videoClipsTemplate(data.videoSection));
+  safeMount('video-section-head', videoSectionHeadTemplate, data.videoSection);
+  safeMount('video-feature', videoFeatureTemplate, data.videoSection.featured);
+  safeMount('video-feature-copy', videoFeatureCopyTemplate, data.videoSection.featured);
+  safeMount('video-clips', videoClipsTemplate, data.videoSection);
 
-  mount('infinitas-section-head', infinitasSectionHeadTemplate(data.infinitasSection));
-  mount('infinitas-wrap', infinitasWrapTemplate(data.infinitasSection));
+  safeMount('infinitas-section-head', infinitasSectionHeadTemplate, data.infinitasSection);
+  safeMount('infinitas-wrap', infinitasWrapTemplate, data.infinitasSection);
 
-  mount('stats-heading', statsHeadingTemplate(data.statsSection));
-  mount('stats-grid', statsGridTemplate(data.statsSection));
+  safeMount('stats-heading', statsHeadingTemplate, data.statsSection);
+  safeMount('stats-grid', statsGridTemplate, data.statsSection);
 
-  mount('testimonials-section-head', testimonialsSectionHeadTemplate(data.testimonialsSection));
-  mount('testimonials-grid', testimonialsGridTemplate(data.testimonialsSection));
+  safeMount('testimonials-section-head', testimonialsSectionHeadTemplate, data.testimonialsSection);
+  safeMount('testimonials-grid', testimonialsGridTemplate, data.testimonialsSection);
 
-  mount('about-card', aboutCardTemplate(data.aboutSection));
+  safeMount('about-card', aboutCardTemplate, data.aboutSection);
 
-  mount('footer-content', footerContentTemplate(data.footer));
-  mount('footer-copyright', footerCopyrightTemplate(data.footer));
+  safeMount('footer-content', footerContentTemplate, data.footer);
+  safeMount('footer-copyright', footerCopyrightTemplate, data.footer);
 
   document.dispatchEvent(new CustomEvent('playbook:content-rendered'));
 }
@@ -78,7 +93,7 @@ export function whenContentReady(callback) {
 }
 
 function init() {
-  fetch('/content.json?t=' + Date.now())
+  fetch('/content.json')
     .then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
     .then(data => {
       siteContent = data;
