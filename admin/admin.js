@@ -13,12 +13,12 @@ import {
 } from '../js/templates.js';
 
 const TOKEN_KEY = 'playbook_admin_token';
-const NAME_KEY = 'playbook_admin_name';
+const USERNAME_KEY = 'playbook_admin_username';
 const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook'];
 
 const state = {
   token: sessionStorage.getItem(TOKEN_KEY) || null,
-  name: sessionStorage.getItem(NAME_KEY) || '',
+  username: sessionStorage.getItem(USERNAME_KEY) || '',
   content: null, contentSha: null, contentDirty: false,
   articles: null, articlesSha: null, articlesDirty: false,
   activeTab: 'nav'
@@ -163,15 +163,15 @@ function renderPreview() {
 
 // ---------------------------------------------------------------- API calls
 
-async function apiLogin(password, name) {
+async function apiLogin(username, password) {
   const res = await fetch('/api/admin-login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password, name })
+    body: JSON.stringify({ username, password })
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body.error || 'No se pudo iniciar sesión');
-  return body.token;
+  return body;
 }
 
 async function apiLoad(fileKey) {
@@ -539,7 +539,7 @@ async function handleSave() {
 
 function logout() {
   sessionStorage.removeItem(TOKEN_KEY);
-  sessionStorage.removeItem(NAME_KEY);
+  sessionStorage.removeItem(USERNAME_KEY);
   state.token = null;
   document.getElementById('editor-screen').hidden = true;
   document.getElementById('login-screen').hidden = false;
@@ -548,6 +548,8 @@ function logout() {
 async function enterEditor() {
   document.getElementById('login-screen').hidden = true;
   document.getElementById('editor-screen').hidden = false;
+  const whoEl = document.getElementById('admin-whoami');
+  if (whoEl) whoEl.textContent = state.username ? `Sesión: ${state.username}` : '';
 
   const [content, articles] = await Promise.all([apiLoad('content'), apiLoad('articles')]);
   state.content = content.json;
@@ -574,16 +576,16 @@ function initLogin() {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     errorEl.textContent = '';
+    const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
-    const name = document.getElementById('login-name').value.trim();
     const submitBtn = document.getElementById('login-submit');
     submitBtn.disabled = true;
     try {
-      const token = await apiLogin(password, name);
+      const { token, name } = await apiLogin(username, password);
       state.token = token;
-      state.name = name;
+      state.username = name || username;
       sessionStorage.setItem(TOKEN_KEY, token);
-      sessionStorage.setItem(NAME_KEY, name);
+      sessionStorage.setItem(USERNAME_KEY, state.username);
       await enterEditor();
     } catch (err) {
       errorEl.textContent = err.message;
