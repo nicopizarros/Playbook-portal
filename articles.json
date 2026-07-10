@@ -1,6 +1,160 @@
 {
-  "lastUpdated": "2026-07-10T00:00:00Z",
+  "lastUpdated": "2026-07-09T00:00:00Z",
   "articles": [
+    {
+      "id": "mexico-inglaterra-audiencia-record",
+      "title": "México vs. Inglaterra rompió récords de audiencia en TV",
+      "excerpt": "El partido fue el más visto del siglo en México, con cerca de 60 millones de espectadores. En Estados Unidos reunió 44.8 millones entre Fox y Telemundo, superando incluso al Bélgica vs. Estados Unidos.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul 2026",
+      "publication": "Playbook",
+      "source": "playbook",
+      "tag": "Audiencias",
+      "priority": 100,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": "https://abcnoticias.mx/u/fotografias/m/2026/7/9/f1280x720-353840_485515_5050.jpg"
+    },
+    {
+      "id": "netflix-disney-youtube-mundial-2030",
+      "title": "Netflix, Disney y YouTube quieren el Mundial en EE.UU. para 2030-2034",
+      "excerpt": "Las plataformas de streaming compiten por hacerse con los derechos del próximo ciclo mundialista, redefiniendo cómo Norteamérica va a consumir el fútbol.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Industry Shots",
+      "source": "industry-shots",
+      "tag": "Streaming",
+      "priority": 90,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
+    {
+      "id": "mexico-mundial-clubes-2029",
+      "title": "México confirma interés por el Mundial de Clubes 2029",
+      "excerpt": "La federación mexicana explora sumar una nueva sede internacional después del impulso comercial dejado por el Mundial 2026.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Industry Shots",
+      "source": "industry-shots",
+      "tag": "Sedes",
+      "priority": 85,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
+    {
+      "id": "coi-regreso-ruso-la2028",
+      "title": "El COI abre la puerta al regreso ruso rumbo a LA 2028",
+      "excerpt": "El organismo olímpico evalúa condiciones para la reincorporación de atletas rusos de cara a Los Ángeles 2028.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Playbook",
+      "source": "playbook",
+      "tag": "Olímpico",
+      "priority": 80,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
+    {
+      "id": "volkswagen-bayern",
+      "title": "Volkswagen evalúa vender su participación en el Bayern",
+      "excerpt": "El fabricante alemán reconsidera su rol como patrocinador histórico del club, en medio de presión financiera global.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Industry Shots",
+      "source": "industry-shots",
+      "tag": "Clubes",
+      "priority": 75,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
+    {
+      "id": "rogers-mlse-control-total",
+      "title": "Rogers toma el control total de MLSE por USD $3.46bn",
+      "excerpt": "La operación consolida a Rogers como dueño único de Maple Leafs, Raptors y el resto del portafolio deportivo de Toronto.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-07",
+      "dateFormatted": "7 jul",
+      "publication": "Industry Shots",
+      "source": "industry-shots",
+      "tag": "Canadá",
+      "priority": 70,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-10c",
+      "imageUrl": ""
+    },
+    {
+      "id": "atleti-metropolitano-conciertos",
+      "title": "Atleti quiere que el Metropolitano sea venue de conciertos",
+      "excerpt": "El club busca diversificar ingresos convirtiendo su estadio en una sede activa para la industria del entretenimiento en vivo.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-07",
+      "dateFormatted": "7 jul",
+      "publication": "Playbook",
+      "source": "playbook",
+      "tag": "Venues",
+      "priority": 65,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-10c",
+      "imageUrl": ""
+    },
+    {
+      "id": "futbol-europeo-40200m",
+      "title": "El fútbol europeo rompe la barrera de los €40,200m",
+      "excerpt": "La facturación conjunta de las principales ligas alcanza un nuevo máximo histórico.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Industry Shots",
+      "source": "industry-shots",
+      "tag": "Europa",
+      "priority": 60,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
+    {
+      "id": "sky-tv-abierta-uk",
+      "title": "Sky compra TV abierta en UK para competir contra Netflix",
+      "excerpt": "El movimiento busca blindar la distribución deportiva tradicional frente al avance del streaming.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Industry Shots",
+      "source": "industry-shots",
+      "tag": "TV",
+      "priority": 55,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
+    {
+      "id": "canada-liga-femenil-private-equity",
+      "title": "Canadá abre su liga femenil al private equity",
+      "excerpt": "La liga canadiense se suma a la ola de capital privado que ya transforma al fútbol femenil en Europa y Estados Unidos.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Infinitas",
+      "source": "infinitas",
+      "tag": "Femenil",
+      "priority": 50,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
+    {
+      "id": "chelsea-strava",
+      "title": "Chelsea se mete a Strava",
+      "excerpt": "El club explora nuevas formas de conectar con aficionados activos a través de la app de entrenamiento.",
+      "author": "Guillermo Mejía",
+      "date": "2026-07-09",
+      "dateFormatted": "9 jul",
+      "publication": "Playbook",
+      "source": "playbook",
+      "tag": "Redes",
+      "priority": 45,
+      "url": "https://playbookmedia.substack.com/p/industry-shots-1ca",
+      "imageUrl": ""
+    },
     {
       "id": "industry-shots-djokovic-general-atlantic",
       "title": "Djokovic entra a General Atlantic para invertir en deporte",
@@ -11,6 +165,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Private equity",
+      "priority": 40,
       "url": "https://playbookmedia.substack.com/p/industry-shots-djokovic-entra-a-general",
       "imageUrl": "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=900&q=80"
     },
@@ -24,6 +179,7 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "NBA México",
+      "priority": 35,
       "url": "https://playbookmedia.substack.com/p/industry-shots-karim-lopez-puede",
       "imageUrl": "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=900&q=80"
     },
@@ -37,6 +193,7 @@
       "publication": "La Lana del Mundial",
       "source": "la-lana",
       "tag": "Fan experience",
+      "priority": 30,
       "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion",
       "imageUrl": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=900&q=80"
     },
@@ -50,20 +207,9 @@
       "publication": "Industry Shots",
       "source": "industry-shots",
       "tag": "Audiencias",
+      "priority": 25,
       "url": "https://playbookmedia.substack.com/p/industry-shots-el-mercado-hispano",
       "imageUrl": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?w=900&q=80"
-    }
-  ]
-}    {
-      "id": "industry-shots-mercado-hispano",
-      "title": "El mercado hispano ya le dio su primer récord al Mundial",
-      "excerpt": "Audiencia, consumo, medios y oportunidad comercial para marcas alrededor de Norteamérica 2026.",
-      "author": "Guillermo Mejía",
-      "date": "2026-06-16",
-      "dateFormatted": "16 jun 2026",
-      "publication": "Industry Shots",
-      "tag": "Audiencias",
-      "url": "https://playbookmedia.substack.com/p/industry-shots-el-mercado-hispano"
     }
   ]
 }

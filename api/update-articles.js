@@ -78,6 +78,11 @@ export default async function handler(req, res) {
   const dateFormatted = `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
   const dateISO = dateObj.toISOString().slice(0, 10);
 
+  // Prioridad: si no viene explícita en el payload, el artículo entra
+  // por encima de todo lo existente (mismo criterio que "más nuevo = más arriba").
+  const maxPriority = current.articles.reduce((max, a) => Math.max(max, a.priority || 0), 0);
+  const priority = Number.isFinite(article.priority) ? article.priority : maxPriority + 1;
+
   const newArticle = {
     id:            slug,
     title:         article.title,
@@ -88,6 +93,7 @@ export default async function handler(req, res) {
     publication:   article.publication || pubInfo.publication,
     source:        article.source      || pubInfo.source,
     tag:           article.tag         || '',
+    priority:      priority,
     url:           article.url,
     imageUrl:      article.imageUrl    || ''
   };
