@@ -557,16 +557,32 @@ async function enterEditor() {
   document.getElementById('editor-screen').hidden = false;
   const whoEl = document.getElementById('admin-whoami');
   if (whoEl) whoEl.textContent = state.username ? `Sesión: ${state.username}` : '';
+  setStatus('Cargando contenido…', null);
 
-  const [content, articles] = await Promise.all([apiLoad('content'), apiLoad('articles')]);
+  // Once we've switched to the editor screen, any failure must be shown HERE
+  // (not on the now-hidden login screen's error box, which the caller's
+  // catch used to write to invisibly, leaving a blank screen with no clue
+  // why nothing rendered).
+  let content, articles;
+  try {
+    [content, articles] = await Promise.all([apiLoad('content'), apiLoad('articles')]);
+  } catch (err) {
+    setStatus('No se pudo cargar el contenido: ' + err.message, 'error');
+    throw err;
+  }
   state.content = content.json;
   state.contentSha = content.sha;
   state.articles = articles.json;
   state.articlesSha = articles.sha;
 
-  renderTabs();
-  renderActiveForm();
-  renderPreview();
+  try {
+    renderTabs();
+    renderActiveForm();
+    renderPreview();
+  } catch (err) {
+    setStatus('Error al mostrar el editor: ' + err.message, 'error');
+    throw err;
+  }
   setStatus('Listo', 'ok');
 
   document.getElementById('save-btn').addEventListener('click', handleSave);

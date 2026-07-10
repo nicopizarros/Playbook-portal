@@ -89,6 +89,17 @@
 }
 .admin-preview-frame { padding: 20px; display: flex; flex-direction: column; gap: 28px; }
 
+/* The production templates mark their elements with the same .reveal class
+   used for the homepage's scroll-in animation (see css/layout.css), which
+   defaults to opacity:0 until js/ui.js's IntersectionObserver adds
+   .is-visible on scroll. The admin panel never loads js/ui.js, so without
+   this override every card/section in the live preview stays invisible. */
+.admin-preview-pane .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 /* ---------- Form building blocks ---------- */
 
 .admin-section-title { font-size: 15px; font-weight: 700; margin: 0 0 16px; }
