@@ -138,27 +138,38 @@ function mount(id, html) {
   if (target) target.innerHTML = html;
 }
 
+// Isolates each preview section so one bad in-progress edit (e.g. a field
+// temporarily left in a shape a template doesn't expect) can't blank the
+// rest of the live preview while the editor is still typing.
+function safeMount(id, templateFn, arg) {
+  try {
+    mount(id, templateFn(arg));
+  } catch (err) {
+    console.error(`[Playbook admin] Error rendering preview #${id}:`, err);
+  }
+}
+
 function renderPreview() {
   const c = state.content;
   if (!c) return;
-  mount('preview-opinion-head', opinionSectionHeadTemplate(c.opinionSection));
-  mount('preview-opinion-grid', opinionGridTemplate(c.opinionSection));
-  mount('preview-products-head', productsSectionHeadTemplate(c.productsSection));
-  mount('preview-products-grid', productsGridTemplate(c.productsSection));
-  mount('preview-mid-cta', midCtaTemplate(c.midCta));
-  mount('preview-video-head', videoSectionHeadTemplate(c.videoSection));
-  mount('preview-video-feature', videoFeatureTemplate(c.videoSection.featured));
-  mount('preview-video-feature-copy', videoFeatureCopyTemplate(c.videoSection.featured));
-  mount('preview-video-clips', videoClipsTemplate(c.videoSection));
-  mount('preview-infinitas-head', infinitasSectionHeadTemplate(c.infinitasSection));
-  mount('preview-infinitas-wrap', infinitasWrapTemplate(c.infinitasSection));
-  mount('preview-stats-heading', statsHeadingTemplate(c.statsSection));
-  mount('preview-stats-grid', statsGridTemplate(c.statsSection));
-  mount('preview-testimonials-head', testimonialsSectionHeadTemplate(c.testimonialsSection));
-  mount('preview-testimonials-grid', testimonialsGridTemplate(c.testimonialsSection));
-  mount('preview-about-card', aboutCardTemplate(c.aboutSection));
-  mount('preview-footer-content', footerContentTemplate(c.footer));
-  mount('preview-footer-copyright', footerCopyrightTemplate(c.footer));
+  safeMount('preview-opinion-head', opinionSectionHeadTemplate, c.opinionSection);
+  safeMount('preview-opinion-grid', opinionGridTemplate, c.opinionSection);
+  safeMount('preview-products-head', productsSectionHeadTemplate, c.productsSection);
+  safeMount('preview-products-grid', productsGridTemplate, c.productsSection);
+  safeMount('preview-mid-cta', midCtaTemplate, c.midCta);
+  safeMount('preview-video-head', videoSectionHeadTemplate, c.videoSection);
+  safeMount('preview-video-feature', videoFeatureTemplate, c.videoSection.featured);
+  safeMount('preview-video-feature-copy', videoFeatureCopyTemplate, c.videoSection.featured);
+  safeMount('preview-video-clips', videoClipsTemplate, c.videoSection);
+  safeMount('preview-infinitas-head', infinitasSectionHeadTemplate, c.infinitasSection);
+  safeMount('preview-infinitas-wrap', infinitasWrapTemplate, c.infinitasSection);
+  safeMount('preview-stats-heading', statsHeadingTemplate, c.statsSection);
+  safeMount('preview-stats-grid', statsGridTemplate, c.statsSection);
+  safeMount('preview-testimonials-head', testimonialsSectionHeadTemplate, c.testimonialsSection);
+  safeMount('preview-testimonials-grid', testimonialsGridTemplate, c.testimonialsSection);
+  safeMount('preview-about-card', aboutCardTemplate, c.aboutSection);
+  safeMount('preview-footer-content', footerContentTemplate, c.footer);
+  safeMount('preview-footer-copyright', footerCopyrightTemplate, c.footer);
 }
 
 // ---------------------------------------------------------------- API calls
@@ -493,18 +504,14 @@ async function handleSave() {
   btn.disabled = true;
   try {
     if (state.activeTab === 'articles') {
-      await apiSave('articles', state.articles, state.articlesSha);
+      const result = await apiSave('articles', state.articles, state.articlesSha);
       state.articlesDirty = false;
-      const fresh = await apiLoad('articles');
-      state.articles = fresh.json;
-      state.articlesSha = fresh.sha;
+      state.articlesSha = result.sha;
       setStatus('Artículos guardados. El sitio se actualizará en 1-2 min.', 'ok');
     } else {
-      await apiSave('content', state.content, state.contentSha);
+      const result = await apiSave('content', state.content, state.contentSha);
       state.contentDirty = false;
-      const fresh = await apiLoad('content');
-      state.content = fresh.json;
-      state.contentSha = fresh.sha;
+      state.contentSha = result.sha;
       setStatus('Contenido guardado. El sitio se actualizará en 1-2 min.', 'ok');
       renderPreview();
     }

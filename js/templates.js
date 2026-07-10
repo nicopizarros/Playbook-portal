@@ -10,15 +10,29 @@ export function escapeHtml(str) {
   }[s]));
 }
 
+// escapeHtml prevents attribute-breakout, but doesn't validate URL scheme —
+// a `javascript:` value has no special chars to escape. Content editors are
+// trusted, but this collapses anything but http(s)/mailto/tel/relative/hash
+// URLs to a harmless '#' so a compromised or mistaken editor entry can't
+// turn into a click-to-execute link on the live homepage.
+export function safeUrl(url) {
+  const value = String(url == null ? '' : url).trim();
+  if (value === '') return '';
+  if (/^(https?:|mailto:|tel:)/i.test(value)) return value;
+  if (value.startsWith('#') || value.startsWith('/')) return value;
+  return '#';
+}
+
 const e = escapeHtml;
+const su = url => e(safeUrl(url));
 
 // ---------- Nav ----------
 
 export function navLinksTemplate(nav) {
   const links = nav.links.map(l =>
-    `<a class="${l.variant === 'infinitas' ? 'nav-link-infinitas' : ''}" href="${e(l.href)}">${e(l.label)}</a>`
+    `<a class="${l.variant === 'infinitas' ? 'nav-link-infinitas' : ''}" href="${su(l.href)}">${e(l.label)}</a>`
   ).join('');
-  const cta = `<a class="btn accent nav-drawer-cta" href="${e(nav.ctaUrl)}" target="_blank" rel="noopener noreferrer">${e(nav.ctaLabel)}</a>`;
+  const cta = `<a class="btn accent nav-drawer-cta" href="${su(nav.ctaUrl)}" target="_blank" rel="noopener noreferrer">${e(nav.ctaLabel)}</a>`;
   return links + cta;
 }
 
@@ -26,7 +40,7 @@ export function navLinksTemplate(nav) {
 
 export function opinionCardTemplate(card) {
   if (card.variant === 'banner') {
-    return `<a class="opinion-card tfbr reveal" href="${e(card.url)}" target="_blank" rel="noopener noreferrer">
+    return `<a class="opinion-card tfbr reveal" href="${su(card.url)}" target="_blank" rel="noopener noreferrer">
       <img src="${e(card.image)}" width="900" height="160" alt="${e(card.imageAlt || card.title)}" loading="lazy" decoding="async" />
       <div class="tfbr-copy">
         <h3>${e(card.title)}</h3>
@@ -34,7 +48,7 @@ export function opinionCardTemplate(card) {
       </div>
     </a>`;
   }
-  return `<a class="opinion-card reveal" href="${e(card.url)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="opinion-card reveal" href="${su(card.url)}" target="_blank" rel="noopener noreferrer">
     <div class="masthead">${e(card.masthead)}</div>
     <h3>${e(card.title)}</h3>
     <p>${e(card.excerpt)}</p>
@@ -43,7 +57,7 @@ export function opinionCardTemplate(card) {
 
 export function opinionSectionHeadTemplate(data) {
   return `<div><h2>${e(data.heading)}</h2></div>
-    <a class="section-link" href="${e(data.archiveLinkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.archiveLinkLabel)}</a>`;
+    <a class="section-link" href="${su(data.archiveLinkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.archiveLinkLabel)}</a>`;
 }
 
 export function opinionGridTemplate(data) {
@@ -57,7 +71,7 @@ export function productCardTemplate(p) {
     ? `<div class="product-mark"><span class="glyph" aria-hidden="true">${e(p.glyph)}</span><span class="word">${e(p.wordmark)}</span></div>`
     : `<img class="product-banner" src="${e(p.image)}" width="900" height="160" alt="${e(p.imageAlt || '')}" loading="lazy" decoding="async" />`;
   const meta = p.meta ? `<span class="meta">${e(p.meta)}</span>` : '';
-  return `<a class="product reveal" href="${e(p.url)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="product reveal" href="${su(p.url)}" target="_blank" rel="noopener noreferrer">
     ${media}
     <div class="product-copy">
       <p>${e(p.description)}</p>
@@ -82,7 +96,7 @@ export function midCtaTemplate(data) {
       <h2>${e(data.headingMain)} <em>${e(data.headingEm)}</em></h2>
       <p>${e(data.body)}</p>
     </div>
-    <form class="pill-form mid-cta-form" action="${e(data.formUrl)}" target="_blank" rel="noopener noreferrer">
+    <form class="pill-form mid-cta-form" action="${su(data.formUrl)}" target="_blank" rel="noopener noreferrer">
       <div class="nl-fields">
         <label class="visually-hidden" for="nl-email-2">Correo electrónico</label>
         <input id="nl-email-2" name="email" type="text" inputmode="email" placeholder="Tu correo" aria-label="Correo electrónico" autocomplete="email" required />
@@ -100,7 +114,7 @@ export function videoSectionHeadTemplate(data) {
       <h2>${e(data.heading)}</h2>
       <p class="sub">${e(data.sub)}</p>
     </div>
-    <a class="section-link" href="${e(data.channelLinkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.channelLinkLabel)}</a>`;
+    <a class="section-link" href="${su(data.channelLinkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.channelLinkLabel)}</a>`;
 }
 
 export function videoFeatureTemplate(featured) {
@@ -112,7 +126,7 @@ export function videoFeatureTemplate(featured) {
 export function videoFeatureCopyTemplate(featured) {
   const paragraphs = (featured.paragraphs || []).map(p => `<p>${e(p)}</p>`).join('');
   const episodes = (featured.episodeLinks || []).map(ep =>
-    `<a href="${e(ep.url)}" target="_blank" rel="noopener noreferrer">${e(ep.label)} <span>Ver episodio</span></a>`
+    `<a href="${su(ep.url)}" target="_blank" rel="noopener noreferrer">${e(ep.label)} <span>Ver episodio</span></a>`
   ).join('');
   return `<span class="eyebrow">${e(featured.eyebrow)}</span>
     <h3>${e(featured.title)}</h3>
@@ -122,7 +136,7 @@ export function videoFeatureCopyTemplate(featured) {
 
 export function videoClipTemplate(clip) {
   if (clip.platform === 'instagram') {
-    return `<a class="clip-card reveal" href="${e(clip.url)}" target="_blank" rel="noopener noreferrer">
+    return `<a class="clip-card reveal" href="${su(clip.url)}" target="_blank" rel="noopener noreferrer">
       <div class="frame ig-visual${clip.variant ? ' ' + e(clip.variant) : ''}">
         <div class="ig-phone">${e(clip.handle)}<br><br>${e(clip.igText)}</div>
         <span class="platform-badge">Instagram</span>
@@ -130,7 +144,7 @@ export function videoClipTemplate(clip) {
       </div>
     </a>`;
   }
-  return `<a class="clip-card reveal" href="${e(clip.url)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="clip-card reveal" href="${su(clip.url)}" target="_blank" rel="noopener noreferrer">
     <div class="frame">
       <img src="${e(clip.thumbnail)}" width="480" height="360" alt="${e(clip.title)}" loading="lazy" decoding="async" />
       <span class="platform-badge">YouTube</span>
@@ -151,12 +165,12 @@ export function infinitasSectionHeadTemplate(data) {
       <h2>${e(data.heading)}</h2>
       <p class="sub">${e(data.sub)}</p>
     </div>
-    <a class="section-link" href="${e(data.linkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.linkLabel)}</a>`;
+    <a class="section-link" href="${su(data.linkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.linkLabel)}</a>`;
 }
 
 function infCardTemplate(card, headingTag) {
   const H = headingTag || 'h3';
-  return `<a class="inf-card reveal" href="${e(card.url)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="inf-card reveal" href="${su(card.url)}" target="_blank" rel="noopener noreferrer">
     <img class="inf-bg" src="${e(card.image)}" width="1200" height="750" alt="" loading="lazy" decoding="async" />
     <div class="inf-content">
       <span class="eyebrow">${e(card.eyebrow)}</span>
@@ -204,7 +218,7 @@ export function testimonialsGridTemplate(data) {
 // ---------- About section ----------
 
 export function aboutCardTemplate(data) {
-  return `<a class="about-visual reveal" href="${e(data.videoUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Ver Al Banquillo en YouTube">
+  return `<a class="about-visual reveal" href="${su(data.videoUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Ver Al Banquillo en YouTube">
       <img src="${e(data.image)}" width="1280" height="720" alt="${e(data.imageAlt)}" loading="lazy" decoding="async" />
       <div class="about-visual-badge">
         <span>${e(data.badgeEyebrow)}</span>
@@ -218,7 +232,7 @@ export function aboutCardTemplate(data) {
       <div class="products-line">${e(data.productsLine)} <span>${e(data.productsLineNote)}</span></div>
       <div class="about-actions">
         ${(data.actions || []).map(a =>
-          `<a class="btn ${e(a.style)}" href="${e(a.url)}" target="_blank" rel="noopener noreferrer">${e(a.label)}</a>`
+          `<a class="btn ${e(a.style)}" href="${su(a.url)}" target="_blank" rel="noopener noreferrer">${e(a.label)}</a>`
         ).join('')}
       </div>
     </div>`;
@@ -228,7 +242,7 @@ export function aboutCardTemplate(data) {
 
 export function footerContentTemplate(data) {
   const social = (data.socialLinks || []).map(s =>
-    `<a class="pill" href="${e(s.url)}" target="_blank" rel="noopener noreferrer">${e(s.label)}</a>`
+    `<a class="pill" href="${su(s.url)}" target="_blank" rel="noopener noreferrer">${e(s.label)}</a>`
   ).join('');
   return `<div class="footer-brand">
       <img src="/assets/img/playbook-logo.webp" width="180" height="44" alt="Playbook" loading="lazy" decoding="async" />
@@ -237,7 +251,7 @@ export function footerContentTemplate(data) {
     <div>
       <div class="social-row">${social}</div>
       <div style="margin-top:12px;">
-        <a class="pill inf-pill" href="${e(data.infinitasLinkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.infinitasLinkLabel)}</a>
+        <a class="pill inf-pill" href="${su(data.infinitasLinkUrl)}" target="_blank" rel="noopener noreferrer">${e(data.infinitasLinkLabel)}</a>
       </div>
     </div>`;
 }

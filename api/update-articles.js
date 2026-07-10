@@ -1,6 +1,14 @@
 // api/update-articles.js
 // Webhook: recibe datos de artículo nuevo desde Make y actualiza articles.json
 
+import { constantTimeEqual } from '../lib/auth.js';
+import { readFile, writeFile } from '../lib/github.js';
+
+// Hard cap so articles.json can't grow without bound — fetched in full on
+// every homepage load and every admin session, so unbounded growth is a
+// real, gradual cost/latency problem, not just a theoretical one.
+const MAX_ARTICLES = 500;
+
 export default async function handler(req, res) {
 
   // Solo POST
@@ -8,9 +16,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Verificar clave secreta
+  // Verificar clave secreta (comparación en tiempo constante)
   const secret = req.headers['x-playbook-secret'];
-  if (!process.env.PLAYBOOK_SECRET || secret !== process.env.PLAYBOOK_SECRET) {
+  if (!process.env.PLAYBOOK_SECRET || !constantTimeEqual(secret, process.env.PLAYBOOK_SECRET)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -21,27 +29,15 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const REPO        = 'nicopizarros/Playbook-portal';
-  const FILE_PATH   = 'articles.json';
-  const API_BASE    = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
-  const HEADERS     = {
-    Authorization: `Bearer ${GITHUB_TOKEN}`,
-    Accept: 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-    'Content-Type': 'application/json'
-  };
-
   // 1. Leer archivo actual
-  const getRes = await fetch(API_BASE, { headers: HEADERS });
-  if (!getRes.ok) {
-    return res.status(500).json({ error: 'Could not read articles.json from GitHub' });
+  let current, sha;
+  try {
+    const result = await readFile('articles.json');
+    current = result.json;
+    sha = result.sha;
+  } catch (err) {
+    return res.status(err.status || 500).json({ error: 'Could not read articles.json from GitHub' });
   }
-  const fileData = await getRes.json();
-  const sha      = fileData.sha;
-  const current  = JSON.parse(
-    Buffer.from(fileData.content.replace(/\n/g, ''), 'base64').toString('utf-8')
-  );
 
   // 2. Deduplicación por URL
   if (current.articles.some(a => a.url === article.url)) {
@@ -98,28 +94,17 @@ export default async function handler(req, res) {
     imageUrl:      article.imageUrl    || ''
   };
 
-  // 6. Prepend al array y actualizar
+  // 6. Prepend al array, recortar al límite y actualizar
   const updated = {
     lastUpdated: new Date().toISOString(),
-    articles: [newArticle, ...current.articles]
+    articles: [newArticle, ...current.articles].slice(0, MAX_ARTICLES)
   };
 
-  const newContent = Buffer.from(JSON.stringify(updated, null, 2)).toString('base64');
-
-  const putRes = await fetch(API_BASE, {
-    method: 'PUT',
-    headers: HEADERS,
-    body: JSON.stringify({
-      message:   `[Auto] ${newArticle.publication}: ${newArticle.title}`,
-      content:   newContent,
-      sha:       sha,
-      committer: { name: 'Playbook Bot', email: 'bot@playbook.la' }
-    })
-  });
-
-  if (!putRes.ok) {
-    const err = await putRes.json();
-    return res.status(500).json({ error: err });
+  try {
+    await writeFile('articles.json', updated, sha, `[Auto] ${newArticle.publication}: ${newArticle.title}`,
+      { name: 'Playbook Bot', email: 'bot@playbook.la' });
+  } catch (err) {
+    return res.status(err.status || 500).json({ error: err.message });
   }
 
   return res.status(200).json({ status: 'ok', article: newArticle.title });
