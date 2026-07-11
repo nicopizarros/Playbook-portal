@@ -1,16 +1,16 @@
 'use strict';
 
+import { rankArticles, selectHero } from './rank.js';
+
 const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook'];
 const LEAD_COUNT = 1;
-const LIST_COUNT = 6;
+const LIST_COUNT = 5;
 const STRIP_COUNT = 0;
 const TICKER_COUNT = 6;
 const FILTER_FADE_MS = 180;
-const SUBSTACK_URL = 'https://playbookmedia.substack.com/';
 
 let allArticles = [];
 let activeSource = 'all';
-let archivoVisible = false;
 let articlesReady = false;
 const readyCallbacks = [];
 
@@ -24,13 +24,7 @@ function bySourceFiltered() {
   const pool = activeSource === 'all'
     ? allArticles
     : allArticles.filter(a => a.source === activeSource);
-  // Ranking: mayor "priority" = más importante; si empatan, la fecha más reciente gana.
-  return pool.slice().sort((a, b) => {
-    const pa = typeof a.priority === 'number' ? a.priority : 0;
-    const pb = typeof b.priority === 'number' ? b.priority : 0;
-    if (pb !== pa) return pb - pa;
-    return (b.date || '').localeCompare(a.date || '');
-  });
+  return rankArticles(pool);
 }
 
 function escapeHtml(str) {
@@ -39,30 +33,33 @@ function escapeHtml(str) {
   }[s]));
 }
 
-function readTime(text) {
-  const words = String(text || '').trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
+function tagPillsRow(a) {
+  const t = a.tags || {};
+  const all = [...(t.scope || []), ...(t.sport || []), ...(t.vertical || [])];
+  if (!all.length) return '';
+  return `<div class="tag-pill-row">${all.map(x => `<span class="tag-mini">${escapeHtml(x)}</span>`).join('')}</div>`;
 }
 
 function leadTemplate(a) {
   const photo = a.imageUrl
     ? `<div class="lead-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title)}" fetchpriority="high" decoding="async" /></div>`
     : '';
-  return `<article class="lead-story reveal" data-source="${escapeHtml(a.source)}">
+  return `<a class="lead-story reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}">
       ${photo}
       <span class="tag">${escapeHtml(a.publication)}</span>
       <h1>${escapeHtml(a.title)}</h1>
       <p class="desc">${escapeHtml(a.excerpt)}</p>
-      <div class="byline"><b>${escapeHtml(a.author)}</b> · ${escapeHtml(a.dateFormatted)} · ${readTime(a.excerpt)} min</div>
-    </article>`;
+      <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>
+      ${tagPillsRow(a)}
+    </a>`;
 }
 
 function rowTemplate(a, heading) {
   const H = heading || 'h3';
-  return `<a class="news-row reveal" data-source="${escapeHtml(a.source)}" href="${escapeHtml(a.url)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="news-row reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}">
       <span class="tag-mini ${escapeHtml(a.source)}">${escapeHtml(a.publication)}</span>
       <${H}>${escapeHtml(a.title)}</${H}>
-      <div class="byline">${escapeHtml(a.dateFormatted)} · ${readTime(a.excerpt)} min</div>
+      <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>
     </a>`;
 }
 
@@ -84,62 +81,31 @@ function renderSkeleton() {
 
 function render() {
   const filtered = bySourceFiltered();
-  const lead = filtered.slice(0, LEAD_COUNT);
-  const list = filtered.slice(LEAD_COUNT, LEAD_COUNT + LIST_COUNT);
-  const strip = filtered.slice(LEAD_COUNT + LIST_COUNT, LEAD_COUNT + LIST_COUNT + STRIP_COUNT);
-  const archivo = filtered.slice(LEAD_COUNT + LIST_COUNT + STRIP_COUNT);
 
   const grid = document.getElementById('news-grid');
   if (grid) {
     if (!filtered.length) {
       grid.innerHTML = '<p class="empty-state">Sin artículos en esta categoría todavía.</p>';
     } else {
-      const leadHtml = lead.map(leadTemplate).join('');
+      const hero = selectHero(filtered);
+      const list = filtered.filter(a => a !== hero).slice(0, LIST_COUNT);
+      const leadHtml = hero ? leadTemplate(hero) : '';
       const listHtml = `<div class="news-list">${list.map(a => rowTemplate(a, 'h3')).join('')}</div>`;
       grid.innerHTML = leadHtml + listHtml;
     }
   }
 
-  const stripEl = document.getElementById('news-strip');
-  if (stripEl) {
-    stripEl.innerHTML = strip.map(a => rowTemplate(a, 'h4')).join('');
-    stripEl.style.display = strip.length ? 'grid' : 'none';
-  }
-
-  const archEl = document.getElementById('archivo-container');
-  if (archEl) {
-    archEl.innerHTML = archivo.length
-      ? archivo.map(a => rowTemplate(a, 'h3')).join('')
-      : '<p class="empty-state">No hay más artículos.</p>';
-    archEl.style.display = (archivoVisible && archivo.length > 0) ? 'flex' : 'none';
-  }
-
-  const btn = document.getElementById('btn-ver-archivo');
-  if (btn) {
-    btn.setAttribute('aria-expanded', String(archivoVisible && archivo.length > 0));
-    if (archivo.length > 0) {
-      btn.textContent = archivoVisible ? 'Ocultar archivo' : `Ver archivo (${archivo.length} más)`;
-      btn.onclick = function () {
-        archivoVisible = !archivoVisible;
-        render();
-      };
-    } else {
-      btn.textContent = 'Ver en Substack';
-      btn.onclick = function () {
-        window.open(SUBSTACK_URL, '_blank', 'noopener,noreferrer');
-      };
-    }
+  const verMasBtn = document.getElementById('btn-ver-archivo');
+  if (verMasBtn) {
+    const overflow = Math.max(0, filtered.length - LEAD_COUNT - LIST_COUNT);
+    verMasBtn.textContent = overflow > 0 ? `Ver más (${overflow})` : 'Ver más';
   }
 
   document.dispatchEvent(new CustomEvent('playbook:rendered'));
 }
 
 function renderTicker() {
-  const ranked = allArticles.slice().sort((a, b) => {
-    const pa = typeof a.priority === 'number' ? a.priority : 0;
-    const pb = typeof b.priority === 'number' ? b.priority : 0;
-    return pb - pa;
-  }).slice(0, TICKER_COUNT);
+  const ranked = rankArticles(allArticles).slice(0, TICKER_COUNT);
   const el = document.getElementById('ticker-content');
   if (!ranked.length || !el) return;
   const visible = ranked.map(a => `<span class="ticker-item">${escapeHtml(a.title)}</span>`).join('');
@@ -149,15 +115,11 @@ function renderTicker() {
 
 function applyFilterChange(source) {
   const grid = document.getElementById('news-grid');
-  const strip = document.getElementById('news-strip');
   activeSource = source;
-  archivoVisible = false;
   if (grid) grid.classList.add('fade-swap', 'is-fading');
-  if (strip) strip.classList.add('fade-swap', 'is-fading');
   window.setTimeout(() => {
     render();
     if (grid) grid.classList.remove('is-fading');
-    if (strip) strip.classList.remove('is-fading');
   }, FILTER_FADE_MS);
 }
 

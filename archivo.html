@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Archivo — Playbook</title>
+<meta name="robots" content="index, follow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preload" as="image" href="/assets/img/playbook-logo.webp" fetchpriority="high" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" /></noscript>
+
+<link rel="stylesheet" href="/css/reset.css" />
+<link rel="stylesheet" href="/css/tokens.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<link rel="stylesheet" href="/css/components.css" />
+<link rel="stylesheet" href="/css/header.css" />
+<link rel="stylesheet" href="/css/hero.css" />
+<link rel="stylesheet" href="/css/sections.css" />
+<link rel="stylesheet" href="/css/article.css" />
+<link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body>
+
+<a class="skip-link" href="#archivo-main">Saltar al contenido</a>
+
+<!-- ============================================================ HEADER (duplicado de index.html) -->
+<header class="topbar">
+  <div class="container nav">
+    <a href="/index.html" class="brand" aria-label="Playbook — inicio">
+      <img src="/assets/img/playbook-logo.webp" width="640" height="158" alt="Playbook" fetchpriority="high" decoding="async" />
+    </a>
+    <nav class="nav-links" id="nav-links" aria-label="Navegación principal">
+      <a href="/index.html#noticias">Noticias</a>
+      <a href="/index.html#analisis">Análisis</a>
+      <a href="/index.html#newsletters">Newsletters</a>
+      <a href="/index.html#video">Video</a>
+      <a class="nav-link-infinitas" href="/index.html#infinitas">Infinitas</a>
+      <a class="btn nav-drawer-cta" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Suscríbete gratis</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="nav-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" placeholder="Buscar" aria-label="Buscar en Playbook" autocomplete="off" />
+        <div class="search-results" id="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
+      </div>
+      <a class="btn" id="nav-cta" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Suscríbete gratis</a>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="nav-overlay" id="nav-overlay"></div>
+
+<!-- ============================================================ ARCHIVO -->
+<main class="container news-section archive-page" id="archivo-main">
+  <div class="section-head" style="border-bottom:none;margin-bottom:0;padding-top:0;">
+    <div>
+      <h2>Archivo</h2>
+      <p class="sub">Todo lo publicado en Playbook que ya no está en la portada.</p>
+    </div>
+    <a class="section-link" href="/index.html#noticias">← Volver a Noticias</a>
+  </div>
+
+  <div class="source-filter" role="group" aria-label="Filtrar por fuente" id="archive-source-filter">
+    <button class="filter-btn active" data-source="all" aria-pressed="true">Todo</button>
+    <button class="filter-btn" data-source="industry-shots" aria-pressed="false">Industry Shots</button>
+    <button class="filter-btn" data-source="la-lana" aria-pressed="false">La Lana del Mundial</button>
+    <button class="filter-btn" data-source="infinitas" aria-pressed="false">Infinitas</button>
+    <button class="filter-btn" data-source="playbook" aria-pressed="false">Playbook</button>
+  </div>
+
+  <div class="archive-tag-filters" id="archive-tag-filters" aria-label="Filtrar por etiqueta"></div>
+
+  <div class="news-list fade-swap" id="archive-list">
+    <div class="skeleton-card">
+      <div class="skel skel-badge"></div>
+      <div class="skel skel-title"></div>
+      <div class="skel skel-title skel--short"></div>
+      <div class="skel skel-desc"></div>
+      <div class="skel skel-meta"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skel skel-badge"></div>
+      <div class="skel skel-title"></div>
+      <div class="skel skel-title skel--short"></div>
+      <div class="skel skel-desc"></div>
+      <div class="skel skel-meta"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============================================================ FOOTER (duplicado de index.html) -->
+<footer>
+  <div class="container footer-grid" id="footer-content">
+    <div class="footer-brand">
+      <img src="/assets/img/playbook-logo.webp" width="180" height="44" alt="Playbook" loading="lazy" decoding="async" />
+    </div>
+  </div>
+  <div class="container footer-copyright" id="footer-copyright">© 2026 Playbook Media · playbook.la</div>
+</footer>
+
+<script type="module" src="/js/articles.js"></script>
+<script type="module" src="/js/search.js"></script>
+<script type="module" src="/js/archive-page.js"></script>
+<script type="module" src="/js/nav.js"></script>
+<script type="module" src="/js/ui.js"></script>
+
+</body>
+</html>

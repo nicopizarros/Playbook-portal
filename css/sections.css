@@ -1,8 +1,8 @@
 /* ——— Artículos de opinión ——— */
 .opinion-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--ink);}
-.opinion-card{display:block;padding:22px 24px;border-right:1px solid var(--rule);transition:background var(--duration-base) var(--ease-out);}
+.opinion-card{display:block;padding:22px 24px;border-right:1px solid var(--rule);transition:background var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
 .opinion-card:last-child{border-right:none;}
-.opinion-card:hover{background:var(--paper-soft);}
+.opinion-card:hover{background:var(--paper-soft);transform:translateY(-2px);}
 .opinion-card .masthead{font-family:var(--serif-display);font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:12px;color:var(--ink);}
 .opinion-card h3{font-family:var(--serif-display);font-weight:400;font-size:19px;line-height:1.16;margin:0 0 10px;text-transform:none;transition:color var(--duration-fast) ease;}
 .opinion-card:hover h3{color:var(--green);}

@@ -53,7 +53,7 @@
       <a href="#newsletters">Newsletters</a>
       <a href="#video">Video</a>
       <a class="nav-link-infinitas" href="#infinitas">Infinitas</a>
-      <a class="btn accent nav-drawer-cta" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Suscríbete gratis</a>
+      <a class="btn nav-drawer-cta" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Suscríbete gratis</a>
     </nav>
     <div class="nav-actions">
       <div class="nav-search">
@@ -92,9 +92,10 @@
 <div class="nav-overlay" id="nav-overlay"></div>
 
 <!-- ============================================================ NOTICIAS
-     FRAMER CMS: colección "articulos" en articles.json
-     Campos: titulo, extracto, autor, fecha, publicacion, source, etiqueta, url, imagen_url, priority
-     El campo "priority" determina el orden/importancia (lead > lista > tira > archivo)
+     Contenido dinámico desde articles.json vía js/articles.js.
+     Campos: id, title, excerpt, teaser, author, date, dateFormatted, publication,
+     source, tags{scope,sport,vertical}, priority, featured, reading_time, substack_url, imageUrl.
+     Muestra como máximo 1 destacado + 5 tarjetas; el resto vive en /archivo.html.
 ============================================================ -->
 <main class="container news-section" id="noticias">
   <div class="section-head" style="border-bottom:none;margin-bottom:0;padding-top:0;">
@@ -102,7 +103,7 @@
       <h2>Último en Playbook</h2>
       <p class="sub">La casa editorial para entender el negocio del deporte: newsletter, portal, video y comunidad en un mismo sistema editorial.</p>
     </div>
-    <button class="section-link" id="btn-ver-archivo" type="button" aria-expanded="false" aria-controls="archivo-container">Ver archivo</button>
+    <a class="section-link" id="btn-ver-archivo" href="/archivo.html">Ver más</a>
   </div>
 
   <div class="source-filter" role="group" aria-label="Filtrar por fuente">
@@ -125,11 +126,6 @@
         </div>
       </div>
     </div>
-
-    <div class="news-strip fade-swap" id="news-strip"></div>
-
-    <!-- Archivo: visible al hacer clic en "Ver archivo" -->
-    <div class="news-list" id="archivo-container" style="display:none;margin-top:8px;border-top:1px solid var(--ink);"></div>
   </div>
 
   <div class="nl-box reveal">
@@ -141,7 +137,7 @@
       <div class="nl-fields">
         <label class="visually-hidden" for="nl-email-1">Tu correo</label>
         <input id="nl-email-1" name="email" type="text" inputmode="email" placeholder="Tu correo" aria-label="Tu correo" autocomplete="email" required />
-        <button class="btn accent" type="submit">Suscribirme</button>
+        <button class="btn" type="submit">Suscribirme</button>
       </div>
       <p class="nl-success" role="status">¡Listo! Revisa tu correo.</p>
       <span class="nl-error" role="alert"></span>

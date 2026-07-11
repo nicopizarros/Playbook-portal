@@ -207,7 +207,7 @@
     "productsLineNote": "— cuatro formatos, una misma casa editorial.",
     "actions": [
       { "label": "Ver YouTube", "url": "https://www.youtube.com/@AldoSalesPlaybook", "style": "light" },
-      { "label": "Suscríbete gratis", "url": "https://playbookmedia.substack.com/", "style": "accent" }
+      { "label": "Suscríbete gratis", "url": "https://playbookmedia.substack.com/", "style": "light" }
     ]
   },
   "footer": {
