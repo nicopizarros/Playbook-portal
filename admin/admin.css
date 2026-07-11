@@ -230,6 +230,12 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .admin-hero-note.is-hidden { display: none; }
 .admin-hero-warning { margin-top: 8px; color: #a3550f; font-weight: 600; }
 
+/* ---------- Tag taxonomy checkboxes (Task 2) ---------- */
+
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.checkbox-option { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: var(--gray-dark); cursor: pointer; }
+.checkbox-option input[type="checkbox"] { accent-color: var(--ink); cursor: pointer; }
+
 .btn-mini {
   border: 1px solid var(--rule); background: var(--paper); border-radius: 7px;
   min-height: 30px; padding: 0 10px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray-txt);

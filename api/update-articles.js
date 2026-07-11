@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   }
 
   // 2. Deduplicación por URL
-  if (current.articles.some(a => a.url === article.url)) {
+  if (current.articles.some(a => a.substack_url === article.url)) {
     return res.status(200).json({ status: 'duplicate', url: article.url });
   }
 
@@ -74,23 +74,33 @@ export default async function handler(req, res) {
   const dateFormatted = `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
   const dateISO = dateObj.toISOString().slice(0, 10);
 
-  // Prioridad: si no viene explícita en el payload, el artículo entra
-  // por encima de todo lo existente (mismo criterio que "más nuevo = más arriba").
-  const maxPriority = current.articles.reduce((max, a) => Math.max(max, a.priority || 0), 0);
-  const priority = Number.isFinite(article.priority) ? article.priority : maxPriority + 1;
+  // Prioridad: si no viene explícita en el payload, el artículo entra con una
+  // prioridad neutral (3). Antes esto era "maxPriority + 1", que crecía sin
+  // límite en cada artículo nuevo y eventualmente pasaba de 5 — rompiendo en
+  // silencio la señal de "5 estrellas = hero" que usa la portada.
+  const priority = Number.isFinite(article.priority) ? article.priority : 3;
+
+  // Dedupe id contra lo ya existente por si el slug derivado del URL choca.
+  let id = slug;
+  if (current.articles.some(a => a.id === id)) {
+    id = `${slug}-${Date.now().toString(36)}`;
+  }
 
   const newArticle = {
-    id:            slug,
+    id,
     title:         article.title,
     excerpt:       stripHtml(article.excerpt || article.description || ''),
+    teaser:        stripHtml(article.teaser || article.excerpt || article.description || ''),
     author:        article.author || 'Guillermo Mejía',
     date:          dateISO,
     dateFormatted: dateFormatted,
     publication:   article.publication || pubInfo.publication,
     source:        article.source      || pubInfo.source,
-    tag:           article.tag         || '',
+    tags:          article.tags        || { scope: [], sport: [], vertical: [] },
     priority:      priority,
-    url:           article.url,
+    featured:      article.featured === true,
+    reading_time:  Number.isFinite(article.reading_time) ? article.reading_time : 1,
+    substack_url:  article.substack_url || article.url,
     imageUrl:      article.imageUrl    || ''
   };
 
