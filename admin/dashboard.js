@@ -384,7 +384,7 @@ function leadTemplate(a) {
   const photo = a.imageUrl
     ? `<div class="lead-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title || '')}" decoding="async" /></div>`
     : '';
-  return `<a class="lead-story reveal is-visible" data-source="${escapeHtml(source)}" href="/articulo.html?id=${escapeHtml(a.id || '')}">
+  return `<a class="lead-story reveal is-visible" data-source="${escapeHtml(source)}" href="/articulo.html?id=${escapeHtml(a.id || '')}" target="_blank" rel="noopener noreferrer">
       ${photo}
       <span class="tag">${escapeHtml(a.publication || '')}</span>
       <h1>${escapeHtml(a.title || '')}</h1>
@@ -397,7 +397,7 @@ function leadTemplate(a) {
 function rowTemplate(a, heading) {
   const H = heading || 'h3';
   const source = KNOWN_SOURCES.indexOf(a.source) !== -1 ? a.source : 'playbook';
-  return `<a class="news-row reveal is-visible" data-source="${escapeHtml(source)}" href="/articulo.html?id=${escapeHtml(a.id || '')}">
+  return `<a class="news-row reveal is-visible" data-source="${escapeHtml(source)}" href="/articulo.html?id=${escapeHtml(a.id || '')}" target="_blank" rel="noopener noreferrer">
       <span class="tag-mini ${escapeHtml(source)}">${escapeHtml(a.publication || '')}</span>
       <${H}>${escapeHtml(a.title || '')}</${H}>
       <div class="byline">${escapeHtml(a.dateFormatted || '')} · ${escapeHtml(a.reading_time || '')} min</div>
