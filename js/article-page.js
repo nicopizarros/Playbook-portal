@@ -18,6 +18,20 @@ function tagPillsRow(a) {
   return `<div class="tag-pill-row">${all.map(x => `<span class="tag-mini">${escapeHtml(x)}</span>`).join('')}</div>`;
 }
 
+// Decorative filler shown blurred below the real teaser, as a visual hook
+// toward the Substack CTA — fixed placeholder copy, not per-article data,
+// so it's not real content and must never be mistaken for it (aria-hidden,
+// unselectable, see .article-blur-filler in css/article.css).
+const BLUR_FILLER_PARAGRAPHS = [
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.',
+  'Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.'
+];
+
+function blurFillerBlock() {
+  const paragraphs = BLUR_FILLER_PARAGRAPHS.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+  return `<div class="article-body article-blur-filler" aria-hidden="true">${paragraphs}</div>`;
+}
+
 function articleTemplate(a) {
   const photo = a.imageUrl
     ? `<div class="lead-photo article-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title)}" fetchpriority="high" decoding="async" /></div>`
@@ -35,6 +49,7 @@ function articleTemplate(a) {
       <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>
       ${tagPillsRow(a)}
       <div class="article-body">${paragraphs || `<p>${escapeHtml(a.excerpt || '')}</p>`}</div>
+      ${blurFillerBlock()}
       <a class="btn article-cta" href="${escapeHtml(a.substack_url)}" target="_blank" rel="noopener noreferrer">Leer la nota completa</a>
     </article>`;
 }
