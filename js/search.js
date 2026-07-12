@@ -16,7 +16,7 @@ function matches(article, query) {
 }
 
 function resultTemplate(a) {
-  return `<a class="sr-item" href="/articulo.html?id=${escapeHtml(a.id)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="sr-item" href="/articulo.html?id=${escapeHtml(a.id)}">
       <span class="tag-mini ${escapeHtml(a.source)}">${escapeHtml(a.publication)}</span>
       <h4>${escapeHtml(a.title)}</h4>
     </a>`;

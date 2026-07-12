@@ -44,7 +44,7 @@ function leadTemplate(a) {
   const photo = a.imageUrl
     ? `<div class="lead-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title)}" fetchpriority="high" decoding="async" /></div>`
     : '';
-  return `<a class="lead-story reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="lead-story reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}">
       ${photo}
       <span class="tag">${escapeHtml(a.publication)}</span>
       <h1>${escapeHtml(a.title)}</h1>
@@ -56,7 +56,7 @@ function leadTemplate(a) {
 
 function rowTemplate(a, heading) {
   const H = heading || 'h3';
-  return `<a class="news-row reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="news-row reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}">
       <span class="tag-mini ${escapeHtml(a.source)}">${escapeHtml(a.publication)}</span>
       <${H}>${escapeHtml(a.title)}</${H}>
       <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>

@@ -35,7 +35,7 @@ function tagPillsRow(a) {
 }
 
 function rowTemplate(a) {
-  return `<a class="news-row reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}" target="_blank" rel="noopener noreferrer">
+  return `<a class="news-row reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}">
       <span class="tag-mini ${escapeHtml(a.source)}">${escapeHtml(a.publication)}</span>
       <h3>${escapeHtml(a.title)}</h3>
       <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>
