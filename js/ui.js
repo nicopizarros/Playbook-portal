@@ -33,6 +33,7 @@ function initScrollReveal() {
   observeNew();
   document.addEventListener('playbook:rendered', observeNew);
   document.addEventListener('playbook:content-rendered', observeNew);
+  document.addEventListener('playbook:archive-rendered', observeNew);
 }
 
 function isValidEmail(value) {

@@ -32,7 +32,7 @@ export function navLinksTemplate(nav) {
   const links = nav.links.map(l =>
     `<a class="${l.variant === 'infinitas' ? 'nav-link-infinitas' : ''}" href="${su(l.href)}">${e(l.label)}</a>`
   ).join('');
-  const cta = `<a class="btn accent nav-drawer-cta" href="${su(nav.ctaUrl)}" target="_blank" rel="noopener noreferrer">${e(nav.ctaLabel)}</a>`;
+  const cta = `<a class="btn nav-drawer-cta" href="${su(nav.ctaUrl)}" target="_blank" rel="noopener noreferrer">${e(nav.ctaLabel)}</a>`;
   return links + cta;
 }
 

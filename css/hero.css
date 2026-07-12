@@ -4,7 +4,7 @@
 
 .news-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:36px;margin-bottom:8px;}
 
-.lead-story{position:relative;border-right:1px solid var(--rule);padding-right:36px;padding-left:16px;border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out);}
+.lead-story{display:block;position:relative;border-right:1px solid var(--rule);padding-right:36px;padding-left:16px;border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out);}
 .lead-story[data-source="industry-shots"]{border-left-color:var(--src-industry);}
 .lead-story[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .lead-story[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
@@ -16,7 +16,7 @@
 .lead-story h1{font-family:var(--serif-display);font-weight:400;font-size:34px;line-height:1.1;margin:0 0 16px;text-transform:none;}
 .lead-story .desc{font-size:16px;line-height:1.55;color:var(--gray-dark);margin:0 0 16px;max-width:56ch;font-weight:400;}
 .byline{font-size:12px;color:var(--gray-txt);font-weight:400;}
-.byline b{color:var(--ink);font-weight:600;}
+.lead-story .tag-pill-row{margin-top:12px;}
 
 .news-list{display:flex;flex-direction:column;}
 .news-row{display:block;padding:16px 0 16px 14px;border-bottom:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}

@@ -1,6 +1,9 @@
 @media(min-width:921px){
   .nav-toggle{display:none;}
   .nav-overlay{display:none;}
+  /* Below 920px #nav-cta hides and .nav-drawer-cta becomes the only subscribe
+     CTA; at desktop widths the reverse must hold, or both render side by side. */
+  .nav-drawer-cta{display:none;}
 }
 
 @media(max-width:920px){

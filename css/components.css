@@ -8,6 +8,7 @@
 
 .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--ink);color:var(--paper);font-size:13px;font-weight:600;padding:10px 20px;border-radius:999px;white-space:nowrap;transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);border:1px solid var(--ink);overflow:hidden;}
 .btn:hover{transform:translateY(-1px) scale(1.015);}
+.btn:active{transform:translateY(0) scale(0.98);transition-duration:var(--duration-fast);}
 .btn.accent{background:var(--green);color:var(--ink);border-color:var(--green);font-weight:700;}
 .btn.light{background:transparent;color:var(--ink);border:1px solid var(--ink);z-index:0;}
 .btn.light.on-dark{color:#fff;border-color:rgba(255,255,255,.66);}
@@ -37,6 +38,11 @@
 .tag-mini.infinitas::before{background:var(--src-infinitas);}
 .tag-mini.playbook{color:var(--src-playbook);}
 .tag-mini.playbook::before{background:var(--src-playbook);}
+
+/* Tag-taxonomy pill rows (Task 2) — reuses .tag-mini's dot+label look, no
+   source color (these pills are scope/sport/vertical, not source-coded). */
+.tag-pill-row{display:flex;flex-wrap:wrap;gap:8px 14px;}
+.tag-pill-row .tag-mini{margin-bottom:0;}
 
 .pill{display:inline-flex;align-items:center;min-height:38px;border:1px solid rgba(255,255,255,.3);padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:500;transition:background var(--duration-base) var(--ease-out);}
 .pill:hover,.pill:focus-visible{background:rgba(255,255,255,.08);}

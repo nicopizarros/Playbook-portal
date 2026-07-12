@@ -11,8 +11,10 @@ import {
   testimonialsSectionHeadTemplate, testimonialsGridTemplate,
   aboutCardTemplate,
   footerContentTemplate, footerCopyrightTemplate,
-  escapeHtml, safeUrl
+  escapeHtml
 } from '../js/templates.js';
+import { rankArticles } from '../js/rank.js';
+import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '../js/taxonomy.js';
 
 const TOKEN_KEY = 'playbook_admin_token';
 const USERNAME_KEY = 'playbook_admin_username';
@@ -30,10 +32,18 @@ const CONTENT_SECTION_KEYS = [
 // live homepage actually shows, this mirrors it so the admin preview and
 // the "en portada / archivo" badges match reality.
 const LEAD_COUNT = 1;
-const LIST_COUNT = 6;
+const LIST_COUNT = 5;
 const STRIP_COUNT = 0;
 const TICKER_COUNT = 6;
 const MAIN_PAGE_COUNT = LEAD_COUNT + LIST_COUNT + STRIP_COUNT;
+
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 const state = {
   token: sessionStorage.getItem(TOKEN_KEY) || null,
@@ -122,11 +132,43 @@ function textField(obj, key, labelText, opts = {}) {
     input.addEventListener('input', () => { if (touched) runValidation(); });
   }
 
+  if (opts.numeric) {
+    input.min = opts.min != null ? opts.min : 1;
+    input.step = opts.step != null ? opts.step : 1;
+  }
+
   input.addEventListener('input', () => {
-    obj[key] = input.value;
+    obj[key] = opts.numeric
+      ? (input.value === '' ? '' : Number(input.value))
+      : input.value;
     onDirty();
+    if (opts.onChange) opts.onChange(obj[key]);
   });
   return labeledField(labelText, opts.help, input, errorEl);
+}
+
+// One checkbox per fixed option, toggling membership in obj[key] (an array).
+// Used for the three tag-taxonomy tiers (Task 2) — deliberately not a
+// <select multiple>, to match this file's label/help/error layout and give
+// better keyboard/mobile behavior than a native multi-select.
+function checkboxGroupField(obj, key, labelText, options, help) {
+  if (!Array.isArray(obj[key])) obj[key] = [];
+  const row = el('div', { class: 'checkbox-group' });
+  options.forEach(option => {
+    const checkboxId = `cb-${key}-${slugify(option)}-${Math.random().toString(36).slice(2, 7)}`;
+    const input = el('input', {
+      type: 'checkbox', id: checkboxId,
+      checked: obj[key].indexOf(option) !== -1
+    });
+    input.addEventListener('change', () => {
+      const idx = obj[key].indexOf(option);
+      if (input.checked && idx === -1) obj[key].push(option);
+      else if (!input.checked && idx !== -1) obj[key].splice(idx, 1);
+      onDirty();
+    });
+    row.appendChild(el('label', { class: 'checkbox-option' }, [input, el('span', { text: option })]));
+  });
+  return plainField(labelText, help, row);
 }
 
 function selectField(obj, key, labelText, options, help) {
@@ -167,23 +209,8 @@ function starPickerField(obj, key, labelText, help, onChange) {
   return plainField(labelText, help, row);
 }
 
-// Mirrors the sort used on the live site (js/articles.js): stars desc, then
-// date desc, with array order as the final stable tiebreak.
-function rankArticles(list) {
-  return (list || [])
-    .map((article, index) => ({ article, index }))
-    .sort((a, b) => {
-      const sa = Number(a.article.priority) || 0;
-      const sb = Number(b.article.priority) || 0;
-      if (sb !== sa) return sb - sa;
-      const da = a.article.date || '';
-      const db = b.article.date || '';
-      if (db !== da) return db.localeCompare(da);
-      return a.index - b.index;
-    })
-    .map(x => x.article);
-}
-
+// rankArticles is imported from js/rank.js so the live site, the archive
+// page, and this admin preview all agree on "what counts as important".
 function mainPageArticleSet(list) {
   return new Set(rankArticles(list).slice(0, MAIN_PAGE_COUNT));
 }
@@ -345,34 +372,43 @@ function safeMount(id, templateFn, arg) {
   }
 }
 
+function tagPillsPreview(a) {
+  const tags = a.tags || {};
+  const all = [...(tags.scope || []), ...(tags.sport || []), ...(tags.vertical || [])];
+  if (!all.length) return '';
+  return `<div class="tag-pill-row">${all.map(t => `<span class="tag-mini">${escapeHtml(t)}</span>`).join('')}</div>`;
+}
+
 function leadTemplate(a) {
   const source = KNOWN_SOURCES.indexOf(a.source) !== -1 ? a.source : 'playbook';
   const photo = a.imageUrl
     ? `<div class="lead-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title || '')}" decoding="async" /></div>`
     : '';
-  return `<article class="lead-story reveal is-visible" data-source="${escapeHtml(source)}">
+  return `<a class="lead-story reveal is-visible" data-source="${escapeHtml(source)}" href="/articulo.html?id=${escapeHtml(a.id || '')}">
       ${photo}
       <span class="tag">${escapeHtml(a.publication || '')}</span>
       <h1>${escapeHtml(a.title || '')}</h1>
       <p class="desc">${escapeHtml(a.excerpt || '')}</p>
-      <div class="byline"><b>${escapeHtml(a.author || '')}</b> · ${escapeHtml(a.dateFormatted || '')}</div>
-    </article>`;
+      <div class="byline">${escapeHtml(a.dateFormatted || '')} · ${escapeHtml(a.reading_time || '')} min</div>
+      ${tagPillsPreview(a)}
+    </a>`;
 }
 
 function rowTemplate(a, heading) {
   const H = heading || 'h3';
   const source = KNOWN_SOURCES.indexOf(a.source) !== -1 ? a.source : 'playbook';
-  return `<a class="news-row reveal is-visible" data-source="${escapeHtml(source)}" href="${escapeHtml(safeUrl(a.url))}" target="_blank" rel="noopener noreferrer">
+  return `<a class="news-row reveal is-visible" data-source="${escapeHtml(source)}" href="/articulo.html?id=${escapeHtml(a.id || '')}">
       <span class="tag-mini ${escapeHtml(source)}">${escapeHtml(a.publication || '')}</span>
       <${H}>${escapeHtml(a.title || '')}</${H}>
-      <div class="byline">${escapeHtml(a.dateFormatted || '')}</div>
+      <div class="byline">${escapeHtml(a.dateFormatted || '')} · ${escapeHtml(a.reading_time || '')} min</div>
     </a>`;
 }
 
 function newsGridTemplate(ranked) {
-  const lead = ranked.slice(0, LEAD_COUNT);
-  const list = ranked.slice(LEAD_COUNT, LEAD_COUNT + LIST_COUNT);
   if (!ranked.length) return '<p class="empty-state">Sin artículos todavía.</p>';
+  const hero = ranked.find(a => a.featured === true || Number(a.priority) === 5) || ranked[0];
+  const lead = [hero];
+  const list = ranked.filter(a => a !== hero).slice(0, LIST_COUNT);
   return lead.map(leadTemplate).join('') + `<div class="news-list">${list.map(a => rowTemplate(a, 'h3')).join('')}</div>`;
 }
 
@@ -506,7 +542,7 @@ function buildArticlesTab(container) {
   container.appendChild(summaryEl);
   function refreshSummary() {
     const mainSet = mainPageArticleSet(list);
-    summaryEl.textContent = `${mainSet.size} de ${list.length} artículos aparecen en la portada (el destacado + los ${LIST_COUNT} siguientes por estrellas y fecha). El resto queda en el archivo automáticamente — no hace falta archivarlos a mano.`;
+    summaryEl.textContent = `${mainSet.size} de ${list.length} artículos aparecen en la portada (el destacado + los ${LIST_COUNT} siguientes por estrellas y fecha). El resto vive en /archivo.html automáticamente — no hace falta archivarlos a mano.`;
   }
 
   const editorEl = arrayEditor(list, {
@@ -518,10 +554,14 @@ function buildArticlesTab(container) {
     emptyHint: 'No hay artículos cargados todavía.',
     onListChange: refreshSummary,
     newItem: () => ({
-      id: '', title: '', excerpt: '', author: '', date: '', dateFormatted: '',
-      publication: 'Playbook', source: 'playbook', tag: '', priority: 3, url: '', imageUrl: ''
+      id: '', title: '', excerpt: '', teaser: '', author: '', date: '', dateFormatted: '',
+      publication: 'Playbook', source: 'playbook',
+      tags: { scope: [], sport: [], vertical: [] },
+      priority: 3, featured: false, reading_time: 1, substack_url: '', imageUrl: ''
     }),
     renderItem: (item) => {
+      if (!item.tags) item.tags = { scope: [], sport: [], vertical: [] };
+
       const imageField = textField(item, 'imageUrl', 'Imagen', {
         type: 'url',
         required: () => Number(item.priority) === 5,
@@ -529,33 +569,62 @@ function buildArticlesTab(container) {
       });
       const imageInput = imageField.querySelector('input');
 
+      const idField = textField(item, 'id', 'ID (para el enlace del artículo)', {
+        help: 'Se genera solo a partir del título si lo dejas vacío. Debe ser único — se usa en la URL del artículo (/articulo.html?id=...).'
+      });
+
       const otherHero = list.find(a => a !== item && Number(a.priority) === 5);
-      const heroNote = el('div', { class: 'admin-hero-note' + (Number(item.priority) === 5 ? '' : ' is-hidden') }, [
-        el('strong', { text: '5 estrellas = tratamiento de portada (hero). ' }),
-        el('span', { text: 'Normalmente debe haber solo un artículo con 5 estrellas a la vez.' }),
+      const otherFeatured = list.find(a => a !== item && a.featured === true);
+      const heroNote = el('div', { class: 'admin-hero-note' + (Number(item.priority) === 5 || item.featured === true ? '' : ' is-hidden') }, [
+        el('strong', { text: '5 estrellas o "Destacado" = tratamiento de portada (hero). ' }),
+        el('span', { text: 'Normalmente debe haber solo un artículo destacado a la vez.' }),
         otherHero ? el('div', { class: 'admin-hero-warning', text:
           `Ya hay otro artículo con 5 estrellas: "${otherHero.title || 'sin título'}". Solo el más reciente de los dos se mostrará como principal.`
+        }) : null,
+        otherFeatured ? el('div', { class: 'admin-hero-warning', text:
+          `Ya hay otro artículo marcado como "Destacado": "${otherFeatured.title || 'sin título'}". Solo el más reciente de los dos se mostrará como principal.`
         }) : null
       ].filter(Boolean));
 
       const stars = starPickerField(item, 'priority', 'Importancia', 'De 1 a 5 estrellas. Junto con la fecha, decide el orden: más estrellas y más reciente aparece primero.', (newValue) => {
-        heroNote.classList.toggle('is-hidden', Number(newValue) !== 5);
+        heroNote.classList.toggle('is-hidden', Number(newValue) !== 5 && item.featured !== true);
         if (imageInput._playbookValidate) imageInput._playbookValidate();
         editorEl.rerender();
       });
 
+      const featuredCheckbox = el('input', { type: 'checkbox', checked: item.featured === true });
+      featuredCheckbox.addEventListener('change', () => {
+        item.featured = featuredCheckbox.checked;
+        heroNote.classList.toggle('is-hidden', Number(item.priority) !== 5 && item.featured !== true);
+        onDirty();
+        editorEl.rerender();
+      });
+      const featuredField = plainField('Destacado (hero)', 'Marca este artículo para que ocupe el puesto principal de portada, sin importar sus estrellas.',
+        el('label', { class: 'checkbox-option' }, [featuredCheckbox, el('span', { text: 'Mostrar como destacado' })]));
+
       return [
-        textField(item, 'title', 'Título', { help: 'El titular del artículo tal como se muestra en Noticias.' }),
-        textField(item, 'excerpt', 'Extracto', { multiline: true, help: 'Uno o dos renglones que resumen el artículo.' }),
-        textField(item, 'author', 'Autor', { help: 'El nombre de quien escribió el artículo.' }),
+        textField(item, 'title', 'Título', {
+          help: 'El titular del artículo tal como se muestra en Noticias.',
+          onChange: (value) => {
+            if (!item.id) { item.id = slugify(value); idField.querySelector('input').value = item.id; }
+          }
+        }),
+        idField,
+        textField(item, 'excerpt', 'Extracto', { multiline: true, help: 'Uno o dos renglones que resumen el artículo — se usa en las tarjetas de Noticias.' }),
+        textField(item, 'teaser', 'Teaser (texto completo en el sitio)', { multiline: true, help: 'El texto que ve el lector en la página del artículo, sin límite de longitud. Debajo aparece el botón hacia Substack — esto es todo el contenido on-site.' }),
+        textField(item, 'author', 'Autor', { help: 'El nombre de quien escribió el artículo. Ya no se muestra públicamente en el sitio — queda solo como registro interno.' }),
         textField(item, 'publication', 'Publicación', { help: 'El nombre de la publicación de origen.' }),
         selectField(item, 'source', 'Fuente', KNOWN_SOURCES.map(v => ({ value: v, label: v })), 'A qué categoría pertenece — define el color de su etiqueta.'),
-        textField(item, 'tag', 'Etiqueta', { help: 'Una etiqueta corta de tema (ej. Audiencias).' }),
+        checkboxGroupField(item.tags, 'scope', 'Alcance', SCOPE_OPTIONS, 'Nacional y/o internacional.'),
+        checkboxGroupField(item.tags, 'sport', 'Deporte', SPORT_OPTIONS, 'Puede tener más de uno.'),
+        checkboxGroupField(item.tags, 'vertical', 'Vertical de negocio', VERTICAL_OPTIONS, 'Puede tener más de uno.'),
         textField(item, 'date', 'Fecha (AAAA-MM-DD)', { help: 'Se usa para ordenar los artículos por fecha — lo más reciente siempre pesa.' }),
         textField(item, 'dateFormatted', 'Fecha en texto', { help: 'Cómo se muestra la fecha en el sitio (ej. 9 jul 2026).' }),
+        textField(item, 'reading_time', 'Tiempo de lectura (minutos)', { numeric: true, min: 1, step: 1, help: 'Minutos de lectura, se escribe a mano — ya no se calcula solo.' }),
         stars,
+        featuredField,
         heroNote,
-        textField(item, 'url', 'Enlace del artículo', { type: 'url', required: true, help: 'A dónde lleva el artículo al hacer clic.' }),
+        textField(item, 'substack_url', 'Enlace en Substack', { type: 'url', required: true, help: 'A dónde lleva el botón de "Leer la nota completa" en la página del artículo.' }),
         imageField
       ];
     }
@@ -751,7 +820,7 @@ function buildAboutTab(container) {
     renderItem: (item) => [
       textField(item, 'label', 'Texto del botón', { help: 'El texto que se muestra en el botón.' }),
       textField(item, 'url', 'Enlace del botón', { type: 'url', required: true, help: 'A dónde lleva el botón al hacer clic.' }),
-      selectField(item, 'style', 'Estilo', [{ value: 'light', label: 'Claro (con borde)' }, { value: 'accent', label: 'Destacado (verde)' }], 'Claro es un botón con borde; Destacado es un botón verde.')
+      selectField(item, 'style', 'Estilo', [{ value: 'light', label: 'Claro (con borde)' }], 'El único estilo disponible: un botón con borde, en negro.')
     ]
   }));
 }
@@ -876,6 +945,22 @@ function validateActiveTabUrls() {
   return !firstInvalid;
 }
 
+// Blocks save on a blank or duplicate article id — articulo.html looks
+// articles up by id, so a collision or blank id would make an article
+// unreachable (or silently overwrite another article's page).
+function validateArticleIds() {
+  if (state.activeTab !== 'articles' || !state.articles) return true;
+  const list = state.articles.articles;
+  const seen = new Map();
+  for (const a of list) {
+    const id = (a.id || '').trim();
+    if (!id) { showToast('Todos los artículos necesitan un ID (se genera solo desde el título).', 'error'); return false; }
+    if (seen.has(id)) { showToast(`ID duplicado: "${id}" — usado por más de un artículo.`, 'error'); return false; }
+    seen.set(id, a);
+  }
+  return true;
+}
+
 // ---------------------------------------------------------------- Conflict modal
 
 function showConflictModal(onReload) {
@@ -897,6 +982,10 @@ function showConflictModal(onReload) {
 async function handleSave() {
   if (!validateActiveTabUrls()) {
     showToast('Corrige los enlaces marcados en rojo antes de guardar.', 'error');
+    setStatus('Hay campos con errores', 'error');
+    return;
+  }
+  if (!validateArticleIds()) {
     setStatus('Hay campos con errores', 'error');
     return;
   }
