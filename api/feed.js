@@ -7,7 +7,8 @@
 // Se recalcula en cada request (con cache corta abajo), así que el feed
 // queda al día solo con que articles.json cambie — sin paso manual.
 
-const SITE_URL = 'https://www.playbookmedia.mx';
+import { resolveSiteUrl } from '../lib/site-url.js';
+
 const FEED_TITLE = 'Playbook';
 const FEED_DESCRIPTION = 'Noticias, análisis y video para entender el negocio del deporte en México y LATAM.';
 const MAX_ITEMS = 50;
@@ -36,8 +37,8 @@ function showsAuthor(article, siteSettings) {
   return article.mostrar_autor === true || (siteSettings && siteSettings.mostrarAutorGlobal === true);
 }
 
-function itemXml(article, siteSettings) {
-  const link = `${SITE_URL}/articulo.html?id=${encodeURIComponent(article.id)}`;
+function itemXml(siteUrl, article, siteSettings) {
+  const link = `${siteUrl}/articulo.html?id=${encodeURIComponent(article.id)}`;
   const description = article.teaser || article.excerpt || '';
   const creator = showsAuthor(article, siteSettings) && article.author
     ? `\n    <dc:creator>${cdata(article.author)}</dc:creator>`
@@ -52,12 +53,13 @@ function itemXml(article, siteSettings) {
 }
 
 export default async function handler(req, res) {
+  const siteUrl = resolveSiteUrl(req);
   let articles = [];
   let siteSettings = {};
   try {
     const [articlesRes, contentRes] = await Promise.all([
-      fetch(`${SITE_URL}/articles.json`),
-      fetch(`${SITE_URL}/content.json`)
+      fetch(`${siteUrl}/articles.json`),
+      fetch(`${siteUrl}/content.json`)
     ]);
     if (articlesRes.ok) {
       const data = await articlesRes.json();
@@ -72,15 +74,15 @@ export default async function handler(req, res) {
   }
 
   const sorted = articles.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-  const items = sorted.slice(0, MAX_ITEMS).map(a => itemXml(a, siteSettings)).join('\n');
+  const items = sorted.slice(0, MAX_ITEMS).map(a => itemXml(siteUrl, a, siteSettings)).join('\n');
   const lastBuildDate = sorted.length ? toRfc822(sorted[0].date) : new Date(0).toUTCString();
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
   <title>${xmlEscape(FEED_TITLE)}</title>
-  <link>${xmlEscape(SITE_URL)}/</link>
-  <atom:link href="${xmlEscape(SITE_URL)}/feed.xml" rel="self" type="application/rss+xml" />
+  <link>${xmlEscape(siteUrl)}/</link>
+  <atom:link href="${xmlEscape(siteUrl)}/feed.xml" rel="self" type="application/rss+xml" />
   <description>${xmlEscape(FEED_DESCRIPTION)}</description>
   <language>es-mx</language>
   <lastBuildDate>${lastBuildDate}</lastBuildDate>

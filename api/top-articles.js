@@ -6,10 +6,10 @@
 // js/most-read.js just hides the module instead of showing something fake.
 
 import { topArticleIds } from '../lib/ga4.js';
-
-const SITE_URL = 'https://www.playbookmedia.mx';
+import { resolveSiteUrl } from '../lib/site-url.js';
 
 export default async function handler(req, res) {
+  const siteUrl = resolveSiteUrl(req);
   res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=300');
 
   let ranked;
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
   let pool = [];
   try {
-    const r = await fetch(`${SITE_URL}/articles.json`);
+    const r = await fetch(`${siteUrl}/articles.json`);
     if (r.ok) {
       const data = await r.json();
       pool = Array.isArray(data.articles) ? data.articles : [];

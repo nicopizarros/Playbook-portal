@@ -6,7 +6,7 @@
 // disk — Vercel's Node bundler only ships files it can trace from static
 // imports, and this sidesteps that entirely.
 
-const SITE_URL = 'https://www.playbookmedia.mx';
+import { resolveSiteUrl } from '../lib/site-url.js';
 
 // Priority/changefreq tiers, matching actual content hierarchy — Google
 // disregards sitemaps where every URL claims priority 1.0, so these are
@@ -68,7 +68,7 @@ function mostRecentDate(dates) {
   return valid.length ? valid.sort().slice(-1)[0] : undefined;
 }
 
-function buildEntries(articles, siteSettings) {
+function buildEntries(siteUrl, articles, siteSettings) {
   const entries = [];
   // Every <url> block gets a <lastmod>, including the two static pages —
   // GSC uses it to prioritize recrawls, and an omitted one just reads as
@@ -77,11 +77,11 @@ function buildEntries(articles, siteSettings) {
   // the honest proxy for "when this listing last actually changed".
   const latestArticleDate = mostRecentDate(articles.map(a => a.date));
 
-  entries.push(urlEntry(`${SITE_URL}/`, { ...TIERS.home, lastmod: latestArticleDate }));
-  entries.push(urlEntry(`${SITE_URL}/archivo.html`, { ...TIERS.archive, lastmod: latestArticleDate }));
+  entries.push(urlEntry(`${siteUrl}/`, { ...TIERS.home, lastmod: latestArticleDate }));
+  entries.push(urlEntry(`${siteUrl}/archivo.html`, { ...TIERS.archive, lastmod: latestArticleDate }));
 
   articles.forEach(a => {
-    entries.push(urlEntry(`${SITE_URL}/articulo.html?id=${encodeURIComponent(a.id)}`, {
+    entries.push(urlEntry(`${siteUrl}/articulo.html?id=${encodeURIComponent(a.id)}`, {
       ...TIERS.article,
       lastmod: isValidDate(a.date) ? a.date : undefined
     }));
@@ -100,7 +100,7 @@ function buildEntries(articles, siteSettings) {
     authorDates.set(a.author, existing);
   });
   authorDates.forEach((dates, name) => {
-    entries.push(urlEntry(`${SITE_URL}/autor.html?nombre=${encodeURIComponent(name)}`, {
+    entries.push(urlEntry(`${siteUrl}/autor.html?nombre=${encodeURIComponent(name)}`, {
       ...TIERS.author,
       lastmod: mostRecentDate(dates)
     }));
@@ -117,12 +117,13 @@ function buildEntries(articles, siteSettings) {
 }
 
 export default async function handler(req, res) {
+  const siteUrl = resolveSiteUrl(req);
   let articles = [];
   let siteSettings = {};
   try {
     const [articlesRes, contentRes] = await Promise.all([
-      fetch(`${SITE_URL}/articles.json`),
-      fetch(`${SITE_URL}/content.json`)
+      fetch(`${siteUrl}/articles.json`),
+      fetch(`${siteUrl}/content.json`)
     ]);
     if (articlesRes.ok) {
       const data = await articlesRes.json();
@@ -137,7 +138,7 @@ export default async function handler(req, res) {
     // estáticas en vez de fallar toda la respuesta con un 500.
   }
 
-  const entries = buildEntries(articles, siteSettings);
+  const entries = buildEntries(siteUrl, articles, siteSettings);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');

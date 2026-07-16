@@ -21,8 +21,8 @@
 
 import { verifyToken, getBearerToken } from '../lib/auth.js';
 import { count, aggregateVisits, aggregateEvents } from '../lib/vercel-analytics.js';
+import { resolveSiteUrl } from '../lib/site-url.js';
 
-const SITE_URL = 'https://www.playbookmedia.mx';
 const ARTICLE_EVENT_NAME = 'pageview_article';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -65,7 +65,7 @@ async function periodKpis(sinceCurrent, untilCurrent, sincePrior, untilPrior) {
   };
 }
 
-async function topArticlesPanel() {
+async function topArticlesPanel(siteUrl) {
   let rows;
   try {
     rows = await aggregateEvents({
@@ -83,7 +83,7 @@ async function topArticlesPanel() {
 
   let pool = [];
   try {
-    const r = await fetch(`${SITE_URL}/articles.json`);
+    const r = await fetch(`${siteUrl}/articles.json`);
     if (r.ok) {
       const data = await r.json();
       pool = Array.isArray(data.articles) ? data.articles : [];
@@ -100,7 +100,7 @@ async function topArticlesPanel() {
       return {
         id,
         title: article ? article.title : (id || 'Desconocido'),
-        url: `${SITE_URL}/articulo.html?id=${encodeURIComponent(id || '')}`,
+        url: `${siteUrl}/articulo.html?id=${encodeURIComponent(id || '')}`,
         publication: article ? article.publication : null,
         count: row.count || 0
       };
@@ -137,6 +137,7 @@ export default async function handler(req, res) {
   if (!claims) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  const siteUrl = resolveSiteUrl(req);
 
   const emptyResponse = {
     updatedAt: isoNow(),
@@ -153,7 +154,7 @@ export default async function handler(req, res) {
       periodKpis(isoStartOfDayUTC(0), isoNow(), isoStartOfDayUTC(1), isoStartOfDayUTC(0)),
       periodKpis(isoDaysAgo(7), isoNow(), isoDaysAgo(14), isoDaysAgo(7)),
       periodKpis(isoDaysAgo(30), isoNow(), isoDaysAgo(60), isoDaysAgo(30)),
-      topArticlesPanel(),
+      topArticlesPanel(siteUrl),
       breakdownPanel('referrerHostname'),
       breakdownPanel('country'),
       breakdownPanel('deviceType')
