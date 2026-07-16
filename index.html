@@ -3,9 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Vercel Web Analytics. El shim de window.va debe cargar antes que
+     script.js y antes que cualquier módulo que llame a va(...) (ver
+     js/article-page.js) — por eso va primero, arriba del todo. Corre en
+     paralelo a GA4 (js/analytics.js): no es un reemplazo, ver nota en
+     lib/vercel-analytics.js. -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <title>Playbook — El negocio del deporte</title>
 <meta name="description" content="Playbook: noticias, análisis, newsletters y video para entender el negocio del deporte en México y LATAM." />
 <meta name="robots" content="index, follow" />
+<!-- Verificación de Google Search Console: mismo valor en las 5 páginas públicas — instrucciones para reemplazarlo en README.md -->
+<meta name="google-site-verification" content="513N8AzJQaHyitmSLoB5S0t8nD0jhkPY7L10pA7YSWU" />
 <link rel="canonical" href="https://www.playbookmedia.mx/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Playbook" />
@@ -21,6 +32,10 @@
 <meta name="twitter:description" content="Noticias, análisis, newsletters y video para entender el negocio del deporte en México y LATAM." />
 <meta name="twitter:image" content="https://www.playbookmedia.mx/assets/img/playbook-logo.webp" />
 <meta name="theme-color" content="#0a0a0a" />
+<link rel="alternate" type="application/rss+xml" title="Playbook — RSS" href="/feed.xml" />
+<!-- Ícono provisional: reutiliza el logo hasta que diseño entregue un favicon cuadrado dedicado (32x32 + 180x180 apple-touch-icon) -->
+<link rel="icon" href="/assets/img/playbook-logo.webp" type="image/webp" />
+<link rel="apple-touch-icon" href="/assets/img/playbook-logo.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preload" as="image" href="/assets/img/playbook-logo.webp" fetchpriority="high" />
@@ -36,12 +51,6 @@
 <link rel="stylesheet" href="/css/hero.css" />
 <link rel="stylesheet" href="/css/sections.css" />
 <link rel="stylesheet" href="/css/responsive.css" />
-
-<!-- Vercel Web Analytics -->
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -150,6 +159,18 @@
     </form>
   </div>
 </main>
+
+<!-- ============================================================ MÁS LEÍDAS
+     Datos reales de GA4 vía /api/top-articles (js/most-read.js) — no un
+     campo estático. Empieza oculta y solo se muestra si el endpoint
+     devuelve artículos de verdad; ver lib/ga4.js para lo que falta
+     configurar. -->
+<section class="container" id="mas-leidas" hidden>
+  <div class="section-head reveal" style="padding-top:0;">
+    <div><h2>Más leídas</h2></div>
+  </div>
+  <div class="news-list" id="mas-leidas-list"></div>
+</section>
 
 <!-- ============================================================ ARTÍCULOS DE OPINIÓN
      Contenido dinámico desde content.json (opinionSection) vía js/content.js -->
@@ -277,9 +298,12 @@
   <div class="container footer-copyright" id="footer-copyright">© 2026 Playbook Media · playbook.la</div>
 </footer>
 
+<script type="module" src="/js/analytics.js"></script>
 <!-- Carga dinámica de articles.json, ranking por prioridad, filtros de fuente y archivo -->
 <script type="module" src="/js/articles.js"></script>
 <script type="module" src="/js/search.js"></script>
+<!-- Módulo "Más leídas": datos reales de GA4 vía /api/top-articles -->
+<script type="module" src="/js/most-read.js"></script>
 <!-- Carga dinámica de content.json: nav, opinión, productos, video, Infinitas, stats, testimonios, acerca, footer -->
 <script type="module" src="/js/content.js"></script>
 <script type="module" src="/js/nav.js"></script>

@@ -1,67 +1,41 @@
-/**
- * Vercel Web Analytics - Initialization
- * 
- * This script initializes Vercel Web Analytics for the Playbook portal.
- * The inject() function from @vercel/analytics tracks page views and user interactions.
- */
+'use strict';
 
-// Import the inject function from @vercel/analytics
-// For production builds using a bundler, this would be: import { inject } from '@vercel/analytics';
-// For static sites, we'll use the script-based approach with the window.va queue
+// GA4 site analytics. Loaded on every public page (not /admin — editors
+// aren't the audience being measured). GA4_MEASUREMENT_ID is a public,
+// client-side ID, not a secret, so it's fine committed here — same as any
+// other public config value in this repo.
+//
+// Propiedad confirmada por el equipo el 16 jul 2026: G-0CG7JMK8RZ.
+//
+// En la propia GA4 conviene además:
+//  - Activar "Enhanced measurement" en Admin → Data Streams: da scroll
+//    tracking genérico y clics salientes gratis, sin tocar este archivo.
+//  - Vincular la propiedad a Search Console para ver términos de búsqueda.
+//
+// Nota: este ID solo sirve para MANDAR eventos a GA4 (lo que hace este
+// archivo). El módulo "Más leídas" de la portada LEE datos de vuelta desde
+// GA4 y necesita credenciales distintas (una cuenta de servicio, no este
+// ID) — ver lib/ga4.js.
+const GA4_MEASUREMENT_ID = 'G-0CG7JMK8RZ';
 
-(function() {
-  'use strict';
+function loadGtag() {
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', GA4_MEASUREMENT_ID);
 
-  // Initialize Vercel Analytics queue
-  // This queue collects analytics calls before the main script loads
-  window.va = window.va || function () { 
-    (window.vaq = window.vaq || []).push(arguments); 
-  };
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA4_MEASUREMENT_ID}`;
+  document.head.appendChild(script);
+}
 
-  // Optional: Add beforeSend hook for filtering events
-  // Uncomment and customize if you want to filter certain events
-  /*
-  window.va('beforeSend', function(event) {
-    // Example: Don't track admin pages
-    if (event.url.includes('/admin/')) {
-      return null;
-    }
-    return event;
-  });
-  */
+// Fire-and-forget custom event helper for the rest of the site. Safe to call
+// before gtag has loaded (e.g. right after navigation) — it just no-ops
+// instead of throwing.
+export function track(eventName, params) {
+  if (typeof window.gtag === 'function') window.gtag('event', eventName, params || {});
+}
 
-  // Track page view on initial load
-  if (typeof window.va === 'function') {
-    window.va('pageview', {
-      path: window.location.pathname,
-      title: document.title
-    });
-  }
-
-  // Track page views on navigation (for SPA-like behavior)
-  // This is useful if using client-side routing
-  var originalPushState = history.pushState;
-  var originalReplaceState = history.replaceState;
-
-  function trackPageView() {
-    if (typeof window.va === 'function') {
-      window.va('pageview', {
-        path: window.location.pathname,
-        title: document.title
-      });
-    }
-  }
-
-  history.pushState = function() {
-    originalPushState.apply(this, arguments);
-    trackPageView();
-  };
-
-  history.replaceState = function() {
-    originalReplaceState.apply(this, arguments);
-    trackPageView();
-  };
-
-  window.addEventListener('popstate', trackPageView);
-
-})();
+loadGtag();

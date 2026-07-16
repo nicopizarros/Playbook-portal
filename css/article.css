@@ -10,6 +10,8 @@
 .article-detail .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px;margin-bottom:14px;}
 .article-detail h1{font-family:var(--serif-display);font-weight:400;font-size:38px;line-height:1.1;margin:0 0 14px;text-transform:none;}
 .article-detail .byline{margin-bottom:14px;}
+.article-detail .byline a{text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:2px;transition:color var(--duration-fast) ease;}
+.article-detail .byline a:hover,.article-detail .byline a:focus-visible{color:var(--green);}
 
 .article-photo{aspect-ratio:16/10;margin:0 0 20px;}
 
@@ -19,14 +21,19 @@
 .article-body p{margin:0 0 20px;}
 .article-body p:last-child{margin-bottom:0;}
 
-/* Decorative filler shown blurred below the real teaser (js/article-page.js
-   blurFillerBlock()) — a visual "there's more" hook toward the Substack CTA,
-   not real content. aria-hidden + unselectable + non-interactive so it can
-   never be mistaken for actual article text. */
-.article-blur-filler{filter:blur(5px);user-select:none;pointer-events:none;position:relative;margin-top:-4px;}
-.article-blur-filler::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,var(--paper) 90%);}
+/* ——— Compartir ——— */
+.share-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:28px;}
+.share-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);}
+.share-btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);font-size:12.5px;font-weight:600;color:var(--ink);transition:border-color var(--duration-fast) ease;}
+.share-btn:hover,.share-btn:focus-visible{border-color:var(--ink);}
+.share-btn svg{flex-shrink:0;}
 
 .article-cta{margin-top:30px;position:relative;z-index:1;}
+
+/* ——— Sigue leyendo (artículos relacionados) ——— */
+.article-related{margin-top:52px;padding-top:32px;border-top:2px solid var(--ink);}
+.article-related h2{font-family:var(--serif-display);font-weight:400;font-size:20px;text-transform:uppercase;margin:0 0 12px;}
+.article-related .news-list .news-row:first-child{padding-top:16px;}
 
 .article-not-found{padding:60px 0;text-align:center;}
 .article-not-found a{text-decoration:underline;color:var(--ink);}

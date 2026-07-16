@@ -12,7 +12,7 @@ const ALLOWED_FILES = {
 };
 
 const CONTENT_SECTION_KEYS = [
-  'nav', 'opinionSection', 'productsSection', 'midCta', 'videoSection',
+  'siteSettings', 'nav', 'opinionSection', 'productsSection', 'midCta', 'videoSection',
   'infinitasSection', 'statsSection', 'testimonialsSection', 'aboutSection', 'footer'
 ];
 

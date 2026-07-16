@@ -3,38 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<!-- Vercel Web Analytics. Ver nota en index.html — el shim de window.va
-     va antes de script.js y de cualquier módulo que llame a va(...) (ver
-     js/article-page.js, evento pageview_article). Corre en paralelo a GA4. -->
+<!-- Vercel Web Analytics — ver nota en index.html -->
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
-<!-- Título y meta genéricos: fallback para cualquier request que llegue con
-     esta plantilla sin pasar por api/article-page.js (ver ese archivo). Ese
-     endpoint reescribe estas mismas etiquetas por request, con los datos
-     reales del artículo, para bots que no ejecutan JS (WhatsApp, X,
-     Facebook, Slack, etc.) — matchea por el atributo name/property de cada
-     <meta>, así que no reordenes esos atributos sin revisar los regex ahí.
-     Para lectores humanos, js/article-page.js hace lo mismo del lado del
-     cliente (ver applyArticleSeo). -->
-<title>Artículo — Playbook</title>
-<meta name="description" content="Noticias y análisis del negocio del deporte en México y LATAM." />
+<title>Autor — Playbook</title>
+<meta name="description" content="Artículos publicados por este autor en Playbook." />
 <meta name="robots" content="index, follow" />
 <!-- Verificación de Google Search Console: mismo valor en las 5 páginas públicas — instrucciones para reemplazarlo en README.md -->
 <meta name="google-site-verification" content="513N8AzJQaHyitmSLoB5S0t8nD0jhkPY7L10pA7YSWU" />
-<link rel="canonical" href="https://www.playbookmedia.mx/articulo.html" />
-<meta property="og:type" content="article" />
-<meta property="og:site_name" content="Playbook" />
-<meta property="og:title" content="Artículo — Playbook" />
-<meta property="og:description" content="Noticias y análisis del negocio del deporte en México y LATAM." />
-<meta property="og:url" content="https://www.playbookmedia.mx/articulo.html" />
-<meta property="og:image" content="https://www.playbookmedia.mx/assets/img/playbook-logo.webp" />
-<meta property="og:locale" content="es_MX" />
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Artículo — Playbook" />
-<meta name="twitter:description" content="Noticias y análisis del negocio del deporte en México y LATAM." />
-<meta name="twitter:image" content="https://www.playbookmedia.mx/assets/img/playbook-logo.webp" />
+<link rel="canonical" href="https://www.playbookmedia.mx/autor.html" />
 <link rel="alternate" type="application/rss+xml" title="Playbook — RSS" href="/feed.xml" />
 <link rel="icon" href="/assets/img/playbook-logo.webp" type="image/webp" />
 <link rel="apple-touch-icon" href="/assets/img/playbook-logo.webp" />
@@ -56,9 +35,9 @@
 </head>
 <body>
 
-<a class="skip-link" href="#articulo">Saltar al contenido</a>
+<a class="skip-link" href="#autor-main">Saltar al contenido</a>
 
-<!-- ============================================================ HEADER (duplicado de index.html — sitio sin build step, ver nota en css/article.css) -->
+<!-- ============================================================ HEADER (duplicado de index.html) -->
 <header class="topbar">
   <div class="container nav">
     <a href="/index.html" class="brand" aria-label="Playbook — inicio">
@@ -88,23 +67,28 @@
 
 <div class="nav-overlay" id="nav-overlay"></div>
 
-<!-- ============================================================ ARTÍCULO -->
-<main class="container article-page" id="articulo">
-  <a class="section-link back-link" href="/index.html">← Volver a Playbook</a>
-  <!-- Aproxima el alto de un artículo real (foto + título + cuerpo) para que
-       el salto al reemplazar el esqueleto por el contenido real (js/article-page.js)
-       sea chico, no un salto de layout grande — ver .skel-photo en css/components.css. -->
-  <div id="article-root" aria-live="polite">
+<!-- ============================================================ AUTOR
+     Reachable only from a byline link when mostrar_autor is on for that
+     article (per-article) or globally (content.json siteSettings) — see
+     js/article-page.js shouldShowAuthor(). If nothing links here, this page
+     still renders correctly for a direct hit; it just shows an empty state
+     instead of 404ing. -->
+<main class="container news-section archive-page" id="autor-main">
+  <div class="section-head" style="border-bottom:none;margin-bottom:0;padding-top:0;">
+    <div>
+      <h2 id="author-heading">Autor</h2>
+      <p class="sub">Todo lo publicado por este autor en Playbook.</p>
+    </div>
+    <a class="section-link" href="/index.html#noticias">← Volver a Noticias</a>
+  </div>
+
+  <div id="author-root" aria-live="polite">
     <div class="skeleton-card">
       <div class="skel skel-badge"></div>
-      <div class="skel skel-photo"></div>
       <div class="skel skel-title"></div>
       <div class="skel skel-title skel--short"></div>
-      <div class="skel skel-meta" style="margin-bottom:20px;"></div>
       <div class="skel skel-desc"></div>
-      <div class="skel skel-desc"></div>
-      <div class="skel skel-desc"></div>
-      <div class="skel skel-desc skel--short"></div>
+      <div class="skel skel-meta"></div>
     </div>
   </div>
 </main>
@@ -120,10 +104,9 @@
 </footer>
 
 <script type="module" src="/js/analytics.js"></script>
-<!-- Carga dinámica de articles.json (ticker + búsqueda) y el módulo propio de esta página -->
 <script type="module" src="/js/articles.js"></script>
 <script type="module" src="/js/search.js"></script>
-<script type="module" src="/js/article-page.js"></script>
+<script type="module" src="/js/author-page.js"></script>
 <script type="module" src="/js/nav.js"></script>
 <script type="module" src="/js/ui.js"></script>
 

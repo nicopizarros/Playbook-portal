@@ -99,6 +99,7 @@ export default async function handler(req, res) {
     tags:          article.tags        || { scope: [], sport: [], vertical: [] },
     priority:      priority,
     featured:      article.featured === true,
+    mostrar_autor: article.mostrar_autor === true,
     reading_time:  Number.isFinite(article.reading_time) ? article.reading_time : 1,
     substack_url:  article.substack_url || article.url,
     imageUrl:      article.imageUrl    || ''
