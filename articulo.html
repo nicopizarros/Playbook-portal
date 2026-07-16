@@ -84,14 +84,20 @@
 <!-- ============================================================ ARTÍCULO -->
 <main class="container article-page" id="articulo">
   <a class="section-link back-link" href="/index.html">← Volver a Playbook</a>
+  <!-- Aproxima el alto de un artículo real (foto + título + cuerpo) para que
+       el salto al reemplazar el esqueleto por el contenido real (js/article-page.js)
+       sea chico, no un salto de layout grande — ver .skel-photo en css/components.css. -->
   <div id="article-root" aria-live="polite">
     <div class="skeleton-card">
       <div class="skel skel-badge"></div>
+      <div class="skel skel-photo"></div>
       <div class="skel skel-title"></div>
       <div class="skel skel-title skel--short"></div>
+      <div class="skel skel-meta" style="margin-bottom:20px;"></div>
       <div class="skel skel-desc"></div>
       <div class="skel skel-desc"></div>
-      <div class="skel skel-meta"></div>
+      <div class="skel skel-desc"></div>
+      <div class="skel skel-desc skel--short"></div>
     </div>
   </div>
 </main>

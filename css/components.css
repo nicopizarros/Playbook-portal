@@ -59,7 +59,13 @@
 .skel-title{width:100%;height:16px;margin-bottom:8px;}
 .skel-title.skel--short{width:65%;}
 .skel-desc{width:90%;height:12px;margin:10px 0 6px;}
+.skel-desc.skel--short{width:55%;}
 .skel-meta{width:40%;height:11px;margin-top:8px;}
+/* Matches .lead-photo/.article-photo's own aspect-ratio (css/hero.css,
+   css/article.css) so the article-page skeleton reserves the same space
+   the real photo will take, instead of collapsing/expanding when it
+   swaps in — see articulo.html's #article-root skeleton. */
+.skel-photo{aspect-ratio:16/10;border-radius:6px;margin-bottom:16px;}
 @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
 @media(prefers-reduced-motion:reduce){
   .skel{animation:none;background:var(--paper-soft);}
