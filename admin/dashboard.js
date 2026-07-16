@@ -938,6 +938,13 @@ function renderTabs() {
     });
     nav.appendChild(btn);
   });
+
+  // Static link, not part of the draggable content tabs above — Analítica
+  // is a real navigation to admin/analytics.html, not a content-editing
+  // pane, so it doesn't belong in TAB_DEFS/state.tabOrder's save flow.
+  nav.appendChild(el('a', { class: 'admin-tab', href: '/admin/analytics.html' }, [
+    el('span', { class: 'admin-tab-label', text: 'Analítica' })
+  ]));
 }
 
 function renderActiveForm() {

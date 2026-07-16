@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Vercel Web Analytics. El shim de window.va debe cargar antes que
+     script.js y antes que cualquier módulo que llame a va(...) (ver
+     js/article-page.js) — por eso va primero, arriba del todo. Corre en
+     paralelo a GA4 (js/analytics.js): no es un reemplazo, ver nota en
+     lib/vercel-analytics.js. -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <title>Playbook — El negocio del deporte</title>
 <meta name="description" content="Playbook: noticias, análisis, newsletters y video para entender el negocio del deporte en México y LATAM." />
 <meta name="robots" content="index, follow" />

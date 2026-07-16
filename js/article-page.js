@@ -287,6 +287,14 @@ function render() {
       publication: article.publication,
       source: article.source
     });
+    // Separate from the GA4 track() call above: Vercel's own custom-event
+    // system, queued via the window.va shim (see this page's <head>). This
+    // is what lets /admin/analytics.html tell articles apart at all — the
+    // automatic Visits dataset groups every /articulo.html?id=... hit into
+    // one path, since it doesn't track query strings (see lib/vercel-analytics.js).
+    if (typeof window.va === 'function') {
+      window.va('event', { name: 'pageview_article', data: { article_id: article.id } });
+    }
     initScrollTracking(article.id);
   } else {
     root.innerHTML = notFoundTemplate();

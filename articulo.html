@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Vercel Web Analytics. Ver nota en index.html — el shim de window.va
+     va antes de script.js y de cualquier módulo que llame a va(...) (ver
+     js/article-page.js, evento pageview_article). Corre en paralelo a GA4. -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <!-- Título y meta genéricos: fallback para cualquier request que llegue con
      esta plantilla sin pasar por api/article-page.js (ver ese archivo). Ese
      endpoint reescribe estas mismas etiquetas por request, con los datos
