@@ -149,6 +149,18 @@
   </div>
 </main>
 
+<!-- ============================================================ MÁS LEÍDAS
+     Datos reales de GA4 vía /api/top-articles (js/most-read.js) — no un
+     campo estático. Empieza oculta y solo se muestra si el endpoint
+     devuelve artículos de verdad; ver lib/ga4.js para lo que falta
+     configurar. -->
+<section class="container" id="mas-leidas" hidden>
+  <div class="section-head reveal" style="padding-top:0;">
+    <div><h2>Más leídas</h2></div>
+  </div>
+  <div class="news-list" id="mas-leidas-list"></div>
+</section>
+
 <!-- ============================================================ ARTÍCULOS DE OPINIÓN
      Contenido dinámico desde content.json (opinionSection) vía js/content.js -->
 <section class="container" id="analisis">
@@ -279,6 +291,8 @@
 <!-- Carga dinámica de articles.json, ranking por prioridad, filtros de fuente y archivo -->
 <script type="module" src="/js/articles.js"></script>
 <script type="module" src="/js/search.js"></script>
+<!-- Módulo "Más leídas": datos reales de GA4 vía /api/top-articles -->
+<script type="module" src="/js/most-read.js"></script>
 <!-- Carga dinámica de content.json: nav, opinión, productos, video, Infinitas, stats, testimonios, acerca, footer -->
 <script type="module" src="/js/content.js"></script>
 <script type="module" src="/js/nav.js"></script>

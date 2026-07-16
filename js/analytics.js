@@ -13,6 +13,11 @@
 //  - Activar "Enhanced measurement" en Admin → Data Streams: da scroll
 //    tracking genérico y clics salientes gratis, sin tocar este archivo.
 //  - Vincular la propiedad a Search Console para ver términos de búsqueda.
+//
+// Nota: este ID solo sirve para MANDAR eventos a GA4 (lo que hace este
+// archivo). El módulo "Más leídas" de la portada LEE datos de vuelta desde
+// GA4 y necesita credenciales distintas (una cuenta de servicio, no este
+// ID) — ver lib/ga4.js.
 const GA4_MEASUREMENT_ID = 'G-XXXXXXXXXX';
 
 function loadGtag() {
