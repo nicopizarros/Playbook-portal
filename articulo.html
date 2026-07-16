@@ -3,8 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Título y meta genéricos: fallback antes de que js/article-page.js los
+     reemplace con los datos reales del artículo (ver applyArticleSeo). Sin
+     paso de build, este <head> estático es lo único que ve un crawler que
+     no ejecute JS. -->
 <title>Artículo — Playbook</title>
+<meta name="description" content="Noticias y análisis del negocio del deporte en México y LATAM." />
 <meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://www.playbookmedia.mx/articulo.html" />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Playbook" />
+<meta property="og:title" content="Artículo — Playbook" />
+<meta property="og:description" content="Noticias y análisis del negocio del deporte en México y LATAM." />
+<meta property="og:image" content="https://www.playbookmedia.mx/assets/img/playbook-logo.webp" />
+<meta property="og:locale" content="es_MX" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" href="/assets/img/playbook-logo.webp" type="image/webp" />
+<link rel="apple-touch-icon" href="/assets/img/playbook-logo.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preload" as="image" href="/assets/img/playbook-logo.webp" fetchpriority="high" />
