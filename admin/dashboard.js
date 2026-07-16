@@ -11,6 +11,7 @@ import {
   testimonialsSectionHeadTemplate, testimonialsGridTemplate,
   aboutCardTemplate,
   footerContentTemplate, footerCopyrightTemplate,
+  tagPillsRowTemplate,
   escapeHtml
 } from '../js/templates.js';
 import { rankArticles } from '../js/rank.js';
@@ -26,6 +27,15 @@ const DEFAULT_TAB_ORDER = [
 const CONTENT_SECTION_KEYS = [
   'siteSettings', 'nav', 'opinionSection', 'productsSection', 'midCta', 'videoSection',
   'infinitasSection', 'statsSection', 'testimonialsSection', 'aboutSection', 'footer'
+];
+
+// Same three tiers as js/archive-page.js's TAG_TIERS — used here only for
+// the read-only tagging-coverage panel in buildArticlesTab; per-article
+// editing still goes through checkboxGroupField below.
+const COVERAGE_TIERS = [
+  { key: 'scope', label: 'Alcance', options: SCOPE_OPTIONS },
+  { key: 'sport', label: 'Deporte', options: SPORT_OPTIONS },
+  { key: 'vertical', label: 'Vertical de negocio', options: VERTICAL_OPTIONS }
 ];
 
 // Kept in sync with js/articles.js by hand: those constants decide what the
@@ -151,7 +161,7 @@ function textField(obj, key, labelText, opts = {}) {
 // Used for the three tag-taxonomy tiers (Task 2) — deliberately not a
 // <select multiple>, to match this file's label/help/error layout and give
 // better keyboard/mobile behavior than a native multi-select.
-function checkboxGroupField(obj, key, labelText, options, help) {
+function checkboxGroupField(obj, key, labelText, options, help, onChange) {
   if (!Array.isArray(obj[key])) obj[key] = [];
   const row = el('div', { class: 'checkbox-group' });
   options.forEach(option => {
@@ -165,6 +175,7 @@ function checkboxGroupField(obj, key, labelText, options, help) {
       if (input.checked && idx === -1) obj[key].push(option);
       else if (!input.checked && idx !== -1) obj[key].splice(idx, 1);
       onDirty();
+      if (onChange) onChange();
     });
     row.appendChild(el('label', { class: 'checkbox-option' }, [input, el('span', { text: option })]));
   });
@@ -372,26 +383,25 @@ function safeMount(id, templateFn, arg) {
   }
 }
 
-function tagPillsPreview(a) {
-  const tags = a.tags || {};
-  const all = [...(tags.scope || []), ...(tags.sport || []), ...(tags.vertical || [])];
-  if (!all.length) return '';
-  return `<div class="tag-pill-row">${all.map(t => `<span class="tag-mini">${escapeHtml(t)}</span>`).join('')}</div>`;
-}
-
+// .lead-story is no longer the anchor itself, same reason as the live
+// site's js/articles.js leadTemplate: tag pills now link to /tema.html, so
+// they can't sit inside another <a>. .card-link wraps just the
+// article-navigation content, stretched via CSS to cover the whole card.
 function leadTemplate(a) {
   const source = KNOWN_SOURCES.indexOf(a.source) !== -1 ? a.source : 'playbook';
   const photo = a.imageUrl
     ? `<div class="lead-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title || '')}" decoding="async" /></div>`
     : '';
-  return `<a class="lead-story reveal is-visible" data-source="${escapeHtml(source)}" href="/articulo.html?id=${escapeHtml(a.id || '')}">
-      ${photo}
-      <span class="tag">${escapeHtml(a.publication || '')}</span>
-      <h1>${escapeHtml(a.title || '')}</h1>
-      <p class="desc">${escapeHtml(a.excerpt || '')}</p>
-      <div class="byline">${escapeHtml(a.dateFormatted || '')} · ${escapeHtml(a.reading_time || '')} min</div>
-      ${tagPillsPreview(a)}
-    </a>`;
+  return `<div class="lead-story reveal is-visible" data-source="${escapeHtml(source)}">
+      <a class="card-link" href="/articulo.html?id=${escapeHtml(a.id || '')}">
+        ${photo}
+        <span class="tag">${escapeHtml(a.publication || '')}</span>
+        <h1>${escapeHtml(a.title || '')}</h1>
+        <p class="desc">${escapeHtml(a.excerpt || '')}</p>
+        <div class="byline">${escapeHtml(a.dateFormatted || '')} · ${escapeHtml(a.reading_time || '')} min</div>
+      </a>
+      ${tagPillsRowTemplate(a)}
+    </div>`;
 }
 
 function rowTemplate(a, heading) {
@@ -569,6 +579,35 @@ function buildArticlesTab(container) {
     refreshHeroConflict();
   }
 
+  // Read-only panel: how many current articles carry each taxonomy value,
+  // so editors can see which /tema.html pages would be sparse before
+  // anyone goes looking for them — no new editing surface, just visibility
+  // on top of the checkboxes already in renderItem below.
+  const tagCoverageEl = el('div', { class: 'admin-tag-coverage' });
+  container.appendChild(tagCoverageEl);
+  function refreshCoverage() {
+    tagCoverageEl.innerHTML = '';
+    tagCoverageEl.appendChild(el('h3', { class: 'admin-section-title', text: 'Cobertura de etiquetas' }));
+    tagCoverageEl.appendChild(el('p', { class: 'admin-section-desc', text: 'Cuántos artículos actuales llevan cada etiqueta — para ver qué temas quedarían vacíos en una página de tema.' }));
+    COVERAGE_TIERS.forEach(tier => {
+      const group = el('div', { class: 'tag-coverage-group' });
+      group.appendChild(el('span', { class: 'tag-coverage-group-label', text: tier.label }));
+      tier.options.forEach(option => {
+        const count = list.filter(a => ((a.tags || {})[tier.key] || []).indexOf(option) !== -1).length;
+        group.appendChild(el('div', { class: 'tag-coverage-row' + (count === 0 ? ' is-zero' : '') }, [
+          el('span', { text: option }),
+          el('b', { text: String(count) })
+        ]));
+      });
+      tagCoverageEl.appendChild(group);
+    });
+  }
+
+  function refreshAll() {
+    refreshSummary();
+    refreshCoverage();
+  }
+
   const editorEl = arrayEditor(list, {
     removable: true, addable: true, addLabel: '+ Agregar artículo manualmente',
     itemTitle: (item) => item.title || 'Artículo sin título',
@@ -576,7 +615,7 @@ function buildArticlesTab(container) {
       ? { text: '★ En portada', kind: 'hero' }
       : { text: 'Archivo', kind: 'archive' },
     emptyHint: 'No hay artículos cargados todavía.',
-    onListChange: refreshSummary,
+    onListChange: refreshAll,
     newItem: () => ({
       id: '', title: '', excerpt: '', teaser: '', author: '', date: '', dateFormatted: '',
       publication: 'Playbook', source: 'playbook',
@@ -650,9 +689,9 @@ function buildArticlesTab(container) {
         authorVisibilityField,
         textField(item, 'publication', 'Publicación', { help: 'El nombre de la publicación de origen.' }),
         selectField(item, 'source', 'Fuente', KNOWN_SOURCES.map(v => ({ value: v, label: v })), 'A qué categoría pertenece — define el color de su etiqueta.'),
-        checkboxGroupField(item.tags, 'scope', 'Alcance', SCOPE_OPTIONS, 'Nacional y/o internacional.'),
-        checkboxGroupField(item.tags, 'sport', 'Deporte', SPORT_OPTIONS, 'Puede tener más de uno.'),
-        checkboxGroupField(item.tags, 'vertical', 'Vertical de negocio', VERTICAL_OPTIONS, 'Puede tener más de uno.'),
+        checkboxGroupField(item.tags, 'scope', 'Alcance', SCOPE_OPTIONS, 'Nacional y/o internacional.', refreshAll),
+        checkboxGroupField(item.tags, 'sport', 'Deporte', SPORT_OPTIONS, 'Puede tener más de uno.', refreshAll),
+        checkboxGroupField(item.tags, 'vertical', 'Vertical de negocio', VERTICAL_OPTIONS, 'Puede tener más de uno.', refreshAll),
         textField(item, 'date', 'Fecha (AAAA-MM-DD)', { help: 'Se usa para ordenar los artículos por fecha — lo más reciente siempre pesa.' }),
         textField(item, 'dateFormatted', 'Fecha en texto', { help: 'Cómo se muestra la fecha en el sitio (ej. 9 jul 2026).' }),
         textField(item, 'reading_time', 'Tiempo de lectura (minutos)', { numeric: true, min: 1, step: 1, help: 'Minutos de lectura, se escribe a mano — ya no se calcula solo.' }),

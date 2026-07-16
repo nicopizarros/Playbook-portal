@@ -1,6 +1,7 @@
 'use strict';
 
 import { rankArticles, selectHero } from './rank.js';
+import { tagPillsRowTemplate } from './templates.js';
 
 const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook'];
 const LEAD_COUNT = 1;
@@ -33,25 +34,25 @@ function escapeHtml(str) {
   }[s]));
 }
 
-function tagPillsRow(a) {
-  const t = a.tags || {};
-  const all = [...(t.scope || []), ...(t.sport || []), ...(t.vertical || [])];
-  if (!all.length) return '';
-  return `<div class="tag-pill-row">${all.map(x => `<span class="tag-mini">${escapeHtml(x)}</span>`).join('')}</div>`;
-}
-
 function leadTemplate(a) {
   const photo = a.imageUrl
     ? `<div class="lead-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title)}" fetchpriority="high" decoding="async" /></div>`
     : '';
-  return `<a class="lead-story reveal" data-source="${escapeHtml(a.source)}" href="/articulo.html?id=${escapeHtml(a.id)}">
-      ${photo}
-      <span class="tag">${escapeHtml(a.publication)}</span>
-      <h1>${escapeHtml(a.title)}</h1>
-      <p class="desc">${escapeHtml(a.excerpt)}</p>
-      <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>
-      ${tagPillsRow(a)}
-    </a>`;
+  // .lead-story is no longer the anchor itself — the tag pills below now
+  // link to /tema.html, and nesting an <a> inside another <a> is invalid
+  // HTML. .card-link wraps just the article-navigation content instead,
+  // stretched via CSS (see css/hero.css) to cover the whole card, while
+  // the pills stay independently clickable on top of it.
+  return `<div class="lead-story reveal" data-source="${escapeHtml(a.source)}">
+      <a class="card-link" href="/articulo.html?id=${escapeHtml(a.id)}">
+        ${photo}
+        <span class="tag">${escapeHtml(a.publication)}</span>
+        <h1>${escapeHtml(a.title)}</h1>
+        <p class="desc">${escapeHtml(a.excerpt)}</p>
+        <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>
+      </a>
+      ${tagPillsRowTemplate(a)}
+    </div>`;
 }
 
 function rowTemplate(a, heading) {
