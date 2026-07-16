@@ -55,6 +55,10 @@ function setCanonical(url) {
   link.setAttribute('href', url);
 }
 
+function canonicalUrlFor(article) {
+  return `${SITE_URL}/articulo.html?id=${encodeURIComponent(article.id)}`;
+}
+
 function setJsonLd(data) {
   let script = document.getElementById('article-jsonld');
   if (!script) {
@@ -72,7 +76,7 @@ function setJsonLd(data) {
 // social scrapers and search engines that execute JS (Googlebot, most social
 // previews) see per-article data instead of one generic card for every URL.
 function applyArticleSeo(article) {
-  const canonicalUrl = `${SITE_URL}/articulo.html?id=${encodeURIComponent(article.id)}`;
+  const canonicalUrl = canonicalUrlFor(article);
   const image = article.imageUrl || DEFAULT_OG_IMAGE;
   const description = article.excerpt || '';
   const articleBody = article.teaser || article.excerpt || '';
@@ -180,6 +184,29 @@ function shouldShowAuthor(a) {
   return a.mostrar_autor === true || (siteSettings && siteSettings.mostrarAutorGlobal === true);
 }
 
+// ---------------------------------------------------------------- Compartir
+// Native share URLs only — no SDKs, no third-party scripts, no tracking
+// pixels. WhatsApp is first: the primary distribution channel for a Mexican
+// audience.
+
+function shareRow(article) {
+  const url = canonicalUrlFor(article);
+  const shareText = `${article.title} — Playbook`;
+  const waHref = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + url)}`;
+  const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`;
+  return `<div class="share-row" role="group" aria-label="Compartir este artículo">
+      <span class="share-label">Compartir</span>
+      <a class="share-btn" href="${escapeHtml(waHref)}" target="_blank" rel="noopener noreferrer" aria-label="Compartir en WhatsApp">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M4 20l1.2-3.6A8 8 0 1 1 8.6 19L4 20z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        WhatsApp
+      </a>
+      <a class="share-btn" href="${escapeHtml(xHref)}" target="_blank" rel="noopener noreferrer" aria-label="Compartir en X">
+        <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>
+        X
+      </a>
+    </div>`;
+}
+
 function articleTemplate(a) {
   const photo = a.imageUrl
     ? `<div class="lead-photo article-photo"><img src="${escapeHtml(a.imageUrl)}" alt="${escapeHtml(a.title)}" fetchpriority="high" decoding="async" /></div>`
@@ -190,7 +217,9 @@ function articleTemplate(a) {
     .filter(Boolean)
     .map(p => `<p>${escapeHtml(p)}</p>`)
     .join('');
-  const authorBit = shouldShowAuthor(a) && a.author ? ` · Por ${escapeHtml(a.author)}` : '';
+  const authorBit = shouldShowAuthor(a) && a.author
+    ? ` · Por <a href="/autor.html?nombre=${encodeURIComponent(a.author)}">${escapeHtml(a.author)}</a>`
+    : '';
   return `<article class="article-detail">
       <span class="tag">${escapeHtml(a.publication)}</span>
       ${photo}
@@ -198,6 +227,7 @@ function articleTemplate(a) {
       <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min${authorBit}</div>
       ${tagPillsRow(a)}
       <div class="article-body">${paragraphs || `<p>${escapeHtml(a.excerpt || '')}</p>`}</div>
+      ${shareRow(a)}
       <a class="btn light article-cta" href="${escapeHtml(a.substack_url)}" target="_blank" rel="noopener noreferrer">Ver en Substack</a>
     </article>`;
 }

@@ -3,17 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Archivo — Playbook</title>
-<meta name="description" content="Todo lo publicado en Playbook: noticias, análisis y video sobre el negocio del deporte en México y LATAM, filtrable por fuente y por tema." />
+<title>Autor — Playbook</title>
+<meta name="description" content="Artículos publicados por este autor en Playbook." />
 <meta name="robots" content="index, follow" />
-<link rel="canonical" href="https://www.playbookmedia.mx/archivo.html" />
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="Playbook" />
-<meta property="og:title" content="Archivo — Playbook" />
-<meta property="og:description" content="Todo lo publicado en Playbook: noticias, análisis y video sobre el negocio del deporte en México y LATAM." />
-<meta property="og:url" content="https://www.playbookmedia.mx/archivo.html" />
-<meta property="og:image" content="https://www.playbookmedia.mx/assets/img/playbook-logo.webp" />
-<meta property="og:locale" content="es_MX" />
+<link rel="canonical" href="https://www.playbookmedia.mx/autor.html" />
 <link rel="alternate" type="application/rss+xml" title="Playbook — RSS" href="/feed.xml" />
 <link rel="icon" href="/assets/img/playbook-logo.webp" type="image/webp" />
 <link rel="apple-touch-icon" href="/assets/img/playbook-logo.webp" />
@@ -35,7 +28,7 @@
 </head>
 <body>
 
-<a class="skip-link" href="#archivo-main">Saltar al contenido</a>
+<a class="skip-link" href="#autor-main">Saltar al contenido</a>
 
 <!-- ============================================================ HEADER (duplicado de index.html) -->
 <header class="topbar">
@@ -67,34 +60,22 @@
 
 <div class="nav-overlay" id="nav-overlay"></div>
 
-<!-- ============================================================ ARCHIVO -->
-<main class="container news-section archive-page" id="archivo-main">
+<!-- ============================================================ AUTOR
+     Reachable only from a byline link when mostrar_autor is on for that
+     article (per-article) or globally (content.json siteSettings) — see
+     js/article-page.js shouldShowAuthor(). If nothing links here, this page
+     still renders correctly for a direct hit; it just shows an empty state
+     instead of 404ing. -->
+<main class="container news-section archive-page" id="autor-main">
   <div class="section-head" style="border-bottom:none;margin-bottom:0;padding-top:0;">
     <div>
-      <h2>Archivo</h2>
-      <p class="sub">Todo lo publicado en Playbook que ya no está en la portada.</p>
+      <h2 id="author-heading">Autor</h2>
+      <p class="sub">Todo lo publicado por este autor en Playbook.</p>
     </div>
     <a class="section-link" href="/index.html#noticias">← Volver a Noticias</a>
   </div>
 
-  <div class="source-filter" role="group" aria-label="Filtrar por fuente" id="archive-source-filter">
-    <button class="filter-btn active" data-source="all" aria-pressed="true">Todo</button>
-    <button class="filter-btn" data-source="industry-shots" aria-pressed="false">Industry Shots</button>
-    <button class="filter-btn" data-source="la-lana" aria-pressed="false">La Lana del Mundial</button>
-    <button class="filter-btn" data-source="infinitas" aria-pressed="false">Infinitas</button>
-    <button class="filter-btn" data-source="playbook" aria-pressed="false">Playbook</button>
-  </div>
-
-  <div class="archive-tag-filters" id="archive-tag-filters" aria-label="Filtrar por etiqueta"></div>
-
-  <div class="news-list fade-swap" id="archive-list">
-    <div class="skeleton-card">
-      <div class="skel skel-badge"></div>
-      <div class="skel skel-title"></div>
-      <div class="skel skel-title skel--short"></div>
-      <div class="skel skel-desc"></div>
-      <div class="skel skel-meta"></div>
-    </div>
+  <div id="author-root" aria-live="polite">
     <div class="skeleton-card">
       <div class="skel skel-badge"></div>
       <div class="skel skel-title"></div>
@@ -118,7 +99,7 @@
 <script type="module" src="/js/analytics.js"></script>
 <script type="module" src="/js/articles.js"></script>
 <script type="module" src="/js/search.js"></script>
-<script type="module" src="/js/archive-page.js"></script>
+<script type="module" src="/js/author-page.js"></script>
 <script type="module" src="/js/nav.js"></script>
 <script type="module" src="/js/ui.js"></script>
 

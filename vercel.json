@@ -1,7 +1,8 @@
 {
   "rewrites": [
     { "source": "/admin/dashboard", "destination": "/admin/dashboard.html" },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/feed.xml", "destination": "/api/feed" }
   ],
   "headers": [
     {
