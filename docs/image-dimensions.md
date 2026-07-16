@@ -1,6 +1,6 @@
 # Playbook — Referencia de formatos de imagen
 
-Documento de referencia para el equipo de diseño. Lista cada contenedor de imagen usado en el sitio (`playbookmedia.mx`), con su relación de aspecto/dimensión exacta tal como está definida hoy en el CSS, y si varía por breakpoint. **Este documento es solo de referencia — no se modificó ningún archivo de código para generarlo.**
+Documento de referencia para el equipo de diseño. Lista cada contenedor de imagen usado en el sitio, con su relación de aspecto/dimensión exacta tal como está definida hoy en el CSS, y si varía por breakpoint. **Este documento es solo de referencia — no se modificó ningún archivo de código para generarlo.**
 
 Todas las imágenes usan `object-fit:cover` (o, en el caso del logo, `width:auto`), así que el recorte siempre es central salvo que se indique `object-position` distinto.
 

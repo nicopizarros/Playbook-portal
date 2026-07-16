@@ -5,7 +5,9 @@
 // search), same pattern as js/archive-page.js and js/article-page.js.
 import { whenArticlesReady, getArticles } from './articles.js';
 
-const SITE_URL = 'https://www.playbookmedia.mx';
+// window.location.origin, not a hardcoded domain literal — see the same
+// fix (and why it mattered) in js/article-page.js and lib/site-url.js.
+const SITE_URL = window.location.origin;
 
 function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, s => ({

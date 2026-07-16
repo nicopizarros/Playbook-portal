@@ -6,7 +6,11 @@
 import { whenArticlesReady, getArticles } from './articles.js';
 import { track } from './analytics.js';
 
-const SITE_URL = 'https://www.playbookmedia.mx';
+// window.location.origin, not a hardcoded domain literal: the custom
+// domain isn't guaranteed to be the one actually serving this page at any
+// given moment (see lib/site-url.js for the server-side version of this
+// same fix, and why it mattered) — this always matches reality.
+const SITE_URL = window.location.origin;
 const DEFAULT_OG_IMAGE = `${SITE_URL}/assets/img/playbook-logo.webp`;
 const RELATED_COUNT = 3;
 const SCROLL_MILESTONES = [25, 50, 75, 100];

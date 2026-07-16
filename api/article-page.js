@@ -22,9 +22,7 @@
 
 import fs from 'fs';
 import path from 'path';
-
-const SITE_URL = 'https://www.playbookmedia.mx';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/assets/img/playbook-logo.webp`;
+import { resolveSiteUrl } from '../lib/site-url.js';
 
 // Crawlers that fetch a URL once for a link preview and do not run JS.
 // Matched case-insensitively as a substring of the User-Agent header.
@@ -54,9 +52,9 @@ function replaceValue(html, pattern, value) {
   return html.replace(pattern, (_match, pre, post) => `${pre}${escapeAttr(value)}${post}`);
 }
 
-function injectArticleMeta(html, article) {
-  const canonicalUrl = `${SITE_URL}/articulo.html?id=${encodeURIComponent(article.id)}`;
-  const image = article.imageUrl || DEFAULT_OG_IMAGE;
+function injectArticleMeta(siteUrl, html, article) {
+  const canonicalUrl = `${siteUrl}/articulo.html?id=${encodeURIComponent(article.id)}`;
+  const image = article.imageUrl || `${siteUrl}/assets/img/playbook-logo.webp`;
   const description = article.excerpt || '';
   const title = `${article.title} — Playbook`;
 
@@ -82,6 +80,7 @@ function injectPreloadHint(html, article) {
 }
 
 export default async function handler(req, res) {
+  const siteUrl = resolveSiteUrl(req);
   const template = fs.readFileSync(path.join(process.cwd(), 'articulo.html'), 'utf8');
   const id = typeof req.query.id === 'string' ? req.query.id : '';
   const bot = isBotRequest(req.headers['user-agent']);
@@ -89,7 +88,7 @@ export default async function handler(req, res) {
   let article = null;
   if (id) {
     try {
-      const r = await fetch(`${SITE_URL}/articles.json`);
+      const r = await fetch(`${siteUrl}/articles.json`);
       if (r.ok) {
         const data = await r.json();
         article = (data.articles || []).find(a => a.id === id) || null;
@@ -102,7 +101,7 @@ export default async function handler(req, res) {
 
   let html = template;
   if (article && bot) {
-    html = injectArticleMeta(html, article);
+    html = injectArticleMeta(siteUrl, html, article);
   } else if (article) {
     html = injectPreloadHint(html, article);
   }
