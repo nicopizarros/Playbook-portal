@@ -5,11 +5,9 @@
 // client-side ID, not a secret, so it's fine committed here — same as any
 // other public config value in this repo.
 //
-// TODO(equipo): reemplazar con el ID real de la propiedad GA4 (formato
-// G-XXXXXXXXXX) una vez creada en Google Analytics. Hasta entonces esto no
-// manda datos reales, solo avisa una vez en consola.
+// Propiedad confirmada por el equipo el 16 jul 2026: G-0CG7JMK8RZ.
 //
-// Una vez configurado el ID real, en la propia GA4 conviene además:
+// En la propia GA4 conviene además:
 //  - Activar "Enhanced measurement" en Admin → Data Streams: da scroll
 //    tracking genérico y clics salientes gratis, sin tocar este archivo.
 //  - Vincular la propiedad a Search Console para ver términos de búsqueda.
@@ -18,14 +16,9 @@
 // archivo). El módulo "Más leídas" de la portada LEE datos de vuelta desde
 // GA4 y necesita credenciales distintas (una cuenta de servicio, no este
 // ID) — ver lib/ga4.js.
-const GA4_MEASUREMENT_ID = 'G-XXXXXXXXXX';
+const GA4_MEASUREMENT_ID = 'G-0CG7JMK8RZ';
 
 function loadGtag() {
-  if (GA4_MEASUREMENT_ID.indexOf('XXXX') !== -1) {
-    console.warn('[Playbook] GA4_MEASUREMENT_ID no está configurado (js/analytics.js) — no se está midiendo tráfico real todavía.');
-    return;
-  }
-
   window.dataLayer = window.dataLayer || [];
   function gtag() { window.dataLayer.push(arguments); }
   window.gtag = gtag;
@@ -39,8 +32,8 @@ function loadGtag() {
 }
 
 // Fire-and-forget custom event helper for the rest of the site. Safe to call
-// before gtag has loaded, or while the measurement ID is still a
-// placeholder — it just no-ops instead of throwing.
+// before gtag has loaded (e.g. right after navigation) — it just no-ops
+// instead of throwing.
 export function track(eventName, params) {
   if (typeof window.gtag === 'function') window.gtag('event', eventName, params || {});
 }
