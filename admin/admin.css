@@ -230,6 +230,15 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .admin-hero-note.is-hidden { display: none; }
 .admin-hero-warning { margin-top: 8px; color: #a3550f; font-weight: 600; }
 
+.admin-hero-conflict-banner {
+  font-size: 12.5px; line-height: 1.5; color: #a3550f; font-weight: 600; background: var(--paper-soft);
+  border: 1px solid var(--rule); border-left: 3px solid #a3550f; border-radius: 8px;
+  padding: 10px 12px; margin: 0 0 14px;
+}
+.admin-hero-conflict-banner p { margin: 0; }
+.admin-hero-conflict-banner p + p { margin-top: 6px; }
+.admin-hero-conflict-banner.is-hidden { display: none; }
+
 /* ---------- Tag taxonomy checkboxes (Task 2) ---------- */
 
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px 14px; }

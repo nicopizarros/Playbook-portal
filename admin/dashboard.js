@@ -540,9 +540,33 @@ function buildArticlesTab(container) {
 
   const summaryEl = el('p', { class: 'admin-section-desc' });
   container.appendChild(summaryEl);
+
+  // Tab-level version of the per-item otherHero/otherFeatured warning below
+  // (see renderItem) — that one only shows once you open one of the two
+  // conflicting cards. This surfaces the same conflict immediately, without
+  // requiring anyone to know which two cards to open. Informational only:
+  // never blocks Save, same as the per-item warning.
+  const heroConflictEl = el('div', { class: 'admin-hero-conflict-banner is-hidden' });
+  container.appendChild(heroConflictEl);
+  function refreshHeroConflict() {
+    const heroCount = list.filter(a => Number(a.priority) === 5).length;
+    const featuredCount = list.filter(a => a.featured === true).length;
+    const messages = [];
+    if (heroCount > 1) {
+      messages.push(`Hay ${heroCount} artículos con 5 estrellas al mismo tiempo. Solo el más reciente se muestra como principal en portada — el resto sigue apareciendo con prioridad alta en el resto del sitio.`);
+    }
+    if (featuredCount > 1) {
+      messages.push(`Hay ${featuredCount} artículos marcados como "Destacado" al mismo tiempo. Solo el más reciente se muestra como principal en portada.`);
+    }
+    heroConflictEl.innerHTML = '';
+    messages.forEach(msg => heroConflictEl.appendChild(el('p', { text: msg })));
+    heroConflictEl.classList.toggle('is-hidden', messages.length === 0);
+  }
+
   function refreshSummary() {
     const mainSet = mainPageArticleSet(list);
     summaryEl.textContent = `${mainSet.size} de ${list.length} artículos aparecen en la portada (el destacado + los ${LIST_COUNT} siguientes por estrellas y fecha). El resto vive en /archivo.html automáticamente — no hace falta archivarlos a mano.`;
+    refreshHeroConflict();
   }
 
   const editorEl = arrayEditor(list, {
@@ -589,6 +613,7 @@ function buildArticlesTab(container) {
       const stars = starPickerField(item, 'priority', 'Importancia', 'De 1 a 5 estrellas. Junto con la fecha, decide el orden: más estrellas y más reciente aparece primero.', (newValue) => {
         heroNote.classList.toggle('is-hidden', Number(newValue) !== 5 && item.featured !== true);
         if (imageInput._playbookValidate) imageInput._playbookValidate();
+        refreshHeroConflict();
         editorEl.rerender();
       });
 
@@ -597,6 +622,7 @@ function buildArticlesTab(container) {
         item.featured = featuredCheckbox.checked;
         heroNote.classList.toggle('is-hidden', Number(item.priority) !== 5 && item.featured !== true);
         onDirty();
+        refreshHeroConflict();
         editorEl.rerender();
       });
       const featuredField = plainField('Destacado (hero)', 'Marca este artículo para que ocupe el puesto principal de portada, sin importar sus estrellas.',
