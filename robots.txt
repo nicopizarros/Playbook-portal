@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 
-Sitemap: https://www.playbookmedia.mx/sitemap.xml
+Sitemap: https://playbook-portal-phi.vercel.app/sitemap.xml
