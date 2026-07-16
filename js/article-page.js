@@ -4,10 +4,18 @@
 // flight from js/articles.js (loaded alongside it, on this page, purely for
 // the ticker + search) instead of fetching articles.json a second time.
 import { whenArticlesReady, getArticles } from './articles.js';
+import { track } from './analytics.js';
 
 const SITE_URL = 'https://www.playbookmedia.mx';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/assets/img/playbook-logo.webp`;
 const RELATED_COUNT = 3;
+const SCROLL_MILESTONES = [25, 50, 75, 100];
+
+// Only site-wide config this page needs (the author-byline switch), fetched
+// directly instead of importing js/content.js — that module's render() also
+// targets index.html-only sections (nav, opinion grid, etc.) that don't
+// exist here, so pulling it in would do unrelated, wasted rendering work.
+let siteSettings = null;
 
 function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, s => ({
@@ -67,6 +75,7 @@ function applyArticleSeo(article) {
   const canonicalUrl = `${SITE_URL}/articulo.html?id=${encodeURIComponent(article.id)}`;
   const image = article.imageUrl || DEFAULT_OG_IMAGE;
   const description = article.excerpt || '';
+  const articleBody = article.teaser || article.excerpt || '';
 
   document.title = `${article.title} — Playbook`;
   setMeta('name', 'description', description);
@@ -93,6 +102,7 @@ function applyArticleSeo(article) {
     '@type': 'NewsArticle',
     headline: article.title,
     description,
+    articleBody,
     image: [image],
     datePublished: article.date || undefined,
     dateModified: article.date || undefined,
@@ -163,18 +173,11 @@ function relatedSection(article, pool) {
     </section>`;
 }
 
-// Decorative filler shown blurred below the real teaser, as a visual hook
-// toward the Substack CTA — fixed placeholder copy, not per-article data,
-// so it's not real content and must never be mistaken for it (aria-hidden,
-// unselectable, see .article-blur-filler in css/article.css).
-const BLUR_FILLER_PARAGRAPHS = [
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.',
-  'Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.'
-];
-
-function blurFillerBlock() {
-  const paragraphs = BLUR_FILLER_PARAGRAPHS.map(p => `<p>${escapeHtml(p)}</p>`).join('');
-  return `<div class="article-body article-blur-filler" aria-hidden="true">${paragraphs}</div>`;
+// Shows the author when the article opts in individually (mostrar_autor) or
+// when the team has turned it on site-wide from the admin's Ajustes tab
+// (content.json siteSettings.mostrarAutorGlobal) — either one is enough.
+function shouldShowAuthor(a) {
+  return a.mostrar_autor === true || (siteSettings && siteSettings.mostrarAutorGlobal === true);
 }
 
 function articleTemplate(a) {
@@ -187,15 +190,15 @@ function articleTemplate(a) {
     .filter(Boolean)
     .map(p => `<p>${escapeHtml(p)}</p>`)
     .join('');
+  const authorBit = shouldShowAuthor(a) && a.author ? ` · Por ${escapeHtml(a.author)}` : '';
   return `<article class="article-detail">
       <span class="tag">${escapeHtml(a.publication)}</span>
       ${photo}
       <h1>${escapeHtml(a.title)}</h1>
-      <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min</div>
+      <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min${authorBit}</div>
       ${tagPillsRow(a)}
       <div class="article-body">${paragraphs || `<p>${escapeHtml(a.excerpt || '')}</p>`}</div>
-      ${blurFillerBlock()}
-      <a class="btn article-cta" href="${escapeHtml(a.substack_url)}" target="_blank" rel="noopener noreferrer">Leer la nota completa</a>
+      <a class="btn light article-cta" href="${escapeHtml(a.substack_url)}" target="_blank" rel="noopener noreferrer">Ver en Substack</a>
     </article>`;
 }
 
@@ -204,6 +207,38 @@ function notFoundTemplate() {
       <p>No encontramos este artículo.</p>
       <p><a href="/index.html">Volver a Playbook</a></p>
     </div>`;
+}
+
+// Tracks how far into the article body a reader actually gets. 100% is the
+// meaningful "read to the end" signal now that the body is the full article
+// and not a teaser — no separate "article complete" event needed.
+function initScrollTracking(articleId) {
+  const body = document.querySelector('.article-body');
+  if (!body) return;
+  const sent = new Set();
+
+  function check() {
+    const rect = body.getBoundingClientRect();
+    if (rect.height <= 0) return;
+    const seen = Math.min(rect.height, Math.max(0, window.innerHeight - rect.top));
+    const percent = Math.round((seen / rect.height) * 100);
+    SCROLL_MILESTONES.forEach(milestone => {
+      if (percent >= milestone && !sent.has(milestone)) {
+        sent.add(milestone);
+        track('article_scroll', { article_id: articleId, percent: milestone });
+      }
+    });
+    if (sent.size === SCROLL_MILESTONES.length) window.removeEventListener('scroll', onScroll);
+  }
+
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => { check(); ticking = false; });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  check();
 }
 
 function render() {
@@ -216,6 +251,13 @@ function render() {
   if (article) {
     root.innerHTML = articleTemplate(article) + relatedSection(article, pool);
     applyArticleSeo(article);
+    track('article_view', {
+      article_id: article.id,
+      article_title: article.title,
+      publication: article.publication,
+      source: article.source
+    });
+    initScrollTracking(article.id);
   } else {
     root.innerHTML = notFoundTemplate();
     applyNotFoundSeo();
@@ -223,4 +265,18 @@ function render() {
   document.dispatchEvent(new CustomEvent('playbook:article-rendered'));
 }
 
-whenArticlesReady(render);
+// Waits on both articles.json (the article itself) and content.json (the
+// global author-visibility switch) before the first render, so a slow
+// content.json fetch can't cause the byline to render without the author
+// and then never update.
+let articlesReady = false;
+function tryRender() {
+  if (articlesReady && siteSettings !== null) render();
+}
+
+whenArticlesReady(() => { articlesReady = true; tryRender(); });
+
+fetch('/content.json')
+  .then(r => (r.ok ? r.json() : {}))
+  .catch(() => ({}))
+  .then(data => { siteSettings = data.siteSettings || {}; tryRender(); });

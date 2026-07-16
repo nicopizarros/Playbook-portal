@@ -21,10 +21,10 @@ const USERNAME_KEY = 'playbook_admin_username';
 const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook'];
 const DEFAULT_TAB_ORDER = [
   'articles', 'opinion', 'video', 'infinitas', 'products',
-  'stats', 'testimonials', 'about', 'midCta', 'nav', 'footer'
+  'stats', 'testimonials', 'about', 'midCta', 'nav', 'footer', 'settings'
 ];
 const CONTENT_SECTION_KEYS = [
-  'nav', 'opinionSection', 'productsSection', 'midCta', 'videoSection',
+  'siteSettings', 'nav', 'opinionSection', 'productsSection', 'midCta', 'videoSection',
   'infinitasSection', 'statsSection', 'testimonialsSection', 'aboutSection', 'footer'
 ];
 
@@ -557,7 +557,7 @@ function buildArticlesTab(container) {
       id: '', title: '', excerpt: '', teaser: '', author: '', date: '', dateFormatted: '',
       publication: 'Playbook', source: 'playbook',
       tags: { scope: [], sport: [], vertical: [] },
-      priority: 3, featured: false, reading_time: 1, substack_url: '', imageUrl: ''
+      priority: 3, featured: false, mostrar_autor: false, reading_time: 1, substack_url: '', imageUrl: ''
     }),
     renderItem: (item) => {
       if (!item.tags) item.tags = { scope: [], sport: [], vertical: [] };
@@ -602,6 +602,14 @@ function buildArticlesTab(container) {
       const featuredField = plainField('Destacado (hero)', 'Marca este artículo para que ocupe el puesto principal de portada, sin importar sus estrellas.',
         el('label', { class: 'checkbox-option' }, [featuredCheckbox, el('span', { text: 'Mostrar como destacado' })]));
 
+      const authorVisibilityCheckbox = el('input', { type: 'checkbox', checked: item.mostrar_autor === true });
+      authorVisibilityCheckbox.addEventListener('change', () => {
+        item.mostrar_autor = authorVisibilityCheckbox.checked;
+        onDirty();
+      });
+      const authorVisibilityField = plainField('Mostrar autor', 'Muestra el nombre de arriba en la página de este artículo. Apagado por defecto. También se puede prender para todos los artículos a la vez desde la pestaña Ajustes.',
+        el('label', { class: 'checkbox-option' }, [authorVisibilityCheckbox, el('span', { text: 'Mostrar autor de este artículo' })]));
+
       return [
         textField(item, 'title', 'Título', {
           help: 'El titular del artículo tal como se muestra en Noticias.',
@@ -611,8 +619,9 @@ function buildArticlesTab(container) {
         }),
         idField,
         textField(item, 'excerpt', 'Extracto', { multiline: true, help: 'Uno o dos renglones que resumen el artículo — se usa en las tarjetas de Noticias.' }),
-        textField(item, 'teaser', 'Teaser (texto completo en el sitio)', { multiline: true, help: 'El texto que ve el lector en la página del artículo, sin límite de longitud. Debajo aparece el botón hacia Substack — esto es todo el contenido on-site.' }),
-        textField(item, 'author', 'Autor', { help: 'El nombre de quien escribió el artículo. Ya no se muestra públicamente en el sitio — queda solo como registro interno.' }),
+        textField(item, 'teaser', 'Cuerpo del artículo (texto completo)', { multiline: true, help: 'El texto completo que ve el lector en la página del artículo, sin límite de longitud — esto es Playbook, no un adelanto. Debajo aparece un enlace secundario hacia Substack, no un muro.' }),
+        textField(item, 'author', 'Autor', { help: 'El nombre de quien escribió el artículo. Se muestra públicamente solo si activas "Mostrar autor" abajo, o si está prendido globalmente desde Ajustes.' }),
+        authorVisibilityField,
         textField(item, 'publication', 'Publicación', { help: 'El nombre de la publicación de origen.' }),
         selectField(item, 'source', 'Fuente', KNOWN_SOURCES.map(v => ({ value: v, label: v })), 'A qué categoría pertenece — define el color de su etiqueta.'),
         checkboxGroupField(item.tags, 'scope', 'Alcance', SCOPE_OPTIONS, 'Nacional y/o internacional.'),
@@ -624,7 +633,7 @@ function buildArticlesTab(container) {
         stars,
         featuredField,
         heroNote,
-        textField(item, 'substack_url', 'Enlace en Substack', { type: 'url', required: true, help: 'A dónde lleva el botón de "Leer la nota completa" en la página del artículo.' }),
+        textField(item, 'substack_url', 'Enlace en Substack', { type: 'url', required: true, help: 'A dónde lleva el botón secundario "Ver en Substack" en la página del artículo.' }),
         imageField
       ];
     }
@@ -845,6 +854,21 @@ function buildFooterTab(container) {
   }));
 }
 
+function buildSettingsTab(container) {
+  if (!state.content.siteSettings) state.content.siteSettings = { mostrarAutorGlobal: false };
+  const s = state.content.siteSettings;
+  container.appendChild(el('h2', { class: 'admin-section-title', text: 'Ajustes del sitio' }));
+  container.appendChild(el('p', { class: 'admin-section-desc', text: 'Interruptores generales que aplican a todo Playbook, no a una sección en particular.' }));
+
+  const authorCheckbox = el('input', { type: 'checkbox', checked: s.mostrarAutorGlobal === true });
+  authorCheckbox.addEventListener('change', () => {
+    s.mostrarAutorGlobal = authorCheckbox.checked;
+    onDirty();
+  });
+  container.appendChild(plainField('Mostrar autor en todos los artículos', 'Enciende esto para mostrar el nombre del autor en la página de cada artículo, sin importar el interruptor individual de cada uno. Apagado por defecto. Cada artículo también puede mostrar su autor por separado desde la pestaña Artículos, sin tocar este interruptor.',
+    el('label', { class: 'checkbox-option' }, [authorCheckbox, el('span', { text: 'Mostrar autor globalmente' })])));
+}
+
 // ---------------------------------------------------------------- Tabs / shell
 
 const TAB_DEFS = {
@@ -858,7 +882,8 @@ const TAB_DEFS = {
   about: { label: 'Acerca', build: buildAboutTab },
   midCta: { label: 'CTA', build: buildMidCtaTab },
   nav: { label: 'Navegación', build: buildNavTab },
-  footer: { label: 'Footer', build: buildFooterTab }
+  footer: { label: 'Footer', build: buildFooterTab },
+  settings: { label: 'Ajustes', build: buildSettingsTab }
 };
 
 function tabOrderStorageKey() {
