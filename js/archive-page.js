@@ -6,17 +6,11 @@
 // (and therefore what counts as overflow here) is defined in exactly one place.
 import { whenArticlesReady, getArticles } from './articles.js';
 import { rankArticles, selectHero } from './rank.js';
-import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from './taxonomy.js';
+import { TAG_TIERS } from './taxonomy.js';
 
 const LEAD_COUNT = 1;
 const LIST_COUNT = 5;
 const FILTER_FADE_MS = 180;
-
-const TAG_TIERS = [
-  { key: 'scope', label: 'Alcance', options: SCOPE_OPTIONS },
-  { key: 'sport', label: 'Deporte', options: SPORT_OPTIONS },
-  { key: 'vertical', label: 'Vertical de negocio', options: VERTICAL_OPTIONS }
-];
 
 let activeSource = 'all';
 const activeTags = { scope: 'all', sport: 'all', vertical: 'all' };
