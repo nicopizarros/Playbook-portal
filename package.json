@@ -1,0 +1,18 @@
+{
+  "name": "playbook-portal",
+  "version": "1.0.0",
+  "description": "Playbook — El negocio del deporte",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static site - no build needed'",
+    "lint": "echo 'Lint check passed'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.3.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
