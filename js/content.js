@@ -34,7 +34,7 @@ function safeMount(id, templateFn, arg) {
 }
 
 function render(data) {
-  safeMount('nav-links', navLinksTemplate, data.nav);
+  safeMount('nav-links-dynamic', navLinksTemplate, data.nav);
   try {
     const navCta = document.getElementById('nav-cta');
     if (navCta) {

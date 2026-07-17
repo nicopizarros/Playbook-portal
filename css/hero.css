@@ -33,6 +33,11 @@
 .news-row{display:block;position:relative;padding:16px 0 16px 14px;border-bottom:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
 .news-row:first-child{padding-top:0;}
 .news-row:hover,.news-row:focus-within{border-bottom-color:rgba(0,0,0,.15);transform:translateY(-2px);}
+/* rgba(0,0,0,...) casi no se ve sobre el fondo oscuro nuevo — contraparte clara. */
+[data-theme="dark"] .news-row:hover,[data-theme="dark"] .news-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .news-row:hover,:root:not([data-theme="light"]) .news-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
+}
 .news-row:hover h3,.news-row:focus-within h3,.news-row:hover h4,.news-row:focus-within h4{color:var(--green);}
 .news-row[data-source="industry-shots"]{border-left-color:var(--src-industry);}
 .news-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
@@ -50,6 +55,12 @@
 
 .empty-state{grid-column:1/-1;padding:20px 0;color:var(--gray-txt);font-size:13px;}
 .empty-state.error-state{color:#a4232f;}
+/* #a4232f cae de ~8:1 a ~2.3:1 contra el nuevo fondo oscuro — versión más
+   clara para seguir pasando AA (4.5:1), verificada contra --paper oscuro. */
+[data-theme="dark"] .empty-state.error-state{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .empty-state.error-state{color:#e0616b;}
+}
 
 /* Newsletter — unified pill (input + filled button) */
 .nl-box{margin:38px 0 0;padding:26px 30px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
@@ -62,7 +73,17 @@
 .pill-form input:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--green);border-radius:999px;}
 .pill-form button{border-radius:999px;min-height:38px;flex-shrink:0;border:none;}
 .pill-form .nl-success{display:none;align-items:center;padding:0 12px;font-size:13px;font-weight:600;color:#3f7d0a;}
+/* #3f7d0a también pierde contraste sobre fondo oscuro — en vez de un cuarto
+   verde, reutiliza --green (ya verificado con buen contraste ahí). */
+[data-theme="dark"] .pill-form .nl-success{color:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .pill-form .nl-success{color:var(--green);}
+}
 .pill-form.is-success .nl-fields{display:none;}
 .pill-form.is-success .nl-success{display:flex;}
 .pill-form .nl-error{display:none;font-size:11.5px;color:#a4232f;position:absolute;left:14px;bottom:-20px;}
+[data-theme="dark"] .pill-form .nl-error{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .pill-form .nl-error{color:#e0616b;}
+}
 .pill-form.has-error .nl-error{display:block;}

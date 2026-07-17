@@ -39,8 +39,9 @@
 .mid-cta-box h2 em{font-style:normal;color:var(--gray-dark);border-bottom:3px solid var(--green);}
 .mid-cta-box p{font-size:13.5px;color:var(--gray-txt);margin:0;max-width:48ch;font-weight:400;}
 
-/* ——— Video ——— */
-.video-section{background:var(--ink);color:#fff;}
+/* ——— Video ——— Fondo fijo (--ink-fixed): la sección siempre es oscura,
+   sin importar el tema. */
+.video-section{background:var(--ink-fixed);color:#fff;}
 .video-section .section-head{border-bottom-color:rgba(255,255,255,.2);}
 .video-section .section-head h2{color:#fff;}
 .video-section .section-head .sub{color:rgba(255,255,255,.6);}
@@ -67,10 +68,17 @@
 .clip-card .frame img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
 .clip-card:hover .frame img,.clip-card:focus-visible .frame img{transform:scale(1.05);}
 .ig-visual{display:grid;place-items:center;background:linear-gradient(145deg,#0a0a0a,#252525);}
-.ig-visual.aldo{background:linear-gradient(145deg,#e5ebf4,#ffffff);}
+/* Antes hardcodeaba los valores claros (#e5ebf4/#ffffff) en vez de los
+   tokens — con var(--rule)/var(--paper) el degradé sigue el tema solo,
+   igual que .ig-phone de abajo (var(--ink)), sin necesitar una
+   contraparte para modo oscuro. */
+.ig-visual.aldo{background:linear-gradient(145deg,var(--rule),var(--paper));}
 .ig-phone{width:78%;height:80%;border:2px solid var(--green);display:grid;place-items:center;padding:16px;text-align:center;color:#fff;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:12px;}
 .ig-visual.aldo .ig-phone{border-color:var(--ink);color:var(--ink);}
-.platform-badge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.94);color:var(--ink);padding:5px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;z-index:2;}
+/* El fondo blanco translúcido no cambia con el tema (siempre está sobre
+   una miniatura), así que el texto tampoco: --ink-fixed evita que se
+   vuelva claro-sobre-claro en modo oscuro. */
+.platform-badge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.94);color:var(--ink-fixed);padding:5px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;z-index:2;}
 .play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0) 50%,rgba(0,0,0,.78) 100%);z-index:1;}
 .play-badge svg{width:42px;height:42px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
 .clip-copy{position:absolute;left:14px;right:14px;bottom:14px;z-index:2;}
@@ -95,6 +103,11 @@
 .proof{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:30px 0;}
 .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);}
 .stat{text-align:center;padding:16px 20px;border-right:1px solid var(--rule);background-image:radial-gradient(rgba(10,10,10,.06) 1px,transparent 1px);background-size:18px 18px;}
+/* Puntitos casi negros al 6% desaparecen sobre el fondo oscuro nuevo — contraparte clara. */
+[data-theme="dark"] .stat{background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .stat{background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);}
+}
 .stat:last-child{border-right:none;}
 .stat b{display:block;font-family:var(--serif-display);font-size:33px;font-weight:400;font-variant-numeric:tabular-nums;}
 .stat span{font-size:12.5px;color:var(--gray-txt);}
@@ -121,6 +134,10 @@
 .about-visual-badge span{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
 .about-visual-badge strong{display:block;font-family:var(--serif-display);font-weight:400;font-size:20px;text-transform:uppercase;}
 .about-copy .pull{font-family:var(--serif-display);font-size:22px;line-height:1.15;margin:10px 0 16px;text-transform:none;font-weight:400;}
+/* Verde fuera de token, a propósito distinto de --green (un tono más
+   apagado para texto de cita). Revisado para modo oscuro: ~4.3:1 contra
+   el nuevo fondo oscuro (texto grande, umbral AA 3:1) — pasa sin
+   necesitar una contraparte, se deja como está. */
 .about-copy .pull em{color:#5b8a12;font-style:normal;}
 .about-copy .pull .punct{color:rgba(10,10,10,.3);}
 .about-copy p{font-size:14px;line-height:1.55;color:var(--gray-dark);margin:0 0 12px;font-weight:400;}
@@ -128,8 +145,10 @@
 .about-copy .products-line span{color:var(--gray-txt);font-weight:400;}
 .about-actions{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
 
-/* ——— Footer ——— */
-footer{background:var(--ink);color:#fff;padding:44px 0 30px;border-top:1px solid var(--green);}
+/* ——— Footer ——— Fondo fijo (--ink-fixed): siempre oscuro, sin importar
+   el tema (el logo ya se invierte a blanco acá vía filter, ver
+   css/header.css — misma lógica de superficie fija). */
+footer{background:var(--ink-fixed);color:#fff;padding:44px 0 30px;border-top:1px solid var(--green);}
 .footer-grid{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px;}
 .footer-brand img{height:34px;width:auto;filter:brightness(0) invert(1);}
 .footer-brand p{font-size:12.5px;color:rgba(255,255,255,.55);max-width:40ch;margin-top:14px;font-weight:400;line-height:1.5;}
