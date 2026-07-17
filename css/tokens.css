@@ -1,11 +1,11 @@
 :root{
   --ink:#0a0a0a;
   --ink-fixed:#0a0a0a;
-  --paper:#ffffff;
-  --paper-soft:#f7f8fa;
-  --rule:#e5ebf4;
-  --gray-txt:#5b6472;
-  --gray-dark:#2b2f36;
+  --paper:#FAF8F5;
+  --paper-soft:#F1ECE4;
+  --rule:#E6DFD3;
+  --gray-txt:#6b6459;
+  --gray-dark:#332f27;
   --green:#9aea39;
   --serif-display:'Anton', sans-serif;
   --sans:'Inter', sans-serif;
@@ -64,11 +64,11 @@
 
 [data-theme="light"]{
   --ink:#0a0a0a;
-  --paper:#ffffff;
-  --paper-soft:#f7f8fa;
-  --rule:#e5ebf4;
-  --gray-txt:#5b6472;
-  --gray-dark:#2b2f36;
+  --paper:#FAF8F5;
+  --paper-soft:#F1ECE4;
+  --rule:#E6DFD3;
+  --gray-txt:#6b6459;
+  --gray-dark:#332f27;
   --src-industry:#1c2b4a;
   --src-lana:#b5850a;
   --src-infinitas:#6b2fbf;
