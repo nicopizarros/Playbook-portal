@@ -55,6 +55,7 @@
   .opinion-card,.product{border-right:none;border-bottom:1px solid var(--rule);}
   .quote{border-right:none;border-bottom:1px solid var(--rule);}
   .video-top,.infinitas-wrap,.about-card{grid-template-columns:1fr;}
+  .clips-row{grid-template-columns:1fr 1fr;}
   .ig-reels-row{grid-template-columns:1fr;}
   .proof-grid{grid-template-columns:1fr;}
   .stat{border-right:none;border-bottom:1px solid var(--rule);padding-bottom:16px;margin-bottom:16px;}

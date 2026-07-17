@@ -59,12 +59,26 @@
 .more-eps a:hover{color:var(--green);}
 .more-eps a span{color:rgba(255,255,255,.4);font-size:11.5px;white-space:nowrap;}
 
-.clips-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.clips-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
 
 .ig-reels-head{margin:8px 0 0;}
 .ig-reels-head h3{font-family:var(--serif-display);font-weight:400;font-size:20px;margin:0;text-transform:none;color:#fff;}
 .ig-reels-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
-.ig-reels-row .instagram-media{margin:0 auto!important;}
+/* Borde fijo (#E6DFD3, el --rule de modo claro): igual que el fondo del
+   blockquote en templates.js, esta tarjeta no reacciona al tema porque vive
+   en una sección siempre oscura — un borde var(--rule) se volvería casi
+   negro en modo oscuro y no combinaría con el fondo fijo claro. */
+.ig-reels-row .instagram-media{margin:0 auto!important;border:1px solid #E6DFD3!important;border-radius:14px!important;overflow:hidden;}
+/* Contenido de respaldo del blockquote — lo que se ve si el widget de
+   Instagram no logra procesar el embed (bloqueado por ad-blockers/tracking
+   protection, algo frecuente con embed.js). Instagram lo reemplaza con su
+   propio iframe si sí logra cargar. Texto/ícono en --ink-fixed (no --ink):
+   sobre el fondo fijo claro de arriba, var(--ink) se volvería casi blanco
+   en modo oscuro e invisible — mismo patrón que .platform-badge más abajo. */
+.ig-fallback-link{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:280px;padding:24px;color:var(--ink-fixed);text-decoration:none;font-weight:700;font-size:13.5px;letter-spacing:.02em;}
+.ig-fallback-icon{width:34px;height:34px;color:var(--ink-fixed);}
+.ig-fallback-link:hover,.ig-fallback-link:focus-visible{color:var(--green);}
+.ig-fallback-link:hover .ig-fallback-icon,.ig-fallback-link:focus-visible .ig-fallback-icon{color:var(--green);}
 .clip-card{position:relative;display:block;overflow:hidden;background:#111;transition:transform var(--duration-base) var(--ease-out);}
 .clip-card:hover{transform:translateY(-4px);}
 .clip-card .frame{aspect-ratio:4/5;position:relative;}
