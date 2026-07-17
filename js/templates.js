@@ -269,7 +269,7 @@ export function footerContentTemplate(data) {
     `<a class="pill" href="${su(s.url)}" target="_blank" rel="noopener noreferrer">${e(s.label)}</a>`
   ).join('');
   return `<div class="footer-brand">
-      <img src="/assets/img/playbook-logo.webp" width="180" height="44" alt="Playbook" loading="lazy" decoding="async" />
+      <img src="/assets/img/playbook-logo-dark.png" width="180" height="44" alt="Playbook" loading="lazy" decoding="async" />
       <p>${e(data.brandBlurb)}</p>
     </div>
     <div>
