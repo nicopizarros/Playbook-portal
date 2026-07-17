@@ -5,6 +5,7 @@
 // the ticker + search) instead of fetching articles.json a second time.
 import { whenArticlesReady, getArticles } from './articles.js';
 import { track } from './analytics.js';
+import { tagPillsRowTemplate } from './templates.js';
 
 // window.location.origin, not a hardcoded domain literal: the custom
 // domain isn't guaranteed to be the one actually serving this page at any
@@ -25,13 +26,6 @@ function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, s => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[s]));
-}
-
-function tagPillsRow(a) {
-  const t = a.tags || {};
-  const all = [...(t.scope || []), ...(t.sport || []), ...(t.vertical || [])];
-  if (!all.length) return '';
-  return `<div class="tag-pill-row">${all.map(x => `<span class="tag-mini">${escapeHtml(x)}</span>`).join('')}</div>`;
 }
 
 // ---------------------------------------------------------------- SEO (Etapa 1)
@@ -229,7 +223,7 @@ function articleTemplate(a) {
       ${photo}
       <h1>${escapeHtml(a.title)}</h1>
       <div class="byline">${escapeHtml(a.dateFormatted)} · ${escapeHtml(a.reading_time || 1)} min${authorBit}</div>
-      ${tagPillsRow(a)}
+      ${tagPillsRowTemplate(a)}
       <div class="article-body">${paragraphs || `<p>${escapeHtml(a.excerpt || '')}</p>`}</div>
       ${shareRow(a)}
       <a class="btn light article-cta" href="${escapeHtml(a.substack_url)}" target="_blank" rel="noopener noreferrer">Ver en Substack</a>

@@ -7,22 +7,32 @@
 // imports, and this sidesteps that entirely.
 
 import { resolveSiteUrl } from '../lib/site-url.js';
+import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '../js/taxonomy.js';
 
 // Priority/changefreq tiers, matching actual content hierarchy — Google
 // disregards sitemaps where every URL claims priority 1.0, so these are
 // deliberately differentiated:
 //   Homepage             1.0 / daily    — everything funnels through here
-//   Archivo (aggregate)  0.6 / daily    — changes whenever anything publishes
 //   Artículo             0.8 / weekly   — the actual content, second only to home
+//   Archivo (aggregate)  0.6 / daily    — changes whenever anything publishes
+//   Tema (topic/tag)     0.5 / weekly   — aggregates multiple articles, narrower than archivo
 //   Autor (author archive) 0.4 / monthly — thinnest, lowest-value pages
-// No dedicated tag/topic pages exist yet — the tag filters on /archivo.html
-// are client-side button state, not their own URLs (see Etapa 4 of the
-// roadmap) — so there's nothing to add for "tag pages" until those exist.
 const TIERS = {
   home: { priority: '1.0', changefreq: 'daily' },
   archive: { priority: '0.6', changefreq: 'daily' },
   article: { priority: '0.8', changefreq: 'weekly' },
+  topic: { priority: '0.5', changefreq: 'weekly' },
   author: { priority: '0.4', changefreq: 'monthly' }
+};
+
+// Same three tiers as js/taxonomy.js / js/tema-page.js — a closed
+// enumeration, so an article's tag value can be checked against what's
+// currently valid instead of trusted blindly (see the stale-value guard
+// in buildEntries below).
+const TAXONOMY = {
+  scope: SCOPE_OPTIONS,
+  sport: SPORT_OPTIONS,
+  vertical: VERTICAL_OPTIONS
 };
 
 // The sitemap protocol's hard cap on a single file. If this ever fires, the
@@ -102,6 +112,34 @@ function buildEntries(siteUrl, articles, siteSettings) {
   authorDates.forEach((dates, name) => {
     entries.push(urlEntry(`${siteUrl}/autor.html?nombre=${encodeURIComponent(name)}`, {
       ...TIERS.author,
+      lastmod: mostRecentDate(dates)
+    }));
+  });
+
+  // Topic/tag pages: one per scope/sport/vertical value that at least one
+  // current article actually carries — no visibility gate needed here
+  // (unlike authors, no tag has an equivalent of mostrar_autor). Guarded
+  // against stale values: if taxonomy.js ever drops or renames an option,
+  // an old article can still reference the removed string, and listing
+  // that in the sitemap would point GSC at a URL js/tema-page.js reports
+  // as not-found — worse than just not listing it.
+  const tagDates = new Map();
+  articles.forEach(a => {
+    const tags = a.tags || {};
+    Object.keys(TAXONOMY).forEach(tier => {
+      (tags[tier] || []).forEach(value => {
+        if (TAXONOMY[tier].indexOf(value) === -1) return;
+        const key = `${tier}:${value}`;
+        const existing = tagDates.get(key) || [];
+        existing.push(a.date);
+        tagDates.set(key, existing);
+      });
+    });
+  });
+  tagDates.forEach((dates, key) => {
+    const [tier, value] = key.split(':');
+    entries.push(urlEntry(`${siteUrl}/tema.html?${tier}=${encodeURIComponent(value)}`, {
+      ...TIERS.topic,
       lastmod: mostRecentDate(dates)
     }));
   });

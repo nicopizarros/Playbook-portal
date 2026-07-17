@@ -101,9 +101,83 @@ function initCtaPulse() {
   }, 2000);
 }
 
+// ---------------------------------------------------------------- Theme toggle
+// Dos instancias por página (.theme-toggle en .nav-actions para escritorio,
+// .theme-toggle-drawer dentro del menú móvil — ver css/responsive.css),
+// un solo handler para las dos. El repintado visual real lo hacen los
+// selectores [data-theme] / @media(prefers-color-scheme:dark) de
+// css/tokens.css solo con el atributo data-theme del <html> — acá solo se
+// escribe ese atributo, se guarda la preferencia, y se sincroniza el resto
+// de la UI (aria-pressed, texto del botón del drawer, meta theme-color).
+
+const THEME_KEY = 'playbook_theme';
+
+function storedTheme() {
+  try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+}
+
+function isDarkActive() {
+  const stored = storedTheme();
+  if (stored === 'dark') return true;
+  if (stored === 'light') return false;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function syncThemeUi() {
+  const dark = isDarkActive();
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(dark));
+    btn.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    const label = btn.querySelector('.theme-toggle-label');
+    if (label) label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+  });
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', dark ? '#121316' : '#ffffff');
+}
+
+function initThemeToggle() {
+  const toggles = document.querySelectorAll('[data-theme-toggle]');
+  if (!toggles.length) return;
+
+  syncThemeUi();
+
+  toggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = isDarkActive() ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+      syncThemeUi();
+
+      // El toggle del drawer se comporta como cualquier otro link del menú:
+      // tocarlo cierra el drawer, igual que bindDrawerLinks() hace con los <a>.
+      if (btn.classList.contains('theme-toggle-drawer')) {
+        const drawer = document.getElementById('nav-links');
+        const overlay = document.getElementById('nav-overlay');
+        const navToggle = document.getElementById('nav-toggle');
+        if (drawer) drawer.classList.remove('is-open');
+        if (overlay) overlay.classList.remove('is-open');
+        if (navToggle) {
+          navToggle.setAttribute('aria-expanded', 'false');
+          navToggle.setAttribute('aria-label', 'Abrir menú');
+        }
+      }
+    });
+  });
+
+  // Sin preferencia guardada, seguir los cambios de tema del sistema en
+  // vivo — el repintado visual ya lo hace @media(prefers-color-scheme:dark)
+  // solo, esto solo mantiene sincronizados aria-pressed/label/theme-color.
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (!storedTheme()) syncThemeUi();
+    });
+  }
+}
+
 initMobileDrawer();
 initScrollShrink();
 initActiveSection();
 initCtaPulse();
+initThemeToggle();
 
 document.addEventListener('playbook:content-rendered', initActiveSection);

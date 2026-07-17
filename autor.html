@@ -8,12 +8,26 @@
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
+<!-- Tema oscuro: debe ejecutarse antes de que carguen las hojas de estilo
+     para evitar el parpadeo (FOUC). Lee localStorage de forma síncrona; si
+     no hay preferencia guardada, no setea data-theme y deja que
+     @media(prefers-color-scheme:dark) en css/tokens.css decida solo. -->
+<script>
+  (function(){
+    try{
+      var t=localStorage.getItem('playbook_theme');
+      if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}
+    }catch(e){}
+  })();
+</script>
 <title>Autor — Playbook</title>
 <meta name="description" content="Artículos publicados por este autor en Playbook." />
 <meta name="robots" content="index, follow" />
 <!-- Verificación de Google Search Console: mismo valor en las 5 páginas públicas — instrucciones para reemplazarlo en README.md -->
 <meta name="google-site-verification" content="513N8AzJQaHyitmSLoB5S0t8nD0jhkPY7L10pA7YSWU" />
 <link rel="canonical" href="https://playbook-portal-phi.vercel.app/autor.html" />
+<!-- Valor claro por defecto; js/nav.js lo actualiza en cuanto sabe qué tema está activo (ver initThemeToggle/syncThemeUi). -->
+<meta name="theme-color" content="#ffffff" />
 <link rel="alternate" type="application/rss+xml" title="Playbook — RSS" href="/feed.xml" />
 <link rel="icon" href="/assets/img/playbook-logo.webp" type="image/webp" />
 <link rel="apple-touch-icon" href="/assets/img/playbook-logo.webp" />
@@ -44,12 +58,25 @@
       <img src="/assets/img/playbook-logo.webp" width="640" height="158" alt="Playbook" fetchpriority="high" decoding="async" />
     </a>
     <nav class="nav-links" id="nav-links" aria-label="Navegación principal">
+      <!-- nav-links-dynamic: content.js re-renderiza este div desde el CMS
+           (navLinksTemplate). El toggle de tema queda afuera a propósito —
+           es estático, no viene del CMS, y un reemplazo de innerHTML lo
+           borraría si estuviera adentro. -->
+      <div id="nav-links-dynamic">
       <a href="/index.html#noticias">Noticias</a>
       <a href="/index.html#analisis">Análisis</a>
       <a href="/index.html#newsletters">Newsletters</a>
       <a href="/index.html#video">Video</a>
       <a class="nav-link-infinitas" href="/index.html#infinitas">Infinitas</a>
       <a class="btn nav-drawer-cta" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Suscríbete gratis</a>
+      </div>
+      <button class="theme-toggle theme-toggle-drawer" data-theme-toggle type="button" aria-label="Cambiar a modo oscuro" aria-pressed="false">
+        <span class="theme-toggle-icon">
+          <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5 5l1.4 1.4M17.6 17.6L19 19M3 12h2M19 12h2M5 19l1.4-1.4M17.6 6.4L19 5"/></svg>
+          <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>
+        </span>
+        <span class="theme-toggle-label">Modo oscuro</span>
+      </button>
     </nav>
     <div class="nav-actions">
       <div class="nav-search">
@@ -57,6 +84,12 @@
         <input type="search" placeholder="Buscar" aria-label="Buscar en Playbook" autocomplete="off" />
         <div class="search-results" id="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
       </div>
+      <button class="theme-toggle" data-theme-toggle type="button" aria-label="Cambiar a modo oscuro" aria-pressed="false">
+        <span class="theme-toggle-icon">
+          <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5 5l1.4 1.4M17.6 17.6L19 19M3 12h2M19 12h2M5 19l1.4-1.4M17.6 6.4L19 5"/></svg>
+          <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>
+        </span>
+      </button>
       <a class="btn" id="nav-cta" href="https://playbookmedia.substack.com/" target="_blank" rel="noopener noreferrer">Suscríbete gratis</a>
       <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">
         <span></span><span></span><span></span>

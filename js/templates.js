@@ -1,8 +1,12 @@
 'use strict';
 
 // Pure, DOM-free template functions: data -> HTML string.
-// Imported by js/content.js (production render) and admin/admin.js (live preview),
-// so the two are guaranteed to produce identical markup.
+// Imported by js/content.js (production render) and admin/dashboard.js (live
+// preview) for the homepage content.json sections, so the two are
+// guaranteed to produce identical markup — and also by js/articles.js,
+// js/archive-page.js, js/article-page.js, and admin/dashboard.js again for
+// the shared article tag-pill row (tagPillsRowTemplate below), which used
+// to be duplicated near-identically in each of those files.
 
 export function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, s => ({
@@ -25,6 +29,26 @@ export function safeUrl(url) {
 
 const e = escapeHtml;
 const su = url => e(safeUrl(url));
+
+// ---------- Article tag pills ----------
+
+// Renders an article's scope/sport/vertical tags as real links to their
+// /tema.html topic page (js/tema-page.js) instead of static pills, so a
+// reader can jump from "this piece is tagged Fútbol" to everything else
+// tagged Fútbol. Shared by js/articles.js, js/archive-page.js,
+// js/article-page.js, and admin/dashboard.js's live preview.
+export function tagPillsRowTemplate(a) {
+  const t = a.tags || {};
+  const entries = [
+    ...(t.scope || []).map(value => ({ tier: 'scope', value })),
+    ...(t.sport || []).map(value => ({ tier: 'sport', value })),
+    ...(t.vertical || []).map(value => ({ tier: 'vertical', value }))
+  ];
+  if (!entries.length) return '';
+  return `<div class="tag-pill-row">${entries.map(({ tier, value }) =>
+    `<a class="tag-mini" href="/tema.html?${tier}=${encodeURIComponent(value)}">${e(value)}</a>`
+  ).join('')}</div>`;
+}
 
 // ---------- Nav ----------
 

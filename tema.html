@@ -20,11 +20,12 @@
     }catch(e){}
   })();
 </script>
-<title>Página no encontrada — Playbook</title>
-<meta name="description" content="Esta página no existe o se movió. Volvé al inicio de Playbook o buscá lo que necesitas." />
-<meta name="robots" content="noindex, follow" />
-<!-- Verificación de Google Search Console: mismo valor en las 5 páginas públicas — instrucciones para reemplazarlo en README.md -->
+<title>Tema — Playbook</title>
+<meta name="description" content="Todo lo publicado en Playbook sobre un tema o categoría." />
+<meta name="robots" content="index, follow" />
+<!-- Verificación de Google Search Console: mismo valor en las páginas públicas — instrucciones para reemplazarlo en README.md -->
 <meta name="google-site-verification" content="513N8AzJQaHyitmSLoB5S0t8nD0jhkPY7L10pA7YSWU" />
+<link rel="canonical" href="https://playbook-portal-phi.vercel.app/tema.html" />
 <!-- Valor claro por defecto; js/nav.js lo actualiza en cuanto sabe qué tema está activo (ver initThemeToggle/syncThemeUi). -->
 <meta name="theme-color" content="#ffffff" />
 <link rel="alternate" type="application/rss+xml" title="Playbook — RSS" href="/feed.xml" />
@@ -48,7 +49,7 @@
 </head>
 <body>
 
-<a class="skip-link" href="#error-main">Saltar al contenido</a>
+<a class="skip-link" href="#tema-main">Saltar al contenido</a>
 
 <!-- ============================================================ HEADER (duplicado de index.html) -->
 <header class="topbar">
@@ -93,14 +94,29 @@
 
 <div class="nav-overlay" id="nav-overlay"></div>
 
-<!-- ============================================================ 404 -->
-<main class="container article-page" id="error-main" style="text-align:center;padding:80px 24px 100px;">
-  <span class="eyebrow" style="justify-content:center;">Error 404</span>
-  <h1 style="font-family:var(--serif-display);font-weight:400;font-size:38px;line-height:1.15;margin:14px 0 16px;text-transform:none;">No encontramos esta página</h1>
-  <p style="font-size:15.5px;color:var(--gray-txt);max-width:52ch;margin:0 auto 30px;">El enlace puede estar roto o la página se movió. Probá desde el inicio o buscá lo que necesitas arriba.</p>
-  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-    <a class="btn accent" href="/index.html">Volver al inicio</a>
-    <a class="btn light" href="/archivo.html">Ver el archivo</a>
+<!-- ============================================================ TEMA
+     Reachable from a tag pill on any article/homepage/archive card (see
+     js/templates.js's tagPillsRowTemplate) or a direct/shared link. Shows
+     every article carrying one scope/sport/vertical value from
+     js/taxonomy.js — deliberately the FULL pool, not just what's off the
+     homepage (that's what /archivo.html is for, see js/archive-page.js). -->
+<main class="container news-section archive-page" id="tema-main">
+  <div class="section-head" style="border-bottom:none;margin-bottom:0;padding-top:0;">
+    <div>
+      <h2 id="tema-heading">Tema</h2>
+      <p class="sub">Todo lo publicado en Playbook sobre este tema.</p>
+    </div>
+    <a class="section-link" href="/index.html#noticias">← Volver a Noticias</a>
+  </div>
+
+  <div id="tema-root" aria-live="polite">
+    <div class="skeleton-card">
+      <div class="skel skel-badge"></div>
+      <div class="skel skel-title"></div>
+      <div class="skel skel-title skel--short"></div>
+      <div class="skel skel-desc"></div>
+      <div class="skel skel-meta"></div>
+    </div>
   </div>
 </main>
 
@@ -117,14 +133,9 @@
 <script type="module" src="/js/analytics.js"></script>
 <script type="module" src="/js/articles.js"></script>
 <script type="module" src="/js/search.js"></script>
+<script type="module" src="/js/tema-page.js"></script>
 <script type="module" src="/js/nav.js"></script>
 <script type="module" src="/js/ui.js"></script>
-<!-- Manda un evento propio además del pageview automático — así el equipo
-     puede ver en GA4 qué enlaces rotos está pisando la gente de verdad. -->
-<script type="module">
-  import { track } from '/js/analytics.js';
-  track('page_not_found', { path: window.location.pathname + window.location.search });
-</script>
 
 </body>
 </html>

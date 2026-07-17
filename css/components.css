@@ -6,24 +6,37 @@
 .section-link{font-size:12.5px;font-weight:500;border-bottom:1px solid var(--ink);padding-bottom:2px;white-space:nowrap;background:none;border-top:0;border-left:0;border-right:0;font-family:var(--sans);cursor:pointer;color:inherit;transition:color var(--duration-base) var(--ease-out);}
 .section-link:hover{color:var(--gray-dark);}
 
-.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--ink);color:var(--paper);font-size:13px;font-weight:600;padding:10px 20px;border-radius:999px;white-space:nowrap;transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);border:1px solid var(--ink);overflow:hidden;}
+/* .btn primario: ficha fija (--ink-fixed), siempre negra con texto blanco
+   — es parte de la identidad de marca del CTA, no se invierte con el tema. */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--ink-fixed);color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:999px;white-space:nowrap;transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);border:1px solid var(--ink-fixed);overflow:hidden;}
 .btn:hover{transform:translateY(-1px) scale(1.015);}
 .btn:active{transform:translateY(0) scale(0.98);}
-.btn.accent{background:var(--green);color:var(--ink);border-color:var(--green);font-weight:700;}
+/* --green no cambia entre temas, así que el texto sobre verde tampoco:
+   --ink-fixed evita que se vuelva ilegible (claro sobre verde claro) en
+   modo oscuro. */
+.btn.accent{background:var(--green);color:var(--ink-fixed);border-color:var(--green);font-weight:700;}
 .btn.light{background:transparent;color:var(--ink);border:1px solid var(--ink);z-index:0;}
 .btn.light.on-dark{color:#fff;border-color:rgba(255,255,255,.66);}
 .btn.light::before{content:"";position:absolute;inset:0;background:var(--ink);z-index:-1;clip-path:inset(0 100% 0 0);transition:clip-path var(--duration-base) var(--ease-out);}
 .btn.light:hover::before{clip-path:inset(0 0 0 0);}
-.btn.light:hover{color:#fff;}
+/* El relleno del hover es var(--ink) (se invierte con el tema), así que el
+   texto del hover tiene que ser var(--paper) para seguirlo — no un blanco
+   fijo, que se volvería ilegible sobre un relleno ya claro en modo oscuro. */
+.btn.light:hover{color:var(--paper);}
 .btn.light.on-dark::before{background:#fff;}
-.btn.light.on-dark:hover{color:var(--ink);}
+/* .on-dark se usa en superficies que ya son oscuras a propósito (footer,
+   sección de video) — con --ink-fixed en vez de --ink para que el texto
+   del hover no se vuelva claro-sobre-claro si el tema cambia. */
+.btn.light.on-dark:hover{color:var(--ink-fixed);}
 
 @keyframes ctaPulse{0%{transform:scale(1);}50%{transform:scale(1.04);}100%{transform:scale(1);}}
 .btn.pulse-once{animation:ctaPulse .5s var(--ease-out) 1;}
 
 .filter-btn{min-height:38px;padding:0 15px;border-radius:999px;border:1.5px solid var(--rule);background:var(--paper);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--gray-txt);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease,background var(--duration-fast) ease,transform var(--duration-base) var(--ease-out);font-family:var(--sans);}
 .filter-btn:hover{border-color:var(--ink);color:var(--ink);}
-.filter-btn.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+/* Ficha fija (--ink-fixed): el estado activo siempre es negro con texto
+   blanco, mismo criterio que .btn primario. */
+.filter-btn.active{background:var(--ink-fixed);border-color:var(--ink-fixed);color:#fff;}
 @keyframes filterPop{0%{transform:scale(.95);}100%{transform:scale(1);}}
 .filter-btn.active{animation:filterPop var(--duration-base) var(--ease-out);}
 
@@ -40,13 +53,20 @@
 .tag-mini.playbook::before{background:var(--src-playbook);}
 
 /* Tag-taxonomy pill rows (Task 2) — reuses .tag-mini's dot+label look, no
-   source color (these pills are scope/sport/vertical, not source-coded). */
+   source color (these pills are scope/sport/vertical, not source-coded).
+   Each pill is a real link to /tema.html now (js/templates.js
+   tagPillsRowTemplate) — position:relative lifts it above the stretched
+   .card-link::after overlay (css/hero.css) so it stays its own click
+   target instead of being shadowed by the card's own link. */
 .tag-pill-row{display:flex;flex-wrap:wrap;gap:8px 14px;}
 .tag-pill-row .tag-mini{margin-bottom:0;}
+.tag-pill-row a.tag-mini{position:relative;z-index:1;}
 
 .pill{display:inline-flex;align-items:center;min-height:38px;border:1px solid rgba(255,255,255,.3);padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:500;transition:background var(--duration-base) var(--ease-out);}
 .pill:hover,.pill:focus-visible{background:rgba(255,255,255,.08);}
-.inf-pill{background:var(--green);color:var(--ink);border-color:var(--green);font-weight:700;}
+/* Mismo criterio que .btn.accent: --green no cambia con el tema, así que
+   el texto tampoco (--ink-fixed). */
+.inf-pill{background:var(--green);color:var(--ink-fixed);border-color:var(--green);font-weight:700;}
 
 /* Crossfade helper for filtered article grids */
 .fade-swap{transition:opacity var(--duration-base) var(--ease-in-out);}
