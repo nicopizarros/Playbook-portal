@@ -5,7 +5,8 @@ import {
   opinionSectionHeadTemplate, opinionGridTemplate,
   productsSectionHeadTemplate, productsGridTemplate,
   midCtaTemplate,
-  videoSectionHeadTemplate, videoFeatureTemplate, videoFeatureCopyTemplate, videoClipsTemplate,
+  videoSectionHeadTemplate, videoFeatureTemplate, videoSecondaryTemplate, videoClipsTemplate,
+  instagramReelsTemplate,
   infinitasSectionHeadTemplate, infinitasWrapTemplate,
   statsHeadingTemplate, statsGridTemplate,
   testimonialsSectionHeadTemplate, testimonialsGridTemplate,
@@ -55,8 +56,9 @@ function render(data) {
 
   safeMount('video-section-head', videoSectionHeadTemplate, data.videoSection);
   safeMount('video-feature', videoFeatureTemplate, data.videoSection.featured);
-  safeMount('video-feature-copy', videoFeatureCopyTemplate, data.videoSection.featured);
+  safeMount('video-feature-copy', videoSecondaryTemplate, data.videoSection.secondary);
   safeMount('video-clips', videoClipsTemplate, data.videoSection);
+  safeMount('video-ig-reels', instagramReelsTemplate, data.videoSection);
 
   safeMount('infinitas-section-head', infinitasSectionHeadTemplate, data.infinitasSection);
   safeMount('infinitas-wrap', infinitasWrapTemplate, data.infinitasSection);
@@ -73,6 +75,20 @@ function render(data) {
   safeMount('footer-copyright', footerCopyrightTemplate, data.footer);
 
   document.dispatchEvent(new CustomEvent('playbook:content-rendered'));
+  processInstagramEmbeds();
+}
+
+// embed.js corre su propio auto-proceso de blockquotes una sola vez, al
+// cargar — los que safeMount inyecta después no se convierten solos, hay
+// que pedírselo explícitamente. Reintenta unas pocas veces por si el
+// fetch de content.json termina antes de que //www.instagram.com/embed.js
+// haya cargado.
+function processInstagramEmbeds(attempt) {
+  if (window.instgrm && window.instgrm.Embeds) {
+    window.instgrm.Embeds.process();
+  } else if ((attempt || 0) < 20) {
+    setTimeout(() => processInstagramEmbeds((attempt || 0) + 1), 300);
+  }
 }
 
 function notifyReady() {

@@ -85,7 +85,7 @@ export default async function handler(req, res) {
 
   // 2. Detectar publicación desde el título
   function detectPublication(title) {
-    if (/industry shots/i.test(title)) return { publication: 'Industry Shots', source: 'industry-shots' };
+    if (/industry shots/i.test(title)) return { publication: 'Noticias', source: 'industry-shots' };
     if (/lana/i.test(title))           return { publication: 'La Lana del Mundial', source: 'la-lana' };
     if (/infinitas/i.test(title))      return { publication: 'Infinitas', source: 'infinitas' };
     return { publication: 'Playbook', source: 'playbook' };
