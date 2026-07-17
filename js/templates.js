@@ -144,17 +144,18 @@ export function videoSectionHeadTemplate(data) {
 export function videoFeatureTemplate(featured) {
   return `<div class="frame">
       <iframe src="https://www.youtube.com/embed/${e(featured.embedId)}" title="${e(featured.embedTitle)}" loading="lazy" allowfullscreen></iframe>
-    </div>`;
+    </div>
+    <h3 class="video-card-title">${e(featured.title)}</h3>`;
 }
 
-export function videoFeatureCopyTemplate(featured) {
-  const paragraphs = (featured.paragraphs || []).map(p => `<p>${e(p)}</p>`).join('');
-  const episodes = (featured.episodeLinks || []).map(ep =>
-    `<a href="${su(ep.url)}" target="_blank" rel="noopener noreferrer">${e(ep.label)} <span>Ver episodio</span></a>`
+export function videoSecondaryTemplate(secondary) {
+  const episodes = (secondary.episodeLinks || []).map(ep =>
+    `<a href="${su(ep.url)}" target="_blank" rel="noopener noreferrer">${e(ep.label)} <span>Ver video</span></a>`
   ).join('');
-  return `<span class="eyebrow">${e(featured.eyebrow)}</span>
-    <h3>${e(featured.title)}</h3>
-    ${paragraphs}
+  return `<div class="frame">
+      <iframe src="https://www.youtube.com/embed/${e(secondary.embedId)}" title="${e(secondary.embedTitle)}" loading="lazy" allowfullscreen></iframe>
+    </div>
+    <h3 class="video-card-title">${e(secondary.title)}</h3>
     <div class="more-eps">${episodes}</div>`;
 }
 
@@ -180,6 +181,20 @@ export function videoClipTemplate(clip) {
 
 export function videoClipsTemplate(data) {
   return (data.clips || []).map(videoClipTemplate).join('');
+}
+
+// Embed oficial de Instagram (oEmbed público vía embed.js, sin API key).
+// Los blockquotes se inyectan como HTML crudo; js/content.js debe llamar a
+// window.instgrm.Embeds.process() después de montarlos para que el script
+// de Instagram los convierta en iframes.
+export function instagramReelTemplate(reel) {
+  return `<blockquote class="instagram-media" data-instgrm-permalink="${su(reel.url)}" data-instgrm-version="14" style="background:#FFF;border:0;border-radius:3px;margin:0 auto;max-width:400px;min-width:326px;width:100%;">
+    <a href="${su(reel.url)}" target="_blank" rel="noopener noreferrer">Ver reel en Instagram</a>
+  </blockquote>`;
+}
+
+export function instagramReelsTemplate(data) {
+  return (data.instagramReels || []).map(instagramReelTemplate).join('');
 }
 
 // ---------- Infinitas section ----------

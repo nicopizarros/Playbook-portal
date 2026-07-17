@@ -57,7 +57,7 @@
         "meta": "Martes / Jueves",
         "url": "https://playbookmedia.substack.com/",
         "image": "/assets/img/industry-shots-banner.webp",
-        "imageAlt": "Industry Shots by Playbook"
+        "imageAlt": "Noticias by Playbook"
       },
       {
         "variant": "banner",
@@ -101,21 +101,21 @@
   },
   "videoSection": {
     "heading": "Video Playbook",
-    "sub": "Al Banquillo + clips cortos para mover la conversación.",
+    "sub": "Series y clips del canal de Playbook.",
     "channelLinkLabel": "Ir al canal",
     "channelLinkUrl": "https://www.youtube.com/@AldoSalesPlaybook",
     "featured": {
-      "embedId": "ihHFQ30NE5c",
-      "embedTitle": "Al Banquillo: ¿La FIFA está arruinando el Mundial?",
-      "eyebrow": "Al Banquillo",
-      "title": "¿La FIFA está arruinando el Mundial?",
-      "paragraphs": [
-        "Cada semana, un acontecimiento del deporte mexicano sube al estrado: se presentan los hechos, se arman los argumentos y se señala a los responsables.",
-        "El negocio detrás de la cancha, sin filtro."
-      ],
+      "embedId": "1fGmZUNy_xk",
+      "embedTitle": "Players · El Matador",
+      "title": "Players · El Matador"
+    },
+    "secondary": {
+      "embedId": "vBdq4jG2hvc",
+      "embedTitle": "Al Banquillo",
+      "title": "Al Banquillo",
       "episodeLinks": [
-        { "label": "El negocio detrás del Mundial 2026", "url": "https://www.youtube.com/@AldoSalesPlaybook" },
-        { "label": "Lo que nadie te explicó de los derechos de TV", "url": "https://www.youtube.com/@AldoSalesPlaybook" }
+        { "label": "¿Cómo ganan dinero los equipos de fútbol?", "url": "https://youtu.be/rvvMrO9OFxY" },
+        { "label": "¿Cómo se gestó el regreso del Atlante a primera división?", "url": "https://youtu.be/wcnkZyRVpI4" }
       ]
     },
     "clips": [
@@ -134,23 +134,11 @@
         "title": "El Mundial copia el modelo del Super Bowl",
         "handle": "@AldoSalesPlaybook",
         "variant": ""
-      },
-      {
-        "platform": "instagram",
-        "url": "https://www.instagram.com/reel/DZwUUG6hqB7/",
-        "igText": "La FIFA está copiando a la NFL",
-        "title": "La FIFA está copiando a la NFL",
-        "handle": "@playbook.la",
-        "variant": ""
-      },
-      {
-        "platform": "instagram",
-        "url": "https://www.instagram.com/salesaldo/reel/DY5xm3CP0Bc/",
-        "igText": "Calor extremo y deporte",
-        "title": "El calor extremo también cambia la experiencia deportiva",
-        "handle": "@salesaldo",
-        "variant": "aldo"
       }
+    ],
+    "instagramReels": [
+      { "url": "https://www.instagram.com/reel/DMI_a3_xhvv/" },
+      { "url": "https://www.instagram.com/reel/DZqgpE_vD4u/" }
     ]
   },
   "infinitasSection": {
@@ -206,7 +194,7 @@
     "pullQuoteMain": "Tú ves el partido",
     "pullQuoteEm": "Nosotros vemos el negocio",
     "body": "Playbook es el medio para líderes —y futuros líderes— del deporte en LATAM: el dinero, los medios, las marcas, los datos y la relación con el fan, contados con contexto.",
-    "productsLine": "Industry Shots · La Lana del Mundial · The Futbol Business Review · Infinitas",
+    "productsLine": "Noticias · La Lana del Mundial · The Futbol Business Review · Infinitas",
     "productsLineNote": "— cuatro formatos, una misma casa editorial.",
     "actions": [
       { "label": "Ver YouTube", "url": "https://www.youtube.com/@AldoSalesPlaybook", "style": "light" },
@@ -214,7 +202,7 @@
     ]
   },
   "footer": {
-    "brandBlurb": "El medio para líderes del deporte en LATAM. Industry Shots, La Lana del Mundial, The Futbol Business Review e Infinitas: noticias, análisis y video del negocio deportivo, todo en una misma casa editorial.",
+    "brandBlurb": "El medio para líderes del deporte en LATAM. Noticias, La Lana del Mundial, The Futbol Business Review e Infinitas: análisis y video del negocio deportivo, todo en una misma casa editorial.",
     "socialLinks": [
       { "label": "Substack", "url": "https://playbookmedia.substack.com/" },
       { "label": "YouTube", "url": "https://www.youtube.com/@AldoSalesPlaybook" },

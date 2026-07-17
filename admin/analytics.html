@@ -45,21 +45,15 @@
       <span>Panel de contenido</span>
     </div>
     <div class="admin-topbar-actions">
+      <nav class="admin-topbar-nav" aria-label="Secciones del panel">
+        <a class="admin-tab" href="/admin/dashboard">CMS</a>
+        <a class="admin-tab is-active" href="/admin/analytics.html" aria-current="page">Analytics</a>
+      </nav>
       <span class="admin-status" id="admin-whoami"></span>
       <span class="admin-status" id="admin-status" role="status"></span>
       <button type="button" class="btn light" id="logout-btn">Salir</button>
     </div>
   </header>
-
-  <div class="admin-body-grid">
-    <nav class="admin-tabs" aria-label="Secciones del panel">
-      <a class="admin-tab" href="/admin/dashboard">
-        <span class="admin-tab-label">Contenido</span>
-      </a>
-      <a class="admin-tab is-active" href="/admin/analytics.html" aria-current="page">
-        <span class="admin-tab-label">Analítica</span>
-      </a>
-    </nav>
 
     <main class="admin-main analytics-main">
       <div class="analytics-page">
@@ -113,7 +107,6 @@
 
       </div>
     </main>
-  </div>
 </div>
 
 <div class="admin-toast-stack" id="toast-stack" aria-live="polite"></div>

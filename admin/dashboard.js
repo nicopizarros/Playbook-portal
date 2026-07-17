@@ -5,7 +5,8 @@ import {
   opinionSectionHeadTemplate, opinionGridTemplate,
   productsSectionHeadTemplate, productsGridTemplate,
   midCtaTemplate,
-  videoSectionHeadTemplate, videoFeatureTemplate, videoFeatureCopyTemplate, videoClipsTemplate,
+  videoSectionHeadTemplate, videoFeatureTemplate, videoSecondaryTemplate, videoClipsTemplate,
+  instagramReelsTemplate,
   infinitasSectionHeadTemplate, infinitasWrapTemplate,
   statsHeadingTemplate, statsGridTemplate,
   testimonialsSectionHeadTemplate, testimonialsGridTemplate,
@@ -20,6 +21,7 @@ import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '../js/taxonomy.j
 const TOKEN_KEY = 'playbook_admin_token';
 const USERNAME_KEY = 'playbook_admin_username';
 const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook'];
+const SOURCE_LABELS = { 'industry-shots': 'Noticias', 'la-lana': 'La Lana del Mundial', 'infinitas': 'Infinitas', 'playbook': 'Playbook' };
 const DEFAULT_TAB_ORDER = [
   'articles', 'opinion', 'video', 'infinitas', 'products',
   'stats', 'testimonials', 'about', 'midCta', 'nav', 'footer', 'settings'
@@ -451,8 +453,9 @@ function renderPreview() {
   safeMount('preview-mid-cta', midCtaTemplate, content.midCta);
   safeMount('preview-video-head', videoSectionHeadTemplate, content.videoSection);
   safeMount('preview-video-feature', videoFeatureTemplate, content.videoSection.featured);
-  safeMount('preview-video-feature-copy', videoFeatureCopyTemplate, content.videoSection.featured);
+  safeMount('preview-video-feature-copy', videoSecondaryTemplate, content.videoSection.secondary);
   safeMount('preview-video-clips', videoClipsTemplate, content.videoSection);
+  safeMount('preview-video-ig-reels', instagramReelsTemplate, content.videoSection);
   safeMount('preview-infinitas-head', infinitasSectionHeadTemplate, content.infinitasSection);
   safeMount('preview-infinitas-wrap', infinitasWrapTemplate, content.infinitasSection);
   safeMount('preview-stats-heading', statsHeadingTemplate, content.statsSection);
@@ -688,7 +691,7 @@ function buildArticlesTab(container) {
         textField(item, 'author', 'Autor', { help: 'El nombre de quien escribió el artículo. Se muestra públicamente solo si activas "Mostrar autor" abajo, o si está prendido globalmente desde Ajustes.' }),
         authorVisibilityField,
         textField(item, 'publication', 'Publicación', { help: 'El nombre de la publicación de origen.' }),
-        selectField(item, 'source', 'Fuente', KNOWN_SOURCES.map(v => ({ value: v, label: v })), 'A qué categoría pertenece — define el color de su etiqueta.'),
+        selectField(item, 'source', 'Fuente', KNOWN_SOURCES.map(v => ({ value: v, label: SOURCE_LABELS[v] || v })), 'A qué categoría pertenece — define el color de su etiqueta.'),
         checkboxGroupField(item.tags, 'scope', 'Alcance', SCOPE_OPTIONS, 'Nacional y/o internacional.', refreshAll),
         checkboxGroupField(item.tags, 'sport', 'Deporte', SPORT_OPTIONS, 'Puede tener más de uno.', refreshAll),
         checkboxGroupField(item.tags, 'vertical', 'Vertical de negocio', VERTICAL_OPTIONS, 'Puede tener más de uno.', refreshAll),
@@ -764,7 +767,7 @@ function buildMidCtaTab(container) {
 function buildVideoTab(container) {
   const s = state.content.videoSection;
   container.appendChild(el('h2', { class: 'admin-section-title', text: 'Video Playbook' }));
-  container.appendChild(el('p', { class: 'admin-section-desc', text: 'El video destacado de Al Banquillo y los clips cortos.' }));
+  container.appendChild(el('p', { class: 'admin-section-desc', text: 'El video destacado, el secundario, los clips cortos y los Reels de Instagram.' }));
   container.appendChild(textField(s, 'heading', 'Título de la sección', { help: 'El encabezado grande de la sección Video.' }));
   container.appendChild(textField(s, 'sub', 'Subtítulo', { help: 'El texto pequeño debajo del título de la sección.' }));
   container.appendChild(textField(s, 'channelLinkLabel', 'Texto del enlace al canal', { help: 'El texto del enlace que lleva al canal de YouTube.' }));
@@ -772,23 +775,22 @@ function buildVideoTab(container) {
 
   container.appendChild(el('h3', { class: 'admin-section-title', text: 'Video destacado' }));
   const f = s.featured;
-  container.appendChild(textField(f, 'embedId', 'ID de video de YouTube', { help: 'El código después de "v=" o "youtu.be/" (ej. ihHFQ30NE5c), no el link completo.' }));
+  container.appendChild(textField(f, 'embedId', 'ID de video de YouTube', { help: 'El código después de "v=" o "youtu.be/" (ej. 1fGmZUNy_xk), no el link completo.' }));
   container.appendChild(textField(f, 'embedTitle', 'Título del video (accesibilidad)', { help: 'Un texto descriptivo para lectores de pantalla; no se muestra en pantalla.' }));
-  container.appendChild(textField(f, 'eyebrow', 'Etiqueta', { help: 'El texto pequeño arriba del título (ej. Al Banquillo).' }));
-  container.appendChild(textField(f, 'title', 'Título', { help: 'El título grande del video destacado.' }));
-  container.appendChild(labeledField('Párrafos de descripción', 'Un párrafo por línea; se muestran debajo del título del video.', (() => {
-    const ta = el('textarea', { class: 'input' });
-    ta.value = (f.paragraphs || []).join('\n');
-    ta.addEventListener('input', () => { f.paragraphs = ta.value.split('\n').filter(l => l.trim() !== ''); onDirty(); });
-    return ta;
-  })()));
-  container.appendChild(arrayEditor(f.episodeLinks, {
-    removable: true, addable: true, addLabel: '+ Agregar episodio',
-    itemTitle: (item) => item.label || 'Episodio',
+  container.appendChild(textField(f, 'title', 'Título', { help: 'El título que se muestra debajo del video destacado.' }));
+
+  container.appendChild(el('h3', { class: 'admin-section-title', text: 'Video secundario' }));
+  const sec = s.secondary;
+  container.appendChild(textField(sec, 'embedId', 'ID de video de YouTube', { help: 'El código después de "v=" o "youtu.be/" (ej. vBdq4jG2hvc), no el link completo.' }));
+  container.appendChild(textField(sec, 'embedTitle', 'Título del video (accesibilidad)', { help: 'Un texto descriptivo para lectores de pantalla; no se muestra en pantalla.' }));
+  container.appendChild(textField(sec, 'title', 'Título', { help: 'El título que se muestra debajo del video secundario.' }));
+  container.appendChild(arrayEditor(sec.episodeLinks, {
+    removable: true, addable: true, addLabel: '+ Agregar video',
+    itemTitle: (item) => item.label || 'Video',
     newItem: () => ({ label: '', url: '' }),
     renderItem: (item) => [
-      textField(item, 'label', 'Texto del episodio', { help: 'El nombre del episodio en la lista de "Más episodios".' }),
-      textField(item, 'url', 'Enlace del episodio', { type: 'url', required: true, help: 'A dónde lleva ese episodio.' })
+      textField(item, 'label', 'Texto del video', { help: 'El nombre del video en la lista de "Más videos".' }),
+      textField(item, 'url', 'Enlace del video', { type: 'url', required: true, help: 'A dónde lleva ese video.' })
     ]
   }));
 
@@ -804,6 +806,17 @@ function buildVideoTab(container) {
       textField(item, 'igText', 'Texto de la tarjeta (solo Instagram)', { help: 'El texto que se muestra dentro de la tarjeta de Instagram.' }),
       textField(item, 'title', 'Título del clip', { help: 'El título que aparece debajo del clip.' }),
       textField(item, 'handle', 'Cuenta', { help: 'El usuario de la red social en la tarjeta (ej. @playbook.la).' })
+    ]
+  }));
+
+  container.appendChild(el('h3', { class: 'admin-section-title', text: 'Reels de Instagram' }));
+  container.appendChild(el('p', { class: 'admin-section-desc', text: 'Embeds reales de Instagram — solo hace falta el link del reel.' }));
+  container.appendChild(arrayEditor(s.instagramReels, {
+    removable: true, addable: true, addLabel: '+ Agregar reel',
+    itemTitle: (item) => item.url || 'Reel',
+    newItem: () => ({ url: '' }),
+    renderItem: (item) => [
+      textField(item, 'url', 'Enlace del reel', { type: 'url', required: true, help: 'El link al reel de Instagram (ej. https://www.instagram.com/reel/…).' })
     ]
   }));
 }
@@ -1003,13 +1016,6 @@ function renderTabs() {
     });
     nav.appendChild(btn);
   });
-
-  // Static link, not part of the draggable content tabs above — Analítica
-  // is a real navigation to admin/analytics.html, not a content-editing
-  // pane, so it doesn't belong in TAB_DEFS/state.tabOrder's save flow.
-  nav.appendChild(el('a', { class: 'admin-tab', href: '/admin/analytics.html' }, [
-    el('span', { class: 'admin-tab-label', text: 'Analítica' })
-  ]));
 }
 
 function renderActiveForm() {
