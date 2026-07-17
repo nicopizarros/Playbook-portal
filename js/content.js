@@ -80,15 +80,25 @@ function render(data) {
 
 // embed.js corre su propio auto-proceso de blockquotes una sola vez, al
 // cargar — los que safeMount inyecta después no se convierten solos, hay
-// que pedírselo explícitamente. Reintenta unas pocas veces por si el
+// que pedírselo explícitamente. Reintenta unas cuantas veces por si el
 // fetch de content.json termina antes de que //www.instagram.com/embed.js
-// haya cargado.
+// haya cargado (no cubre el caso de que un ad-blocker/tracking-protection
+// bloquee ese script directamente — ahí el fallback del blockquote es lo
+// que se ve, ver instagramReelTemplate en templates.js).
 function processInstagramEmbeds(attempt) {
   if (window.instgrm && window.instgrm.Embeds) {
     window.instgrm.Embeds.process();
-  } else if ((attempt || 0) < 20) {
+  } else if ((attempt || 0) < 30) {
     setTimeout(() => processInstagramEmbeds((attempt || 0) + 1), 300);
   }
+}
+
+// Respaldo del polling de arriba: si el script de Instagram termina de
+// cargar recién después de que se agotaron los reintentos (red lenta),
+// esto lo agarra igual en cuanto dispara su evento 'load'.
+const igEmbedScript = document.querySelector('script[src*="instagram.com/embed.js"]');
+if (igEmbedScript) {
+  igEmbedScript.addEventListener('load', () => processInstagramEmbeds());
 }
 
 function notifyReady() {

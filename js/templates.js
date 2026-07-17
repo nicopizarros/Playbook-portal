@@ -186,10 +186,18 @@ export function videoClipsTemplate(data) {
 // Embed oficial de Instagram (oEmbed público vía embed.js, sin API key).
 // Los blockquotes se inyectan como HTML crudo; js/content.js debe llamar a
 // window.instgrm.Embeds.process() después de montarlos para que el script
-// de Instagram los convierta en iframes.
+// de Instagram los convierta en iframes. Ese script es bloqueado con
+// frecuencia por ad-blockers y protecciones de tracking del navegador (Brave
+// Shields, Safari ITP, etc.) — cuando eso pasa, el contenido de este
+// blockquote (el <a> de abajo) es lo único que queda visible, así que tiene
+// que verse como una tarjeta real y no como un link suelto. Si Instagram sí
+// logra procesarlo, reemplaza este contenido por su propio iframe.
 export function instagramReelTemplate(reel) {
-  return `<blockquote class="instagram-media" data-instgrm-permalink="${su(reel.url)}" data-instgrm-version="14" style="background:#FFF;border:0;border-radius:3px;margin:0 auto;max-width:400px;min-width:326px;width:100%;">
-    <a href="${su(reel.url)}" target="_blank" rel="noopener noreferrer">Ver reel en Instagram</a>
+  return `<blockquote class="instagram-media" data-instgrm-permalink="${su(reel.url)}" data-instgrm-version="14" style="background:var(--paper);border:0;border-radius:3px;margin:0 auto;max-width:400px;min-width:326px;width:100%;">
+    <a class="ig-fallback-link" href="${su(reel.url)}" target="_blank" rel="noopener noreferrer">
+      <svg class="ig-fallback-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"/></svg>
+      <span>Ver reel en Instagram</span>
+    </a>
   </blockquote>`;
 }
 
