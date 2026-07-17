@@ -50,14 +50,14 @@
     "heading": "Productos editoriales",
     "products": [
       {
-        "variant": "glyph",
-        "glyph": "☕",
-        "wordmark": "INDUSTRY SHOTS",
+        "variant": "banner",
+        "glyph": "",
+        "wordmark": "",
         "description": "Noticias rápidas con contexto y opinión Playbook.",
         "meta": "Martes / Jueves",
         "url": "https://playbookmedia.substack.com/",
-        "image": "",
-        "imageAlt": ""
+        "image": "/assets/img/industry-shots-banner.webp",
+        "imageAlt": "Industry Shots by Playbook"
       },
       {
         "variant": "banner",
