@@ -111,22 +111,72 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   reales. Se reemplaza por completo en la Fase 2, no es la home definitiva.
 - Verificado: `next build` y `tsc --noEmit` limpios en local.
 
+### 2026-07-20 — Fase 2: páginas públicas + SEO + sistema de diseño
+
+- CSS portado 1:1 a `styles/` (mismos selectores/tokens/cascada de modo
+  oscuro), con un único cambio deliberado: `--serif-display`/`--sans` ahora
+  referencian variables de `next/font/google` (Anton + Inter autohospedadas,
+  mismo family/weight) en vez de los `<link>` de Google Fonts.
+- Capa de datos server-only (`lib/data/articles.ts`, `lib/data/site-content.ts`,
+  `lib/rank.ts`, `lib/taxonomy.ts`, `lib/related-articles.ts`) sobre Drizzle,
+  reemplazando el patrón legado de "fetch del JSON completo" por queries
+  directas — sigue filtrando en memoria (30 artículos hoy, tope de 500 del
+  webhook legado) en vez de SQL por filtro, a propósito, para minimizar
+  superficie de bugs a este tamaño de corpus.
+- Todas las páginas públicas construidas y verificadas contra Postgres real:
+  `/`, `/articulo` (con `generateMetadata`, JSON-LD, artículos relacionados,
+  compartir), `/archivo` (filtros como enlaces reales, funciona sin JS),
+  `/autor`, `/tema`, `/404` + `not-found.tsx`, más `app/sitemap.ts`,
+  `app/robots.ts`, `app/feed.xml/route.ts`.
+- **Bug real encontrado y corregido durante la verificación** (no solo
+  compilación limpia): Next.js intentaba pre-renderizar `/` de forma
+  **estática en build time**, lo que hubiera congelado el contenido hasta el
+  próximo deploy pese a que artículos/contenido cambian en vivo (webhook,
+  admin). Corregido con `export const dynamic = 'force-dynamic'` en
+  `app/(public)/layout.tsx`; `app/sitemap.ts` recibió el mismo diagnóstico
+  pero con el fix correcto para ese caso (`export const revalidate = 3600`,
+  ISR en vez de dynamic, ya que un sitemap no necesita ir a la base de datos
+  en cada request de un crawler).
+- **Segundo bug real encontrado y corregido**: mismatch de hidratación en
+  `data-theme` del `<html>` (el script anti-FOUC lo setea antes de que
+  React hidrate, algo que React no puede saber de antemano) — corregido con
+  `suppressHydrationWarning` en `<html>`, el patrón que la propia
+  documentación de Next.js recomienda para este caso exacto.
+- Verificación real ejecutada, no solo afirmada: `tsc --noEmit` y
+  `next build` limpios; recorrido de rutas con `next dev` + `curl`
+  (`/`, `/articulo?id=...` real y uno inexistente → 404 real en vez del
+  "soft 404" del sitio legado, `/archivo` con combinaciones de filtros,
+  `/autor`, `/tema` con tag válido e inválido, `/404`, una ruta no
+  registrada); chequeo automatizado de que ningún `<a>` queda anidado
+  dentro de otro (regresión real del sitio legado) en home/archivo/artículo;
+  `sitemap.xml` y `feed.xml` parseados y validados (52 URLs, 30 items);
+  smoke test con Playwright (`scripts/smoke-test.mjs`, queda en el repo)
+  cubriendo toggle de tema + persistencia + sobrevive a reload, drawer móvil
+  (abre, Escape cierra), buscador. Los únicos errores de consola detectados
+  son recursos externos (Instagram embed.js, YouTube, Unsplash) bloqueados
+  por la política de red de este sandbox, no bugs de la app.
+- **Fuera de alcance a propósito, pendiente para más adelante**: GA4 +
+  Vercel Web Analytics (`js/analytics.js` legado) todavía no se portó — no
+  estaba en el plan detallado de Fase 2 y se evitó agregarlo sin planearlo
+  primero (ver "scope creep" señalado por la auditoría de Fase 1). El
+  módulo "Más leídas" de portada (dependiente de credenciales de GA4 Data
+  API que el equipo nunca terminó de configurar en el sitio legado) tampoco
+  se portó todavía.
+- **Pendiente para la siguiente sesión**: Fase 3 (Auth.js, medición,
+  muro de email) — ver "Próximos pasos" abajo.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
-1. **Fase 2** — Páginas públicas (`/`, `/articulo`, `/archivo`, `/autor`,
-   `/tema`, `/404`) contra la base de datos, port 1:1 del CSS (`css/*.css`
-   de `legacy/` a `styles/`, sin reescribir selectores/tokens),
-   `generateMetadata` por ruta, `app/sitemap.ts`, `app/robots.ts`,
-   `app/feed.xml/route.ts`.
-2. **Fase 3** — Auth.js (lectores por email, editores por credenciales),
+1. **Fase 3** — Auth.js (lectores por email, editores por credenciales),
    `middleware.ts` para la cookie de lector anónimo, lógica de medición
    (3 artículos/mes) y muro de captura de email.
-3. **Fase 4** — Editor TipTap + subida de imágenes a Vercel Blob, panel de
+2. **Fase 4** — Editor TipTap + subida de imágenes a Vercel Blob, panel de
    admin reconstruido (dashboard con preview en vivo y detección de
    conflictos, analítica), migración del webhook de Make.com.
-4. **Fase 5** — Pulido: paridad de modo oscuro, transiciones/estados de
-   hover y carga, accesibilidad, Lighthouse.
-5. **Fase 6** — Verificación end-to-end (ver plan completo para el detalle
+3. **Fase 5** — Pulido: paridad de modo oscuro, transiciones/estados de
+   hover y carga, accesibilidad, Lighthouse. Incluir GA4 + Vercel Web
+   Analytics si no se agregaron antes (ver nota de alcance arriba).
+4. **Fase 6** — Verificación end-to-end (ver plan completo para el detalle
    de qué probar) y corte a producción.
 
 ## Convención: cómo mantener este archivo
