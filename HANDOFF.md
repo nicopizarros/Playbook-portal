@@ -99,6 +99,18 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   lectura, port del sistema de diseño CSS, SEO/sitemap/feed/robots) — ver
   "Próximos pasos" abajo, es la tarea #2 de la lista de tareas de la sesión.
 
+### 2026-07-20 — Fix: build roto en Vercel (sin `app/`)
+
+- El PR de la Fase 1 dejó `npm run build` fallando en Vercel
+  (`Couldn't find any 'pages' or 'app' directory`) porque esa fase solo
+  agregó config/DB/scripts, sin ninguna página — reproducido en local con
+  el mismo error exacto antes de tocar nada.
+- Agregado `app/layout.tsx` + `app/page.tsx` como **placeholder temporal**
+  (`robots: noindex`, texto simple "migración en progreso") solo para que
+  el build tenga algo que compilar mientras la Fase 2 construye las páginas
+  reales. Se reemplaza por completo en la Fase 2, no es la home definitiva.
+- Verificado: `next build` y `tsc --noEmit` limpios en local.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 2** — Páginas públicas (`/`, `/articulo`, `/archivo`, `/autor`,
