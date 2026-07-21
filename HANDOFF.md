@@ -323,6 +323,69 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   conflictos, panel de analítica) — este fue un cambio "schema primero",
   antes del resto de la fase. Ver "Próximos pasos" abajo.
 
+### 2026-07-21 — Fase 4 (checkpoint 1 de 5): login de editor + guard del layout protegido
+
+- Primer checkpoint de una secuencia de 5 planeada para el resto de la Fase 4
+  (ver el plan detallado más abajo) — cada uno se verifica y se pushea por
+  separado en vez de un solo pase gigante.
+- Rutas nuevas: `app/admin/layout.tsx` (carga `styles/admin.css`, port 1:1 de
+  `legacy/admin/admin.css`, solo para `/admin/*`), `app/admin/page.tsx`
+  (login, sin guard), `app/admin/(protected)/layout.tsx` (guard: `redirect
+  ('/admin')` si `!session || session.user.role !== 'editor'`,
+  `force-dynamic`, topbar con `AdminTopbarNav` + whoami + logout),
+  `app/admin/(protected)/dashboard/page.tsx` y
+  `.../analytics/page.tsx` como placeholders (contenido real en los
+  checkpoints 4-5). `lib/actions/editor-auth.ts` (`loginAction`),
+  `components/admin/LoginForm.tsx`, `components/admin/AdminTopbarNav.tsx`.
+- **Verificación de una suposición antes de escribirla, no asumida** (la
+  misma clase de bug ya atrapada dos veces en este repo, ver Fase 3 y los
+  fixes de sitemap/feed): antes de escribir el manejo de errores del login,
+  se leyó el código fuente real instalado de next-auth
+  (`node_modules/next-auth/lib/actions.js` + el manejador de errores de
+  `@auth/core/index.js`) en vez de asumir que el proveedor Credentials se
+  comporta como el caso ya documentado de Resend en
+  `lib/actions/reader-auth.ts` (que devuelve una URL a inspeccionar). Resultado:
+  son casos distintos — un login de Credentials inválido lanza una excepción
+  `AuthError`/`CredentialsSignin` (porque `signIn()` no envuelve su llamada
+  interna a `Auth()` en try/catch, y esa llamada corre en modo "raw", donde
+  `@auth/core` relanza cualquier `AuthError`), mientras que Resend construye
+  una respuesta de redirect normal con `?error=` en la URL. Confirmado además
+  contra el propio comentario de ejemplo en `node_modules/next-auth/index.d.ts`,
+  que documenta exactamente el patrón try/catch con `instanceof AuthError`
+  usado en `loginAction`.
+- **Adaptación real de arquitectura, no un fix de bug**: legacy fija
+  `data-theme="light"` en el `<html>` de cada página de admin (documentos
+  HTML separados). Esta app tiene un solo `<html>` compartido por todo el
+  sitio, cuyo `data-theme` refleja la preferencia guardada del *lector*
+  público — no se puede pisar esa preferencia desde un layout anidado sin
+  romper el toggle del sitio público. Resuelto fijando los tokens de color
+  que sí cambian entre temas (`--ink`, `--paper`, `--paper-soft`, `--rule`,
+  `--gray-txt`, `--gray-dark`, `--src-industry`, `--src-lana`,
+  `--src-infinitas`) a sus valores claros, con scope `.admin-body` en
+  `styles/admin.css` — mismo efecto visual que legacy, sin pelear con el
+  script de tema del sitio público. Documentado en un comentario dentro del
+  propio CSS.
+- **Verificación real contra Postgres y un servidor real** (`next dev` +
+  Playwright headless, mismo patrón que `scripts/test-email-wall.mjs`):
+  contraseña incorrecta contra la cuenta sembrada `aldo` → mensaje real
+  "Usuario o contraseña incorrectos" en pantalla (no un falso positivo);
+  contraseña correcta → aterriza en `/admin/dashboard`, `admin-status`
+  muestra "Sesión: aldo"; visitar `/admin` ya logueado redirige de vuelta a
+  `/admin/dashboard` (paridad con el `init()` de `legacy/admin/login.js`);
+  clic en "Salir" cierra sesión y redirige a `/admin`; visitar
+  `/admin/dashboard` después de cerrar sesión vuelve a redirigir a `/admin`
+  (el guard funciona en ambas direcciones); navegación entre las tabs
+  CMS/Analytics marca `is-active` en la correcta y carga cada placeholder.
+  `tsc --noEmit` limpio; `next build` limpio **con y sin `.env.local`**
+  (se renombró el archivo temporalmente antes de compilar, no solo se
+  probó sin exportar las variables en el shell — la lección de Fase 2 es
+  que Next.js lee `.env.local` directo del disco, exportar/no-exportar en
+  el shell no simula el caso real de Vercel sin la variable configurada).
+- **Pendiente para el siguiente checkpoint**: Server Actions con detección
+  de conflictos (`saveSiteContent`, `saveArticle`, `archiveArticle`,
+  `createArticle` en `lib/actions/admin.ts`) — checkpoint 2 de 5, ver el
+  plan detallado abajo.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
