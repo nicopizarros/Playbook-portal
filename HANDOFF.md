@@ -1754,6 +1754,140 @@ real, mismo estándar que Fases 1-3):
   plano). `tsc --noEmit` limpio. `npm run lint` → **0 problemas** (antes:
   22).
 
+### 2026-07-21 — Bug real reportado: página de inicio en blanco tras el muro de artículos; causa raíz real: cero error boundaries en toda la app
+
+- **Reporte real del usuario**: en producción (`playbook-portal-phi.vercel.app`),
+  tras agotar el cupo de artículos gratis y volver a la portada, la página se
+  ve completamente en blanco — sin contenido, sin mensaje de muro, sin nada.
+  Investigado con la misma disciplina de verificación real que el resto de
+  este archivo, no se asumió una causa antes de tener evidencia.
+- **Reproducción local, exhaustiva y negativa** (no se forzó un fix sin
+  evidencia): Postgres real levantado desde cero, 30/30 artículos migrados,
+  `next build` + `next start` reales. Secuencia exacta reportada probada dos
+  veces: (1) `curl` con cookie jar persistente — 3 lecturas con acceso
+  completo, muro real en la 4ª, `GET /` después devuelve 200 con el HTML
+  completo de la portada, byte-idéntico a una carga fresca; (2) Playwright
+  con Chromium real haciendo clic de verdad en "← Volver a Playbook" (soft
+  nav del lado del cliente, no solo `curl`) — portada renderiza con
+  contenido real, sin errores de consola más allá del ruido esperado de la
+  política de red del sandbox. **No se pudo reproducir el bug en ningún
+  camino disponible acá.**
+- **Evidencia real de producción, pedida al usuario antes de seguir
+  investigando a ciegas** (Vercel Runtime Logs del deployment actual,
+  `dpl_GYoVvNAvQSi4NVxBD13BEyLBvA1q`): cero errores 500, cero
+  `MIDDLEWARE_INVOCATION_FAILED` en `/`, `/articulo`, `/archivo`, `/cuenta`
+  — tanto `source: serverless` como `source: serverless-middleware`
+  devuelven 200 consistentemente. **Esto responde una pregunta abierta
+  desde la entrada anterior de este registro**: el middleware en runtime
+  Node.js (ver "Fix: metering restaurado con Node.js Middleware") sí
+  empaqueta y corre correctamente en un deploy real de Vercel — no es la
+  causa de este bug. Los únicos errores `[ReferenceError: __dirname is not
+  defined]` visibles en el log pertenecen a deployments de *preview* viejos
+  de ramas ya abandonadas (`claude/playbook-nextjs-migration-9zn6nh`,
+  `claude/session-tikjl0`), no al deployment de producción actual.
+- **Hallazgo real y separado, no la causa de este bug pero confirmado en el
+  mismo log**: el envío de magic link por correo está roto en producción —
+  `[auth][error] Error: Resend error: {"statusCode":403,"message":"The
+  authjs.dev domain is not verified..."}` en cada `POST /cuenta`. Causa
+  confirmada leyendo el código fuente instalado de
+  `@auth/core/providers/resend.js` (`from: "Auth.js <no-reply@authjs.dev>"`
+  hardcodeado como default) y `@auth/core/lib/utils/merge.js` (el merge de
+  opciones de proveedor omite explícitamente claves `undefined` — `else if
+  (source[key] !== undefined)` — así que si `EMAIL_FROM` no está seteada en
+  Vercel, `Resend({ from: process.env.EMAIL_FROM })` en `auth.ts` no
+  sobrescribe el default de Auth.js en absoluto). Confirma que `EMAIL_FROM`
+  no está configurada (o tiene un nombre distinto) en las variables de
+  entorno de producción de Vercel — mismo patrón ya visto con
+  `PLAYBOOK_SECRET`/`GA4_*` en la entrada anterior. **No es un bug de
+  código** (el error ya se maneja bien: `lib/actions/reader-auth.ts` lo
+  atrapa y muestra "No se pudo enviar el enlace..." en vez de crashear o
+  dar un falso positivo) — **acción pendiente del usuario**: configurar
+  `EMAIL_FROM` real en Vercel (el placeholder de `.env.local.example`,
+  `Playbook <onboarding@resend.dev>`, es un valor seguro de partida porque
+  `resend.dev` no necesita verificación de dominio).
+- **Causa raíz real del bug reportado, encontrada empíricamente, no
+  adivinada**: esta app no tenía **ningún `error.tsx` en absoluto**, en
+  ningún nivel — confirmado con `find app -iname "error*.tsx"` (cero
+  resultados) antes de escribir nada. Se verificó qué pasa realmente sin
+  uno: se forzó un `throw` temporal dentro de `app/(public)/page.tsx` (una
+  página real) en un build de producción real (`next build` + `next
+  start`, no `next dev`, que oculta este comportamiento con su overlay de
+  error) y se capturó con Playwright lo que un visitante real vería.
+  Resultado, con captura de pantalla: una página **casi enteramente blanca**
+  con una sola línea de texto gris sin estilo, centrada verticalmente,
+  chica: *"Application error: a server-side exception has occurred while
+  loading localhost..."* — el comportamiento default de Next.js cuando no
+  hay ningún error boundary. Sin encabezado, sin nav, sin footer, sin
+  ninguna marca de Playbook — indistinguible, para un lector real (más aún
+  en mobile, más aún si no lee el inglés técnico), de "la página está en
+  blanco". Se confirmó además que `components/layout/Header.tsx` (usado por
+  `app/(public)/layout.tsx`, o sea en *cada* página pública) hace sus
+  propias queries (`getSiteContent()`, `getAllArticles()`, `auth()`) — una
+  falla transitoria real de Postgres ahí (la base es Neon serverless, que
+  puede fallar o tardar al despertar de estar inactiva) tira abajo la
+  portada entera de la misma forma, sin que ningún código la atrape. Esto
+  explica por qué el bug no se pudo reproducir localmente ni aparece en los
+  logs como un 500 de ruta: **no hace falta que nada esté mal en el código
+  para que esto ocurra — solo que una query a la base falle una vez, en
+  cualquier request**, algo plausible de forma intermitente en producción y
+  prácticamente imposible de forzar en este sandbox con Postgres local
+  siempre disponible.
+- **Corregido**: tres archivos `error.tsx` nuevos, siguiendo el sistema de
+  boundaries por segmento de Next.js (un `error.tsx` no atrapa errores de
+  su *propio* layout, solo de su `page.tsx` y descendientes — hace falta
+  uno en el segmento padre para eso):
+  - `app/(public)/error.tsx`: atrapa errores de cualquier `page.tsx` bajo
+    este grupo de rutas (portada, `/articulo`, `/archivo`, `/autor`,
+    `/tema`, `/cuenta`, `/privacidad`, `/terminos`). Header/Footer siguen
+    intactos porque viven en el layout, un boundary distinto. Mensaje de
+    marca ("No pudimos cargar esta página") + botón "Reintentar" (llama a
+    `reset()`) + link a inicio.
+  - `app/error.tsx`: un nivel arriba, atrapa errores del *layout* de
+    `(public)` (y de `admin`) — el caso real de `Header.tsx` fallando.
+    Sigue anidado dentro de `app/layout.tsx`, así que fuentes/CSS/tokens
+    siguen disponibles aunque Header/Footer no rendericen.
+  - `app/global-error.tsx`: último nivel, solo si el propio
+    `app/layout.tsx` fallara (no hace queries hoy, muy improbable) — debe
+    definir su propio `<html>/<body>`, CSS inline nada más, sin depender de
+    nada externo.
+- **Verificación real, reproduciendo el escenario exacto antes/después**:
+  con el mismo `throw` de diagnóstico en `app/(public)/page.tsx`, Playwright
+  contra un build de producción real ahora muestra Header (nav completo,
+  "Iniciar sesión", buscador) + Footer + `CookieNotice` intactos, con el
+  área de contenido mostrando "Algo salió mal / No pudimos cargar esta
+  página / Reintentar / Volver al inicio" en vez de blanco — 1440
+  caracteres de texto real en el body, contra 143 antes del fix. Con el
+  mismo diagnóstico movido a `Header.tsx` (simulando la falla real de DB
+  que puede ocurrir en cualquier página), `app/error.tsx` atrapa
+  correctamente un nivel más arriba (confirmado por el log `[root error
+  boundary]`) y muestra "Playbook no está disponible en este momento /
+  Reintentar / Volver al inicio" — visible, con marca, con salida, en vez
+  de la pantalla casi en blanco de Next.js. Ambos diagnósticos revertidos
+  después de confirmar. Re-verificado el camino feliz completo sin
+  cambios: la secuencia real de 3 lecturas + muro + vuelta a portada (curl
+  y Playwright) sigue funcionando exactamente igual que antes, sin
+  regresión; `/articulo?id=inexistente` sigue dando 404 real (`notFound()`
+  no pasa por estos `error.tsx`, tiene su propio boundary ya existente en
+  `not-found.tsx`). `tsc --noEmit` y `npm run lint` limpios; `next build`
+  limpio con y sin `.env.local`.
+- **Gap reconocido explícitamente, no escondido**: esto no reproduce (ni
+  puede reproducir) el trigger exacto que vio el usuario en Vercel —
+  arregla la *consecuencia* (pantalla en blanco sin ningún mensaje ni
+  salida) de cualquier error no atrapado en cualquier página pública, que
+  es exactamente el síntoma reportado, pero no hay confirmación de que una
+  falla transitoria de Postgres/Neon haya sido el disparador real en el
+  momento puntual que el usuario vio el bug (los Runtime Logs de ese rango
+  de tiempo no mostraban ningún 500, lo cual es consistente con esta
+  teoría — un error de Server Component sigue devolviendo `200` con el
+  digest, no un 500 de función, así que no iba a aparecer como error en el
+  log de todas formas — pero no es una confirmación directa). Si el bug
+  vuelve a ocurrir, ahora en vez de blanco debería mostrarse el mensaje de
+  `error.tsx`/`app/error.tsx` correspondiente, lo cual además va a dejar un
+  `console.error` con el `digest` real, mucho más diagnosticable. Pendiente
+  de que el usuario confirme si el bug reaparece post-deploy y, si aparece,
+  reportar qué mensaje de error (blanco puro vs. el nuevo fallback de
+  marca) se ve ahora.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
@@ -1786,11 +1920,23 @@ real, mismo estándar que Fases 1-3):
    - Verificar datos reales del módulo "Más leídas" con credenciales de
      GA4 reales, y del evento `pageview_article` llegando de verdad al
      backend de Vercel (Fase 5, checkpoints 1 y 2).
-   - Verificar que `middleware.ts` en runtime Node.js no dispara
-     `MIDDLEWARE_INVOCATION_FAILED` en un deploy real (ver entrada de hoy).
+   - ~~Verificar que `middleware.ts` en runtime Node.js no dispara
+     `MIDDLEWARE_INVOCATION_FAILED` en un deploy real~~ — **confirmado
+     resuelto**: Runtime Logs reales del deployment de producción actual
+     muestran `serverless-middleware` devolviendo 200 consistentemente en
+     `/`, `/articulo`, `/cuenta`, `/archivo`, sin ningún
+     `MIDDLEWARE_INVOCATION_FAILED` (ver entrada de hoy sobre la portada en
+     blanco).
    - Corregir en el dashboard de Vercel los 4 nombres de variable con
      mayúsculas/minúsculas incorrectas (`PLAYBOOK_SECRET`, `GA4_PROPERTY_ID`,
      `GA4_SERVICE_ACCOUNT_EMAIL`, `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` — ver
+     entrada correspondiente).
+   - **Nuevo, confirmado en Runtime Logs reales de hoy**: configurar
+     `EMAIL_FROM` en producción — no está seteada (o tiene un nombre
+     distinto), por lo que el proveedor Resend de Auth.js cae en su default
+     `no-reply@authjs.dev`, un dominio no verificado que Resend rechaza con
+     403 en cada intento de magic link. El envío de login por correo está
+     completamente roto en producción hasta que se corrija esto (ver
      entrada de hoy).
 5. **En curso**: ESLint/CI/security headers/rate limiting (deuda técnica
    señalada en la auditoría de este mismo día, sin fase asignada todavía) y
