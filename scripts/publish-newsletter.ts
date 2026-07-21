@@ -1,12 +1,12 @@
 // Inserts drafted newsletter articles straight into Postgres as published
-// rows — the automated counterpart to an editor manually filling out the
+// rows, the automated counterpart to an editor manually filling out the
 // /admin "Artículos" form. Used by the publish-newsletter skill
 // (.claude/skills/publish-newsletter), never by hand.
 //
 // Usage: tsx scripts/publish-newsletter.ts <path-to-json-file>
 // Input: a JSON array of NewsletterArticleInput (see type below). bodyMarkdown
-// supports blank-line-separated paragraphs, "## " headings, and **bold** spans
-// — exactly what the editorial voice in the skill produces.
+// supports blank-line-separated paragraphs, "## " headings, and **bold** spans,
+// exactly what the editorial voice in the skill produces.
 
 import { readFile } from 'node:fs/promises';
 import { neon } from '@neondatabase/serverless';
@@ -21,8 +21,8 @@ import { slugify } from '../lib/slugify';
 // lib/db/client.ts's node-postgres Pool: this script runs from environments
 // (Claude Code sessions, CI) whose egress only permits HTTPS, not the raw
 // TCP connections node-postgres needs. The deployed Next.js app keeps using
-// the pg Pool client unchanged — that runs on Vercel, where raw TCP to Neon
-// works fine.
+// the pg Pool client unchanged, since that runs on Vercel, where raw TCP to
+// Neon works fine.
 const db = drizzle(neon(process.env.POSTGRES_URL!), { schema: { articles } });
 
 type NewsletterArticleInput = {
