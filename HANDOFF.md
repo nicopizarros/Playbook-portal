@@ -266,11 +266,67 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
 - **Pendiente para la siguiente sesión**: Fase 4 (TipTap, Vercel Blob,
   panel de admin, webhook de Make.com) — ver "Próximos pasos" abajo.
 
+### 2026-07-21 — Fase 4 (en progreso): schema `sourceUrl` + webhook de Make.com
+
+- **Cambio de schema, revisado contra datos reales antes de aplicarlo**: el
+  plan original proponía un índice único parcial sobre `articles.substackUrl`
+  para que el webhook de Make.com pudiera deduplicar con un
+  `onConflictDoNothing` atómico. Antes de aplicar la migración se corrió un
+  chequeo de duplicados contra el Postgres local y aparecieron 4 grupos de
+  artículos (hasta 9 filas) compartiendo un mismo `substackUrl` — todos posts
+  tipo "Industry Shots", donde un solo post de Substack respalda
+  legítimamente varios artículos distintos del sitio. Revisando
+  `legacy/api/update-articles.js` se confirmó que el dedup original comparaba
+  el `url` entrante del payload (único por ítem) contra los `substack_url`
+  ya guardados, mientras que el guardado preferia `article.substack_url`
+  sobre `article.url` — para los posts de digest esos dos campos
+  legítimamente divergen. Un índice único sobre `substackUrl` habría
+  fallado al aplicar la migración y además habría roto la ingesta futura de
+  digests. Corregido con una columna nueva y separada,
+  `articles.sourceUrl` (nullable, sin default — `articles.json` nunca
+  persistió el `url` original por ítem, así que toda fila migrada queda en
+  `NULL`; un índice único de Postgres ya trata cada `NULL` como distinto,
+  así que no hace falta una cláusula `WHERE` parcial como la versión con
+  `substackUrl`). `substackUrl` queda igual que antes, sin índice único.
+- **Migración generada y aplicada** contra el Postgres local
+  (`drizzle/0001_confused_leopardon.sql`: `ALTER TABLE` + `CREATE UNIQUE
+  INDEX`, aditiva, sin tocar datos). Verificado
+  `SELECT count(*) FROM articles WHERE source_url IS NOT NULL` → `0` tras
+  aplicar, confirmando que ninguna fila existente cambió.
+- **Webhook de Make.com** (`app/api/update-articles/route.ts`): puerto
+  literal de la lógica `stripHtml`/`detectPublication`/`inferTags` y del
+  formato de request/response de `legacy/api/update-articles.js`, mismo
+  header `x-playbook-secret`. El dedup ahora es un único
+  `onConflictDoNothing` dirigido a `articles.sourceUrl` (no `substackUrl`)
+  en vez del loop de leer-chequear-escribir-reintentar de legacy (ese loop
+  solo existía porque la API de Contents de GitHub necesitaba concurrencia
+  optimista manual). Una colisión de `id` (primary key) se maneja aparte,
+  con un reintento único agregando un sufijo, igual que el fallback de
+  legacy para colisión de slug.
+- **Verificación real contra Postgres y un servidor real**: `curl` directo
+  al endpoint — campos faltantes (400), secreto incorrecto (401), inserción
+  normal (200 `ok`), un `sourceUrl` duplicado (200 `duplicate`, no se
+  inserta una segunda fila), dos ítems de un mismo digest "Industry Shots"
+  compartiendo un `substackUrl` insertándose ambos con éxito (el caso exacto
+  que motivó el cambio de schema), inferencia de tag de deporte (`NFL`,
+  `Liga MX`) confirmada en la fila insertada, y una colisión de `id`
+  resuelta con un id con sufijo sin devolver error. Filas de prueba
+  borradas después. `tsc --noEmit` limpio; `next build` limpio con y sin
+  `POSTGRES_URL`.
+- **Pendiente**: el resto de la Fase 4 (editor TipTap, subida a Vercel
+  Blob, panel de admin completo con las 12 pestañas, detección de
+  conflictos, panel de analítica) — este fue un cambio "schema primero",
+  antes del resto de la fase. Ver "Próximos pasos" abajo.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
-1. **Fase 4** — Editor TipTap + subida de imágenes a Vercel Blob, panel de
-   admin reconstruido (dashboard con preview en vivo y detección de
-   conflictos, analítica), migración del webhook de Make.com.
+1. **Fase 4 (continuación)** — Ya listo: schema (`articles.sourceUrl`) y el
+   webhook de Make.com (`app/api/update-articles/route.ts`), verificados
+   contra Postgres real. Falta: editor TipTap + subida de imágenes a Vercel
+   Blob, panel de admin reconstruido (login, layout protegido, primitivas
+   de campo reutilizables, las 12 pestañas, Server Actions con detección de
+   conflictos, preview en vivo reusando los componentes de sección de la
+   Fase 2, panel de analítica portando `lib/ga4.js`/`lib/vercel-analytics.js`).
 2. **Fase 5** — Pulido: paridad de modo oscuro, transiciones/estados de
    hover y carga, accesibilidad, Lighthouse. Incluir GA4 + Vercel Web
    Analytics si no se agregaron antes (ver nota de alcance arriba).
