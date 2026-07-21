@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { SearchBox, type SearchableArticle } from './SearchBox';
@@ -81,7 +82,7 @@ export function HeaderNav({
       <div className="nav-actions">
         {readerEmail && (
           <span className="reader-status" title={readerEmail}>
-            {readerEmail}
+            <Link href="/cuenta">{readerEmail}</Link>
             <button type="button" onClick={() => signOut({ redirectTo: '/' })}>Salir</button>
           </span>
         )}

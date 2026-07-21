@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        # No POSTGRES_URL/AUTH_SECRET on purpose: lib/db/client.ts and
+        # middleware.ts both defer their env var checks past build time
+        # (see HANDOFF.md), so a clean build here is exactly the same
+        # check Vercel's own build does before any production env vars
+        # are involved.
+        run: npm run build

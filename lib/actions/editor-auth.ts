@@ -2,8 +2,16 @@
 
 import { AuthError } from 'next-auth';
 import { signIn } from '@/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/request-ip';
 
 export type LoginState = { error?: string } | null;
+
+// 10 attempts per 5 minutes per IP -- generous enough that a real editor
+// mistyping their password a few times never gets blocked, tight enough to
+// blunt a credential-stuffing/brute-force script.
+const LOGIN_LIMIT = 10;
+const LOGIN_WINDOW_SECONDS = 5 * 60;
 
 // signIn() defaults to redirect:true, which internally calls next/navigation's
 // redirect() on success — that throw must propagate, not be swallowed below.
@@ -21,6 +29,12 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   const password = String(formData.get('password') || '');
   if (!username || !password) {
     return { error: 'Usuario y contraseña son obligatorios' };
+  }
+
+  const ip = await getClientIp();
+  const limit = checkRateLimit(`editor-login:${ip}`, LOGIN_LIMIT, LOGIN_WINDOW_SECONDS);
+  if (!limit.allowed) {
+    return { error: `Demasiados intentos. Probá de nuevo en ${Math.ceil(limit.retryAfterSeconds / 60)} minuto(s).` };
   }
 
   try {

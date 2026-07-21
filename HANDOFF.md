@@ -1227,6 +1227,381 @@ real, mismo estándar que Fases 1-3):
   `middleware.ts` una vez que Vercel confirme que el problema de
   plataforma está resuelto.
 
+### 2026-07-21 — Fix: metering restaurado con Node.js Middleware (Next.js 15.5)
+
+- **Reabre la investigación anterior con una vía no probada todavía**: las
+  cinco entradas previas de este registro agotaron el diagnóstico de por qué
+  el Edge Function pipeline de Vercel rompía con `__dirname is not defined`
+  para cualquier contenido de `middleware.ts`, y terminaron eliminando el
+  archivo por completo para restaurar el sitio — dejando el cupo de lectura
+  gratuita completamente inactivo (todo visitante anónimo tratado como
+  siempre-nuevo). Esa vía no exploraba una alternativa real: Next.js 15.5
+  soporta middleware en runtime Node.js (`export const config = { runtime:
+  'nodejs' }`), un pipeline de build distinto al de Edge Functions.
+- **Verificado leyendo el código fuente real instalado, no asumido**: se
+  confirmó en `node_modules/next/dist/server/next-server.js` que existe
+  `loadNodeMiddleware()` como ruta de carga separada de
+  `getEdgeFunctionInfo()`, sin ningún flag experimental que la gatee en esta
+  versión (`next@15.5.20`, confirmado contra `package-lock.json`). Probado
+  de forma empírica con un middleware mínimo: `next build` con
+  `runtime: 'nodejs'` genera `.next/server/middleware.js` acompañado de
+  `middleware.js.nft.json` (Node File Trace, el artefacto que Vercel usa
+  para funciones serverless Node normales) y dejó
+  `middleware-manifest.json` con `"middleware": {}` vacío — es decir, cero
+  Edge Functions registradas. Esto confirma que el runtime Node evita por
+  completo el pipeline de empaquetado de Edge Functions que rompía para este
+  proyecto, sin necesidad de escalar a soporte de Vercel.
+- **Restaurado `middleware.ts`** (recuperado de `git show 838f8f7^:middleware.ts`,
+  la última versión con la lógica real) con un solo cambio real: se agregó
+  `runtime: 'nodejs'` a `config`. El import relativo a `./lib/anon-cookie`
+  se mantuvo (ya no hace falta para evitar el bug de alias del pipeline de
+  Edge, pero tampoco hay motivo para reintroducir el alias `@/` como
+  variable) — comentarios del archivo actualizados para reflejar el
+  diagnóstico real en vez del ya obsoleto.
+- **Verificación real de punta a punta contra Postgres y un servidor real**
+  (no solo build limpio): Postgres local recreado desde cero (contenedor
+  reciclado, sin datos de sesiones anteriores — password reseteada, DB
+  `playbook` creada, `db:migrate` + `migrate:json` corridos de nuevo, 30/30
+  artículos). `next build` limpio. `next dev` + `curl` con cookie jar
+  persistente: primer request confirma `Set-Cookie: pb_anon=...` con los
+  mismos atributos que la versión Edge original (`HttpOnly`, `SameSite=Lax`,
+  `Max-Age` de 2 años); secuencia de 4 artículos reales confirma acceso
+  completo en los primeros 3 y muro real en el 4º; re-leer el primer
+  artículo sigue con acceso completo (no re-cobra cupo); `psql` confirma
+  exactamente 3 filas en `article_reads` para el `anon_id` de la cookie,
+  con `month_key` correcto. `tsc --noEmit` limpio. Filas de prueba borradas
+  después.
+- **Pendiente real, no de código**: verificar en un deploy real de Vercel
+  que el runtime Node.js del middleware efectivamente no dispara
+  `MIDDLEWARE_INVOCATION_FAILED` — este sandbox no puede reproducir el
+  empaquetado real de Vercel (mismo límite ya documentado en las entradas
+  anteriores de este mismo registro). Si por algún motivo el runtime Node
+  también fallara en un deploy real (no hay evidencia de que vaya a pasar,
+  pero no es verificable desde acá), el siguiente paso sería escalar a
+  soporte de Vercel con toda esta cadena de diagnóstico.
+- **Bug de configuración real encontrado aparte, no de este archivo**:
+  auditando las variables de entorno de Vercel con el usuario se encontraron
+  tres con nombre mal escrito por mayúsculas/minúsculas —
+  `Playbook_secret` en vez de `PLAYBOOK_SECRET`
+  (`app/api/update-articles/route.ts` lee el nombre exacto), y
+  `GA4_property_id`/`GA4_service_account_email`/`GA4_service_account_private_key`
+  en vez de `GA4_PROPERTY_ID`/`GA4_SERVICE_ACCOUNT_EMAIL`/
+  `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` (`lib/ga4.ts` ídem) — las variables de
+  entorno son case-sensitive, así que ninguna de las cuatro estaba siendo
+  leída por la app pese a estar cargadas en Vercel. Corrección pendiente del
+  lado del usuario en el dashboard de Vercel (no es algo que un cambio de
+  código pueda arreglar). También se confirmó que `GA4_MEASUREMENT_ID` (el
+  ID público de cliente que `legacy/js/analytics.js` ya usa,
+  `G-0CG7JMK8RZ`) está cargado en Vercel pero nunca se portó a la app
+  nueva — pendiente, ver tarea de este mismo día sobre GA4 cliente +
+  banner de cookies.
+
+### 2026-07-21 — Fix: ESLint configurado (no existía, `next lint` estaba roto)
+
+- **Estado real encontrado, no asumido**: `package.json` ya tenía
+  `"lint": "next lint"` desde el scaffold de Fase 1, pero no existía ningún
+  archivo de configuración de ESLint en el repo — corriéndolo tal cual
+  dispara el prompt interactivo de `next lint` para crear uno, así que
+  nunca pudo haber corrido limpio en una sesión no interactiva (CI, por
+  ejemplo, que ni siquiera existe todavía — ver próxima entrada).
+- Agregado `eslint.config.mjs` (flat config, `next/core-web-vitals` +
+  `next/typescript` vía `FlatCompat`), con `eslint`, `eslint-config-next`,
+  `@eslint/eslintrc` como devDependencies nuevas.
+- **Bug real encontrado instalando, no solo configurando**: `npm install
+  eslint-config-next` sin versión trajo `16.2.11` (la línea de Next 16) en
+  vez de matchear el `next@15.5.20` real del proyecto — la combinación rompía
+  `next lint` y `eslint .` por igual con `TypeError: Converting circular
+  structure to JSON` dentro de `@eslint/eslintrc`. Corregido fijando
+  `eslint-config-next@15.5.20` explícito, igual major.minor.patch que
+  `next` en `package.json`.
+- **Segundo hallazgo real corriendo el lint ya funcional**: sin `ignores`
+  explícito, ESLint lintaba `.next/**` completo (bundles compilados de
+  Next/Drizzle/next-auth) — 4041 problemas, el 99% ruido de código generado,
+  no del repo. Agregado `ignores: ['legacy/**', '.next/**', 'node_modules/**',
+  'next-env.d.ts', 'drizzle/**']`. Con eso, el estado real del repo: 22
+  problemas (0 errores, 22 warnings — mayormente `@next/next/no-img-element`
+  en `<img>` sin migrar a `next/image`, pre-existentes, fuera de alcance de
+  este fix). Quedaba 1 error real (`@typescript-eslint/no-explicit-any` en
+  `app/api/update-articles/route.ts`'s catch block) — corregido con el mismo
+  patrón `catch (err: unknown)` + cast puntual que ya usa
+  `lib/actions/admin.ts`'s `createArticle` para el mismo caso (colisión de
+  id `23505`), en vez de dejar el primer lint de CI arrancando en rojo.
+- `package.json`'s `"lint"` script cambiado de `"next lint"` a `"eslint ."`
+  — `next lint` está deprecado (aviso propio de Next.js 15.5, se elimina en
+  Next 16) y además demostró estar roto en este repo por el mismo bug de
+  versión de arriba; `eslint .` directo es lo que la propia documentación de
+  Next recomienda migrar.
+- **Verificado real, no solo "corre sin crashear"**: `npm run lint` → 0
+  errores; `npm run typecheck` → limpio; `next build` limpio con y sin
+  `POSTGRES_URL` (sin regresión de los fixes anteriores).
+- **Pendiente, no de este fix**: los 22 warnings pre-existentes (`<img>` sin
+  `next/image` en 10 componentes, algunos `eslint-disable` ya innecesarios,
+  variables sin usar) — no bloquean nada, quedan para una limpieza aparte
+  si se decide hacerla.
+
+### 2026-07-21 — Fix: CI agregado (no existía ningún workflow)
+
+- No había ningún `.github/workflows` — nada corría `typecheck`/`lint`/
+  `build` automáticamente en push/PR, dependiendo enteramente de que cada
+  sesión lo corriera a mano (que sí venía pasando, ver registro completo
+  arriba, pero sin ninguna garantía estructural).
+- Agregado `.github/workflows/ci.yml`: un solo job (`verify`) en push a
+  `main` y en cada PR, Node 22 (matchea `@types/node@^22.9.0`), `npm ci` →
+  `npm run typecheck` → `npm run lint` → `npm run build`.
+- **Decisión deliberada, verificada antes de escribirla**: el job no
+  configura `POSTGRES_URL` ni `AUTH_SECRET` — confirmado corriendo
+  `next build` localmente sin ninguna de las dos variables (con red normal,
+  no la del sandbox con proxy propio) que compila limpio, mismo
+  comportamiento ya documentado para `POSTGRES_URL` en el fix de
+  sitemap/feed de la Fase 2 y ahora confirmado que aplica igual a
+  `AUTH_SECRET`/`middleware.ts`. Esto evita tener que cargar ningún secreto
+  real en GitHub Actions solo para verificar que el código compila.
+- **Verificado real, no solo "el YAML parsea"**: los tres comandos
+  (`npm run typecheck`, `npm run lint`, `npm run build`) corridos a mano en
+  secuencia, mismo orden que el workflow, todos limpios.
+- **Pendiente**: este workflow no corre contra Postgres real (no hay
+  ninguna suite de tests automatizada todavía — ver auditoría de este
+  mismo día, es deuda técnica real, las verificaciones de cada fase
+  anterior fueron manuales con Playwright desechable). Migrar esos scripts
+  a una suite real en CI queda pendiente, no es parte de este fix.
+
+### 2026-07-21 — Fix: headers de seguridad agregados a `next.config.ts`
+
+- No existía ningún header de seguridad (CSP, HSTS, X-Frame-Options,
+  Referrer-Policy, Permissions-Policy, X-Content-Type-Options) — auditoría
+  de este mismo día. Agregado `headers()` en `next.config.ts`.
+- **CSP construida a partir de orígenes externos reales, no adivinados**:
+  grepeado `articles.json`/`content.json` antes de escribirla — confirma que
+  las fotos editoriales vienen hotlinkeadas de `images.unsplash.com`,
+  `assets.goal.com`, `www.espn.com`, `abcnoticias.mx`, `i.ytimg.com`, etc.
+  (más lo que suba el webhook de Make.com o el pipeline de
+  publish-newsletter a futuro) — por eso `img-src` es deliberadamente
+  `https: data: blob:` y no un allowlist fijo, imposible de enumerar para
+  un sitio que ingesta fotos de cualquier medio que cite una nota. Leído el
+  código fuente instalado de `@vercel/analytics` (confirma que el script en
+  producción es same-origin, `/_vercel/insights/script.js`, sin necesitar
+  entrada externa en `script-src`) y de `@vercel/blob` (confirma
+  `blob.vercel-storage.com` como destino real de subida, para `connect-src`)
+  antes de escribir esas directivas, no asumidas.
+- **Verificación real con Playwright, no solo "el header está presente"**:
+  build + `next start` real (no `next dev`) contra Postgres real; script de
+  Playwright navegando `/`, `/archivo`, `/articulo`, `/admin` con un listener
+  de consola filtrando mensajes de CSP → **cero violaciones** en las
+  cuatro. Comparación A/B real (mismo recorrido con el `next.config.ts`
+  anterior sin headers) para confirmar que los únicos errores de consola
+  restantes (404 de `/_vercel/insights/script.js`, que solo existe en un
+  deploy real de Vercel; `ERR_CONNECTION_RESET` hacia hosts externos
+  bloqueados por la política de red de este sandbox) ya estaban presentes
+  sin la CSP — no son una regresión introducida por este cambio. Login de
+  editor de punta a punta con Playwright contra las 12 tabs del dashboard
+  (incluida la tab Artículos, que monta el editor TipTap) con la CSP activa
+  → sesión válida, cero violaciones de CSP, cero errores de página.
+- **Gap reconocido explícitamente**: los embeds de YouTube/Instagram
+  (`frame-src`/`script-src` para esos dos orígenes) no se pudieron probar
+  cargando de verdad — la política de red de este sandbox bloquea salida a
+  esos hosts (mismo límite ya documentado en el smoke test de la Fase 2).
+  Las directivas están escritas a partir de los `src` reales del código
+  (`components/sections/VideoSection.tsx`,
+  `components/sections/InstagramReels.tsx`), no adivinadas, pero la carga
+  real de esos dos embeds specficamente queda pendiente de verificación
+  manual una vez desplegado.
+- `script-src`/`style-src` incluyen `'unsafe-inline'` — **tradeoff
+  deliberado, no un descuido**: este sitio usa `dangerouslySetInnerHTML`
+  para el cuerpo de artículos (ver Fase 3 arriba) y estilos inline en varios
+  componentes; una CSP basada en nonces sería más estricta pero requiere
+  generar y propagar un nonce por request desde `middleware.ts` (que recién
+  hoy volvió a funcionar, ver entrada de arriba) y verificar que no rompe
+  la hidratación de Next — no se hizo en este pase por el riesgo de romper
+  algo no verificable sin un deploy real. Queda como mejora futura, no
+  como bug de este fix.
+
+### 2026-07-21 — Fix: rate limiting básico agregado (login, magic link, webhook)
+
+- No existía ningún rate limiting — auditoría de este mismo día. Agregado
+  `lib/rate-limit.ts` (ventana fija en memoria, keyed por string libre,
+  reusa el patrón de `global.__pb*` de `lib/db/client.ts` para sobrevivir
+  entre invocaciones de la misma instancia) y `lib/request-ip.ts`
+  (`x-forwarded-for` vía `next/headers`).
+- **Límite deliberadamente no distribuido, documentado como tal en el
+  propio archivo**: no hay Redis/KV conectado (agregar uno es una
+  credencial externa nueva, fuera de alcance de este fix) — un atacante
+  repartiendo requests entre varias instancias concurrentes de Vercel no
+  queda completamente bloqueado. Sí frena el caso realista de un script
+  golpeando un endpoint desde un solo lugar.
+- Aplicado en tres puntos, cada uno con semántica distinta según lo que
+  protege:
+  - `lib/actions/editor-auth.ts` (`loginAction`): 10 intentos / 5 min por
+    IP — generoso para un editor real que se equivoca de contraseña,
+    suficiente para frenar fuerza bruta.
+  - `lib/actions/reader-auth.ts` (`requestMagicLink`): 5 intentos / 10 min
+    por IP — más estricto porque cada envío le cuesta dinero al proyecto
+    (Resend cobra por email) y porque un magic link llega a una bandeja de
+    entrada real, así que esto también es un freno contra usar el sitio
+    como vector de email-bombing hacia la dirección de otra persona.
+  - `app/api/update-articles/route.ts`: 10 intentos fallidos / 10 min por
+    IP, contando **solo** intentos con secreto incorrecto — un request con
+    el secreto correcto nunca cuenta contra el límite ni se ve afectado,
+    a propósito (un digest real de Make.com puede publicar varios artículos
+    seguidos legítimamente).
+- **Verificación real contra un servidor real, no solo lectura de
+  código**: `curl` directo con secreto incorrecto al webhook — intentos
+  1-10 devuelven `401` real, intento 11 en adelante `429`; confirmado
+  aparte que un request con el secreto correcto sigue funcionando (`200`)
+  aunque esa misma IP ya esté por encima del límite de fallos. Playwright
+  llenando el formulario de login real con credenciales incorrectas —
+  intentos 1-10 muestran el error real "Usuario o contraseña incorrectos",
+  intento 11 muestra el mensaje de rate limit. Playwright completando el
+  muro de email real (después de agotar el cupo de 3 artículos gratis) con
+  5 direcciones distintas — intentos 1-5 fallan por falta de
+  `RESEND_API_KEY` real en este sandbox (gap ya documentado, no relacionado
+  a este fix), intento 6 muestra el mensaje de rate limit exactamente en el
+  umbral esperado. `tsc --noEmit` y `next build` limpios; `npm run lint`
+  sin errores nuevos. Filas de prueba borradas después.
+
+### 2026-07-21 — GA4 de cliente + aviso de cookies + páginas legales
+
+- Pedido del usuario, fuera de las fases de migración ya planeadas: portar
+  la medición GA4 del lado del cliente (nunca se había hecho — Fase 2 la
+  marcó fuera de alcance a propósito) y agregar aviso de cookies + páginas
+  legales, inexistentes tanto en legacy como acá. Decisiones tomadas con el
+  usuario antes de escribir código: banner de cookies **solo informativo,
+  sin bloquear** nada (no gatea GA4 ni ninguna otra cookie); texto legal en
+  **borrador para revisión** (no soy abogado, no se inventó una entidad
+  legal real); placeholders donde falta información real
+  (`[NOMBRE LEGAL DE LA EMPRESA]`, `[EMAIL DE CONTACTO...]`, etc.).
+- `components/analytics/GoogleAnalytics.tsx` — puerto de
+  `legacy/js/analytics.js`'s `loadGtag()`. **Decisión de nombre de env var
+  deliberada**: se lee `GA4_MEASUREMENT_ID` (ya cargada en Vercel, según
+  auditoría de env vars de este mismo día) server-side en
+  `app/(public)/layout.tsx` y se pasa como prop al componente, en vez de
+  usar el prefijo `NEXT_PUBLIC_*` que Next.js exige para leer una env var
+  directo en código de cliente — evita tener que agregar/renombrar nada en
+  Vercel para una variable que ya está cargada con ese nombre. Montado
+  únicamente en `app/(public)/layout.tsx`, nunca en el layout de `/admin`
+  — misma paridad que legacy ("editors aren't the audience being
+  measured").
+- `components/CookieNotice.tsx` + `styles/cookie-notice.css` — banner fijo
+  inferior, dismissable, recuerda el cierre en `localStorage`
+  (`playbook_cookie_notice_dismissed`), degrada con gracia si
+  `localStorage` no está disponible (modo privado). Enlaza a `/privacidad`.
+- `app/(public)/privacidad/page.tsx` y `app/(public)/terminos/page.tsx` +
+  `styles/legal.css` — páginas nuevas, cada una con un aviso visible de
+  "borrador pendiente de revisión legal" arriba de todo (no solo un
+  comentario en el código — si esto llega a producción sin revisión, un
+  visitante real lo ve, no queda escondido). Contenido de Privacidad
+  redactado a partir de lo que el sitio *realmente* recolecta (auditado
+  antes de escribir: correo vía magic link, cookie `pb_anon` de cupo, GA4 +
+  Vercel Analytics, cuentas de editor), marco LFPDPPP (México) con derechos
+  ARCO. Enlazadas desde el footer (`components/layout/Footer.tsx`,
+  `.footer-legal-row` en `styles/sections.css`).
+- **Verificación real contra un servidor real y Postgres real, no solo
+  lectura de código** (Playwright): banner visible en la primera carga de
+  `/`; clic en "Entendido" lo oculta y el cierre sobrevive un reload real
+  (confirmado con dos cargas de página distintas, no solo estado de
+  React); script real de `gtag` presente en el DOM cuando
+  `GA4_MEASUREMENT_ID` está seteada, **ausente** cuando no lo está
+  (probadas ambas ramas, no asumida la del caso feliz nada más) y
+  **ausente en `/admin`** aunque esté seteada; `window.dataLayer` real
+  inspeccionado después de cargar `/` confirma la llamada
+  `gtag('config','G-TESTID123')` con el ID correcto; enlaces del footer
+  cuentan 1 cada uno hacia `/privacidad`/`/terminos`; ambas páginas legales
+  devuelven `200`, título/h1 correctos, y `/terminos` menciona el límite
+  real de artículos gratuitos (`FREE_ARTICLES_PER_MONTH`, no un número
+  hardcodeado aparte que pudiera desincronizarse). `tsc --noEmit` y
+  `next build` limpios (`/privacidad` y `/terminos` aparecen en la tabla de
+  rutas). `npm run lint` sin errores nuevos (mismo baseline de 22 warnings
+  pre-existentes).
+- **Pendiente real, no de código**: el usuario todavía no proveyó el
+  nombre legal de la empresa ni un email de contacto real — los
+  placeholders quedan hasta que los dé. El texto de ambas páginas necesita
+  revisión de un abogado real antes de sacar el aviso de "borrador" —
+  ninguna de las dos cosas es algo que este fix pueda resolver por su
+  cuenta.
+
+### 2026-07-21 — Datos legales reales + módulo "Mi cuenta" para lectores
+
+- El usuario confirmó la entidad legal (**Playbook SAPI de C.V.**) y el
+  contacto (**hola@playbook.la** — corregido de un typo real que escribió,
+  "playboook.la" con tres oes, contra las referencias reales ya presentes
+  en el repo: handles de Instagram/TikTok y el copyright del footer, todas
+  con dos oes) y dio el visto bueno de un abogado sobre el contenido de
+  `/privacidad`/`/terminos`. Reemplazados los placeholders y **eliminado el
+  aviso de "borrador pendiente de revisión legal"** de ambas páginas (y su
+  CSS, ahora sin uso). Quedan sin dato real, todavía como placeholder,
+  `[DOMICILIO FISCAL]` (privacidad) y `[JURISDICCIÓN]` (términos) — el
+  usuario no los dio.
+- **Pedido nuevo, decisiones tomadas con el usuario antes de escribir
+  código**: un "account manager" de lector con stats, preferencias e info,
+  a hacer antes de Fase 6. Alcance acordado: datos básicos de cuenta +
+  autoservicio de derechos ARCO (exportar/eliminar), **no** preferencias de
+  notificación/tema (no existe ningún sistema que las lea todavía, hubiera
+  sido UI sin efecto real).
+- **Verificación real de una pieza nunca antes probada de punta a punta en
+  este proyecto**: todas las fases anteriores dejaron registrado como gap
+  "no se puede verificar un magic link real sin bandeja de entrada" (Fase 3
+  en adelante). Antes de construir la página de cuenta hacía falta saber si
+  `session.user.email` llega poblado para un lector real — se verificó
+  leyendo `node_modules/@auth/core/lib/actions/signin/send-token.js` (el
+  `Promise.all([sendRequest, createToken])` confirma que la fila de
+  `verification_token` se crea igual aunque el envío por Resend falle,
+  porque ambas promesas se disparan en paralelo) y
+  `.../actions/callback/index.js` (confirma que el callback verifica
+  hasheando `token+secret` con SHA-256 vía Web Crypto). Con eso, se generó
+  un token de prueba, se calculó su hash exacto con el mismo algoritmo, se
+  insertó directo en Postgres, y se pegó la URL de callback real
+  (`/api/auth/callback/resend?...`) — sesión real creada,
+  `/api/auth/session` confirma `{email, id, role:"reader"}` completo. Esto
+  cierra (parcialmente, ver "pendiente" abajo) un gap de verificación que
+  venía arrastrando el proyecto desde la Fase 3, sin depender de una
+  `RESEND_API_KEY` real.
+- `lib/data/reader-account.ts` (email, fecha de alta, total de lecturas,
+  lecturas del mes, últimas 10 con título vía join a `articles`),
+  `lib/actions/reader-account.ts` (`deleteMyAccount`: borra la fila de
+  `users`, lo que en cascada borra `accounts`/`article_reads` por FK
+  `onDelete:'cascade'` ya existentes en el schema; `verification_token` no
+  tiene FK a `users` — Auth.js la indexa por email, no por id — así que se
+  borra aparte), `app/api/account/export/route.ts` (JSON descargable, Route
+  Handler en vez de Server Action porque hace falta un header
+  `Content-Disposition` real), `app/(public)/cuenta/page.tsx`,
+  `components/account/{AccountSignInPrompt,DeleteAccountButton}.tsx`.
+  Enlazado desde el email del lector en el header (`HeaderNav.tsx`, antes
+  texto plano, ahora un link a `/cuenta`).
+- **Bug real encontrado y corregido antes de que llegara a producción, no
+  solo en la verificación**: el primer borrador de `DeleteAccountButton`
+  invocaba `deleteMyAccount()` a mano dentro de un `try/catch` (patrón
+  `useTransition`). `deleteMyAccount` termina en
+  `signOut({redirectTo:'/'})`, que funciona lanzando la señal especial
+  `NEXT_REDIRECT` de Next.js — un `catch` genérico alrededor de una llamada
+  directa la hubiera atrapado como si fuera un error real, mostrando "No se
+  pudo eliminar la cuenta" en el caso exitoso. Corregido usando el mismo
+  patrón que ya usa el logout de admin (`app/admin/(protected)/layout.tsx`):
+  un `<form action={deleteMyAccount}>` real en vez de una llamada manual,
+  que deja que Next maneje la redirección internamente sin pasar por
+  ningún `catch` de este componente.
+- **Verificación real de punta a punta contra Postgres y un servidor
+  real**, no solo lectura de código: vista sin sesión de `/cuenta` (curl)
+  muestra el formulario de acceso; con la sesión de prueba de arriba, dos
+  lecturas reales (`curl` a `/articulo?id=...`) confirmadas en
+  `article_reads`, y la página `/cuenta` las muestra con el conteo correcto
+  (2 este mes, 2 en total) y los títulos reales enlazados; `/api/account/export`
+  devuelve el JSON completo y correcto; **flujo de borrado con Playwright
+  real**: clic en "Eliminar mi cuenta y mis datos" dispara el diálogo
+  `window.confirm` real (texto verificado), aceptarlo ejecuta la Server
+  Action real → `psql` confirma después: 0 filas en `"user"` para ese
+  email, 0 en `article_reads` para ese `reader_id` (cascada), 0 en
+  `verification_token` para ese email (borrado explícito) — los tres
+  efectos del borrado confirmados contra la base, no asumidos por el
+  código. `tsc --noEmit` y `next build` limpios (`/cuenta` y
+  `/api/account/export` aparecen en la tabla de rutas); `npm run lint` sin
+  errores nuevos. Todas las filas de prueba (`user`, `article_reads`,
+  `verification_token`) borradas después, `articles`/`editors` sin tocar.
+- **Gap real, no de código**: aunque esta sesión probó que el mecanismo de
+  sesión de lector funciona de punta a punta con un token fabricado a
+  mano, **enviar y recibir un magic link real desde una bandeja de entrada
+  real sigue sin verificar** — sigue pendiente de una `RESEND_API_KEY` real
+  en producción, mismo criterio que el resto de gaps de credenciales
+  externas ya documentados en este archivo.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
@@ -1259,6 +1634,17 @@ real, mismo estándar que Fases 1-3):
    - Verificar datos reales del módulo "Más leídas" con credenciales de
      GA4 reales, y del evento `pageview_article` llegando de verdad al
      backend de Vercel (Fase 5, checkpoints 1 y 2).
+   - Verificar que `middleware.ts` en runtime Node.js no dispara
+     `MIDDLEWARE_INVOCATION_FAILED` en un deploy real (ver entrada de hoy).
+   - Corregir en el dashboard de Vercel los 4 nombres de variable con
+     mayúsculas/minúsculas incorrectas (`PLAYBOOK_SECRET`, `GA4_PROPERTY_ID`,
+     `GA4_SERVICE_ACCOUNT_EMAIL`, `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` — ver
+     entrada de hoy).
+5. **En curso**: ESLint/CI/security headers/rate limiting (deuda técnica
+   señalada en la auditoría de este mismo día, sin fase asignada todavía) y
+   páginas legales (`/privacidad`, `/terminos`, aviso de cookies) — no
+   existían ni en legacy ni acá; texto borrador pendiente de revisión legal
+   real antes de lanzar, ver tareas en curso.
 
 ## Convención: cómo mantener este archivo
 
