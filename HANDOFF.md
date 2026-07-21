@@ -783,6 +783,36 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
 - **Pendiente para el siguiente checkpoint**: estados de carga/error en la
   subida de imágenes de `TipTapEditor` — checkpoint 3 de 4.
 
+### 2026-07-21 — Fase 5 (checkpoint 3 de 4): estados de carga/error en la subida de imágenes de TipTap
+
+- `components/admin/TipTapEditor.tsx`: estado local `uploading`/`uploadError`
+  (no se hiló un callback de toast desde `AdminDashboard` — el editor monta
+  una vez por tarjeta de artículo en la pestaña Articles, y un toast global
+  compartido se pisaría entre dos tarjetas abiertas a la vez; el mensaje
+  vive junto al editor al que pertenece). El botón "Imagen" del toolbar
+  cambia a "Subiendo imagen…" y se deshabilita junto con el input de
+  archivo mientras la subida está en curso; al fallar, aparece un mensaje
+  de error real (`role="alert"`, misma clase `.field-error` que el resto
+  del panel) en vez del `console.error` silencioso de antes — este era el
+  único gap real encontrado en la auditoría de "estados de carga" de este
+  checkpoint (legacy nunca tuvo subida de imágenes, así que no había nada
+  que portar acá, era una omisión de la Fase 4).
+- **Verificación real contra un servidor real** (`next dev` + Playwright):
+  se disparó una subida real (mismo patrón que la verificación de la Fase 4
+  checkpoint 3) y se capturó el estado del botón/input **durante** la
+  subida, no solo antes/después: `"Subiendo imagen…"` visible y el input
+  de archivo deshabilitado mientras la request está en vuelo; al fallar
+  (sin `BLOB_READ_WRITE_TOKEN` real en este sandbox, el mismo gap ya
+  documentado), un mensaje de error real y visible aparece, y el botón/input
+  vuelven a su estado normal después — confirmado que no queda "trabado"
+  en estado de carga tras un error. Sin filas nuevas en `articles`/`media`
+  (el artículo de prueba nunca se guardó, solo se probó la subida). `tsc
+  --noEmit` y `next build` limpios, con y sin `.env.local`.
+- **Pendiente para el siguiente checkpoint**: limpieza menor de
+  Lighthouse/documentación (`width`/`height` en las imágenes de portada de
+  artículo, notas desactualizadas en `docs/image-dimensions.md`) —
+  checkpoint 4 de 4, el último de la Fase 5.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
