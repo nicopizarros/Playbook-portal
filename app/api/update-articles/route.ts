@@ -8,6 +8,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/client';
 import { articles } from '@/lib/db/schema';
 import { SPORT_OPTIONS } from '@/lib/taxonomy';
+import { checkRateLimit } from '@/lib/rate-limit';
+
+// Only counts against failed-secret attempts, never against legitimate
+// Make.com traffic (a real digest can legitimately post several items in
+// quick succession, see the sourceUrl dedup comment below) -- this exists
+// to blunt brute-forcing PLAYBOOK_SECRET itself, not to throttle normal use.
+const WEBHOOK_AUTH_FAIL_LIMIT = 10;
+const WEBHOOK_AUTH_FAIL_WINDOW_SECONDS = 10 * 60;
+
+function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  return req.headers.get('x-real-ip') || 'unknown';
+}
 
 function constantTimeEqual(a: string, b: string) {
   const bufA = Buffer.from(a);
@@ -81,7 +95,12 @@ type WebhookPayload = {
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-playbook-secret') || '';
-  if (!process.env.PLAYBOOK_SECRET || !constantTimeEqual(secret, process.env.PLAYBOOK_SECRET)) {
+  const validSecret = !!process.env.PLAYBOOK_SECRET && constantTimeEqual(secret, process.env.PLAYBOOK_SECRET);
+  if (!validSecret) {
+    const limit = checkRateLimit(`webhook-auth-fail:${getClientIp(req)}`, WEBHOOK_AUTH_FAIL_LIMIT, WEBHOOK_AUTH_FAIL_WINDOW_SECONDS);
+    if (!limit.allowed) {
+      return NextResponse.json({ error: 'Too many failed attempts' }, { status: 429 });
+    }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

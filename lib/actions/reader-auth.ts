@@ -2,8 +2,17 @@
 
 import { AuthError } from 'next-auth';
 import { signIn } from '@/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/request-ip';
 
 export type MagicLinkState = { ok: boolean; error?: string } | null;
+
+// 5 requests per 10 minutes per IP -- Resend charges per email and a magic
+// link lands in someone's real inbox, so this is tighter than the editor
+// login limit: both a cost control and a guard against using this as an
+// email-bombing vector against a victim's address.
+const MAGIC_LINK_LIMIT = 5;
+const MAGIC_LINK_WINDOW_SECONDS = 10 * 60;
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -19,6 +28,12 @@ export async function requestMagicLink(_prev: MagicLinkState, formData: FormData
 
   if (!isValidEmail(email)) {
     return { ok: false, error: 'Ingresa un correo válido.' };
+  }
+
+  const ip = await getClientIp();
+  const limit = checkRateLimit(`magic-link:${ip}`, MAGIC_LINK_LIMIT, MAGIC_LINK_WINDOW_SECONDS);
+  if (!limit.allowed) {
+    return { ok: false, error: `Demasiados intentos. Probá de nuevo en ${Math.ceil(limit.retryAfterSeconds / 60)} minuto(s).` };
   }
 
   try {

@@ -1415,6 +1415,49 @@ real, mismo estándar que Fases 1-3):
   algo no verificable sin un deploy real. Queda como mejora futura, no
   como bug de este fix.
 
+### 2026-07-21 — Fix: rate limiting básico agregado (login, magic link, webhook)
+
+- No existía ningún rate limiting — auditoría de este mismo día. Agregado
+  `lib/rate-limit.ts` (ventana fija en memoria, keyed por string libre,
+  reusa el patrón de `global.__pb*` de `lib/db/client.ts` para sobrevivir
+  entre invocaciones de la misma instancia) y `lib/request-ip.ts`
+  (`x-forwarded-for` vía `next/headers`).
+- **Límite deliberadamente no distribuido, documentado como tal en el
+  propio archivo**: no hay Redis/KV conectado (agregar uno es una
+  credencial externa nueva, fuera de alcance de este fix) — un atacante
+  repartiendo requests entre varias instancias concurrentes de Vercel no
+  queda completamente bloqueado. Sí frena el caso realista de un script
+  golpeando un endpoint desde un solo lugar.
+- Aplicado en tres puntos, cada uno con semántica distinta según lo que
+  protege:
+  - `lib/actions/editor-auth.ts` (`loginAction`): 10 intentos / 5 min por
+    IP — generoso para un editor real que se equivoca de contraseña,
+    suficiente para frenar fuerza bruta.
+  - `lib/actions/reader-auth.ts` (`requestMagicLink`): 5 intentos / 10 min
+    por IP — más estricto porque cada envío le cuesta dinero al proyecto
+    (Resend cobra por email) y porque un magic link llega a una bandeja de
+    entrada real, así que esto también es un freno contra usar el sitio
+    como vector de email-bombing hacia la dirección de otra persona.
+  - `app/api/update-articles/route.ts`: 10 intentos fallidos / 10 min por
+    IP, contando **solo** intentos con secreto incorrecto — un request con
+    el secreto correcto nunca cuenta contra el límite ni se ve afectado,
+    a propósito (un digest real de Make.com puede publicar varios artículos
+    seguidos legítimamente).
+- **Verificación real contra un servidor real, no solo lectura de
+  código**: `curl` directo con secreto incorrecto al webhook — intentos
+  1-10 devuelven `401` real, intento 11 en adelante `429`; confirmado
+  aparte que un request con el secreto correcto sigue funcionando (`200`)
+  aunque esa misma IP ya esté por encima del límite de fallos. Playwright
+  llenando el formulario de login real con credenciales incorrectas —
+  intentos 1-10 muestran el error real "Usuario o contraseña incorrectos",
+  intento 11 muestra el mensaje de rate limit. Playwright completando el
+  muro de email real (después de agotar el cupo de 3 artículos gratis) con
+  5 direcciones distintas — intentos 1-5 fallan por falta de
+  `RESEND_API_KEY` real en este sandbox (gap ya documentado, no relacionado
+  a este fix), intento 6 muestra el mensaje de rate limit exactamente en el
+  umbral esperado. `tsc --noEmit` y `next build` limpios; `npm run lint`
+  sin errores nuevos. Filas de prueba borradas después.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
