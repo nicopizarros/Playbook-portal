@@ -1,12 +1,14 @@
 import Link from 'next/link';
+import { auth } from '@/auth';
 import { getSiteContent } from '@/lib/data/site-content';
 import { getAllArticles } from '@/lib/data/articles';
 import { HeaderNav } from './HeaderNav';
 import { Ticker } from './Ticker';
 
 export async function Header() {
-  const [content, articles] = await Promise.all([getSiteContent(), getAllArticles()]);
+  const [content, articles, session] = await Promise.all([getSiteContent(), getAllArticles(), auth()]);
   const { nav } = content;
+  const readerEmail = session?.user?.role === 'reader' ? session.user.email : null;
 
   const searchArticles = articles.map(a => ({
     id: a.id,
@@ -39,7 +41,13 @@ export async function Header() {
             decoding="async"
           />
         </Link>
-        <HeaderNav links={nav.links} ctaLabel={nav.ctaLabel} ctaUrl={nav.ctaUrl} searchArticles={searchArticles} />
+        <HeaderNav
+          links={nav.links}
+          ctaLabel={nav.ctaLabel}
+          ctaUrl={nav.ctaUrl}
+          searchArticles={searchArticles}
+          readerEmail={readerEmail ?? null}
+        />
       </div>
       <Ticker articles={articles} />
     </header>

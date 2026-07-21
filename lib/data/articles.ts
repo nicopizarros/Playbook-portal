@@ -26,6 +26,57 @@ export async function getArticleById(id: string): Promise<Article | null> {
   return row ?? null;
 }
 
+export type ArticleMeta = {
+  id: string;
+  title: string;
+  excerpt: string;
+  imageUrl: string;
+  dateFormatted: string;
+  date: string;
+  readingTime: number;
+  publication: string;
+  source: string;
+  author: string;
+  mostrarAutor: boolean;
+  tagsScope: string[];
+  tagsSport: string[];
+  tagsVertical: string[];
+  substackUrl: string;
+};
+
+// Selects only the columns safe to expose to a reader who hasn't been
+// granted full access yet — explicitly NOT teaser/bodyJson/bodyHtml. This
+// is what makes "article body must not be present in any response sent to
+// an unentitled reader" (see the brief) literally true: the walled render
+// path in app/(public)/articulo/page.tsx calls only this function, so the
+// body is never fetched into that request at all, not just fetched-and-
+// hidden. generateMetadata also uses this exclusively (og:description etc.
+// only ever need excerpt, never body, same as legacy behavior).
+export async function getArticleMetaById(id: string): Promise<ArticleMeta | null> {
+  const [row] = await db
+    .select({
+      id: articles.id,
+      title: articles.title,
+      excerpt: articles.excerpt,
+      imageUrl: articles.imageUrl,
+      dateFormatted: articles.dateFormatted,
+      date: articles.date,
+      readingTime: articles.readingTime,
+      publication: articles.publication,
+      source: articles.source,
+      author: articles.author,
+      mostrarAutor: articles.mostrarAutor,
+      tagsScope: articles.tagsScope,
+      tagsSport: articles.tagsSport,
+      tagsVertical: articles.tagsVertical,
+      substackUrl: articles.substackUrl,
+    })
+    .from(articles)
+    .where(eq(articles.id, id))
+    .limit(1);
+  return row ?? null;
+}
+
 export async function getArticlesByAuthor(name: string): Promise<Article[]> {
   const all = await getAllArticles();
   return all

@@ -41,6 +41,17 @@ header.topbar.is-scrolled .brand img{height:48px;}
 .nav-links a.is-active-section{border-color:var(--green);}
 .nav-link-infinitas{margin-left:14px;font-weight:700;}
 .nav-actions{display:flex;align-items:center;gap:10px;}
+/* Signed-in reader indicator (Fase 3) — genuinamente nuevo, sin equivalente
+   legado. Texto discreto + botón de salir en el mismo lenguaje tipográfico
+   que .tag-mini/.byline, oculto en mobile (el correo completo no entra en
+   la barra angosta; el drawer no lo necesita porque cerrar sesión no es un
+   flujo frecuente). */
+.reader-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gray-txt);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;}
+.reader-status button{border:none;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);cursor:pointer;flex-shrink:0;}
+.reader-status button:hover,.reader-status button:focus-visible{color:var(--green);}
+@media(max-width:920px){
+  .reader-status{display:none;}
+}
 .nav-search{display:flex;align-items:center;gap:6px;background:var(--rule);border-radius:999px;padding:8px 14px;min-height:44px;flex-shrink:0;position:relative;border:1px solid transparent;transition:border-color var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out),width var(--duration-base) var(--ease-out);}
 .nav-search svg{opacity:.55;flex-shrink:0;}
 .nav-search input{border:none;background:transparent;font-family:var(--sans);font-size:13px;outline:none;width:188px;color:var(--ink);transition:width var(--duration-base) var(--ease-out);}

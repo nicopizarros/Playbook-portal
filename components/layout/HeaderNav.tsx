@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { signOut } from 'next-auth/react';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { SearchBox, type SearchableArticle } from './SearchBox';
 import type { NavLink } from '@/lib/data/site-content';
@@ -14,11 +15,13 @@ export function HeaderNav({
   ctaLabel,
   ctaUrl,
   searchArticles,
+  readerEmail,
 }: {
   links: NavLink[];
   ctaLabel: string;
   ctaUrl: string;
   searchArticles: SearchableArticle[];
+  readerEmail: string | null;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
@@ -76,6 +79,12 @@ export function HeaderNav({
       </nav>
 
       <div className="nav-actions">
+        {readerEmail && (
+          <span className="reader-status" title={readerEmail}>
+            {readerEmail}
+            <button type="button" onClick={() => signOut({ redirectTo: '/' })}>Salir</button>
+          </span>
+        )}
         <SearchBox articles={searchArticles} />
         <ThemeToggle variant="desktop" />
         <a className="btn" id="nav-cta" href={ctaUrl} target="_blank" rel="noopener noreferrer">

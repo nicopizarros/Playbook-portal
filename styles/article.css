@@ -38,6 +38,13 @@
 .article-not-found{padding:60px 0;text-align:center;}
 .article-not-found a{text-decoration:underline;color:var(--ink);}
 
+/* ——— Muro de correo (metered access, Fase 3) — genuinamente nuevo, sin
+   equivalente legado. Reutiliza el lenguaje visual de .nl-box (mismo
+   borde/padding) en vez de inventar un estilo aparte. ——— */
+.article-walled{margin-top:8px;padding:26px 30px;border:1px solid var(--ink);}
+.article-walled > p{font-size:14.5px;color:var(--gray-dark);margin:0 0 16px;max-width:56ch;}
+.email-wall-form{max-width:380px;}
+
 /* ——— Página de archivo (/archivo.html) ——— */
 .archive-tag-filters{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
 .tag-filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}

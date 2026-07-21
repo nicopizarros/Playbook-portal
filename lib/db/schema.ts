@@ -165,9 +165,12 @@ export const articleReads = pgTable(
   },
   table => ({
     // A reader row always has exactly one of readerId/anonId set (enforced
-    // in application code, see lib/metering.ts) — two partial unique
-    // indexes cover "don't double count the same article twice in a month"
-    // for whichever identity is present.
+    // in application code, see lib/metering.ts) — two composite unique
+    // indexes (not partial: neither has a WHERE clause) cover "don't double
+    // count the same article twice in a month" for whichever identity is
+    // present. This works because Postgres treats NULL as distinct from
+    // any other value in a unique index, so the all-NULL columns on a row
+    // for the "other" identity never collide with anything.
     uniqueReaderRead: uniqueIndex('article_reads_reader_unique')
       .on(table.readerId, table.articleId, table.monthKey),
     uniqueAnonRead: uniqueIndex('article_reads_anon_unique')

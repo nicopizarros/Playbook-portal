@@ -15,3 +15,8 @@ export const SOURCE_LABELS: Record<Source, string> = {
   infinitas: 'Infinitas',
   playbook: 'Playbook',
 };
+
+// Free full-article reads per calendar month for an anonymous (unauthenticated,
+// non-bot) visitor before the email wall (see lib/metering.ts). Decided with
+// the user during planning.
+export const FREE_ARTICLES_PER_MONTH = 3;

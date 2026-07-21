@@ -202,19 +202,83 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   producción conectada de forma estable en Vercel — y aun con eso conectado,
   preferir `force-dynamic` salvo que haya una razón real de cache.
 
+### 2026-07-21 — Fase 3: Auth.js + medición + muro de correo
+
+- Sin cambios de schema: las tablas que esta fase necesita (`users`,
+  `accounts`, `verificationTokens`, `editors`, `anonReaders`,
+  `articleReads`) ya existían desde la Fase 1. Confirmado con
+  `@auth/drizzle-adapter`'s tipos que `sessionsTable` es opcional y no hace
+  falta bajo estrategia JWT — no se agregó.
+- `auth.ts`: una instancia de Auth.js, dos proveedores — `Resend` (lectores,
+  magic link) y `Credentials` (editores, bcrypt contra `editors`) — con un
+  `role: 'reader'|'editor'` derivado del proveedor que autenticó, nunca de
+  input del cliente. `middleware.ts` mintea una cookie firmada
+  (`pb_anon`, HMAC vía Web Crypto para funcionar en Edge o Node) sin tocar
+  la base de datos; `lib/metering.ts` crea la fila de `anon_readers` recién
+  cuando hace falta de verdad. `lib/data/articles.ts` ganó
+  `getArticleMetaById` (columnas seguras, nunca `teaser`/`bodyJson`/
+  `bodyHtml`) — `app/(public)/articulo/page.tsx` solo pide el cuerpo
+  completo después de que `resolveEntitlement` ya confirmó acceso.
+- **Tres bugs reales encontrados y corregidos durante la verificación** (no
+  solo compilación limpia):
+  1. **13 de los 30 artículos migrados tienen `teaser` con HTML real**
+     (`<p>`, `<strong>` — rastreado hasta el commit legado "carga 13
+     artículos nuevos"). La lógica de la Fase 2 (heredada tal cual del
+     `js/article-page.js` legado) partía el texto por `\n{2,}` y lo
+     escapaba, así que esos 13 artículos mostraban literalmente `&lt;p&gt;`
+     en pantalla — un bug real, preexistente en el sitio legado también
+     (mismo código), no algo introducido acá. Corregido: se detecta si el
+     `teaser` ya es HTML y se renderiza como tal
+     (`dangerouslySetInnerHTML`, seguro acá porque el contenido viene de
+     datos migrados o del equipo editorial interno, nunca de un usuario
+     final), en vez de reproducir el bug del sitio legado a propósito —
+     esto es "estrictamente mejor", no una desviación de fidelidad.
+  2. **`signIn('resend', {..., redirect:false})` no devuelve
+     `{error, ok}`** para proveedores que no son Credentials — devuelve un
+     string (la URL de destino), verificado leyendo el código fuente real
+     de `next-auth/lib/actions.js`, no asumido. El chequeo original
+     (`if (result?.error)`) nunca podía ser verdadero, así que un envío de
+     magic link fallido (probado con una `RESEND_API_KEY` inválida, error
+     401 real de Resend visible en los logs) igual mostraba "¡Listo!
+     Revisa tu correo" — un falso positivo. Corregido inspeccionando la URL
+     devuelta (`/api/auth/error` o un query param `error=`).
+  3. Menor: el comentario sobre los índices únicos de `article_reads` en
+     `lib/db/schema.ts` decía "partial unique indexes" — inexacto (ninguno
+     tiene `WHERE`), ya señalado por la auditoría de la Fase 1 como "corregir
+     cuando se toque el archivo". Corregido de paso.
+- **Verificación real contra Postgres y un servidor real, no solo
+  `tsc`/`build`**: secuencia completa de medición con `curl` + cookie jar
+  persistente (lecturas 1-3 completas, lectura 4 con muro, re-leer el
+  artículo #1 sigue completo sin gastar cupo — los 5 casos correctos);
+  confirmado que la respuesta del muro **no contiene** el texto del
+  `teaser` del artículo (grep directo); `User-Agent: Googlebot` de vuelta a
+  acceso completo incluso con cupo agotado; login de editor probado de
+  punta a punta contra los endpoints reales de Auth.js (`/api/auth/csrf` +
+  `/api/auth/callback/credentials`), con contraseña correcta e incorrecta;
+  flujo de magic link probado con Playwright real contra la UI real del
+  muro de correo (`scripts/test-email-wall.mjs`, queda en el repo), incluida
+  la corrección del bug #2 de arriba. `next build` limpio con y sin
+  `POSTGRES_URL` (misma disciplina que la Fase 2).
+- **Gap reconocido explícitamente, no escondido**: enviar y hacer clic en
+  un magic link real no es verificable en este sandbox (sin salida de
+  correo real) — necesita una `RESEND_API_KEY` real y una bandeja de
+  entrada real, pendiente de verificación manual una vez desplegado.
+- **Pendiente para la siguiente sesión**: Fase 4 (TipTap, Vercel Blob,
+  panel de admin, webhook de Make.com) — ver "Próximos pasos" abajo.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
-1. **Fase 3** — Auth.js (lectores por email, editores por credenciales),
-   `middleware.ts` para la cookie de lector anónimo, lógica de medición
-   (3 artículos/mes) y muro de captura de email.
-2. **Fase 4** — Editor TipTap + subida de imágenes a Vercel Blob, panel de
+1. **Fase 4** — Editor TipTap + subida de imágenes a Vercel Blob, panel de
    admin reconstruido (dashboard con preview en vivo y detección de
    conflictos, analítica), migración del webhook de Make.com.
-3. **Fase 5** — Pulido: paridad de modo oscuro, transiciones/estados de
+2. **Fase 5** — Pulido: paridad de modo oscuro, transiciones/estados de
    hover y carga, accesibilidad, Lighthouse. Incluir GA4 + Vercel Web
    Analytics si no se agregaron antes (ver nota de alcance arriba).
-4. **Fase 6** — Verificación end-to-end (ver plan completo para el detalle
+3. **Fase 6** — Verificación end-to-end (ver plan completo para el detalle
    de qué probar) y corte a producción.
+4. **Pendiente de despliegue, no de código**: verificar el flujo real de
+   magic link con una `RESEND_API_KEY` real una vez desplegado (ver nota de
+   la Fase 3 arriba).
 
 ## Convención: cómo mantener este archivo
 
