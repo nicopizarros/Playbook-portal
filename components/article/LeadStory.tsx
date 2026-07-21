@@ -15,7 +15,14 @@ export function LeadStory({ article }: { article: Article }) {
       <a className="card-link" href={`/articulo?id=${encodeURIComponent(article.id)}`}>
         {article.imageUrl && (
           <div className="lead-photo">
-            <img src={article.imageUrl} alt={article.title} fetchPriority="high" decoding="async" />
+            <img
+              src={article.imageUrl}
+              alt={article.title}
+              width={1200}
+              height={750}
+              fetchPriority="high"
+              decoding="async"
+            />
           </div>
         )}
         <span className="tag">{article.publication}</span>

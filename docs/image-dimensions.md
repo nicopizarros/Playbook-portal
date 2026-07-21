@@ -106,7 +106,16 @@ Todas las imágenes usan `object-fit:cover` (o, en el caso del logo, `width:auto
 - El **logo** es el único elemento con dimensiones responsivas ya resueltas.
 - Dos formatos (`.opinion-card.tfbr img`, `.product-banner`) usan **alto fijo en píxeles** en lugar de `aspect-ratio` — su relación visual real varía según el ancho de columna disponible, a diferencia de los demás que fijan la proporción explícitamente.
 
-## Pendiente de actualizar cuando se construyan las páginas nuevas (Tareas 6 y 9)
+## Resuelto en la migración a Next.js (Fases 2-3)
 
-- **Imagen del artículo en `/articulo.html`**: se recomienda reutilizar `.lead-photo` (`16:10`) para consistencia con la tarjeta destacada de portada.
-- **Miniaturas en `/archivo.html`**: hoy las filas de artículo (`.news-row`) no llevan imagen en absoluto — definir si el archivo debe incluir una miniatura y, si es así, qué relación de aspecto usar.
+- **Imagen del artículo en `/articulo`**: resuelto reutilizando `.lead-photo`
+  (`16:10`), como se recomendaba arriba — ver `app/(public)/articulo/page.tsx`
+  y `components/article/LeadStory.tsx` (esta última usada en la portada, la
+  primera en la página de artículo individual). Ambas llevan además
+  `width={1200} height={750}` explícitos en el `<img>` desde la Fase 5
+  (checkpoint 4) — no cambia nada visualmente (el contenedor ya reserva el
+  espacio vía `aspect-ratio`), es solo una señal explícita adicional para
+  el navegador, consistente con el resto de imágenes editoriales del sitio.
+- **Miniaturas en `/archivo`**: se decidió no agregar imagen a las filas de
+  artículo (`components/article/NewsRow.tsx`) — se mantiene el mismo
+  formato sin imagen que legacy tenía en `.news-row`.

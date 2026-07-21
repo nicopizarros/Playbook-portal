@@ -813,6 +813,44 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   artículo, notas desactualizadas en `docs/image-dimensions.md`) —
   checkpoint 4 de 4, el último de la Fase 5.
 
+### 2026-07-21 — Fase 5 (checkpoint 4 de 4, última de la fase): limpieza de Lighthouse/documentación
+
+- Agregados `width={1200} height={750}` explícitos (relación `16:10`, misma
+  convención ya usada en `InfinitasSection.tsx` para el mismo ratio) a los
+  dos `<img>` de foto destacada que no los tenían:
+  `components/article/LeadStory.tsx` (portada) y
+  `app/(public)/articulo/page.tsx` (página de artículo individual). Esto no
+  era una regresión de la migración — legacy nunca tuvo estos atributos
+  tampoco (confirmado leyendo sus templates originales) — sino una mejora
+  de consistencia menor: el resto de imágenes editoriales del sitio ya
+  llevaban `width`/`height` explícitos además de su `aspect-ratio` en CSS.
+- Actualizado `docs/image-dimensions.md`: su sección final decía
+  "Pendiente de actualizar cuando se construyan las páginas nuevas" para
+  dos decisiones que en realidad ya se habían tomado en las Fases 2-3 (la
+  imagen de artículo reutiliza `.lead-photo`, las filas de `/archivo` se
+  quedaron sin imagen) — reescrita para reflejar el estado real en vez de
+  seguir marcando como pendiente algo que ya está resuelto.
+- **Verificación real, no solo visual**: con `next dev` + Playwright se
+  midió el `boundingBox()` real de `.lead-photo` en la portada y en la
+  página de artículo — ambos dan una relación ancho/alto de exactamente
+  `1.600` (`16:10`), confirmando que los atributos `width`/`height`
+  explícitos (que solo sirven de señal temprana al navegador) no entran en
+  conflicto con el `aspect-ratio` de CSS que en la práctica controla el
+  tamaño real — ninguna distorsión de layout. `tsc --noEmit` y
+  `next build` limpios, con y sin `.env.local`.
+- **Con esto se completan los 4 checkpoints planeados de la Fase 5.** Antes
+  de empezar esta fase se verificó (no se asumió) que modo oscuro,
+  transiciones/animaciones de `js/ui.js` y accesibilidad ya estaban en
+  paridad 1:1 con legacy — así que el trabajo real de esta fase terminó
+  siendo el módulo "Más leídas" con GA4, Vercel Web Analytics + el evento
+  `pageview_article` (con un bug de carrera real encontrado y corregido en
+  el camino), un gap real de estados de carga en la subida de imágenes de
+  TipTap, y esta limpieza menor — no una repetición de trabajo ya hecho.
+  Pendiente real, no de código: verificar datos reales de GA4/Vercel
+  Analytics una vez desplegado (mismo criterio que los demás gaps de
+  credenciales externas ya documentados en este archivo). Ver "Próximos
+  pasos" abajo para Fase 6.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
@@ -952,16 +990,17 @@ real, mismo estándar que Fases 1-3):
    12 pestañas + preview en vivo, panel de analítica. Ver el registro de
    progreso arriba para el detalle de cada uno (bugs reales encontrados,
    cómo se verificó cada pieza).
-2. **Fase 5** — Pulido: paridad de modo oscuro, transiciones/estados de
-   hover y carga, accesibilidad, Lighthouse. Incluye trabajo explícitamente
-   diferido de fases anteriores:
-   - GA4 + Vercel Web Analytics para el módulo "Más leídas" de portada
-     (`legacy/lib/ga4.js`, `legacy/api/top-articles.js`) — nunca se portó,
-     ver nota de alcance de la Fase 2.
-   - Instrumentar el evento personalizado `pageview_article` en la página
-     de artículo pública para que el panel "artículos más leídos" del
-     checkpoint 5 de Fase 4 tenga datos reales que mostrar (hoy degrada
-     correctamente a vacío por falta de esto, no es un bug).
+2. **Fase 5 — completa.** Auditada primero contra legacy archivo por
+   archivo (no asumida por el nombre de la fase): modo oscuro,
+   transiciones/animaciones de `js/ui.js` y accesibilidad ya estaban en
+   paridad 1:1, así que el trabajo real fueron los 4 checkpoints
+   verificados: módulo "Más leídas" con GA4 (`lib/ga4.ts`,
+   `lib/most-read.ts`, `components/home/MostReadSection.tsx`), Vercel Web
+   Analytics + evento `pageview_article` (con un bug de carrera real
+   encontrado y corregido — ver el checkpoint 2 en el registro), estados
+   de carga/error en la subida de imágenes de TipTap, y una limpieza menor
+   de Lighthouse/documentación. Ver el registro de progreso arriba para el
+   detalle de cada uno.
 3. **Fase 6** — Verificación end-to-end (ver plan completo para el detalle
    de qué probar) y corte a producción.
 4. **Pendiente de despliegue, no de código**:
@@ -969,8 +1008,11 @@ real, mismo estándar que Fases 1-3):
      (Fase 3).
    - Verificar la subida real a Vercel Blob con un `BLOB_READ_WRITE_TOKEN`
      real (Fase 4, checkpoint 3).
-   - Verificar el panel de analítica con credenciales reales de Vercel
-     Analytics (Fase 4, checkpoint 5).
+   - Verificar el panel de analítica del admin con credenciales reales de
+     Vercel Analytics (Fase 4, checkpoint 5).
+   - Verificar datos reales del módulo "Más leídas" con credenciales de
+     GA4 reales, y del evento `pageview_article` llegando de verdad al
+     backend de Vercel (Fase 5, checkpoints 1 y 2).
 
 ## Convención: cómo mantener este archivo
 

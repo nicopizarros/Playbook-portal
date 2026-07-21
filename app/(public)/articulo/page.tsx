@@ -135,7 +135,14 @@ export default async function ArticuloPage({ searchParams }: Props) {
       <span className="tag">{meta.publication}</span>
       {meta.imageUrl && (
         <div className="lead-photo article-photo">
-          <img src={meta.imageUrl} alt={meta.title} fetchPriority="high" decoding="async" />
+          <img
+            src={meta.imageUrl}
+            alt={meta.title}
+            width={1200}
+            height={750}
+            fetchPriority="high"
+            decoding="async"
+          />
         </div>
       )}
       <h1>{meta.title}</h1>
