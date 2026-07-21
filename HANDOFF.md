@@ -1082,6 +1082,50 @@ real, mismo estándar que Fases 1-3):
   `AUTH_SECRET` de verdad en Project Settings → Environment Variables del
   proyecto de Vercel.
 
+### 2026-07-21 — Investigación: `HEAD /` con `MIDDLEWARE_INVOCATION_FAILED`, `[ReferenceError: __dirname is not defined]`
+
+- **Reporte del usuario**: un log de deploy de Vercel mostrando `500
+  MIDDLEWARE_INVOCATION_FAILED` en `HEAD /`, con el detalle
+  `[ReferenceError: __dirname is not defined]`. No queda claro por el log
+  a qué commit/deploy corresponde — podría ser anterior a los dos fixes de
+  middleware ya registrados arriba (import relativo; `try`/`catch` para
+  fallar abierto).
+- **Verificado contra un build real, no solo leyendo el código**: en este
+  entorno sí hay `npm`/`node` disponibles (a diferencia de lo que dice
+  `.claude/skills/verify/SKILL.md`, que parece desactualizado post-
+  migración a Next — describe rutas `api/*.js`/`articles.json` de la app
+  legacy, no `middleware.ts`/`lib/anon-cookie.ts` actuales). Se corrió
+  `npm install` (respeta `package-lock.json` committeado, que ya fija
+  `next@15.5.20`) y luego `next build` real con variables de entorno
+  dummy. Build limpio.
+- **El bundle compilado del Edge Middleware (`.next/server/middleware.js`,
+  34.4 kB) no contiene ni una sola referencia a `__dirname`** (`grep -n
+  "__dirname"` sobre ese archivo: cero resultados). El grafo de imports de
+  `middleware.ts` sigue siendo el mismo que se verificó en la entrada
+  anterior (`next/server` + `./lib/anon-cookie`, y este último sin
+  imports propios, solo Web Crypto) — no hay ningún código alcanzable
+  desde `middleware.ts` que pueda evaluar `__dirname`.
+- **Conclusión**: con el código y el lockfile actuales de esta rama, no
+  existe una causa a nivel de código para este error específico. No se
+  hizo ningún cambio de código porque no se encontró ningún bug que
+  corregir — cambiar código sin una causa identificada solo enmascararía
+  el síntoma real.
+- **Limitación honesta de esta verificación**: `next build` local no
+  reproduce el empaquetado propio de Vercel para Edge Functions (el paso
+  que envuelve la salida de `.next/` en `.vercel/output/functions/`, sin
+  CLI de Vercel disponible en este sandbox para correrlo). Si el error
+  ocurrió en un deploy del commit actual (no uno viejo), la causa más
+  probable pasa a ser un build cacheado corrupto/obsoleto del lado de
+  Vercel — una clase de bug de plataforma conocida, no de este repo.
+- **Acción pendiente del usuario, no de código**: confirmar a qué commit
+  corresponde el deploy que generó ese log (Vercel → Deployments → click
+  en el deploy fallido → ver el commit hash) y, si corresponde al código
+  actual, volver a desplegar con "Redeploy" → **"Clear Cache and Deploy"**
+  en vez de un redeploy normal. Si el error persiste después de eso con
+  el commit actual confirmado, es una señal real de que sí hay algo
+  código-dependiente que este build local no está reproduciendo, y hay
+  que retomar la investigación con esa confirmación en mano.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
