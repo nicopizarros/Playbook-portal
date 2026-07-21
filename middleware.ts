@@ -1,5 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { ANON_COOKIE_NAME, signAnonId, verifyAnonCookie } from '@/lib/anon-cookie';
+// Relative import, not the '@/' tsconfig alias, deliberately: Vercel reported
+// "The Edge Function middleware is referencing unsupported modules:
+// @/lib/anon-cookie" on a real deploy of this exact file, even though
+// lib/anon-cookie.ts is fully Web Crypto-based with zero imports (verified —
+// see HANDOFF.md). middleware.ts is bundled through Vercel's separate root-level
+// Edge Function pipeline, distinct from Next's normal per-route bundling that
+// every other '@/'-aliased import in this repo goes through unreported; a
+// known class of this exact error involves a '@/'-aliased import into
+// middleware failing to resolve in that pipeline specifically. A plain
+// relative path removes alias resolution as a variable entirely.
+import { ANON_COOKIE_NAME, signAnonId, verifyAnonCookie } from './lib/anon-cookie';
 
 // Ensures every visitor has a valid signed anonymous-reader cookie before
 // they ever reach an article — this is what lets metering (lib/metering.ts)

@@ -981,6 +981,52 @@ real, mismo estándar que Fases 1-3):
 - Actualizar el registro de progreso de este archivo con qué se verificó de
   verdad vs. qué queda como gap de verificación manual/despliegue.
 
+### 2026-07-21 — Fix de despliegue: Vercel rechazaba `middleware.ts` ("Edge Function referencing unsupported modules")
+
+- **Error real reportado desde un deploy real de Vercel** de este mismo
+  commit (confirmado con el usuario, no una suposición): `The Edge
+  Function "middleware" is referencing unsupported modules: -
+  __vc__ns__/0/middleware.js: @/lib/anon-cookie`.
+- **Investigado antes de asumir un bug de código**: `lib/anon-cookie.ts`
+  (lo único que `middleware.ts` importa además de `next/server`) no tiene
+  ningún `import` propio y usa exclusivamente Web Crypto
+  (`crypto.subtle.importKey`/`sign`) — nada de `Buffer`, `require()`, ni el
+  módulo `crypto` de Node. Confirmado leyendo el archivo committeado
+  directo con `git show HEAD:lib/anon-cookie.ts`, no solo de memoria.
+  Tampoco hay ninguna cadena de imports hacia `lib/db/client.ts` (que sí
+  usa `pg`, genuinamente no compatible con Edge) — `lib/metering.ts`
+  importa *de* `anon-cookie.ts`, no al revés, y `middleware.ts` no importa
+  `lib/metering.ts` en absoluto. El único archivo realmente Node-only del
+  repo (`lib/ga4.ts`, con `crypto.createSign`/`Buffer.from`) no es
+  alcanzable desde el grafo de imports de `middleware.ts`.
+- **Diagnóstico real, verificado con búsqueda externa** (no inventado):
+  dado que el error nombra el propio *especificador* de import
+  `@/lib/anon-cookie` como "módulo no soportado" (no un built-in de Node
+  específico dentro de él), y que esto coincide con una clase conocida de
+  este mismo error en discusiones de `vercel/next.js` (#58584) y de
+  Supabase (#19077) — ambas con un import con alias `@/` hacia
+  `middleware` — el diagnóstico más probable es que el pipeline de bundling
+  de Edge Functions de Vercel para `middleware.ts` (el único archivo de
+  este repo bundleado por ese pipeline especial, a diferencia de todo el
+  resto de imports con `@/` que vive dentro de `app/`/`components/`/`lib/`
+  y se resuelve por el bundling normal por-ruta de Next) no resuelve el
+  alias `@/*` de `tsconfig.json` de forma confiable para ese entrypoint
+  específico.
+- **Corregido** cambiando el import de `lib/anon-cookie` en `middleware.ts`
+  de `@/lib/anon-cookie` a una ruta relativa (`./lib/anon-cookie`) —
+  elimina la resolución de alias como variable por completo para este
+  entrypoint, sin tocar `lib/anon-cookie.ts` (no hacía falta).
+- **Verificación real, con una limitación honesta**: `tsc --noEmit` y
+  `next build` limpios, con y sin `.env.local`; bundle local
+  `.next/server/middleware.js` inspeccionado de nuevo, confirmando que
+  sigue usando solo `crypto.randomUUID`/`crypto.subtle` (Web Crypto); `next
+  dev` + `curl` confirma que la cookie `pb_anon` se sigue firmando y
+  emitiendo igual que antes. **Lo que no se puede verificar desde este
+  sandbox**: si esto de verdad resuelve el error específico del bundling de
+  Edge Functions de Vercel, ya que no hay forma de disparar un deploy real
+  de Vercel desde acá — pendiente de que el usuario redespliegue y
+  confirme si el error desaparece.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
