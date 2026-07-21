@@ -165,6 +165,43 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
 - **Pendiente para la siguiente sesión**: Fase 3 (Auth.js, medición,
   muro de email) — ver "Próximos pasos" abajo.
 
+### 2026-07-20 — Fix: `npm run build` roto en Vercel (falta `POSTGRES_URL`)
+
+- **Corrige una afirmación equivocada de la entrada anterior**: ahí se
+  dijo que `app/sitemap.ts` con `revalidate = 3600` (ISR) era "el fix
+  correcto" para ese caso. Era un error — ISR se ejecuta en build time para
+  generar su payload inicial, y Vercel todavía no tiene un Postgres de
+  producción conectado (`POSTGRES_URL` no configurado ahí), así que
+  `next build` fallaba en seco en `/sitemap.xml`. Reproducido en local
+  moviendo `.env.local` fuera del paso antes de tocar nada (no fue un
+  diagnóstico a ciegas).
+- Cambiado `app/sitemap.ts` a `export const dynamic = 'force-dynamic'`
+  (mismo patrón ya usado en `app/(public)/layout.tsx` y
+  `app/feed.xml/route.ts`).
+- **Ese fix solo no alcanzó**: al volver a compilar sin `POSTGRES_URL`, el
+  build siguió fallando, ahora en `/feed.xml` — una ruta que YA era
+  `force-dynamic`. Causa raíz real, más profunda de lo que parecía: en
+  `lib/db/client.ts`, `export const db = drizzle(getPool(), ...)` llamaba a
+  `getPool()` (que lanzaba si faltaba `POSTGRES_URL`) en el momento de
+  *importar el módulo*, no de usarlo — y Next.js importa los Route Handlers
+  durante "Collecting page data" en build time sin importar si son
+  `force-dynamic` o no (a diferencia de algunos Server Components de
+  página, donde esto no se disparó). Corregido sacando el `throw` eager:
+  `pg.Pool` no hace I/O al construirse, así que ahora una `POSTGRES_URL`
+  faltante recién falla cuando una request real intenta una query, nunca
+  bloqueando el build.
+- Verificado en ambos sentidos, no solo "compila": build completo sin
+  `POSTGRES_URL` (los 10 routes, éxito); build completo con Postgres real
+  (sin regresión); `sitemap.xml`/`feed.xml` servidos por `next dev` contra
+  la base real siguen devolviendo el mismo contenido de antes (52 URLs, 30
+  items) — el cambio de ISR a `force-dynamic` no rompió el contenido, solo
+  cuándo se genera. `tsc --noEmit` limpio.
+- **Lección para las próximas fases**: cualquier ruta nueva que lea de la
+  base de datos (Fases 3-4 van a agregar varias) tiene que usar
+  `force-dynamic`, no `revalidate`/ISR, hasta que haya una Postgres de
+  producción conectada de forma estable en Vercel — y aun con eso conectado,
+  preferir `force-dynamic` salvo que haya una razón real de cache.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 3** — Auth.js (lectores por email, editores por credenciales),

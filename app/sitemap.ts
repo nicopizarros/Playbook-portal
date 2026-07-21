@@ -5,12 +5,19 @@ import { shouldShowAuthor } from '@/lib/related-articles';
 import { TAXONOMY, type TaxonomyTier } from '@/lib/taxonomy';
 import { SITE_URL } from '@/lib/site-url';
 
-// Legacy/api/sitemap.js regenerated on every request but was served with
-// Cache-Control: public, max-age=3600 — this is the idiomatic Next.js
-// equivalent (time-based ISR) rather than force-dynamic, since a sitemap
-// crawler hitting this doesn't need a DB round-trip on every single
-// request, just freshness within the hour.
-export const revalidate = 3600;
+// Originally set to `revalidate = 3600` (ISR) to match legacy/api/sitemap.js's
+// Cache-Control: public, max-age=3600 without a DB round-trip on every
+// crawl. Reverted: ISR/static routes are executed by Next.js AT BUILD TIME
+// to produce their initial cached payload, unlike force-dynamic routes
+// (see app/(public)/layout.tsx, app/feed.xml/route.ts), which Next only
+// registers without executing during the build. That build-time execution
+// requires a live POSTGRES_URL, which isn't set until a production
+// Postgres is actually connected on Vercel — so this broke `next build`
+// entirely before that's done. force-dynamic is the same trade-off Phase 2
+// already made for every other DB-reading route: a sitemap crawl now hits
+// Postgres directly instead of a cached response, immaterial at this
+// traffic pattern and corpus size.
+export const dynamic = 'force-dynamic';
 
 // Same priority/changefreq tiers as legacy/api/sitemap.js, ported verbatim:
 // homepage everything funnels through, article is the actual content,
