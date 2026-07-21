@@ -1227,6 +1227,75 @@ real, mismo estándar que Fases 1-3):
   `middleware.ts` una vez que Vercel confirme que el problema de
   plataforma está resuelto.
 
+### 2026-07-21 — Fix: metering restaurado con Node.js Middleware (Next.js 15.5)
+
+- **Reabre la investigación anterior con una vía no probada todavía**: las
+  cinco entradas previas de este registro agotaron el diagnóstico de por qué
+  el Edge Function pipeline de Vercel rompía con `__dirname is not defined`
+  para cualquier contenido de `middleware.ts`, y terminaron eliminando el
+  archivo por completo para restaurar el sitio — dejando el cupo de lectura
+  gratuita completamente inactivo (todo visitante anónimo tratado como
+  siempre-nuevo). Esa vía no exploraba una alternativa real: Next.js 15.5
+  soporta middleware en runtime Node.js (`export const config = { runtime:
+  'nodejs' }`), un pipeline de build distinto al de Edge Functions.
+- **Verificado leyendo el código fuente real instalado, no asumido**: se
+  confirmó en `node_modules/next/dist/server/next-server.js` que existe
+  `loadNodeMiddleware()` como ruta de carga separada de
+  `getEdgeFunctionInfo()`, sin ningún flag experimental que la gatee en esta
+  versión (`next@15.5.20`, confirmado contra `package-lock.json`). Probado
+  de forma empírica con un middleware mínimo: `next build` con
+  `runtime: 'nodejs'` genera `.next/server/middleware.js` acompañado de
+  `middleware.js.nft.json` (Node File Trace, el artefacto que Vercel usa
+  para funciones serverless Node normales) y dejó
+  `middleware-manifest.json` con `"middleware": {}` vacío — es decir, cero
+  Edge Functions registradas. Esto confirma que el runtime Node evita por
+  completo el pipeline de empaquetado de Edge Functions que rompía para este
+  proyecto, sin necesidad de escalar a soporte de Vercel.
+- **Restaurado `middleware.ts`** (recuperado de `git show 838f8f7^:middleware.ts`,
+  la última versión con la lógica real) con un solo cambio real: se agregó
+  `runtime: 'nodejs'` a `config`. El import relativo a `./lib/anon-cookie`
+  se mantuvo (ya no hace falta para evitar el bug de alias del pipeline de
+  Edge, pero tampoco hay motivo para reintroducir el alias `@/` como
+  variable) — comentarios del archivo actualizados para reflejar el
+  diagnóstico real en vez del ya obsoleto.
+- **Verificación real de punta a punta contra Postgres y un servidor real**
+  (no solo build limpio): Postgres local recreado desde cero (contenedor
+  reciclado, sin datos de sesiones anteriores — password reseteada, DB
+  `playbook` creada, `db:migrate` + `migrate:json` corridos de nuevo, 30/30
+  artículos). `next build` limpio. `next dev` + `curl` con cookie jar
+  persistente: primer request confirma `Set-Cookie: pb_anon=...` con los
+  mismos atributos que la versión Edge original (`HttpOnly`, `SameSite=Lax`,
+  `Max-Age` de 2 años); secuencia de 4 artículos reales confirma acceso
+  completo en los primeros 3 y muro real en el 4º; re-leer el primer
+  artículo sigue con acceso completo (no re-cobra cupo); `psql` confirma
+  exactamente 3 filas en `article_reads` para el `anon_id` de la cookie,
+  con `month_key` correcto. `tsc --noEmit` limpio. Filas de prueba borradas
+  después.
+- **Pendiente real, no de código**: verificar en un deploy real de Vercel
+  que el runtime Node.js del middleware efectivamente no dispara
+  `MIDDLEWARE_INVOCATION_FAILED` — este sandbox no puede reproducir el
+  empaquetado real de Vercel (mismo límite ya documentado en las entradas
+  anteriores de este mismo registro). Si por algún motivo el runtime Node
+  también fallara en un deploy real (no hay evidencia de que vaya a pasar,
+  pero no es verificable desde acá), el siguiente paso sería escalar a
+  soporte de Vercel con toda esta cadena de diagnóstico.
+- **Bug de configuración real encontrado aparte, no de este archivo**:
+  auditando las variables de entorno de Vercel con el usuario se encontraron
+  tres con nombre mal escrito por mayúsculas/minúsculas —
+  `Playbook_secret` en vez de `PLAYBOOK_SECRET`
+  (`app/api/update-articles/route.ts` lee el nombre exacto), y
+  `GA4_property_id`/`GA4_service_account_email`/`GA4_service_account_private_key`
+  en vez de `GA4_PROPERTY_ID`/`GA4_SERVICE_ACCOUNT_EMAIL`/
+  `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` (`lib/ga4.ts` ídem) — las variables de
+  entorno son case-sensitive, así que ninguna de las cuatro estaba siendo
+  leída por la app pese a estar cargadas en Vercel. Corrección pendiente del
+  lado del usuario en el dashboard de Vercel (no es algo que un cambio de
+  código pueda arreglar). También se confirmó que `GA4_MEASUREMENT_ID` (el
+  ID público de cliente que `legacy/js/analytics.js` ya usa,
+  `G-0CG7JMK8RZ`) está cargado en Vercel pero nunca se portó a la app
+  nueva — pendiente, ver tarea de este mismo día sobre GA4 cliente +
+  banner de cookies.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
@@ -1259,6 +1328,17 @@ real, mismo estándar que Fases 1-3):
    - Verificar datos reales del módulo "Más leídas" con credenciales de
      GA4 reales, y del evento `pageview_article` llegando de verdad al
      backend de Vercel (Fase 5, checkpoints 1 y 2).
+   - Verificar que `middleware.ts` en runtime Node.js no dispara
+     `MIDDLEWARE_INVOCATION_FAILED` en un deploy real (ver entrada de hoy).
+   - Corregir en el dashboard de Vercel los 4 nombres de variable con
+     mayúsculas/minúsculas incorrectas (`PLAYBOOK_SECRET`, `GA4_PROPERTY_ID`,
+     `GA4_SERVICE_ACCOUNT_EMAIL`, `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` — ver
+     entrada de hoy).
+5. **En curso**: ESLint/CI/security headers/rate limiting (deuda técnica
+   señalada en la auditoría de este mismo día, sin fase asignada todavía) y
+   páginas legales (`/privacidad`, `/terminos`, aviso de cookies) — no
+   existían ni en legacy ni acá; texto borrador pendiente de revisión legal
+   real antes de lanzar, ver tareas en curso.
 
 ## Convención: cómo mantener este archivo
 
