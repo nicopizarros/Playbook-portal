@@ -450,6 +450,54 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   subida de imágenes a Vercel Blob (`components/admin/TipTapEditor.tsx`,
   `app/api/admin/upload-image/route.ts`) — checkpoint 3 de 5.
 
+### 2026-07-21 — Fase 4 (checkpoint 3 de 5): editor TipTap + subida a Vercel Blob
+
+- `components/admin/TipTapEditor.tsx`: `useEditor` con
+  `lib/tiptap-extensions.ts` (el mismo array que `saveArticle` del
+  checkpoint anterior usa para `generateHTML` — un solo lugar decide qué
+  puede contener un cuerpo de artículo). Toolbar con `.btn-mini` de
+  `admin.css` (bold, italic, H2/H3, listas, cita, enlace, imagen,
+  deshacer/rehacer). Paste/drop de imágenes y el botón de imagen del
+  toolbar llaman a `@vercel/blob/client`'s `upload()` contra la ruta de
+  abajo. `app/api/admin/upload-image/route.ts`: handshake `handleUpload`
+  de `@vercel/blob/client`, inserta `{url, uploadedBy}` en `media` en
+  `onUploadCompleted`.
+- **Decisión tomada leyendo el código fuente real instalado de
+  `@vercel/blob@0.27.3` antes de escribir la ruta, no asumida** (mismo
+  hábito que el checkpoint 1 con next-auth): `handleUpload` resuelve/valida
+  `BLOB_READ_WRITE_TOKEN` de forma incondicional en su primera línea, antes
+  de llamar a `onBeforeGenerateToken` — así que un chequeo de rol de editor
+  puesto solo dentro de ese callback nunca se habría alcanzado en este
+  sandbox (sin un token real configurado) para probarlo. Corregido
+  chequeando `auth()`/`role==='editor'` en el propio route handler, antes
+  de llamar a `handleUpload` — verificable sin importar si hay credenciales
+  reales de Blob, y en la práctica falla más rápido para una request
+  claramente no autorizada. También confirmado leyendo el código: minutar
+  el client token es HMAC local puro (sin llamada de red), así que el único
+  motivo real por el que la subida no se puede probar de punta a punta acá
+  es la falta de un `BLOB_READ_WRITE_TOKEN` real, no una limitación de la
+  ruta.
+- **Verificación real contra un servidor real** (`next dev` + `curl` +
+  Playwright, mismo patrón que los checkpoints anteriores): `curl` sin
+  sesión → `401` propio antes de tocar el SDK de Blob; sesión de editor
+  real vía Playwright → escribir texto, aplicar negrita/H2, confirmar el
+  HTML resultante (`<strong>`, `<h2`) y que `onChange` disparó con el JSON
+  actualizado; seleccionar un archivo de imagen real (PNG de 1x1 generado
+  en el momento) dispara la subida, la request llega a
+  `/api/admin/upload-image` (pasa el chequeo propio de autorización) y
+  falla con el mensaje esperado y explícito `"No token found..."` — sin
+  colgar la página ni fallar en silencio. **Gap reconocido explícitamente**:
+  la subida real a Blob no se puede verificar de punta a punta en este
+  sandbox sin un `BLOB_READ_WRITE_TOKEN` real, pendiente de verificación
+  manual una vez desplegado (mismo criterio que el gap de magic link de la
+  Fase 3). Montado temporalmente en `app/admin/(protected)/dashboard/` un
+  arnés de humo (`DashboardPlaceholder.tsx`) solo para esta verificación —
+  se reemplaza por completo en el checkpoint 4 por las 12 pestañas reales.
+  `tsc --noEmit` y `next build` limpios, con y sin `.env.local`.
+- **Pendiente para el siguiente checkpoint**: primitivas de campo, las 12
+  pestañas del CMS, y el panel de preview en vivo (`AdminDashboard.tsx`
+  reemplazando `DashboardPlaceholder.tsx`) — checkpoint 4 de 5.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
