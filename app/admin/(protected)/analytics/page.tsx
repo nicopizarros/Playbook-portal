@@ -1,9 +1,11 @@
-export default function AdminAnalyticsPage() {
+import { getAnalyticsSnapshot } from '@/lib/analytics-data';
+import { AnalyticsView } from '@/components/admin/analytics/AnalyticsView';
+
+export default async function AdminAnalyticsPage() {
+  const snapshot = await getAnalyticsSnapshot();
   return (
     <main className="admin-main analytics-main">
-      <div className="analytics-page">
-        <p>Analítica — en construcción (checkpoint 5 del Fase 4 de HANDOFF.md).</p>
-      </div>
+      <AnalyticsView initialSnapshot={snapshot} />
     </main>
   );
 }

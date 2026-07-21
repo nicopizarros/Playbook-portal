@@ -598,6 +598,75 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   `app/admin/(protected)/analytics/page.tsx`) — checkpoint 5 de 5, el
   último de la Fase 4.
 
+### 2026-07-21 — Fase 4 (checkpoint 5 de 5, última de la fase): panel de analítica
+
+- **Corrige una suposición del propio plan de Fase 4** (la sección de abajo,
+  escrita antes de leer el código legado real): el plan decía portar
+  "`legacy/lib/ga4.js` y `legacy/lib/vercel-analytics.js` casi literal" como
+  si ambos alimentaran el panel de admin. Leyendo `legacy/api/analytics-data.js`
+  (el handler real detrás de `/admin/analytics.html`, no incluido en la
+  lista inicial de archivos a leer de esta tarea) se confirma que **solo
+  usa `lib/vercel-analytics.js`** (`count`/`aggregateVisits`/`aggregateEvents`)
+  — `lib/ga4.js` es usado exclusivamente por `legacy/api/top-articles.js`,
+  que alimenta el módulo "Más leídas" de la portada pública, una feature
+  completamente distinta y ya marcada como fuera de alcance en el registro
+  de la Fase 2 ("GA4 + Vercel Web Analytics... todavía no se portó...
+  pendiente para más adelante"). Portar `ga4.js` en este checkpoint habría
+  sido trabajo fuera del alcance real de "panel de analítica del admin" —
+  no se portó; sigue pendiente para cuando se aborde el módulo "Más leídas"
+  (ver Fase 5 abajo).
+- `lib/vercel-analytics.ts` — puerto casi literal de
+  `legacy/lib/vercel-analytics.js` (mismos endpoints REST, mismas env vars:
+  `VERCEL_ANALYTICS_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`/
+  `VERCEL_TEAM_SLUG`). `lib/analytics-data.ts` — puerto del cuerpo de
+  `analytics-data.js` (KPIs de hoy/7/30 días con deltas, panel de
+  artículos más leídos vía eventos personalizados, referidos/países/
+  dispositivos), con una simplificación real: el panel de artículos más
+  leídos resuelve id→título con `getAllArticlesForAdmin()` (lectura directa
+  a la base) en vez del auto-`fetch(${siteUrl}/articles.json)` que legacy
+  usaba solo porque esa función serverless no tenía acceso directo a una
+  base de datos.
+  `app/admin/(protected)/analytics/page.tsx` +
+  `components/admin/analytics/{AnalyticsView,BarChart}.tsx`: KPIs, dos
+  gráficas de barras con el paquete `chart.js` ya instalado (en vez del
+  `<script>` por CDN de legacy), dos listas de barras en CSS puro, mismo
+  patrón `available: false` por panel. `lib/actions/analytics.ts` expone
+  `refreshAnalytics()` para el botón "Actualizar" (legacy llamaba a
+  `/api/analytics-data` por fetch; acá es una Server Action, mismo
+  chequeo `auth()`/`role==='editor'`).
+- **Gap reconocido explícitamente, no de código**: el panel de artículos
+  más leídos necesita un evento personalizado de Vercel Analytics
+  (`pageview_article` con `article_id`) disparado desde la página de
+  artículo — legacy lo hacía en `js/article-page.js`; esa instrumentación
+  cliente no se agregó en esta migración todavía (no estaba en el alcance
+  aprobado de este checkpoint, que era portar el panel en sí, no
+  instrumentar el sitio público). El panel degrada correctamente a
+  `available: false` con o sin esa instrumentación cuando falta el token
+  real, así que esto no bloquea nada — solo significa que, incluso con un
+  `VERCEL_ANALYTICS_TOKEN` real configurado, el panel de "más leídos"
+  seguiría vacío hasta agregar esa instrumentación.
+- **Verificación real contra un servidor real** (`next dev` + Playwright):
+  las 12 pestañas del checkpoint anterior siguen sin errores; navegación
+  a la pestaña Analytics vía el tab del topbar funciona y marca `is-active`
+  correctamente; sin `VERCEL_ANALYTICS_TOKEN` configurado en este sandbox
+  (a propósito, mismo criterio que `BLOB_READ_WRITE_TOKEN` — credencial
+  externa real no disponible acá), las 3 tarjetas KPI muestran "Sin datos
+  todavía" y los 4 paneles muestran su mensaje de degradación específico
+  (el de artículos más leídos incluso menciona el permiso "Custom Events"
+  que hace falta) — sin crashear la página; los mensajes `console.error`
+  que aparecen en el navegador son los mismos logs de diagnóstico
+  intencionales que legacy también emitía (`VERCEL_ANALYTICS_TOKEN no está
+  configurado`), no errores no controlados. El botón "Actualizar" vuelve a
+  llamar la Server Action sin errores. Sin escritura a la base de datos en
+  ningún punto de este checkpoint (confirmado: 30 artículos y
+  `site_content` sin cambios después de correr las pruebas). `tsc --noEmit`
+  y `next build` limpios, con y sin `.env.local`.
+- **Con esto se completan los 5 checkpoints planeados de la Fase 4.**
+  Pendiente real, no de código: verificar el panel de analítica con
+  credenciales reales de Vercel Analytics una vez desplegado (mismo
+  criterio que el gap de magic link de la Fase 3 y el de subida a Blob del
+  checkpoint 3). Ver "Próximos pasos" abajo para Fase 5/Fase 6.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
@@ -730,21 +799,32 @@ real, mismo estándar que Fases 1-3):
 
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
-1. **Fase 4 (continuación)** — Ya listo: schema (`articles.sourceUrl`) y el
-   webhook de Make.com (`app/api/update-articles/route.ts`), verificados
-   contra Postgres real. Falta: editor TipTap + subida de imágenes a Vercel
-   Blob, panel de admin reconstruido (login, layout protegido, primitivas
-   de campo reutilizables, las 12 pestañas, Server Actions con detección de
-   conflictos, preview en vivo reusando los componentes de sección de la
-   Fase 2, panel de analítica portando `lib/ga4.js`/`lib/vercel-analytics.js`).
+1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
+   verificados contra Postgres/un servidor real: schema + webhook de
+   Make.com, login de editor + guard, Server Actions con detección de
+   conflictos, editor TipTap + subida a Vercel Blob, primitivas de campo +
+   12 pestañas + preview en vivo, panel de analítica. Ver el registro de
+   progreso arriba para el detalle de cada uno (bugs reales encontrados,
+   cómo se verificó cada pieza).
 2. **Fase 5** — Pulido: paridad de modo oscuro, transiciones/estados de
-   hover y carga, accesibilidad, Lighthouse. Incluir GA4 + Vercel Web
-   Analytics si no se agregaron antes (ver nota de alcance arriba).
+   hover y carga, accesibilidad, Lighthouse. Incluye trabajo explícitamente
+   diferido de fases anteriores:
+   - GA4 + Vercel Web Analytics para el módulo "Más leídas" de portada
+     (`legacy/lib/ga4.js`, `legacy/api/top-articles.js`) — nunca se portó,
+     ver nota de alcance de la Fase 2.
+   - Instrumentar el evento personalizado `pageview_article` en la página
+     de artículo pública para que el panel "artículos más leídos" del
+     checkpoint 5 de Fase 4 tenga datos reales que mostrar (hoy degrada
+     correctamente a vacío por falta de esto, no es un bug).
 3. **Fase 6** — Verificación end-to-end (ver plan completo para el detalle
    de qué probar) y corte a producción.
-4. **Pendiente de despliegue, no de código**: verificar el flujo real de
-   magic link con una `RESEND_API_KEY` real una vez desplegado (ver nota de
-   la Fase 3 arriba).
+4. **Pendiente de despliegue, no de código**:
+   - Verificar el flujo real de magic link con una `RESEND_API_KEY` real
+     (Fase 3).
+   - Verificar la subida real a Vercel Blob con un `BLOB_READ_WRITE_TOKEN`
+     real (Fase 4, checkpoint 3).
+   - Verificar el panel de analítica con credenciales reales de Vercel
+     Analytics (Fase 4, checkpoint 5).
 
 ## Convención: cómo mantener este archivo
 
