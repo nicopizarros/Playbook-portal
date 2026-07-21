@@ -75,16 +75,31 @@ export function HeaderNav({
           >
             {ctaLabel}
           </a>
+          {!readerEmail && (
+            <Link href="/cuenta" className="nav-drawer-login" onClick={close}>
+              Iniciar sesión
+            </Link>
+          )}
         </div>
         <ThemeToggle variant="drawer" onToggle={close} />
       </nav>
 
       <div className="nav-actions">
-        {readerEmail && (
+        {readerEmail ? (
           <span className="reader-status" title={readerEmail}>
             <Link href="/cuenta">{readerEmail}</Link>
             <button type="button" onClick={() => signOut({ redirectTo: '/' })}>Salir</button>
           </span>
+        ) : (
+          // ctaUrl/ctaLabel below ("Suscríbete gratis") link out to the
+          // Substack newsletter -- a separate product (email subscription)
+          // from this site's own reader accounts (free-article quota via
+          // magic-link login, see lib/metering.ts). Real gap this closes:
+          // there was no way to reach the on-site login at all except by
+          // first hitting the free-article wall on some article.
+          <Link href="/cuenta" className="nav-login-link">
+            Iniciar sesión
+          </Link>
         )}
         <SearchBox articles={searchArticles} />
         <ThemeToggle variant="desktop" />

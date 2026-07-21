@@ -4,6 +4,7 @@
   /* Below 920px #nav-cta hides and .nav-drawer-cta becomes the only subscribe
      CTA; at desktop widths the reverse must hold, or both render side by side. */
   .nav-drawer-cta{display:none;}
+  .nav-drawer-login{display:none;}
   /* Mismo criterio que #nav-cta / .nav-drawer-cta arriba: dos instancias del
      toggle (una en .nav-actions, otra en el drawer), solo una visible según
      el ancho. */
@@ -15,6 +16,7 @@
   .brand img{height:38px;}
   header.topbar.is-scrolled .brand img{height:38px;}
   #nav-cta{display:none;}
+  .nav-login-link{display:none;}
   .nav-actions .theme-toggle{display:none;}
   .nav-search{padding:8px 10px;}
   .nav-search input{width:64px;}
@@ -36,6 +38,7 @@
   .nav-links a{width:100%;padding:14px 0;border-bottom:1px solid var(--rule);font-size:15.5px;}
   .nav-link-infinitas{margin-left:0;}
   .nav-links .nav-drawer-cta{width:100%;margin-top:16px;padding:0;min-height:48px;border-bottom:none;text-align:center;}
+  .nav-links .nav-drawer-login{width:100%;margin-top:10px;padding:0;border-bottom:none;text-align:center;font-size:13.5px;color:var(--gray-txt);text-decoration:underline;text-decoration-color:var(--rule);}
   /* El toggle del drawer se ve como una fila más del menú (ícono + texto),
      no como el botón cuadrado de escritorio — reutiliza .theme-toggle-icon
      para el cross-fade de los SVG, solo cambia el layout alrededor. */

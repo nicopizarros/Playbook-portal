@@ -15,6 +15,9 @@ export function LeadStory({ article }: { article: Article }) {
       <a className="card-link" href={`/articulo?id=${encodeURIComponent(article.id)}`}>
         {article.imageUrl && (
           <div className="lead-photo">
+            {/* Editor-supplied URL, arbitrary host -- see
+                components/sections/AboutSection.tsx's comment. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={article.imageUrl}
               alt={article.title}

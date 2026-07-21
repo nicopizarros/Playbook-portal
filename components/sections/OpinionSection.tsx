@@ -5,6 +5,8 @@ function OpinionCardView({ card }: { card: OpinionCard }) {
   if (card.variant === 'banner') {
     return (
       <a className="opinion-card tfbr reveal" href={safeUrl(card.url)} target="_blank" rel="noopener noreferrer">
+        {/* Editor-supplied URL, arbitrary host -- see AboutSection.tsx's comment. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={card.image} width={900} height={160} alt={card.imageAlt || card.title} loading="lazy" decoding="async" />
         <div className="tfbr-copy">
           <h3>{card.title}</h3>

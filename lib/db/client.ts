@@ -7,7 +7,6 @@ import * as schema from './schema';
 // against Vercel Postgres in production — both speak standard wire-protocol
 // Postgres over POSTGRES_URL.
 declare global {
-  // eslint-disable-next-line no-var
   var __pbPgPool: Pool | undefined;
 }
 

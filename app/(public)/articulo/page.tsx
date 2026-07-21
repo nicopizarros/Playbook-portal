@@ -135,6 +135,9 @@ export default async function ArticuloPage({ searchParams }: Props) {
       <span className="tag">{meta.publication}</span>
       {meta.imageUrl && (
         <div className="lead-photo article-photo">
+          {/* Editor-supplied URL, arbitrary host -- see
+              components/sections/AboutSection.tsx's comment. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={meta.imageUrl}
             alt={meta.title}
@@ -171,7 +174,6 @@ export default async function ArticuloPage({ searchParams }: Props) {
         </main>
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBase) }}
         />
       </>
@@ -210,10 +212,8 @@ export default async function ArticuloPage({ searchParams }: Props) {
           {header}
           <div className="article-body">
             {hasNativeBody ? (
-              // eslint-disable-next-line react/no-danger
               <div dangerouslySetInnerHTML={{ __html: article.bodyHtml as string }} />
             ) : bodyIsHtml ? (
-              // eslint-disable-next-line react/no-danger
               <div dangerouslySetInnerHTML={{ __html: bodySource }} />
             ) : paragraphs.length ? (
               paragraphs.map((p, i) => <p key={i}>{p}</p>)
@@ -243,7 +243,6 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...jsonLdBase, articleBody: article.teaser || article.excerpt || '' }) }}
       />
     </>

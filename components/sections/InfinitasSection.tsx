@@ -5,6 +5,8 @@ function InfCard({ card, heading }: { card: InfinitasCard; heading: 'h3' | 'h4' 
   const Heading = heading;
   return (
     <a className="inf-card reveal" href={safeUrl(card.url)} target="_blank" rel="noopener noreferrer">
+      {/* Editor-supplied URL, arbitrary host -- see AboutSection.tsx's comment. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="inf-bg" src={card.image} width={1200} height={750} alt="" loading="lazy" decoding="async" />
       <div className="inf-content">
         <span className="eyebrow">{card.eyebrow}</span>

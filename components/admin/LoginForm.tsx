@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import Image from 'next/image';
 import { loginAction } from '@/lib/actions/editor-auth';
 
 export function LoginForm() {
@@ -8,7 +9,7 @@ export function LoginForm() {
 
   return (
     <form className="admin-login-card" action={formAction}>
-      <img
+      <Image
         src="/assets/img/playbook-logo.webp"
         width={180}
         height={44}

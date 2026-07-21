@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { auth } from '@/auth';
 import { getSiteContent } from '@/lib/data/site-content';
 import { getAllArticles } from '@/lib/data/articles';
@@ -22,23 +23,21 @@ export async function Header() {
     <header className="topbar">
       <div className="container nav">
         <Link href="/" className="brand" aria-label="Playbook — inicio">
-          <img
+          <Image
             className="logo-light"
             src="/assets/img/playbook-logo.webp"
             width={640}
             height={158}
             alt="Playbook"
-            fetchPriority="high"
-            decoding="async"
+            priority
           />
-          <img
+          <Image
             className="logo-dark"
             src="/assets/img/playbook-logo-dark.png"
             width={640}
             height={158}
             alt="Playbook"
-            fetchPriority="high"
-            decoding="async"
+            priority
           />
         </Link>
         <HeaderNav
