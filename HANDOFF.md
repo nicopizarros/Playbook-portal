@@ -386,6 +386,70 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   `createArticle` en `lib/actions/admin.ts`) — checkpoint 2 de 5, ver el
   plan detallado abajo.
 
+### 2026-07-21 — Fase 4 (checkpoint 2 de 5): Server Actions con detección de conflictos
+
+- `lib/actions/admin.ts`: `saveSiteContent(data, expectedVersion)`,
+  `saveArticle(id, input, expectedUpdatedAt)`, `archiveArticle(id)`,
+  `createArticle(input)`. Todas re-chequean `auth()`/`role==='editor'`
+  server-side primero (`requireEditor()`), nunca confían en un guard de
+  cliente. `saveSiteContent` usa un solo `UPDATE ... WHERE version =
+  expectedVersion RETURNING *` (atómico, sin `SELECT` previo) en vez del
+  patrón leer-then-escribir de legacy; inserta una fila en
+  `content_revisions` en el mismo write. `saveArticle` calcula `bodyHtml`
+  server-side vía `@tiptap/html`'s `generateHTML` usando el mismo array de
+  extensiones (`lib/tiptap-extensions.ts`) que va a usar el editor cliente
+  del checkpoint 3, para que el HTML generado nunca pueda divergir en
+  silencio del schema real del editor. `createArticle` usa `lib/slugify.ts`
+  (puerto literal del `slugify()` de `legacy/admin/dashboard.js`) con el
+  mismo fallback de sufijo-en-colisión que ya usa
+  `app/api/update-articles/route.ts`. `archiveArticle` pone `status:
+  'draft'` (nunca `DELETE`).
+- **Bug real encontrado y corregido antes de escribir la comparación de
+  conflicto de `saveArticle`, no asumido** (la misma clase de bug ya
+  atrapada dos veces en este repo — ver Fase 2/sitemap/feed): el plan
+  original comparaba `articles.updatedAt` por igualdad exacta contra el
+  valor que el cliente manda de vuelta. Antes de escribirlo así se
+  consultó Postgres directo (`psql`) sobre los 30 artículos migrados —
+  **los 30 tienen microsegundos reales distintos de cero** en `updated_at`
+  (ej. `12:15:11.307988+00`), porque la migración inicial dejó que
+  disparara el `defaultNow()` del schema (calculado por Postgres, precisión
+  de microsegundos) en vez de pasar un `Date` de JS explícito (que solo
+  puede representar milisegundos). Un `Date` de JS que viaja
+  cliente→servidor→cliente nunca puede recuperar esos microsegundos, así
+  que una comparación de igualdad exacta habría reportado un conflicto
+  falso en el primer guardado de cualquiera de los 30 artículos migrados,
+  aunque nadie más lo hubiera tocado. Corregido comparando
+  `date_trunc('milliseconds', ...)` en ambos lados de la condición del
+  `WHERE` en vez de igualdad directa — funciona sin importar la precisión
+  real guardada, sin necesitar una migración de datos aparte.
+- **Verificación real contra Postgres, no solo lectura de código**: como
+  `auth()` (usado por `requireEditor()`) lee cookies vía `next/headers`,
+  que lanza `` `headers` was called outside a request scope `` fuera de
+  una request real de Next.js (confirmado con una prueba directa antes de
+  decidir el enfoque, no asumido), un script suelto no puede invocar las
+  Server Actions exportadas tal cual. Se verificó en cambio la lógica de
+  persistencia real (las mismas queries de Drizzle, copiadas literal de
+  `lib/actions/admin.ts`) con un script `tsx` desechable contra Postgres
+  local: `site_content` con versión correcta → guarda e incrementa versión
+  + inserta revisión; versión vieja → conflicto (sin escritura); un
+  artículo real de los 30 migrados con microsegundos reales → la
+  comparación `date_trunc` sí hace match (confirmado explícitamente que
+  una igualdad ingenua NO habría hecho match en esa misma fila, probando
+  que el fix hacía falta de verdad); el mismo `expectedUpdatedAt` reintentado
+  después de un guardado real → conflicto; una carrera concurrente real (dos
+  updates condicionales simultáneos con el mismo valor esperado, vía
+  `Promise.all`) → exactamente un ganador, nunca los dos ni ninguno;
+  colisión de `id` en `createArticle` → `23505` real, reintento con sufijo
+  exitoso; `archiveArticle` → `status: 'draft'` y la fila desaparece de una
+  consulta filtrada por `status: 'published'` sin dejar de existir. Filas
+  y revisiones de prueba borradas después, `site_content` restaurado a sus
+  datos originales (la versión queda incrementada, mismo criterio que un
+  commit de prueba en el historial de legacy). `tsc --noEmit` y
+  `next build` limpios, con y sin `.env.local`.
+- **Pendiente para el siguiente checkpoint**: editor TipTap +
+  subida de imágenes a Vercel Blob (`components/admin/TipTapEditor.tsx`,
+  `app/api/admin/upload-image/route.ts`) — checkpoint 3 de 5.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
