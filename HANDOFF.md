@@ -1339,6 +1339,32 @@ real, mismo estándar que Fases 1-3):
   variables sin usar) — no bloquean nada, quedan para una limpieza aparte
   si se decide hacerla.
 
+### 2026-07-21 — Fix: CI agregado (no existía ningún workflow)
+
+- No había ningún `.github/workflows` — nada corría `typecheck`/`lint`/
+  `build` automáticamente en push/PR, dependiendo enteramente de que cada
+  sesión lo corriera a mano (que sí venía pasando, ver registro completo
+  arriba, pero sin ninguna garantía estructural).
+- Agregado `.github/workflows/ci.yml`: un solo job (`verify`) en push a
+  `main` y en cada PR, Node 22 (matchea `@types/node@^22.9.0`), `npm ci` →
+  `npm run typecheck` → `npm run lint` → `npm run build`.
+- **Decisión deliberada, verificada antes de escribirla**: el job no
+  configura `POSTGRES_URL` ni `AUTH_SECRET` — confirmado corriendo
+  `next build` localmente sin ninguna de las dos variables (con red normal,
+  no la del sandbox con proxy propio) que compila limpio, mismo
+  comportamiento ya documentado para `POSTGRES_URL` en el fix de
+  sitemap/feed de la Fase 2 y ahora confirmado que aplica igual a
+  `AUTH_SECRET`/`middleware.ts`. Esto evita tener que cargar ningún secreto
+  real en GitHub Actions solo para verificar que el código compila.
+- **Verificado real, no solo "el YAML parsea"**: los tres comandos
+  (`npm run typecheck`, `npm run lint`, `npm run build`) corridos a mano en
+  secuencia, mismo orden que el workflow, todos limpios.
+- **Pendiente**: este workflow no corre contra Postgres real (no hay
+  ninguna suite de tests automatizada todavía — ver auditoría de este
+  mismo día, es deuda técnica real, las verificaciones de cada fase
+  anterior fueron manuales con Playwright desechable). Migrar esos scripts
+  a una suite real en CI queda pendiente, no es parte de este fix.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
