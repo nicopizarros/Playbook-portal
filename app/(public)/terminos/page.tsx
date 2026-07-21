@@ -13,17 +13,11 @@ export default function TerminosPage() {
     <main className="container legal-page" id="terminos-main">
       <a className="skip-link" href="#terminos-main">Saltar al contenido</a>
 
-      <div className="legal-draft-notice" role="note">
-        <strong>Borrador pendiente de revisión legal.</strong> Este texto todavía no fue revisado por
-        un abogado. No lo trates como protección legal real hasta que alguien calificado lo confirme
-        o lo reemplace.
-      </div>
-
       <h1>Términos y Condiciones</h1>
       <p className="legal-updated">Última actualización: 21 de julio de 2026.</p>
 
       <p>
-        Al usar este sitio, operado por <strong>[NOMBRE LEGAL DE LA EMPRESA]</strong>
+        Al usar este sitio, operado por <strong>Playbook SAPI de C.V.</strong>
         (&quot;Playbook&quot;, &quot;nosotros&quot;), aceptás estos Términos y Condiciones. Si no
         estás de acuerdo, te pedimos que no uses el sitio.
       </p>
@@ -67,9 +61,9 @@ export default function TerminosPage() {
       <h2>Propiedad intelectual</h2>
       <p>
         Los artículos, textos, imágenes y demás contenido publicado en este sitio son propiedad de{' '}
-        <strong>[NOMBRE LEGAL DE LA EMPRESA]</strong> o de terceros que nos autorizaron su uso. Podés
+        <strong>Playbook SAPI de C.V.</strong> o de terceros que nos autorizaron su uso. Podés
         compartir enlaces a nuestros artículos libremente; para cualquier otro uso (reproducción,
-        traducción, republicación), escribinos a <strong>[EMAIL DE CONTACTO]</strong>.
+        traducción, republicación), escribinos a <strong>hola@playbook.la</strong>.
       </p>
 
       <h2>Contenido y enlaces de terceros</h2>
@@ -98,7 +92,7 @@ export default function TerminosPage() {
 
       <h2>Contacto</h2>
       <p>
-        <strong>[NOMBRE LEGAL DE LA EMPRESA]</strong> — <strong>[EMAIL DE CONTACTO]</strong>
+        <strong>Playbook SAPI de C.V.</strong> — <strong>hola@playbook.la</strong>
       </p>
     </main>
   );

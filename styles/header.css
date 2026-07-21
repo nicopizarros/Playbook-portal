@@ -47,6 +47,8 @@ header.topbar.is-scrolled .brand img{height:48px;}
    la barra angosta; el drawer no lo necesita porque cerrar sesión no es un
    flujo frecuente). */
 .reader-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gray-txt);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;}
+.reader-status a{color:var(--gray-txt);text-decoration:none;overflow:hidden;text-overflow:ellipsis;}
+.reader-status a:hover,.reader-status a:focus-visible{color:var(--ink);text-decoration:underline;}
 .reader-status button{border:none;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);cursor:pointer;flex-shrink:0;}
 .reader-status button:hover,.reader-status button:focus-visible{color:var(--green);}
 @media(max-width:920px){

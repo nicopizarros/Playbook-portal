@@ -12,23 +12,16 @@ export default function PrivacidadPage() {
     <main className="container legal-page" id="privacidad-main">
       <a className="skip-link" href="#privacidad-main">Saltar al contenido</a>
 
-      <div className="legal-draft-notice" role="note">
-        <strong>Borrador pendiente de revisión legal.</strong> Este texto fue redactado
-        automáticamente a partir de lo que el sitio realmente recolecta y todavía no fue revisado por
-        un abogado. No lo trates como protección legal real hasta que alguien calificado lo confirme
-        o lo reemplace.
-      </div>
-
       <h1>Aviso de Privacidad</h1>
       <p className="legal-updated">Última actualización: 21 de julio de 2026.</p>
 
       <p>
-        Este Aviso de Privacidad describe cómo{' '}
-        <strong>[NOMBRE LEGAL DE LA EMPRESA]</strong> (&quot;Playbook&quot;, &quot;nosotros&quot;),
-        con domicilio en <strong>[DOMICILIO FISCAL]</strong>, trata los datos personales de quienes
-        visitan y usan este sitio, en cumplimiento de la Ley Federal de Protección de Datos
-        Personales en Posesión de los Particulares (LFPDPPP) de México y, cuando aplique, de otras
-        leyes de privacidad de la jurisdicción del visitante.
+        Este Aviso de Privacidad describe cómo <strong>Playbook SAPI de C.V.</strong>{' '}
+        (&quot;Playbook&quot;, &quot;nosotros&quot;), con domicilio en{' '}
+        <strong>[DOMICILIO FISCAL]</strong>, trata los datos personales de quienes visitan y usan
+        este sitio, en cumplimiento de la Ley Federal de Protección de Datos Personales en Posesión
+        de los Particulares (LFPDPPP) de México y, cuando aplique, de otras leyes de privacidad de la
+        jurisdicción del visitante.
       </p>
 
       <h2>Qué datos recolectamos</h2>
@@ -98,9 +91,10 @@ export default function PrivacidadPage() {
       <h2>Tus derechos (ARCO)</h2>
       <p>
         Como titular de tus datos, tenés derecho a Acceder, Rectificar, Cancelar u Oponerte (ARCO) al
-        tratamiento de tus datos personales, incluyendo pedir que eliminemos tu correo y tu historial
-        de lectura. Para ejercer cualquiera de estos derechos, escribinos a{' '}
-        <strong>[EMAIL DE CONTACTO PARA PRIVACIDAD]</strong>.
+        tratamiento de tus datos personales. Si sos lector registrado, podés exportar o eliminar tu
+        cuenta y tu historial de lectura vos mismo, sin escribirnos, desde{' '}
+        <a href="/cuenta">Mi cuenta</a>. Para cualquier otro pedido relacionado con tus datos,
+        escribinos a <strong>hola@playbook.la</strong>.
       </p>
 
       <h2>Cambios a este aviso</h2>
@@ -111,7 +105,7 @@ export default function PrivacidadPage() {
 
       <h2>Contacto</h2>
       <p>
-        <strong>[NOMBRE LEGAL DE LA EMPRESA]</strong> — <strong>[EMAIL DE CONTACTO PARA PRIVACIDAD]</strong>
+        <strong>Playbook SAPI de C.V.</strong> — <strong>hola@playbook.la</strong>
       </p>
     </main>
   );

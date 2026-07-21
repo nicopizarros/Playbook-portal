@@ -1518,6 +1518,90 @@ real, mismo estándar que Fases 1-3):
   ninguna de las dos cosas es algo que este fix pueda resolver por su
   cuenta.
 
+### 2026-07-21 — Datos legales reales + módulo "Mi cuenta" para lectores
+
+- El usuario confirmó la entidad legal (**Playbook SAPI de C.V.**) y el
+  contacto (**hola@playbook.la** — corregido de un typo real que escribió,
+  "playboook.la" con tres oes, contra las referencias reales ya presentes
+  en el repo: handles de Instagram/TikTok y el copyright del footer, todas
+  con dos oes) y dio el visto bueno de un abogado sobre el contenido de
+  `/privacidad`/`/terminos`. Reemplazados los placeholders y **eliminado el
+  aviso de "borrador pendiente de revisión legal"** de ambas páginas (y su
+  CSS, ahora sin uso). Quedan sin dato real, todavía como placeholder,
+  `[DOMICILIO FISCAL]` (privacidad) y `[JURISDICCIÓN]` (términos) — el
+  usuario no los dio.
+- **Pedido nuevo, decisiones tomadas con el usuario antes de escribir
+  código**: un "account manager" de lector con stats, preferencias e info,
+  a hacer antes de Fase 6. Alcance acordado: datos básicos de cuenta +
+  autoservicio de derechos ARCO (exportar/eliminar), **no** preferencias de
+  notificación/tema (no existe ningún sistema que las lea todavía, hubiera
+  sido UI sin efecto real).
+- **Verificación real de una pieza nunca antes probada de punta a punta en
+  este proyecto**: todas las fases anteriores dejaron registrado como gap
+  "no se puede verificar un magic link real sin bandeja de entrada" (Fase 3
+  en adelante). Antes de construir la página de cuenta hacía falta saber si
+  `session.user.email` llega poblado para un lector real — se verificó
+  leyendo `node_modules/@auth/core/lib/actions/signin/send-token.js` (el
+  `Promise.all([sendRequest, createToken])` confirma que la fila de
+  `verification_token` se crea igual aunque el envío por Resend falle,
+  porque ambas promesas se disparan en paralelo) y
+  `.../actions/callback/index.js` (confirma que el callback verifica
+  hasheando `token+secret` con SHA-256 vía Web Crypto). Con eso, se generó
+  un token de prueba, se calculó su hash exacto con el mismo algoritmo, se
+  insertó directo en Postgres, y se pegó la URL de callback real
+  (`/api/auth/callback/resend?...`) — sesión real creada,
+  `/api/auth/session` confirma `{email, id, role:"reader"}` completo. Esto
+  cierra (parcialmente, ver "pendiente" abajo) un gap de verificación que
+  venía arrastrando el proyecto desde la Fase 3, sin depender de una
+  `RESEND_API_KEY` real.
+- `lib/data/reader-account.ts` (email, fecha de alta, total de lecturas,
+  lecturas del mes, últimas 10 con título vía join a `articles`),
+  `lib/actions/reader-account.ts` (`deleteMyAccount`: borra la fila de
+  `users`, lo que en cascada borra `accounts`/`article_reads` por FK
+  `onDelete:'cascade'` ya existentes en el schema; `verification_token` no
+  tiene FK a `users` — Auth.js la indexa por email, no por id — así que se
+  borra aparte), `app/api/account/export/route.ts` (JSON descargable, Route
+  Handler en vez de Server Action porque hace falta un header
+  `Content-Disposition` real), `app/(public)/cuenta/page.tsx`,
+  `components/account/{AccountSignInPrompt,DeleteAccountButton}.tsx`.
+  Enlazado desde el email del lector en el header (`HeaderNav.tsx`, antes
+  texto plano, ahora un link a `/cuenta`).
+- **Bug real encontrado y corregido antes de que llegara a producción, no
+  solo en la verificación**: el primer borrador de `DeleteAccountButton`
+  invocaba `deleteMyAccount()` a mano dentro de un `try/catch` (patrón
+  `useTransition`). `deleteMyAccount` termina en
+  `signOut({redirectTo:'/'})`, que funciona lanzando la señal especial
+  `NEXT_REDIRECT` de Next.js — un `catch` genérico alrededor de una llamada
+  directa la hubiera atrapado como si fuera un error real, mostrando "No se
+  pudo eliminar la cuenta" en el caso exitoso. Corregido usando el mismo
+  patrón que ya usa el logout de admin (`app/admin/(protected)/layout.tsx`):
+  un `<form action={deleteMyAccount}>` real en vez de una llamada manual,
+  que deja que Next maneje la redirección internamente sin pasar por
+  ningún `catch` de este componente.
+- **Verificación real de punta a punta contra Postgres y un servidor
+  real**, no solo lectura de código: vista sin sesión de `/cuenta` (curl)
+  muestra el formulario de acceso; con la sesión de prueba de arriba, dos
+  lecturas reales (`curl` a `/articulo?id=...`) confirmadas en
+  `article_reads`, y la página `/cuenta` las muestra con el conteo correcto
+  (2 este mes, 2 en total) y los títulos reales enlazados; `/api/account/export`
+  devuelve el JSON completo y correcto; **flujo de borrado con Playwright
+  real**: clic en "Eliminar mi cuenta y mis datos" dispara el diálogo
+  `window.confirm` real (texto verificado), aceptarlo ejecuta la Server
+  Action real → `psql` confirma después: 0 filas en `"user"` para ese
+  email, 0 en `article_reads` para ese `reader_id` (cascada), 0 en
+  `verification_token` para ese email (borrado explícito) — los tres
+  efectos del borrado confirmados contra la base, no asumidos por el
+  código. `tsc --noEmit` y `next build` limpios (`/cuenta` y
+  `/api/account/export` aparecen en la tabla de rutas); `npm run lint` sin
+  errores nuevos. Todas las filas de prueba (`user`, `article_reads`,
+  `verification_token`) borradas después, `articles`/`editors` sin tocar.
+- **Gap real, no de código**: aunque esta sesión probó que el mecanismo de
+  sesión de lector funciona de punta a punta con un token fabricado a
+  mano, **enviar y recibir un magic link real desde una bandeja de entrada
+  real sigue sin verificar** — sigue pendiente de una `RESEND_API_KEY` real
+  en producción, mismo criterio que el resto de gaps de credenciales
+  externas ya documentados en este archivo.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y

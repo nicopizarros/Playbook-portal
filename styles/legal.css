@@ -44,14 +44,10 @@
   color:var(--gray-txt);
   margin-bottom:32px;
 }
-.legal-draft-notice{
-  background:var(--paper-soft);
-  border:1px solid var(--rule);
-  border-left:3px solid var(--green);
-  border-radius:8px;
-  padding:14px 18px;
-  font-size:13.5px;
-  line-height:1.6;
-  color:var(--gray-txt);
-  margin-bottom:32px;
+.account-actions{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-top:8px;
 }
