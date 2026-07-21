@@ -6,10 +6,14 @@ historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
 2026-07-21.
 
-**PR abierto**: [#22](https://github.com/nicopizarros/Playbook-portal/pull/22)
-(`claude/playbook-nextjs-migration-9zn6nh` → `main`) — sigue todas las fases
-2-4 en un solo PR de trabajo en progreso (no mergear todavía, Fase 4 no está
-terminada). Seguir trabajando en esa misma rama, no crear una nueva.
+**PR abierto**: [#29](https://github.com/nicopizarros/Playbook-portal/pull/29)
+(`claude/codebase-audit-roadmap-ayos6n` → `main`) — fixes post-auditoría
+(freeze de navegación, login directo, ranking, lint) encima de lo que ya
+mergeó [#28](https://github.com/nicopizarros/Playbook-portal/pull/28) (fix
+de metering, ESLint/CI/headers/rate limiting, GA4 de cliente, aviso de
+cookies, páginas legales, `/cuenta`). El PR #22 original de la migración
+(rama `claude/playbook-nextjs-migration-9zn6nh`) quedó superado por este
+flujo — no seguir trabajando ahí.
 
 ## Qué es esto
 
