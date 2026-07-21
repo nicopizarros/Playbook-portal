@@ -1027,6 +1027,61 @@ real, mismo estándar que Fases 1-3):
   de Vercel desde acá — pendiente de que el usuario redespliegue y
   confirme si el error desaparece.
 
+### 2026-07-21 — Fix de despliegue: `middleware` crasheaba en producción (`MIDDLEWARE_INVOCATION_FAILED`)
+
+- **El fix anterior (import relativo) funcionó**: el usuario confirmó que
+  el error de build "Edge Function referencing unsupported modules" ya no
+  aparece. Pero el mismo deploy dio un error nuevo, de runtime, no de
+  build: `500 INTERNAL_SERVER_ERROR, Code: MIDDLEWARE_INVOCATION_FAILED`.
+- **Causa raíz confirmada leyendo el código, no adivinada**: `getKey()` en
+  `lib/anon-cookie.ts` hace `if (!secret) throw new Error('AUTH_SECRET is
+  not set')`. `middleware.ts` no tenía ningún `try`/`catch` — para
+  cualquier visitante sin una cookie `pb_anon` válida (es decir, **todo
+  visitante nuevo**, incluida la primerísima request a `/` justo después
+  de un deploy), `signAnonId(id)` corre, llama a `getKey()`, y el error
+  sale sin capturar de la función `middleware()` exportada. El matcher
+  (`/((?!_next/static|_next/image|favicon.ico|assets/).*)`) no excluye
+  `/` — confirmado que sí corre ahí. Muy probablemente `AUTH_SECRET` no
+  está configurada todavía en las variables de entorno del proyecto de
+  Vercel (a diferencia de `VERCEL_ANALYTICS_TOKEN`/`GA4_*`/
+  `BLOB_READ_WRITE_TOKEN`, nunca se dejó una nota explícita marcando
+  `AUTH_SECRET` como prerrequisito de despliegue).
+- **Esto también es un gap real de código, no solo de configuración**: el
+  repo ya tiene un patrón establecido de "degradar en vez de tirar todo
+  abajo" ante una env var faltante (`lib/db/client.ts` difiere su chequeo
+  de `POSTGRES_URL` fuera del build; `lib/vercel-analytics.ts` solo lanza
+  hacia un caller aislado que degrada un panel nada más). `middleware.ts`
+  corre sin condición en cada request de todo el sitio, sin ningún caller
+  en posición de degradar con gracia — una sola env var mal configurada
+  ahí tira abajo el sitio entero, a diferencia de cualquier otro
+  precedente de este repo. El propio comentario de `lib/anon-cookie.ts`
+  ya documenta la filosofía correcta para esta identidad exacta ("fallar
+  abierto... está bien, es una identidad de cupo, no un límite de
+  seguridad") — a `middleware.ts` solo le faltaba aplicarla en su propio
+  nivel.
+- **Corregido**: `middleware()` ahora envuelve todo su cuerpo en
+  `try`/`catch`; ante cualquier error (falta `AUTH_SECRET` o cualquier otra
+  cosa inesperada), registra con `console.error` server-side y devuelve
+  `NextResponse.next()` sin cookie, en vez de propagar la excepción. No se
+  tocó `lib/anon-cookie.ts` — el `throw` ahí sigue siendo la señal
+  correcta para un caller que pueda manejarlo; a `middleware.ts` le
+  faltaba ser ese caller.
+- **Verificación real, reproduciendo el escenario exacto de producción**:
+  se quitó `AUTH_SECRET` de `.env.local` (simulando la config real de
+  Vercel), se corrió `next dev` + `curl` sobre `/` → **200, sin crash**,
+  sin cookie `pb_anon` seteada, y el log del servidor muestra el error
+  atrapado y registrado (no propagado) — reproduce y confirma el fix del
+  síntoma exacto reportado. Restaurado `.env.local` con `AUTH_SECRET`
+  presente y re-verificado que la cookie se sigue firmando normalmente —
+  sin regresión. `tsc --noEmit` y `next build` limpios, con y sin
+  `.env.local`.
+- **Acción pendiente del usuario, no de código**: este fix evita la caída
+  del sitio, pero la funcionalidad de cookie anónima/metering seguirá sin
+  hacer nada (sin cookie, `lib/metering.ts` trata a cada lector como
+  siempre-nuevo, sin cupo real registrado) hasta que se agregue
+  `AUTH_SECRET` de verdad en Project Settings → Environment Variables del
+  proyecto de Vercel.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
