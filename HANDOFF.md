@@ -1171,6 +1171,62 @@ real, mismo estándar que Fases 1-3):
   cuanto se tenga el resultado del deploy de diagnóstico. No dejar este
   no-op como estado final — la funcionalidad de metering depende de él.
 
+### 2026-07-21 — Diagnóstico confirmado: el no-op también falló. Se elimina `middleware.ts` para restaurar el sitio
+
+- **El usuario desplegó el no-op del diagnóstico anterior y el mismo
+  error `[ReferenceError: __dirname is not defined]` /
+  `MIDDLEWARE_INVOCATION_FAILED` siguió ocurriendo**, con una función de
+  middleware que no hace absolutamente nada más que
+  `return NextResponse.next()`. Esto es la confirmación decisiva: la
+  causa no está en `lib/anon-cookie.ts`, ni en ningún código de este
+  repo — es el pipeline de empaquetado de Edge Functions de Vercel/
+  Next.js el que rompe para *cualquier* `middleware.ts` de este
+  proyecto, sin importar el contenido.
+- **Prioridad del usuario en este punto: restaurar el sitio ya**, no
+  seguir diagnosticando contra un sitio caído en cada request. La única
+  forma de eliminar el error sin depender de un fix de la plataforma es
+  eliminar `middleware.ts` por completo — Next solo genera la Edge
+  Function de middleware si ese archivo existe en la raíz del proyecto;
+  sin el archivo, no hay Edge Function que falle.
+- **Hecho**: `git rm middleware.ts`. `lib/anon-cookie.ts` y
+  `lib/metering.ts` se dejan intactos (no eliminados) — no tienen
+  ningún otro caller además del `middleware.ts` ya borrado (verificado
+  con grep), así que no quedan imports rotos, pero tampoco hacen nada
+  hasta que se reconecten desde algún lado.
+- **Verificado**: `next build` limpio; la línea `ƒ Middleware` que
+  aparecía en la salida del build (antes con 34 kB) **ya no aparece en
+  absoluto** — confirma que no se genera ninguna Edge Function de
+  middleware para este build, que es exactamente lo que se necesita
+  para que Vercel deje de invocar (y fallar) esa función en cada
+  request.
+- **Costo real de este fix, explícito**: la funcionalidad de cookie
+  anónima/cupo de lectura gratuita queda completamente inactiva — sin
+  `middleware.ts`, nunca se firma ni se envía la cookie `pb_anon`, así
+  que `lib/metering.ts` trata a todo lector como siempre-nuevo (mismo
+  comportamiento degradado que ya pasaba con `AUTH_SECRET` ausente, ver
+  entrada anterior de este mismo registro, pero ahora permanente en vez
+  de accidental). No hay redirect ni guard de rutas que dependiera de
+  este middleware (el guard de `/admin` vive en el layout protegido de
+  Fase 4, no acá) — confirmado leyendo el único archivo que existía,
+  no había otra lógica mezclada en `middleware.ts`.
+- **No resuelto, fuera del alcance de este repo**: la causa raíz real
+  (por qué el pipeline de Edge Middleware de este proyecto de Vercel
+  específicamente rompe con `__dirname is not defined` incluso para un
+  middleware vacío) sigue sin identificarse — es un problema de
+  plataforma que este sandbox no puede reproducir (requiere `vercel
+  build` autenticado contra el proyecto real, sin credenciales
+  disponibles acá). Recomendado abrir un ticket de soporte con Vercel
+  usando esta cadena de evidencia: build local limpio → import relativo
+  no lo arregló → try/catch no lo arregló → clear-cache redeploy no lo
+  arregló → middleware no-op tampoco lo arregló → solo desaparece al
+  eliminar el archivo por completo.
+- **Para reactivar metering en el futuro**: la cookie anónima necesita
+  moverse fuera de Edge Middleware — por ejemplo, firmarla/leerla desde
+  un Server Action o Route Handler que corra en runtime Node.js en vez
+  de Edge (evitando este pipeline específico de Vercel), o reintentar
+  `middleware.ts` una vez que Vercel confirme que el problema de
+  plataforma está resuelto.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
