@@ -153,14 +153,16 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ status: 'duplicate', url: article.url });
       }
       return NextResponse.json({ status: 'ok', article: inserted.title });
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Postgres unique_violation on the id primary key: derive a fresh id
       // and retry once, same fallback legacy used for a slug collision.
-      if (err?.code === '23505' && attempt === 0) {
+      // Same pattern as lib/actions/admin.ts's createArticle.
+      if ((err as { code?: string })?.code === '23505' && attempt === 0) {
         id = `${slug}-${Date.now().toString(36)}`;
         continue;
       }
-      return NextResponse.json({ error: err?.message || 'Insert failed' }, { status: 500 });
+      const message = err instanceof Error ? err.message : 'Insert failed';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
   }
 }

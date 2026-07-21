@@ -1296,6 +1296,49 @@ real, mismo estándar que Fases 1-3):
   nueva — pendiente, ver tarea de este mismo día sobre GA4 cliente +
   banner de cookies.
 
+### 2026-07-21 — Fix: ESLint configurado (no existía, `next lint` estaba roto)
+
+- **Estado real encontrado, no asumido**: `package.json` ya tenía
+  `"lint": "next lint"` desde el scaffold de Fase 1, pero no existía ningún
+  archivo de configuración de ESLint en el repo — corriéndolo tal cual
+  dispara el prompt interactivo de `next lint` para crear uno, así que
+  nunca pudo haber corrido limpio en una sesión no interactiva (CI, por
+  ejemplo, que ni siquiera existe todavía — ver próxima entrada).
+- Agregado `eslint.config.mjs` (flat config, `next/core-web-vitals` +
+  `next/typescript` vía `FlatCompat`), con `eslint`, `eslint-config-next`,
+  `@eslint/eslintrc` como devDependencies nuevas.
+- **Bug real encontrado instalando, no solo configurando**: `npm install
+  eslint-config-next` sin versión trajo `16.2.11` (la línea de Next 16) en
+  vez de matchear el `next@15.5.20` real del proyecto — la combinación rompía
+  `next lint` y `eslint .` por igual con `TypeError: Converting circular
+  structure to JSON` dentro de `@eslint/eslintrc`. Corregido fijando
+  `eslint-config-next@15.5.20` explícito, igual major.minor.patch que
+  `next` en `package.json`.
+- **Segundo hallazgo real corriendo el lint ya funcional**: sin `ignores`
+  explícito, ESLint lintaba `.next/**` completo (bundles compilados de
+  Next/Drizzle/next-auth) — 4041 problemas, el 99% ruido de código generado,
+  no del repo. Agregado `ignores: ['legacy/**', '.next/**', 'node_modules/**',
+  'next-env.d.ts', 'drizzle/**']`. Con eso, el estado real del repo: 22
+  problemas (0 errores, 22 warnings — mayormente `@next/next/no-img-element`
+  en `<img>` sin migrar a `next/image`, pre-existentes, fuera de alcance de
+  este fix). Quedaba 1 error real (`@typescript-eslint/no-explicit-any` en
+  `app/api/update-articles/route.ts`'s catch block) — corregido con el mismo
+  patrón `catch (err: unknown)` + cast puntual que ya usa
+  `lib/actions/admin.ts`'s `createArticle` para el mismo caso (colisión de
+  id `23505`), en vez de dejar el primer lint de CI arrancando en rojo.
+- `package.json`'s `"lint"` script cambiado de `"next lint"` a `"eslint ."`
+  — `next lint` está deprecado (aviso propio de Next.js 15.5, se elimina en
+  Next 16) y además demostró estar roto en este repo por el mismo bug de
+  versión de arriba; `eslint .` directo es lo que la propia documentación de
+  Next recomienda migrar.
+- **Verificado real, no solo "corre sin crashear"**: `npm run lint` → 0
+  errores; `npm run typecheck` → limpio; `next build` limpio con y sin
+  `POSTGRES_URL` (sin regresión de los fixes anteriores).
+- **Pendiente, no de este fix**: los 22 warnings pre-existentes (`<img>` sin
+  `next/image` en 10 componentes, algunos `eslint-disable` ya innecesarios,
+  variables sin usar) — no bloquean nada, quedan para una limpieza aparte
+  si se decide hacerla.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
