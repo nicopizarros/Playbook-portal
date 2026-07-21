@@ -22,21 +22,39 @@ import { ANON_COOKIE_NAME, signAnonId, verifyAnonCookie } from './lib/anon-cooki
 const TWO_YEARS_SECONDS = 60 * 60 * 24 * 365 * 2;
 
 export async function middleware(request: NextRequest) {
-  const existing = request.cookies.get(ANON_COOKIE_NAME)?.value;
-  const verifiedId = await verifyAnonCookie(existing);
-  if (verifiedId) return NextResponse.next();
+  // Fails open on any error (e.g. AUTH_SECRET missing in this environment —
+  // signAnonId/verifyAnonCookie both throw in that case) instead of letting
+  // it propagate: this function runs unconditionally on every request
+  // site-wide (see matcher below), with no caller positioned to degrade
+  // gracefully the way e.g. lib/vercel-analytics.ts's callers can isolate a
+  // failure to one admin panel — an uncaught throw here becomes a real
+  // MIDDLEWARE_INVOCATION_FAILED 500 on literally every page for every
+  // visitor, confirmed against a real Vercel deploy. Same "fail open, this
+  // is a quota-tracking identity, not an auth boundary" reasoning
+  // lib/anon-cookie.ts already documents for a tampered cookie, just
+  // applied one level up so a config problem degrades to "no anon cookie
+  // this request" (lib/metering.ts treats that reader as always-fresh)
+  // instead of taking the whole site down.
+  try {
+    const existing = request.cookies.get(ANON_COOKIE_NAME)?.value;
+    const verifiedId = await verifyAnonCookie(existing);
+    if (verifiedId) return NextResponse.next();
 
-  const response = NextResponse.next();
-  const id = crypto.randomUUID();
-  const signed = await signAnonId(id);
-  response.cookies.set(ANON_COOKIE_NAME, signed, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: TWO_YEARS_SECONDS,
-    path: '/',
-  });
-  return response;
+    const response = NextResponse.next();
+    const id = crypto.randomUUID();
+    const signed = await signAnonId(id);
+    response.cookies.set(ANON_COOKIE_NAME, signed, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: TWO_YEARS_SECONDS,
+      path: '/',
+    });
+    return response;
+  } catch (err) {
+    console.error('[middleware] anon-cookie signing failed, serving without a cookie:', err);
+    return NextResponse.next();
+  }
 }
 
 export const config = {
