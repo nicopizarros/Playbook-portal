@@ -1,17 +1,25 @@
-import { DashboardPlaceholder } from './DashboardPlaceholder';
+import { eq } from 'drizzle-orm';
+import { auth } from '@/auth';
+import { db } from '@/lib/db/client';
+import { siteContent } from '@/lib/db/schema';
+import { getAllArticlesForAdmin } from '@/lib/data/articles';
+import type { SiteContentData } from '@/lib/data/site-content';
+import { AdminDashboard } from '@/components/admin/AdminDashboard';
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const session = await auth();
+  const [contentRow] = await db.select().from(siteContent).where(eq(siteContent.id, 1)).limit(1);
+  if (!contentRow) {
+    throw new Error('site_content sin fila (id=1) — corre npm run migrate:json');
+  }
+  const articles = await getAllArticlesForAdmin();
+
   return (
-    <main className="admin-main">
-      <div style={{ padding: 28, maxWidth: 720 }}>
-        <p>CMS — en construcción (checkpoint 4 del Fase 4 de HANDOFF.md).</p>
-        <p style={{ fontSize: 12.5, color: 'var(--gray-txt)' }}>
-          El editor de abajo es solo para verificar manualmente el checkpoint 3
-          (TipTap + subida a Blob) — se reemplaza por las 12 pestañas reales en
-          el checkpoint 4.
-        </p>
-        <DashboardPlaceholder />
-      </div>
-    </main>
+    <AdminDashboard
+      initialContent={contentRow.data as SiteContentData}
+      initialContentVersion={contentRow.version}
+      initialArticles={articles}
+      editorUsername={session?.user?.name || ''}
+    />
   );
 }

@@ -19,6 +19,24 @@ async function requireEditor() {
   return session;
 }
 
+// Backs the conflict modal's "reload latest" button — a fresh read, not
+// lib/data/site-content.ts's getSiteContent() (React's cache() there only
+// dedupes within a single request; a distinct Server Action invocation is
+// already a fresh request, so this reads current data either way, but
+// calling the admin's own action keeps the version alongside the data).
+export async function reloadSiteContent(): Promise<{ data: SiteContentData; version: number }> {
+  await requireEditor();
+  const [row] = await db.select().from(siteContent).where(eq(siteContent.id, 1)).limit(1);
+  if (!row) throw new Error('site_content sin fila (id=1)');
+  return { data: row.data as SiteContentData, version: row.version };
+}
+
+export async function reloadArticle(id: string): Promise<Article | null> {
+  await requireEditor();
+  const [row] = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
+  return row ?? null;
+}
+
 function renderBodyHtml(bodyJson: Record<string, unknown> | null | undefined) {
   if (!bodyJson) return null;
   return generateHTML(bodyJson as JSONContent, TIPTAP_EXTENSIONS);

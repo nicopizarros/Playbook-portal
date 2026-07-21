@@ -19,6 +19,13 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
         </div>
         <div className="admin-topbar-actions">
           <AdminTopbarNav />
+          {/* AdminDashboard (rendered inside {children}, a sibling of this
+              header — not a descendant) portals its save-button/dirty-dot/
+              status text here, matching legacy/admin/dashboard.html's
+              topbar order (whoami, status, save button, logout). The
+              analytics page renders nothing into this slot, same as
+              legacy/admin/analytics.html's topbar having no save button. */}
+          <div id="admin-topbar-save-slot" style={{ display: 'contents' }} />
           <span className="admin-status">
             {session.user.name ? `Sesión: ${session.user.name}` : ''}
           </span>

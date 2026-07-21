@@ -178,9 +178,16 @@ export default async function ArticuloPage({ searchParams }: Props) {
   const [article, pool] = await Promise.all([getArticleById(meta.id), getAllArticles()]);
   if (!article) notFound();
 
+  // Fase 4's TipTap editor starts populating bodyJson/bodyHtml for
+  // newly-authored articles (see lib/actions/admin.ts's saveArticle/
+  // createArticle) — this is the first article in the migration with a
+  // real bodyHtml, so it takes priority over the teaser fallback below,
+  // which stays correct for every legacy/migrated article (bodyJson still
+  // null for all of them).
+  const hasNativeBody = !!article.bodyHtml;
   const bodySource = article.teaser || article.excerpt || '';
-  const bodyIsHtml = looksLikeHtml(bodySource);
-  const paragraphs = bodyIsHtml ? [] : paragraphsFrom(bodySource);
+  const bodyIsHtml = !hasNativeBody && looksLikeHtml(bodySource);
+  const paragraphs = hasNativeBody || bodyIsHtml ? [] : paragraphsFrom(bodySource);
   const related = relatedArticles(article, pool);
 
   return (
@@ -193,7 +200,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
         <article className="article-detail">
           {header}
           <div className="article-body">
-            {bodyIsHtml ? (
+            {hasNativeBody ? (
+              // eslint-disable-next-line react/no-danger
+              <div dangerouslySetInnerHTML={{ __html: article.bodyHtml as string }} />
+            ) : bodyIsHtml ? (
               // eslint-disable-next-line react/no-danger
               <div dangerouslySetInnerHTML={{ __html: bodySource }} />
             ) : paragraphs.length ? (

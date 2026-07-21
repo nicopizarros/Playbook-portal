@@ -498,6 +498,106 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   pestañas del CMS, y el panel de preview en vivo (`AdminDashboard.tsx`
   reemplazando `DashboardPlaceholder.tsx`) — checkpoint 4 de 5.
 
+### 2026-07-21 — Fase 4 (checkpoint 4 de 5): primitivas de campo, las 12 pestañas, preview en vivo
+
+- El checkpoint más grande de la fase. `components/admin/fields/`
+  (`TextField`/`NumberField`, `SelectField`, `CheckboxGroupField`,
+  `StarPickerField`, `ArrayEditor`, `FormValidationContext`) — puertos
+  controlados en React de las funciones equivalentes de
+  `legacy/admin/dashboard.js`, mismas clases de `admin.css`. La validación
+  de URLs usa un `React.Context` (`FormValidationProvider`, expuesto vía
+  `useImperativeHandle`) en vez de las `querySelectorAll` de legacy —
+  cada `TextField` de tipo url se registra a sí mismo, `AdminDashboard`
+  corre todas las validaciones antes de guardar y enfoca el primer campo
+  inválido, mismo comportamiento observable sin tocar el DOM directamente.
+  `components/admin/tabs/` — un componente por pestaña (Articles, Opinion,
+  Video, Infinitas, Products, Stats, Testimonials, About, MidCta, Nav,
+  Footer, Settings), mismos campos/help-text/advertencias que
+  `legacy/admin/dashboard.js`. `components/admin/AdminDashboard.tsx`
+  (estado central: `content`/`contentBaseline`/`contentVersion`,
+  `articleEntries`, orden de tabs persistido en `localStorage` por editor,
+  toasts, modal de conflicto) y `components/admin/LivePreview.tsx`
+  (reutiliza los componentes reales de sección de la Fase 2 —
+  `OpinionSection`, `ProductsSection`, `VideoSection`, `InfinitasSection`,
+  `StatsSection`, `TestimonialsSection`, `AboutSection`, `MidCta`,
+  `NewsGrid` — alimentados con el estado de edición local; un
+  `PreviewHeader`/`PreviewFooter` simplificado hace de stand-in del chrome
+  real, que son Server Components async). `app/admin/(protected)/dashboard/page.tsx`
+  ahora es un Server Component real que carga `site_content` + todos los
+  artículos (incluidos los archivados, vía la nueva
+  `getAllArticlesForAdmin()` en `lib/data/articles.ts`) y se los pasa a
+  `AdminDashboard`.
+- **Decisión de arquitectura no trivial**: `AdminDashboard` vive dentro de
+  `{children}` del layout protegido, un hermano del `<header>` con el
+  botón de guardar/estado/punto de cambios sin guardar de legacy — no un
+  descendiente. Resuelto con un React Portal
+  (`components/admin/TopbarSaveSlot.tsx`) hacia un `div` que el layout
+  renderiza para este propósito exacto (`#admin-topbar-save-slot`), en vez
+  de duplicar ese layout dentro de la página o mover el estado del
+  dashboard al layout (un Server Component, que no puede sostener estado
+  de cliente).
+- **Bug real encontrado y corregido durante la verificación, no solo
+  compilación limpia**: `app/(public)/articulo/page.tsx` siempre renderizaba
+  `article.teaser`, nunca `article.bodyHtml` — ese branching no se había
+  agregado en ninguna fase anterior porque hasta este checkpoint ningún
+  artículo tenía un `bodyJson`/`bodyHtml` real. Detectado creando un
+  artículo de prueba con cuerpo TipTap real, guardándolo, y visitando
+  `/articulo` en el sitio público: el texto nuevo no aparecía, solo el
+  `teaser` (vacío). Corregido priorizando `article.bodyHtml` cuando existe,
+  con el mismo fallback a `teaser`/`excerpt` de antes para los artículos
+  migrados (que siguen con `bodyJson = null` para siempre).
+- **Verificación real contra Postgres y un servidor real** (`next dev` +
+  Playwright, varios scripts desechables, mismo estándar que los
+  checkpoints anteriores):
+  - Las 12 pestañas cargan sin errores de consola.
+  - Editar y guardar `site_content` (pestaña Navegación): la vista previa
+    marca la sección como `is-changed` en vivo, el punto de "sin guardar"
+    aparece, el guardado incrementa `version` (confirmado por `psql`) e
+    inserta una fila en `content_revisions`.
+  - **Escenario de conflicto real con dos sesiones de Playwright**: sesión
+    1 carga la pestaña, sesión 2 carga la misma pestaña con la misma
+    versión base, sesión 1 guarda con éxito; sesión 2 intenta guardar con
+    su versión ahora vieja → modal de conflicto real (no simulado),
+    "Entendido, recargar" trae el valor que sesión 1 guardó, no el de
+    sesión 2.
+  - **Validación de URL bloquea de verdad el guardado**, no solo muestra
+    el error: se puso un valor inválido en `ctaUrl`, se hizo clic en
+    Guardar, el estado quedó en "Hay campos con errores" y `psql` confirmó
+    que la base de datos nunca recibió ese valor.
+  - **Artículo nuevo con cuerpo TipTap real**: creado desde la pestaña
+    Artículos (id auto-generado desde el título, mismo `slugify()` que
+    legacy), escrito texto plano + negrita en el editor, guardado,
+    confirmado por `psql` que `body_html` (`<p>Cuerpo de prueba con
+    <strong>texto en negrita</strong></p>`) coincide exactamente con
+    `body_json` — y que se renderiza en `/articulo` público (ver el bug de
+    arriba). Nota de la propia verificación: un primer intento con el
+    editor pareció perder el primer fragmento de texto; investigado antes
+    de asumir un bug de producto — era el test haciendo clic en el `div`
+    con padding en vez del elemento `.ProseMirror` real, confirmado
+    reproduciendo ambos casos lado a lado; el editor en sí funciona
+    correctamente.
+  - **Archivar un artículo**: desaparece de la lista del panel de inmediato
+    (vía `archiveArticle`), `psql` confirma `status: 'draft'` con la fila
+    intacta, y `sitemap.xml` (que usa `getAllArticles()`, el mismo query
+    que la portada/archivo/tag pages) ya no lo incluye — confirmado que
+    esto es el comportamiento correcto, no que la página individual
+    `/articulo?id=...` deba dar 404 (`getArticleById`/`getArticleMetaById`
+    no filtran por `status` a propósito: un enlace directo a un artículo
+    archivado sigue resolviendo, solo desaparece de los listados).
+  - Todas las filas/artículos de prueba borrados después; `nav.ctaLabel`
+    restaurado a su valor original de `content.json`.
+  - `tsc --noEmit` y `next build` limpios, con y sin `.env.local`.
+- **Gap reconocido explícitamente, no escondido**: el panel de preview en
+  vivo no incluye el header/footer reales (son Server Components async);
+  el stand-in cubre nav.links + CTA + footer básico, suficiente para ver
+  cambios de contenido pero no idéntico pixel a pixel al sitio real —
+  documentado en un comentario en `LivePreview.tsx`, mismo criterio que
+  el propio plan de Fase 4 ya anticipaba para el header.
+- **Pendiente para el siguiente checkpoint**: panel de analítica
+  (`lib/ga4.ts`, `lib/vercel-analytics.ts`,
+  `app/admin/(protected)/analytics/page.tsx`) — checkpoint 5 de 5, el
+  último de la Fase 4.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:

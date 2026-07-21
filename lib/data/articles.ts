@@ -126,5 +126,14 @@ export async function getArchiveArticles(filters: ArchiveFilters): Promise<Artic
   });
 }
 
+// Admin-only: includes drafts (archived articles), unlike getAllArticles()
+// above which the public site uses and which filters to status='published'.
+// Not cache()-wrapped — the admin dashboard is the only caller, once per
+// page load, so there's nothing to dedupe.
+export async function getAllArticlesForAdmin(): Promise<Article[]> {
+  const rows = await db.select().from(articles);
+  return rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
+
 export { rankArticles, selectHero };
 export { LEAD_COUNT };
