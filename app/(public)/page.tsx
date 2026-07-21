@@ -1,6 +1,7 @@
 import { getAllArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
+import { MostReadSection } from '@/components/home/MostReadSection';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
 import { OpinionSection } from '@/components/sections/OpinionSection';
 import { ProductsSection } from '@/components/sections/ProductsSection';
@@ -36,6 +37,8 @@ export default async function HomePage() {
           />
         </div>
       </main>
+
+      <MostReadSection />
 
       <OpinionSection data={content.opinionSection} />
       <ProductsSection data={content.productsSection} />

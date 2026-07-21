@@ -667,6 +667,71 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   criterio que el gap de magic link de la Fase 3 y el de subida a Blob del
   checkpoint 3). Ver "Próximos pasos" abajo para Fase 5/Fase 6.
 
+### 2026-07-21 — Fase 5 (checkpoint 1 de 4): módulo "Más leídas" con GA4
+
+- Antes de planear Fase 5 ("Pulido": paridad de modo oscuro,
+  transiciones/estados de hover y carga, accesibilidad, Lighthouse), se
+  auditó el estado real de cada área contra legacy archivo por archivo, en
+  vez de asumir que "Pulido" significa trabajo pendiente en las cuatro.
+  Resultado: modo oscuro (6 de 8 `styles/*.css` son byte-idénticos a
+  legacy, confirmado con `diff`), las transiciones de `legacy/js/ui.js`
+  (scroll-reveal, newsletter, contador de stats) y accesibilidad (cada
+  `role`/skip-link/alt-text/atajo de teclado de legacy tiene su
+  equivalente exacto) ya están en paridad 1:1 — verificado, no asumido.
+  Fase 5 quedó acotada a lo que de verdad falta: el módulo "Más leídas"
+  (este checkpoint), Vercel Web Analytics + evento `pageview_article`
+  (siguiente), un gap real de estado de carga en la subida de imágenes de
+  TipTap, y una limpieza menor de Lighthouse/documentación.
+- `lib/ga4.ts` — puerto casi literal de `legacy/lib/ga4.js` (mismo JWT de
+  cuenta de servicio firmado a mano con `crypto`, mismas env vars
+  `GA4_PROPERTY_ID`/`GA4_SERVICE_ACCOUNT_EMAIL`/
+  `GA4_SERVICE_ACCOUNT_PRIVATE_KEY`). **Ajuste real, no cosmético**: legacy
+  filtraba `pagePath CONTAINS '/articulo.html'` (su propio esquema de URL);
+  este sitio sirve `/articulo` sin extensión (los redirects de
+  `next.config.ts` van *hacia* esa ruta, no al revés), así que el filtro
+  se cambió a `/articulo` — de lo contrario, ningún pageview post-corte
+  matchearía nunca el filtro y el módulo se vería "vacío" para siempre
+  aunque GA4 estuviera perfectamente configurado.
+- `lib/most-read.ts` resuelve los ids de GA4 contra `getAllArticles()`
+  (lectura directa a la base, ya cacheada por request vía `cache()` de
+  React y ya usada por la portada) en vez del auto-`fetch(articles.json)`
+  que legacy usaba solo por no tener acceso a base de datos — misma
+  simplificación que ya se hizo para el panel de analítica del admin en
+  la Fase 4.
+- `components/home/MostReadSection.tsx` — Server Component nuevo, sin
+  pestaña de CMS: confirmado que legacy nunca tuvo un campo editable para
+  esta sección (ni siquiera el título "Más leídas" viene de content.json),
+  así que no hacía falta tocar `lib/db/schema.ts` ni `SiteContentData`.
+  No renderiza nada (ni la sección) cuando `getMostReadArticles()` devuelve
+  `null` o `[]` — mismo comportamiento que el `section.hidden` de legacy,
+  resuelto en el servidor en vez de con JS de cliente. Reutiliza `NewsRow`
+  tal cual, mismo patrón que el propio `rowTemplate` de legacy. Insertado en
+  `app/(public)/page.tsx` en la misma posición que `legacy/index.html`
+  (después de la grilla de noticias/newsletter, antes de Opinión).
+- Agregadas las tres env vars de GA4 a `.env.local.example`, con comentario
+  explicando la diferencia con un futuro Measurement ID de cliente (que
+  este sitio todavía no tiene).
+- **Verificación real contra un servidor real**: sin `GA4_PROPERTY_ID`/etc.
+  configuradas en este sandbox (a propósito — credencial externa real no
+  disponible acá, mismo criterio que Blob/Resend/Vercel Analytics), se
+  confirmó con `curl` + `grep` sobre el HTML real de `/` que `#mas-leidas`
+  está genuinamente ausente (no solo oculto por CSS) y que el resto de la
+  portada renderiza sin cambios (los 6 `&lt;h2&gt;` de las demás secciones
+  presentes, sin errores nuevos en el log de `next dev`). Nota operativa:
+  Postgres no estaba corriendo al iniciar esta sesión (contenedor
+  reciclado) — se detectó por un 500 real en `/` con `ECONNREFUSED`, se
+  arrancó con `pg_ctlcluster 16 main start`, y se confirmó que los datos de
+  sesiones anteriores (30 artículos, 3 editores) seguían intactos antes de
+  continuar. `tsc --noEmit` y `next build` limpios, con y sin `.env.local`.
+- **Gap reconocido explícitamente**: renderizado real con datos de GA4 no
+  es verificable en este sandbox sin credenciales reales — pendiente de
+  verificación manual una vez desplegado, mismo criterio que los demás
+  gaps de credenciales externas ya documentados (Resend, Blob, Vercel
+  Analytics).
+- **Pendiente para el siguiente checkpoint**: Vercel Web Analytics +
+  instrumentar el evento `pageview_article` que el panel de analítica del
+  admin (Fase 4) ya espera — checkpoint 2 de 4.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
