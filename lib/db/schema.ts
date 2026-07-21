@@ -11,6 +11,7 @@ import {
   index,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import type { AdapterAccountType } from 'next-auth/adapters';
 
 // ---------------------------------------------------------------- Editors
@@ -59,6 +60,15 @@ export const articles = pgTable(
     mostrarAutor: boolean('mostrar_autor').notNull().default(false),
     readingTime: smallint('reading_time').notNull().default(1),
     substackUrl: text('substack_url').notNull().default(''),
+    // The Make.com webhook payload's per-item `url` (its dedup key) —
+    // distinct from substackUrl above. For "Industry Shots"-style digest
+    // posts, Make emits several articles that share one substackUrl (the
+    // parent post, used for the "Ver en Substack" link) but each has its
+    // own unique per-item url; deduping on substackUrl would wrongly
+    // reject those. Null for every legacy/migrated article, since
+    // articles.json never persisted this field — only future webhook
+    // inserts populate it.
+    sourceUrl: text('source_url'),
     imageUrl: text('image_url').notNull().default(''),
     status: text('status', { enum: ['published', 'draft'] }).notNull().default('published'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -69,6 +79,14 @@ export const articles = pgTable(
     dateIdx: index('articles_date_idx').on(table.date),
     sourceIdx: index('articles_source_idx').on(table.source),
     authorIdx: index('articles_author_idx').on(table.author),
+    // Lets the Make.com webhook (app/api/update-articles/route.ts) dedupe
+    // with a single atomic `onConflictDoNothing` insert instead of
+    // legacy's read-check-write retry loop, which existed only because
+    // GitHub's Contents API needed manual optimistic concurrency — a real
+    // database doesn't need that dance. On sourceUrl (nullable), not
+    // substackUrl: Postgres unique indexes already treat every NULL as
+    // distinct, so legacy rows (sourceUrl always null) never collide.
+    sourceUrlUnique: uniqueIndex('articles_source_url_unique').on(table.sourceUrl),
   }),
 );
 
@@ -165,9 +183,12 @@ export const articleReads = pgTable(
   },
   table => ({
     // A reader row always has exactly one of readerId/anonId set (enforced
-    // in application code, see lib/metering.ts) — two partial unique
-    // indexes cover "don't double count the same article twice in a month"
-    // for whichever identity is present.
+    // in application code, see lib/metering.ts) — two composite unique
+    // indexes (not partial: neither has a WHERE clause) cover "don't double
+    // count the same article twice in a month" for whichever identity is
+    // present. This works because Postgres treats NULL as distinct from
+    // any other value in a unique index, so the all-NULL columns on a row
+    // for the "other" identity never collide with anything.
     uniqueReaderRead: uniqueIndex('article_reads_reader_unique')
       .on(table.readerId, table.articleId, table.monthKey),
     uniqueAnonRead: uniqueIndex('article_reads_anon_unique')

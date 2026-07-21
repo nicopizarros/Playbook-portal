@@ -1,0 +1,135 @@
+/* ——— Header ——— */
+/* border-top en --green bookend-ea el masthead con el mismo tratamiento que
+   ya tienen .ticker y footer (más abajo en este archivo / css/sections.css)
+   — antes solo el pie de página llevaba el acento, dejando la cabecera sin
+   la contraparte. */
+header.topbar{position:sticky;top:0;z-index:50;background:var(--paper);border-top:2px solid var(--green);border-bottom:1px solid var(--rule);}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;gap:24px;height:76px;transition:height var(--duration-base) var(--ease-out);}
+header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.08);}
+/* Una sombra negra al 8% casi no se nota sobre un header ya oscuro —
+   más opacidad para que siga leyéndose como "elevado". */
+[data-theme="dark"] header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.5);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.5);}
+}
+header.topbar.is-scrolled .nav{height:62px;}
+header.topbar.is-scrolled .brand img{height:48px;}
+.brand{display:block;flex-shrink:0;}
+.brand img{height:64px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);}
+/* Dos <img> en vez de un filtro: playbook-logo.webp trae el bracket de marca
+   ya en --green horneado en el raster, y brightness(0) invert(1) aplanaba
+   TODO (bracket incluido) a blanco parejo, perdiendo el acento en modo
+   oscuro. playbook-logo-dark.png es una variante generada a partir del
+   original (mismo bracket verde intacto, wordmark negro vuelto blanco), así
+   que el acento sobrevive al cambio de tema en vez de lavarse. Misma
+   cascada de tres capas y mismo patrón show/hide que .theme-toggle-icon
+   (sun/moon) más abajo. */
+.brand img.logo-dark{display:none;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .brand img.logo-light{display:none;}
+  :root:not([data-theme="light"]) .brand img.logo-dark{display:block;}
+}
+[data-theme="dark"] .brand img.logo-light{display:none;}
+[data-theme="dark"] .brand img.logo-dark{display:block;}
+.nav-links{display:flex;align-items:center;gap:26px;font-size:13.5px;font-weight:500;}
+/* Wrapper que content.js re-renderiza (ver js/content.js) — display:contents
+   lo saca del árbol de layout para que sus hijos sigan siendo flex items
+   directos de .nav-links, como si el div no existiera. */
+#nav-links-dynamic{display:contents;}
+.nav-links a{padding:4px 0;border-bottom:2px solid transparent;color:var(--ink);transition:border-color var(--duration-fast) ease;}
+.nav-links a:hover,.nav-links a:focus-visible{border-color:var(--ink);}
+.nav-links a.is-active-section{border-color:var(--green);}
+.nav-link-infinitas{margin-left:14px;font-weight:700;}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+/* Signed-in reader indicator (Fase 3) — genuinamente nuevo, sin equivalente
+   legado. Texto discreto + botón de salir en el mismo lenguaje tipográfico
+   que .tag-mini/.byline, oculto en mobile (el correo completo no entra en
+   la barra angosta; el drawer no lo necesita porque cerrar sesión no es un
+   flujo frecuente). */
+.reader-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gray-txt);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;}
+.reader-status button{border:none;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);cursor:pointer;flex-shrink:0;}
+.reader-status button:hover,.reader-status button:focus-visible{color:var(--green);}
+@media(max-width:920px){
+  .reader-status{display:none;}
+}
+.nav-search{display:flex;align-items:center;gap:6px;background:var(--rule);border-radius:999px;padding:8px 14px;min-height:44px;flex-shrink:0;position:relative;border:1px solid transparent;transition:border-color var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out),width var(--duration-base) var(--ease-out);}
+.nav-search svg{opacity:.55;flex-shrink:0;}
+.nav-search input{border:none;background:transparent;font-family:var(--sans);font-size:13px;outline:none;width:188px;color:var(--ink);transition:width var(--duration-base) var(--ease-out);}
+.nav-search:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(154,234,57,.18);background:var(--paper);}
+.nav-search:focus-within input{width:218px;}
+
+/* Search results dropdown */
+.search-results{position:absolute;top:calc(100% + 8px);right:0;width:min(360px,86vw);max-height:70vh;overflow-y:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:80;display:none;}
+.search-results.is-open{display:block;}
+.search-results .sr-item{display:block;padding:12px 16px;border-bottom:1px solid var(--rule);}
+.search-results .sr-item:last-child{border-bottom:none;}
+.search-results .sr-item:hover,.search-results .sr-item:focus-visible{background:var(--paper-soft);}
+.search-results .sr-item h4{margin:0 0 4px;font-size:13.5px;font-weight:600;font-family:var(--sans);}
+.search-results .sr-item .tag-mini{margin-bottom:2px;}
+.search-results .sr-empty{padding:16px;font-size:13px;color:var(--gray-txt);}
+
+/* ——— Theme toggle ———
+   .theme-toggle-icon aloja los dos SVG uno encima del otro (position:relative
+   + hijos absolutos) para poder cross-fadearlos sin mover el layout. Misma
+   cascada de tres capas que css/tokens.css: automático vía prefers-color-
+   scheme (con el guard :not([data-theme="light"]) para que el toggle manual
+   a claro le gane a un sistema en oscuro), y [data-theme="dark"] manual
+   gana sobre las dos anteriores. */
+.theme-toggle{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  width:44px;height:44px;min-width:44px;flex-shrink:0;
+  background:transparent;border:1px solid var(--rule);border-radius:10px;
+  cursor:pointer;color:var(--ink);
+  transition:border-color var(--duration-fast) ease;
+}
+.theme-toggle:hover{border-color:var(--ink);}
+.theme-toggle-icon{position:relative;display:block;width:17px;height:17px;}
+.theme-toggle-icon svg{
+  position:absolute;top:0;left:0;
+  transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.theme-toggle-icon .icon-sun{opacity:1;transform:rotate(0deg) scale(1);}
+.theme-toggle-icon .icon-moon{opacity:0;transform:rotate(-40deg) scale(.5);}
+.theme-toggle-label{display:none;}
+
+@media(prefers-reduced-motion:reduce){
+  .theme-toggle-icon svg{transition:none;}
+}
+
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .theme-toggle-icon .icon-sun{opacity:0;transform:rotate(40deg) scale(.5);}
+  :root:not([data-theme="light"]) .theme-toggle-icon .icon-moon{opacity:1;transform:rotate(0deg) scale(1);}
+}
+[data-theme="dark"] .theme-toggle-icon .icon-sun{opacity:0;transform:rotate(40deg) scale(.5);}
+[data-theme="dark"] .theme-toggle-icon .icon-moon{opacity:1;transform:rotate(0deg) scale(1);}
+
+/* Mobile nav toggle + drawer */
+.nav-toggle{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:44px;height:44px;min-width:44px;background:transparent;border:1px solid var(--rule);border-radius:10px;cursor:pointer;flex-shrink:0;}
+.nav-toggle span{display:block;width:20px;height:2px;background:var(--ink);border-radius:2px;transition:transform var(--duration-base) var(--ease-out),opacity var(--duration-base) var(--ease-out);}
+.nav-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-toggle[aria-expanded="true"] span:nth-child(2){opacity:0;}
+.nav-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+/* z-index:40, no 55: .nav-overlay es hijo directo de <body>, pero .nav-links
+   (el drawer) vive adentro de header.topbar, que es position:sticky con su
+   propio z-index:50 — o sea que "compite" globalmente como 50, no como el
+   z-index:60 que .nav-links declara puertas adentro. Un overlay en 55 quedaba
+   por ENCIMA de todo el header (drawer incluido) y se comía los clics de
+   cualquier link del menú móvil, incluido el toggle de tema. Bug preexistente,
+   encontrado al verificar el toggle nuevo — 40 lo deja claramente por debajo. */
+.nav-overlay{position:fixed;inset:0;background:rgba(10,10,10,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity var(--duration-slow) var(--ease-out);}
+.nav-overlay.is-open{opacity:1;pointer-events:auto;}
+
+/* ——— Ticker ——— Fondo fijo (--ink-fixed): la barra siempre es oscura,
+   sin importar el tema. */
+.ticker{display:flex;align-items:stretch;background:var(--ink-fixed);color:#fff;border-top:2px solid var(--green);height:40px;overflow:hidden;}
+.ticker-label{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:0 16px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;background:var(--ink-fixed);border-right:1px solid rgba(255,255,255,.18);}
+.ticker-label .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.ticker-track{flex:1;overflow:hidden;position:relative;}
+.ticker-content{display:flex;align-items:center;white-space:nowrap;position:absolute;top:50%;animation:scrollTicker 46s linear infinite;transition:animation-play-state .3s;}
+.ticker-content:hover,.ticker-content:focus-within{animation-play-state:paused;}
+.ticker-item{font-size:12px;padding:0 28px;color:rgba(255,255,255,.82);font-weight:400;}
+.ticker-item:not(:last-child){border-right:1px solid rgba(255,255,255,.18);}
+@keyframes scrollTicker{0%{transform:translate(0,-50%);}100%{transform:translate(-50%,-50%);}}
+@media(prefers-reduced-motion:reduce){
+  .ticker-content{animation:none;position:static;transform:none;overflow-x:auto;}
+}

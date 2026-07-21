@@ -1,0 +1,8 @@
+.container{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+
+/* Scroll-reveal (see js/ui.js) */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity var(--duration-slow) var(--ease-out),transform var(--duration-slow) var(--ease-out);}
+.reveal.is-visible{opacity:1;transform:translateY(0);}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none;}
+}

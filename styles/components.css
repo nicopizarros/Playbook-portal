@@ -1,0 +1,92 @@
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);display:inline-flex;align-items:center;gap:7px;}
+.eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:40px 0 20px;border-bottom:2px solid var(--ink);margin-bottom:28px;flex-wrap:wrap;}
+.section-head h2{font-family:var(--serif-display);font-weight:400;font-size:25px;letter-spacing:.01em;margin:0;text-transform:uppercase;}
+.section-head .sub{font-size:13px;color:var(--gray-txt);margin-top:4px;font-weight:400;max-width:480px;}
+.section-link{font-size:12.5px;font-weight:500;border-bottom:1px solid var(--ink);padding-bottom:2px;white-space:nowrap;background:none;border-top:0;border-left:0;border-right:0;font-family:var(--sans);cursor:pointer;color:inherit;transition:color var(--duration-base) var(--ease-out);}
+.section-link:hover{color:var(--gray-dark);}
+
+/* .btn primario: ficha fija (--ink-fixed), siempre negra con texto blanco
+   — es parte de la identidad de marca del CTA, no se invierte con el tema. */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:44px;background:var(--ink-fixed);color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:999px;white-space:nowrap;transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);border:1px solid var(--ink-fixed);overflow:hidden;}
+.btn:hover{transform:translateY(-1px) scale(1.015);}
+.btn:active{transform:translateY(0) scale(0.98);}
+/* --green no cambia entre temas, así que el texto sobre verde tampoco:
+   --ink-fixed evita que se vuelva ilegible (claro sobre verde claro) en
+   modo oscuro. */
+.btn.accent{background:var(--green);color:var(--ink-fixed);border-color:var(--green);font-weight:700;}
+.btn.light{background:transparent;color:var(--ink);border:1px solid var(--ink);z-index:0;}
+.btn.light.on-dark{color:#fff;border-color:rgba(255,255,255,.66);}
+.btn.light::before{content:"";position:absolute;inset:0;background:var(--ink);z-index:-1;clip-path:inset(0 100% 0 0);transition:clip-path var(--duration-base) var(--ease-out);}
+.btn.light:hover::before{clip-path:inset(0 0 0 0);}
+/* El relleno del hover es var(--ink) (se invierte con el tema), así que el
+   texto del hover tiene que ser var(--paper) para seguirlo — no un blanco
+   fijo, que se volvería ilegible sobre un relleno ya claro en modo oscuro. */
+.btn.light:hover{color:var(--paper);}
+.btn.light.on-dark::before{background:#fff;}
+/* .on-dark se usa en superficies que ya son oscuras a propósito (footer,
+   sección de video) — con --ink-fixed en vez de --ink para que el texto
+   del hover no se vuelva claro-sobre-claro si el tema cambia. */
+.btn.light.on-dark:hover{color:var(--ink-fixed);}
+
+@keyframes ctaPulse{0%{transform:scale(1);}50%{transform:scale(1.04);}100%{transform:scale(1);}}
+.btn.pulse-once{animation:ctaPulse .5s var(--ease-out) 1;}
+
+.filter-btn{min-height:38px;padding:0 15px;border-radius:999px;border:1.5px solid var(--rule);background:var(--paper);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--gray-txt);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease,background var(--duration-fast) ease,transform var(--duration-base) var(--ease-out);font-family:var(--sans);}
+.filter-btn:hover{border-color:var(--ink);color:var(--ink);}
+/* Ficha fija (--ink-fixed): el estado activo siempre es negro con texto
+   blanco, mismo criterio que .btn primario. */
+.filter-btn.active{background:var(--ink-fixed);border-color:var(--ink-fixed);color:#fff;}
+@keyframes filterPop{0%{transform:scale(.95);}100%{transform:scale(1);}}
+.filter-btn.active{animation:filterPop var(--duration-base) var(--ease-out);}
+
+/* Badges de fuente/publicación — usan el mismo lenguaje de puntos de color que .eyebrow */
+.tag-mini{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:inline-flex;align-items:center;gap:6px;margin-bottom:5px;color:var(--gray-txt);}
+.tag-mini::before{content:"";width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--gray-txt);}
+.tag-mini.industry-shots{color:var(--src-industry);}
+.tag-mini.industry-shots::before{background:var(--src-industry);}
+.tag-mini.la-lana{color:var(--src-lana);}
+.tag-mini.la-lana::before{background:var(--src-lana);}
+.tag-mini.infinitas{color:var(--src-infinitas);}
+.tag-mini.infinitas::before{background:var(--src-infinitas);}
+.tag-mini.playbook{color:var(--src-playbook);}
+.tag-mini.playbook::before{background:var(--src-playbook);}
+
+/* Tag-taxonomy pill rows (Task 2) — reuses .tag-mini's dot+label look, no
+   source color (these pills are scope/sport/vertical, not source-coded).
+   Each pill is a real link to /tema.html now (js/templates.js
+   tagPillsRowTemplate) — position:relative lifts it above the stretched
+   .card-link::after overlay (css/hero.css) so it stays its own click
+   target instead of being shadowed by the card's own link. */
+.tag-pill-row{display:flex;flex-wrap:wrap;gap:8px 14px;}
+.tag-pill-row .tag-mini{margin-bottom:0;}
+.tag-pill-row a.tag-mini{position:relative;z-index:1;}
+
+.pill{display:inline-flex;align-items:center;min-height:38px;border:1px solid rgba(255,255,255,.3);padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:500;transition:background var(--duration-base) var(--ease-out);}
+.pill:hover,.pill:focus-visible{background:rgba(255,255,255,.08);}
+/* Mismo criterio que .btn.accent: --green no cambia con el tema, así que
+   el texto tampoco (--ink-fixed). */
+.inf-pill{background:var(--green);color:var(--ink-fixed);border-color:var(--green);font-weight:700;}
+
+/* Crossfade helper for filtered article grids */
+.fade-swap{transition:opacity var(--duration-base) var(--ease-in-out);}
+.fade-swap.is-fading{opacity:0;}
+
+/* Skeleton loading state */
+.skeleton-card{padding:16px 0;border-bottom:1px solid var(--rule);}
+.skel{background:linear-gradient(90deg,var(--rule) 25%,var(--paper-soft) 50%,var(--rule) 75%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:6px;}
+.skel-badge{width:90px;height:11px;margin-bottom:10px;}
+.skel-title{width:100%;height:16px;margin-bottom:8px;}
+.skel-title.skel--short{width:65%;}
+.skel-desc{width:90%;height:12px;margin:10px 0 6px;}
+.skel-desc.skel--short{width:55%;}
+.skel-meta{width:40%;height:11px;margin-top:8px;}
+/* Matches .lead-photo/.article-photo's own aspect-ratio (css/hero.css,
+   css/article.css) so the article-page skeleton reserves the same space
+   the real photo will take, instead of collapsing/expanding when it
+   swaps in — see articulo.html's #article-root skeleton. */
+.skel-photo{aspect-ratio:16/10;border-radius:6px;margin-bottom:16px;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+@media(prefers-reduced-motion:reduce){
+  .skel{animation:none;background:var(--paper-soft);}
+}

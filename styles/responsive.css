@@ -1,0 +1,73 @@
+@media(min-width:921px){
+  .nav-toggle{display:none;}
+  .nav-overlay{display:none;}
+  /* Below 920px #nav-cta hides and .nav-drawer-cta becomes the only subscribe
+     CTA; at desktop widths the reverse must hold, or both render side by side. */
+  .nav-drawer-cta{display:none;}
+  /* Mismo criterio que #nav-cta / .nav-drawer-cta arriba: dos instancias del
+     toggle (una en .nav-actions, otra en el drawer), solo una visible según
+     el ancho. */
+  .theme-toggle-drawer{display:none;}
+}
+
+@media(max-width:920px){
+  .nav-toggle{display:flex;}
+  .brand img{height:38px;}
+  header.topbar.is-scrolled .brand img{height:38px;}
+  #nav-cta{display:none;}
+  .nav-actions .theme-toggle{display:none;}
+  .nav-search{padding:8px 10px;}
+  .nav-search input{width:64px;}
+  .nav-search:focus-within input{width:64px;}
+
+  .nav-links{
+    position:fixed;top:0;right:0;height:100vh;width:min(320px,86vw);
+    background:var(--paper);flex-direction:column;align-items:flex-start;
+    padding:96px 28px 28px;gap:2px;margin:0;
+    transform:translateX(100%);
+    transition:transform var(--duration-slow) var(--ease-out);
+    box-shadow:-8px 0 30px rgba(0,0,0,.14);z-index:60;
+    overflow-y:auto;
+  }
+  /* Sombra negra al 14% casi no se ve si el drawer y lo que hay detrás son
+     ambos oscuros — más opacidad para que siga leyéndose como flotante. */
+  [data-theme="dark"] .nav-links{box-shadow:-8px 0 30px rgba(0,0,0,.55);}
+  .nav-links.is-open{transform:translateX(0);}
+  .nav-links a{width:100%;padding:14px 0;border-bottom:1px solid var(--rule);font-size:15.5px;}
+  .nav-link-infinitas{margin-left:0;}
+  .nav-links .nav-drawer-cta{width:100%;margin-top:16px;padding:0;min-height:48px;border-bottom:none;text-align:center;}
+  /* El toggle del drawer se ve como una fila más del menú (ícono + texto),
+     no como el botón cuadrado de escritorio — reutiliza .theme-toggle-icon
+     para el cross-fade de los SVG, solo cambia el layout alrededor. */
+  .theme-toggle.theme-toggle-drawer{
+    width:100%;justify-content:flex-start;gap:10px;
+    height:auto;min-height:48px;margin-top:6px;padding:14px 0 0;
+    border:none;border-top:1px solid var(--rule);border-radius:0;
+    font-size:15.5px;font-weight:500;
+  }
+  .theme-toggle-drawer .theme-toggle-label{display:inline;}
+
+  .news-grid{grid-template-columns:1fr;}
+  .lead-story{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:20px;}
+  .news-strip{grid-template-columns:1fr 1fr;}
+  .news-strip a:nth-child(2){border-right:none;}
+  .opinion-grid,.product-grid,.testimonial-grid{grid-template-columns:1fr;}
+  .opinion-card,.product{border-right:none;border-bottom:1px solid var(--rule);}
+  .quote{border-right:none;border-bottom:1px solid var(--rule);}
+  .video-top,.infinitas-wrap,.about-card{grid-template-columns:1fr;}
+  .clips-row{grid-template-columns:1fr 1fr;}
+  .ig-reels-row{grid-template-columns:1fr;}
+  .proof-grid{grid-template-columns:1fr;}
+  .stat{border-right:none;border-bottom:1px solid var(--rule);padding-bottom:16px;margin-bottom:16px;}
+  .mid-cta-box,.nl-box{flex-direction:column;align-items:flex-start;}
+  .pill-form{max-width:100%;}
+  .social-row{gap:10px;}
+}
+
+@media(max-width:520px){
+  .clips-row{grid-template-columns:1fr;}
+  .brand img{height:32px;}
+  header.topbar.is-scrolled .brand img{height:32px;}
+  .nav-search input{width:48px;}
+  .nav-search:focus-within input{width:48px;}
+}
