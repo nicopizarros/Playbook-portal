@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getSiteContent } from '@/lib/data/site-content';
 
 export async function Footer() {
@@ -24,6 +25,10 @@ export async function Footer() {
             </a>
           </div>
         </div>
+      </div>
+      <div className="container footer-legal-row">
+        <Link href="/privacidad">Aviso de Privacidad</Link>
+        <Link href="/terminos">Términos y Condiciones</Link>
       </div>
       <div className="container footer-copyright">{footer.copyrightText}</div>
     </footer>

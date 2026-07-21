@@ -1458,6 +1458,66 @@ real, mismo estándar que Fases 1-3):
   umbral esperado. `tsc --noEmit` y `next build` limpios; `npm run lint`
   sin errores nuevos. Filas de prueba borradas después.
 
+### 2026-07-21 — GA4 de cliente + aviso de cookies + páginas legales
+
+- Pedido del usuario, fuera de las fases de migración ya planeadas: portar
+  la medición GA4 del lado del cliente (nunca se había hecho — Fase 2 la
+  marcó fuera de alcance a propósito) y agregar aviso de cookies + páginas
+  legales, inexistentes tanto en legacy como acá. Decisiones tomadas con el
+  usuario antes de escribir código: banner de cookies **solo informativo,
+  sin bloquear** nada (no gatea GA4 ni ninguna otra cookie); texto legal en
+  **borrador para revisión** (no soy abogado, no se inventó una entidad
+  legal real); placeholders donde falta información real
+  (`[NOMBRE LEGAL DE LA EMPRESA]`, `[EMAIL DE CONTACTO...]`, etc.).
+- `components/analytics/GoogleAnalytics.tsx` — puerto de
+  `legacy/js/analytics.js`'s `loadGtag()`. **Decisión de nombre de env var
+  deliberada**: se lee `GA4_MEASUREMENT_ID` (ya cargada en Vercel, según
+  auditoría de env vars de este mismo día) server-side en
+  `app/(public)/layout.tsx` y se pasa como prop al componente, en vez de
+  usar el prefijo `NEXT_PUBLIC_*` que Next.js exige para leer una env var
+  directo en código de cliente — evita tener que agregar/renombrar nada en
+  Vercel para una variable que ya está cargada con ese nombre. Montado
+  únicamente en `app/(public)/layout.tsx`, nunca en el layout de `/admin`
+  — misma paridad que legacy ("editors aren't the audience being
+  measured").
+- `components/CookieNotice.tsx` + `styles/cookie-notice.css` — banner fijo
+  inferior, dismissable, recuerda el cierre en `localStorage`
+  (`playbook_cookie_notice_dismissed`), degrada con gracia si
+  `localStorage` no está disponible (modo privado). Enlaza a `/privacidad`.
+- `app/(public)/privacidad/page.tsx` y `app/(public)/terminos/page.tsx` +
+  `styles/legal.css` — páginas nuevas, cada una con un aviso visible de
+  "borrador pendiente de revisión legal" arriba de todo (no solo un
+  comentario en el código — si esto llega a producción sin revisión, un
+  visitante real lo ve, no queda escondido). Contenido de Privacidad
+  redactado a partir de lo que el sitio *realmente* recolecta (auditado
+  antes de escribir: correo vía magic link, cookie `pb_anon` de cupo, GA4 +
+  Vercel Analytics, cuentas de editor), marco LFPDPPP (México) con derechos
+  ARCO. Enlazadas desde el footer (`components/layout/Footer.tsx`,
+  `.footer-legal-row` en `styles/sections.css`).
+- **Verificación real contra un servidor real y Postgres real, no solo
+  lectura de código** (Playwright): banner visible en la primera carga de
+  `/`; clic en "Entendido" lo oculta y el cierre sobrevive un reload real
+  (confirmado con dos cargas de página distintas, no solo estado de
+  React); script real de `gtag` presente en el DOM cuando
+  `GA4_MEASUREMENT_ID` está seteada, **ausente** cuando no lo está
+  (probadas ambas ramas, no asumida la del caso feliz nada más) y
+  **ausente en `/admin`** aunque esté seteada; `window.dataLayer` real
+  inspeccionado después de cargar `/` confirma la llamada
+  `gtag('config','G-TESTID123')` con el ID correcto; enlaces del footer
+  cuentan 1 cada uno hacia `/privacidad`/`/terminos`; ambas páginas legales
+  devuelven `200`, título/h1 correctos, y `/terminos` menciona el límite
+  real de artículos gratuitos (`FREE_ARTICLES_PER_MONTH`, no un número
+  hardcodeado aparte que pudiera desincronizarse). `tsc --noEmit` y
+  `next build` limpios (`/privacidad` y `/terminos` aparecen en la tabla de
+  rutas). `npm run lint` sin errores nuevos (mismo baseline de 22 warnings
+  pre-existentes).
+- **Pendiente real, no de código**: el usuario todavía no proveyó el
+  nombre legal de la empresa ni un email de contacto real — los
+  placeholders quedan hasta que los dé. El texto de ambas páginas necesita
+  revisión de un abogado real antes de sacar el aviso de "borrador" —
+  ninguna de las dos cosas es algo que este fix pueda resolver por su
+  cuenta.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
