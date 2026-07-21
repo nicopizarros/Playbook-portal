@@ -1365,6 +1365,56 @@ real, mismo estándar que Fases 1-3):
   anterior fueron manuales con Playwright desechable). Migrar esos scripts
   a una suite real en CI queda pendiente, no es parte de este fix.
 
+### 2026-07-21 — Fix: headers de seguridad agregados a `next.config.ts`
+
+- No existía ningún header de seguridad (CSP, HSTS, X-Frame-Options,
+  Referrer-Policy, Permissions-Policy, X-Content-Type-Options) — auditoría
+  de este mismo día. Agregado `headers()` en `next.config.ts`.
+- **CSP construida a partir de orígenes externos reales, no adivinados**:
+  grepeado `articles.json`/`content.json` antes de escribirla — confirma que
+  las fotos editoriales vienen hotlinkeadas de `images.unsplash.com`,
+  `assets.goal.com`, `www.espn.com`, `abcnoticias.mx`, `i.ytimg.com`, etc.
+  (más lo que suba el webhook de Make.com o el pipeline de
+  publish-newsletter a futuro) — por eso `img-src` es deliberadamente
+  `https: data: blob:` y no un allowlist fijo, imposible de enumerar para
+  un sitio que ingesta fotos de cualquier medio que cite una nota. Leído el
+  código fuente instalado de `@vercel/analytics` (confirma que el script en
+  producción es same-origin, `/_vercel/insights/script.js`, sin necesitar
+  entrada externa en `script-src`) y de `@vercel/blob` (confirma
+  `blob.vercel-storage.com` como destino real de subida, para `connect-src`)
+  antes de escribir esas directivas, no asumidas.
+- **Verificación real con Playwright, no solo "el header está presente"**:
+  build + `next start` real (no `next dev`) contra Postgres real; script de
+  Playwright navegando `/`, `/archivo`, `/articulo`, `/admin` con un listener
+  de consola filtrando mensajes de CSP → **cero violaciones** en las
+  cuatro. Comparación A/B real (mismo recorrido con el `next.config.ts`
+  anterior sin headers) para confirmar que los únicos errores de consola
+  restantes (404 de `/_vercel/insights/script.js`, que solo existe en un
+  deploy real de Vercel; `ERR_CONNECTION_RESET` hacia hosts externos
+  bloqueados por la política de red de este sandbox) ya estaban presentes
+  sin la CSP — no son una regresión introducida por este cambio. Login de
+  editor de punta a punta con Playwright contra las 12 tabs del dashboard
+  (incluida la tab Artículos, que monta el editor TipTap) con la CSP activa
+  → sesión válida, cero violaciones de CSP, cero errores de página.
+- **Gap reconocido explícitamente**: los embeds de YouTube/Instagram
+  (`frame-src`/`script-src` para esos dos orígenes) no se pudieron probar
+  cargando de verdad — la política de red de este sandbox bloquea salida a
+  esos hosts (mismo límite ya documentado en el smoke test de la Fase 2).
+  Las directivas están escritas a partir de los `src` reales del código
+  (`components/sections/VideoSection.tsx`,
+  `components/sections/InstagramReels.tsx`), no adivinadas, pero la carga
+  real de esos dos embeds specficamente queda pendiente de verificación
+  manual una vez desplegado.
+- `script-src`/`style-src` incluyen `'unsafe-inline'` — **tradeoff
+  deliberado, no un descuido**: este sitio usa `dangerouslySetInnerHTML`
+  para el cuerpo de artículos (ver Fase 3 arriba) y estilos inline en varios
+  componentes; una CSP basada en nonces sería más estricta pero requiere
+  generar y propagar un nonce por request desde `middleware.ts` (que recién
+  hoy volvió a funcionar, ver entrada de arriba) y verificar que no rompe
+  la hidratación de Next — no se hizo en este pase por el riesgo de romper
+  algo no verificable sin un deploy real. Queda como mejora futura, no
+  como bug de este fix.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
