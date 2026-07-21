@@ -1126,6 +1126,51 @@ real, mismo estándar que Fases 1-3):
   código-dependiente que este build local no está reproduciendo, y hay
   que retomar la investigación con esa confirmación en mano.
 
+### 2026-07-21 — El `__dirname` persiste tras "Clear Cache and Deploy"; diagnóstico: middleware no-op temporal
+
+- **El usuario redesplegó con caché limpia y el error siguió idéntico**
+  (`[ReferenceError: __dirname is not defined]`, mismo
+  `MIDDLEWARE_INVOCATION_FAILED`), lo que descarta la hipótesis de caché
+  obsoleta de la entrada anterior.
+- **PR #24 (la entrada anterior de este mismo registro) ya está
+  mergeada a `main`** (`74c8975`) — confirmado con `git fetch origin
+  main` + `git merge-base --is-ancestor`. `middleware.ts` en `main` es
+  idéntico, fuente por fuente, al que ya se verificó limpio localmente.
+- **Se intentó reproducir el empaquetado real de Vercel, no solo `next
+  build`**: `npx vercel build` está disponible en este sandbox, pero
+  requiere `vercel pull`/login contra el proyecto real de Vercel del
+  usuario — no se tienen esas credenciales acá, y no corresponde
+  pedírselas al usuario (un token de Vercel puede desplegar/modificar su
+  proyecto real). Este paso específico del pipeline de Vercel (el que
+  envuelve la salida de `.next/` en `.vercel/output/functions/`) sigue
+  siendo opaco desde este entorno.
+- **Diagnóstico desplegado para aislar plataforma vs. código**:
+  `middleware.ts` se reemplazó temporalmente por un no-op puro
+  (`return NextResponse.next()`), con la lógica real de la cookie
+  anónima comentada (no borrada) debajo. Esto desactiva
+  temporariamente la funcionalidad de cookie anónima/metering en
+  producción — es un cambio deliberado y reversible solo para
+  diagnóstico, no una reversión de la feature. Verificado localmente:
+  `next build` limpio, bundle de middleware (34 kB, prácticamente el
+  mismo tamaño que antes — la mayor parte del bundle es runtime propio
+  de Next, no código de este repo) sin `__dirname` en
+  `middleware.js` ni en `edge-runtime-webpack.js`, igual que antes.
+- **Qué decide cada resultado una vez que el usuario despliegue esto**:
+  - Si el no-op **también falla** con `__dirname` → confirma que la
+    causa es 100% del lado de Next.js/Vercel (el pipeline de
+    empaquetado de Edge Functions), sin relación con
+    `lib/anon-cookie.ts` ni con ningún código de este repo. Siguiente
+    paso: revertir este no-op y escalar a soporte de Vercel con esta
+    evidencia (build local limpio + no-op también falla en producción).
+  - Si el no-op **funciona** → descarta a Next.js/Vercel como causa
+    universal y apunta de nuevo a algo específico de
+    `lib/anon-cookie.ts` o de cómo se referencia desde `middleware.ts`,
+    a pesar de que el build local no lo muestre — hay que retomar la
+    investigación ahí con esta pista confirmada.
+- **Pendiente**: revertir este no-op (descomentar la lógica real) en
+  cuanto se tenga el resultado del deploy de diagnóstico. No dejar este
+  no-op como estado final — la funcionalidad de metering depende de él.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
