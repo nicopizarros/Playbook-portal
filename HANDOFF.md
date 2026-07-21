@@ -4,7 +4,12 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-07-20.
+2026-07-21.
+
+**PR abierto**: [#22](https://github.com/nicopizarros/Playbook-portal/pull/22)
+(`claude/playbook-nextjs-migration-9zn6nh` → `main`) — sigue todas las fases
+2-4 en un solo PR de trabajo en progreso (no mergear todavía, Fase 4 no está
+terminada). Seguir trabajando en esa misma rama, no crear una nueva.
 
 ## Qué es esto
 
@@ -317,6 +322,136 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   Blob, panel de admin completo con las 12 pestañas, detección de
   conflictos, panel de analítica) — este fue un cambio "schema primero",
   antes del resto de la fase. Ver "Próximos pasos" abajo.
+
+## Fase 4: plan detallado de lo que falta
+
+Contexto ya cargado en el código, no hace falta re-decidir nada de esto:
+`package.json` ya tiene `@tiptap/react`, `@tiptap/starter-kit`,
+`@tiptap/extension-image`, `@tiptap/extension-link`, `@tiptap/html`,
+`@vercel/blob`, `next-auth`, `@auth/drizzle-adapter`, `bcryptjs` instalados.
+`lib/db/schema.ts` ya tiene `content_revisions`, `media`, `editors`,
+`articles.sourceUrl` (ver registro arriba). `auth.ts` ya expone
+`auth()`/`signIn`/`signOut` con `session.user.role: 'reader'|'editor'`.
+`legacy/admin/dashboard.js` (1202 líneas) + `legacy/admin/admin.css` +
+`legacy/api/admin-login.js`/`admin-save.js`/`admin-content.js` +
+`legacy/lib/github.js` son la referencia de comportamiento exacto — leer
+esos archivos antes de construir cada pieza equivalente. El principio
+general: **no portar el enfoque de manipulación de DOM de legacy** — Fase 2
+ya construyó los componentes de sección de la home
+(`OpinionSection`, `ProductsSection`, `VideoSection`, `InfinitasSection`,
+`StatsSection`, `TestimonialsSection`, `AboutSection`, más
+`LeadStory`/`NewsRow`) como componentes puros que reciben datos por props
+sin llamadas server-only propias — el panel de preview en vivo puede
+importar y renderizar esos mismos componentes directo contra el estado de
+edición local, en vez de duplicar templates HTML-string como hacía legacy.
+
+**Estructura de rutas:**
+```
+app/admin/
+  layout.tsx              → carga admin.css (solo acá, nunca en el bundle público), shell mínimo
+  page.tsx                 → login (sin guard — es lo que ve un editor no autenticado)
+  (protected)/
+    layout.tsx              → guard: redirect('/admin') si session.role !== 'editor'; force-dynamic; topbar (tabs CMS/Analítica, whoami, logout)
+    dashboard/page.tsx       → el CMS
+    analytics/page.tsx       → panel de analítica
+app/api/admin/upload-image/route.ts   → token de subida a Vercel Blob, gateado por sesión de editor
+```
+
+**Server Actions** (`lib/actions/admin.ts`), todas re-chequean
+`auth()`/`role==='editor'` server-side (nunca confiar en un guard solo del
+cliente):
+- `saveSiteContent(data, expectedVersion)` — compara `expectedVersion`
+  contra `site_content.version` actual; si coincide, escribe + incrementa
+  `version` + inserta snapshot en `content_revisions`; si no coincide,
+  devuelve `{conflict: true}` (no lanza excepción) para mostrar el mismo
+  modal "alguien más guardó primero" que tenía legacy, con opción de
+  recargar la versión más reciente.
+- `saveArticle(article, expectedUpdatedAt)` — mismo patrón de conflicto pero
+  **por artículo** en vez de archivo completo (cada artículo es su propia
+  fila con su propio `updatedAt` — mejora deliberada sobre el guardado
+  todo-o-nada de legacy). Calcula `bodyHtml` server-side vía
+  `@tiptap/html`'s `generateHTML(bodyJson, extensions)` (mismo set de
+  extensiones que el editor) en el mismo write.
+- `archiveArticle(id)` — pone `status: 'draft'` en vez de `DELETE` (la
+  acción "Eliminar" de legacy en efecto, ya que `getAllArticles()` filtra
+  por `status: 'published'`), reversible a propósito.
+- `createArticle(article)` — insert; `id` por defecto es el título
+  slugificado (misma lógica `slugify()` que legacy), con chequeo de unicidad
+  antes de insertar (sufijo corto en colisión, mismo fallback que legacy).
+
+**Primitivas de campo reutilizables** (`components/admin/fields/`):
+`TextField`, `TextareaField`, `SelectField`, `CheckboxGroupField`,
+`StarPickerField`, `ArrayEditor` (colapsable, drag-reorder con eventos
+HTML5 nativos, misma interacción que legacy) — componentes controlados de
+React sobre estado local, en vez de los helpers `el()`/diffing manual de
+DOM que tenía legacy. Cada tab compone estas primitivas en vez de
+reimplementar el renderizado de campos.
+
+**Tabs** (`components/admin/tabs/`), un componente por tab de legacy,
+mismos campos que las funciones `build*Tab` de `legacy/admin/dashboard.js`:
+Articles (título → auto-slug id, excerpt, **editor de cuerpo TipTap**,
+autor + checkbox mostrar_autor, publication, source, tres grupos de
+checkboxes de tags, date/dateFormatted/reading_time, star-picker de
+priority + checkbox featured con el mismo banner de aviso de conflicto de
+hero, substack_url, imageUrl, más el panel read-only de cobertura de tags),
+Opinion, Video (embeds YouTube featured/secondary, clips, reels de
+Instagram), Infinitas, Products, Stats, Testimonials, About, Mid-CTA, Nav,
+Footer, Settings (`mostrarAutorGlobal`). Orden de tabs drag-reorderable y
+persistido en `localStorage` por usuario editor, igual que legacy.
+
+**Editor TipTap** (`components/admin/TipTapEditor.tsx`): `@tiptap/react`'s
+`useEditor` con StarterKit (restringir headings a h2/h3) + Image + Link.
+Toolbar con el lenguaje visual ya existente de `admin.css` (`.btn-mini`).
+Subida de imagen: el botón de imagen del toolbar y los handlers de
+paste/drop llaman a `@vercel/blob/client`'s `upload()` contra
+`app/api/admin/upload-image/route.ts`, que verifica la sesión de editor,
+emite un token de subida de cliente de corta duración vía el callback
+`handleUpload` de Blob (el archivo va directo a Blob, nunca pasa por la
+función Node), y registra la subida en la tabla `media`.
+
+**Panel de preview en vivo**: renderiza los mismos componentes de sección
+que Fase 2 construyó para el sitio público, alimentados con el estado de
+edición local en vez de un fetch a la DB — `NewsGrid`/`LeadStory`/`NewsRow`
+para el tab de Articles, `OpinionSection`/`ProductsSection`/etc. para sus
+tabs respectivos. Un mockup estático simplificado de header (no el
+`<Header>` real, que es un Server Component async) hace de stand-in para el
+chrome del sitio.
+
+**Panel de analítica** (`app/admin/(protected)/analytics/page.tsx`): porta
+`legacy/lib/ga4.js` y `legacy/lib/vercel-analytics.js` casi literal como
+módulos server-only (mismas llamadas REST externas), reemplazando el
+`<script>` de Chart.js por CDN con el paquete npm ya instalado.
+
+**Webhook de Make.com**: ya hecho, ver registro arriba — no repetir.
+
+**Verificación esperada** (ejecución real contra Postgres + un servidor
+real, mismo estándar que Fases 1-3):
+- `tsc --noEmit` y `next build` limpios, incluyendo un build sin
+  `POSTGRES_URL` (lección vigente desde el fix de sitemap/feed).
+- Login de editor → dashboard carga las 12 tabs → editar + guardar
+  `site_content` (confirmar que `version` incrementa, se inserta una fila
+  en `content_revisions`) → escenario de conflicto en dos pestañas (editar
+  la misma sección en dos sesiones, confirmar que el segundo guardado
+  recibe el modal de conflicto, recargar trae la versión más reciente).
+- Crear un artículo nuevo con cuerpo TipTap (incluyendo una imagen inline
+  si `BLOB_READ_WRITE_TOKEN` está disponible en el sandbox — si no,
+  verificar al menos la estructura: la ruta existe, está gateada por
+  sesión de editor, el shape de request/response es correcto) → guardar →
+  confirmar que `bodyHtml` se generó server-side y coincide con `bodyJson`
+  → visitar `/articulo` público y confirmar que el cuerpo nuevo se
+  renderiza (primer artículo de esta migración con `bodyJson` real, no
+  fallback a `teaser`).
+- Archivar un artículo → confirmar que desaparece de `getAllArticles()`
+  (sitio público) pero la fila sigue existiendo con `status: 'draft'`.
+- `curl` al webhook de Make.com con el secreto real: un artículo nuevo se
+  inserta correctamente; hacer POST del mismo `url` dos veces confirma que
+  la segunda se deduplica silenciosamente (ya verificado, ver registro).
+- Panel de analítica: confirmar que renderiza y degrada con gracia (mismo
+  patrón `available: false` por panel que legacy) sin credenciales reales
+  de GA4/Vercel Analytics en este sandbox — marcar explícitamente como gap
+  de datos en vivo para verificación manual una vez desplegado.
+- Actualizar el registro de progreso de este archivo con qué se verificó de
+  verdad vs. qué queda como gap de verificación manual/despliegue.
 
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
