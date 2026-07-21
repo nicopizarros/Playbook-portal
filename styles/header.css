@@ -51,6 +51,12 @@ header.topbar.is-scrolled .brand img{height:48px;}
 .reader-status a:hover,.reader-status a:focus-visible{color:var(--ink);text-decoration:underline;}
 .reader-status button{border:none;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);cursor:pointer;flex-shrink:0;}
 .reader-status button:hover,.reader-status button:focus-visible{color:var(--green);}
+/* Direct entry point to /cuenta's on-site login -- separate from ctaUrl
+   ("Suscríbete gratis"), which links out to the Substack email newsletter,
+   a different product from this site's own reader accounts. Same visual
+   weight as .reader-status, which it swaps places with once signed in. */
+.nav-login-link{font-size:12px;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);white-space:nowrap;flex-shrink:0;}
+.nav-login-link:hover,.nav-login-link:focus-visible{color:var(--green);}
 @media(max-width:920px){
   .reader-status{display:none;}
 }

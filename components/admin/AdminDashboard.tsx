@@ -13,7 +13,7 @@ import {
 } from '@/lib/actions/admin';
 import { FormValidationProvider, type FormValidationHandle } from './fields/FormValidationContext';
 import { TopbarSaveSlot } from './TopbarSaveSlot';
-import { type ArticleEntry, articleToEntry, applyServerArticle, newArticleEntry, isEntryDirty } from './article-entry';
+import { type ArticleEntry, articleToEntry, applyServerArticle, isEntryDirty } from './article-entry';
 import { NavTab } from './tabs/NavTab';
 import { ArticlesTab } from './tabs/ArticlesTab';
 import { OpinionTab } from './tabs/OpinionTab';
@@ -88,7 +88,6 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
     } catch {
       setTabOrder(DEFAULT_ORDER);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabOrderKey]);
 
   useEffect(() => {

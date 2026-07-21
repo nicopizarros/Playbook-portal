@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Script from 'next/script';
 import { safeUrl } from '@/lib/safe-url';
+import { LazyEmbed } from '@/components/LazyEmbed';
 import type { InstagramReel } from '@/lib/data/site-content';
 
 declare global {
@@ -58,8 +59,36 @@ function ReelFallback({ reel }: { reel: InstagramReel }) {
   );
 }
 
-export function InstagramReels({ reels }: { reels: InstagramReel[] }) {
+// Separate from InstagramReels below so useInstagramEmbedProcessing() only
+// runs once this actually mounts -- which, wrapped in <LazyEmbed>, only
+// happens once the reels container is near the viewport. Splitting into
+// two components (rather than an early return before the hook call) is
+// required here: React's rules of hooks don't allow calling a hook
+// conditionally, only mounting-or-not an entire component that calls it
+// unconditionally.
+function InstagramReelsContent({ reels }: { reels: InstagramReel[] }) {
   useInstagramEmbedProcessing();
+  return (
+    <>
+      <div className="ig-reels-row">
+        {reels.map((reel, i) => (
+          <ReelFallback key={i} reel={reel} />
+        ))}
+      </div>
+      <Script async src="https://www.instagram.com/embed.js" strategy="afterInteractive" />
+    </>
+  );
+}
+
+// LazyEmbed-wrapped: embed.js previously loaded unconditionally on every
+// homepage view, regardless of whether the reels row was ever scrolled
+// into view -- a real bug, not just a perf nit. On networks that silently
+// drop (rather than reject) requests to instagram.com, that hanging
+// request kept the browser's own page-load indicator active for a long
+// time, which is what "page feels frozen after going back into an
+// article" turned out to trace back to (confirmed with a Playwright
+// network trace, see HANDOFF.md -- not assumed).
+export function InstagramReels({ reels }: { reels: InstagramReel[] }) {
   if (!reels.length) return null;
 
   return (
@@ -67,12 +96,9 @@ export function InstagramReels({ reels }: { reels: InstagramReel[] }) {
       <div className="ig-reels-head reveal">
         <h3>Reels de Instagram</h3>
       </div>
-      <div className="ig-reels-row">
-        {reels.map((reel, i) => (
-          <ReelFallback key={i} reel={reel} />
-        ))}
-      </div>
-      <Script async src="https://www.instagram.com/embed.js" strategy="afterInteractive" />
+      <LazyEmbed>
+        <InstagramReelsContent reels={reels} />
+      </LazyEmbed>
     </>
   );
 }

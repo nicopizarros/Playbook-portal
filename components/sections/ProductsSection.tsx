@@ -10,6 +10,8 @@ function ProductCardView({ product }: { product: ProductCard }) {
           <span className="word">{product.wordmark}</span>
         </div>
       ) : (
+        // Editor-supplied URL, arbitrary host -- see AboutSection.tsx's comment.
+        // eslint-disable-next-line @next/next/no-img-element
         <img className="product-banner" src={product.image} width={900} height={160} alt={product.imageAlt || ''} loading="lazy" decoding="async" />
       )}
       <div className="product-copy">

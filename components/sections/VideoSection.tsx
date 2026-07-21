@@ -1,5 +1,6 @@
 import type { SiteContentData, VideoClip } from '@/lib/data/site-content';
 import { safeUrl } from '@/lib/safe-url';
+import { LazyEmbed } from '@/components/LazyEmbed';
 import { InstagramReels } from './InstagramReels';
 
 function ClipCard({ clip }: { clip: VideoClip }) {
@@ -25,6 +26,8 @@ function ClipCard({ clip }: { clip: VideoClip }) {
   return (
     <a className="clip-card reveal" href={safeUrl(clip.url)} target="_blank" rel="noopener noreferrer">
       <div className="frame">
+        {/* Editor-supplied URL, arbitrary host -- see AboutSection.tsx's comment. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={clip.thumbnail} width={480} height={360} alt={clip.title} loading="lazy" decoding="async" />
         <span className="platform-badge">YouTube</span>
         <div className="play-badge" aria-hidden="true">
@@ -60,23 +63,27 @@ export function VideoSection({ data }: { data: SiteContentData['videoSection'] }
           <div className="video-top">
             <div className="video-feature-card reveal">
               <div className="frame">
-                <iframe
-                  src={`https://www.youtube.com/embed/${data.featured.embedId}`}
-                  title={data.featured.embedTitle}
-                  loading="lazy"
-                  allowFullScreen
-                />
+                <LazyEmbed>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${data.featured.embedId}`}
+                    title={data.featured.embedTitle}
+                    loading="lazy"
+                    allowFullScreen
+                  />
+                </LazyEmbed>
               </div>
               <h3 className="video-card-title">{data.featured.title}</h3>
             </div>
             <div className="video-feature-copy reveal">
               <div className="frame">
-                <iframe
-                  src={`https://www.youtube.com/embed/${data.secondary.embedId}`}
-                  title={data.secondary.embedTitle}
-                  loading="lazy"
-                  allowFullScreen
-                />
+                <LazyEmbed>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${data.secondary.embedId}`}
+                    title={data.secondary.embedTitle}
+                    loading="lazy"
+                    allowFullScreen
+                  />
+                </LazyEmbed>
               </div>
               <h3 className="video-card-title">{data.secondary.title}</h3>
               <div className="more-eps">

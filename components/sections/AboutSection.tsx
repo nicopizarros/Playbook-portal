@@ -12,6 +12,19 @@ export function AboutSection({ data }: { data: SiteContentData['aboutSection'] }
           rel="noopener noreferrer"
           aria-label="Ver Al Banquillo en YouTube"
         >
+          {/* Plain <img>, not next/image, deliberately: data.image is an
+              editor-supplied URL from site_content, not a fixed set of
+              known hosts -- next/image would need next.config.ts's
+              images.remotePatterns to allow-list every possible domain
+              (or `unoptimized`, which gives up its main benefit), and
+              would hard-error at runtime for any host not already listed.
+              Same reasoning applies to every other editorial-image <img>
+              in this repo (LeadStory, articulo/page.tsx, Infinitas/
+              Opinion/ProductsSection, VideoSection's clip thumbnail) --
+              see next.config.ts's CSP comment for the confirmed real
+              source domains (Unsplash, ESPN, Goal.com, arbitrary news
+              outlets via the Make.com webhook). */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={data.image} width={1280} height={720} alt={data.imageAlt} loading="lazy" decoding="async" />
           <div className="about-visual-badge">
             <span>{data.badgeEyebrow}</span>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getSiteContent } from '@/lib/data/site-content';
 
 export async function Footer() {
@@ -8,7 +9,7 @@ export async function Footer() {
     <footer>
       <div className="container footer-grid">
         <div className="footer-brand">
-          <img src="/assets/img/playbook-logo-dark.png" width={180} height={44} alt="Playbook" loading="lazy" decoding="async" />
+          <Image src="/assets/img/playbook-logo-dark.png" width={180} height={44} alt="Playbook" loading="lazy" />
           <p>{footer.brandBlurb}</p>
         </div>
         <div>

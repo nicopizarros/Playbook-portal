@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
 import { auth, signOut } from '@/auth';
 import { AdminTopbarNav } from '@/components/admin/AdminTopbarNav';
 
@@ -14,7 +15,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
     <div className="admin-editor">
       <header className="admin-topbar">
         <div className="admin-topbar-brand">
-          <img src="/assets/img/playbook-logo.webp" width={28} height={28} alt="Playbook" />
+          <Image src="/assets/img/playbook-logo.webp" width={28} height={28} alt="Playbook" />
           <span>Panel de contenido</span>
         </div>
         <div className="admin-topbar-actions">

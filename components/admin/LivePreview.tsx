@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import type { SiteContentData } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
 import { OpinionSection } from '@/components/sections/OpinionSection';
@@ -48,7 +49,7 @@ function PreviewHeader({ nav }: { nav: SiteContentData['nav'] }) {
     <header className="topbar">
       <div className="container nav">
         <a className="brand" href="#" onClick={e => e.preventDefault()}>
-          <img src="/assets/img/playbook-logo.webp" width={120} height={28} alt="Playbook" />
+          <Image src="/assets/img/playbook-logo.webp" width={120} height={28} alt="Playbook" />
         </a>
         <nav className="nav-links">
           {nav.links.map((link, i) => (
@@ -66,7 +67,7 @@ function PreviewFooter({ footer }: { footer: SiteContentData['footer'] }) {
     <footer>
       <div className="container footer-grid">
         <div className="footer-brand">
-          <img src="/assets/img/playbook-logo-dark.png" width={180} height={44} alt="Playbook" />
+          <Image src="/assets/img/playbook-logo-dark.png" width={180} height={44} alt="Playbook" />
           <p>{footer.brandBlurb}</p>
         </div>
         <div className="social-row">

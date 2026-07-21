@@ -1602,6 +1602,154 @@ real, mismo estándar que Fases 1-3):
   en producción, mismo criterio que el resto de gaps de credenciales
   externas ya documentados en este archivo.
 
+### 2026-07-21 — Fix: página se sentía "trabada" al volver de un artículo + falta de login directo
+
+- Dos bugs reales reportados por el usuario, investigados y corregidos
+  antes de la Fase 6 (a pedido explícito, en un PR nuevo).
+- **"Se traba" al picarle a una noticia y volver atrás**: reproducido con
+  Playwright, no asumido — un ciclo home → artículo → atrás tomaba
+  **~13 segundos** en volver a considerarse "navegado" (medido vía
+  `page.waitForURL`, que por defecto espera el evento `load`). Rastreado
+  con una traza de red por request: `VideoSection` embebía dos iframes de
+  YouTube y `InstagramReels` inyectaba `embed.js` de Instagram **sin
+  ninguna condición**, en cada carga de portada — con `loading="lazy"` ya
+  puesto en los iframes, pero confirmado empíricamente que no alcanza (las
+  requests salían a los ~120-200ms de cualquier forma, la heurística de
+  distancia-al-viewport de Chromium es demasiado permisiva para el alto
+  real de esta portada). El evento `load` de la página espera a que esas
+  requests terminen (o fallen) antes de resolver — en redes que
+  descartan en silencio (en vez de rechazar activamente) tráfico hacia
+  ciertos hosts de terceros, algo común en redes corporativas/móviles
+  restrictivas, eso puede tardar muchos segundos, dejando el indicador de
+  carga del navegador activo y la página con sensación de trabada.
+  Corregido con `components/LazyEmbed.tsx` (mismo patrón
+  `IntersectionObserver` que ya usa `components/ScrollReveal.tsx`): los dos
+  iframes de YouTube y el script + procesamiento de Instagram ahora no se
+  montan hasta que su contenedor está a punto de entrar al viewport.
+  **Verificado con el mismo test exacto, antes/después**: la traza de red
+  ya no incluye ninguna request a youtube.com/instagram.com durante la
+  carga inicial (0 requests confirmadas), la navegación de vuelta pasó de
+  ~13.267ms a **655ms**; segunda verificación aparte confirma que scrollear
+  la sección de video sí dispara las 3 requests reales (Instagram +
+  2 YouTube) — el contenido sigue cargando, solo que cuando corresponde.
+  `tsc --noEmit` y `npm run lint` limpios (se corrigió también un warning
+  nuevo de `react-hooks/exhaustive-deps` en el propio `LazyEmbed.tsx`
+  durante la verificación).
+- **No había forma de iniciar sesión directo**: el CTA "Suscríbete gratis"
+  del header (`nav.ctaUrl`/`ctaLabel` en `content.json`) siempre apuntó a
+  `https://playbookmedia.substack.com/` — confirmado que es la suscripción
+  al newsletter por email (un producto real y separado, no algo para
+  eliminar), no el login de lector de este sitio (cupo de artículos
+  gratis vía magic link, construido hoy mismo en `/cuenta`). No existía
+  ningún otro punto de entrada a `/cuenta` salvo toparse con el muro de
+  artículos. Agregado un link "Iniciar sesión" nuevo (`.nav-login-link` en
+  escritorio, `.nav-drawer-login` en el drawer móvil) que aparece en el
+  mismo lugar donde se muestra el estado de sesión una vez logueado —
+  mismo patrón show/hide por breakpoint que ya usan `#nav-cta`/
+  `.nav-drawer-cta`. El CTA de Substack se deja intacto.
+  **Verificado con Playwright real, escritorio y mobile**: sin sesión, el
+  link aparece y lleva a `/cuenta` (confirmado con clic real, no solo el
+  `href`); con una sesión de lector real (mismo truco de token fabricado a
+  mano que la verificación de `/cuenta`), el link desaparece y vuelve a
+  mostrarse el estado de sesión existente (correo + Salir); el CTA de
+  Substack sigue presente y sin cambios en ambos casos.
+
+### 2026-07-21 — Fix: algoritmo de ranking (portada/ticker mostraba noticias de hasta 13 días)
+
+- Reportado por el usuario: la portada mostraba noticias viejas en los
+  primeros lugares. Confirmado leyendo `lib/rank.ts` (la función
+  `rankArticles` compartida por portada, ticker, archivo, autor, tema y el
+  preview del admin — "so 'what counts as important' is defined in exactly
+  one place", su propio comentario): el algoritmo real era **prioridad
+  primero, fecha solo como desempate** — sin ningún decaimiento por
+  antigüedad. Un artículo de 5 estrellas de hace dos semanas le ganaba a
+  cualquier artículo de 1 estrella de hoy, siempre.
+- **Confirmado con datos reales, no hipotéticos**: consultado el estado
+  real de Postgres (fecha del sistema: 2026-07-21) — dos artículos de
+  5 estrellas de **12 y 13 días de antigüedad**
+  (`la-llamada-que-expuso-a-fifa`, `mexico-inglaterra-audiencia-record`)
+  efectivamente estaban en el top 6 real de la portada, exactamente el
+  caso que describió el usuario.
+- **Corregido** con un score que combina prioridad y antigüedad en vez de
+  ordenar por prioridad pura: `score = priority * 1.5 - díasDesdeLaFecha`.
+  El peso (1.5 días por estrella) se eligió para que un artículo bastante
+  más importante pero de unos días de antigüedad sí pueda ganarle a algo
+  fresco pero menor ("chance algo más importante pero un poquito más
+  viejo", en palabras del usuario) — pero un artículo de dos semanas nunca
+  puede ganarle a nada de hoy, sin importar su prioridad (el boost máximo
+  posible, 5×1.5=7.5 días, queda bien por debajo de 14). No se agregó
+  ningún filtro/corte duro por antigüedad — el cambio es solo de **orden**,
+  así que archivo/autor/tema (que sí necesitan mostrar contenido viejo a
+  propósito) siguen mostrando todo, solo mejor ordenado; el efecto de
+  "no aparece en el top 6" sale naturalmente de que el score de algo muy
+  viejo cae por debajo de cualquier cosa reciente, no de una exclusión
+  explícita.
+- `rankArticles`/`selectHero` ganaron un parámetro `now` opcional
+  (default `new Date()`) para quedar como funciones puras testeables sin
+  tocar ningún call site real (todos ya lo omiten y siguen con
+  comportamiento en vivo).
+- **Verificación real, en capas**: (1) casos sintéticos con fechas/
+  prioridades controladas contra un `now` fijo, vía `tsx` — los 5 casos
+  clave (empate mismo día, importante-pero-unos-días-viejo gana,
+  importante-pero-dos-semanas-viejo pierde, importante-pero-una-semana-
+  vieja pierde, mismo priority el más viejo siempre pierde) más
+  `selectHero` respetando `featured`, todos `PASS`. (2) Los 30 artículos
+  reales de Postgres, algoritmo viejo vs. nuevo lado a lado: confirmado
+  que los dos artículos de 12-13 días **desaparecen** del top 6 nuevo,
+  reemplazados por artículos de 4-6 días de prioridad menor. (3)
+  `next build` + `next start` reales: el HTML real de la portada
+  (`curl` + parseo de los primeros 6 `<a href="/articulo?id=...">`
+  únicos) coincide exactamente con lo calculado en (2). `tsc --noEmit` y
+  `npm run lint` limpios (mismo baseline de 22 warnings).
+
+### 2026-07-21 — Limpieza de los 22 warnings de ESLint pre-existentes (0 quedan)
+
+- Pedido por el usuario, que los vio en un log de build de Vercel y los
+  interpretó como "errores" (son warnings, no bloquean el build — pero
+  igual valía la pena dejar el log limpio de verdad).
+- Triviales, sin riesgo, corregidos directo: import `sql` sin uso en
+  `lib/db/schema.ts`; `eslint-disable` de `no-var` ya innecesario en
+  `lib/db/client.ts` (mismo caso que `lib/rate-limit.ts`, fix de sesiones
+  anteriores); import `newArticleEntry` sin uso en `AdminDashboard.tsx`
+  (la creación real vive en `ArticlesTab.tsx`, quedó un import huérfano de
+  un refactor); `eslint-disable` de `react-hooks/exhaustive-deps` ya
+  innecesario en el mismo archivo; 4 `eslint-disable` de `react/no-danger`
+  en `app/(public)/articulo/page.tsx` — esa regla no está activa en la
+  config actual (`eslint.config.mjs`, agregada hoy mismo), así que nunca
+  hacían falta.
+- Los 14 restantes eran todos `@next/next/no-img-element` (`<img>` en vez
+  de `next/image`). **Separados en dos grupos reales, no tratados igual**:
+  - **7 son assets propios y fijos** (el logo, en 6 archivos:
+    `Header.tsx`, `Footer.tsx`, `LoginForm.tsx`,
+    `app/admin/(protected)/layout.tsx`, `LivePreview.tsx` ×2) — sin ningún
+    riesgo de dominio externo, convertidos a `next/image` de verdad.
+    `fetchPriority="high"` en el logo del header se tradujo a la prop real
+    equivalente de `next/image` (`priority`), no se descartó sin más.
+  - **7 son imágenes editoriales con URL arbitraria** (`data.image`,
+    `card.image`, `product.image`, `clip.thumbnail`, `article.imageUrl` en
+    `articulo/page.tsx` y `LeadStory.tsx`) — **no convertidas**, a
+    propósito: `next/image` exige que cada dominio esté en
+    `images.remotePatterns` de `next.config.ts` o falla en runtime con un
+    error real, y este sitio ingesta fotos de cualquier medio que una nota
+    cite (confirmado en la auditoría de CSP de hoy mismo: Unsplash, ESPN,
+    Goal.com, medios arbitrarios vía el webhook de Make.com) — no hay un
+    conjunto de dominios enumerable. Convertir esto a ciegas habría sido
+    un cambio de alto riesgo para bajar un warning cosmético, verificable
+    solo parcialmente en este sandbox (sin salida de red a esos hosts).
+    Cada uno lleva un `eslint-disable-next-line` puntual con el motivo en
+    un comentario (apuntando al comentario completo en
+    `AboutSection.tsx`), no un silenciamiento sin explicación.
+- **Verificación real, no solo "el lint da 0"**: `next build` limpio,
+  los 7 logos convertidos confirmados con Playwright/curl sirviendo de
+  verdad vía el pipeline de `next/image` (`/_next/image?url=...`,
+  `srcSet` real con 1x/2x, `200 image/jpeg` confirmado con `curl` directo
+  a esa ruta) en las 4 superficies donde aparecen (header público, footer,
+  login de admin, topbar+preview del admin ya autenticado); la imagen
+  externa de `LeadStory` confirmada sirviendo su URL original de Unsplash
+  sin pasar por `/_next/image` (como se espera, sigue siendo `<img>`
+  plano). `tsc --noEmit` limpio. `npm run lint` → **0 problemas** (antes:
+  22).
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
