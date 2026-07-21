@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Anton, Inter } from 'next/font/google';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/next';
 import { SITE_URL } from '@/lib/site-url';
 
 import '../styles/reset.css';
@@ -64,6 +65,25 @@ const THEME_INIT_SCRIPT = `
 })();
 `;
 
+// Same window.va queue shim legacy defined inline in <head> (legacy/index.html,
+// legacy/articulo.html) — needed again here for a real reason, not copied out
+// of caution: @vercel/analytics/next's <Analytics/> wraps its actual queue
+// setup (initQueue(), called from a useEffect) in a <Suspense> boundary (it
+// needs useSearchParams()/usePathname()), so that effect commits in a later
+// pass than the rest of the tree regardless of where <Analytics/> sits in
+// JSX — confirmed by tracing node_modules/@vercel/analytics/dist/next/index.mjs
+// and reproducing the race with a debug build: a descendant client component
+// calling track() (e.g. ArticleAnalyticsBeacon, several levels deep in a
+// page) mounts and calls it before Analytics' own effect has run, and
+// track()'s `window.va?.(...)` is a silent no-op when window.va isn't
+// defined yet — no error, nothing queued, nothing sent, ever. Pre-defining
+// the shim synchronously (before hydration, same as legacy) means any early
+// track() call queues correctly into window.vaq; initQueue() itself no-ops
+// once it sees window.va already exists, so this doesn't conflict with it.
+const VA_INIT_SCRIPT = `
+window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: the theme-init script below sets
@@ -77,6 +97,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
+        <Script id="va-init" strategy="beforeInteractive">
+          {VA_INIT_SCRIPT}
+        </Script>
+        {/* Official @vercel/analytics package, site-wide (reader and admin
+            routes both) — replaces legacy's manual window.va shim + hand-
+            written /_vercel/insights/script.js <script> tag. The shim above
+            is still needed alongside it; see VA_INIT_SCRIPT's comment. */}
+        <Analytics />
         {children}
       </body>
     </html>

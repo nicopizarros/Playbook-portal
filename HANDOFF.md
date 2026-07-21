@@ -732,6 +732,57 @@ viejas** — es el historial que reemplaza tener que leer todos los commits.
   instrumentar el evento `pageview_article` que el panel de analítica del
   admin (Fase 4) ya espera — checkpoint 2 de 4.
 
+### 2026-07-21 — Fase 5 (checkpoint 2 de 4): Vercel Web Analytics + evento `pageview_article`
+
+- Agregado `@vercel/analytics` (paquete oficial) a `package.json`. `<Analytics
+  />` montado en `app/layout.tsx` (root layout, sitio completo — lector y
+  admin) reemplazando el shim manual `window.va` + `<script>` a mano de
+  legacy. `components/article/ArticleAnalyticsBeacon.tsx` — Client
+  Component chico que llama `track('pageview_article', {article_id})` en un
+  `useEffect`, montado únicamente en la rama de acceso completo de
+  `app/(public)/articulo/page.tsx` (nunca en la vista con muro), mismo
+  criterio ya aplicado al bloque JSON-LD de esa página. Agregadas
+  `VERCEL_ANALYTICS_TOKEN`/`VERCEL_PROJECT_ID`/`VERCEL_TEAM_ID`/
+  `VERCEL_TEAM_SLUG` a `.env.local.example` (ya las necesitaba
+  `lib/vercel-analytics.ts` desde la Fase 4, nunca se habían documentado).
+- **Bug real encontrado y corregido durante la verificación, no solo
+  compilación limpia** (exactamente la clase de bug que este proyecto ya
+  viene atrapando con verificación real): el evento `pageview_article` no
+  llegaba a `window.vaq` — el `track()` de `@vercel/analytics` hace
+  `window.va?.(...)`, un no-op silencioso (sin error, sin warning) si
+  `window.va` todavía no existe. Investigado con un script de Playwright
+  que interceptaba `window.va` antes de que cargara cualquier código de la
+  app: `<Analytics/>` (paquete `@vercel/analytics/next`) envuelve su propio
+  `useEffect` que crea `window.va` dentro de un `<Suspense>` (lo necesita
+  para `useSearchParams()`/`usePathname()`), así que ese efecto se
+  confirma (con trazas) que se resuelve en una pasada posterior a la del
+  resto del árbol — **reordenar el JSX no lo arregló** (probado y
+  descartado explícitamente), porque el retraso lo causa el límite de
+  Suspense, no el orden de hermanos. Corregido con el mismo shim inline que
+  legacy ya tenía en el `<head>` de `index.html`/`articulo.html`
+  (`window.va = window.va || function(){(window.vaq=window.vaq||[]).push(arguments)}`),
+  vía un `<Script strategy="beforeInteractive">` en el layout — se
+  ejecuta antes de que hidrate cualquier componente, así que el evento
+  temprano de `ArticleAnalyticsBeacon` encola correctamente sin importar
+  cuándo se resuelva el Suspense de `<Analytics/>`.
+- **Verificación real contra un servidor real** (`next dev` + Playwright):
+  confirmado con un interceptor de `window.va` que, después del fix, el
+  evento `pageview_article` con el `article_id` correcto llega a la cola
+  antes que el propio `pageview` automático de `<Analytics/>`; probado en
+  un artículo real de acceso completo (evento presente) y repetido el
+  escenario de muro de la Fase 3 (leer 4 artículos con el mismo lector
+  anónimo) confirmando que el evento **no** se dispara en la vista con
+  muro del cuarto artículo. Script de `<Analytics/>` confirmado inyectado
+  en el DOM real (no solo en el HTML servido — el componente es
+  `'use client'`, se inyecta vía `useEffect`). `tsc --noEmit` y
+  `next build` limpios, con y sin `.env.local`.
+- **Gap reconocido explícitamente**: entrega real del evento al backend de
+  Vercel no es verificable en este sandbox (sin despliegue real de
+  Vercel) — pendiente de verificación manual una vez desplegado, mismo
+  criterio que el resto de gaps de credenciales externas ya documentados.
+- **Pendiente para el siguiente checkpoint**: estados de carga/error en la
+  subida de imágenes de `TipTapEditor` — checkpoint 3 de 4.
+
 ## Fase 4: plan detallado de lo que falta
 
 Contexto ya cargado en el código, no hace falta re-decidir nada de esto:

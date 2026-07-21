@@ -9,6 +9,7 @@ import { TagPillRow } from '@/components/article/TagPillRow';
 import { NewsRow } from '@/components/article/NewsRow';
 import { ShareRow } from '@/components/article/ShareRow';
 import { EmailWall } from '@/components/article/EmailWall';
+import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
 import { SITE_URL } from '@/lib/site-url';
 
 type Props = { searchParams: Promise<{ id?: string }> };
@@ -193,6 +194,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
   return (
     <>
       <a className="skip-link" href="#articulo">Saltar al contenido</a>
+      <ArticleAnalyticsBeacon articleId={article.id} />
 
       <main className="container article-page" id="articulo">
         <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
