@@ -1,17 +1,17 @@
 # Playbook
 
-Portal editorial de Playbook (negocio del deporte, México/LATAM). **En
-migración** de sitio estático (HTML/JS vanilla, sin build) a una app
-Next.js (App Router) con Postgres, Auth.js, TipTap y Vercel Blob.
+Portal editorial de Playbook (negocio del deporte, México/LATAM). App
+Next.js (App Router) con Postgres, Auth.js, TipTap y Vercel Blob —
+migrada desde un sitio estático (HTML/JS vanilla, sin build).
 
 ## Estado del proyecto
 
 **Antes de tocar nada, leer [`HANDOFF.md`](./HANDOFF.md).** Ese archivo
-tiene el estado real: qué fase de la migración está hecha, qué decisiones
-de stack se tomaron, y un registro de progreso por sesión con el detalle de
-qué se hizo y qué queda pendiente. Este README es solo referencia operativa
-rápida (cómo correr el proyecto) — el estado y el historial de trabajo
-viven en `HANDOFF.md`, no acá.
+tiene el estado real: qué se hizo en cada fase de la migración, qué
+decisiones de stack se tomaron, y un registro de progreso por sesión con
+el detalle de qué se hizo y qué queda pendiente. Este README es solo
+referencia operativa rápida (cómo correr el proyecto) — el estado y el
+historial de trabajo viven en `HANDOFF.md`, no acá.
 
 ## Cómo correr en local
 
@@ -25,10 +25,7 @@ npm run dev
 
 ## Estructura
 
-- `app/`, `lib/`, `components/`, `styles/` — la app Next.js nueva.
-- `legacy/` — el sitio estático original completo, conservado como
-  referencia mientras se reconstruye cada pieza. No se despliega. Se borra
-  en el corte final de la migración (ver `HANDOFF.md`).
+- `app/`, `lib/`, `components/`, `styles/` — la app Next.js.
 - `scripts/` — migraciones de schema y de datos, seed de editores.
 
 ## Convención: mantener el registro de progreso al día
