@@ -2,7 +2,14 @@
 .news-section{padding-top:28px;}
 .source-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
 
-.news-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:36px;margin-bottom:8px;}
+/* Paquete compacto de noticias (Fase 7 UX, segunda pasada): hero + lista
+   de 5 + rail de 300px en UNA banda de tres columnas. El conteo 1+5 es
+   un compromiso negociado con el lado comercial (bloque de texto corto
+   antes de las secciones que les interesan) — pulirlo, no crecerlo. */
+.news-grid{display:grid;grid-template-columns:1.35fr 1fr 300px;gap:36px;margin-bottom:8px;align-items:start;}
+/* El caso "sin artículos en esta categoría" ocupa las dos columnas
+   editoriales y deja el rail en su lugar. */
+.news-grid .empty-state{grid-column:span 2;}
 
 .lead-story{display:block;position:relative;border-right:1px solid var(--rule);padding-right:36px;padding-left:16px;border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out);}
 .lead-story[data-source="industry-shots"]{border-left-color:var(--src-industry);}
@@ -52,12 +59,12 @@
 .news-row h3{font-family:var(--sans);font-weight:600;font-size:15.5px;line-height:1.35;margin:0 0 6px;transition:color var(--duration-fast) ease;}
 .news-row .byline{font-size:11.5px;}
 
-/* ——— Layout de dos columnas del feed (Fase 7 UX) ———
-   Debajo del paquete principal (hero + lista) y del ad leaderboard: feed
-   de tarjetas a la izquierda, rail de 300px a la derecha (Más leídas +
-   ad slot). Colapsa a una columna bajo 920px (ver responsive.css). */
-.home-columns{display:grid;grid-template-columns:1fr 300px;gap:36px;align-items:start;margin-top:6px;}
-.sidebar-sticky{position:sticky;top:132px;}
+/* ——— Rail derecho del paquete de noticias (Fase 7 UX) ———
+   Tercera columna de .news-grid: Más leídas + ad rail + módulo compacto
+   de newsletter. Colapsa debajo de la lista bajo 920px
+   (responsive.css). */
+.home-sidebar{border-left:1px solid var(--rule);padding-left:28px;}
+.sidebar-sticky{position:sticky;top:132px;display:flex;flex-direction:column;gap:26px;}
 
 /* Módulo "Más leídas" del sidebar — patrón rank-list del prototipo v24:
    numeración por contador CSS (decimal-leading-zero) en Anton gris,
@@ -70,29 +77,24 @@
 .rank-item a:hover h3,.rank-item a:focus-visible h3{color:var(--green);}
 .rank-item>span{font-size:10.5px;color:var(--gray-txt);white-space:nowrap;}
 
-/* Tarjetas del feed — patrón story-card/story-visual del prototipo v23.
-   Dos columnas dentro del ancho que deja el rail. */
-.feed-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.story-card{display:block;border:1px solid var(--rule);background:var(--paper);overflow:hidden;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
-.story-card:hover,.story-card:focus-visible{border-color:var(--ink);transform:translateY(-2px);}
-.story-visual{aspect-ratio:16/9;display:flex;align-items:flex-end;padding:18px;background:var(--paper-soft);position:relative;overflow:hidden;}
-.story-visual.photo{padding:0;}
-.story-visual.photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
-.story-card:hover .story-visual.photo img{transform:scale(1.03);}
-/* Cuando no hay foto, la tipografía es la imagen: titular en Anton grande
-   sobre un fondo editorial mapeado por fuente. Superficies fijas (no se
-   invierten con el tema) — texto --ink-fixed sobre verde/amarillo, blanco
-   sobre tinta, mismo criterio que .btn.accent / la sección de video. */
+/* Módulo compacto de newsletter del rail (spec de sidebar de la Fase 9).
+   El pill-form global asume 380px de ancho; en un rail de ~270px el
+   input y el botón se apilan mejor en columna. */
+.side-newsletter-copy{font-size:12.5px;line-height:1.5;color:var(--gray-txt);margin:10px 0 12px;}
+.side-newsletter .pill-form{max-width:100%;border-radius:14px;padding:6px;}
+.side-newsletter .pill-form .nl-fields{flex-direction:column;gap:6px;}
+.side-newsletter .pill-form input{border-radius:10px;padding:9px 12px;min-height:36px;}
+.side-newsletter .pill-form button{width:100%;border-radius:10px;}
+
+/* Tratamiento tipográfico para artículos sin imagen (Fase 7 UX): la
+   tipografía es la imagen — titular en Anton sobre la superficie de
+   papel cuadriculado del prototipo v23. Deliberadamente UNA sola
+   superficie muda (nada de pósters verdes/amarillos: la primera pasada
+   los probó y leían startupy, no senior — feedback del usuario); la
+   identidad de fuente ya la dan el borde izquierdo y los colores de
+   tag. Sigue el tema sola (tokens --paper/--rule/--ink). */
 .visual-label{font-family:var(--serif-display);font-weight:400;font-size:clamp(22px,2vw,30px);line-height:.98;max-width:92%;text-transform:uppercase;margin:0;}
-.visual-green{background:var(--green);color:var(--ink-fixed);}
-.visual-yellow{background:var(--yellow);color:var(--ink-fixed);}
-.visual-black{background:var(--ink-fixed);color:#fff;}
 .visual-grid{background-color:var(--paper);background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);}
-.story-copy{padding:15px 17px 17px;}
-.story-copy h3{font-family:var(--sans);font-weight:600;font-size:15.5px;line-height:1.35;margin:0 0 8px;transition:color var(--duration-fast) ease;}
-.story-card:hover .story-copy h3{color:var(--green);}
-.story-copy p{font-size:12.5px;color:var(--gray-txt);line-height:1.5;margin:0 0 10px;}
-.story-copy .byline{font-size:11px;}
 
 .news-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:30px;border-top:1px solid var(--ink);}
 .news-strip a{display:block;padding:20px 20px 20px 14px;margin-left:20px;border-right:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}

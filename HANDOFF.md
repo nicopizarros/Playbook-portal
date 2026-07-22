@@ -2695,6 +2695,93 @@ real, mismo estándar que Fases 1-3):
   voseo de la entrada anterior sigue pendiente en los 7 archivos ya
   listados (esta sesión solo eliminó el del banner de cookies).
 
+### 2026-07-22 — Fase 7, segunda pasada: corrección de rumbo por feedback del usuario
+
+- Feedback directo del usuario sobre la primera pasada (entrada
+  anterior), en tres puntos, todos atendidos en esta misma rama:
+  1. **"Más senior, menos startupy" — el color sobraba.** Las tarjetas
+     tipográficas con fondos verde/amarillo/tinta lograban lo contrario
+     de lo buscado. Se eliminaron `StoryCard.tsx`, la rotación de
+     paletas por fuente, las clases `visual-green/yellow/black` y el
+     token `--yellow` (revertido — el sistema de tokens queda como
+     estaba antes de la sesión). Lo único que queda del tratamiento
+     tipográfico es UNA superficie muda: papel cuadriculado
+     (`visual-grid`) con el titular en Anton, solo para el hero sin
+     imagen (`LeadStory`). La identidad de fuente la siguen dando el
+     borde izquierdo y los colores de tag, como siempre.
+  2. **El 1+5 era un compromiso negociado con el equipo comercial**
+     (bloque de texto corto antes de las secciones que les interesan) —
+     la grilla de 9 tarjetas extra de la primera pasada trabajaba en
+     contra de ese acuerdo. Eliminada por completo (`FEED_COUNT` fuera
+     de `lib/constants.ts`, con un comentario que deja el acuerdo por
+     escrito para que ninguna sesión futura vuelva a "mejorarlo").
+     El paquete de noticias ahora es UNA banda de tres columnas:
+     hero (1.35fr) + lista de 5 (1fr) + rail de 300px — el layout de
+     lead-card + sidebar del prototipo ux02. El slot `inline-feed`
+     quedó al final de la lista (después de la sexta historia, igual
+     que el plan original de Fase 7); `leaderboard-home` se movió a
+     `page.tsx`, entre el paquete de noticias y Análisis.
+  3. **Instagram descartado del todo** (el fix de tiles tampoco
+     convenció): `InstagramGrid.tsx` eliminado. El espacio de la banda
+     de video se cierra ahora con `.video-cta` — franja angosta con el
+     link al canal que ya edita el CMS (campos `clips`/`instagramReels`
+     siguen almacenados y editables, solo no se renderizan).
+- **El rail ganó contenido real**: además de Más leídas y el ad
+  `rail-home`, un módulo compacto de newsletter (`side-newsletter` en
+  `HomeSidebar.tsx` — la spec de sidebar que la Fase 9 ya planeaba),
+  con el `pill-form` existente adaptado a columna para los ~270px del
+  rail. Así el rail no queda vacío mientras GA4/red publicitaria no
+  existan, y el lado comercial conserva un punto de conversión arriba.
+- **UX run como lector (desktop 1440 / mobile 390, claro y oscuro,
+  portada + artículo + archivo), con dos hallazgos reales corregidos**:
+  1. **~400-500px de aire muerto** entre el paquete de noticias y
+     Análisis: eran las reservas vacías de los ad slots (el rail de
+     250-600px estiraba la banda entera de la grilla; el leaderboard
+     sumaba 90px+márgenes). Corregido con `.ad-slot:empty{display:none}`
+     global en `ads.css`: un slot sin red conectada no ocupa lugar; las
+     `min-height` por slot quedan declaradas y aplican solas cuando la
+     red inyecte contenido. El comentario del archivo documenta cómo
+     volver a reserva dura anti-CLS (borrar una regla) al integrar la
+     red. La portada pasó de 5141px a 4535px de alto sin perder ninguna
+     sección.
+  2. **Ritmo de párrafos roto en el punto de corte del ad de artículo**:
+     `.article-body p:last-child{margin-bottom:0}` también pescaba al
+     último párrafo del primer `<div>` de un cuerpo HTML partido en dos
+     por el slot inline-article — el hueco entre los párrafos 3 y 4
+     quedaba visiblemente más chico que el resto. Corregido acotando el
+     selector (`.article-body > p:last-child, .article-body >
+     div:last-child > p:last-child`); verificado midiendo los gaps
+     reales entre todos los párrafos post-fix: `[20,20,20,20,20,20]`.
+- **Verificación real** (mismo estándar): suite de 29 checks Playwright
+  — consentimiento (banner, aceptar todo, slots a `granted` en vivo),
+  las 6 posiciones de ad en DOM y colapsadas sin cajas visibles,
+  paquete 1+5 exacto sin feed-grid, módulo de newsletter del rail,
+  `#mas-leidas` ausente sin GA4, cero superficies de color ni restos de
+  Instagram (selectores y scripts), franja `.video-cta`, filtros,
+  búsqueda con acentos, colapso mobile/sticky desktop, ad de artículo
+  tras exactamente 3 párrafos con gaps uniformes, rutas de regresión
+  (todas 200; artículo inexistente 404). El único "fail" de la corrida
+  fue un falso negativo de timing del banner (verificado aparte con
+  `waitForSelector` → visible). Más leídas re-verificado visualmente
+  con el stub temporal de GA4 (revertido antes del commit). Capturas
+  revisadas: portada completa antes/después del fix de aire muerto,
+  fold claro/oscuro, mobile completo, cuerpo de artículo, panel de
+  preferencias de consentimiento en mobile, /archivo completo (sin
+  cambios). `tsc --noEmit`, `npm run lint` y `next build` limpios con y
+  sin `.env.local`. (Nota operativa: el contenedor se reinició a mitad
+  de esta verificación — Postgres se relevantó con `pg_ctlcluster` y
+  los builds se re-corrieron completos después del reinicio.)
+- **Sin cambios** en: capa de consentimiento, AdSlot, búsqueda,
+  Análisis/directorio de temas/Infinitas/banda de prueba (todo lo de la
+  primera pasada que no tocó el feedback), /archivo, admin (el preview
+  sigue reflejando las secciones reales — `NewsGrid` solo cambió por
+  dentro, misma interfaz).
+- **Pendiente**: igual que la entrada anterior (conectar red, GA4 de
+  producción, voseo), más una decisión de producto chica: al integrar
+  la red publicitaria, decidir si se reactivan las reservas duras de
+  espacio (anti-CLS) o se deja el colapso `:empty` — hoy colapsan
+  porque una reserva vacía sin red era puro aire muerto.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y

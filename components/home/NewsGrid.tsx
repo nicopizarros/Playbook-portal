@@ -3,11 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { rankArticles, selectHero } from '@/lib/rank';
-import { LEAD_COUNT, LIST_COUNT, FEED_COUNT, KNOWN_SOURCES, SOURCE_LABELS } from '@/lib/constants';
+import { LEAD_COUNT, LIST_COUNT, KNOWN_SOURCES, SOURCE_LABELS } from '@/lib/constants';
 import type { Article } from '@/lib/data/articles';
 import { LeadStory } from '../article/LeadStory';
 import { NewsRow } from '../article/NewsRow';
-import { StoryCard } from './StoryCard';
 import { AdSlot } from '@/components/ads/AdSlot';
 
 const FILTERS: { source: string; label: string }[] = [
@@ -20,15 +19,17 @@ const FILTERS: { source: string; label: string }[] = [
 // this is a pure client-side re-filter — the 180ms fade is cosmetic, not
 // covering a loading state.
 //
-// Fase 7 UX layout, top to bottom:
-//   1. Lead package — hero + 5-row list (the pre-existing news-grid).
-//   2. leaderboard-home ad slot, between the lead package and the feed.
-//   3. Two columns: story-card feed (v23 prototype pattern, with the
-//      inline-feed ad slot after the sixth card) on the left, sticky
-//      sidebar (Most Read + rail ad) on the right. The sidebar arrives as
-//      a pre-rendered ReactNode from the server (see HomeSidebar) so this
-//      client component never re-renders it — source filters only re-rank
-//      the articles.
+// The news package is deliberately compact: hero + 5-row list + 300px
+// sidebar in ONE three-column band. The 1+5 count is a negotiated
+// compromise with the sales side (keep the text block short so readers
+// reach the commercial sections quickly) — do not grow it; polish it.
+// A first pass of this session added a 9-card feed below it and that was
+// reverted for exactly this reason. The inline-feed ad slot sits after
+// the sixth story (end of the list), native format, collapsed while
+// empty (see styles/ads.css). The sidebar (Más leídas + rail ad +
+// newsletter module) arrives as a pre-rendered ReactNode from the server
+// (see HomeSidebar) — source filters re-rank the stories without ever
+// re-rendering it.
 export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?: React.ReactNode }) {
   const [activeSource, setActiveSource] = useState('all');
   const [isFading, setIsFading] = useState(false);
@@ -46,17 +47,7 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
   const filtered = rankArticles(pool);
   const hero = selectHero(filtered);
   const list = filtered.filter(a => a !== hero).slice(0, LIST_COUNT);
-  const feed = filtered.filter(a => a !== hero).slice(LIST_COUNT, LIST_COUNT + FEED_COUNT);
-  const shown = (hero ? LEAD_COUNT : 0) + list.length + feed.length;
-  const overflow = Math.max(0, filtered.length - shown);
-
-  // The inline-feed slot goes after the sixth card of the feed grid — when
-  // the active filter leaves fewer than six, it trails the last one.
-  const adIndex = Math.min(6, feed.length);
-  const feedWithAd: React.ReactNode[] = feed.map(a => <StoryCard key={a.id} article={a} />);
-  if (feed.length > 0) {
-    feedWithAd.splice(adIndex, 0, <AdSlot key="ad-inline-feed" slot="inline-feed" />);
-  }
+  const overflow = Math.max(0, filtered.length - LEAD_COUNT - LIST_COUNT);
 
   return (
     <>
@@ -98,18 +89,11 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
                 {list.map(a => (
                   <NewsRow key={a.id} article={a} heading="h3" />
                 ))}
+                <AdSlot slot="inline-feed" />
               </div>
             </>
           )}
-        </div>
-
-        <AdSlot slot="leaderboard-home" />
-
-        <div className="home-columns">
-          <div className={`home-feed fade-swap${isFading ? ' is-fading' : ''}`}>
-            {feed.length > 0 && <div className="feed-grid">{feedWithAd}</div>}
-          </div>
-          <aside className="home-sidebar" aria-label="Lo más leído y patrocinio">
+          <aside className="home-sidebar" aria-label="Lo más leído y newsletter">
             {sidebar}
           </aside>
         </div>

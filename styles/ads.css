@@ -10,19 +10,25 @@
    - inline-article: 100% del ancho del cuerpo
    - vertical-sponsor-infinitas: patrocinio nombrado, banda baja */
 .ad-slot{display:block;}
+/* Un slot vacío no ocupa lugar: mientras no haya red conectada, cada
+   reserva era una franja muerta real en la página (verificado en render:
+   ~400px de aire entre el paquete de noticias y Análisis solo de
+   reservas vacías) — lo contrario del estándar editorial serio que se
+   busca. Las dimensiones de abajo aplican recién cuando la red inyecta
+   contenido y :empty deja de cumplirse. Al integrar la red, si se
+   quiere reserva dura anti-CLS para los formatos fijos (leaderboard/
+   rail/mid-editorial/article), basta con borrar esta regla — las
+   min-height ya quedan declaradas. */
+.ad-slot:empty{display:none;}
 .ad-slot--leaderboard-home{min-height:90px;max-width:970px;margin:34px auto;}
-.ad-slot--rail-home{min-height:600px;width:100%;margin-top:26px;}
+/* Rail como 300×250 (MPU) por defecto, no el half-page 300×600 del plan:
+   el rail es una columna de la banda de noticias y un bloque de 600px la
+   estiraría muy por debajo del contenido editorial. Subir esta línea si
+   se contrata half-page. */
+.ad-slot--rail-home{min-height:250px;width:100%;}
 .ad-slot--inline-mid-editorial{min-height:180px;max-width:970px;margin:0 auto;padding:0 24px;}
 .ad-slot--inline-article{min-height:250px;margin:28px 0;}
-/* Formatos nativos/content-sized: no hay dimensión fija que reservar, así
-   que un slot vacío colapsa en vez de dejar un hueco visible (una celda
-   vacía en la grilla del feed, una banda muerta bajo Infinitas). Cuando la
-   red inyecte contenido, :empty deja de aplicar y el slot ocupa su lugar —
-   los formatos de dimensión fija de arriba sí reservan espacio siempre
-   (cero CLS), esta excepción es solo para los nativos. */
-.ad-slot--inline-feed:empty{display:none;}
 .ad-slot--vertical-sponsor-infinitas{min-height:64px;margin-top:22px;}
-.ad-slot--vertical-sponsor-infinitas:empty{display:none;}
 
 @media(max-width:920px){
   .ad-slot--leaderboard-home{min-height:50px;margin:26px auto;}

@@ -1,26 +1,18 @@
 import type { SiteContentData } from '@/lib/data/site-content';
 import { safeUrl } from '@/lib/safe-url';
 import { LazyEmbed } from '@/components/LazyEmbed';
-import { InstagramGrid } from './InstagramGrid';
 
-// Fase 7 UX trim: the section keeps its two-video feature block + episode
-// list and gains the InstagramGrid tiles; the old four-thumbnail YouTube
-// clip grid (clips-row/ClipCard) and the Instagram embed widgets
-// (InstagramReels + embed.js) are gone from the homepage. The CMS video
-// tab still edits the `clips` data — it keeps feeding the admin preview
-// and stays available if a future surface wants it — but the homepage no
-// longer renders it (decided in the Fase 7 homepage brief: the clip grid
-// diluted the section and the embeds caused the blank-gap failure).
-export function VideoSection({
-  data,
-  instagramProfileUrl = 'https://www.instagram.com/playbook.la/',
-}: {
-  data: SiteContentData['videoSection'];
-  instagramProfileUrl?: string;
-}) {
-  const handleMatch = instagramProfileUrl.match(/instagram\.com\/([^/?#]+)/i);
-  const instagramHandle = handleMatch ? `@${handleMatch[1]}` : 'Instagram';
-
+// Fase 7 UX (second pass, after user feedback): the section is the
+// two-video feature block + episode list, closed by a slim channel CTA
+// strip. The old four-thumbnail YouTube clip grid diluted the section and
+// the Instagram replacements (first embeds, then link-out tiles) are both
+// gone — embeds had the blank-gap failure mode, and the tile version was
+// scrapped by the user. The CTA strip reuses the channel link the CMS
+// video tab already edits (channelLinkUrl/channelLinkLabel), so the freed
+// space ends in a conversion point instead of dead air. The `clips` and
+// `instagramReels` CMS fields remain editable and stored; the homepage
+// just doesn't render them.
+export function VideoSection({ data }: { data: SiteContentData['videoSection'] }) {
   return (
     <section className="video-section" id="video">
       <div className="container" style={{ padding: '0 24px 46px' }}>
@@ -71,11 +63,12 @@ export function VideoSection({
             </div>
           </div>
 
-          <InstagramGrid
-            reels={data.instagramReels}
-            profileUrl={instagramProfileUrl}
-            handle={instagramHandle}
-          />
+          <div className="video-cta reveal">
+            <p>Análisis, entrevistas y series originales cada semana.</p>
+            <a className="btn light on-dark" href={safeUrl(data.channelLinkUrl)} target="_blank" rel="noopener noreferrer">
+              {data.channelLinkLabel}
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -13,27 +13,26 @@ import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { AdSlot } from '@/components/ads/AdSlot';
 
-// Fase 7 homepage order (decided in the homepage/ads brief — see
-// HANDOFF.md's session entry):
-//   1. Lead story + feed + sidebar (leaderboard + inline-feed + rail ads
-//      live inside NewsGrid/HomeSidebar)
-//   2. Análisis/Opinión (v24 grid treatment, moved up from below Most Read)
-//   3. Newsletter band — MidCta only; the old duplicate nl-box is gone
-//      (MidCta is the CMS-editable one, so the editable band is the one
-//      that survives)
+// Fase 7 homepage order (decided in the homepage/ads brief, then tuned
+// with user feedback — see HANDOFF.md's session entries):
+//   1. Compact news package: hero + 5-row list + sidebar in one
+//      three-column band (inline-feed ad after the sixth story, rail ad
+//      + Más leídas + newsletter module in the sidebar). Kept
+//      deliberately short — the 1+5 count is a compromise with the
+//      sales side; don't grow it.
+//   — leaderboard-home ad between the news package and Análisis —
+//   2. Análisis/Opinión (v24 grid treatment)
+//   3. Newsletter band — MidCta only (the CMS-editable one)
 //   4. Topic directory (archive entry point)
 //   5. Productos editoriales
 //   — inline-mid-editorial ad between Productos and Video —
-//   6. Video Playbook (trimmed) + 7. Instagram tiles (inside the same
-//      dark band)
-//   8. Infinitas three-column grid (vertical-sponsor ad inside the section)
-//   10. Playbook en números + testimonios, compressed into one proof band
-//   11. Acerca de Playbook
+//   6. Video Playbook (two-video block + channel CTA; the Instagram
+//      grid was scrapped — user feedback)
+//   7. Infinitas three-column grid (vertical-sponsor ad inside the section)
+//   8. Playbook en números + testimonios, compressed into one proof band
+//   9. Acerca de Playbook
 export default async function HomePage() {
   const [articles, content] = await Promise.all([getAllArticles(), getSiteContent()]);
-  const instagramProfileUrl = content.footer.socialLinks.find(l =>
-    /instagram\.com/i.test(l.url),
-  )?.url;
 
   return (
     <>
@@ -41,12 +40,13 @@ export default async function HomePage() {
         <NewsGrid articles={articles} sidebar={<HomeSidebar />} />
       </main>
 
+      <AdSlot slot="leaderboard-home" />
       <OpinionSection data={content.opinionSection} />
       <MidCta data={content.midCta} />
       <TopicDirectory />
       <ProductsSection data={content.productsSection} />
       <AdSlot slot="inline-mid-editorial" />
-      <VideoSection data={content.videoSection} instagramProfileUrl={instagramProfileUrl} />
+      <VideoSection data={content.videoSection} />
       <InfinitasSection data={content.infinitasSection} />
       <div className="proof-band">
         <StatsSection data={content.statsSection} />

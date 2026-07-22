@@ -54,11 +54,12 @@
   .lead-story{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:20px;}
   .news-strip{grid-template-columns:1fr 1fr;}
   .news-strip a:nth-child(2){border-right:none;}
-  /* Fase 7 UX: el layout de dos columnas colapsa — sidebar debajo del
-     feed, sin sticky (el rail-home además se oculta, ver ads.css). */
-  .home-columns{grid-template-columns:1fr;gap:28px;}
+  /* Fase 7 UX: la banda de tres columnas colapsa — hero, lista y
+     sidebar apilados, sin sticky ni borde de rail (el ad rail-home
+     además se oculta, ver ads.css). */
+  .news-grid .empty-state{grid-column:auto;}
+  .home-sidebar{border-left:none;padding-left:0;}
   .sidebar-sticky{position:static;}
-  .feed-grid{grid-template-columns:1fr;}
   .analysis-grid,.product-grid,.testimonial-grid{grid-template-columns:1fr;}
   .analysis-card{border-right:none;border-bottom:1px solid var(--rule);min-height:0;}
   .product{border-right:none;border-bottom:1px solid var(--rule);}
@@ -67,7 +68,6 @@
   .topic-directory{grid-template-columns:repeat(3,1fr);}
   .video-top,.inf-grid,.about-card{grid-template-columns:1fr;}
   .inf-card{min-height:240px;}
-  .ig-grid{max-width:100%;}
   .proof-grid{grid-template-columns:1fr;}
   .stat{border-right:none;border-bottom:1px solid var(--rule);padding-bottom:16px;margin-bottom:16px;}
   .mid-cta-box{flex-direction:column;align-items:flex-start;}

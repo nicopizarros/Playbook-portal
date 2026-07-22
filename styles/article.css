@@ -25,7 +25,13 @@
 
 .article-body{font-size:17px;line-height:1.7;color:var(--gray-dark);max-width:68ch;font-weight:400;}
 .article-body p{margin:0 0 20px;}
-.article-body p:last-child{margin-bottom:0;}
+/* Solo el último párrafo del CUERPO pierde su margen — no cualquier
+   p:last-child: el slot de ad inline-article parte los cuerpos HTML en
+   dos <div>s, y el selector viejo (`p:last-child` a secas) también
+   pescaba al último párrafo del primer div, comiéndose el ritmo de
+   espaciado justo en el punto de corte (detectado en el UX run). */
+.article-body > p:last-child,
+.article-body > div:last-child > p:last-child{margin-bottom:0;}
 
 /* ——— Compartir ——— */
 .share-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:28px;}

@@ -1,13 +1,12 @@
 // Homepage layout counts, ported verbatim from legacy/js/articles.js /
 // legacy/admin/dashboard.js — kept in one place so the DB-backed pages and
 // (in Phase 4) the admin preview agree on what "on the homepage" means.
+// The homepage shows exactly hero + 5 list rows (1+5). That count is a
+// negotiated compromise with the sales side — a short text block before
+// the commercial sections — so don't grow it (a 9-card feed grid was
+// added and reverted in the Fase 7 session for exactly this reason).
 export const LEAD_COUNT = 1;
 export const LIST_COUNT = 5;
-// Story cards in the homepage feed grid below the lead package (Fase 7 UX
-// two-column layout, components/home/NewsGrid.tsx). Not part of the
-// archive-overflow math on purpose: /archivo keeps its original "everything
-// beyond hero+list" definition so its URL-filter behavior doesn't shift.
-export const FEED_COUNT = 9;
 export const TICKER_COUNT = 6;
 export const RELATED_COUNT = 3;
 

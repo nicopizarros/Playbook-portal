@@ -7,12 +7,6 @@
   --gray-txt:#6b6459;
   --gray-dark:#332f27;
   --green:#9aea39;
-  /* Amarillo de marca, par del --green de arriba. Vive en los prototipos
-     de diseño (docs/playbook-portal-v23/v24) desde el origen del sistema
-     visual pero nunca se había necesitado en el portal hasta los fondos
-     editoriales de tarjetas sin imagen (Fase 7 UX). Igual que --green, no
-     cambia entre temas: es una superficie fija con texto --ink-fixed. */
-  --yellow:#e4fd51;
   /* Font family values come from next/font/google (see app/layout.tsx) via
      CSS variables it generates, instead of the render-blocking Google
      Fonts <link> the legacy site used — same families/weights, just

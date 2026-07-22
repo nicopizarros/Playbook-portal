@@ -82,23 +82,12 @@
 .more-eps a:hover{color:var(--green);}
 .more-eps a span{color:rgba(255,255,255,.4);font-size:11.5px;white-space:nowrap;}
 
-/* ——— Instagram (Fase 7 UX) ———
-   Tiles propios que enlazan afuera — reemplazan los embeds de embed.js
-   (que dejaban un hueco en blanco cuando el script no cargaba, ver
-   HANDOFF). Superficies fijas: viven dentro de la banda oscura de video,
-   no reaccionan al tema. Dos columnas 9/16, acotadas en ancho para que
-   la relación vertical no domine la página. */
-.ig-reels-head{margin:8px 0 0;}
-.ig-reels-head h3{font-family:var(--serif-display);font-weight:400;font-size:20px;margin:0;text-transform:none;color:#fff;}
-.ig-grid-wrap{display:flex;flex-direction:column;gap:18px;}
-.ig-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:640px;}
-.ig-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;aspect-ratio:9/16;overflow:hidden;background:linear-gradient(145deg,#0a0a0a,#2a2a2a);border:1px solid rgba(255,255,255,.16);color:#fff;transition:transform var(--duration-base) var(--ease-out),border-color var(--duration-base) var(--ease-out);}
-.ig-tile:hover,.ig-tile:focus-visible{transform:scale(1.02);border-color:var(--green);}
-.ig-tile-icon{width:30px;height:30px;color:var(--green);}
-.ig-tile-handle{font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;}
-.ig-tile-label{font-size:10.5px;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;}
-.ig-profile-link{align-self:flex-start;font-size:12.5px;font-weight:600;color:#fff;border-bottom:1px solid rgba(255,255,255,.66);padding-bottom:2px;transition:color var(--duration-fast) ease;}
-.ig-profile-link:hover,.ig-profile-link:focus-visible{color:var(--green);border-bottom-color:var(--green);}
+/* ——— Cierre de la banda de video (Fase 7 UX, segunda pasada) ———
+   Franja angosta de CTA al canal — reemplaza la grilla de clips y los
+   experimentos de Instagram (descartados). Reutiliza el link de canal
+   que ya edita el CMS. */
+.video-cta{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.16);padding-top:22px;}
+.video-cta p{font-size:13.5px;color:rgba(255,255,255,.65);margin:0;}
 
 /* ——— Infinitas (Fase 7 UX) ———
    Grilla de tres columnas del prototipo v24 (1.3fr 1fr 1fr): cada tarjeta
