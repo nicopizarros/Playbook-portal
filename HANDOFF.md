@@ -2480,24 +2480,36 @@ real, mismo estándar que Fases 1-3):
   `main`, Vercel dispara un nuevo deploy de producción, ese deploy corre
   `vercel-build`, y la migración pendiente se aplica sola antes de que
   `next build` siquiera empiece.
-- **Pendiente**: confirmar después del deploy que `/`, `/archivo` y
-  `/articulo?id=...` vuelven a dar `200` reales en producción, y que el
-  build log de Vercel muestra `[predeploy-migrate] schema migrations
-  applied.` Si por algún motivo `VERCEL_ENV` no se comporta en el deploy
-  real como en `next build`/`vercel build` local (no verificable desde
-  este sandbox, mismo límite que el resto de gaps de plataforma ya
-  documentados en este archivo), el fallback manual de la entrada
-  anterior (correr `npm run db:migrate` a mano contra producción) sigue
-  siendo válido.
+- **Confirmado resuelto, con tráfico real de producción, no solo
+  lectura de logs**: tras el merge, `curl` directo contra
+  `playbook-portal-phi.vercel.app` confirma `/`, `/archivo`,
+  `/sitemap.xml` y `/feed.xml` en `200` reales; el HTML de `/` contiene
+  markup real de artículos (`lead-story`/`news-row`) y ya no el texto del
+  fallback de `app/error.tsx` ("Playbook no está disponible"). El
+  mecanismo de `vercel-build` funcionó exactamente como se diseñó: no
+  hizo falta el fallback manual — Vercel sí tiene acceso TCP real a Neon
+  desde su entorno de build (a diferencia de este sandbox, que solo tiene
+  salida HTTPS — confirmado aparte en un intento manual con
+  `npm run db:migrate` contra la base real, que dio `ETIMEDOUT` al
+  puerto 5432 con el hostname resuelto correctamente vía DNS, o sea un
+  límite de red del sandbox, no de la credencial ni del código; mismo
+  motivo documentado en `scripts/publish-newsletter.ts` para usar el
+  driver HTTP de Neon en vez de `pg`).
+- **Nota operativa, no de código**: durante este cierre el usuario
+  compartió la contraseña real de la base de producción en el chat de la
+  sesión al intentar el fallback manual. Recomendado rotarla en el
+  dashboard de Neon (Settings → reset password del rol `neondb_owner`) y
+  actualizar `POSTGRES_URL` en las variables de entorno de Vercel para
+  que coincida, como buena práctica — no porque haya evidencia de un uso
+  indebido, sino porque una credencial de producción no debería quedar
+  registrada en el historial de una conversación.
 
 ## Próximos pasos
 
-**Ya no es urgente una intervención manual en la base de producción** —
-ver la entrada de arriba ("Fix: sitio caído en producción... + migración
-automática en cada deploy"): el próximo deploy de `main` aplica la
-migración pendiente solo. Confirmar tras el deploy que el sitio responde
-`200` en producción real; si no, usar el fallback manual documentado en
-la entrada de incidente anterior a esa.
+El incidente de `wall_teaser` de la entrada anterior está **resuelto y
+confirmado en producción real** (ver esa misma entrada) — no queda nada
+pendiente de ese incidente salvo la rotación de contraseña ya anotada
+ahí, que es del usuario, no de código.
 
 El plan de trabajo está en la sección "Fases 7, 8 y 9" arriba. El orden
 recomendado es:
