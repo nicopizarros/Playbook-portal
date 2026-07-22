@@ -1888,6 +1888,76 @@ real, mismo estándar que Fases 1-3):
   reportar qué mensaje de error (blanco puro vs. el nuevo fallback de
   marca) se ve ahora.
 
+### 2026-07-22 — Causa raíz real encontrada (con captura de pantalla del usuario): `ScrollReveal` nunca vuelve a correr tras una navegación cliente-side
+
+- **El usuario mandó una captura real de iPad tras la entrada anterior**:
+  el bug no era una pantalla en blanco por un error no atrapado (la teoría
+  de la entrada de ayer, defendible con la evidencia que había en ese
+  momento, pero no confirmada) — la captura muestra el header, el ticker,
+  el encabezado "ÚLTIMO EN PLAYBOOK" y los botones de filtro renderizando
+  perfectamente, pero **el área de tarjetas de artículos, debajo de los
+  filtros, completamente vacía** — y el usuario reportó que tocar esa zona
+  vacía sí navega al artículo. Eso descarta un error de render (que
+  hubiera disparado los `error.tsx` de ayer y reemplazado *todo*, incluido
+  el header) y apunta a algo más quirúrgico: contenido presente en el DOM
+  pero invisible, no ausente.
+- **Causa raíz confirmada con Playwright real, no adivinada**: cada
+  elemento con clase `.reveal` (`components/article/LeadStory.tsx`,
+  `components/article/NewsRow.tsx`) arranca en `opacity:0` por CSS
+  (`styles/layout.css`) y solo pasa a `opacity:1` cuando
+  `components/ScrollReveal.tsx` le agrega `.is-visible` vía
+  `IntersectionObserver`, dentro de un `useEffect(() => {...}, [])` — array
+  de dependencias vacío, corre **una sola vez**. `ScrollReveal` vive en
+  `app/(public)/layout.tsx`, y ese layout permanece montado entre
+  navegaciones cliente-side dentro del mismo grupo de rutas (portada ↔
+  artículo ↔ archivo) — es exactamente el comportamiento que un layout de
+  Next.js App Router está diseñado para tener. Reproducido de punta a
+  punta con Playwright: aterrizar en `/articulo?id=...` (monta el layout +
+  `ScrollReveal` por primera vez, corre para los 3 `.reveal` de esa
+  página), clickear el link real "← Volver a Playbook" (nav cliente-side,
+  no recarga) — la portada monta 39 elementos `.reveal` nuevos vía
+  `NewsGrid`, pero como `ScrollReveal` no se desmontó/remontó, su efecto no
+  vuelve a correr: **los 39 quedan en `opacity:0` para siempre** — presentes
+  en el DOM, con sus `<a href>` reales y clickeables, pero invisibles.
+  Confirmado también con el botón de "atrás" real del navegador
+  (`page.goBack()`), no solo con el link en-app. Control: una carga directa
+  y fresca de "/" sí revela 11/39 elementos correctamente (los que están en
+  el viewport inicial) — el mecanismo funciona bien, solo falla al
+  sobrevivir una navegación cliente-side subsiguiente.
+- **Por qué la entrada de ayer no lo agarró**: la verificación de esa
+  sesión sí hizo la navegación cliente-side exacta (clic real en el link,
+  Playwright) y comprobó que el `body.innerText` tenía contenido real — pero
+  nunca comprobó opacidad/visibilidad computada, solo presencia de texto en
+  el DOM. `opacity:0` no vacía el `innerText`, así que ese chequeo pasó
+  sin detectar el bug real. Lección para la próxima vez que se verifique
+  "¿la página se ve bien?": chequear `getComputedStyle(...).opacity` o una
+  captura de pantalla real, no solo contenido textual del DOM.
+- **Corregido**: `ScrollReveal` ahora usa `usePathname()` (de
+  `next/navigation`) como dependencia del `useEffect`, así que el efecto
+  (y su cleanup, que desconecta el `IntersectionObserver` anterior) vuelve
+  a correr en cada cambio de ruta, sin importar si el layout se mantuvo
+  montado. El selector pasó de `.reveal` a `.reveal:not(.is-visible)` para
+  no reiniciar el `transitionDelay` de elementos ya revelados que
+  sobrevivan la navegación (ej. un cambio que solo toca el query string).
+- **Verificación real, mismo escenario exacto reportado, antes/después**:
+  con Playwright, secuencia completa (3 lecturas reales + muro en la 4ª +
+  clic real en "Volver a Playbook") — antes del fix, la portada quedaba con
+  `visible: 0` de 39 y `opacity:'0'` en la primera tarjeta (reproducido);
+  después del fix, `visible: 11` de 39 y `opacity:'1'`, idéntico a una
+  carga fresca. Captura de pantalla tomada después del fix confirma
+  visualmente el grid completo (foto, título, excerpt, tags, fecha) en vez
+  del vacío de la captura original del usuario. Repetido con `/archivo` y
+  con el botón de atrás real del navegador — mismo resultado correcto en
+  ambos. Re-verificado que el camino feliz sin bug (carga directa de cada
+  página) sigue exactamente igual, sin regresión. `tsc --noEmit` y `npm run
+  lint` limpios; `next build` limpio con y sin `.env.local`.
+- **Relación con la entrada de ayer**: los tres `error.tsx` agregados ayer
+  siguen siendo una mejora real y se quedan (la app seguía sin ningún
+  error boundary, un gap real independiente de este bug) pero **no eran la
+  causa** de lo que el usuario vio — esta entrada la reemplaza como
+  diagnóstico definitivo del síntoma reportado. Ambos fixes son
+  complementarios, no contradictorios.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
