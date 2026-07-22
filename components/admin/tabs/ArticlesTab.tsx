@@ -147,6 +147,13 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
                 value={a.teaser}
                 onChange={v => updateEntry(i, { teaser: v })}
               />
+              <TextField
+                label="Teaser del muro de registro"
+                multiline
+                help='Lo que ve un lector no registrado que ya agotó sus 3 artículos gratis del mes, en vez del cuerpo del artículo. Si lo dejas vacío, el muro no muestra ningún adelanto — no usa el extracto ni el resumen de arriba.'
+                value={a.wallTeaser}
+                onChange={v => updateEntry(i, { wallTeaser: v })}
+              />
               <div className="field">
                 <span className="field-label">Cuerpo del artículo (editor)</span>
                 <span className="field-help">

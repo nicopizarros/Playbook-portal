@@ -39,6 +39,14 @@ export const articles = pgTable(
     // Legacy plain-text summary. Kept as the RSS <description> and as the
     // pre-body fallback for articles that predate the TipTap editor.
     teaser: text('teaser').notNull().default(''),
+    // Editor-authored text shown to a metered-out reader (past the free
+    // monthly quota, see lib/metering.ts) in place of the article body —
+    // deliberately separate from `excerpt` (card summary) and `teaser`
+    // (legacy body fallback) above, neither of which an editor should have
+    // to double as wall copy. Null means "no custom wall teaser set": the
+    // wall renders with no preview text rather than silently falling back
+    // to excerpt/teaser, so a missing value is visibly missing, not masked.
+    wallTeaser: text('wall_teaser'),
     // TipTap document (nullable: null means "legacy article, no native body
     // yet" -> article page falls back to teaser + Substack link).
     bodyJson: jsonb('body_json').$type<Record<string, unknown> | null>(),

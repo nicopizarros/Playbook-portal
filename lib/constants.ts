@@ -6,7 +6,7 @@ export const LIST_COUNT = 5;
 export const TICKER_COUNT = 6;
 export const RELATED_COUNT = 3;
 
-export const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook'] as const;
+export const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook', 'opinion'] as const;
 export type Source = (typeof KNOWN_SOURCES)[number];
 
 export const SOURCE_LABELS: Record<Source, string> = {
@@ -14,6 +14,7 @@ export const SOURCE_LABELS: Record<Source, string> = {
   'la-lana': 'La Lana del Mundial',
   infinitas: 'Infinitas',
   playbook: 'Playbook',
+  opinion: 'Opinión',
 };
 
 // Free full-article reads per calendar month for an anonymous (unauthenticated,

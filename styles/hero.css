@@ -9,6 +9,7 @@
 .lead-story[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .lead-story[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
 .lead-story[data-source="playbook"]{border-left-color:var(--src-playbook);}
+.lead-story[data-source="opinion"]{border-left-color:var(--src-opinion);}
 .lead-story .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px;margin-bottom:14px;}
 .lead-photo{aspect-ratio:16/10;overflow:hidden;margin-bottom:16px;background:var(--rule);}
 .lead-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
@@ -43,6 +44,7 @@
 .news-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .news-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
 .news-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
+.news-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
 .news-row h3{font-family:var(--sans);font-weight:600;font-size:15.5px;line-height:1.35;margin:0 0 6px;transition:color var(--duration-fast) ease;}
 .news-row .byline{font-size:11.5px;}
 

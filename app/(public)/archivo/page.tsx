@@ -41,8 +41,6 @@ export default async function ArchivoPage({ searchParams }: Props) {
 
   return (
     <>
-      <a className="skip-link" href="#archivo-main">Saltar al contenido</a>
-
       <main className="container news-section archive-page" id="archivo-main">
         <div className="section-head" style={{ borderBottom: 'none', marginBottom: 0, paddingTop: 0 }}>
           <div>

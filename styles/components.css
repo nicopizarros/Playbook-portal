@@ -51,6 +51,8 @@
 .tag-mini.infinitas::before{background:var(--src-infinitas);}
 .tag-mini.playbook{color:var(--src-playbook);}
 .tag-mini.playbook::before{background:var(--src-playbook);}
+.tag-mini.opinion{color:var(--src-opinion);}
+.tag-mini.opinion::before{background:var(--src-opinion);}
 
 /* Tag-taxonomy pill rows (Task 2) — reuses .tag-mini's dot+label look, no
    source color (these pills are scope/sport/vertical, not source-coded).

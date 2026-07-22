@@ -18,7 +18,6 @@ export default async function CuentaPage() {
   if (!session?.user || session.user.role !== 'reader') {
     return (
       <main className="container legal-page" id="cuenta-main">
-        <a className="skip-link" href="#cuenta-main">Saltar al contenido</a>
         <h1>Mi cuenta</h1>
         <p>Iniciá sesión con tu correo para ver tu cuenta, tu historial de lectura y tus datos.</p>
         <AccountSignInPrompt />
@@ -40,7 +39,6 @@ export default async function CuentaPage() {
 
   return (
     <main className="container legal-page" id="cuenta-main">
-      <a className="skip-link" href="#cuenta-main">Saltar al contenido</a>
       <h1>Mi cuenta</h1>
 
       <h2>Datos</h2>
