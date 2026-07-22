@@ -48,8 +48,6 @@ export default async function TemaPage({ searchParams }: Props) {
 
   return (
     <>
-      <a className="skip-link" href="#tema-main">Saltar al contenido</a>
-
       <main className="container news-section archive-page" id="tema-main">
         <div className="section-head" style={{ borderBottom: 'none', marginBottom: 0, paddingTop: 0 }}>
           <div>

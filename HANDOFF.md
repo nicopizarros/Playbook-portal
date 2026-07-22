@@ -2203,14 +2203,40 @@ real, mismo estándar que Fases 1-3):
   solo abre en pestaña nueva (`target="_blank"`) los enlaces que de verdad
   son externos (`http(s)://`), no los internos — antes todos forzaban
   pestaña nueva sin importar el destino.
-- **Bug de tags/breadcrumb del pedido original, no reproducido**: se
-  probó `/archivo`, `/tema`, `/articulo` en 320/375/390/430/600/700/768/
-  1024/1400px, claro y oscuro, con hasta 6 tags por artículo (el máximo
-  real en los datos actuales) — nunca se encontró superposición entre las
-  tag pills y la barra de "Volver a Noticias"/back-link. Consultado con el
-  usuario: prefirió mandar una captura/URL más adelante en vez de que se
-  aplicara un endurecimiento a ciegas — **queda pendiente de esa
-  información**, no cerrado ni descartado.
+- **Bug de tags/breadcrumb del pedido original — resuelto tras recibir una
+  captura real del usuario** (producción, Safari/iPadOS, modo oscuro,
+  `/archivo`): no era una tag pill sino el propio skip-link
+  ("Saltar al contenido"), enfocado y superpuesto sobre el logo del header.
+  Confirmado por la forma exacta del elemento en la captura (el
+  `border-radius:0 0 8px 0` asimétrico del `.skip-link` de
+  `styles/reset.css` es una huella dactilar inconfundible) y reproducido
+  localmente enfocándolo con `Tab`. **La superposición visual en sí es el
+  comportamiento estándar y correcto de cualquier skip-link** (así
+  funciona en prácticamente todo sitio accesible — aparece flotando arriba
+  solo mientras tiene foco). El bug real, encontrado leyendo
+  `app/(public)/layout.tsx`, era de **orden de tabulación**: cada página
+  pública declaraba su propio skip-link como primer hijo de sus propios
+  `children`, pero el layout renderiza `<Header/>{children}`, así que el
+  logo, los links de nav, el buscador y el toggle de tema — todo el
+  header — quedaban *antes* que el skip-link en el orden de tabulación.
+  Un usuario de teclado tenía que tabular a través de todo el header antes
+  de llegar al único link cuyo propósito es dejarlo saltarse eso — y para
+  cuando llegaba, aparecía flotando sobre el logo en medio de su
+  navegación, en vez de ser lo primero que ve. Confirmado con Playwright
+  antes del fix: el primer `Tab` enfocaba `.brand` (el logo), no el
+  skip-link. Corregido moviendo un único skip-link a
+  `app/(public)/layout.tsx`, antes de `<Header/>`, apuntando a un
+  `<div id="main-content">` nuevo que envuelve `{children}` — y borrando
+  las 9 declaraciones duplicadas de cada página pública (`page.tsx`,
+  `archivo`, `tema`, `autor`, `articulo` ×2 ramas, `cuenta` ×2 ramas,
+  `privacidad`, `terminos`). Ningún otro código depende de los ids
+  `*-main` que tenían esos `<main>` (confirmado con `grep`), así que se
+  dejaron intactos — no hacía falta tocarlos. **Verificado con Playwright,
+  no solo leído**: primer `Tab` en `/`, `/archivo` y `/articulo` ahora
+  enfoca el skip-link (antes: el logo); activarlo con `Enter` salta a
+  `#main-content` (scrollY resultante = justo debajo del header+ticker
+  fijos); tabular una segunda vez sin activarlo pasa correctamente al
+  logo, confirmando que el resto del orden de navegación no se rompió.
 - **Evaluación pedida, no implementada** (correcta: es una pregunta de
   "¿vale la pena?", no un bug): un cross-fade de tema ya existe hoy
   (`styles/reset.css`, `@media(prefers-reduced-motion:no-preference)`,
@@ -2230,9 +2256,11 @@ real, mismo estándar que Fases 1-3):
   `articles.json`/`content.json` después de todos los cambios de
   contenido. Todas las filas/editores de prueba (artículo de opinión,
   cuenta `testadmin`, lecturas anónimas de prueba) borrados al cierre.
-- **Pendiente para la siguiente sesión**: la captura/URL del bug de
-  tags/breadcrumb que el usuario va a mandar; ningún otro ítem de la lista
-  original quedó sin atender.
+- **Con esto, todos los ítems de la lista original del usuario quedaron
+  atendidos** — el de tags/breadcrumb se cerró en un segundo commit de
+  esta misma sesión, después de recibir la captura. Nada pendiente para la
+  siguiente sesión salvo lo ya documentado en "Próximos pasos"
+  (credenciales de despliegue).
 
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
@@ -2275,10 +2303,6 @@ queda es lo de la sección siguiente, que no es código:
 3. **Ninguna fase pendiente.** Si aparece trabajo nuevo (un bug reportado,
    una feature), abrir una entrada nueva de registro con su propia fecha
    — no hace falta inventar un número de fase para eso.
-4. **Abierto de la sesión de auditoría de UX (2026-07-22)**: el bug de
-   tags/breadcrumb superponiéndose — no reproducido en ninguna combinación
-   de página/ancho/tema probada, el usuario va a mandar una captura o URL
-   específica. No tocar de nuevo a ciegas sin esa información.
 
 ## Convención: cómo mantener este archivo
 

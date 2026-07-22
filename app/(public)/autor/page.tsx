@@ -32,8 +32,6 @@ export default async function AutorPage({ searchParams }: Props) {
 
   return (
     <>
-      <a className="skip-link" href="#autor-main">Saltar al contenido</a>
-
       <main className="container news-section archive-page" id="autor-main">
         <div className="section-head" style={{ borderBottom: 'none', marginBottom: 0, paddingTop: 0 }}>
           <div>

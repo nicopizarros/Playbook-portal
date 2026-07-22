@@ -164,7 +164,6 @@ export default async function ArticuloPage({ searchParams }: Props) {
   if (entitlement.kind === 'walled') {
     return (
       <>
-        <a className="skip-link" href="#articulo">Saltar al contenido</a>
         <main className="container article-page" id="articulo">
           <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
           <article className="article-detail">
@@ -202,7 +201,6 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
   return (
     <>
-      <a className="skip-link" href="#articulo">Saltar al contenido</a>
       <ArticleAnalyticsBeacon articleId={article.id} />
 
       <main className="container article-page" id="articulo">

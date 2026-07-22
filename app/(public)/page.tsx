@@ -17,8 +17,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <a className="skip-link" href="#noticias">Saltar al contenido</a>
-
       <main className="container news-section" id="noticias">
         <NewsGrid articles={articles} />
 

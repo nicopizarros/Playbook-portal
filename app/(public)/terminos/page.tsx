@@ -11,8 +11,6 @@ export const metadata: Metadata = {
 export default function TerminosPage() {
   return (
     <main className="container legal-page" id="terminos-main">
-      <a className="skip-link" href="#terminos-main">Saltar al contenido</a>
-
       <h1>Términos y Condiciones</h1>
       <p className="legal-updated">Última actualización: 21 de julio de 2026.</p>
 

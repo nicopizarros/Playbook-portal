@@ -25,8 +25,17 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <>
       {gaMeasurementId && <GoogleAnalytics measurementId={gaMeasurementId} />}
+      {/* Was previously declared per-page, after <Header/> in the render
+          tree — meaning every nav link, the search box, and the theme
+          toggle all sat *before* it in tab order, so a keyboard user had to
+          tab through the entire header before ever reaching the one link
+          whose whole purpose is to let them skip it. Declared once here,
+          before <Header/>, it's now genuinely the first focusable element
+          on every public page, same as every other page-level skip-link
+          before it was moved out. */}
+      <a className="skip-link" href="#main-content">Saltar al contenido</a>
       <Header />
-      {children}
+      <div id="main-content">{children}</div>
       <Footer />
       <ScrollReveal />
       <CookieNotice />
