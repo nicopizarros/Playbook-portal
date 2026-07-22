@@ -13,6 +13,137 @@ tareas de contenido, ver registro de progreso). El PR #22 original de la
 migración (rama `claude/playbook-nextjs-migration-9zn6nh`) sigue superado
 por el flujo de Fases 1-6 ya mergeado — no seguir trabajando ahí.
 
+## Plan de desarrollo — Fases 7, 8 y 9
+
+Este plan fue definido el 2026-07-22 y cubre las tres próximas áreas de
+trabajo del portal. Cada fase tiene su propio prompt de sesión. Leer esta
+sección antes de arrancar cualquier sesión nueva para saber en qué fase
+estamos y qué está pendiente.
+
+### Fase 7 — Infraestructura publicitaria y capa de consentimiento
+
+Objetivo: que el portal esté listo para publicidad desde el lanzamiento,
+con los espacios correctamente posicionados, diseño premium y
+consentimiento legal en orden. No se conecta ninguna red todavía; la
+infraestructura es agnóstica.
+
+Seis posiciones de ad slot identificadas:
+- leaderboard-home: banner horizontal debajo del hero, encima del feed.
+  970×90 desktop, 320px mobile.
+- inline-feed: dentro del grid de noticias, después de la sexta historia.
+  Formato nativo.
+- rail-home: sidebar derecho sticky. 300×250 mobile / 300×600 desktop.
+  Desaparece en mobile.
+- inline-mid-editorial: entre secciones editoriales. 970×180, formato
+  nativo. Centrado.
+- inline-article: dentro del cuerpo del artículo, después del tercer
+  párrafo. 100% del ancho.
+- vertical-sponsor-base / vertical-sponsor-infinitas: patrocinio nombrado
+  de vertical, no programático. Una marca presenta la sección sin
+  intervenir en el criterio editorial.
+
+Principio rector: la experiencia siempre gana sobre los ingresos. Solo
+marcas triple A. Nada de casinos, apuestas ni categorías de baja calidad.
+La curaduría es editorial, no algorítmica.
+
+Componente central: components/ads/AdSlot.tsx. Recibe un prop slot:
+string y renderiza el contenedor con las dimensiones correctas. Vacío
+hasta que se conecte una red. Lee la preferencia de consentimiento del
+usuario antes de renderizar cualquier contenido externo.
+
+Consentimiento: la cookie notice actual se expande a dos categorías
+explícitas (esenciales siempre activas, publicidad y análisis opt-in).
+Botones "Aceptar todo" y "Gestionar preferencias". Persiste en
+localStorage bajo playbook_consent_v1. AdSlot y GoogleAnalytics leen esta
+preferencia. Framework de referencia: LFPDPPP (México) + mejores
+prácticas internacionales.
+
+Estado: pendiente. Prompt de sesión listo.
+
+---
+
+### Fase 8 — Admin Studio y mejora de auth de editores
+
+Dos sub-tareas independientes dentro del mismo PR.
+
+Sub-tarea A — Sistema de invitación por email para editores: El flujo
+actual (seed manual con contraseña aleatoria) se reemplaza por invitación
+vía email. Un editor autenticado invita a otro por email. El invitado
+recibe un link temporal (48h) para elegir su propia contraseña. Nueva
+tabla editor_invitations en el schema. Nueva página pública
+/admin/set-password. Nueva tab "Equipo" en el admin. El seed manual sigue
+disponible para emergencias.
+
+Sub-tarea B — Biblioteca de prompts (Studio): Nueva tab "Studio" en el
+panel de admin. Es una página estática de referencia: el equipo copia el
+prompt que necesita y lo pega en su propia sesión de Claude. No llama a
+ninguna API. Diseño: tarjetas con textarea de fondo oscuro, botón Copiar,
+secciones colapsables con explicaciones. Usa las variables CSS del
+sistema de diseño del admin.
+
+Secciones del Studio:
+1. Publicación de newsletter (dos variantes: directa y con revisión,
+   integrar el flujo que ya usa el equipo)
+2. Artículos (redacción desde URL externa, todos los campos del admin en
+   el mismo orden del formulario)
+3. Redes sociales (hilo X/Twitter, post LinkedIn, carrusel Instagram)
+4. Investigación y preparación (brief de artículo, preparación de
+   entrevista)
+5. Newsletter semanal (digest editorial desde lista de títulos)
+6. Playbook Base (entradas de diccionario y explainers de contenido
+   evergreen)
+
+Todo el Studio en español. El equipo usa sus propias suscripciones de
+Claude; el Studio solo es la biblioteca de referencia.
+
+Estado: pendiente. Prompt de sesión listo.
+
+---
+
+### Fase 9 — Mejoras de UX en homepage y páginas
+
+Objetivo: que el portal se sienta como un medio de referencia de primer
+nivel. La comparación interna correcta es FT Digital, NYT Digital, The
+Athletic. No se copia ninguno; se comparte el estándar.
+
+Regla de trabajo: cada cambio empieza por lo que el usuario ve primero.
+Se verifica en el navegador antes de pasar al siguiente. Un cambio que no
+mejora la experiencia de forma evidente no se hace.
+
+Elementos a implementar en homepage:
+
+A. News ticker: barra de 35px debajo del header sticky. Fondo --ink,
+   borde superior 2px var(--green). Label "ÚLTIMAS" a la izquierda,
+   títulos de los 8 artículos más recientes en scroll CSS continuo con
+   links al artículo. Desaparece en mobile.
+
+B. Topic filter chips: fila de chips sobre el feed de noticias. Todos /
+   Fútbol / Liga MX / NFL / NBA / Béisbol / Tenis / Golf / F1 / Olímpico.
+   Filtran el grid en cliente sin llamadas al servidor. Scroll horizontal
+   en mobile sin scrollbar visible.
+
+C. Sidebar mejorado: columna derecha sticky (300px) junto al feed
+   principal. Contiene: Most Read (ya construido en Fase 5), AdSlot
+   rail-home (Fase 7), bloque de newsletter compacto. En mobile colapsa
+   debajo del feed.
+
+D. Sección Análisis Playbook: grilla 3 columnas después del newsletter
+   band. Los 3 artículos de mayor importancia (priority >= 4) que no sean
+   el destacado del hero. Tarjetas con título en Anton 24px, excerpt,
+   meta. Primera tarjeta en --green si priority = 5. Query nueva:
+   getAnalysisArticles(3).
+
+E. Sección Playbook Base: fondo --soft antes del footer. 4 tarjetas
+   estáticas de tipos de contenido evergreen (Diccionario, Explainers,
+   Mapas, Intelligence). Slot de patrocinio vertical integrado. Sección
+   de Infinitas con la nota de mayor priority de ese vertical y links a
+   las demás.
+
+Orden de implementación dentro de la sesión: A → B → C → D → E. Verificar
+tsc, lint y build entre cada parte.
+
+Estado: pendiente. Prompt de sesión listo.
+
 ## Qué es esto
 
 Playbook está migrando de un sitio estático sin build (HTML/JS vanilla +
@@ -2262,47 +2393,48 @@ real, mismo estándar que Fases 1-3):
   siguiente sesión salvo lo ya documentado en "Próximos pasos"
   (credenciales de despliegue).
 
-## Próximos pasos (a la fecha de la última entrada del registro)
+### 2026-07-22 — Planificación: Fases 7, 8 y 9 definidas
 
-**Fases 1-6 — todas completas.** La migración de Playbook de sitio
-estático a Next.js está funcionalmente terminada y verificada de punta a
-punta contra Postgres/servidores reales — `legacy/` ya no existe en el
-repo (borrado en la Fase 6, checkpoint 2). Ver el registro de progreso
-arriba para el detalle sesión por sesión de cada fase. Lo único que
-queda es lo de la sección siguiente, que no es código:
+- Revisión completa del estado del proyecto después de cerrar todas las
+  tareas de la sesión de auditoría y fixes.
+- Definidas tres nuevas fases de desarrollo con prompts de sesión listos
+  para Claude Code.
+- Fase 7: infraestructura publicitaria (6 ad slots, componente AdSlot,
+  capa de consentimiento TCF/LFPDPPP).
+- Fase 8: Admin Studio con biblioteca de 6 categorías de prompts +
+  sistema de invitación por email para editores.
+- Fase 9: mejoras de UX en homepage (ticker, topic chips, sidebar,
+  sección Análisis, sección Playbook Base).
+- Sin cambios de código en esta sesión. Solo documentación y
+  planificación.
+- Pendiente: ejecutar las tres fases en el orden recomendado arriba.
 
-1. **Pendiente de despliegue — credenciales reales en Vercel** (cada una
-   ya tiene su código funcionando y degradando con gracia sin la
-   credencial; falta que el usuario las configure y confirme el
-   resultado real desplegado):
-   - `RESEND_API_KEY` + `EMAIL_FROM` real (dominio verificado en Resend,
-     no `no-reply@authjs.dev`) — magic link de lectores. **Confirmado
-     roto en producción hoy** (403 de Resend en los Runtime Logs, ver
-     entrada correspondiente) hasta que se configure.
-   - `BLOB_READ_WRITE_TOKEN` real — subida de imágenes en el editor
-     TipTap (Fase 4, checkpoint 3).
-   - `VERCEL_ANALYTICS_TOKEN`/`VERCEL_PROJECT_ID`/`VERCEL_TEAM_ID` —
-     panel de analítica del admin (Fase 4, checkpoint 5).
-   - `GA4_PROPERTY_ID`/`GA4_SERVICE_ACCOUNT_EMAIL`/
-     `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` — módulo "Más leídas" (Fase 5,
-     checkpoint 1). Corregir además los 4 nombres de variable con
-     mayúsculas/minúsculas incorrectas ya señalados en el registro
-     (`PLAYBOOK_SECRET`, `GA4_PROPERTY_ID`, `GA4_SERVICE_ACCOUNT_EMAIL`,
-     `GA4_SERVICE_ACCOUNT_PRIVATE_KEY`).
-   - Confirmar el evento `pageview_article` llegando de verdad al backend
-     de Vercel Analytics (Fase 5, checkpoint 2).
-2. **Resueltos, no requieren acción**: `middleware.ts` en runtime Node.js
-   ya confirmado sirviendo 200 de forma consistente en producción (ver
-   entrada sobre la portada en blanco); ESLint/CI/security
-   headers/rate limiting, páginas legales (`/privacidad`, `/terminos`,
-   aviso de cookies) y el módulo "Mi cuenta" — todo completado en
-   sesiones anteriores a esta Fase 6 (ver las entradas correspondientes
-   del registro más arriba; este ítem reemplaza al anterior "En curso"
-   de esta misma sección, que había quedado desactualizado por varias
-   sesiones).
-3. **Ninguna fase pendiente.** Si aparece trabajo nuevo (un bug reportado,
-   una feature), abrir una entrada nueva de registro con su propia fecha
-   — no hace falta inventar un número de fase para eso.
+## Próximos pasos
+
+El plan de trabajo está en la sección "Fases 7, 8 y 9" arriba. El orden
+recomendado es:
+
+1. Fase 7 (ads + consentimiento): primero porque define los contenedores
+   que Fase 9 necesita integrar.
+2. Fase 8 (Studio + auth): independiente, puede ir en paralelo o después
+   de Fase 7.
+3. Fase 9 (UX homepage): después de Fase 7 para poder integrar los
+   AdSlots en los lugares correctos.
+
+Antes de arrancar cada sesión: leer la sección de esa fase en HANDOFF.md
+para saber el estado actual y si hubo cambios desde que se escribió el
+prompt.
+
+Pendientes de verificación manual en producción (sin cambios de código,
+solo necesitan deploy con credenciales reales):
+- Magic link de lectores (Resend, gap desde Fase 3)
+- Subida de imágenes a Vercel Blob (gap desde Fase 4)
+- Panel de analítica con credenciales reales de Vercel Analytics (gap
+  desde Fase 4)
+- Datos reales de GA4 en módulo Más leídas (gap desde Fase 5)
+- Variables de entorno en Vercel con nombres correctos: PLAYBOOK_SECRET
+  (no Playbook_secret), GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL,
+  GA4_SERVICE_ACCOUNT_PRIVATE_KEY (confirmar que ya fueron corregidas)
 
 ## Convención: cómo mantener este archivo
 
