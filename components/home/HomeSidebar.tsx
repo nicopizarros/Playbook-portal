@@ -11,7 +11,9 @@ import { AdSlot } from '@/components/ads/AdSlot';
 // Three modules, top to bottom:
 // - Más leídas (GA4-backed; renders nothing until credentials exist —
 //   available:false degradation, see lib/most-read.ts)
-// - rail-home ad reservation
+// - rail-home ad, directly below Más leídas (the Fase 7 spec position;
+//   now that the slot shows a visible placeholder it sits here rather
+//   than at the bottom)
 // - compact newsletter module (from the Fase 9 plan's sidebar spec) —
 //   real content that keeps the rail earning its column while GA4/ads
 //   are pending, and a conversion point the sales side asked to keep
@@ -20,6 +22,7 @@ export function HomeSidebar() {
   return (
     <div className="sidebar-sticky">
       <MostReadSection />
+      <AdSlot slot="rail-home" />
       <section className="side-module side-newsletter" aria-labelledby="side-nl-title">
         <h2 className="side-title" id="side-nl-title">Newsletter</h2>
         <p className="side-newsletter-copy">
@@ -34,7 +37,6 @@ export function HomeSidebar() {
           successMessage="¡Listo! Revisa tu correo."
         />
       </section>
-      <AdSlot slot="rail-home" />
     </div>
   );
 }

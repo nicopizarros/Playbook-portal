@@ -2782,6 +2782,37 @@ real, mismo estándar que Fases 1-3):
   espacio (anti-CLS) o se deja el colapso `:empty` — hoy colapsan
   porque una reserva vacía sin red era puro aire muerto.
 
+### 2026-07-22 — Fase 7, tercera pasada: placeholders visibles en los ad slots
+
+- Pedido del usuario tras aprobar la segunda pasada: mientras no se
+  conecte la red real, que los slots se VEAN. `AdSlot.tsx` ahora
+  renderiza un placeholder visible en cada posición — el lenguaje de
+  rayas diagonales + borde punteado que los prototipos (ux02/v23) usaban
+  para los espacios publicitarios, apagado a los tokens del sistema
+  (`--paper`/`--paper-soft`/`--rule`/`--gray-txt`, sigue el tema solo) —
+  con etiqueta "Publicidad" + el formato del plan de Fase 7 por slot
+  (Leaderboard · 970×90, Rail · 300×250, etc.), para que cualquiera que
+  mire la página sepa qué va a vivir en cada posición.
+- Con el placeholder, los slots dejan de estar `:empty`, así que las
+  `min-height` por slot aplican solas y las seis posiciones ocupan su
+  espacio real. La regla `.ad-slot:empty{display:none}` queda intacta:
+  cuando la integración reemplace el placeholder por el tag de la red,
+  un slot sin fill vuelve a colapsar solo. `inline-feed` ganó una
+  min-height propia (96px) para que su placeholder nativo tenga
+  presencia dentro de la lista.
+- El ad del rail volvió a su posición de spec (debajo de Más leídas,
+  arriba del módulo de newsletter) ahora que es visible — cuando estaba
+  invisible se había dejado al fondo para no partir el contenido real.
+- Cómo conectar la red después (documentado también en el componente):
+  reemplazar el `<div className="ad-slot-placeholder">` por el tag de la
+  red cuando `data-ad-consent="granted"`, y borrar el bloque
+  `.ad-slot-placeholder` de `ads.css`. Nada más se mueve.
+- **Verificado**: capturas revisadas de portada completa (los 5 slots de
+  portada visibles con su etiqueta), cuerpo de artículo (in-article tras
+  el tercer párrafo) y grilla de noticias en modo oscuro (las rayas
+  siguen el tema). `tsc --noEmit`, `npm run lint` y `next build` limpios
+  con y sin `.env.local`.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y

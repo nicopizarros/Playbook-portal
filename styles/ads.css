@@ -9,18 +9,29 @@
    - inline-mid-editorial: 970×180, centrado
    - inline-article: 100% del ancho del cuerpo
    - vertical-sponsor-infinitas: patrocinio nombrado, banda baja */
-.ad-slot{display:block;}
-/* Un slot vacío no ocupa lugar: mientras no haya red conectada, cada
-   reserva era una franja muerta real en la página (verificado en render:
-   ~400px de aire entre el paquete de noticias y Análisis solo de
-   reservas vacías) — lo contrario del estándar editorial serio que se
-   busca. Las dimensiones de abajo aplican recién cuando la red inyecta
-   contenido y :empty deja de cumplirse. Al integrar la red, si se
-   quiere reserva dura anti-CLS para los formatos fijos (leaderboard/
-   rail/mid-editorial/article), basta con borrar esta regla — las
-   min-height ya quedan declaradas. */
+.ad-slot{display:flex;align-items:center;justify-content:center;}
+/* Un slot genuinamente vacío no ocupa lugar (hoy no aplica: todos los
+   slots llevan el placeholder visible pedido por el usuario mientras no
+   haya red conectada — ver AdSlot.tsx. La regla queda para cuando la
+   integración real reemplace el placeholder: un slot sin fill vuelve a
+   colapsar solo, sin dejar la franja muerta que el UX run detectó). */
 .ad-slot:empty{display:none;}
+
+/* Placeholder pre-integración: el lenguaje de rayas/borde punteado de
+   los prototipos (ux02/v23), apagado a los tokens del sistema para que
+   siga el tema solo. Se elimina junto con el <div> del componente al
+   conectar la red. */
+.ad-slot-placeholder{
+  width:100%;height:100%;min-height:inherit;align-self:stretch;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  border:1px dashed var(--rule);
+  background:repeating-linear-gradient(-45deg,var(--paper) 0 8px,var(--paper-soft) 8px 16px);
+  color:var(--gray-txt);text-align:center;padding:14px;
+}
+.ad-slot-placeholder b{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.ad-slot-placeholder span{font-size:10.5px;}
 .ad-slot--leaderboard-home{min-height:90px;max-width:970px;margin:34px auto;}
+.ad-slot--inline-feed{min-height:96px;margin-top:16px;}
 /* Rail como 300×250 (MPU) por defecto, no el half-page 300×600 del plan:
    el rail es una columna de la banda de noticias y un bloque de 600px la
    estiraría muy por debajo del contenido editorial. Subir esta línea si
