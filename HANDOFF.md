@@ -2495,14 +2495,31 @@ real, mismo estándar que Fases 1-3):
   límite de red del sandbox, no de la credencial ni del código; mismo
   motivo documentado en `scripts/publish-newsletter.ts` para usar el
   driver HTTP de Neon en vez de `pg`).
-- **Nota operativa, no de código**: durante este cierre el usuario
-  compartió la contraseña real de la base de producción en el chat de la
-  sesión al intentar el fallback manual. Recomendado rotarla en el
-  dashboard de Neon (Settings → reset password del rol `neondb_owner`) y
-  actualizar `POSTGRES_URL` en las variables de entorno de Vercel para
-  que coincida, como buena práctica — no porque haya evidencia de un uso
-  indebido, sino porque una credencial de producción no debería quedar
-  registrada en el historial de una conversación.
+- **Nota aparte, no relacionada con el incidente de base de datos**: la
+  pantalla de error que vio el usuario mostraba "Probá de nuevo" — voseo
+  argentino, fuera de tono para un sitio Mexico/LATAM. Barrido completo
+  del repo (no adivinado) encontró voseo real en 7 archivos:
+  - "Probá" (imperativo): `app/error.tsx`, `app/global-error.tsx`,
+    `app/(public)/error.tsx`, `components/NotFoundContent.tsx` (también
+    "buscá" en la misma línea), `lib/actions/reader-auth.ts`,
+    `lib/actions/editor-auth.ts`.
+  - "tenés"/"Podés"/"podés" (presente voseo): `app/(public)/cuenta/page.tsx`,
+    `app/(public)/privacidad/page.tsx`, `app/(public)/terminos/page.tsx`.
+  - "vos" (pronombre) y "sos" (voseo de "eres"): `app/(public)/privacidad/page.tsx`.
+  - Pendiente: reemplazar todo por tuteo estándar ("Prueba"/"tienes"/
+    "puedes"/"tú"/"eres"), consistente con el resto de la copy del sitio
+    (que ya usa tuteo en todos lados salvo estos 7 archivos). No
+    corregido en esta sesión — ver "Próximos pasos".
+- **Nota operativa, no de código**: durante el cierre de este incidente
+  el usuario compartió la contraseña real de la base de producción en el
+  chat de la sesión, al intentar el fallback manual antes de que se
+  confirmara que la migración automática ya lo había resuelto.
+  Recomendado rotarla en el dashboard de Neon (Settings → reset password
+  del rol `neondb_owner`) y actualizar `POSTGRES_URL` en las variables de
+  entorno de Vercel para que coincida, como buena práctica — no porque
+  haya evidencia de un uso indebido, sino porque una credencial de
+  producción no debería quedar registrada en el historial de una
+  conversación.
 
 ## Próximos pasos
 
@@ -2524,6 +2541,11 @@ recomendado es:
 Antes de arrancar cada sesión: leer la sección de esa fase en HANDOFF.md
 para saber el estado actual y si hubo cambios desde que se escribió el
 prompt.
+
+Limpieza pendiente, sin fase asignada todavía: quitar el voseo argentino
+de los 7 archivos listados en la entrada de incidente de arriba (usar
+tuteo, igual que el resto del sitio) — candidato natural para agregar
+como primer paso de la Fase 9 o para resolver suelto antes.
 
 Pendientes de verificación manual en producción (sin cambios de código,
 solo necesitan deploy con credenciales reales):
