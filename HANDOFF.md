@@ -2409,7 +2409,95 @@ real, mismo estándar que Fases 1-3):
   planificación.
 - Pendiente: ejecutar las tres fases en el orden recomendado arriba.
 
+### 2026-07-22 — Fix: sitio caído en producción (`wall_teaser` faltante) + migración automática en cada deploy
+
+- **Reportado por el usuario** con captura real de `playbook-portal-phi.vercel.app`
+  mostrando el fallback de `app/error.tsx` y un export CSV de Vercel
+  Runtime Logs. Investigado contra el log real: 13 de 19 líneas de
+  producción (deployment `dpl_DKgNq5JfHzjx4Qu3Y6XgeesSTbDF`, el deploy de
+  `main`) devuelven `500` con `error: column "wall_teaser" does not
+  exist` (Postgres `42703`), a partir de las 20:33:41 UTC.
+- **Causa raíz confirmada contra el código**: un PR anterior agregó
+  `wallTeaser: text('wall_teaser')` a `lib/db/schema.ts` y generó
+  `drizzle/0002_curly_dragon_man.sql`, pero esa migración nunca se corrió
+  contra la base de producción. `getAllArticles()` hace
+  `db.select().from(articles)` sin lista de columnas explícita, así que
+  Drizzle pide todas las columnas del schema — y esa función alimenta
+  portada, `/archivo`, `/autor`, `/tema` y el sitemap, así que el sitio
+  entero caía, no solo `/`. No era un bug de código: el schema y la
+  migración eran correctos entre sí, era un paso manual (`npm run
+  db:migrate` contra producción) que nadie corrió después de mergear.
+- **Corregido con una migración automática en cada build de producción**,
+  en vez de un fix puntual de una sola vez, para que esta clase de
+  incidente no pueda repetirse:
+  - `scripts/predeploy-migrate.ts` — corre `migrate()` (mismo mecanismo
+    que `scripts/run-migrations.ts`/`npm run db:migrate`) contra
+    `POSTGRES_URL`, pero **solo si `VERCEL_ENV === 'production'`**.
+    Deliberadamente acotado a producción real y no a cualquier build:
+    los deploys de preview comparten la misma base de datos (confirmado
+    contra los Runtime Logs reales — ramas de preview sirven artículos
+    reales), así que una migración a medio escribir en una rama sin
+    mergear no debe poder aplicarse sola solo porque su preview build
+    corrió. Un build local (`next build`) o de CI
+    (`.github/workflows/ci.yml`, que a propósito nunca setea
+    `POSTGRES_URL`) tampoco setea `VERCEL_ENV`, así que ambos siguen
+    sin tocar ninguna base de datos, sin cambios respecto a antes.
+  - Si `VERCEL_ENV=production` pero falta `POSTGRES_URL`, se loguea un
+    `console.error` (probable error de configuración real) pero no se
+    bloquea el build — mismo criterio de "degradar, no tirar abajo" que
+    ya usa `lib/db/client.ts`.
+  - Si la migración en sí falla (SQL inválido, un lock, un conflicto real
+    contra datos existentes) el build **sí falla** (`process.exit(1)`) a
+    propósito: desplegar código nuevo contra una base que no recibió el
+    schema que ese código espera es exactamente el incidente que este
+    script existe para evitar.
+  - `package.json` gana un script `vercel-build` (`tsx
+    scripts/predeploy-migrate.ts && next build`) — Vercel lo detecta y
+    corre en vez de `build` automáticamente (convención propia de
+    Vercel). El script `build` normal (usado por `next dev`/CI/local) no
+    se tocó.
+- **Verificación real, no solo lectura de código**: Postgres local
+  levantado desde cero (`pg_ctlcluster 16 main start`), reproducido el
+  estado exacto de producción antes del incidente (migraciones 0000+0001
+  aplicadas, 0002 deliberadamente omitida — confirmado con `\d articles`
+  que `source_url` está y `wall_teaser` no). Corrido
+  `VERCEL_ENV=production POSTGRES_URL=... npx tsx
+  scripts/predeploy-migrate.ts` contra esa base → `wall_teaser` aparece
+  (`\d articles` confirma la columna nueva), exit code `0`; reejecutado
+  una segunda vez para confirmar idempotencia (drizzle ya la tiene
+  registrada como aplicada, no falla ni duplica). Probados también los
+  dos casos de skip: sin `VERCEL_ENV` (build local/CI) → skip, exit `0`;
+  `VERCEL_ENV=production` sin `POSTGRES_URL` → warning + skip, exit `0`.
+  `npm run typecheck` y `npm run lint` limpios; `npm run build` (el
+  script normal, no `vercel-build`) corrido sin `POSTGRES_URL` ni
+  `VERCEL_ENV` — limpio, sin regresión, confirmando que CI y el flujo
+  local no cambiaron.
+- **No se pudo aplicar el fix directamente contra la base de producción
+  real desde este sandbox** (sin `.env.local` ni credenciales de
+  producción — mismo límite ya documentado en la entrada de incidente
+  anterior). El mecanismo de esta sesión resuelve el incidente actual
+  como efecto colateral de su próximo deploy real: al mergear este PR a
+  `main`, Vercel dispara un nuevo deploy de producción, ese deploy corre
+  `vercel-build`, y la migración pendiente se aplica sola antes de que
+  `next build` siquiera empiece.
+- **Pendiente**: confirmar después del deploy que `/`, `/archivo` y
+  `/articulo?id=...` vuelven a dar `200` reales en producción, y que el
+  build log de Vercel muestra `[predeploy-migrate] schema migrations
+  applied.` Si por algún motivo `VERCEL_ENV` no se comporta en el deploy
+  real como en `next build`/`vercel build` local (no verificable desde
+  este sandbox, mismo límite que el resto de gaps de plataforma ya
+  documentados en este archivo), el fallback manual de la entrada
+  anterior (correr `npm run db:migrate` a mano contra producción) sigue
+  siendo válido.
+
 ## Próximos pasos
+
+**Ya no es urgente una intervención manual en la base de producción** —
+ver la entrada de arriba ("Fix: sitio caído en producción... + migración
+automática en cada deploy"): el próximo deploy de `main` aplica la
+migración pendiente solo. Confirmar tras el deploy que el sitio responde
+`200` en producción real; si no, usar el fallback manual documentado en
+la entrada de incidente anterior a esa.
 
 El plan de trabajo está en la sección "Fases 7, 8 y 9" arriba. El orden
 recomendado es:
