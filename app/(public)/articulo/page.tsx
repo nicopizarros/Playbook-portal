@@ -10,6 +10,8 @@ import { NewsRow } from '@/components/article/NewsRow';
 import { ShareRow } from '@/components/article/ShareRow';
 import { EmailWall } from '@/components/article/EmailWall';
 import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
+import { AdSlot } from '@/components/ads/AdSlot';
+import { splitAfterParagraph } from '@/lib/split-after-paragraph';
 import { SITE_URL } from '@/lib/site-url';
 
 type Props = { searchParams: Promise<{ id?: string }> };
@@ -199,6 +201,15 @@ export default async function ArticuloPage({ searchParams }: Props) {
   const paragraphs = hasNativeBody || bodyIsHtml ? [] : paragraphsFrom(bodySource);
   const related = relatedArticles(article, pool);
 
+  // Fase 7: inline-article ad slot after the third paragraph, for both
+  // body shapes. HTML bodies split at a safe top-level boundary (or not at
+  // all — see lib/split-after-paragraph.ts); plain-text bodies just slice
+  // the paragraph array. Either way the ad never trails the final
+  // paragraph, and the walled branch above never reaches this code.
+  const htmlBody = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
+  const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
+  const splitPlain = paragraphs.length > 3 ? [paragraphs.slice(0, 3), paragraphs.slice(3)] : null;
+
   return (
     <>
       <ArticleAnalyticsBeacon articleId={article.id} />
@@ -209,12 +220,30 @@ export default async function ArticuloPage({ searchParams }: Props) {
         <article className="article-detail">
           {header}
           <div className="article-body">
-            {hasNativeBody ? (
-              <div dangerouslySetInnerHTML={{ __html: article.bodyHtml as string }} />
-            ) : bodyIsHtml ? (
-              <div dangerouslySetInnerHTML={{ __html: bodySource }} />
+            {htmlBody ? (
+              splitHtml ? (
+                <>
+                  <div dangerouslySetInnerHTML={{ __html: splitHtml[0] }} />
+                  <AdSlot slot="inline-article" />
+                  <div dangerouslySetInnerHTML={{ __html: splitHtml[1] }} />
+                </>
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: htmlBody }} />
+              )
             ) : paragraphs.length ? (
-              paragraphs.map((p, i) => <p key={i}>{p}</p>)
+              splitPlain ? (
+                <>
+                  {splitPlain[0].map((p, i) => (
+                    <p key={`a-${i}`}>{p}</p>
+                  ))}
+                  <AdSlot slot="inline-article" />
+                  {splitPlain[1].map((p, i) => (
+                    <p key={`b-${i}`}>{p}</p>
+                  ))}
+                </>
+              ) : (
+                paragraphs.map((p, i) => <p key={i}>{p}</p>)
+              )
             ) : (
               <p>{article.excerpt}</p>
             )}

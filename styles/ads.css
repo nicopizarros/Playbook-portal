@@ -1,0 +1,34 @@
+/* ——— Ad slots (Fase 7) ———
+   Reservas de espacio silenciosas: sin borde, sin fondo, sin etiqueta.
+   Cada slot mantiene sus dimensiones desde el día uno para que conectar
+   una red no mueva el layout (cero CLS). Las medidas vienen del plan de
+   Fase 7 en HANDOFF.md:
+   - leaderboard-home: 970×90 desktop / 320×50 mobile
+   - inline-feed: formato nativo (ocupa una celda del feed, sin alto fijo)
+   - rail-home: 300×600 desktop; desaparece en mobile junto con el rail
+   - inline-mid-editorial: 970×180, centrado
+   - inline-article: 100% del ancho del cuerpo
+   - vertical-sponsor-infinitas: patrocinio nombrado, banda baja */
+.ad-slot{display:block;}
+.ad-slot--leaderboard-home{min-height:90px;max-width:970px;margin:34px auto;}
+.ad-slot--rail-home{min-height:600px;width:100%;margin-top:26px;}
+.ad-slot--inline-mid-editorial{min-height:180px;max-width:970px;margin:0 auto;padding:0 24px;}
+.ad-slot--inline-article{min-height:250px;margin:28px 0;}
+/* Formatos nativos/content-sized: no hay dimensión fija que reservar, así
+   que un slot vacío colapsa en vez de dejar un hueco visible (una celda
+   vacía en la grilla del feed, una banda muerta bajo Infinitas). Cuando la
+   red inyecte contenido, :empty deja de aplicar y el slot ocupa su lugar —
+   los formatos de dimensión fija de arriba sí reservan espacio siempre
+   (cero CLS), esta excepción es solo para los nativos. */
+.ad-slot--inline-feed:empty{display:none;}
+.ad-slot--vertical-sponsor-infinitas{min-height:64px;margin-top:22px;}
+.ad-slot--vertical-sponsor-infinitas:empty{display:none;}
+
+@media(max-width:920px){
+  .ad-slot--leaderboard-home{min-height:50px;margin:26px auto;}
+  /* El rail desaparece en mobile (HANDOFF Fase 7); el sidebar colapsa
+     debajo del feed y una reserva de 600px ahí sería un vacío enorme. */
+  .ad-slot--rail-home{display:none;}
+  .ad-slot--inline-mid-editorial{min-height:100px;}
+  .ad-slot--inline-article{min-height:150px;}
+}

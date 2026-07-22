@@ -3,6 +3,11 @@
 // (in Phase 4) the admin preview agree on what "on the homepage" means.
 export const LEAD_COUNT = 1;
 export const LIST_COUNT = 5;
+// Story cards in the homepage feed grid below the lead package (Fase 7 UX
+// two-column layout, components/home/NewsGrid.tsx). Not part of the
+// archive-overflow math on purpose: /archivo keeps its original "everything
+// beyond hero+list" definition so its URL-filter behavior doesn't shift.
+export const FEED_COUNT = 9;
 export const TICKER_COUNT = 6;
 export const RELATED_COUNT = 3;
 

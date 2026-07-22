@@ -7,11 +7,12 @@ trabajo relevante** — ver la convención al final. Última actualización:
 2026-07-22.
 
 **PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; la
-Fase 6 (migración completa) también mergeó. Esta sesión trabaja en
-`claude/playbook-portal-audit-fixes-ypk3in` (auditoría de UX + fixes +
-tareas de contenido, ver registro de progreso). El PR #22 original de la
-migración (rama `claude/playbook-nextjs-migration-9zn6nh`) sigue superado
-por el flujo de Fases 1-6 ya mergeado — no seguir trabajando ahí.
+Fase 6 (migración completa) también mergeó. La sesión más reciente trabaja
+en `claude/playbook-homepage-ads-7vayvz` (Fase 7: rediseño de homepage +
+infraestructura publicitaria + consentimiento, ver la última entrada del
+registro de progreso). El PR #22 original de la migración (rama
+`claude/playbook-nextjs-migration-9zn6nh`) sigue superado por el flujo de
+Fases 1-6 ya mergeado — no seguir trabajando ahí.
 
 ## Plan de desarrollo — Fases 7, 8 y 9
 
@@ -58,7 +59,12 @@ localStorage bajo playbook_consent_v1. AdSlot y GoogleAnalytics leen esta
 preferencia. Framework de referencia: LFPDPPP (México) + mejores
 prácticas internacionales.
 
-Estado: pendiente. Prompt de sesión listo.
+Estado: **hecho** — ver la entrada 2026-07-22 "Fase 7: rediseño de
+homepage + infraestructura publicitaria + capa de consentimiento" en el
+registro de progreso. La misma sesión cubrió además buena parte de la
+Fase 9 (sidebar con Más leídas, sección de análisis, directorio de
+temas) — releer esa entrada antes de arrancar la Fase 9 para no repetir
+trabajo.
 
 ---
 
@@ -2521,6 +2527,174 @@ real, mismo estándar que Fases 1-3):
   producción no debería quedar registrada en el historial de una
   conversación.
 
+### 2026-07-22 — Fase 7: rediseño de homepage + infraestructura publicitaria + capa de consentimiento
+
+- Sesión en `claude/playbook-homepage-ads-7vayvz`. Ejecuta la Fase 7
+  completa más el rediseño de portada del brief de homepage (que absorbe
+  varios ítems de la Fase 9). Referencias de diseño: los tres prototipos
+  ya committeados en `docs/` (`playbook-portal-v23-medio-consulta.html`,
+  `playbook-portal-v24-medio-consulta(1).html`,
+  `playbook-ux-02-trafico-interno-ads.html`) — se extrajo el vocabulario
+  CSS real de cada uno (rank-list, analysis-grid, story-visual/visual-label,
+  topic-directory, inf-card) en vez de adivinar el patrón.
+- **Infraestructura publicitaria** (`components/ads/AdSlot.tsx` +
+  `styles/ads.css`): un solo componente cliente con prop `slot`; seis
+  posiciones montadas — `leaderboard-home` (entre el paquete principal y
+  el feed), `inline-feed` (dentro de la grilla del feed, después de la
+  sexta tarjeta), `rail-home` (sidebar, debajo de Más leídas),
+  `inline-mid-editorial` (entre Productos y Video), `inline-article`
+  (cuerpo del artículo, después del tercer párrafo),
+  `vertical-sponsor-infinitas` (dentro de la sección Infinitas, después
+  de las tarjetas). Sin ningún chrome de placeholder (los bordes
+  punteados de los prototipos eran demostrativos, no producción): cada
+  slot reserva espacio limpio. **Decisión propia documentada**: los
+  formatos de dimensión fija (leaderboard/rail/mid-editorial/article)
+  reservan su espacio siempre (cero CLS el día que se conecte una red);
+  los formatos nativos (`inline-feed`, `vertical-sponsor`) colapsan vía
+  `:empty` mientras estén vacíos — una celda vacía en la grilla del feed
+  era un hueco visible real (verificado en render), y un formato nativo
+  no tiene dimensión fija que reservar. `data-ad-consent` expone el
+  estado de consentimiento en el DOM para la integración futura; el
+  atributo se actualiza en vivo al aceptar (evento
+  `playbook:consent-change`).
+- **Capa de consentimiento** (`lib/consent.ts` +
+  `components/CookieNotice.tsx` reescrito): shape
+  `{essential:true, advertising:boolean, timestamp:number}` bajo
+  `playbook_consent_v1`. Banner con "Aceptar todo" y "Gestionar
+  preferencias" (panel inline, sin modal ni position:fixed extra);
+  esenciales siempre activas y deshabilitadas, publicidad/analítica
+  opt-in. Migración one-shot del flag viejo
+  (`playbook_cookie_notice_dismissed` → `advertising:true` + se borra la
+  key vieja). `GoogleAnalytics.tsx` pasó a componente cliente gateado:
+  gtag solo se inyecta con `advertising:true`, y reacciona al evento de
+  consentimiento en el mismo pageview (aceptar activa GA sin recargar).
+  De paso, la copy nueva del banner eliminó el "aceptás" (voseo) que
+  tenía el banner viejo.
+- **Homepage reordenada** (`app/(public)/page.tsx`): 1) paquete
+  principal + leaderboard + dos columnas (feed de tarjetas izquierda,
+  sidebar 300px derecha); 2) Análisis/Opinión (subida); 3) una sola
+  banda de newsletter — **se conservó `MidCta` (la editable por CMS) y se
+  eliminó el `nl-box` hardcodeado**, no al revés; 4) directorio de temas
+  nuevo; 5) Productos; ad mid-editorial; 6) Video recortado + 7) tiles
+  de Instagram; 8) Infinitas a tres columnas + patrocinio vertical;
+  10) números + testimonios comprimidos en una banda; 11) Acerca.
+- **Sidebar** (`components/home/HomeSidebar.tsx` +
+  `MostReadSection.tsx` restilado): Más leídas con el patrón rank-list
+  exacto del v24 (contador CSS `decimal-leading-zero` en Anton gris,
+  tiempo de lectura a la derecha, cabecera con `border-top:2px solid
+  var(--ink)`), degradación `available:false` intacta (sin GA4 no
+  renderiza nada, verificado); ad rail debajo. Sticky con `top:132px`
+  (no los 112px del prototipo: el header real mide 76px de nav + 40px de
+  ticker + bordes — 112 quedaba debajo del header). El sidebar entra a
+  `NewsGrid` (cliente) como ReactNode ya renderizado en servidor: los
+  filtros re-rankean el feed sin re-renderizar el sidebar.
+- **Feed con inteligencia visual** (`components/home/StoryCard.tsx` +
+  `LeadStory.tsx`): tarjetas nuevas patrón v23; artículo sin imagen →
+  fondo editorial + titular grande en Anton (la tipografía es la
+  imagen). El heading se mueve **adentro** del visual en ese caso (un
+  solo h1/h3 por tarjeta, nunca título duplicado). **Divergencia
+  deliberada del brief, con evidencia**: el mapeo estricto
+  fuente→un-color pintaba el feed entero de verde (17 de 22
+  industry-shots no tienen imagen — verificado contra Postgres y en un
+  render real, captura revisada) — se cambió a fuente→**paleta** (verde/
+  grid/tinta para industry-shots, amarillo/grid/tinta para la-lana,
+  tinta/grid para infinitas) rotada por hash estable del id, así el
+  color de marca sigue siendo exclusivo de su fuente pero funciona como
+  puntuación y no como wallpaper. Token `--yellow:#e4fd51` agregado a
+  `tokens.css` — no es un color nuevo inventado: es el amarillo que los
+  tres prototipos definen como par de `--green` y que el brief lista
+  como parte del sistema fijo; el portal simplemente nunca lo había
+  necesitado. Superficies fijas (no se invierten con el tema), texto
+  `--ink-fixed`/blanco según fondo.
+- **Análisis/Opinión** (`OpinionSection.tsx` restilado in place):
+  patrón analysis-grid/analysis-card del v24 — 1.2fr 1fr 1fr sin gaps,
+  border-top de tinta compartido, primera tarjeta destacada en
+  `--ink-fixed` con eyebrow verde. La variante 'banner' (TFBR) se
+  pliega a tarjeta tipográfica (la grilla es estrictamente editorial —
+  su imagen ya no se muestra; el tab de CMS sigue editando los mismos
+  campos). En modo oscuro la destacada gana un filo interior
+  (`box-shadow` inset) para no fundirse con el fondo — detectado en
+  captura, mismo patrón de contraparte oscura del resto del sistema.
+- **Directorio de temas** (`components/home/TopicDirectory.tsx`):
+  patrón v23, 6 columnas (3 en mobile), hover `--green`, 12 enlaces a
+  filtros reales de `/archivo` (6 deportes + 6 verticales, valores
+  exactos de `lib/taxonomy.ts` — cada celda aterriza en una colección
+  filtrada que funciona, verificado con request real).
+- **Video + Instagram** (`VideoSection.tsx` recortado,
+  `InstagramGrid.tsx` nuevo, `InstagramReels.tsx` **eliminado**): queda
+  el bloque de dos videos + lista de episodios; fuera la grilla de 4
+  clips de YouTube y los embeds de Instagram (la causa del hueco en
+  blanco cuando embed.js no carga — bug visible en el sitio vivo).
+  Tiles propios 9/16 en dos columnas (acotadas a 640px para que el
+  formato vertical no domine), gradiente + ícono + handle, hover scale,
+  un solo "Ver en Instagram →" (URL del perfil tomada de
+  `footer.socialLinks`, con fallback). **Divergencia honesta**: el brief
+  pedía "image grid", pero no existen thumbnails de reels sin cargar
+  scripts de Instagram — exactamente la dependencia que se elimina — así
+  que los tiles son superficies de marca, no fotos. Los campos `clips`
+  del tab Video siguen editables y alimentando el preview del admin,
+  solo dejaron de renderizar en portada (documentado en el componente).
+- **Infinitas** (`InfinitasSection.tsx`): grilla 1.3fr 1fr 1fr del v24
+  (texto en overlay absoluto con gradiente), mismos datos
+  featured+sideCards, tab de CMS intacto. AdSlot de patrocinio vertical
+  al final de la sección.
+- **Banda de prueba** (`StatsSection`/`TestimonialsSection`
+  comprimidos): sin encabezados de sección (los campos `heading` siguen
+  en el CMS, sin uso en portada a propósito), stats como tira horizontal
+  con reglas verticales, 3 testimonios debajo del mismo ancho, bordes
+  alineados (padding/bordes movidos a las grillas para que las dos
+  mitades de la banda compartan filos).
+- **Búsqueda en español** (`SearchBox.tsx`): normalización NFD +
+  eliminación de diacríticos combinantes en query y texto indexado —
+  "futbol" encuentra "fútbol", "mexico" encuentra "México" (verificado
+  con el buscador real: 8 y 4 resultados respectivamente). Era el único
+  filtro de texto del lado del cliente (los filtros de /archivo son
+  links server-side; el filtro del feed es por fuente, no texto).
+- **Ad de artículo** (`lib/split-after-paragraph.ts`): el slot
+  inline-article entra después del **tercer párrafo de nivel superior**
+  — el splitter cuenta `</p>` solo con blockquote/ul/ol/li balanceados
+  (un cuerpo TipTap anida `<p>` dentro de blockquote/li; partir ahí
+  emitiría HTML inválido), y devuelve null si no queda contenido real
+  después (un ad colgando del último párrafo es peor que ningún ad).
+  Cubre los tres shapes de cuerpo (bodyHtml nativo, teaser-HTML legado,
+  texto plano); la rama con muro nunca llega a este código.
+- **LivePreview del admin sin trabajo extra, por diseño**: todas las
+  secciones se restilaron *in place* (mismos componentes, mismas props)
+  en vez de crear componentes paralelos nuevos, así el preview del CMS
+  refleja el rediseño automáticamente. `NewsGrid` ganó un prop opcional
+  `sidebar` que el preview simplemente no pasa.
+- **Verificación real contra Postgres y un servidor real** (Playwright,
+  mismo estándar de siempre): suite de **37/37 checks** — flujo completo
+  de consentimiento (banner → preferencias inline → guardar; aceptar
+  todo; recarga persiste; migración del flag legado verificada con la
+  key vieja plantada a mano; camino de rechazo persiste
+  `advertising:false` y los slots quedan `denied`), las 6 posiciones de
+  ad presentes y sin chrome visible (computed styles verificados), CLS
+  de slots, búsqueda con acentos, filtros de fuente sobre el feed,
+  sticky del sidebar en desktop y colapso + rail oculto en mobile,
+  directorio 6/3 columnas, links de temas → 200, ad de artículo después
+  de exactamente 3 `<p>` (y artículo corto sin ad), rutas de regresión
+  (/archivo /privacidad /cuenta /terminos /admin → 200; artículo
+  inexistente → 404). Admin: login real, las 12 pestañas cargan sin
+  errores de JS, el preview renderiza las secciones nuevas. Más leídas:
+  verificado el render real del rank-list con un stub temporal de GA4
+  (revertido antes del commit — `git diff` limpio en `lib/most-read.ts`)
+  y verificado que sin GA4 `#mas-leidas` está genuinamente ausente.
+  Capturas de pantalla revisadas de: portada completa (claro), columnas
+  claro/oscuro, análisis oscuro, banda de prueba oscura, portada mobile
+  390px completa, página de artículo con el espacio del ad. `tsc
+  --noEmit`, `npm run lint` (0 problemas) y `next build` limpios, **con
+  y sin `.env.local`** (renombrado fuera del disco, la disciplina de
+  siempre). Editor de prueba borrado de la base al cierre.
+- **Pendiente para futuras sesiones, no de código**: conectar la red
+  publicitaria real (solo cambia `AdSlot.tsx`: montar el tag de la red
+  cuando `data-ad-consent="granted"`); credenciales GA4 de producción
+  para que Más leídas aparezca en el sidebar (hasta entonces el rail
+  muestra solo la reserva del ad); verificación manual del flujo de
+  consentimiento contra una red real una vez conectada; y la limpieza de
+  voseo de la entrada anterior sigue pendiente en los 7 archivos ya
+  listados (esta sesión solo eliminó el del banner de cookies).
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
@@ -2528,15 +2702,17 @@ confirmado en producción real** (ver esa misma entrada) — no queda nada
 pendiente de ese incidente salvo la rotación de contraseña ya anotada
 ahí, que es del usuario, no de código.
 
-El plan de trabajo está en la sección "Fases 7, 8 y 9" arriba. El orden
-recomendado es:
+El plan de trabajo está en la sección "Fases 7, 8 y 9" arriba.
+**La Fase 7 ya está hecha** (ver la última entrada del registro), y esa
+misma sesión cubrió varios ítems de la Fase 9 (sidebar C, una versión de
+la sección de análisis D vía el restyle de Opinión, y el directorio de
+temas). Queda:
 
-1. Fase 7 (ads + consentimiento): primero porque define los contenedores
-   que Fase 9 necesita integrar.
-2. Fase 8 (Studio + auth): independiente, puede ir en paralelo o después
-   de Fase 7.
-3. Fase 9 (UX homepage): después de Fase 7 para poder integrar los
-   AdSlots en los lugares correctos.
+1. Fase 8 (Studio + auth): independiente, puede arrancar cuando sea.
+2. Fase 9 (UX homepage): **revisar su lista contra lo ya construido**
+   antes de arrancar — el ticker (A) y los filtros por fuente ya existen
+   desde la migración; los chips por deporte (B) y la sección Playbook
+   Base (E) siguen pendientes.
 
 Antes de arrancar cada sesión: leer la sección de esa fase en HANDOFF.md
 para saber el estado actual y si hubo cambios desde que se escribió el

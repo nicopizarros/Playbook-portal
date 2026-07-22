@@ -47,20 +47,14 @@ function StatValue({ raw }: { raw: string }) {
   return <b ref={ref}>{raw}</b>;
 }
 
+// Fase 7 UX: compressed — the section heading is gone (data.heading stays
+// in the CMS Stats tab, unused here on purpose: the numbers read
+// themselves), leaving a slim horizontal strip of three stats with
+// vertical rules. Renders back-to-back with TestimonialsSection as one
+// proof band (see app/(public)/page.tsx).
 export function StatsSection({ data }: { data: SiteContentData['statsSection'] }) {
   return (
     <section className="container proof">
-      <div className="reveal" style={{ textAlign: 'center', marginBottom: 18 }}>
-        <h2
-          style={{
-            justifyContent: 'center', display: 'flex', alignItems: 'center', gap: 7,
-            fontFamily: 'var(--serif-display)', fontWeight: 400, fontSize: 24,
-            textTransform: 'uppercase', color: 'var(--ink)', letterSpacing: '.01em',
-          }}
-        >
-          {data.heading}
-        </h2>
-      </div>
       <div className="proof-grid">
         {data.stats.map((s, i) => (
           <div className="stat reveal" key={i}>

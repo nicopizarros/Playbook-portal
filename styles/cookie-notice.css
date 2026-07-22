@@ -30,9 +30,40 @@
   text-decoration:underline;
   text-underline-offset:2px;
 }
-.cookie-notice-dismiss{
+.cookie-notice-actions{
   flex:0 0 auto;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
 }
+/* Panel de preferencias inline (Fase 7) — se expande dentro del propio
+   banner, sin modal ni position:fixed adicional. */
+.cookie-prefs{
+  flex:1 1 100%;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding-top:12px;
+  border-top:1px solid var(--rule);
+}
+.cookie-pref{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-size:12.5px;
+  line-height:1.45;
+  color:var(--gray-txt);
+  cursor:pointer;
+}
+.cookie-pref input{
+  margin-top:2px;
+  width:15px;
+  height:15px;
+  flex-shrink:0;
+  accent-color:var(--green);
+}
+.cookie-pref input:disabled{cursor:not-allowed;}
+.cookie-pref b{color:var(--ink);font-weight:600;}
 @keyframes cookieNoticeIn{
   from{opacity:0;transform:translateY(12px);}
   to{opacity:1;transform:translateY(0);}

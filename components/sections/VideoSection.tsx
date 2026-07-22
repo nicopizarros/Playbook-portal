@@ -1,51 +1,26 @@
-import type { SiteContentData, VideoClip } from '@/lib/data/site-content';
+import type { SiteContentData } from '@/lib/data/site-content';
 import { safeUrl } from '@/lib/safe-url';
 import { LazyEmbed } from '@/components/LazyEmbed';
-import { InstagramReels } from './InstagramReels';
+import { InstagramGrid } from './InstagramGrid';
 
-function ClipCard({ clip }: { clip: VideoClip }) {
-  if (clip.platform === 'instagram') {
-    return (
-      <a className="clip-card reveal" href={safeUrl(clip.url)} target="_blank" rel="noopener noreferrer">
-        <div className={`frame ig-visual${clip.variant ? ` ${clip.variant}` : ''}`}>
-          <div className="ig-phone">
-            {clip.handle}
-            <br />
-            <br />
-            {clip.igText}
-          </div>
-          <span className="platform-badge">Instagram</span>
-          <div className="clip-copy">
-            <span>{clip.handle}</span>
-            <h4>{clip.title}</h4>
-          </div>
-        </div>
-      </a>
-    );
-  }
-  return (
-    <a className="clip-card reveal" href={safeUrl(clip.url)} target="_blank" rel="noopener noreferrer">
-      <div className="frame">
-        {/* Editor-supplied URL, arbitrary host -- see AboutSection.tsx's comment. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={clip.thumbnail} width={480} height={360} alt={clip.title} loading="lazy" decoding="async" />
-        <span className="platform-badge">YouTube</span>
-        <div className="play-badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="#fff">
-            <circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.35)" />
-            <path d="M10 8l6 4-6 4V8z" fill="#fff" />
-          </svg>
-        </div>
-        <div className="clip-copy">
-          <span>{clip.handle}</span>
-          <h4>{clip.title}</h4>
-        </div>
-      </div>
-    </a>
-  );
-}
+// Fase 7 UX trim: the section keeps its two-video feature block + episode
+// list and gains the InstagramGrid tiles; the old four-thumbnail YouTube
+// clip grid (clips-row/ClipCard) and the Instagram embed widgets
+// (InstagramReels + embed.js) are gone from the homepage. The CMS video
+// tab still edits the `clips` data — it keeps feeding the admin preview
+// and stays available if a future surface wants it — but the homepage no
+// longer renders it (decided in the Fase 7 homepage brief: the clip grid
+// diluted the section and the embeds caused the blank-gap failure).
+export function VideoSection({
+  data,
+  instagramProfileUrl = 'https://www.instagram.com/playbook.la/',
+}: {
+  data: SiteContentData['videoSection'];
+  instagramProfileUrl?: string;
+}) {
+  const handleMatch = instagramProfileUrl.match(/instagram\.com\/([^/?#]+)/i);
+  const instagramHandle = handleMatch ? `@${handleMatch[1]}` : 'Instagram';
 
-export function VideoSection({ data }: { data: SiteContentData['videoSection'] }) {
   return (
     <section className="video-section" id="video">
       <div className="container" style={{ padding: '0 24px 46px' }}>
@@ -96,13 +71,11 @@ export function VideoSection({ data }: { data: SiteContentData['videoSection'] }
             </div>
           </div>
 
-          <div className="clips-row">
-            {data.clips.map((clip, i) => (
-              <ClipCard key={i} clip={clip} />
-            ))}
-          </div>
-
-          <InstagramReels reels={data.instagramReels} />
+          <InstagramGrid
+            reels={data.instagramReels}
+            profileUrl={instagramProfileUrl}
+            handle={instagramHandle}
+          />
         </div>
       </div>
     </section>

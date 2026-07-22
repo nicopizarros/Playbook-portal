@@ -10,12 +10,24 @@ export type SearchableArticle = {
   source: string;
 };
 
+// Spanish-aware matching (Fase 7): lowercase + strip combining diacritics
+// (NFD splits "ú" into "u" + U+0301, the replace drops the accent mark) on
+// BOTH sides of the comparison, so "futbol" finds "fútbol" and "Mexico"
+// finds "México" — previously the search was accent-sensitive and quietly
+// missed most Spanish content unless the reader typed exact accents.
+function normalize(s: string) {
+  return (s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
 function matches(article: SearchableArticle, query: string) {
-  const q = query.toLowerCase();
+  const q = normalize(query);
   return (
-    article.title.toLowerCase().includes(q) ||
-    article.excerpt.toLowerCase().includes(q) ||
-    article.publication.toLowerCase().includes(q)
+    normalize(article.title).includes(q) ||
+    normalize(article.excerpt).includes(q) ||
+    normalize(article.publication).includes(q)
   );
 }
 

@@ -12,6 +12,10 @@
 .lead-story[data-source="opinion"]{border-left-color:var(--src-opinion);}
 .lead-story .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px;margin-bottom:14px;}
 .lead-photo{aspect-ratio:16/10;overflow:hidden;margin-bottom:16px;background:var(--rule);}
+/* Hero sin foto (Fase 7 UX): mismo marco 16/10, fondo editorial + titular
+   en Anton grande — ver .visual-* más abajo. */
+.lead-visual{display:flex;align-items:flex-end;padding:22px;}
+.lead-visual .visual-label{font-size:clamp(28px,3vw,40px);}
 .lead-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
 .lead-story:hover .lead-photo img,.lead-story:focus-within .lead-photo img{transform:scale(1.03);}
 .lead-story h1{font-family:var(--serif-display);font-weight:400;font-size:34px;line-height:1.1;margin:0 0 16px;text-transform:none;}
@@ -48,6 +52,48 @@
 .news-row h3{font-family:var(--sans);font-weight:600;font-size:15.5px;line-height:1.35;margin:0 0 6px;transition:color var(--duration-fast) ease;}
 .news-row .byline{font-size:11.5px;}
 
+/* ——— Layout de dos columnas del feed (Fase 7 UX) ———
+   Debajo del paquete principal (hero + lista) y del ad leaderboard: feed
+   de tarjetas a la izquierda, rail de 300px a la derecha (Más leídas +
+   ad slot). Colapsa a una columna bajo 920px (ver responsive.css). */
+.home-columns{display:grid;grid-template-columns:1fr 300px;gap:36px;align-items:start;margin-top:6px;}
+.sidebar-sticky{position:sticky;top:132px;}
+
+/* Módulo "Más leídas" del sidebar — patrón rank-list del prototipo v24:
+   numeración por contador CSS (decimal-leading-zero) en Anton gris,
+   tiempo de lectura a la derecha, cabecera con border-top de 2px. */
+.side-title{font-family:var(--serif-display);font-weight:400;font-size:20px;text-transform:uppercase;margin:0;padding-top:12px;border-top:2px solid var(--ink);}
+.rank-list{counter-reset:rank;list-style:none;margin:6px 0 0;padding:0;}
+.rank-item{counter-increment:rank;display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--rule);}
+.rank-item::before{content:counter(rank,decimal-leading-zero);font-family:var(--serif-display);font-size:23px;line-height:1;color:var(--gray-txt);}
+.rank-item h3{font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;margin:0;transition:color var(--duration-fast) ease;}
+.rank-item a:hover h3,.rank-item a:focus-visible h3{color:var(--green);}
+.rank-item>span{font-size:10.5px;color:var(--gray-txt);white-space:nowrap;}
+
+/* Tarjetas del feed — patrón story-card/story-visual del prototipo v23.
+   Dos columnas dentro del ancho que deja el rail. */
+.feed-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.story-card{display:block;border:1px solid var(--rule);background:var(--paper);overflow:hidden;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
+.story-card:hover,.story-card:focus-visible{border-color:var(--ink);transform:translateY(-2px);}
+.story-visual{aspect-ratio:16/9;display:flex;align-items:flex-end;padding:18px;background:var(--paper-soft);position:relative;overflow:hidden;}
+.story-visual.photo{padding:0;}
+.story-visual.photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
+.story-card:hover .story-visual.photo img{transform:scale(1.03);}
+/* Cuando no hay foto, la tipografía es la imagen: titular en Anton grande
+   sobre un fondo editorial mapeado por fuente. Superficies fijas (no se
+   invierten con el tema) — texto --ink-fixed sobre verde/amarillo, blanco
+   sobre tinta, mismo criterio que .btn.accent / la sección de video. */
+.visual-label{font-family:var(--serif-display);font-weight:400;font-size:clamp(22px,2vw,30px);line-height:.98;max-width:92%;text-transform:uppercase;margin:0;}
+.visual-green{background:var(--green);color:var(--ink-fixed);}
+.visual-yellow{background:var(--yellow);color:var(--ink-fixed);}
+.visual-black{background:var(--ink-fixed);color:#fff;}
+.visual-grid{background-color:var(--paper);background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);}
+.story-copy{padding:15px 17px 17px;}
+.story-copy h3{font-family:var(--sans);font-weight:600;font-size:15.5px;line-height:1.35;margin:0 0 8px;transition:color var(--duration-fast) ease;}
+.story-card:hover .story-copy h3{color:var(--green);}
+.story-copy p{font-size:12.5px;color:var(--gray-txt);line-height:1.5;margin:0 0 10px;}
+.story-copy .byline{font-size:11px;}
+
 .news-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:30px;border-top:1px solid var(--ink);}
 .news-strip a{display:block;padding:20px 20px 20px 14px;margin-left:20px;border-right:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
 .news-strip a:last-child{border-right:none;}
@@ -64,11 +110,9 @@
   :root:not([data-theme="light"]) .empty-state.error-state{color:#e0616b;}
 }
 
-/* Newsletter — unified pill (input + filled button) */
-.nl-box{margin:38px 0 0;padding:26px 30px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
-.nl-box h3{font-family:var(--serif-display);font-weight:400;font-size:18px;margin:0 0 4px;text-transform:uppercase;}
-.nl-box p{font-size:13.5px;color:var(--gray-txt);margin:0;max-width:46ch;font-weight:400;}
-
+/* Newsletter — unified pill (input + filled button). (El viejo .nl-box de
+   portada se eliminó en la Fase 7 UX: la banda de newsletter que queda es
+   .mid-cta-box, la editable desde el CMS.) */
 .pill-form{display:flex;align-items:stretch;gap:0;flex-shrink:0;flex-wrap:nowrap;width:100%;max-width:380px;border:2px solid var(--ink);border-radius:999px;padding:3px;position:relative;}
 .pill-form .nl-fields{display:flex;align-items:stretch;width:100%;gap:0;}
 .pill-form input{flex:1;min-width:0;border:none;background:transparent;padding:0 16px;font-family:var(--sans);font-size:13px;min-height:38px;outline:none;color:var(--ink);border-radius:999px 0 0 999px;}

@@ -1,6 +1,15 @@
 import type { InfinitasCard, SiteContentData } from '@/lib/data/site-content';
 import { safeUrl } from '@/lib/safe-url';
+import { AdSlot } from '@/components/ads/AdSlot';
 
+// Fase 7 UX: upgraded from the old featured+stacked-side layout to the
+// v24 prototype's inf-card three-column grid (1.3fr 1fr 1fr) — every card
+// is a full-bleed photo with an absolute-positioned gradient overlay and
+// the copy pinned to the bottom. Data shape (featured + sideCards) and
+// the CMS Infinitas tab are untouched; the featured card simply takes the
+// wider first column. The vertical-sponsor ad slot (named sponsorship,
+// non-programmatic — see HANDOFF Fase 7) sits after the cards, inside the
+// section it sponsors.
 function InfCard({ card, heading }: { card: InfinitasCard; heading: 'h3' | 'h4' }) {
   const Heading = heading;
   return (
@@ -29,14 +38,13 @@ export function InfinitasSection({ data }: { data: SiteContentData['infinitasSec
           {data.linkLabel}
         </a>
       </div>
-      <div className="infinitas-wrap">
+      <div className="inf-grid">
         <InfCard card={data.featured} heading="h3" />
-        <div className="inf-side">
-          {data.sideCards.map((card, i) => (
-            <InfCard key={i} card={card} heading="h4" />
-          ))}
-        </div>
+        {data.sideCards.map((card, i) => (
+          <InfCard key={i} card={card} heading="h4" />
+        ))}
       </div>
+      <AdSlot slot="vertical-sponsor-infinitas" />
     </section>
   );
 }
