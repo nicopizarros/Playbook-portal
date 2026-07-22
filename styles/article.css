@@ -3,7 +3,13 @@
    .skel) en vez de duplicar estilos — solo se define aquí lo que es
    genuinamente nuevo: el layout de una lectura larga en una sola columna. */
 
-.article-page{padding:28px 0 60px;max-width:760px;}
+/* padding-top/bottom only (not the shorthand) so .container's own
+   left/right padding (24px) keeps applying here — the shorthand used to
+   zero it out, which only ever showed up below the 760px+48px breakpoint
+   where max-width stops constraining the box: every phone and small
+   tablet, i.e. most real traffic, rendered the headline and body text
+   flush against the screen edges with no side margin at all. */
+.article-page{padding-top:28px;padding-bottom:60px;max-width:760px;}
 .back-link{display:inline-block;margin-bottom:24px;}
 
 .article-detail{display:block;}
@@ -43,6 +49,7 @@
    borde/padding) en vez de inventar un estilo aparte. ——— */
 .article-walled{margin-top:8px;padding:26px 30px;border:1px solid var(--ink);}
 .article-walled > p{font-size:14.5px;color:var(--gray-dark);margin:0 0 16px;max-width:56ch;}
+.article-walled-teaser{font-size:17px !important;line-height:1.7;max-width:68ch !important;padding-bottom:20px;margin-bottom:20px !important;border-bottom:1px solid var(--rule);}
 .email-wall-form{max-width:380px;}
 
 /* ——— Página de archivo (/archivo.html) ——— */

@@ -169,7 +169,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
           <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
           <article className="article-detail">
             {header}
-            <EmailWall articleUrl={canonicalUrl} />
+            <EmailWall articleUrl={canonicalUrl} teaser={meta.wallTeaser} />
           </article>
         </main>
         <script

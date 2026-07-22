@@ -30,6 +30,7 @@ export type ArticleMeta = {
   id: string;
   title: string;
   excerpt: string;
+  wallTeaser: string | null;
   imageUrl: string;
   dateFormatted: string;
   date: string;
@@ -58,6 +59,7 @@ export async function getArticleMetaById(id: string): Promise<ArticleMeta | null
       id: articles.id,
       title: articles.title,
       excerpt: articles.excerpt,
+      wallTeaser: articles.wallTeaser,
       imageUrl: articles.imageUrl,
       dateFormatted: articles.dateFormatted,
       date: articles.date,

@@ -6,11 +6,12 @@ historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
 2026-07-22.
 
-**PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; esta
-sesión trabaja en `claude/stage-6-plan-maqkiy` (Fase 6, ver registro de
-progreso). El PR #22 original de la migración
-(rama `claude/playbook-nextjs-migration-9zn6nh`) sigue superado por el
-flujo de Fases 1-5 ya mergeado — no seguir trabajando ahí.
+**PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; la
+Fase 6 (migración completa) también mergeó. Esta sesión trabaja en
+`claude/playbook-portal-audit-fixes-ypk3in` (auditoría de UX + fixes +
+tareas de contenido, ver registro de progreso). El PR #22 original de la
+migración (rama `claude/playbook-nextjs-migration-9zn6nh`) sigue superado
+por el flujo de Fases 1-6 ya mergeado — no seguir trabajando ahí.
 
 ## Qué es esto
 
@@ -2100,6 +2101,139 @@ real, mismo estándar que Fases 1-3):
   Analytics) que solo el usuario puede configurar en el dashboard de
   Vercel, y su verificación en producción real una vez configuradas.
 
+### 2026-07-22 — Auditoría de UX + fixes de bugs + tareas de contenido/CMS
+
+- Primera sesión post-Fase 6, sin número de fase (ver ítem 3 de "Próximos
+  pasos" de la entrada anterior — no hace falta inventar una fase para
+  trabajo nuevo). Pedido del usuario: auditoría crítica de UX + una lista
+  de bugs/tareas de contenido/CMS/navegación puntuales.
+- **Bug real encontrado y corregido, verificado con A/B real, no
+  asumido**: `html{scroll-behavior:smooth}` en `styles/reset.css` — global,
+  sin ningún uso real de scroll-a-ancla en el sitio (los únicos anchors
+  internos son los skip-links, que saltan al tope de la propia página).
+  Este selector hace que **todo** `scrollTo` programático, incluida la
+  restauración nativa del navegador al usar "atrás" después de un scroll
+  profundo, se anime en vez de saltar — y esa animación queda expuesta a
+  interrupción por cualquier reflow/paint concurrente. Reproducido con
+  Playwright de forma determinística (scroll a Y conocido en `/archivo`,
+  clic en un artículo, "atrás", medir scrollY resultante): con el bug,
+  scrollTo(700/1400/2200) leía de vuelta 513/590/832 (nunca llegaba,
+  atrapado a mitad de animación) y la restauración de "atrás" erraba por
+  187–704px; sin `scroll-behavior:smooth`, ambos casos dan el valor exacto
+  (diff 0 en 2 de 3 pruebas, -14px en la tercera). Este es el bug real
+  detrás de "salto de contenido al volver de un artículo" que pidió el
+  usuario. Corregido quitando la regla (y la línea ahora redundante en
+  `prefers-reduced-motion:reduce` que la reseteaba).
+- **Segundo bug real encontrado y corregido, mismo nivel de verificación**:
+  `.article-page{padding:28px 0 60px;max-width:760px;}` en
+  `styles/article.css` usaba la forma corta de `padding`, que pisaba por
+  completo el `padding:0 24px` de `.container` (la misma clase, aplicada
+  al mismo `<main>`) — sin que nadie lo notara porque a >808px de ancho de
+  viewport el `max-width:760px` ya centra la caja con margen de sobra. Por
+  debajo de eso (todo teléfono y tablet chica, la mayoría del tráfico real
+  de un sitio de noticias), el titular y el cuerpo del artículo se
+  renderizaban pegados al borde de la pantalla, sin margen lateral alguno
+  — confirmado midiendo `getBoundingClientRect()` del `<h1>` real (x=0) y
+  con un recorte de pantalla al pixel. Esto es el bug real detrás de
+  "márgenes inconsistentes en ciertas áreas" — auditados los demás
+  templates (home/archivo/tema/autor/legal) y ninguno tiene el mismo
+  patrón. Corregido a `padding-top`/`padding-bottom` (sin tocar
+  left/right), dejando que `.container` vuelva a aportar los 24px que ya
+  usa el resto del sitio.
+- **Tercer bug de contenido real encontrado y corregido**: la tarjeta
+  "Más que un triunfo: lo que México–Brasil cambia" de `infinitasSection`
+  (la pieza a la que se refería el pedido "Infinitas de México Brasil") sí
+  tenía un campo `image`, pero la URL de Unsplash devolvía **404** real
+  (confirmado con `curl`, no asumido) — las otras dos imágenes de esa
+  misma sección devuelven 200. Reemplazada por una foto real y verificada
+  (200, tema de fútbol femenil, buscada y confirmada con WebSearch/curl)
+  en `content.json` (y aplicada a Postgres local vía `migrate:json`, que
+  también es idempotente para `articles.json`).
+- **CMS: "Opinión" no tenía tipo de contenido ni storage propio** —
+  confirmado leyendo `components/sections/OpinionSection.tsx`/
+  `OpinionTab.tsx`: son tarjetas curadas a mano dentro del JSON de
+  `site_content`, cada una enlazando afuera a Substack, sin página propia
+  ni fila en `articles`. En vez de construir una tabla/pipeline paralelo
+  completo (metering, relacionados, sitemap, RSS, taxonomía — todo lo que
+  `articles` ya tiene), se agregó `'opinion'` a `KNOWN_SOURCES`/
+  `SOURCE_LABELS` (`lib/constants.ts`) más su color de marca
+  (`--src-opinion` en los 3 lugares de la cascada de `tokens.css`, más
+  `admin.css`, `hero.css`, `components.css`) — un editor ahora puede crear
+  un artículo real con `source: 'opinion'` desde la pestaña Artículos y
+  obtiene automáticamente página `/articulo` propia, filtro en
+  `/archivo?source=opinion`, tags, sitemap/RSS, todo gratis. Verificado
+  insertando un artículo de prueba real (`source: 'opinion'`) y
+  confirmando que renderiza con su propio badge/color y aparece en el
+  filtro de `/archivo` — fila borrada después. La tarjeta curada existente
+  de Opinión en la portada (con links a Substack) se deja intacta a
+  propósito: no se pidió cambiar ese widget, solo que exista un storage
+  real para piezas de opinión.
+- **CMS: teaser personalizado para el muro de registro** — antes, un
+  lector sin sesión que agotaba sus 3 lecturas gratis del mes veía el
+  header del artículo (imagen/título/tags) y directo el formulario de
+  correo, sin ningún adelanto de texto — ni excerpt ni nada se mostraba
+  ahí (confirmado leyendo `app/(public)/articulo/page.tsx`: la rama
+  `walled` nunca renderizaba `excerpt`). Agregada una columna nueva y
+  separada, `articles.wall_teaser` (nullable, sin default —
+  `drizzle/0002_curly_dragon_man.sql`), distinta tanto de `excerpt`
+  (resumen de tarjeta) como del `teaser` existente (respaldo de cuerpo
+  para artículos legado) para no sobrecargar ninguno de los dos con un
+  propósito nuevo. Campo nuevo en la pestaña Artículos ("Teaser del muro
+  de registro"), incluido en `getArticleMetaById` (seguro: nunca expone
+  cuerpo/HTML a un lector sin acceso, mismo criterio que el resto de esa
+  función) y en `saveArticle`/`createArticle`. Si el campo queda vacío, el
+  muro no muestra ningún adelanto — no cae de vuelta al excerpt.
+  **Verificado de punta a punta con Postgres y un servidor real**: login
+  de editor real, campo guardado desde la pestaña Artículos (toast
+  "Guardado" real), después una sesión anónima real leyendo 3 artículos
+  distintos y topando el muro en un 4º confirma que el texto guardado
+  aparece arriba del mensaje de muro, con su propio separador visual. Fila
+  de prueba y editor de prueba borrados después.
+- **Navegación: enlaces de productos editoriales a Substack** — las 4
+  tarjetas de "Productos editoriales" (`site_content.productsSection`)
+  enlazaban las 4 a Substack. 3 de las 4 corresponden a un `source` real
+  del sitio (Noticias→`industry-shots`, La Lana del Mundial→`la-lana`,
+  Infinitas→`infinitas`) y ahora enlazan a su colección interna
+  (`/archivo?source=...`) en vez de salir del sitio — verificado con
+  Playwright que los 3 `href` cambiaron y el 4º no. **The Futbol Business
+  Review se deja apuntando a Substack a propósito, no por omisión**: es un
+  producto explícitamente "en inglés", sin ningún artículo ni `source`
+  propio en este sistema — no existe ninguna colección interna real a la
+  que enlazar todavía. `components/sections/ProductsSection.tsx` ahora
+  solo abre en pestaña nueva (`target="_blank"`) los enlaces que de verdad
+  son externos (`http(s)://`), no los internos — antes todos forzaban
+  pestaña nueva sin importar el destino.
+- **Bug de tags/breadcrumb del pedido original, no reproducido**: se
+  probó `/archivo`, `/tema`, `/articulo` en 320/375/390/430/600/700/768/
+  1024/1400px, claro y oscuro, con hasta 6 tags por artículo (el máximo
+  real en los datos actuales) — nunca se encontró superposición entre las
+  tag pills y la barra de "Volver a Noticias"/back-link. Consultado con el
+  usuario: prefirió mandar una captura/URL más adelante en vez de que se
+  aplicara un endurecimiento a ciegas — **queda pendiente de esa
+  información**, no cerrado ni descartado.
+- **Evaluación pedida, no implementada** (correcta: es una pregunta de
+  "¿vale la pena?", no un bug): un cross-fade de tema ya existe hoy
+  (`styles/reset.css`, `@media(prefers-reduced-motion:no-preference)`,
+  solo en `body`/`header.topbar`/`.search-results`, con comentario
+  explícito de por qué el alcance es angosto — muchos componentes ya
+  declaran su propia `transition` para hover/interacción, y una regla
+  amplia (`*`) chocaría con esas). Recomendación entregada al usuario en
+  el chat: no vale la pena ampliarlo más por ahora — el beneficio marginal
+  es bajo frente al costo real de auditar cada componente para evitar
+  colisión con sus transiciones existentes; si se quiere más adelante,
+  sumar 2-3 superficies puntuales a la lista ya existente, no un selector
+  global.
+- **Verificación real, no solo compilación**: `tsc --noEmit` y
+  `npm run lint` limpios; `next build` limpio con y sin `POSTGRES_URL`
+  (misma disciplina que todas las fases anteriores); `migrate:json`
+  re-corrido para confirmar que el seed local coincide con
+  `articles.json`/`content.json` después de todos los cambios de
+  contenido. Todas las filas/editores de prueba (artículo de opinión,
+  cuenta `testadmin`, lecturas anónimas de prueba) borrados al cierre.
+- **Pendiente para la siguiente sesión**: la captura/URL del bug de
+  tags/breadcrumb que el usuario va a mandar; ningún otro ítem de la lista
+  original quedó sin atender.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
 **Fases 1-6 — todas completas.** La migración de Playbook de sitio
@@ -2141,6 +2275,10 @@ queda es lo de la sección siguiente, que no es código:
 3. **Ninguna fase pendiente.** Si aparece trabajo nuevo (un bug reportado,
    una feature), abrir una entrada nueva de registro con su propia fecha
    — no hace falta inventar un número de fase para eso.
+4. **Abierto de la sesión de auditoría de UX (2026-07-22)**: el bug de
+   tags/breadcrumb superponiéndose — no reproducido en ninguna combinación
+   de página/ancho/tema probada, el usuario va a mandar una captura o URL
+   específica. No tocar de nuevo a ciegas sin esa información.
 
 ## Convención: cómo mantener este archivo
 

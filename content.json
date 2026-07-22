@@ -55,7 +55,7 @@
         "wordmark": "",
         "description": "Noticias rápidas con contexto y opinión Playbook.",
         "meta": "Martes / Jueves",
-        "url": "https://playbookmedia.substack.com/",
+        "url": "/archivo?source=industry-shots",
         "image": "/assets/img/industry-shots-banner.webp",
         "imageAlt": "Noticias by Playbook"
       },
@@ -65,7 +65,7 @@
         "wordmark": "",
         "description": "Deep Dives sobre el negocio del Mundial 2026.",
         "meta": "Viernes",
-        "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa",
+        "url": "/archivo?source=la-lana",
         "image": "/assets/img/lana-banner.webp",
         "imageAlt": "La Lana del Mundial"
       },
@@ -85,7 +85,7 @@
         "wordmark": "",
         "description": "Deporte femenil leído como industria.",
         "meta": "Semanal",
-        "url": "https://soninfinitas.substack.com/",
+        "url": "/archivo?source=infinitas",
         "image": "/assets/img/infinitas-banner.webp",
         "imageAlt": "Infinitas"
       }
@@ -177,7 +177,7 @@
         "url": "https://soninfinitas.substack.com/p/el-futbol-femenil-empieza-a-dejar"
       },
       {
-        "image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&q=80",
+        "image": "https://images.unsplash.com/photo-1528162841823-9e55a8cc2f58?w=1200&q=80",
         "eyebrow": "Selección",
         "title": "Más que un triunfo: lo que México–Brasil cambia",
         "url": "https://soninfinitas.substack.com/p/mas-que-un-triunfo-lo-que-mexicobrasil"

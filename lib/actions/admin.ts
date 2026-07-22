@@ -83,6 +83,7 @@ export type ArticleInput = {
   title: string;
   excerpt: string;
   teaser: string;
+  wallTeaser: string;
   bodyJson: Record<string, unknown> | null;
   author: string;
   date: string;
@@ -132,6 +133,7 @@ export async function saveArticle(
       title: input.title,
       excerpt: input.excerpt,
       teaser: input.teaser,
+      wallTeaser: input.wallTeaser || null,
       bodyJson: input.bodyJson,
       bodyHtml,
       author: input.author,
@@ -191,6 +193,7 @@ export async function createArticle(input: ArticleInput & { id?: string }): Prom
           title: input.title,
           excerpt: input.excerpt,
           teaser: input.teaser,
+          wallTeaser: input.wallTeaser || null,
           bodyJson: input.bodyJson,
           bodyHtml,
           author: input.author,

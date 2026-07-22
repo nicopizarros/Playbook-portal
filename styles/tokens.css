@@ -19,6 +19,7 @@
   --src-lana:#b5850a;
   --src-infinitas:#6b2fbf;
   --src-playbook:var(--gray-txt);
+  --src-opinion:#146c64;
 
   /* Motion system */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -52,6 +53,7 @@
     --src-industry:#6f8fd6;
     --src-lana:#d9a53a;
     --src-infinitas:#a875e8;
+    --src-opinion:#4fd1c5;
   }
 }
 
@@ -65,6 +67,7 @@
   --src-industry:#6f8fd6;
   --src-lana:#d9a53a;
   --src-infinitas:#a875e8;
+  --src-opinion:#4fd1c5;
 }
 
 [data-theme="light"]{
@@ -77,4 +80,5 @@
   --src-industry:#1c2b4a;
   --src-lana:#b5850a;
   --src-infinitas:#6b2fbf;
+  --src-opinion:#146c64;
 }

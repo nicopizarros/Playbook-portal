@@ -9,7 +9,7 @@ import { FREE_ARTICLES_PER_MONTH } from '@/lib/constants';
 // same visual language as the newsletter forms, no new CSS needed for the
 // form itself. No payment step anywhere, per the brief: this is pure email
 // capture, not a paywall.
-export function EmailWall({ articleUrl }: { articleUrl: string }) {
+export function EmailWall({ articleUrl, teaser }: { articleUrl: string; teaser?: string | null }) {
   const [state, formAction, isPending] = useActionState<MagicLinkState, FormData>(
     requestMagicLink,
     null,
@@ -27,6 +27,9 @@ export function EmailWall({ articleUrl }: { articleUrl: string }) {
 
   return (
     <div className="article-walled">
+      {/* Editor-authored (articles.wallTeaser), never the excerpt/summary —
+          left unset means no preview text, not a silent fallback. */}
+      {teaser && <p className="article-walled-teaser">{teaser}</p>}
       <p>
         Ya leíste tus {FREE_ARTICLES_PER_MONTH} artículos gratis este mes. Déjanos tu correo para
         seguir leyendo gratis, sin costo.

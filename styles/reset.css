@@ -1,5 +1,4 @@
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
 body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-size:15.5px;line-height:1.62;}
 
 /* Paper grain — a barely-there fractal-noise overlay so the warm light
@@ -60,6 +59,5 @@ h1,h2,h3,h4{text-wrap:balance;}
 }
 
 @media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto;}
   *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
 }

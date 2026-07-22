@@ -1,9 +1,19 @@
 import type { ProductCard, SiteContentData } from '@/lib/data/site-content';
 import { safeUrl } from '@/lib/safe-url';
 
+// Products can point either at an internal collection page (e.g. /archivo?
+// source=...) or an external destination (Substack, a partner site) — only
+// the latter should force a new tab; a same-site link behaves like every
+// other internal <a> on the portal.
+function isExternalUrl(url: string) {
+  return /^https?:/i.test(url.trim());
+}
+
 function ProductCardView({ product }: { product: ProductCard }) {
+  const href = safeUrl(product.url);
+  const external = isExternalUrl(product.url);
   return (
-    <a className="product reveal" href={safeUrl(product.url)} target="_blank" rel="noopener noreferrer">
+    <a className="product reveal" href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
       {product.variant === 'glyph' ? (
         <div className="product-mark">
           <span className="glyph" aria-hidden="true">{product.glyph}</span>
