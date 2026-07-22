@@ -4,16 +4,13 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-07-21.
+2026-07-22.
 
-**PR abierto**: [#29](https://github.com/nicopizarros/Playbook-portal/pull/29)
-(`claude/codebase-audit-roadmap-ayos6n` → `main`) — fixes post-auditoría
-(freeze de navegación, login directo, ranking, lint) encima de lo que ya
-mergeó [#28](https://github.com/nicopizarros/Playbook-portal/pull/28) (fix
-de metering, ESLint/CI/headers/rate limiting, GA4 de cliente, aviso de
-cookies, páginas legales, `/cuenta`). El PR #22 original de la migración
-(rama `claude/playbook-nextjs-migration-9zn6nh`) quedó superado por este
-flujo — no seguir trabajando ahí.
+**PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; esta
+sesión trabaja en `claude/stage-6-plan-maqkiy` (Fase 6, ver registro de
+progreso). El PR #22 original de la migración
+(rama `claude/playbook-nextjs-migration-9zn6nh`) sigue superado por el
+flujo de Fases 1-5 ya mergeado — no seguir trabajando ahí.
 
 ## Qué es esto
 
@@ -1958,61 +1955,192 @@ real, mismo estándar que Fases 1-3):
   diagnóstico definitivo del síntoma reportado. Ambos fixes son
   complementarios, no contradictorios.
 
+### 2026-07-22 — Fase 6 (checkpoint 1 de 2): pasada de regresión end-to-end consolidada — sin bugs nuevos encontrados
+
+- Primer checkpoint de la Fase 6 ("Próximos pasos" #3 la nombraba pero
+  nunca tuvo un plan detallado, a diferencia de la Fase 4 — se escribió uno
+  antes de empezar). A diferencia de las Fases 1-5, que se verificaron
+  fase por fase, esta pasada recorre **todo el sitio a la vez** en una
+  sola sesión, sobre Postgres local (recreado desde cero: `db:migrate` +
+  `migrate:json`, 30/30 artículos + 11 secciones, `db:seed-editors` con
+  3 cuentas de prueba) — la misma clase de verificación que ya atrapó el
+  bug de `ScrollReveal` de ayer (un bug que ninguna verificación aislada
+  por fase hubiera encontrado).
+- **Falso positivo real encontrado y descartado antes de tocar código**:
+  al levantar `next start` (no `next dev`, para acercarse más a
+  producción) con `NEXTAUTH_URL=http://localhost:3000` de
+  `.env.local.example` pero sirviendo en el puerto 3100 (el que ya
+  asumían `scripts/smoke-test.mjs`/`test-email-wall.mjs`), Auth.js v5
+  rechazó cada intento de magic link con `UntrustedHost` — confirmado
+  leyendo `node_modules/@auth/core/lib/utils/env.js`: `trustHost` solo se
+  activa solo si `NODE_ENV !== 'production'` (cierto en `next dev`, falso
+  en `next start`) o si están `AUTH_URL`/`AUTH_TRUST_HOST`/`VERCEL`/
+  `CF_PAGES` — ninguna presente acá. Esto hizo que
+  `scripts/test-email-wall.mjs` reportara "éxito" en un envío que en
+  realidad nunca llegó a intentar Resend — un falso positivo de la
+  verificación, no un bug de la app. Corregido en este sandbox ajustando
+  `NEXTAUTH_URL` a `http://localhost:3100` y volviendo a `next dev` para
+  el resto de la sesión (mismo patrón que usaron las Fases 1-5); en
+  producción real esto no aplica: Vercel setea `VERCEL=1` automáticamente,
+  lo que activa `trustHost` sin configuración adicional — confirmado
+  leyendo el mismo archivo fuente, no asumido.
+- **Verificado de punta a punta, con scripts de Playwright desechables
+  (no quedan en el repo, mismo criterio que otros checkpoints de la
+  Fase 4)**:
+  - **Lector anónimo completo**: 3 lecturas con acceso completo → muro
+    real en la 4ª → magic link fabricado a mano (mismo truco SHA-256
+    `token+AUTH_SECRET` ya usado en la sesión de "Mi cuenta", verificado
+    de nuevo contra el código fuente real de `@auth/core` antes de
+    reusarlo) → sesión real con `role:"reader"` → releer el artículo #1
+    ya no consume cupo → `/cuenta` muestra el email real → exportar datos
+    → borrar cuenta con el diálogo real → confirmado por `psql` que
+    `user`/`article_reads`/`verification_token` quedan en 0 para ese
+    email. Los 8 pasos, `OK`.
+  - **Navegación cliente-side cruzada** (la clase exacta de bug de ayer):
+    portada → artículo → volver (link real y botón "atrás" del
+    navegador) → mismo resultado en ambos casos, `opacity` correcta en
+    los 39 `.reveal` de portada tras la vuelta (no solo presencia en el
+    DOM); en `/articulo`, los 3 `.reveal` de "artículos relacionados"
+    arrancan en `opacity:0` (están debajo del pliegue) y las 3 se revelan
+    al scrollear — comportamiento esperado del `IntersectionObserver`, no
+    un bug.
+  - **Admin completo**: login → las 12 pestañas cargan sin errores de
+    consola → editar+guardar `site_content` (Navegación) → `version`
+    incrementa + fila en `content_revisions` → **escenario de conflicto
+    real con dos sesiones de Playwright simultáneas** (ambas cargan la
+    misma versión, la primera guarda, la segunda choca con el modal real,
+    "Entendido, recargar" trae el valor de la primera) → crear artículo
+    nuevo con cuerpo TipTap real (negrita) → `body_html` coincide con
+    `body_json` en Postgres → se renderiza en `/articulo` público →
+    "Eliminar" (que llama a `archiveArticle`, nunca un DELETE real) →
+    `status:'draft'` confirmado, desaparece de `/archivo` pero la URL
+    directa sigue resolviendo.
+  - **Webhook de Make.com** (`curl` directo): campos faltantes → 400;
+    secreto incorrecto → 401; inserción normal → 200 `ok`; mismo
+    `sourceUrl` repetido → 200 `duplicate` sin insertar una segunda fila;
+    dos ítems de un mismo digest "Industry Shots" compartiendo
+    `substackUrl` (el caso que motivó el cambio de schema de la Fase 4)
+    → ambos se insertan con éxito; inferencia de tags (`NFL`, `Liga MX`)
+    confirmada en las filas insertadas.
+  - **Boundaries de error** (regresión del fix de ayer, "reproduciendo el
+    escenario exacto"): con un `throw` temporal en `app/(public)/page.tsx`
+    contra un build de producción real (`next build` + `next start` en un
+    puerto aparte, revertido de inmediato después) — Playwright confirma
+    el fallback de marca ("Algo salió mal", botón "Reintentar") con
+    header/footer intactos, no la pantalla en blanco de Next.js. `git
+    diff` confirma que el archivo quedó exactamente como estaba antes del
+    diagnóstico.
+  - `sitemap.xml` (52 URLs), `feed.xml` (30 items) y `robots.txt`
+    verificados contra el conteo real de Postgres (30 artículos
+    publicados); rutas de borde (`/articulo?id=inexistente` → 404 real,
+    `/tema`/`/autor` con valores inválidos → 200 con `noindex`, ruta no
+    registrada → 404) sin cambios respecto a lo ya documentado en fases
+    anteriores.
+  - Cierre: `tsc --noEmit` limpio, `npm run lint` → 0 problemas, `next
+    build` limpio con y sin `.env.local`.
+- **Resultado de esta pasada: cero bugs nuevos encontrados** — a
+  diferencia de lo que las Fases 1-5 fueron encontrando sistemáticamente,
+  esta corrida no descubrió ningún comportamiento incorrecto de la app en
+  sí (el único hallazgo, el falso positivo de `NEXTAUTH_URL`/`trustHost`
+  de arriba, fue un problema del propio arnés de verificación local, no
+  del código). Consistente con que las Fases 4 y 5 ya dejaron cada pieza
+  verificada por separado, y que los dos bugs de integración reales que
+  sí existían (el de `error.tsx` y el de `ScrollReveal`) ya se encontraron
+  y corrigieron ayer, antes de que arrancara esta Fase 6.
+- Todas las filas/artículos/usuarios de prueba creados durante esta
+  verificación borrados después; `site_content.ctaLabel` restaurado a su
+  valor original (`version` quedó en 11, mismo criterio de fases
+  anteriores: un guardado de prueba incrementa la versión igual que un
+  commit de prueba incrementa el historial). `git status` limpio al
+  cierre — ningún script de verificación desechable quedó en el repo.
+- **Pendiente para el checkpoint 2 de 2**: borrar `legacy/` (confirmado
+  de nuevo en esta sesión, vía `git grep`, que ningún archivo de
+  `app/`/`lib/`/`components/`/`scripts/` lo importa — solo comentarios
+  que documentan de qué código legado se portó cada pieza) y la limpieza
+  de documentación (README sin el framing "en migración",
+  actualizar "Próximos pasos" de este archivo).
+
+### 2026-07-22 — Fase 6 (checkpoint 2 de 2, última de la fase): corte final — `legacy/` eliminado
+
+- Con el checkpoint 1 confirmando cero regresiones, este checkpoint hace
+  el corte real de la migración.
+- **Re-confirmado antes de borrar, no asumido de la sesión anterior**: un
+  `grep` recursivo sobre `.ts`/`.tsx`/`.js`/`.mjs` (excluyendo
+  `node_modules`/`.next`/`legacy` mismo) buscando cualquier `import ...
+  from` o `require(...)` que apunte a `legacy/` → cero resultados. Las
+  ~46 menciones de "legacy/" que sí existen en el código son comentarios
+  explicando de qué archivo legado se portó cada pieza (quedan intactas,
+  son historia útil) — ninguna es un import real.
+- **Hecho**: `git rm -r legacy/` (484 KB, todo el sitio estático original:
+  HTML/CSS/JS, `admin/`, `api/`, `lib/`, `vercel.json` propio —
+  confirmado huérfano, no hay `vercel.json` en la raíz del repo).
+- **Verificado, no solo "compila"**: `tsc --noEmit`, `npm run lint`
+  (0 problemas) y `next build` limpios, con y sin `.env.local`, igual que
+  el estándar de todas las fases anteriores. Con el servidor real
+  (`next dev`) corriendo después del borrado: `/`, `/archivo`, `/admin` y
+  un asset estático (`/assets/img/playbook-logo.webp`) sirven `200` sin
+  cambios — confirma que la app en runtime nunca dependió de `legacy/`
+  (los assets reales ya viven en `public/assets/` desde la Fase 1, tal
+  como documenta el "Mapa de archivos" de este archivo).
+- **Limpieza de documentación**: `README.md` pierde el framing "**En
+  migración**" (la migración termina con esta fase) y la entrada de
+  `legacy/` en su sección "Estructura". La cabecera de este archivo
+  ("PR abierto") se actualizó para reflejar que los PR #28-#31 ya
+  mergearon y no hay ninguno abierto todavía para esta rama. La sección
+  "Próximos pasos" de abajo se reescribe completa: el ítem 5 anterior
+  ("En curso: ESLint/CI/headers/rate limiting... páginas legales") estaba
+  desactualizado desde hace varias sesiones — todo eso ya se completó
+  (ver los commits/entradas de ESLint config, CI, security headers, rate
+  limiting, y "Datos legales reales" más arriba en este mismo registro).
+- **Con esto se completan los 2 checkpoints planeados de la Fase 6.** La
+  migración de Playbook de sitio estático a Next.js queda funcionalmente
+  completa y verificada de punta a punta contra Postgres/servidores
+  reales. Lo único que queda — ver "Pendiente de despliegue" abajo — no es
+  código: son credenciales reales (Resend, Vercel Blob, GA4, Vercel
+  Analytics) que solo el usuario puede configurar en el dashboard de
+  Vercel, y su verificación en producción real una vez configuradas.
+
 ## Próximos pasos (a la fecha de la última entrada del registro)
 
-1. **Fase 4 — completa.** Los 5 checkpoints planeados están hechos y
-   verificados contra Postgres/un servidor real: schema + webhook de
-   Make.com, login de editor + guard, Server Actions con detección de
-   conflictos, editor TipTap + subida a Vercel Blob, primitivas de campo +
-   12 pestañas + preview en vivo, panel de analítica. Ver el registro de
-   progreso arriba para el detalle de cada uno (bugs reales encontrados,
-   cómo se verificó cada pieza).
-2. **Fase 5 — completa.** Auditada primero contra legacy archivo por
-   archivo (no asumida por el nombre de la fase): modo oscuro,
-   transiciones/animaciones de `js/ui.js` y accesibilidad ya estaban en
-   paridad 1:1, así que el trabajo real fueron los 4 checkpoints
-   verificados: módulo "Más leídas" con GA4 (`lib/ga4.ts`,
-   `lib/most-read.ts`, `components/home/MostReadSection.tsx`), Vercel Web
-   Analytics + evento `pageview_article` (con un bug de carrera real
-   encontrado y corregido — ver el checkpoint 2 en el registro), estados
-   de carga/error en la subida de imágenes de TipTap, y una limpieza menor
-   de Lighthouse/documentación. Ver el registro de progreso arriba para el
-   detalle de cada uno.
-3. **Fase 6** — Verificación end-to-end (ver plan completo para el detalle
-   de qué probar) y corte a producción.
-4. **Pendiente de despliegue, no de código**:
-   - Verificar el flujo real de magic link con una `RESEND_API_KEY` real
-     (Fase 3).
-   - Verificar la subida real a Vercel Blob con un `BLOB_READ_WRITE_TOKEN`
-     real (Fase 4, checkpoint 3).
-   - Verificar el panel de analítica del admin con credenciales reales de
-     Vercel Analytics (Fase 4, checkpoint 5).
-   - Verificar datos reales del módulo "Más leídas" con credenciales de
-     GA4 reales, y del evento `pageview_article` llegando de verdad al
-     backend de Vercel (Fase 5, checkpoints 1 y 2).
-   - ~~Verificar que `middleware.ts` en runtime Node.js no dispara
-     `MIDDLEWARE_INVOCATION_FAILED` en un deploy real~~ — **confirmado
-     resuelto**: Runtime Logs reales del deployment de producción actual
-     muestran `serverless-middleware` devolviendo 200 consistentemente en
-     `/`, `/articulo`, `/cuenta`, `/archivo`, sin ningún
-     `MIDDLEWARE_INVOCATION_FAILED` (ver entrada de hoy sobre la portada en
-     blanco).
-   - Corregir en el dashboard de Vercel los 4 nombres de variable con
-     mayúsculas/minúsculas incorrectas (`PLAYBOOK_SECRET`, `GA4_PROPERTY_ID`,
-     `GA4_SERVICE_ACCOUNT_EMAIL`, `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` — ver
-     entrada correspondiente).
-   - **Nuevo, confirmado en Runtime Logs reales de hoy**: configurar
-     `EMAIL_FROM` en producción — no está seteada (o tiene un nombre
-     distinto), por lo que el proveedor Resend de Auth.js cae en su default
-     `no-reply@authjs.dev`, un dominio no verificado que Resend rechaza con
-     403 en cada intento de magic link. El envío de login por correo está
-     completamente roto en producción hasta que se corrija esto (ver
-     entrada de hoy).
-5. **En curso**: ESLint/CI/security headers/rate limiting (deuda técnica
-   señalada en la auditoría de este mismo día, sin fase asignada todavía) y
-   páginas legales (`/privacidad`, `/terminos`, aviso de cookies) — no
-   existían ni en legacy ni acá; texto borrador pendiente de revisión legal
-   real antes de lanzar, ver tareas en curso.
+**Fases 1-6 — todas completas.** La migración de Playbook de sitio
+estático a Next.js está funcionalmente terminada y verificada de punta a
+punta contra Postgres/servidores reales — `legacy/` ya no existe en el
+repo (borrado en la Fase 6, checkpoint 2). Ver el registro de progreso
+arriba para el detalle sesión por sesión de cada fase. Lo único que
+queda es lo de la sección siguiente, que no es código:
+
+1. **Pendiente de despliegue — credenciales reales en Vercel** (cada una
+   ya tiene su código funcionando y degradando con gracia sin la
+   credencial; falta que el usuario las configure y confirme el
+   resultado real desplegado):
+   - `RESEND_API_KEY` + `EMAIL_FROM` real (dominio verificado en Resend,
+     no `no-reply@authjs.dev`) — magic link de lectores. **Confirmado
+     roto en producción hoy** (403 de Resend en los Runtime Logs, ver
+     entrada correspondiente) hasta que se configure.
+   - `BLOB_READ_WRITE_TOKEN` real — subida de imágenes en el editor
+     TipTap (Fase 4, checkpoint 3).
+   - `VERCEL_ANALYTICS_TOKEN`/`VERCEL_PROJECT_ID`/`VERCEL_TEAM_ID` —
+     panel de analítica del admin (Fase 4, checkpoint 5).
+   - `GA4_PROPERTY_ID`/`GA4_SERVICE_ACCOUNT_EMAIL`/
+     `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` — módulo "Más leídas" (Fase 5,
+     checkpoint 1). Corregir además los 4 nombres de variable con
+     mayúsculas/minúsculas incorrectas ya señalados en el registro
+     (`PLAYBOOK_SECRET`, `GA4_PROPERTY_ID`, `GA4_SERVICE_ACCOUNT_EMAIL`,
+     `GA4_SERVICE_ACCOUNT_PRIVATE_KEY`).
+   - Confirmar el evento `pageview_article` llegando de verdad al backend
+     de Vercel Analytics (Fase 5, checkpoint 2).
+2. **Resueltos, no requieren acción**: `middleware.ts` en runtime Node.js
+   ya confirmado sirviendo 200 de forma consistente en producción (ver
+   entrada sobre la portada en blanco); ESLint/CI/security
+   headers/rate limiting, páginas legales (`/privacidad`, `/terminos`,
+   aviso de cookies) y el módulo "Mi cuenta" — todo completado en
+   sesiones anteriores a esta Fase 6 (ver las entradas correspondientes
+   del registro más arriba; este ítem reemplaza al anterior "En curso"
+   de esta misma sección, que había quedado desactualizado por varias
+   sesiones).
+3. **Ninguna fase pendiente.** Si aparece trabajo nuevo (un bug reportado,
+   una feature), abrir una entrada nueva de registro con su propia fecha
+   — no hace falta inventar un número de fase para eso.
 
 ## Convención: cómo mantener este archivo
 
