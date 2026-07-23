@@ -248,10 +248,16 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
               <TextField
                 label="Imagen"
                 type="url"
-                required={() => Number(a.priority) === 5}
-                help="El link a una imagen para el artículo. Obligatoria cuando el artículo tiene 5 estrellas: se muestra grande en el puesto principal."
+                required
+                help="El link a una imagen para el artículo, relacionada directamente con el tema. Obligatoria para todo artículo, sin importar la prioridad."
                 value={a.imageUrl}
                 onChange={v => updateEntry(i, { imageUrl: v })}
+              />
+              <TextField
+                label="Crédito de la imagen"
+                help='Ej. "Foto: Jane Doe / Unsplash". Se muestra debajo de la foto en la página del artículo.'
+                value={a.imageCredit}
+                onChange={v => updateEntry(i, { imageCredit: v })}
               />
             </>
           );

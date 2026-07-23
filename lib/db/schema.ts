@@ -97,6 +97,9 @@ export const articles = pgTable(
     // inserts populate it.
     sourceUrl: text('source_url'),
     imageUrl: text('image_url').notNull().default(''),
+    // Photographer/source credit line shown under the lead photo (e.g.
+    // "Foto: Jane Doe / Unsplash"). Null/empty means no credit to show.
+    imageCredit: text('image_credit'),
     status: text('status', { enum: ['published', 'draft'] }).notNull().default('published'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
