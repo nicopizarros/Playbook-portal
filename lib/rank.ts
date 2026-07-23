@@ -23,17 +23,24 @@ export type Rankable = {
 // still beat a same-day low-priority one, but a two-week-old story can't
 // beat *any* same-day story regardless of priority: the max possible
 // boost is 5 * 1.5 = 7.5 days, well under 14.
-const PRIORITY_DAY_WEIGHT = 1.5;
+export const PRIORITY_DAY_WEIGHT = 1.5;
 
-function daysSince(dateStr: string, now: Date): number {
+export function daysSince(dateStr: string, now: Date): number {
   const parsed = new Date(`${dateStr}T00:00:00Z`);
   if (Number.isNaN(parsed.getTime())) return 0;
   return (now.getTime() - parsed.getTime()) / (1000 * 60 * 60 * 24);
 }
 
-function rankScore(article: Rankable, now: Date): number {
+// `dayWeight` defaults to PRIORITY_DAY_WEIGHT (the homepage-ordering
+// cadence, tuned for same-day competition) but is overridable — the
+// archive page's tier-sizing (archivo/page.tsx) uses a much larger weight
+// here, because "days per star" for a fast-moving homepage top slot and
+// "days per star" for how quickly an already-older archive item should
+// visually fade are genuinely different cadences, not the same number
+// reused for two different jobs.
+export function rankScore(article: Rankable, now: Date, dayWeight: number = PRIORITY_DAY_WEIGHT): number {
   const priority = typeof article.priority === 'number' ? article.priority : 0;
-  return priority * PRIORITY_DAY_WEIGHT - daysSince(article.date, now);
+  return priority * dayWeight - daysSince(article.date, now);
 }
 
 // `now` is a parameter (defaulting to the real clock) purely so this stays

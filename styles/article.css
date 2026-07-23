@@ -130,11 +130,166 @@
    define la caja — sin cambios extra necesarios. */
 
 /* ——— Página de archivo (/archivo) ——— */
-.archive-tag-filters{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+/* Toolbar: disclosure de filtros + toggle de vista. Toda la taxonomía vive
+   detrás de un <details> cerrado por defecto — mismo feedback que llevó a
+   plegar ArticleTopics (al lector no lo reciben cuatro filas de tags);
+   se re-abre solo mientras hay filtros activos para que el estado que
+   recorta la lista nunca quede invisible. El summary y el toggle hablan
+   el idioma redondo de .filter-btn (redondo = acción). */
+.archive-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.archive-filters{flex:1 1 0;min-width:0;}
+.archive-filters-summary{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 15px;border-radius:999px;border:1.5px solid var(--rule);background:var(--paper);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);cursor:pointer;list-style:none;transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease;}
+.archive-filters-summary::-webkit-details-marker{display:none;}
+.archive-filters-summary:hover,.archive-filters-summary:focus-visible,.archive-filters[open] .archive-filters-summary{border-color:var(--ink);color:var(--ink);}
+.archive-filters-count{font-weight:400;letter-spacing:0;}
+.archive-filters-chevron{flex-shrink:0;transition:transform var(--duration-base) var(--ease-out);}
+.archive-filters[open] .archive-filters-chevron{transform:rotate(180deg);}
+.archive-filters-panel{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding:16px 18px;border:1px solid var(--rule);background:var(--paper-soft);}
+.archive-filters-clear{align-self:flex-start;margin-top:2px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);text-decoration:underline;text-underline-offset:3px;transition:color var(--duration-fast) ease;}
+.archive-filters-clear:hover,.archive-filters-clear:focus-visible{color:var(--ink);}
+.view-toggle{display:flex;gap:8px;flex-shrink:0;}
 .tag-filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .tag-filter-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);margin-right:4px;flex-shrink:0;min-width:120px;}
 .news-row .tag-pill-row{margin-top:8px;}
 
+/* Vista cuadrícula (?view=grid, default): "río" de 5 niveles, uno por
+   estrella de rating editorial (priority, el mismo campo ★1-5 que elige
+   el hero de portada) — feedback del usuario: el tamaño de cada tarjeta
+   debería ser DIRECTAMENTE función de su propio rating, no solo de una
+   racha periódica. ★1/★2 (sin foto, texto plano) y ★5 (banda de ancho
+   completo, reusa ArchiveFeatureRow) siempre cortan el flujo en su propia
+   línea; ★3/★4 (fichas cuadradas chica/mediana) se agrupan en "clusters"
+   consecutivos que fluyen juntos en una fila flex con wrap — ver
+   archivo/page.tsx's groupRiver.
+   Por qué clusters de flex-wrap y no spans de CSS Grid (como la primera
+   pasada de este patrón): con 5 tamaños arbitrarios en vez de un ritmo
+   fijo cada 5, ya no hay manera de garantizar cero huecos con matemática
+   de grilla — flexbox con wrap simplemente NO reserva celdas, así que no
+   hay huecos que dejar: si algo no entra en la fila, pasa a la siguiente,
+   como el margen derecho irregular de un párrafo. Mantener ★1/★2/★5 SIEMPRE
+   fuera de los clusters de cuadrados evita además el problema de
+   sincronía de alto de fila (una ficha muy alta al lado de una muy corta
+   deja hueco debajo de la corta, visto y corregido en la pasada anterior)
+   — chico y mediano comparten forma y alto similar, así que ese choque no
+   ocurre entre ellos. */
+.archive-river{display:flex;flex-direction:column;gap:28px;}
+.archive-river-cluster{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+.archive-grid-card{display:block;color:inherit;position:relative;border-top:3px solid transparent;padding-top:12px;transition:border-color var(--duration-base) var(--ease-out);}
+.archive-grid-card[data-source="industry-shots"]{border-top-color:var(--src-industry);}
+.archive-grid-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
+.archive-grid-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
+.archive-grid-card[data-source="playbook"]{border-top-color:var(--src-playbook);}
+.archive-grid-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
+/* flex-grow:0 a propósito (no flex:1 1 Npx): con grow, una ficha que
+   terminaba sola o casi sola en su fila se estiraba para llenar el
+   espacio sobrante, así que la MISMA talla nominal (tier-md) medía
+   distinto de una fila a otra según cuántos vecinos le tocaran — se veía
+   inconsistente, no como una jerarquía a propósito (feedback real del
+   usuario con capturas). Talla fija: si algo no entra en la fila pasa a
+   la siguiente y el espacio sobrante queda en blanco a la derecha, como
+   el margen irregular de un párrafo — consistente aunque no perfecto. */
+.archive-grid-card.tier-sm{flex:0 1 200px;}
+.archive-grid-card.tier-md{flex:0 1 280px;}
+.archive-grid-photo{aspect-ratio:1/1;overflow:hidden;margin-bottom:12px;background:var(--rule);}
+.archive-grid-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
+.archive-grid-card:hover .archive-grid-photo img,.archive-grid-card:focus-within .archive-grid-photo img{transform:scale(1.03);}
+.archive-grid-visual{display:flex;align-items:flex-end;padding:16px;}
+.archive-grid-visual .visual-label{font-size:clamp(15px,1.4vw,18px);}
+.archive-grid-card.tier-md .archive-grid-visual .visual-label{font-size:clamp(16px,1.6vw,20px);}
+.archive-grid-card h3{font-family:var(--sans);font-weight:600;font-size:13px;line-height:1.35;margin:0 0 6px;transition:color var(--duration-fast) ease;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.archive-grid-card.tier-md h3{font-size:14.5px;}
+.archive-grid-card:hover h3,.archive-grid-card:focus-within h3{color:var(--green);}
+.archive-grid-card .byline{font-size:11px;}
+
+/* ★1/★2 — una sola línea de texto, sin foto en absoluto (a propósito:
+   este es el nivel que NO se gana una foto, que es también lo que evita
+   que la grilla se vuelva una pared de plantillas mudas — la mayoría de
+   los artículos de baja prioridad se leen como línea, no como cuadrado
+   vacío). ★1 trunca duro a una línea; ★2 gana algo más de aire y puede
+   pasar a dos. */
+.archive-line-row{display:flex;align-items:baseline;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);color:inherit;transition:border-color var(--duration-fast) ease;}
+.archive-line-row:first-child{padding-top:0;}
+.archive-line-row .tag-mini{flex-shrink:0;margin-bottom:0;min-width:78px;}
+/* ★1 se ve deliberadamente menor que un tag-mini normal (10.5px en el
+   resto del sitio) y en gris, no en tinta — el nivel más bajo de la
+   jerarquía tiene que LEERSE como el más bajo, no solo medir distinto en
+   el DOM. */
+.archive-line-row.tier-1 .tag-mini{font-size:9.5px;color:var(--gray-txt);}
+.archive-line-row.tier-1 .tag-mini::before{width:5px;height:5px;}
+.archive-line-row .archive-line-title{flex:1;min-width:0;font-family:var(--sans);font-weight:500;font-size:12px;line-height:1.35;color:var(--gray-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color var(--duration-fast) ease;}
+.archive-line-row:hover .archive-line-title,.archive-line-row:focus-visible .archive-line-title{color:var(--green);}
+.archive-line-row .archive-line-byline{flex-shrink:0;font-size:11px;color:var(--gray-txt);white-space:nowrap;}
+/* ★2 — bastante más grande y con más peso que ★1 (no un ajuste de 1.5px):
+   texto en tinta plena en vez de gris, semibold en vez de medium, tamaño
+   cerca del titular normal de .news-row (15.5px) para que de verdad se
+   sienta "una línea de texto no tan chica" y no una simple variante de
+   la misma ficha. */
+.archive-line-row.tier-2{padding:13px 0;}
+.archive-line-row.tier-2 .tag-mini{min-width:84px;}
+.archive-line-row.tier-2 .archive-line-title{font-size:16px;font-weight:600;color:var(--ink);white-space:normal;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;}
+
+@media(max-width:640px){
+  /* Mismo error de categoría que .archive-feature-row antes de su fix:
+     un margin-left en .archive-line-byline no OBLIGA un salto de línea en
+     flexbox — con min-width:0 en el título, el algoritmo de flex prefería
+     aplastar el título a ~0px de ancho antes que respetar el margen
+     (confirmado con getBoundingClientRect: título en 52px de ancho real).
+     Columna de verdad en vez de un empujón cosmético. */
+  .archive-line-row{flex-direction:column;align-items:flex-start;gap:4px;}
+  .archive-line-row .archive-line-title{white-space:normal;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;}
+  .archive-line-row .archive-line-byline{margin-left:0;}
+}
+
+/* Misma cadencia y mismo tamaño de titular (clamp 20-24px serif) que el
+   destacado de la grilla, pero en formato fila horizontal para la vista
+   Lista — una LeadStory pequeña metida en el ritmo de la lista, que hoy
+   es 100% texto. Mismo mecanismo de acento por fuente que .news-row
+   (borde izquierdo) y las mismas convenciones de hover de .news-row/
+   .lead-story (levantar con translateY, oscurecer el borde inferior,
+   zoom de foto, titular a --green). */
+.archive-feature-row{display:flex;gap:24px;position:relative;padding:20px 0 20px 14px;border-bottom:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
+.archive-feature-row:first-child{padding-top:0;}
+.archive-feature-row:hover,.archive-feature-row:focus-within{border-bottom-color:rgba(0,0,0,.15);transform:translateY(-2px);}
+[data-theme="dark"] .archive-feature-row:hover,[data-theme="dark"] .archive-feature-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .archive-feature-row:hover,:root:not([data-theme="light"]) .archive-feature-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
+}
+.archive-feature-row[data-source="industry-shots"]{border-left-color:var(--src-industry);}
+.archive-feature-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
+.archive-feature-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
+.archive-feature-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
+.archive-feature-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
+.archive-feature-row .card-link{display:flex;gap:24px;flex:1;min-width:0;}
+.archive-feature-row .card-link::after{content:"";position:absolute;inset:0;}
+.archive-feature-photo{flex:0 0 260px;aspect-ratio:16/10;overflow:hidden;background:var(--rule);}
+.archive-feature-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
+.archive-feature-row:hover .archive-feature-photo img,.archive-feature-row:focus-within .archive-feature-photo img{transform:scale(1.03);}
+.archive-feature-visual{display:flex;align-items:flex-end;padding:18px;}
+.archive-feature-visual .visual-label{font-size:clamp(18px,1.8vw,24px);}
+.archive-feature-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+.archive-feature-body h3{font-family:var(--serif-display);font-weight:400;font-size:clamp(20px,1.8vw,24px);line-height:1.15;margin:0 0 8px;text-transform:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.archive-feature-row:hover .archive-feature-body h3,.archive-feature-row:focus-within .archive-feature-body h3{color:var(--green);}
+.archive-feature-body .desc{font-size:14px;line-height:1.55;color:var(--gray-dark);margin:0 0 10px;max-width:60ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.archive-feature-row .tag-pill-row{margin-top:10px;}
+
+@media(max-width:640px){
+  /* .archive-feature-row itself is a flex ROW at desktop (.card-link next to
+     .tag-pill-row, stacked width-wise), not just its .card-link child — a
+     column-only override on .card-link left the outer row still fighting
+     .card-link (min-width:0, free to shrink) against .tag-pill-row (no such
+     override) for horizontal space, collapsing .card-link toward 0 width.
+     Both levels need to go column here. */
+  .archive-feature-row{padding-left:0;border-left:none;flex-direction:column;gap:14px;}
+  .archive-feature-row .card-link{flex-direction:column;gap:14px;}
+  .archive-feature-photo{flex:none;width:100%;}
+}
+
+@media(max-width:640px){
+  /* En pantallas angostas el <details> deja de compartir fila (flex-basis 0
+     lo dejaba con ~160px al abrirse): toma la fila completa y el toggle de
+     vista baja a su propia línea. */
+  .archive-filters{flex-basis:100%;}
+}
 @media(max-width:920px){
   .tag-filter-label{min-width:100%;}
   .article-page{padding-top:28px;}

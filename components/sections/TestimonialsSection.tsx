@@ -13,7 +13,13 @@ export function TestimonialsSection({ data }: { data: SiteContentData['testimoni
           <div className="quote reveal" key={i}>
             <p>&quot;{t.quote}&quot;</p>
             <div className="attribution">
-              <span className="avatar" aria-hidden="true"></span>
+              {t.avatar ? (
+                // Editor-supplied URL, arbitrary host -- see AboutSection.tsx's comment.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="avatar" src={t.avatar} alt="" width={36} height={36} loading="lazy" decoding="async" />
+              ) : (
+                <span className="avatar" aria-hidden="true"></span>
+              )}
               <div>
                 <b>{t.name}</b>
                 <span>{t.role}</span>

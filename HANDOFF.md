@@ -2996,6 +2996,405 @@ real, mismo estándar que Fases 1-3):
   abrir aparecen las 4 fichas, capturas revisadas de ambos estados.
   `tsc --noEmit`, `npm run lint` y `npm run build` limpios sin env vars.
 
+### 2026-07-23 — Ajuste por feedback: filtros del archivo plegados + vista compacta
+
+- Feedback directo del usuario (con captura de /archivo): las cuatro filas
+  de chips de filtro (fuente + Alcance + Deporte + Vertical) hacían la
+  página demasiado ruidosa para barrer el archivo rápido — esconderlas
+  detrás de un botón/dropdown — y el listado necesitaba un modo de vista
+  alterno. Aplicado en `/archivo`:
+  - **Filtros plegados**: toda la taxonomía vive ahora en un `<details>`
+    cerrado por defecto con summary tipo pastilla ("Filtros" + ícono +
+    chevron) — el mismo patrón que ArticleTopics ("al lector no lo
+    reciben los tags"). El panel abierto agrupa las cuatro filas con
+    etiqueta (la fila de fuente ganó la etiqueta "Sección" para ser
+    consistente). Se re-abre solo mientras hay filtros activos, con
+    contador `(N)` en el summary y link "Limpiar filtros" (que preserva
+    el modo de vista) — el estado que recorta la lista nunca queda
+    invisible. Los filtros siguen siendo links reales (cero JS nuevo).
+  - **Toggle de vista Lista/Compacta**: dos pastillas `.filter-btn` a la
+    derecha del toolbar, vía `?view=compact` (mismo esquema de links que
+    los filtros, se preserva al filtrar). La vista compacta es una línea
+    por artículo — badge de fuente, titular, fecha·minutos a la derecha,
+    sin tag pills — reutilizando `NewsRow` sin `withTagPills` y
+    re-acomodando el layout solo desde `.news-list-compact` (los colores
+    de borde por fuente y el hover se heredan tal cual).
+  - CSS nuevo en `styles/article.css` (sección archivo): `.archive-toolbar`,
+    `.archive-filters*`, `.view-toggle`, `.news-list-compact`. El
+    `<details>` va con `flex:1 1 0` para que el toggle no se caiga de la
+    fila al abrir el panel, y bajo 640px toma la fila completa (con
+    `flex-basis:0` el panel abierto quedaba en una columna de ~160px).
+- **Verificado** (Postgres local + `next dev` + Playwright, 18 checks):
+  cerrado por defecto sin chips visibles, panel con 4 grupos al abrir,
+  click en NFL navega con `?sport=NFL` + panel auto-abierto + badge (1),
+  toggle a compacta preserva el filtro, vista compacta sin pills, limpiar
+  filtros conserva `view=compact`, cero `<a>` anidados; capturas desktop y
+  móvil de ambos estados revisadas. `tsc --noEmit`, `npm run lint` y
+  `npm run build` limpios.
+
+### 2026-07-23 — Ajuste por feedback: vista "Compacta" reemplazada por "Cuadrícula"
+
+- Follow-up inmediato a la entrada anterior: el usuario pidió que el
+  segundo modo de vista fuera una cuadrícula de tarjetas cuadradas en vez
+  de otra lista de líneas. Reemplazado en `/archivo`:
+  - Nuevo componente `components/article/ArchiveGridCard.tsx`: tarjeta
+    cuadrada (`aspect-ratio:1/1`) con el mismo tratamiento tipográfico de
+    `LeadStory` para artículos sin imagen (superficie `.visual-grid` +
+    titular en Anton, pero cuadrado en vez de 16/10, porque todas las
+    tarjetas de una cuadrícula tienen que compartir forma). Foto real
+    hace `object-fit:cover` del cuadrado. Sin tag pills, mismo criterio
+    que la vista compacta que reemplaza: esta vista es para barrer rápido,
+    no para navegar taxonomía.
+  - El toggle de vista pasó de `Lista`/`Compacta` a `Lista`/`Cuadrícula`,
+    parámetro `?view=grid` (antes `?view=compact` — cambio de valor, no
+    solo de etiqueta). `styles/article.css`: `.news-list-compact` se
+    reemplazó por `.archive-grid` (grid de 4 columnas en desktop, 2 bajo
+    920px y bajo 480px).
+- **Verificado** (Postgres local + `next dev` + Playwright, 18 checks,
+  mismo arnés de la entrada anterior con las aserciones de compacta
+  swapeadas por cuadrícula): `?view=grid` navega y preserva filtros,
+  cuadrícula sin tag pills, toggle activo correcto, limpiar filtros
+  conserva `view=grid`; capturas desktop (con y sin filtros) y móvil (grid
+  de 2 columnas) revisadas. `tsc --noEmit`, `npm run lint` y
+  `npm run build` limpios.
+
+### 2026-07-23 — Ritmo tipo revista en Lista y Cuadrícula (destacados periódicos, gateados por rating)
+
+- Follow-up inmediato: el usuario dijo que la cuadrícula (y de rebote, la
+  lista) "se ve demasiado uniforme y aburrida" y pidió investigar cómo lo
+  resuelven los medios grandes y adaptarlo. Research (búsqueda web +
+  precedente propio del repo — `.analysis-grid`'s `.featured`, `LeadStory`,
+  el acento por fuente de `.news-row` en `hero.css`) converge en un patrón:
+  un artículo destacado que crece periódicamente, con CSS Grid
+  auto-placement acomodando el resto alrededor — sin masonry, sin JS.
+  Feedback de seguimiento a media planificación: el destacado no debía
+  elegirse solo por posición ("cada 5") — el rating editorial (`priority`,
+  el mismo campo ★1-5 que elige el hero de portada) tenía que pesar.
+  - **`app/(public)/archivo/page.tsx`**: `pickFeaturedIds()` recorre
+    `articles` (ya viene ordenado por `rankArticles()`) en bandas
+    COMPLETAS de 5 (`FEATURE_INTERVAL`); el primer artículo de cada banda
+    completa (= el de mayor rank de esa banda, porque la lista ya viene
+    ordenada) se marca destacado solo si su `priority` es ≥4
+    (`FEATURE_MIN_PRIORITY`) — si no llega, la banda entera renderiza
+    como fichas normales, sin forzar nada. Bandas parciales al final (con
+    menos de 5 artículos, ej. tras filtrar) nunca califican — evita el
+    único caso real donde el truco de "cero huecos" de CSS Grid se rompe
+    (un destacado necesita EXACTAMENTE 4 vecinos regulares después en su
+    propia banda para llenar el bloque 2×2 sin dejar celda vacía). El
+    mismo `Set` de ids se comparte entre Lista y Cuadrícula, así que
+    alternar entre vistas siempre destaca los mismos artículos.
+  - **`components/article/ArchiveGridCard.tsx`**: ganó `featured`/`priority`
+    props. No destacada: exactamente igual que antes (mismo `<a>` plano).
+    Destacada: cambia de forma a `<div>` + `.card-link` + stretched-link
+    (porque ahora también renderiza `TagPillRow`, que mete sus propios
+    `<a>` — mismo problema de anidar `<a>` que `LeadStory`/`NewsRow` ya
+    resuelven así), foto 16:10 en vez de 1:1, titular en `--serif-display`
+    (clamp 20-24px, entre los 14.5px de una ficha normal y los 34px del
+    hero de portada), excerpt con clamp de 2 líneas.
+  - **`components/article/ArchiveFeatureRow.tsx`** (nuevo): equivalente
+    horizontal para Lista — "una LeadStory chica metida en la lista", que
+    hoy era 100% texto. Mismo criterio de forma (div + card-link +
+    stretched-link + TagPillRow) y mismo tamaño de titular que la ficha
+    destacada de la cuadrícula, para que ambas vistas lean con el mismo
+    peso visual al alternar entre ellas.
+  - **`styles/article.css`**: acento superior por fuente en TODAS las
+    fichas de la cuadrícula (`.archive-grid-card[data-source="..."]`,
+    calca el borde izquierdo de `.news-row` en `hero.css` pero arriba,
+    porque es una ficha no una fila) — la mitad "textura" del pedido,
+    prácticamente gratis porque `data-source` ya estaba en el elemento.
+    `.archive-grid-card.is-featured` con `grid-column:span 2;grid-row:span
+    2`; matemática del 2×2 documentada in-line (grilla de 4 columnas, una
+    ficha 2×2 dentro deja exactamente 4 celdas para las 4 fichas normales
+    siguientes — auto-placement "sparse" del navegador, deliberadamente
+    SIN `:dense` porque dense puede reordenar visualmente por delante del
+    orden del DOM, un problema real de WCAG 1.3.2). `.archive-feature-row`
+    nuevo para Lista, con el mismo mecanismo de acento (borde izquierdo) y
+    las mismas convenciones de hover que `.news-row`/`.lead-story`.
+  - **Bug real encontrado y corregido durante la verificación visual** (no
+    solo en teoría — capturas de pantalla lo mostraron): los titulares sin
+    clamp (`.archive-grid-card h3` no tenía `-webkit-line-clamp`) hacían
+    que el alto "natural" de una fila normal variara banda a banda: como
+    CSS Grid reparte el alto extra de una ficha destacada muy alta entre
+    LAS DOS filas de su banda aunque la ficha corta de esa fila no lo
+    necesite, algunas bandas dejaban un hueco visible debajo del texto
+    corto de sus vecinas. Fix: `-webkit-line-clamp:2` en el titular normal
+    Y en el titular/excerpt del destacado (tanto grilla como lista) —
+    alturas de fila predecibles en toda la grilla, confirmado con
+    mediciones de `getBoundingClientRect` antes/después (después: el
+    contenido de cada ficha normal llena exactamente su celda, cero
+    sobrante).
+  - **Segundo bug real, mobile-only**: `.archive-feature-row` es un flex
+    ROW en desktop (`.card-link` al lado de `.tag-pill-row`). El primer
+    intento de responsive solo apilaba el `.card-link` interno
+    (foto+cuerpo) a columna bajo 640px, olvidando que el contenedor
+    EXTERIOR (`.archive-feature-row`) seguía siendo flex row — con
+    `.card-link` (que tiene `min-width:0`, libre de encogerse) compitiendo
+    por ancho contra `.tag-pill-row` (sin ese override), lo que colapsaba
+    `.card-link` a ~0px de ancho en mobile (confirmado con
+    `getComputedStyle`: `width:"0px"`). Capturas de pantalla lo mostraban
+    como texto roto/apilado verticalmente palabra por palabra. Fix: el
+    `≤640px` media query también pone `.archive-feature-row` mismo en
+    columna, no solo su `.card-link` hijo.
+- **Verificado** (Postgres local + `next dev` + Playwright, 20 checks
+  nuevos sobre los 30 artículos reales sembrados): exactamente 2 fichas/filas
+  destacadas sin filtrar (confirmado contra Postgres directo que ambas
+  tienen `priority=4`, ninguna con `priority<4` cuela); al menos una banda
+  sin destacar (el gate realmente suprime, no solo decora); geometría sin
+  huecos verificada con `getBoundingClientRect` (alto del destacado, techo
+  de fila2 alineado, cero salto vertical inesperado); filtro `sport=NFL`
+  (2 artículos en el archivo, <5) sin tratamiento destacado en ninguna
+  vista; cero `<a>` anidados; mobile con destacado a ancho completo en
+  cuadrícula y apilado correcto en lista; dark mode revisado visualmente
+  (acentos y contraste correctos, sin colores nuevos fuera de los tokens
+  existentes). `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
+
+### 2026-07-23 — Cuadrícula es default + jerarquía de 5 niveles directa al rating
+
+- Follow-up inmediato: (1) Cuadrícula pasa a ser la vista por defecto de
+  `/archivo` (antes era Lista) — `?view=list` es ahora el opt-in, `/archivo`
+  sin query es Cuadrícula. (2) Pedido explícito de reemplazar el ritmo
+  posicional cada-5 de la pasada anterior por una jerarquía DIRECTA: el
+  tamaño de cada tarjeta es función de su propio rating (`priority`,
+  ★1-5), no de dónde cae en la lista — "1 estrella una línea de texto, 2
+  estrellas una línea no tan chica, 3 estrellas un cuadrado chico, 4
+  estrellas más grande, etc." Investigado con la skill `ui-ux-pro-max`
+  (`--domain style "bento grid masonry variable card size"` →
+  recomienda exactamente este patrón: CSS Grid/flex con spans variados,
+  Apple-style, alta legibilidad; producto "Magazine/Blog" recomienda
+  Swiss Modernism 2.0 + Motion-Driven).
+  - **`tierFor(article)`**: `priority` (1-5) mapea 1:1 a tier, sin banda ni
+    posición — reemplaza `pickFeaturedIds`/`FEATURE_INTERVAL` para
+    Cuadrícula (Lista conserva el sistema de bandas de la pasada anterior
+    sin cambios, ver `archivo/page.tsx`).
+  - **`groupRiver(articles)`**: agrupa ★3/★4 consecutivos en "clusters"
+    (fluyen juntos en una fila `flex-wrap`); ★1/★2 (texto, sin foto) y ★5
+    (banda de ancho completo, reusa `ArchiveFeatureRow` tal cual, mismo
+    componente que ya usaba Lista) siempre cortan el flujo en su propia
+    línea. Por qué NO CSS Grid con spans (como la pasada anterior): con 5
+    tamaños arbitrarios en vez de un ritmo fijo cada 5, ya no hay manera
+    de garantizar cero huecos con matemática de grilla — flexbox con wrap
+    no reserva celdas, así que no hay huecos que dejar (lo que no entra
+    en la fila pasa a la siguiente, como el margen derecho irregular de
+    un párrafo). Mantener ★1/★2/★5 siempre fuera de los clusters de
+    cuadrados evita además el problema de sincronía de alto de fila entre
+    tamaños muy distintos (visto y corregido en la pasada anterior) —
+    chico y mediano comparten forma y alto similar, así que ese choque no
+    ocurre entre ellos.
+  - **`ArchiveGridCard`**: perdió la prop `featured` (y con ella, la rama
+    `is-featured`/`TagPillRow`/nested-`<a>` — ya no hace falta, ★5 pasó
+    completo a `ArchiveFeatureRow`); ganó `size: 'sm' | 'md'`. Siempre un
+    `<a>` plano ahora, más simple que antes.
+  - **`ArchiveLineRow`** (nuevo): fila de una sola línea, sin foto en
+    absoluto — el nivel que deliberadamente NO se gana una imagen. La
+    diferencia ★1 vs ★2 se hizo bien perceptible (no solo 1.5px de más):
+    ★1 en gris (`--gray-txt`/`--gray-dark`), 12px, peso 500, trunca duro a
+    una línea; ★2 en tinta plena, 16px, peso 600 (cerca del titular normal
+    de `.news-row`), puede pasar a dos líneas — confirmado con
+    `getComputedStyle` antes/después del ajuste (13px vs 14.5px no se
+    notaba a simple vista en las capturas; 12px vs 16px con cambio de
+    color y peso sí).
+  - **Pregunta del usuario sobre imágenes**: pidió "pull the images in the
+    articles for the blank space" — se revisó Postgres directo: los 30
+    artículos sembrados NO tienen `body_html`/`body_json` (0 de 30), así
+    que no hay imagen embebida en el cuerpo del artículo de la que tirar
+    en este dataset — no hay nada real que "pull". Se decidió NO
+    fabricar fotos de stock para artículos de noticias reales (aunque
+    sean datos de prueba) — insertar una imagen genérica no verificada en
+    una tarjeta de una noticia real implicaría una procedencia
+    fotográfica que no existe, algo a evitar incluso en un dataset de
+    desarrollo. En cambio, el nuevo sistema de niveles reduce el problema
+    estructuralmente: ★1/★2 (que en este dataset concentran casi todos
+    los artículos sin imagen real, ver correlación priority/imageUrl más
+    abajo) ahora no muestran caja de foto en absoluto — se resuelve buena
+    parte del "muro de recuadros beige" sin necesitar imágenes nuevas. El
+    placeholder mudo (`.visual-grid`) para ★3/★4/★5 sin imagen real se
+    mantiene sin cambios (ver ArchiveGridCard/ArchiveFeatureRow), ya
+    verificado legible a los tres tamaños. Respuesta a "does format
+    matter if shrunken": no — `object-fit:cover` + `aspect-ratio`
+    reservado hace que el formato/dimensión original de una imagen real
+    no importe al achicarla, siempre que la resolución fuente no sea
+    ya muy baja para empezar.
+  - **Correlación priority/imagen en los 30 artículos sembrados** (dato
+    real, verificado por SQL, no supuesto): ★5→5/5 con imagen, ★4→0/7,
+    ★3→0/9, ★2→1/6, ★1→3/3. Es decir en este dataset de prueba
+    específicamente los artículos ★4 y ★3 son 100% sin imagen — el caso
+    de peor estrés para el placeholder mudo a tamaño chico/mediano,
+    revisado visualmente y se ve bien.
+  - **Bug real encontrado en la primera verificación visual**: la
+    diferencia ★1 vs ★2 no se notaba en las capturas (font-size 13px vs
+    14.5px, gap insuficiente) — corregido ampliando la diferencia (ver
+    arriba) en vez de solo confiar en que la clase CSS estaba aplicada
+    (lo estaba, confirmado con `getComputedStyle`, pero no bastaba).
+  - **Segundo bug real, mobile-only, misma categoría que el de
+    `.archive-feature-row` en la pasada anterior**: el intento inicial de
+    `.archive-line-row` en mobile usaba `margin-left:90px` en el byline
+    para "empujarlo" a su propia línea — pero un margin NO fuerza un
+    salto de línea en flexbox; con `min-width:0` en el título, el
+    algoritmo prefería aplastar el título a ~52px de ancho real antes que
+    respetar el margen (confirmado con `getBoundingClientRect`, capturas
+    mostraban el titular cortado a 2-3 palabras). Fix: columna de verdad
+    (`flex-direction:column`) en vez de un empujón cosmético — mismo
+    principio que ya se había aprendido y aplicado al feature-row.
+- **Verificado** (Postgres local + `next dev` + Playwright, 17 checks
+  nuevos): Cuadrícula activa por defecto sin query param, Lista vía
+  `?view=list`; los 5 niveles presentes y suman exactamente los 24
+  artículos del archivo sin filtrar (2/6/7/6/3 — coincide con el conteo
+  real de `priority` en Postgres); tamaños de fuente estrictamente
+  decrecientes ★5>★4>★3 y ★2>★1 confirmado con `getComputedStyle`; solo
+  ★5 muestra excerpt/tag-pills; cero `<a>` anidados; filtro `sport=NFL`
+  (2 artículos) no rompe con set chico; mobile con título de línea a
+  ancho completo (342px, no aplastado). Capturas desktop, mobile y dark
+  mode revisadas visualmente en cada iteración del arreglo (no solo al
+  final). `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
+
+### 2026-07-23 — Fix: tarjetas del río se veían inconsistentes (feedback con capturas del preview real)
+
+- El usuario mandó capturas de un deploy preview real de Vercel (no de
+  este entorno local) mostrando `/archivo` en Cuadrícula: "no se ve
+  uniforme, vamos por buen camino pero hay que mejorarlo". Dos bugs
+  reales, ambos confirmados con medición antes de tocar código (no solo
+  mirando las capturas):
+  1. **`.archive-grid-card.tier-sm`/`.tier-md` tenían `flex-grow:1`**
+     (`flex:1 1 180px`/`flex:1 1 260px`) — una ficha que quedaba sola o
+     casi sola al final de su fila se estiraba para llenar el espacio
+     sobrante, así que la MISMA talla nominal medía distinto de una fila
+     a otra según cuántas vecinas le tocaran ese renglón — confirmado
+     con `getBoundingClientRect` antes del fix (anchos dispares) y
+     después (7 tarjetas `tier-sm` a 200px exactos, 6 `tier-md` a 280px
+     exactos, sin excepción). Fix: `flex:0 1 200px`/`flex:0 1 280px` —
+     talla fija, sin crecer; lo que no entra en la fila pasa a la
+     siguiente y el espacio sobrante queda en blanco a la derecha (como
+     el margen irregular de un párrafo) en vez de forzar una talla
+     distinta.
+  2. **`groupRiver()` agrupaba CUALQUIER racha de ★3+★4 en un mismo
+     cluster** — aunque cada ficha ya medía su talla correcta (bug 1
+     resuelto), una ficha de 200px al lado de tres de 280px en la MISMA
+     fila seguía leyéndose como roto, no como jerarquía a propósito
+     (visto en captura real: 3 anchas + 1 angosta en una fila). Fix:
+     `groupRiver` ahora solo encadena artículos del MISMO tier exacto —
+     una racha ★4→★4→★3 corta el cluster en dos (uno de ★4, otro de ★3)
+     en vez de uno mixto. Cada fila queda perfectamente uniforme; el
+     salto de tamaño ahora ocurre ENTRE filas, nunca dentro de una.
+  - **De paso, se investigó si el preview real tenía más imágenes que el
+    dataset local** (las capturas mostraban headlines del ticker que no
+    existen en `articles.json` local, ej. "FIFA vende el pasto que pagó
+    Nueva Jersey" — evidencia de que el deploy preview corre contra un
+    Postgres de producción con más artículos que los 30 sembrados acá).
+    No hay acceso a esa base desde este entorno, pero las capturas
+    mismas muestran el mismo patrón (solo el hero real tiene foto, el
+    resto de los cuadrados están en blanco) — consistente con lo ya
+    encontrado localmente (revisar `articles.json`/Postgres local:
+    `image_url` vacío confirmado para todos los artículos ★3/★4). El
+    placeholder mudo se mantiene sin cambios; no se fabricaron fotos de
+    stock (mismo criterio que la entrada anterior).
+- **Verificado** (Postgres local + `next dev` + Playwright): mismos 17
+  checks del pase anterior siguen pasando (conteo de tiers, tamaños de
+  fuente, sin `<a>` anidados, toggle, filtro chico, mobile) más
+  medición directa de `getBoundingClientRect` confirmando talla uniforme
+  dentro de cada tier (200px×7, 280px×6, sin variación) y captura dark
+  mode revisada confirmando cada fila de cuadrados ahora homogénea.
+  `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
+
+### 2026-07-23 — El tamaño del río ahora decae con la antigüedad, no solo el rating
+
+- Feedback del usuario: "en un portal de noticias lo que más importa es
+  la recencia". Gap real: `tierFor` (Cuadrícula) y el piso de
+  `pickFeaturedIds` (Lista) usaban `priority` crudo — un artículo ★5 de
+  hace tres semanas recibía exactamente el mismo tratamiento gigante que
+  uno de esta mañana. Mal para un sitio de noticias: la importancia
+  editorial debería decaer con el tiempo, y un artículo apenas más nuevo
+  debería poder superar en jerarquía visual a uno "importante" pero
+  viejo — el mismo principio que `rankScore` (`lib/rank.ts`) ya aplica
+  para el ORDEN de artículos del home (prioridad × recencia).
+  - **`lib/rank.ts`**: `rankScore` ahora acepta un tercer parámetro
+    opcional `dayWeight` (default `PRIORITY_DAY_WEIGHT`, sin cambios de
+    comportamiento en ningún call site existente — home, ticker, admin
+    tab, todos siguen llamándolo con 2 argumentos). `daysSince` pasó a
+    exportarse también.
+  - **`archivo/page.tsx`**: `tierFor` ahora computa `rankScore(article,
+    now, ARCHIVE_TIER_DAY_WEIGHT)` en vez de leer `priority` directo.
+    Intento inicial: reusar el mismo peso que el home (`PRIORITY_DAY_WEIGHT
+    = 1.5`, "1 estrella ≈ 1.5 días") — resultado, verificado directo
+    contra los 24 artículos reales del archivo: los 24 caían en tier 1,
+    cero en cualquier otro tier. Ese peso está calibrado para competencia
+    del mismo día en el home; el archivo es lo opuesto por definición
+    (todo lo que hay ahí ya es más viejo que lo que muestra el home, acá
+    típicamente 1-5+ semanas con el ritmo de publicación real del sitio).
+    Se barrieron valores de peso contra los datos reales (`W=3` hasta
+    `W=30`) hasta encontrar uno que produjera una distribución sana en
+    los 5 tiers: `ARCHIVE_TIER_DAY_WEIGHT = 30` ("1 estrella ≈ 1 mes") da
+    {1:4, 2:7, 3:5, 4:6, 5:2} — y de paso demuestra que la recencia
+    realmente pesa: dos artículos ★3 de 16 días decaen POR DEBAJO de
+    otros ★3 de 9-14 días, cayendo un tier completo solo por antigüedad.
+  - **`pickFeaturedIds` (Lista)**: el piso pasó de `priority >= 4` a
+    `tierFor(candidate, now) === 5` — reusa el mismo tier recalibrado que
+    la Cuadrícula, así que un artículo ★4 viejo ya no fuerza la fila
+    destacada solo porque un editor lo calificó bien alguna vez, y ambas
+    vistas coinciden exactamente en qué 2 artículos son "los grandes"
+    (verificado: los mismos 2 IDs aparecen como destacado en Lista y como
+    tier-5 en Cuadrícula).
+- **Verificado** (Postgres local + `next dev` + Playwright): la
+  distribución real en vivo (`{"tier5":2,"tierSm":5,"tierMd":6,"tier1":4,
+  "tier2":7}`) coincide exactamente con la predicción del barrido hecho
+  contra Postgres antes de tocar código; los 17 checks anteriores (conteo
+  suma 24, tamaños de fuente decrecientes, sin `<a>` anidados, toggle,
+  filtro chico, mobile) siguen pasando sin cambios; capturas desktop
+  (Cuadrícula y Lista) revisadas confirmando que los mismos 2 artículos
+  aparecen como destacados en ambas vistas y que artículos ★3 viejos
+  correctamente bajaron a línea de texto. `tsc --noEmit`, `npm run lint`
+  y `npm run build` limpios; confirmado que ningún otro call site de
+  `rankScore`/`rankArticles`/`selectHero` (home, ticker, admin) cambió de
+  comportamiento — el nuevo parámetro es opcional con default compatible.
+
+### 2026-07-23 — Banner de The Futbol Business Review + fotos de testimonios (2 de 3)
+
+- El usuario subió 4 imágenes: un banner nuevo para "The Futbol Business
+  Review" (ya existía como producto en `content.json`'s `productsSection`,
+  imagen en `public/assets/img/tfbr-banner.webp`) y 3 fotos para los
+  testimonios existentes (Bárbara González Briseño, Adriana Briz, Juan
+  Pablo Robert — `testimonialsSection`, sin campo de foto hasta ahora).
+  - **Banner**: la imagen subida (900×160, exacto al tamaño ya esperado
+    por `ProductsSection.tsx`) se convirtió a webp con `sharp` y
+    reemplazó el archivo estático existente — mismo path
+    (`/assets/img/tfbr-banner.webp`), cero cambios de código necesarios,
+    porque `content.json` ya apuntaba ahí.
+  - **`Testimonial` type** (`lib/data/site-content.ts`) ganó `avatar?:
+    string`. `TestimonialsSection.tsx` renderiza `<img>` cuando hay
+    avatar, si no cae al círculo decorativo vacío de siempre — mismo
+    patrón "URL editor-supplied" que `AboutSection`/`ProductsSection`.
+    `.quote .avatar` (sections.css) subió de 20px a 36px — una foto real
+    necesita algo de tamaño para leerse como cara. `TestimonialsTab.tsx`
+    (admin) ganó el campo "Foto (URL)" para poder editarlo desde el CMS
+    a futuro.
+  - **Bloqueo real encontrado, no ignorado**: la foto subida para
+    Adriana Briz (`IMG_0602.jpeg`) trae en su EXIF el string literal
+    `"Copyright Rex Shutterstock No reproduction without permission"` —
+    parece un stock photo de banco de imágenes, no una foto real de la
+    persona nombrada en el testimonio. Se integraron Bárbara y Juan
+    (recortados a cuadrado 400×400 con `sharp`, `sharp.strategy.attention`
+    para Bárbara, recorte manual para Juan porque el auto-crop incluía
+    demasiado fondo/cuerpo) — Adriana quedó sin foto (círculo vacío,
+    comportamiento de siempre) hasta que el usuario confirme que esa
+    imagen específica está autorizada o mande una distinta.
+  - Archivos nuevos: `public/assets/img/testimonial-barbara.jpg`,
+    `public/assets/img/testimonial-juan.jpg`.
+- **Verificado** (Postgres local + `migrate:json` + `next dev` +
+  Playwright): capturas de la sección de testimonios y de productos en
+  el home, light y dark mode, confirmando ambas fotos nuevas cargando
+  sin roturas y el círculo de Adriana sin cambios. `tsc --noEmit`, `npm
+  run lint` y `npm run build` limpios.
+- **Pendiente/importante**: este cambio actualiza `content.json` y el
+  Postgres LOCAL de este sandbox (vía `migrate:json`), no la base de
+  producción — este entorno no tiene `POSTGRES_URL` de producción. Para
+  que se vea en el sitio real hace falta uno de: (a) dar acceso a la
+  Postgres real vía variable de entorno del Environment (ver pregunta
+  del usuario sobre "acceso permanente a la base" en esta misma
+  sesión — respondida en el chat, no en este archivo), (b) que un
+  editor entre a `/admin` → Testimonios y pegue las URLs de foto ahí
+  una vez que este código esté deployado, o (c) volver a correr
+  `migrate:json` contra producción (riesgo: pisa cualquier edición
+  hecha desde el CMS que no esté reflejada en `content.json`).
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y

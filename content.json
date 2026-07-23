@@ -195,9 +195,9 @@
   "testimonialsSection": {
     "heading": "Lo que dice la comunidad",
     "testimonials": [
-      { "quote": "Aldo sabe qué decir, qué promover y cómo entender el negocio de los deportes.", "name": "Bárbara González Briseño", "role": "Co-CEO de Fillip" },
+      { "quote": "Aldo sabe qué decir, qué promover y cómo entender el negocio de los deportes.", "name": "Bárbara González Briseño", "role": "Co-CEO de Fillip", "avatar": "/assets/img/testimonial-barbara.jpg" },
       { "quote": "Playbook conecta noticias, contexto y decisiones de negocio sin hacerlo pesado.", "name": "Adriana Briz", "role": "Commercial Director en Fillip" },
-      { "quote": "Una lectura útil para entender hacia dónde se está moviendo la industria.", "name": "Juan Pablo Robert", "role": "Head of YouTube M&E (Hispanic Latin America)" }
+      { "quote": "Una lectura útil para entender hacia dónde se está moviendo la industria.", "name": "Juan Pablo Robert", "role": "Head of YouTube M&E (Hispanic Latin America)", "avatar": "/assets/img/testimonial-juan.jpg" }
     ]
   },
   "aboutSection": {
