@@ -1,5 +1,4 @@
 import { getMostReadArticles } from '@/lib/most-read';
-import { NewsRow } from '@/components/article/NewsRow';
 
 // Legacy's "Más leídas" module (legacy/index.html + legacy/js/most-read.js)
 // is the one homepage section with zero editable fields — not even the
@@ -8,22 +7,30 @@ import { NewsRow } from '@/components/article/NewsRow';
 // (there is none). It's 100% resolved live from GA4 pageview ids, so this
 // renders nothing at all (matching legacy's section.hidden toggle) rather
 // than showing an empty shell when GA4 isn't configured or has no data yet.
+//
+// Fase 7 UX: moved from a full-width section into the homepage sidebar
+// (components/home/NewsGrid.tsx's two-column layout), restyled to the v24
+// prototype's rank-list pattern — CSS counter numerals in Anton
+// (decimal-leading-zero), reading time on the right, 2px ink border-top
+// header. Markup is a plain <ol>; the numbering is pure CSS (see
+// styles/hero.css).
 export async function MostReadSection() {
   const articles = await getMostReadArticles();
   if (!articles || !articles.length) return null;
 
   return (
-    <section className="container" id="mas-leidas">
-      <div className="section-head reveal" style={{ paddingTop: 0 }}>
-        <div>
-          <h2>Más leídas</h2>
-        </div>
-      </div>
-      <div className="news-list">
+    <section className="side-module" id="mas-leidas" aria-labelledby="mas-leidas-title">
+      <h2 className="side-title" id="mas-leidas-title">Más leídas</h2>
+      <ol className="rank-list">
         {articles.map(a => (
-          <NewsRow key={a.id} article={a} heading="h3" />
+          <li key={a.id} className="rank-item">
+            <a href={`/articulo?id=${encodeURIComponent(a.id)}`}>
+              <h3>{a.title}</h3>
+            </a>
+            <span>{a.readingTime || 1} min</span>
+          </li>
         ))}
-      </div>
+      </ol>
     </section>
   );
 }

@@ -1,0 +1,51 @@
+/* ——— Ad slots (Fase 7) ———
+   Reservas de espacio silenciosas: sin borde, sin fondo, sin etiqueta.
+   Cada slot mantiene sus dimensiones desde el día uno para que conectar
+   una red no mueva el layout (cero CLS). Las medidas vienen del plan de
+   Fase 7 en HANDOFF.md:
+   - leaderboard-home: 970×90 desktop / 320×50 mobile
+   - inline-feed: formato nativo (ocupa una celda del feed, sin alto fijo)
+   - rail-home: 300×600 desktop; desaparece en mobile junto con el rail
+   - inline-mid-editorial: 970×180, centrado
+   - inline-article: 100% del ancho del cuerpo
+   - vertical-sponsor-infinitas: patrocinio nombrado, banda baja */
+.ad-slot{display:flex;align-items:center;justify-content:center;}
+/* Un slot genuinamente vacío no ocupa lugar (hoy no aplica: todos los
+   slots llevan el placeholder visible pedido por el usuario mientras no
+   haya red conectada — ver AdSlot.tsx. La regla queda para cuando la
+   integración real reemplace el placeholder: un slot sin fill vuelve a
+   colapsar solo, sin dejar la franja muerta que el UX run detectó). */
+.ad-slot:empty{display:none;}
+
+/* Placeholder pre-integración: el lenguaje de rayas/borde punteado de
+   los prototipos (ux02/v23), apagado a los tokens del sistema para que
+   siga el tema solo. Se elimina junto con el <div> del componente al
+   conectar la red. */
+.ad-slot-placeholder{
+  width:100%;height:100%;min-height:inherit;align-self:stretch;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  border:1px dashed var(--rule);
+  background:repeating-linear-gradient(-45deg,var(--paper) 0 8px,var(--paper-soft) 8px 16px);
+  color:var(--gray-txt);text-align:center;padding:14px;
+}
+.ad-slot-placeholder b{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.ad-slot-placeholder span{font-size:10.5px;}
+.ad-slot--leaderboard-home{min-height:90px;max-width:970px;margin:34px auto;}
+.ad-slot--inline-feed{min-height:96px;margin-top:16px;}
+/* Rail como 300×250 (MPU) por defecto, no el half-page 300×600 del plan:
+   el rail es una columna de la banda de noticias y un bloque de 600px la
+   estiraría muy por debajo del contenido editorial. Subir esta línea si
+   se contrata half-page. */
+.ad-slot--rail-home{min-height:250px;width:100%;}
+.ad-slot--inline-mid-editorial{min-height:180px;max-width:970px;margin:0 auto;padding:0 24px;}
+.ad-slot--inline-article{min-height:250px;margin:28px 0;}
+.ad-slot--vertical-sponsor-infinitas{min-height:64px;margin-top:22px;}
+
+@media(max-width:920px){
+  .ad-slot--leaderboard-home{min-height:50px;margin:26px auto;}
+  /* El rail desaparece en mobile (HANDOFF Fase 7); el sidebar colapsa
+     debajo del feed y una reserva de 600px ahí sería un vacío enorme. */
+  .ad-slot--rail-home{display:none;}
+  .ad-slot--inline-mid-editorial{min-height:100px;}
+  .ad-slot--inline-article{min-height:150px;}
+}

@@ -1,50 +1,17 @@
-import type { SiteContentData, VideoClip } from '@/lib/data/site-content';
+import type { SiteContentData } from '@/lib/data/site-content';
 import { safeUrl } from '@/lib/safe-url';
 import { LazyEmbed } from '@/components/LazyEmbed';
-import { InstagramReels } from './InstagramReels';
 
-function ClipCard({ clip }: { clip: VideoClip }) {
-  if (clip.platform === 'instagram') {
-    return (
-      <a className="clip-card reveal" href={safeUrl(clip.url)} target="_blank" rel="noopener noreferrer">
-        <div className={`frame ig-visual${clip.variant ? ` ${clip.variant}` : ''}`}>
-          <div className="ig-phone">
-            {clip.handle}
-            <br />
-            <br />
-            {clip.igText}
-          </div>
-          <span className="platform-badge">Instagram</span>
-          <div className="clip-copy">
-            <span>{clip.handle}</span>
-            <h4>{clip.title}</h4>
-          </div>
-        </div>
-      </a>
-    );
-  }
-  return (
-    <a className="clip-card reveal" href={safeUrl(clip.url)} target="_blank" rel="noopener noreferrer">
-      <div className="frame">
-        {/* Editor-supplied URL, arbitrary host -- see AboutSection.tsx's comment. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={clip.thumbnail} width={480} height={360} alt={clip.title} loading="lazy" decoding="async" />
-        <span className="platform-badge">YouTube</span>
-        <div className="play-badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="#fff">
-            <circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.35)" />
-            <path d="M10 8l6 4-6 4V8z" fill="#fff" />
-          </svg>
-        </div>
-        <div className="clip-copy">
-          <span>{clip.handle}</span>
-          <h4>{clip.title}</h4>
-        </div>
-      </div>
-    </a>
-  );
-}
-
+// Fase 7 UX (second pass, after user feedback): the section is the
+// two-video feature block + episode list, closed by a slim channel CTA
+// strip. The old four-thumbnail YouTube clip grid diluted the section and
+// the Instagram replacements (first embeds, then link-out tiles) are both
+// gone — embeds had the blank-gap failure mode, and the tile version was
+// scrapped by the user. The CTA strip reuses the channel link the CMS
+// video tab already edits (channelLinkUrl/channelLinkLabel), so the freed
+// space ends in a conversion point instead of dead air. The `clips` and
+// `instagramReels` CMS fields remain editable and stored; the homepage
+// just doesn't render them.
 export function VideoSection({ data }: { data: SiteContentData['videoSection'] }) {
   return (
     <section className="video-section" id="video">
@@ -96,13 +63,12 @@ export function VideoSection({ data }: { data: SiteContentData['videoSection'] }
             </div>
           </div>
 
-          <div className="clips-row">
-            {data.clips.map((clip, i) => (
-              <ClipCard key={i} clip={clip} />
-            ))}
+          <div className="video-cta reveal">
+            <p>Análisis, entrevistas y series originales cada semana.</p>
+            <a className="btn light on-dark" href={safeUrl(data.channelLinkUrl)} target="_blank" rel="noopener noreferrer">
+              {data.channelLinkLabel}
+            </a>
           </div>
-
-          <InstagramReels reels={data.instagramReels} />
         </div>
       </div>
     </section>

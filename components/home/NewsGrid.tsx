@@ -7,6 +7,7 @@ import { LEAD_COUNT, LIST_COUNT, KNOWN_SOURCES, SOURCE_LABELS } from '@/lib/cons
 import type { Article } from '@/lib/data/articles';
 import { LeadStory } from '../article/LeadStory';
 import { NewsRow } from '../article/NewsRow';
+import { AdSlot } from '@/components/ads/AdSlot';
 
 const FILTERS: { source: string; label: string }[] = [
   { source: 'all', label: 'Todo' },
@@ -17,7 +18,19 @@ const FILTERS: { source: string; label: string }[] = [
 // articles are already on the page (server-rendered, no fetch delay), so
 // this is a pure client-side re-filter — the 180ms fade is cosmetic, not
 // covering a loading state.
-export function NewsGrid({ articles }: { articles: Article[] }) {
+//
+// The news package is deliberately compact: hero + 5-row list + 300px
+// sidebar in ONE three-column band. The 1+5 count is a negotiated
+// compromise with the sales side (keep the text block short so readers
+// reach the commercial sections quickly) — do not grow it; polish it.
+// A first pass of this session added a 9-card feed below it and that was
+// reverted for exactly this reason. The inline-feed ad slot sits after
+// the sixth story (end of the list), native format, collapsed while
+// empty (see styles/ads.css). The sidebar (Más leídas + rail ad +
+// newsletter module) arrives as a pre-rendered ReactNode from the server
+// (see HomeSidebar) — source filters re-rank the stories without ever
+// re-rendering it.
+export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?: React.ReactNode }) {
   const [activeSource, setActiveSource] = useState('all');
   const [isFading, setIsFading] = useState(false);
 
@@ -76,9 +89,13 @@ export function NewsGrid({ articles }: { articles: Article[] }) {
                 {list.map(a => (
                   <NewsRow key={a.id} article={a} heading="h3" />
                 ))}
+                <AdSlot slot="inline-feed" />
               </div>
             </>
           )}
+          <aside className="home-sidebar" aria-label="Lo más leído y newsletter">
+            {sidebar}
+          </aside>
         </div>
       </div>
     </>
