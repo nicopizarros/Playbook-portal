@@ -1,1 +1,1 @@
-ALTER TABLE "articles" ADD COLUMN "image_credit" text;
+ALTER TABLE "articles" ADD COLUMN IF NOT EXISTS "image_credit" text;
