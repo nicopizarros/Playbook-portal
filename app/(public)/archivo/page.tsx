@@ -4,6 +4,7 @@ import { getArchiveArticles } from '@/lib/data/articles';
 import { KNOWN_SOURCES, SOURCE_LABELS, type Source } from '@/lib/constants';
 import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '@/lib/taxonomy';
 import { NewsRow } from '@/components/article/NewsRow';
+import { ArchiveGridCard } from '@/components/article/ArchiveGridCard';
 
 export const metadata: Metadata = {
   title: 'Archivo',
@@ -40,7 +41,7 @@ function filterHref(current: Filters, key: keyof Filters, value: string) {
 export default async function ArchivoPage({ searchParams }: Props) {
   const filters = await searchParams;
   const articles = await getArchiveArticles(filters);
-  const compact = filters.view === 'compact';
+  const grid = filters.view === 'grid';
   // The whole taxonomy lives behind a closed-by-default <details> (same
   // "never greet the reader with tags" feedback as the article page's
   // ArticleTopics disclosure). It re-opens on its own while any filter is
@@ -96,7 +97,7 @@ export default async function ArchivoPage({ searchParams }: Props) {
                 </div>
               ))}
               {activeFilters.length > 0 && (
-                <Link className="archive-filters-clear" href={compact ? '/archivo?view=compact' : '/archivo'}>
+                <Link className="archive-filters-clear" href={grid ? '/archivo?view=grid' : '/archivo'}>
                   Limpiar filtros
                 </Link>
               )}
@@ -105,27 +106,35 @@ export default async function ArchivoPage({ searchParams }: Props) {
 
           <div className="view-toggle" role="group" aria-label="Modo de vista">
             <Link
-              className={`filter-btn${!compact ? ' active' : ''}`}
-              aria-pressed={!compact}
+              className={`filter-btn${!grid ? ' active' : ''}`}
+              aria-pressed={!grid}
               href={filterHref(filters, 'view', 'all')}
             >
               Lista
             </Link>
             <Link
-              className={`filter-btn${compact ? ' active' : ''}`}
-              aria-pressed={compact}
-              href={filterHref(filters, 'view', 'compact')}
+              className={`filter-btn${grid ? ' active' : ''}`}
+              aria-pressed={grid}
+              href={filterHref(filters, 'view', 'grid')}
             >
-              Compacta
+              Cuadrícula
             </Link>
           </div>
         </div>
 
-        <div className={`news-list fade-swap${compact ? ' news-list-compact' : ''}`}>
-          {articles.length
-            ? articles.map(a => <NewsRow key={a.id} article={a} heading="h3" withTagPills={!compact} />)
-            : <p className="empty-state">No hay más artículos con estos filtros.</p>}
-        </div>
+        {grid ? (
+          <div className="archive-grid fade-swap">
+            {articles.length
+              ? articles.map(a => <ArchiveGridCard key={a.id} article={a} />)
+              : <p className="empty-state">No hay más artículos con estos filtros.</p>}
+          </div>
+        ) : (
+          <div className="news-list fade-swap">
+            {articles.length
+              ? articles.map(a => <NewsRow key={a.id} article={a} heading="h3" withTagPills />)
+              : <p className="empty-state">No hay más artículos con estos filtros.</p>}
+          </div>
+        )}
       </main>
     </>
   );

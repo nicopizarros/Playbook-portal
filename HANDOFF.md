@@ -3032,6 +3032,32 @@ real, mismo estándar que Fases 1-3):
   móvil de ambos estados revisadas. `tsc --noEmit`, `npm run lint` y
   `npm run build` limpios.
 
+### 2026-07-23 — Ajuste por feedback: vista "Compacta" reemplazada por "Cuadrícula"
+
+- Follow-up inmediato a la entrada anterior: el usuario pidió que el
+  segundo modo de vista fuera una cuadrícula de tarjetas cuadradas en vez
+  de otra lista de líneas. Reemplazado en `/archivo`:
+  - Nuevo componente `components/article/ArchiveGridCard.tsx`: tarjeta
+    cuadrada (`aspect-ratio:1/1`) con el mismo tratamiento tipográfico de
+    `LeadStory` para artículos sin imagen (superficie `.visual-grid` +
+    titular en Anton, pero cuadrado en vez de 16/10, porque todas las
+    tarjetas de una cuadrícula tienen que compartir forma). Foto real
+    hace `object-fit:cover` del cuadrado. Sin tag pills, mismo criterio
+    que la vista compacta que reemplaza: esta vista es para barrer rápido,
+    no para navegar taxonomía.
+  - El toggle de vista pasó de `Lista`/`Compacta` a `Lista`/`Cuadrícula`,
+    parámetro `?view=grid` (antes `?view=compact` — cambio de valor, no
+    solo de etiqueta). `styles/article.css`: `.news-list-compact` se
+    reemplazó por `.archive-grid` (grid de 4 columnas en desktop, 2 bajo
+    920px y bajo 480px).
+- **Verificado** (Postgres local + `next dev` + Playwright, 18 checks,
+  mismo arnés de la entrada anterior con las aserciones de compacta
+  swapeadas por cuadrícula): `?view=grid` navega y preserva filtros,
+  cuadrícula sin tag pills, toggle activo correcto, limpiar filtros
+  conserva `view=grid`; capturas desktop (con y sin filtros) y móvil (grid
+  de 2 columnas) revisadas. `tsc --noEmit`, `npm run lint` y
+  `npm run build` limpios.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
