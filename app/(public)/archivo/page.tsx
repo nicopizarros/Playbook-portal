@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getArchiveArticles } from '@/lib/data/articles';
-import { KNOWN_SOURCES, SOURCE_LABELS } from '@/lib/constants';
-import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS, type TaxonomyTier } from '@/lib/taxonomy';
+import { KNOWN_SOURCES, SOURCE_LABELS, type Source } from '@/lib/constants';
+import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '@/lib/taxonomy';
 import { NewsRow } from '@/components/article/NewsRow';
 
 export const metadata: Metadata = {
@@ -11,10 +11,12 @@ export const metadata: Metadata = {
     'Todo lo publicado en Playbook: noticias, análisis y video sobre el negocio del deporte en México y LATAM, filtrable por fuente y por tema.',
 };
 
-type Filters = { source?: string; scope?: string; sport?: string; vertical?: string };
+type Filters = { source?: string; scope?: string; sport?: string; vertical?: string; view?: string };
+type FilterKey = 'source' | 'scope' | 'sport' | 'vertical';
 type Props = { searchParams: Promise<Filters> };
 
-const TAG_TIERS: { key: TaxonomyTier; label: string; options: readonly string[] }[] = [
+const FILTER_TIERS: { key: FilterKey; label: string; options: readonly string[]; optionLabel?: (o: string) => string }[] = [
+  { key: 'source', label: 'Sección', options: KNOWN_SOURCES, optionLabel: o => SOURCE_LABELS[o as Source] },
   { key: 'scope', label: 'Alcance', options: SCOPE_OPTIONS },
   { key: 'sport', label: 'Deporte', options: SPORT_OPTIONS },
   { key: 'vertical', label: 'Vertical de negocio', options: VERTICAL_OPTIONS },
@@ -38,6 +40,12 @@ function filterHref(current: Filters, key: keyof Filters, value: string) {
 export default async function ArchivoPage({ searchParams }: Props) {
   const filters = await searchParams;
   const articles = await getArchiveArticles(filters);
+  const compact = filters.view === 'compact';
+  // The whole taxonomy lives behind a closed-by-default <details> (same
+  // "never greet the reader with tags" feedback as the article page's
+  // ArticleTopics disclosure). It re-opens on its own while any filter is
+  // active so the state driving the list is never invisible.
+  const activeFilters = FILTER_TIERS.filter(tier => filters[tier.key]);
 
   return (
     <>
@@ -50,54 +58,72 @@ export default async function ArchivoPage({ searchParams }: Props) {
           <Link className="section-link" href="/">← Volver a Noticias</Link>
         </div>
 
-        <div className="source-filter" role="group" aria-label="Filtrar por fuente">
-          <Link
-            className={`filter-btn${!filters.source ? ' active' : ''}`}
-            aria-pressed={!filters.source}
-            href={filterHref(filters, 'source', 'all')}
-          >
-            Todo
-          </Link>
-          {KNOWN_SOURCES.map(source => (
-            <Link
-              key={source}
-              className={`filter-btn${filters.source === source ? ' active' : ''}`}
-              aria-pressed={filters.source === source}
-              href={filterHref(filters, 'source', source)}
-            >
-              {SOURCE_LABELS[source]}
-            </Link>
-          ))}
-        </div>
-
-        <div className="archive-tag-filters" aria-label="Filtrar por etiqueta">
-          {TAG_TIERS.map(tier => (
-            <div className="tag-filter-group" role="group" aria-label={`Filtrar por ${tier.label}`} key={tier.key}>
-              <span className="tag-filter-label">{tier.label}</span>
-              <Link
-                className={`filter-btn${!filters[tier.key] ? ' active' : ''}`}
-                aria-pressed={!filters[tier.key]}
-                href={filterHref(filters, tier.key, 'all')}
-              >
-                Todo
-              </Link>
-              {tier.options.map(option => (
-                <Link
-                  key={option}
-                  className={`filter-btn${filters[tier.key] === option ? ' active' : ''}`}
-                  aria-pressed={filters[tier.key] === option}
-                  href={filterHref(filters, tier.key, option)}
-                >
-                  {option}
-                </Link>
+        <div className="archive-toolbar">
+          <details className="archive-filters" open={activeFilters.length > 0}>
+            <summary className="archive-filters-summary">
+              <svg viewBox="0 0 14 13" width="13" height="12" aria-hidden="true">
+                <path d="M1 1.5h12M3.5 6.5h7M5.5 11.5h3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+              Filtros
+              {activeFilters.length > 0 && (
+                <span className="archive-filters-count">({activeFilters.length})</span>
+              )}
+              <svg className="archive-filters-chevron" viewBox="0 0 12 8" width="11" height="7" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </summary>
+            <div className="archive-filters-panel">
+              {FILTER_TIERS.map(tier => (
+                <div className="tag-filter-group" role="group" aria-label={`Filtrar por ${tier.label}`} key={tier.key}>
+                  <span className="tag-filter-label">{tier.label}</span>
+                  <Link
+                    className={`filter-btn${!filters[tier.key] ? ' active' : ''}`}
+                    aria-pressed={!filters[tier.key]}
+                    href={filterHref(filters, tier.key, 'all')}
+                  >
+                    Todo
+                  </Link>
+                  {tier.options.map(option => (
+                    <Link
+                      key={option}
+                      className={`filter-btn${filters[tier.key] === option ? ' active' : ''}`}
+                      aria-pressed={filters[tier.key] === option}
+                      href={filterHref(filters, tier.key, option)}
+                    >
+                      {tier.optionLabel ? tier.optionLabel(option) : option}
+                    </Link>
+                  ))}
+                </div>
               ))}
+              {activeFilters.length > 0 && (
+                <Link className="archive-filters-clear" href={compact ? '/archivo?view=compact' : '/archivo'}>
+                  Limpiar filtros
+                </Link>
+              )}
             </div>
-          ))}
+          </details>
+
+          <div className="view-toggle" role="group" aria-label="Modo de vista">
+            <Link
+              className={`filter-btn${!compact ? ' active' : ''}`}
+              aria-pressed={!compact}
+              href={filterHref(filters, 'view', 'all')}
+            >
+              Lista
+            </Link>
+            <Link
+              className={`filter-btn${compact ? ' active' : ''}`}
+              aria-pressed={compact}
+              href={filterHref(filters, 'view', 'compact')}
+            >
+              Compacta
+            </Link>
+          </div>
         </div>
 
-        <div className="news-list fade-swap">
+        <div className={`news-list fade-swap${compact ? ' news-list-compact' : ''}`}>
           {articles.length
-            ? articles.map(a => <NewsRow key={a.id} article={a} heading="h3" withTagPills />)
+            ? articles.map(a => <NewsRow key={a.id} article={a} heading="h3" withTagPills={!compact} />)
             : <p className="empty-state">No hay más artículos con estos filtros.</p>}
         </div>
       </main>

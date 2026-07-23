@@ -130,11 +130,44 @@
    define la caja — sin cambios extra necesarios. */
 
 /* ——— Página de archivo (/archivo) ——— */
-.archive-tag-filters{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+/* Toolbar: disclosure de filtros + toggle de vista. Toda la taxonomía vive
+   detrás de un <details> cerrado por defecto — mismo feedback que llevó a
+   plegar ArticleTopics (al lector no lo reciben cuatro filas de tags);
+   se re-abre solo mientras hay filtros activos para que el estado que
+   recorta la lista nunca quede invisible. El summary y el toggle hablan
+   el idioma redondo de .filter-btn (redondo = acción). */
+.archive-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.archive-filters{flex:1 1 0;min-width:0;}
+.archive-filters-summary{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 15px;border-radius:999px;border:1.5px solid var(--rule);background:var(--paper);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);cursor:pointer;list-style:none;transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease;}
+.archive-filters-summary::-webkit-details-marker{display:none;}
+.archive-filters-summary:hover,.archive-filters-summary:focus-visible,.archive-filters[open] .archive-filters-summary{border-color:var(--ink);color:var(--ink);}
+.archive-filters-count{font-weight:400;letter-spacing:0;}
+.archive-filters-chevron{flex-shrink:0;transition:transform var(--duration-base) var(--ease-out);}
+.archive-filters[open] .archive-filters-chevron{transform:rotate(180deg);}
+.archive-filters-panel{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding:16px 18px;border:1px solid var(--rule);background:var(--paper-soft);}
+.archive-filters-clear{align-self:flex-start;margin-top:2px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);text-decoration:underline;text-underline-offset:3px;transition:color var(--duration-fast) ease;}
+.archive-filters-clear:hover,.archive-filters-clear:focus-visible{color:var(--ink);}
+.view-toggle{display:flex;gap:8px;flex-shrink:0;}
 .tag-filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .tag-filter-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);margin-right:4px;flex-shrink:0;min-width:120px;}
 .news-row .tag-pill-row{margin-top:8px;}
 
+/* Vista compacta (?view=compact): una línea por artículo — badge de fuente,
+   titular y fecha en la misma fila, sin tag pills — para barrer el archivo
+   rápido. Reusa .news-row tal cual (colores de borde por fuente, hover)
+   y solo re-acomoda el layout desde el contenedor. */
+.news-list-compact .news-row{display:flex;align-items:baseline;gap:4px 12px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px;}
+.news-list-compact .news-row:first-child{padding-top:9px;}
+.news-list-compact .news-row .tag-mini{flex-shrink:0;margin-bottom:0;min-width:88px;}
+.news-list-compact .news-row h3{flex:1 1 auto;min-width:min(260px,100%);font-size:14px;margin:0;}
+.news-list-compact .news-row .byline{flex-shrink:0;font-size:11px;white-space:nowrap;margin-left:auto;}
+
+@media(max-width:640px){
+  /* En pantallas angostas el <details> deja de compartir fila (flex-basis 0
+     lo dejaba con ~160px al abrirse): toma la fila completa y el toggle de
+     vista baja a su propia línea. */
+  .archive-filters{flex-basis:100%;}
+}
 @media(max-width:920px){
   .tag-filter-label{min-width:100%;}
   .article-page{padding-top:28px;}

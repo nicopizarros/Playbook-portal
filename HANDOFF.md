@@ -2996,6 +2996,42 @@ real, mismo estándar que Fases 1-3):
   abrir aparecen las 4 fichas, capturas revisadas de ambos estados.
   `tsc --noEmit`, `npm run lint` y `npm run build` limpios sin env vars.
 
+### 2026-07-23 — Ajuste por feedback: filtros del archivo plegados + vista compacta
+
+- Feedback directo del usuario (con captura de /archivo): las cuatro filas
+  de chips de filtro (fuente + Alcance + Deporte + Vertical) hacían la
+  página demasiado ruidosa para barrer el archivo rápido — esconderlas
+  detrás de un botón/dropdown — y el listado necesitaba un modo de vista
+  alterno. Aplicado en `/archivo`:
+  - **Filtros plegados**: toda la taxonomía vive ahora en un `<details>`
+    cerrado por defecto con summary tipo pastilla ("Filtros" + ícono +
+    chevron) — el mismo patrón que ArticleTopics ("al lector no lo
+    reciben los tags"). El panel abierto agrupa las cuatro filas con
+    etiqueta (la fila de fuente ganó la etiqueta "Sección" para ser
+    consistente). Se re-abre solo mientras hay filtros activos, con
+    contador `(N)` en el summary y link "Limpiar filtros" (que preserva
+    el modo de vista) — el estado que recorta la lista nunca queda
+    invisible. Los filtros siguen siendo links reales (cero JS nuevo).
+  - **Toggle de vista Lista/Compacta**: dos pastillas `.filter-btn` a la
+    derecha del toolbar, vía `?view=compact` (mismo esquema de links que
+    los filtros, se preserva al filtrar). La vista compacta es una línea
+    por artículo — badge de fuente, titular, fecha·minutos a la derecha,
+    sin tag pills — reutilizando `NewsRow` sin `withTagPills` y
+    re-acomodando el layout solo desde `.news-list-compact` (los colores
+    de borde por fuente y el hover se heredan tal cual).
+  - CSS nuevo en `styles/article.css` (sección archivo): `.archive-toolbar`,
+    `.archive-filters*`, `.view-toggle`, `.news-list-compact`. El
+    `<details>` va con `flex:1 1 0` para que el toggle no se caiga de la
+    fila al abrir el panel, y bajo 640px toma la fila completa (con
+    `flex-basis:0` el panel abierto quedaba en una columna de ~160px).
+- **Verificado** (Postgres local + `next dev` + Playwright, 18 checks):
+  cerrado por defecto sin chips visibles, panel con 4 grupos al abrir,
+  click en NFL navega con `?sport=NFL` + panel auto-abierto + badge (1),
+  toggle a compacta preserva el filtro, vista compacta sin pills, limpiar
+  filtros conserva `view=compact`, cero `<a>` anidados; capturas desktop y
+  móvil de ambos estados revisadas. `tsc --noEmit`, `npm run lint` y
+  `npm run build` limpios.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
