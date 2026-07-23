@@ -39,7 +39,7 @@ export type VideoClip = {
 export type InstagramReel = { url: string };
 export type InfinitasCard = { image: string; eyebrow: string; title: string; body?: string; url: string };
 export type Stat = { value: string; label: string };
-export type Testimonial = { quote: string; name: string; role: string };
+export type Testimonial = { quote: string; name: string; role: string; avatar?: string };
 export type AboutAction = { label: string; url: string; style: 'light' };
 export type SocialLink = { label: string; url: string };
 

@@ -135,7 +135,11 @@
 .quote::before{content:"\201C";position:absolute;top:2px;left:18px;font-family:var(--serif-display);font-size:80px;color:var(--green);opacity:.18;line-height:1;pointer-events:none;}
 .quote p{position:relative;font-size:14.5px;line-height:1.5;margin:0 0 14px;font-style:italic;font-weight:400;}
 .quote .attribution{display:flex;align-items:center;gap:10px;}
-.quote .avatar{width:20px;height:20px;border-radius:50%;background:var(--rule);flex-shrink:0;}
+/* 36px en vez de los 20px del placeholder decorativo original: una foto
+   real necesita algo de tamaño para leerse como cara, no solo como punto
+   de color — el placeholder vacío (sin foto todavía) se queda en el
+   mismo tratamiento circular, solo que sin imagen adentro. */
+.quote .avatar{width:36px;height:36px;border-radius:50%;background:var(--rule);flex-shrink:0;object-fit:cover;}
 .quote b{display:block;font-size:13px;font-weight:600;}
 .quote span{font-size:12px;color:var(--gray-txt);}
 

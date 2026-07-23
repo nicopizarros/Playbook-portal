@@ -3346,6 +3346,55 @@ real, mismo estándar que Fases 1-3):
   `rankScore`/`rankArticles`/`selectHero` (home, ticker, admin) cambió de
   comportamiento — el nuevo parámetro es opcional con default compatible.
 
+### 2026-07-23 — Banner de The Futbol Business Review + fotos de testimonios (2 de 3)
+
+- El usuario subió 4 imágenes: un banner nuevo para "The Futbol Business
+  Review" (ya existía como producto en `content.json`'s `productsSection`,
+  imagen en `public/assets/img/tfbr-banner.webp`) y 3 fotos para los
+  testimonios existentes (Bárbara González Briseño, Adriana Briz, Juan
+  Pablo Robert — `testimonialsSection`, sin campo de foto hasta ahora).
+  - **Banner**: la imagen subida (900×160, exacto al tamaño ya esperado
+    por `ProductsSection.tsx`) se convirtió a webp con `sharp` y
+    reemplazó el archivo estático existente — mismo path
+    (`/assets/img/tfbr-banner.webp`), cero cambios de código necesarios,
+    porque `content.json` ya apuntaba ahí.
+  - **`Testimonial` type** (`lib/data/site-content.ts`) ganó `avatar?:
+    string`. `TestimonialsSection.tsx` renderiza `<img>` cuando hay
+    avatar, si no cae al círculo decorativo vacío de siempre — mismo
+    patrón "URL editor-supplied" que `AboutSection`/`ProductsSection`.
+    `.quote .avatar` (sections.css) subió de 20px a 36px — una foto real
+    necesita algo de tamaño para leerse como cara. `TestimonialsTab.tsx`
+    (admin) ganó el campo "Foto (URL)" para poder editarlo desde el CMS
+    a futuro.
+  - **Bloqueo real encontrado, no ignorado**: la foto subida para
+    Adriana Briz (`IMG_0602.jpeg`) trae en su EXIF el string literal
+    `"Copyright Rex Shutterstock No reproduction without permission"` —
+    parece un stock photo de banco de imágenes, no una foto real de la
+    persona nombrada en el testimonio. Se integraron Bárbara y Juan
+    (recortados a cuadrado 400×400 con `sharp`, `sharp.strategy.attention`
+    para Bárbara, recorte manual para Juan porque el auto-crop incluía
+    demasiado fondo/cuerpo) — Adriana quedó sin foto (círculo vacío,
+    comportamiento de siempre) hasta que el usuario confirme que esa
+    imagen específica está autorizada o mande una distinta.
+  - Archivos nuevos: `public/assets/img/testimonial-barbara.jpg`,
+    `public/assets/img/testimonial-juan.jpg`.
+- **Verificado** (Postgres local + `migrate:json` + `next dev` +
+  Playwright): capturas de la sección de testimonios y de productos en
+  el home, light y dark mode, confirmando ambas fotos nuevas cargando
+  sin roturas y el círculo de Adriana sin cambios. `tsc --noEmit`, `npm
+  run lint` y `npm run build` limpios.
+- **Pendiente/importante**: este cambio actualiza `content.json` y el
+  Postgres LOCAL de este sandbox (vía `migrate:json`), no la base de
+  producción — este entorno no tiene `POSTGRES_URL` de producción. Para
+  que se vea en el sitio real hace falta uno de: (a) dar acceso a la
+  Postgres real vía variable de entorno del Environment (ver pregunta
+  del usuario sobre "acceso permanente a la base" en esta misma
+  sesión — respondida en el chat, no en este archivo), (b) que un
+  editor entre a `/admin` → Testimonios y pegue las URLs de foto ahí
+  una vez que este código esté deployado, o (c) volver a correr
+  `migrate:json` contra producción (riesgo: pisa cualquier edición
+  hecha desde el CMS que no esté reflejada en `content.json`).
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y

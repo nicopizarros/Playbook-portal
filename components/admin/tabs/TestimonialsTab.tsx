@@ -32,6 +32,7 @@ export function TestimonialsTab({ data, onChange }: Props) {
             <TextField label="Cita" multiline help="La cita textual de la persona." value={item.quote} onChange={v => setItem(i, { quote: v })} />
             <TextField label="Nombre" help="El nombre de quien dice la cita." value={item.name} onChange={v => setItem(i, { name: v })} />
             <TextField label="Cargo" help="El cargo o rol de esa persona, debajo del nombre." value={item.role} onChange={v => setItem(i, { role: v })} />
+            <TextField label="Foto (URL)" help="Opcional — si se deja vacío se muestra el círculo sin foto de siempre." value={item.avatar || ''} onChange={v => setItem(i, { avatar: v })} />
           </>
         )}
       />
