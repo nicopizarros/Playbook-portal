@@ -30,3 +30,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Python bytecode from .claude/skills tooling
+__pycache__/
