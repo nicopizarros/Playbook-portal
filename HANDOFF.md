@@ -3148,6 +3148,105 @@ real, mismo estándar que Fases 1-3):
   (acentos y contraste correctos, sin colores nuevos fuera de los tokens
   existentes). `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
 
+### 2026-07-23 — Cuadrícula es default + jerarquía de 5 niveles directa al rating
+
+- Follow-up inmediato: (1) Cuadrícula pasa a ser la vista por defecto de
+  `/archivo` (antes era Lista) — `?view=list` es ahora el opt-in, `/archivo`
+  sin query es Cuadrícula. (2) Pedido explícito de reemplazar el ritmo
+  posicional cada-5 de la pasada anterior por una jerarquía DIRECTA: el
+  tamaño de cada tarjeta es función de su propio rating (`priority`,
+  ★1-5), no de dónde cae en la lista — "1 estrella una línea de texto, 2
+  estrellas una línea no tan chica, 3 estrellas un cuadrado chico, 4
+  estrellas más grande, etc." Investigado con la skill `ui-ux-pro-max`
+  (`--domain style "bento grid masonry variable card size"` →
+  recomienda exactamente este patrón: CSS Grid/flex con spans variados,
+  Apple-style, alta legibilidad; producto "Magazine/Blog" recomienda
+  Swiss Modernism 2.0 + Motion-Driven).
+  - **`tierFor(article)`**: `priority` (1-5) mapea 1:1 a tier, sin banda ni
+    posición — reemplaza `pickFeaturedIds`/`FEATURE_INTERVAL` para
+    Cuadrícula (Lista conserva el sistema de bandas de la pasada anterior
+    sin cambios, ver `archivo/page.tsx`).
+  - **`groupRiver(articles)`**: agrupa ★3/★4 consecutivos en "clusters"
+    (fluyen juntos en una fila `flex-wrap`); ★1/★2 (texto, sin foto) y ★5
+    (banda de ancho completo, reusa `ArchiveFeatureRow` tal cual, mismo
+    componente que ya usaba Lista) siempre cortan el flujo en su propia
+    línea. Por qué NO CSS Grid con spans (como la pasada anterior): con 5
+    tamaños arbitrarios en vez de un ritmo fijo cada 5, ya no hay manera
+    de garantizar cero huecos con matemática de grilla — flexbox con wrap
+    no reserva celdas, así que no hay huecos que dejar (lo que no entra
+    en la fila pasa a la siguiente, como el margen derecho irregular de
+    un párrafo). Mantener ★1/★2/★5 siempre fuera de los clusters de
+    cuadrados evita además el problema de sincronía de alto de fila entre
+    tamaños muy distintos (visto y corregido en la pasada anterior) —
+    chico y mediano comparten forma y alto similar, así que ese choque no
+    ocurre entre ellos.
+  - **`ArchiveGridCard`**: perdió la prop `featured` (y con ella, la rama
+    `is-featured`/`TagPillRow`/nested-`<a>` — ya no hace falta, ★5 pasó
+    completo a `ArchiveFeatureRow`); ganó `size: 'sm' | 'md'`. Siempre un
+    `<a>` plano ahora, más simple que antes.
+  - **`ArchiveLineRow`** (nuevo): fila de una sola línea, sin foto en
+    absoluto — el nivel que deliberadamente NO se gana una imagen. La
+    diferencia ★1 vs ★2 se hizo bien perceptible (no solo 1.5px de más):
+    ★1 en gris (`--gray-txt`/`--gray-dark`), 12px, peso 500, trunca duro a
+    una línea; ★2 en tinta plena, 16px, peso 600 (cerca del titular normal
+    de `.news-row`), puede pasar a dos líneas — confirmado con
+    `getComputedStyle` antes/después del ajuste (13px vs 14.5px no se
+    notaba a simple vista en las capturas; 12px vs 16px con cambio de
+    color y peso sí).
+  - **Pregunta del usuario sobre imágenes**: pidió "pull the images in the
+    articles for the blank space" — se revisó Postgres directo: los 30
+    artículos sembrados NO tienen `body_html`/`body_json` (0 de 30), así
+    que no hay imagen embebida en el cuerpo del artículo de la que tirar
+    en este dataset — no hay nada real que "pull". Se decidió NO
+    fabricar fotos de stock para artículos de noticias reales (aunque
+    sean datos de prueba) — insertar una imagen genérica no verificada en
+    una tarjeta de una noticia real implicaría una procedencia
+    fotográfica que no existe, algo a evitar incluso en un dataset de
+    desarrollo. En cambio, el nuevo sistema de niveles reduce el problema
+    estructuralmente: ★1/★2 (que en este dataset concentran casi todos
+    los artículos sin imagen real, ver correlación priority/imageUrl más
+    abajo) ahora no muestran caja de foto en absoluto — se resuelve buena
+    parte del "muro de recuadros beige" sin necesitar imágenes nuevas. El
+    placeholder mudo (`.visual-grid`) para ★3/★4/★5 sin imagen real se
+    mantiene sin cambios (ver ArchiveGridCard/ArchiveFeatureRow), ya
+    verificado legible a los tres tamaños. Respuesta a "does format
+    matter if shrunken": no — `object-fit:cover` + `aspect-ratio`
+    reservado hace que el formato/dimensión original de una imagen real
+    no importe al achicarla, siempre que la resolución fuente no sea
+    ya muy baja para empezar.
+  - **Correlación priority/imagen en los 30 artículos sembrados** (dato
+    real, verificado por SQL, no supuesto): ★5→5/5 con imagen, ★4→0/7,
+    ★3→0/9, ★2→1/6, ★1→3/3. Es decir en este dataset de prueba
+    específicamente los artículos ★4 y ★3 son 100% sin imagen — el caso
+    de peor estrés para el placeholder mudo a tamaño chico/mediano,
+    revisado visualmente y se ve bien.
+  - **Bug real encontrado en la primera verificación visual**: la
+    diferencia ★1 vs ★2 no se notaba en las capturas (font-size 13px vs
+    14.5px, gap insuficiente) — corregido ampliando la diferencia (ver
+    arriba) en vez de solo confiar en que la clase CSS estaba aplicada
+    (lo estaba, confirmado con `getComputedStyle`, pero no bastaba).
+  - **Segundo bug real, mobile-only, misma categoría que el de
+    `.archive-feature-row` en la pasada anterior**: el intento inicial de
+    `.archive-line-row` en mobile usaba `margin-left:90px` en el byline
+    para "empujarlo" a su propia línea — pero un margin NO fuerza un
+    salto de línea en flexbox; con `min-width:0` en el título, el
+    algoritmo prefería aplastar el título a ~52px de ancho real antes que
+    respetar el margen (confirmado con `getBoundingClientRect`, capturas
+    mostraban el titular cortado a 2-3 palabras). Fix: columna de verdad
+    (`flex-direction:column`) en vez de un empujón cosmético — mismo
+    principio que ya se había aprendido y aplicado al feature-row.
+- **Verificado** (Postgres local + `next dev` + Playwright, 17 checks
+  nuevos): Cuadrícula activa por defecto sin query param, Lista vía
+  `?view=list`; los 5 niveles presentes y suman exactamente los 24
+  artículos del archivo sin filtrar (2/6/7/6/3 — coincide con el conteo
+  real de `priority` en Postgres); tamaños de fuente estrictamente
+  decrecientes ★5>★4>★3 y ★2>★1 confirmado con `getComputedStyle`; solo
+  ★5 muestra excerpt/tag-pills; cero `<a>` anidados; filtro `sport=NFL`
+  (2 artículos) no rompe con set chico; mobile con título de línea a
+  ancho completo (342px, no aplastado). Capturas desktop, mobile y dark
+  mode revisadas visualmente en cada iteración del arreglo (no solo al
+  final). `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y

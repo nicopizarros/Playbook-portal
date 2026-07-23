@@ -6,6 +6,7 @@ import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '@/lib/taxonomy';
 import { NewsRow } from '@/components/article/NewsRow';
 import { ArchiveGridCard } from '@/components/article/ArchiveGridCard';
 import { ArchiveFeatureRow } from '@/components/article/ArchiveFeatureRow';
+import { ArchiveLineRow } from '@/components/article/ArchiveLineRow';
 
 export const metadata: Metadata = {
   title: 'Archivo',
@@ -39,28 +40,16 @@ function filterHref(current: Filters, key: keyof Filters, value: string) {
   return query ? `/archivo?${query}` : '/archivo';
 }
 
-// Magazine-style rhythm (user feedback: the uniform grid/list "looks too
-// uniform and boring" — researched how top publishers break that up: a
-// repeating featured-item that grows bigger, CSS Grid auto-placement fills
-// ordinary tiles around it). `articles` is already sorted by importance
-// (getArchiveArticles -> rankArticles), so each band of FEATURE_INTERVAL is
-// itself already ordered — a band's first member is automatically its
-// highest-ranked one, no extra sorting needed here.
-//
-// Featured-ness is gated by editorial rating (priority, the same 1-5 star
-// field that picks the homepage hero), not just position: a band only gets
-// a featured tile if its opening (highest-ranked) article is 4★+ — direct
-// follow-up feedback mid-design ("shouldn't only be about frequency, rating
-// should come into play"). Bands that don't clear the bar render as plain
-// ordinary tiles instead of forcing a feature.
-//
-// Only a FULL band (exactly FEATURE_INTERVAL members) is ever eligible — a
-// trailing partial band (e.g. list length 27: last band is just 2 items)
-// never gets a featured item, regardless of rating. This is stricter than
-// "just skip the literal last item": a featured pick needs FOUR regular
-// siblings after it in its own band to tile the grid's 2×2 span without a
-// gap (see styles/article.css's archive-grid comment for that math) — a
-// partial trailing band can't supply that even if its opener qualifies.
+// ——— Lista: periodic featured row, gated by rating (unchanged from the
+// prior pass — see HANDOFF.md's 2026-07-23 "ritmo tipo revista" entry).
+// `articles` is already sorted by importance (getArchiveArticles ->
+// rankArticles), so a band's first member is automatically its
+// highest-ranked one. A band only gets a featured row if its opener is
+// ★4+; only a FULL band of FEATURE_INTERVAL is ever eligible (a featured
+// pick needs FOUR regular siblings after it in its band to avoid a stray
+// gap in the equivalent grid math this pattern was originally built for).
+// This system is Lista-only now — Cuadrícula switched to a direct
+// per-article tier below.
 const FEATURE_INTERVAL = 5;
 const FEATURE_MIN_PRIORITY = 4;
 
@@ -73,11 +62,59 @@ function pickFeaturedIds(articles: Article[]): Set<string> {
   return ids;
 }
 
+// ——— Cuadrícula: a direct rating→size "river" (user feedback: give every
+// article's own star rating a size, not just a periodic few — 1★ reads as
+// a line of text, 2★ a slightly bigger line, 3★ a small square, 4★ a
+// bigger square, 5★ the full-width feature treatment). `priority` (1-5,
+// same field the homepage hero and Lista's featured gate use) maps 1:1 to
+// tier — no ranking/positional math needed, unlike Lista's band rhythm.
+//
+// Consecutive ★3/★4 articles are grouped into "clusters" that flow
+// together in one wrapped flex row (small + medium squares share a shape
+// and a similar height, so they tile without the row-height-sync gaps a
+// tall/short mismatch would cause — see the HANDOFF.md entry on the
+// line-clamp fix from the previous pass for exactly that failure mode).
+// ★1/★2 (text, no photo) and ★5 (full-width feature, reuses
+// ArchiveFeatureRow) always break the flow onto their own line instead of
+// sharing a row with squares, which sidesteps the mismatch problem
+// entirely rather than trying to out-clever it with CSS.
+type RiverBlock = { type: 'cluster'; items: Article[] } | { type: 'solo'; item: Article; tier: 1 | 2 | 5 };
+
+function tierFor(article: Article): 1 | 2 | 3 | 4 | 5 {
+  return Math.min(5, Math.max(1, article.priority)) as 1 | 2 | 3 | 4 | 5;
+}
+
+function groupRiver(articles: Article[]): RiverBlock[] {
+  const blocks: RiverBlock[] = [];
+  let cluster: Article[] = [];
+  const flushCluster = () => {
+    if (cluster.length) {
+      blocks.push({ type: 'cluster', items: cluster });
+      cluster = [];
+    }
+  };
+  for (const article of articles) {
+    const tier = tierFor(article);
+    if (tier === 3 || tier === 4) {
+      cluster.push(article);
+    } else {
+      flushCluster();
+      blocks.push({ type: 'solo', item: article, tier });
+    }
+  }
+  flushCluster();
+  return blocks;
+}
+
 export default async function ArchivoPage({ searchParams }: Props) {
   const filters = await searchParams;
   const articles = await getArchiveArticles(filters);
-  const grid = filters.view === 'grid';
+  // Cuadrícula is the default (user feedback) — Lista is the opt-in via
+  // ?view=list, not the other way around like the prior pass.
+  const list = filters.view === 'list';
+  const grid = !list;
   const featuredIds = pickFeaturedIds(articles);
+  const river = groupRiver(articles);
   // The whole taxonomy lives behind a closed-by-default <details> (same
   // "never greet the reader with tags" feedback as the article page's
   // ArticleTopics disclosure). It re-opens on its own while any filter is
@@ -133,7 +170,7 @@ export default async function ArchivoPage({ searchParams }: Props) {
                 </div>
               ))}
               {activeFilters.length > 0 && (
-                <Link className="archive-filters-clear" href={grid ? '/archivo?view=grid' : '/archivo'}>
+                <Link className="archive-filters-clear" href={list ? '/archivo?view=list' : '/archivo'}>
                   Limpiar filtros
                 </Link>
               )}
@@ -142,16 +179,16 @@ export default async function ArchivoPage({ searchParams }: Props) {
 
           <div className="view-toggle" role="group" aria-label="Modo de vista">
             <Link
-              className={`filter-btn${!grid ? ' active' : ''}`}
-              aria-pressed={!grid}
-              href={filterHref(filters, 'view', 'all')}
+              className={`filter-btn${list ? ' active' : ''}`}
+              aria-pressed={list}
+              href={filterHref(filters, 'view', 'list')}
             >
               Lista
             </Link>
             <Link
               className={`filter-btn${grid ? ' active' : ''}`}
               aria-pressed={grid}
-              href={filterHref(filters, 'view', 'grid')}
+              href={filterHref(filters, 'view', 'all')}
             >
               Cuadrícula
             </Link>
@@ -159,11 +196,26 @@ export default async function ArchivoPage({ searchParams }: Props) {
         </div>
 
         {grid ? (
-          <div className="archive-grid fade-swap">
-            {articles.length
-              ? articles.map((a, i) => (
-                  <ArchiveGridCard key={a.id} article={a} featured={featuredIds.has(a.id)} priority={i === 0} />
-                ))
+          <div className="archive-river fade-swap">
+            {river.length
+              ? river.map((block, bi) =>
+                  block.type === 'cluster' ? (
+                    <div className="archive-river-cluster" key={`cluster-${block.items[0].id}`}>
+                      {block.items.map((a, ii) => (
+                        <ArchiveGridCard
+                          key={a.id}
+                          article={a}
+                          size={tierFor(a) === 4 ? 'md' : 'sm'}
+                          priority={bi === 0 && ii === 0}
+                        />
+                      ))}
+                    </div>
+                  ) : block.tier === 5 ? (
+                    <ArchiveFeatureRow key={block.item.id} article={block.item} priority={bi === 0} />
+                  ) : (
+                    <ArchiveLineRow key={block.item.id} article={block.item} tier={block.tier} />
+                  )
+                )
               : <p className="empty-state">No hay más artículos con estos filtros.</p>}
           </div>
         ) : (
