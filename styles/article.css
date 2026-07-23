@@ -1,7 +1,14 @@
-/* ——— Página de artículo (/articulo.html) ———
-   Reutiliza clases existentes (.lead-photo, .tag, .tag-mini, .byline, .btn,
-   .skel) en vez de duplicar estilos — solo se define aquí lo que es
-   genuinamente nuevo: el layout de una lectura larga en una sola columna. */
+/* ——— Página de artículo (/articulo) ———
+   Reutiliza clases existentes (.lead-photo, .tag, .btn, .skel) en vez de
+   duplicar estilos — solo se define aquí lo que es genuinamente nuevo: el
+   layout y la tipografía de una lectura larga en una sola columna.
+
+   Pasada de auditoría UI/UX 2026-07-23: cabecera reordenada
+   (kicker → titular → byline → foto), taxonomía fuera de la cabecera
+   (bloque .article-topics al pie), y una suite tipográfica real para el
+   cuerpo (links, H2/H3, blockquote, listas, hr, imágenes) — antes el
+   cuerpo TipTap renderizaba defaults del navegador y los links eran
+   invisibles (el reset global quita el subrayado). */
 
 /* padding-top/bottom only (not the shorthand) so .container's own
    left/right padding (24px) keeps applying here — the shorthand used to
@@ -9,22 +16,34 @@
    where max-width stops constraining the box: every phone and small
    tablet, i.e. most real traffic, rendered the headline and body text
    flush against the screen edges with no side margin at all. */
-.article-page{padding-top:28px;padding-bottom:60px;max-width:760px;}
-.back-link{display:inline-block;margin-bottom:24px;}
+.article-page{padding-top:36px;padding-bottom:64px;max-width:760px;}
+.back-link{display:inline-block;margin-bottom:28px;}
 
 .article-detail{display:block;}
-.article-detail .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px;margin-bottom:14px;}
-.article-detail h1{font-family:var(--serif-display);font-weight:400;font-size:38px;line-height:1.1;margin:0 0 14px;text-transform:none;}
-.article-detail .byline{margin-bottom:14px;}
-.article-detail .byline a{text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:2px;transition:color var(--duration-fast) ease;}
-.article-detail .byline a:hover,.article-detail .byline a:focus-visible{color:var(--green);}
 
-.article-photo{aspect-ratio:16/10;margin:0 0 20px;}
+/* ——— Kicker: ficha de publicación + clasificación primaria alcance·deporte.
+   Una sola línea de clasificación arriba del titular — la taxonomía
+   completa vive en .article-topics, al pie. ——— */
+.article-kicker{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin-bottom:16px;}
+.article-detail .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px;}
+.kicker-path{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-txt);}
+.kicker-path a{color:var(--ink);}
+.kicker-path a:hover,.kicker-path a:focus-visible{text-decoration:underline;text-decoration-color:var(--green);text-decoration-thickness:2px;text-underline-offset:3px;}
 
-.article-detail .tag-pill-row{margin:0 0 24px;padding-bottom:20px;border-bottom:1px solid var(--rule);}
+.article-detail h1{font-family:var(--serif-display);font-weight:400;font-size:clamp(28px,4.6vw,40px);line-height:1.08;margin:0 0 16px;text-transform:none;}
 
-.article-body{font-size:17px;line-height:1.7;color:var(--gray-dark);max-width:68ch;font-weight:400;}
-.article-body p{margin:0 0 20px;}
+/* Byline como bloque de cierre de la cabecera: autor en tinta, meta en
+   gris, regla de pelo abajo que separa cabecera de foto/cuerpo. */
+.article-detail .byline{font-size:12.5px;color:var(--gray-txt);padding-bottom:18px;margin-bottom:24px;border-bottom:1px solid var(--rule);}
+.article-detail .byline-author{color:var(--ink);font-weight:600;}
+.article-detail .byline a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:2px;transition:text-decoration-color var(--duration-fast) ease;}
+.article-detail .byline a:hover,.article-detail .byline a:focus-visible{text-decoration-color:var(--green);text-decoration-thickness:2px;}
+
+.article-photo{aspect-ratio:16/10;margin:0 0 28px;}
+
+/* ——— Cuerpo ——— */
+.article-body{font-size:17px;line-height:1.75;color:var(--gray-dark);max-width:68ch;font-weight:400;}
+.article-body p{margin:0 0 22px;}
 /* Solo el último párrafo del CUERPO pierde su margen — no cualquier
    p:last-child: el slot de ad inline-article parte los cuerpos HTML en
    dos <div>s, y el selector viejo (`p:last-child` a secas) también
@@ -33,12 +52,54 @@
 .article-body > p:last-child,
 .article-body > div:last-child > p:last-child{margin-bottom:0;}
 
+/* Lede: el primer párrafo del cuerpo, un punto más grande y en tinta —
+   el escalón de entrada clásico de una lectura larga. Cubre las dos
+   formas de cuerpo: párrafos directos y cuerpos HTML envueltos en <div>. */
+.article-body > p:first-child,
+.article-body > div:first-child > p:first-child{font-size:18.5px;line-height:1.7;color:var(--ink);}
+
+/* Remate editorial: cuadrado de marca al final del último párrafo. */
+.article-body > p:last-child::after,
+.article-body > div:last-child > p:last-child::after{content:"";display:inline-block;width:7px;height:7px;background:var(--green);margin-left:9px;}
+
+/* Links del cuerpo: subrayado en verde de marca (el reset global quita el
+   subrayado — sin esto un link dentro del texto es indistinguible). */
+.article-body a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--green);text-decoration-thickness:2px;text-underline-offset:3px;transition:text-decoration-color var(--duration-fast) ease;}
+.article-body a:hover,.article-body a:focus-visible{text-decoration-color:var(--ink);}
+
+/* Subtítulos del cuerpo (TipTap permite H2/H3): sans en negrita, no Anton —
+   Anton dentro de la columna de lectura gritaría; el display queda para el
+   titular y las cabeceras de sección. */
+.article-body h2{font-family:var(--sans);font-size:21px;font-weight:700;line-height:1.3;color:var(--ink);margin:34px 0 14px;letter-spacing:-.01em;}
+.article-body h3{font-family:var(--sans);font-size:17.5px;font-weight:700;line-height:1.35;color:var(--ink);margin:28px 0 10px;}
+
+.article-body blockquote{margin:28px 0;padding:2px 0 2px 20px;border-left:3px solid var(--ink);color:var(--ink);}
+.article-body blockquote p{margin-bottom:12px;}
+.article-body blockquote p:last-child{margin-bottom:0;}
+
+.article-body ul,.article-body ol{margin:0 0 22px;padding-left:24px;}
+.article-body li{margin-bottom:8px;}
+.article-body li::marker{color:var(--gray-txt);}
+
+.article-body strong{color:var(--ink);}
+.article-body img{width:100%;height:auto;margin:28px 0;}
+.article-body hr{border:0;border-top:1px solid var(--rule);width:88px;margin:34px auto;}
+
 /* ——— Compartir ——— */
-.share-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:28px;}
+.share-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:30px;}
 .share-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);}
 .share-btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);font-size:12.5px;font-weight:600;color:var(--ink);transition:border-color var(--duration-fast) ease;}
 .share-btn:hover,.share-btn:focus-visible{border-color:var(--ink);}
 .share-btn svg{flex-shrink:0;}
+
+/* ——— Temas (índice completo de taxonomía, al pie del artículo) ———
+   Fichas cuadradas a propósito: cuadrado = metadato (misma familia que la
+   ficha .tag de publicación), redondo = acción (.btn/.filter-btn). */
+.article-topics{margin-top:30px;padding-top:20px;border-top:1px solid var(--rule);}
+.article-topics-label{display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);margin-bottom:12px;}
+.article-topics-list{display:flex;flex-wrap:wrap;gap:8px;}
+.topic-chip{display:inline-flex;align-items:center;min-height:36px;padding:6px 14px;border:1px solid var(--rule);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--gray-dark);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease;}
+.topic-chip:hover,.topic-chip:focus-visible{border-color:var(--ink);color:var(--ink);}
 
 .article-cta{margin-top:30px;position:relative;z-index:1;}
 
@@ -53,18 +114,23 @@
 /* ——— Muro de correo (metered access, Fase 3) — genuinamente nuevo, sin
    equivalente legado. Reutiliza el lenguaje visual de .nl-box (mismo
    borde/padding) en vez de inventar un estilo aparte. ——— */
-.article-walled{margin-top:8px;padding:26px 30px;border:1px solid var(--ink);}
+.article-walled{margin-top:8px;padding:28px 32px;border:1px solid var(--ink);background:var(--paper-soft);}
+.wall-kicker{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin:0 0 14px;}
 .article-walled > p{font-size:14.5px;color:var(--gray-dark);margin:0 0 16px;max-width:56ch;}
 .article-walled-teaser{font-size:17px !important;line-height:1.7;max-width:68ch !important;padding-bottom:20px;margin-bottom:20px !important;border-bottom:1px solid var(--rule);}
 .email-wall-form{max-width:380px;}
+/* El pill-form del muro vive sobre --paper-soft; el input hereda fondo
+   transparente y sigue leyéndose bien, pero el borde de 2px en tinta ya
+   define la caja — sin cambios extra necesarios. */
 
-/* ——— Página de archivo (/archivo.html) ——— */
+/* ——— Página de archivo (/archivo) ——— */
 .archive-tag-filters{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
 .tag-filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .tag-filter-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);margin-right:4px;flex-shrink:0;min-width:120px;}
 .news-row .tag-pill-row{margin-top:8px;}
 
 @media(max-width:920px){
-  .article-detail h1{font-size:28px;}
   .tag-filter-label{min-width:100%;}
+  .article-page{padding-top:28px;}
+  .article-photo{margin-bottom:22px;}
 }

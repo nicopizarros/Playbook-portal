@@ -34,7 +34,7 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   const ip = await getClientIp();
   const limit = checkRateLimit(`editor-login:${ip}`, LOGIN_LIMIT, LOGIN_WINDOW_SECONDS);
   if (!limit.allowed) {
-    return { error: `Demasiados intentos. Probá de nuevo en ${Math.ceil(limit.retryAfterSeconds / 60)} minuto(s).` };
+    return { error: `Demasiados intentos. Prueba de nuevo en ${Math.ceil(limit.retryAfterSeconds / 60)} minuto(s).` };
   }
 
   try {

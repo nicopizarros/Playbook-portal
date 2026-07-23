@@ -5,7 +5,7 @@ import { getAllArticles, getArticleById, getArticleMetaById } from '@/lib/data/a
 import { getSiteContent } from '@/lib/data/site-content';
 import { relatedArticles, shouldShowAuthor } from '@/lib/related-articles';
 import { resolveEntitlement } from '@/lib/metering';
-import { TagPillRow } from '@/components/article/TagPillRow';
+import { ArticleTopics } from '@/components/article/ArticleTopics';
 import { NewsRow } from '@/components/article/NewsRow';
 import { ShareRow } from '@/components/article/ShareRow';
 import { EmailWall } from '@/components/article/EmailWall';
@@ -132,9 +132,41 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
   const entitlement = await resolveEntitlement(meta.id);
 
+  // Header order (UI/UX audit 2026-07-23): kicker → headline → byline →
+  // photo. The kicker carries the publication chip plus the PRIMARY
+  // scope·sport classification only — the full three-tier taxonomy moved to
+  // an <ArticleTopics> block at the article foot, where it works as
+  // navigation instead of sitting as a noise row between byline and body.
+  const kickerScope = meta.tagsScope[0];
+  const kickerSport = meta.tagsSport[0];
   const header = (
     <>
-      <span className="tag">{meta.publication}</span>
+      <div className="article-kicker">
+        <span className="tag">{meta.publication}</span>
+        {(kickerScope || kickerSport) && (
+          <span className="kicker-path">
+            {kickerScope && (
+              <a href={`/tema?scope=${encodeURIComponent(kickerScope)}`}>{kickerScope}</a>
+            )}
+            {kickerScope && kickerSport && <span aria-hidden="true">·</span>}
+            {kickerSport && (
+              <a href={`/tema?sport=${encodeURIComponent(kickerSport)}`}>{kickerSport}</a>
+            )}
+          </span>
+        )}
+      </div>
+      <h1>{meta.title}</h1>
+      <div className="byline article-byline">
+        {showAuthor && meta.author && (
+          <>
+            <span className="byline-author">
+              Por <Link href={`/autor?nombre=${encodeURIComponent(meta.author)}`}>{meta.author}</Link>
+            </span>
+            {' '}·{' '}
+          </>
+        )}
+        {meta.dateFormatted} · {meta.readingTime || 1} min de lectura
+      </div>
       {meta.imageUrl && (
         <div className="lead-photo article-photo">
           {/* Editor-supplied URL, arbitrary host -- see
@@ -150,16 +182,6 @@ export default async function ArticuloPage({ searchParams }: Props) {
           />
         </div>
       )}
-      <h1>{meta.title}</h1>
-      <div className="byline">
-        {meta.dateFormatted} · {meta.readingTime || 1} min
-        {showAuthor && meta.author && (
-          <>
-            {' '}· Por <Link href={`/autor?nombre=${encodeURIComponent(meta.author)}`}>{meta.author}</Link>
-          </>
-        )}
-      </div>
-      <TagPillRow article={meta} />
     </>
   );
 
@@ -249,6 +271,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
             )}
           </div>
           <ShareRow url={canonicalUrl} title={article.title} />
+          <ArticleTopics article={article} />
           {article.substackUrl && (
             <a className="btn light article-cta" href={article.substackUrl} target="_blank" rel="noopener noreferrer">
               Ver en Substack

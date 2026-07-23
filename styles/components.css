@@ -3,6 +3,11 @@
 .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:40px 0 20px;border-bottom:2px solid var(--ink);margin-bottom:28px;flex-wrap:wrap;}
 .section-head h2{font-family:var(--serif-display);font-weight:400;font-size:25px;letter-spacing:.01em;margin:0;text-transform:uppercase;}
 .section-head .sub{font-size:13px;color:var(--gray-txt);margin-top:4px;font-weight:400;max-width:480px;}
+/* Cabecera de páginas de listado (/archivo, /tema, /autor): mismo bloque
+   .section-head pero sin la regla inferior ni el padding de sección —
+   antes esto vivía como style inline repetido en las tres páginas. */
+.section-head.page-head{border-bottom:none;margin-bottom:0;padding-top:0;}
+.page-head .eyebrow{margin-bottom:8px;}
 .section-link{font-size:12.5px;font-weight:500;border-bottom:1px solid var(--ink);padding-bottom:2px;white-space:nowrap;background:none;border-top:0;border-left:0;border-right:0;font-family:var(--sans);cursor:pointer;color:inherit;transition:color var(--duration-base) var(--ease-out);}
 .section-link:hover{color:var(--gray-dark);}
 
@@ -54,15 +59,21 @@
 .tag-mini.opinion{color:var(--src-opinion);}
 .tag-mini.opinion::before{background:var(--src-opinion);}
 
-/* Tag-taxonomy pill rows (Task 2) — reuses .tag-mini's dot+label look, no
-   source color (these pills are scope/sport/vertical, not source-coded).
-   Each pill is a real link to /tema.html now (js/templates.js
-   tagPillsRowTemplate) — position:relative lifts it above the stretched
-   .card-link::after overlay (css/hero.css) so it stays its own click
-   target instead of being shadowed by the card's own link. */
-.tag-pill-row{display:flex;flex-wrap:wrap;gap:8px 14px;}
-.tag-pill-row .tag-mini{margin-bottom:0;}
-.tag-pill-row a.tag-mini{position:relative;z-index:1;}
+/* Tag-taxonomy rows (UI/UX audit 2026-07-23) — deliberately NOT .tag-mini:
+   the dot-badge language stays exclusive to source/publication badges, so
+   taxonomy can't be confused with source. Quiet interpunct-separated text
+   links; hierarchy reads through weight/color (scope+sport in ink,
+   verticals in gray) instead of three tiers of identical pills.
+   position:relative lifts each link above the stretched .card-link::after
+   overlay (styles/hero.css) so it stays its own click target instead of
+   being shadowed by the card's own link. */
+.tag-pill-row{display:flex;flex-wrap:wrap;align-items:baseline;row-gap:4px;}
+.tag-topic{position:relative;z-index:1;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink);transition:color var(--duration-fast) ease;}
+.tag-topic[data-tier="vertical"]{font-weight:500;color:var(--gray-txt);}
+.tag-topic:hover,.tag-topic:focus-visible{text-decoration:underline;text-decoration-color:var(--green);text-decoration-thickness:2px;text-underline-offset:3px;color:var(--ink);}
+/* Interpunct between consecutive tags — a leading dot after a wrap is the
+   accepted tradeoff of this pattern (rows rarely wrap at these widths). */
+.tag-topic + .tag-topic::before{content:"·";margin:0 8px;color:var(--gray-txt);opacity:.55;font-weight:400;text-decoration:none;display:inline-block;}
 
 .pill{display:inline-flex;align-items:center;min-height:38px;border:1px solid rgba(255,255,255,.3);padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:500;transition:background var(--duration-base) var(--ease-out);}
 .pill:hover,.pill:focus-visible{background:rgba(255,255,255,.08);}

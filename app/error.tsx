@@ -34,7 +34,7 @@ export default function RootSegmentError({ error, reset }: { error: Error & { di
         Playbook no está disponible en este momento
       </h1>
       <p style={{ fontSize: '15.5px', color: 'var(--gray-txt)', maxWidth: '52ch', margin: '0 auto 30px' }}>
-        Fue un problema temporal de nuestro lado, no tuyo. Probá de nuevo en unos segundos.
+        Fue un problema temporal de nuestro lado, no tuyo. Prueba de nuevo en unos segundos.
       </p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
         <button type="button" className="btn accent" onClick={() => reset()}>Reintentar</button>

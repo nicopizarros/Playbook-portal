@@ -49,7 +49,7 @@ export default function PrivacidadPage() {
 
       <h2>Para qué usamos tus datos</h2>
       <ul>
-        <li>Enviarte el enlace de acceso que vos mismo solicitaste.</li>
+        <li>Enviarte el enlace de acceso que tú mismo solicitaste.</li>
         <li>Aplicar el límite de artículos gratuitos por mes.</li>
         <li>Entender qué contenido funciona, para decisiones editoriales.</li>
         <li>Mantener la seguridad del sitio (por ejemplo, frenar intentos de acceso abusivos).</li>
@@ -73,7 +73,7 @@ export default function PrivacidadPage() {
         </li>
       </ul>
       <p>
-        Podés borrar las cookies de este sitio en cualquier momento desde la configuración de tu
+        Puedes borrar las cookies de este sitio en cualquier momento desde la configuración de tu
         navegador. Hacerlo no te bloquea el acceso, aunque sí reinicia el conteo de lecturas
         gratuitas.
       </p>
@@ -88,9 +88,9 @@ export default function PrivacidadPage() {
 
       <h2>Tus derechos (ARCO)</h2>
       <p>
-        Como titular de tus datos, tenés derecho a Acceder, Rectificar, Cancelar u Oponerte (ARCO) al
-        tratamiento de tus datos personales. Si sos lector registrado, podés exportar o eliminar tu
-        cuenta y tu historial de lectura vos mismo, sin escribirnos, desde{' '}
+        Como titular de tus datos, tienes derecho a Acceder, Rectificar, Cancelar u Oponerte (ARCO) al
+        tratamiento de tus datos personales. Si eres lector registrado, puedes exportar o eliminar tu
+        cuenta y tu historial de lectura tú mismo, sin escribirnos, desde{' '}
         <a href="/cuenta">Mi cuenta</a>. Para cualquier otro pedido relacionado con tus datos,
         escribinos a <strong>hola@playbook.la</strong>.
       </p>

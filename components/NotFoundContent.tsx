@@ -11,7 +11,7 @@ export function NotFoundContent() {
         No encontramos esta página
       </h1>
       <p style={{ fontSize: '15.5px', color: 'var(--gray-txt)', maxWidth: '52ch', margin: '0 auto 30px' }}>
-        El enlace puede estar roto o la página se movió. Probá desde el inicio o buscá lo que necesitas arriba.
+        El enlace puede estar roto o la página se movió. Prueba desde el inicio o busca lo que necesitas arriba.
       </p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link className="btn accent" href="/">Volver al inicio</Link>

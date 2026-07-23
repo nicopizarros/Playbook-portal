@@ -30,9 +30,10 @@ export function EmailWall({ articleUrl, teaser }: { articleUrl: string; teaser?:
       {/* Editor-authored (articles.wallTeaser), never the excerpt/summary —
           left unset means no preview text, not a silent fallback. */}
       {teaser && <p className="article-walled-teaser">{teaser}</p>}
+      <p className="wall-kicker">Para seguir leyendo</p>
       <p>
         Ya leíste tus {FREE_ARTICLES_PER_MONTH} artículos gratis este mes. Déjanos tu correo para
-        seguir leyendo gratis, sin costo.
+        seguir leyendo sin costo.
       </p>
       <form className={`pill-form email-wall-form${state?.error ? ' has-error' : ''}`} action={formAction}>
         <input type="hidden" name="redirectTo" value={articleUrl} />

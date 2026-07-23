@@ -42,6 +42,15 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
+// Human-readable label per taxonomy tier, shown as the page eyebrow so a
+// reader landing on /tema knows WHICH kind of tag they're browsing —
+// "Fútbol" alone doesn't say whether it's a sport or a business vertical.
+const TIER_LABELS: Record<TaxonomyTier, string> = {
+  scope: 'Alcance',
+  sport: 'Deporte',
+  vertical: 'Vertical de negocio',
+};
+
 export default async function TemaPage({ searchParams }: Props) {
   const topic = await resolveTopic(searchParams);
   const articles = topic ? await getArticlesByTag(topic.tier, topic.value) : [];
@@ -49,8 +58,9 @@ export default async function TemaPage({ searchParams }: Props) {
   return (
     <>
       <main className="container news-section archive-page" id="tema-main">
-        <div className="section-head" style={{ borderBottom: 'none', marginBottom: 0, paddingTop: 0 }}>
+        <div className="section-head page-head">
           <div>
+            {topic && <span className="eyebrow">{TIER_LABELS[topic.tier]}</span>}
             <h2>{topic?.value || 'Tema'}</h2>
             <p className="sub">Todo lo publicado en Playbook sobre este tema.</p>
           </div>

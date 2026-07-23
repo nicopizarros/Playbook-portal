@@ -2813,6 +2813,75 @@ real, mismo estándar que Fases 1-3):
   siguen el tema). `tsc --noEmit`, `npm run lint` y `next build` limpios
   con y sin `.env.local`.
 
+### 2026-07-23 — Auditoría UI/UX: sistema de tags del artículo + experiencia de lectura
+
+- Sesión en `claude/playbook-portal-audit-862cln`. Brief: auditoría completa
+  del portal con la página de artículo como prioridad — primero los tags,
+  después la lectura, después hacia afuera. Restricción explícita: construir
+  sobre el sistema de diseño existente, no inventar uno nuevo (se respetó el
+  acuerdo 1+5 del paquete de noticias y el criterio "senior, no startupy" de
+  la segunda pasada de Fase 7).
+- **Diagnóstico del problema de tags** (la superficie más rota según el
+  brief): (1) la taxonomía usaba el mismo lenguaje visual de punto+etiqueta
+  que los badges de fuente (`.tag-mini`), así que seis tags leían como seis
+  badges idénticos sin jerarquía; (2) los tres niveles se volcaban en una
+  sola fila plana encajada entre byline y cuerpo; (3) el cuerpo no tenía
+  estilos para links/H2/H3/blockquote/listas — un cuerpo TipTap renderizaba
+  defaults del navegador y un link dentro del texto era literalmente
+  invisible (el reset global quita el subrayado).
+- **Sistema de tags nuevo, tres piezas**:
+  - **Kicker** (`.article-kicker`): ficha de publicación + alcance·deporte
+    primarios como links en small-caps, una sola línea de clasificación
+    arriba del titular (patrón kicker clásico de prensa).
+  - **Temas al pie** (`components/article/ArticleTopics.tsx`): el índice
+    completo de los tres niveles se movió al pie del artículo como fichas
+    cuadradas silenciosas ("Temas") — cuadrado = metadato (familia de la
+    ficha `.tag`), redondo = acción (`.btn`/`.filter-btn`); la distinción de
+    forma es parte del sistema.
+  - **`TagPillRow` restilado** (compartido por hero y filas de archivo):
+    ya no usa `.tag-mini` — los puntos de color quedan exclusivos de los
+    badges de fuente. Taxonomía como links de texto separados por
+    interpunto, con jerarquía por peso/color vía `data-tier`
+    (alcance+deporte en tinta, verticales en gris).
+- **Experiencia de lectura**: cabecera reordenada (kicker → titular →
+  byline → foto; antes la ficha flotaba sola arriba de la foto y los tags
+  cortaban entre byline y cuerpo); titular en `clamp(28px…40px)`; byline con
+  autor en tinta ("Por X"), "min de lectura" completo y regla de pelo que
+  cierra la cabecera; y una suite tipográfica real para `.article-body`:
+  lede (primer párrafo un punto más grande, en tinta), links subrayados en
+  verde de marca, H2/H3 en sans negrita (Anton se queda para display, no
+  grita dentro de la columna), blockquote con borde de tinta, listas con
+  markers en gris, `hr` como regla corta centrada, imágenes con margen, y
+  remate editorial (cuadrado verde al final del último párrafo).
+  line-height 1.75, párrafos a 22px. Los selectores de lede/remate cubren
+  las dos formas de cuerpo (párrafos directos y `<div>`s del split del ad
+  inline-article, mismo criterio del fix de ritmo de la Fase 7).
+- **Hacia afuera**: muro de correo con eyebrow "Para seguir leyendo" +
+  fondo `--paper-soft` (y se quitó el "gratis… sin costo" redundante);
+  `/tema` gana eyebrow con el nivel del tag (Alcance/Deporte/Vertical de
+  negocio) y `/autor` eyebrow "Autor"; los tres listados (`/archivo`,
+  `/tema`, `/autor`) cambian el style inline repetido por la clase
+  `.section-head.page-head`. **Voseo eliminado de los 9 archivos pendientes**
+  (la limpieza que venía arrastrándose desde el incidente de `wall_teaser`):
+  Probá→Prueba, buscá→busca, tenés→tienes, Podés/podés→Puedes/puedes,
+  Iniciá→Inicia, aceptás→aceptas, vos→tú, sos→eres — barrido verificado con
+  grep, cero restos.
+- **Verificación real** (mismo estándar de siempre): Postgres local desde
+  cero + `db:migrate` + `migrate:json` (30 artículos), `next dev` real y
+  Playwright contra el servidor — checks de DOM (cero `<a>` anidados en
+  las tarjetas restiladas, kicker presente, 4 fichas de tema al pie, fila
+  vieja ausente) y capturas revisadas de: artículo completo claro/oscuro/
+  móvil 390px, portada (hero con la fila de taxonomía nueva), archivo
+  completo (filas con jerarquía de tags), `/tema` con eyebrow, y el muro
+  real (quota de 3 quemada en contexto anónimo — la 4ª visita muestra el
+  muro con el kicker nuevo y sin cuerpo en el DOM). `tsc --noEmit`,
+  `npm run lint` y `npm run build` limpios sin env vars (paridad CI).
+- **Sin cambios** en: ranking, metering, ads (posiciones y placeholders
+  intactos), consentimiento, admin (LivePreview refleja los restyles solo,
+  mismos componentes), RSS/sitemap, y el paquete 1+5 comercial.
+- **Pendiente**: igual que la entrada anterior (red publicitaria, GA4 de
+  producción, credenciales) — la limpieza de voseo ya NO está pendiente.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
@@ -2836,10 +2905,9 @@ Antes de arrancar cada sesión: leer la sección de esa fase en HANDOFF.md
 para saber el estado actual y si hubo cambios desde que se escribió el
 prompt.
 
-Limpieza pendiente, sin fase asignada todavía: quitar el voseo argentino
-de los 7 archivos listados en la entrada de incidente de arriba (usar
-tuteo, igual que el resto del sitio) — candidato natural para agregar
-como primer paso de la Fase 9 o para resolver suelto antes.
+La limpieza de voseo que estaba pendiente acá quedó **resuelta** en la
+sesión de auditoría UI/UX del 2026-07-23 (ver esa entrada) — los 9
+archivos usan tuteo estándar, verificado con grep.
 
 Pendientes de verificación manual en producción (sin cambios de código,
 solo necesitan deploy con credenciales reales):

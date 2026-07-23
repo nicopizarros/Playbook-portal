@@ -33,8 +33,9 @@ export default async function AutorPage({ searchParams }: Props) {
   return (
     <>
       <main className="container news-section archive-page" id="autor-main">
-        <div className="section-head" style={{ borderBottom: 'none', marginBottom: 0, paddingTop: 0 }}>
+        <div className="section-head page-head">
           <div>
+            {nombre && <span className="eyebrow">Autor</span>}
             <h2>{nombre || 'Autor'}</h2>
             <p className="sub">Todo lo publicado por este autor en Playbook.</p>
           </div>
