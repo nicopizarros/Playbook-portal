@@ -44,7 +44,8 @@ type NewsletterArticleInput = {
   readingTime: number;
   substackUrl: string;
   sourceUrl: string; // unique per-item dedupe key (see schema.ts articles.sourceUrl)
-  imageUrl?: string;
+  imageUrl: string;
+  imageCredit?: string;
 };
 
 function parseInlineMarks(text: string): JSONContent[] {
@@ -117,7 +118,8 @@ async function insertOne(input: NewsletterArticleInput) {
           readingTime: input.readingTime,
           substackUrl: input.substackUrl,
           sourceUrl: input.sourceUrl,
-          imageUrl: input.imageUrl || '',
+          imageUrl: input.imageUrl,
+          imageCredit: input.imageCredit || null,
           status: 'published',
         })
         .onConflictDoNothing({ target: articles.sourceUrl })

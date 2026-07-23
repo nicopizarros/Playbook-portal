@@ -37,7 +37,9 @@
 .article-detail .byline a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:2px;transition:text-decoration-color var(--duration-fast) ease;}
 .article-detail .byline a:hover,.article-detail .byline a:focus-visible{text-decoration-color:var(--green);text-decoration-thickness:2px;}
 
-.article-photo{aspect-ratio:16/10;margin:0 0 28px;}
+.article-photo-wrap{margin:0 0 28px;}
+.article-photo{aspect-ratio:16/10;margin:0;}
+.photo-credit{font-size:11.5px;color:var(--gray-txt);margin:6px 0 0;}
 
 /* ——— Cuerpo ——— */
 .article-body{font-size:17px;line-height:1.75;color:var(--gray-dark);max-width:68ch;font-weight:400;}
@@ -293,5 +295,5 @@
 @media(max-width:920px){
   .tag-filter-label{min-width:100%;}
   .article-page{padding-top:28px;}
-  .article-photo{margin-bottom:22px;}
+  .article-photo-wrap{margin-bottom:22px;}
 }

@@ -36,6 +36,7 @@ function toData(a: Article) {
     readingTime: a.readingTime,
     substackUrl: a.substackUrl,
     imageUrl: a.imageUrl,
+    imageCredit: a.imageCredit ?? '',
     status: a.status,
   };
 }
@@ -94,6 +95,7 @@ export function newArticleEntry(): ArticleEntry {
       readingTime: 1,
       substackUrl: '',
       imageUrl: '',
+      imageCredit: '',
       status: 'published',
     },
   };

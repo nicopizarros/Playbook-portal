@@ -86,27 +86,39 @@ document, see Step 4), never HTML tags.
 - **featured** (Destacado): `true` only for clearly THE story of the batch, normally at most one `priority: 5` / `featured: true` article per run. Before setting it `true`, query the DB for existing `featured = true` rows (see verification pattern in Step 5) so you know what you're competing with. It's fine to have several `priority: 5` rows live (the site allows it), just don't blindly stack `featured: true` on top of an unrelated existing one without checking.
 - **substackUrl**: the source URL, always required, same for every item from one edition.
 - **sourceUrl**: a unique per-item dedupe key: `` `${substackUrl}#<slug-of-title-or-topic>` ``. This is what the DB's unique index dedupes on (`articles.sourceUrl`), so re-running this skill on the same link will no-op on already-inserted stories instead of duplicating them.
-- **imageUrl**: see Step 4. Empty string `""` for anything not `priority: 5`.
+- **imageUrl** / **imageCredit**: see Step 4. Required for every article, regardless of priority.
 
-## Step 4: Images (priority 5 only)
+## Step 4: Images (every article, as of 2026-07-23)
 
-Only `priority: 5` articles get an image. Everything else: `imageUrl: ""`.
+Every article gets an image, not just `priority: 5` ones (this used to be
+priority-5-only; the policy changed to raise every article to the same
+visual standard). `imageUrl: ""` is no longer acceptable for a published
+article.
 
-For those, find a confirmed free Unsplash photo directly related to the
-specific topic (not a generic stadium if the story is about data privacy).
-Verify the photo is real and free (not Unsplash+/premium) by fetching the
-actual photo page and reading the `images.unsplash.com/photo-[id]` URL off it.
-WebSearch alone only gives short slug-style IDs (e.g. `i9CqRlYZCV8`), which
-are not the same ID scheme as the `images.unsplash.com/photo-...` CDN URL.
-Never invent a photo ID. Format: `https://images.unsplash.com/photo-[id]?w=900&q=80`.
+Find a confirmed free Unsplash photo directly related to the specific topic
+(not a generic stadium if the story is about data privacy, not a generic
+football pitch if the story is about a business deal — match the actual
+subject: the company, the sport, the venue, the person). Verify the photo is
+real and free (not Unsplash+/premium) by fetching the actual photo page and
+reading the `images.unsplash.com/photo-[id]` URL off it. WebSearch alone only
+gives short slug-style IDs (e.g. `i9CqRlYZCV8`), which are not the same ID
+scheme as the `images.unsplash.com/photo-...` CDN URL. Never invent a photo
+ID. Format: `https://images.unsplash.com/photo-[id]?w=900&q=80`.
+
+Set **imageCredit** to the photographer's name from that same photo page,
+formatted as `"Foto: [Nombre] / Unsplash"`. It renders as a small caption
+under the lead photo. If a photo genuinely cannot be sourced/verified for a
+topic, say so explicitly rather than guessing a photo ID or falling back to
+a generic/unrelated image.
 
 ## Step 5: Publish
 
 1. Write a JSON array of article objects (shape: `title, excerpt, teaser,
    bodyMarkdown, author, date, dateFormatted, publication, source, tagsScope,
    tagsSport, tagsVertical, priority, featured, mostrarAutor, readingTime,
-   substackUrl, sourceUrl, imageUrl`, see `scripts/publish-newsletter.ts`'s
-   `NewsletterArticleInput` type) to a scratch file.
+   substackUrl, sourceUrl, imageUrl, imageCredit`, see
+   `scripts/publish-newsletter.ts`'s `NewsletterArticleInput` type) to a
+   scratch file.
 2. Run:
    ```
    npx tsx --env-file=.env.local scripts/publish-newsletter.ts <path-to-json-file>
@@ -125,5 +137,5 @@ Never invent a photo ID. Format: `https://images.unsplash.com/photo-[id]?w=900&q
 
 Do not ask for approval before step 5. Publishing without a review step is
 the point of this flow. Do flag anything genuinely uncertain (e.g. couldn't
-confirm a fact, no free Unsplash photo found for a 5-star story) rather than
+confirm a fact, no free Unsplash photo found for a story) rather than
 guessing silently.

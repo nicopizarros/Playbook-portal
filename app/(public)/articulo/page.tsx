@@ -155,19 +155,22 @@ export default async function ArticuloPage({ searchParams }: Props) {
         {meta.dateFormatted} · {meta.readingTime || 1} min de lectura
       </div>
       {meta.imageUrl && (
-        <div className="lead-photo article-photo">
-          {/* Editor-supplied URL, arbitrary host -- see
-              components/sections/AboutSection.tsx's comment. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={meta.imageUrl}
-            alt={meta.title}
-            width={1200}
-            height={750}
-            fetchPriority="high"
-            decoding="async"
-          />
-        </div>
+        <figure className="article-photo-wrap">
+          <div className="lead-photo article-photo">
+            {/* Editor-supplied URL, arbitrary host -- see
+                components/sections/AboutSection.tsx's comment. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={meta.imageUrl}
+              alt={meta.title}
+              width={1200}
+              height={750}
+              fetchPriority="high"
+              decoding="async"
+            />
+          </div>
+          {meta.imageCredit && <figcaption className="photo-credit">{meta.imageCredit}</figcaption>}
+        </figure>
       )}
     </>
   );

@@ -99,6 +99,7 @@ export type ArticleInput = {
   readingTime: number;
   substackUrl: string;
   imageUrl: string;
+  imageCredit: string;
 };
 
 export type SaveArticleResult = { conflict: true } | { conflict: false; article: Article };
@@ -150,6 +151,7 @@ export async function saveArticle(
       readingTime: input.readingTime,
       substackUrl: input.substackUrl,
       imageUrl: input.imageUrl,
+      imageCredit: input.imageCredit || null,
       updatedAt: new Date(),
       updatedBy: session.user.id,
     })
@@ -210,6 +212,7 @@ export async function createArticle(input: ArticleInput & { id?: string }): Prom
           readingTime: input.readingTime,
           substackUrl: input.substackUrl,
           imageUrl: input.imageUrl,
+          imageCredit: input.imageCredit || null,
           status: 'published',
           updatedAt: new Date(),
           updatedBy: session.user.id,
