@@ -168,9 +168,13 @@ async function main() {
   console.log(`[publish] done: ${okCount} published, ${dupCount} duplicate/skipped, ${results.length} total`);
 }
 
-main()
-  .catch(err => {
-    console.error('[publish] failed:', err);
-    process.exitCode = 1;
-  })
-  .finally(() => process.exit(process.exitCode ?? 0));
+// Guarded so other scripts (e.g. scripts/backfill-article-standards.ts) can
+// import markdownToTipTap without triggering this file's own CLI entrypoint.
+if (require.main === module) {
+  main()
+    .catch(err => {
+      console.error('[publish] failed:', err);
+      process.exitCode = 1;
+    })
+    .finally(() => process.exit(process.exitCode ?? 0));
+}
