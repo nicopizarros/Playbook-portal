@@ -121,11 +121,11 @@ export function LivePreview({ content, contentBaseline, articleEntries }: Props)
         </div>
       </PreviewSection>
 
+      {/* NewsGrid renders its own "Último en Playbook" section-head since
+          the Fase 7 restyle — the preview must not add a second one (a
+          duplicated heading shipped here unnoticed until the Fase 8 run). */}
       <PreviewSection dataKey="articles" changed={articlesChanged}>
         <main className="container news-section">
-          <div className="section-head">
-            <h2>Último en Playbook</h2>
-          </div>
           <NewsGrid articles={previewArticles} />
         </main>
       </PreviewSection>

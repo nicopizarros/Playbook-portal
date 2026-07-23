@@ -19,7 +19,7 @@ export default async function CuentaPage() {
     return (
       <main className="container legal-page" id="cuenta-main">
         <h1>Mi cuenta</h1>
-        <p>Iniciá sesión con tu correo para ver tu cuenta, tu historial de lectura y tus datos.</p>
+        <p>Inicia sesión con tu correo para ver tu cuenta, tu historial de lectura y tus datos.</p>
         <AccountSignInPrompt />
       </main>
     );
@@ -51,7 +51,7 @@ export default async function CuentaPage() {
       <h2>Tu actividad de lectura</h2>
       <p>
         {summary.readsThisMonth} {summary.readsThisMonth === 1 ? 'artículo leído' : 'artículos leídos'} este mes ·{' '}
-        {summary.totalReads} en total. Como lector registrado, no tenés límite de lecturas gratuitas.
+        {summary.totalReads} en total. Como lector registrado, no tienes límite de lecturas gratuitas.
       </p>
       {summary.recentReads.length > 0 && (
         <ul>
@@ -67,7 +67,7 @@ export default async function CuentaPage() {
 
       <h2>Tus datos</h2>
       <p>
-        Podés exportar o eliminar tu cuenta y tu historial de lectura en cualquier momento, sin
+        Puedes exportar o eliminar tu cuenta y tu historial de lectura en cualquier momento, sin
         necesidad de escribirnos (ver <Link href="/privacidad">Aviso de Privacidad</Link>).
       </p>
       <div className="account-actions">

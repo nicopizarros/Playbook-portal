@@ -33,7 +33,7 @@ export async function requestMagicLink(_prev: MagicLinkState, formData: FormData
   const ip = await getClientIp();
   const limit = checkRateLimit(`magic-link:${ip}`, MAGIC_LINK_LIMIT, MAGIC_LINK_WINDOW_SECONDS);
   if (!limit.allowed) {
-    return { ok: false, error: `Demasiados intentos. Probá de nuevo en ${Math.ceil(limit.retryAfterSeconds / 60)} minuto(s).` };
+    return { ok: false, error: `Demasiados intentos. Prueba de nuevo en ${Math.ceil(limit.retryAfterSeconds / 60)} minuto(s).` };
   }
 
   try {

@@ -23,7 +23,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           Playbook no está disponible en este momento
         </h1>
         <p style={{ color: '#555', maxWidth: '52ch', margin: '0 auto 30px' }}>
-          Fue un problema temporal de nuestro lado, no tuyo. Probá de nuevo en unos segundos.
+          Fue un problema temporal de nuestro lado, no tuyo. Prueba de nuevo en unos segundos.
         </p>
         <button
           type="button"

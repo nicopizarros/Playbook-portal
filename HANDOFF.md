@@ -102,7 +102,8 @@ Secciones del Studio:
 Todo el Studio en español. El equipo usa sus propias suscripciones de
 Claude; el Studio solo es la biblioteca de referencia.
 
-Estado: pendiente. Prompt de sesión listo.
+Estado: **hecho** — ver la entrada 2026-07-23 "Fase 8: invitaciones de
+editores + Studio" en el registro de progreso.
 
 ---
 
@@ -2813,6 +2814,188 @@ real, mismo estándar que Fases 1-3):
   siguen el tema). `tsc --noEmit`, `npm run lint` y `next build` limpios
   con y sin `.env.local`.
 
+### 2026-07-23 — Auditoría UI/UX: sistema de tags del artículo + experiencia de lectura
+
+- Sesión en `claude/playbook-portal-audit-862cln`. Brief: auditoría completa
+  del portal con la página de artículo como prioridad — primero los tags,
+  después la lectura, después hacia afuera. Restricción explícita: construir
+  sobre el sistema de diseño existente, no inventar uno nuevo (se respetó el
+  acuerdo 1+5 del paquete de noticias y el criterio "senior, no startupy" de
+  la segunda pasada de Fase 7).
+- **Diagnóstico del problema de tags** (la superficie más rota según el
+  brief): (1) la taxonomía usaba el mismo lenguaje visual de punto+etiqueta
+  que los badges de fuente (`.tag-mini`), así que seis tags leían como seis
+  badges idénticos sin jerarquía; (2) los tres niveles se volcaban en una
+  sola fila plana encajada entre byline y cuerpo; (3) el cuerpo no tenía
+  estilos para links/H2/H3/blockquote/listas — un cuerpo TipTap renderizaba
+  defaults del navegador y un link dentro del texto era literalmente
+  invisible (el reset global quita el subrayado).
+- **Sistema de tags nuevo, tres piezas**:
+  - **Kicker** (`.article-kicker`): ficha de publicación + alcance·deporte
+    primarios como links en small-caps, una sola línea de clasificación
+    arriba del titular (patrón kicker clásico de prensa).
+  - **Temas al pie** (`components/article/ArticleTopics.tsx`): el índice
+    completo de los tres niveles se movió al pie del artículo como fichas
+    cuadradas silenciosas ("Temas") — cuadrado = metadato (familia de la
+    ficha `.tag`), redondo = acción (`.btn`/`.filter-btn`); la distinción de
+    forma es parte del sistema.
+  - **`TagPillRow` restilado** (compartido por hero y filas de archivo):
+    ya no usa `.tag-mini` — los puntos de color quedan exclusivos de los
+    badges de fuente. Taxonomía como links de texto separados por
+    interpunto, con jerarquía por peso/color vía `data-tier`
+    (alcance+deporte en tinta, verticales en gris).
+- **Experiencia de lectura**: cabecera reordenada (kicker → titular →
+  byline → foto; antes la ficha flotaba sola arriba de la foto y los tags
+  cortaban entre byline y cuerpo); titular en `clamp(28px…40px)`; byline con
+  autor en tinta ("Por X"), "min de lectura" completo y regla de pelo que
+  cierra la cabecera; y una suite tipográfica real para `.article-body`:
+  lede (primer párrafo un punto más grande, en tinta), links subrayados en
+  verde de marca, H2/H3 en sans negrita (Anton se queda para display, no
+  grita dentro de la columna), blockquote con borde de tinta, listas con
+  markers en gris, `hr` como regla corta centrada, imágenes con margen, y
+  remate editorial (cuadrado verde al final del último párrafo).
+  line-height 1.75, párrafos a 22px. Los selectores de lede/remate cubren
+  las dos formas de cuerpo (párrafos directos y `<div>`s del split del ad
+  inline-article, mismo criterio del fix de ritmo de la Fase 7).
+- **Hacia afuera**: muro de correo con eyebrow "Para seguir leyendo" +
+  fondo `--paper-soft` (y se quitó el "gratis… sin costo" redundante);
+  `/tema` gana eyebrow con el nivel del tag (Alcance/Deporte/Vertical de
+  negocio) y `/autor` eyebrow "Autor"; los tres listados (`/archivo`,
+  `/tema`, `/autor`) cambian el style inline repetido por la clase
+  `.section-head.page-head`. **Voseo eliminado de los 9 archivos pendientes**
+  (la limpieza que venía arrastrándose desde el incidente de `wall_teaser`):
+  Probá→Prueba, buscá→busca, tenés→tienes, Podés/podés→Puedes/puedes,
+  Iniciá→Inicia, aceptás→aceptas, vos→tú, sos→eres — barrido verificado con
+  grep, cero restos.
+- **Verificación real** (mismo estándar de siempre): Postgres local desde
+  cero + `db:migrate` + `migrate:json` (30 artículos), `next dev` real y
+  Playwright contra el servidor — checks de DOM (cero `<a>` anidados en
+  las tarjetas restiladas, kicker presente, 4 fichas de tema al pie, fila
+  vieja ausente) y capturas revisadas de: artículo completo claro/oscuro/
+  móvil 390px, portada (hero con la fila de taxonomía nueva), archivo
+  completo (filas con jerarquía de tags), `/tema` con eyebrow, y el muro
+  real (quota de 3 quemada en contexto anónimo — la 4ª visita muestra el
+  muro con el kicker nuevo y sin cuerpo en el DOM). `tsc --noEmit`,
+  `npm run lint` y `npm run build` limpios sin env vars (paridad CI).
+- **Sin cambios** en: ranking, metering, ads (posiciones y placeholders
+  intactos), consentimiento, admin (LivePreview refleja los restyles solo,
+  mismos componentes), RSS/sitemap, y el paquete 1+5 comercial.
+- **Pendiente**: igual que la entrada anterior (red publicitaria, GA4 de
+  producción, credenciales) — la limpieza de voseo ya NO está pendiente.
+
+### 2026-07-23 — Fase 8: invitaciones de editores + Studio (biblioteca de prompts)
+
+- Misma rama de la auditoría UI/UX (`claude/playbook-portal-audit-862cln`),
+  sesión posterior. Ejecuta la Fase 8 completa del plan (dos sub-tareas en
+  el mismo PR, como estaba definido).
+- **Sub-tarea A — Invitaciones de editores por email**:
+  - Tabla nueva `editor_invitations` (`lib/db/schema.ts` + migración
+    `drizzle/0003_dizzy_the_initiative.sql`): email, username,
+    displayName, `tokenHash` (unique), invitedBy (FK a editors, SET
+    NULL), createdAt, expiresAt (48 h), usedAt. **Solo se guarda el
+    SHA-256 del token**, nunca el token (misma postura que los
+    verification tokens de Auth.js: una fuga de base no alcanza para
+    aceptar una invitación). Las filas usadas se conservan con `usedAt`
+    como rastro; reinvitar borra la pendiente anterior del mismo
+    email/usuario.
+  - `lib/actions/team.ts`: `getTeamData()` (editores + invitaciones
+    pendientes con estado de vencimiento), `inviteEditor()` (valida
+    email/usuario/nombre, usuario único contra `editors`, token de 256
+    bits aleatorios), `revokeInvitation()`, y `acceptInvitation()` —
+    acción **pública** (el invitado no tiene sesión), rate-limited
+    5/10min/IP, valida token+vencimiento+uso único, crea el editor con
+    bcrypt costo 12 (mismo que `seed-editors`) en una transacción que
+    marca la invitación como usada; colisión de username (23505) da
+    error legible en vez de crashear.
+  - `lib/email.ts`: cliente Resend REST directo (los magic links de
+    lectores siguen por Auth.js; esto es para correos que Auth.js no
+    cubre). Degrada con `{sent:false, reason}` — sin `RESEND_API_KEY` o
+    con el send fallando, **la invitación igual se crea y el panel le da
+    al editor el enlace copiable** para compartirlo por su propio canal.
+    Decisión deliberada: el editor que invita ya es totalmente confiable,
+    y con Resend roto en producción (ver §12) este fallback es lo que
+    deja la función usable desde el día uno.
+  - Página pública `/admin/set-password?token=...`
+    (`app/admin/set-password/page.tsx`, fuera de `(protected)` a
+    propósito): valida el token en el render para el error amable
+    (inválida/vencida) y OTRA VEZ dentro de la acción (el check de
+    render es UX, no la frontera de seguridad). Form cliente
+    (`SetPasswordForm.tsx`) con confirmación de contraseña, mínimo 8,
+    `autocomplete` correcto para gestores de contraseñas, y estado de
+    éxito con link al login.
+  - Pestaña **Equipo** (`components/admin/tabs/TeamTab.tsx`): form de
+    invitación (correo/usuario/nombre), callout con el enlace copiable,
+    lista de pendientes (vencimiento visible, revocar) y de editores
+    activos. A diferencia de las demás pestañas no edita borradores:
+    actúa directo contra el servidor, así que **el botón Guardar del
+    topbar se oculta** en Equipo y Studio (`SAVELESS_TABS` en
+    `AdminDashboard`). El seed manual queda documentado en la pestaña
+    como camino de emergencia.
+- **Sub-tarea B — Studio**: pestaña estática de referencia
+  (`components/admin/tabs/StudioTab.tsx` + contenido en
+  `components/admin/studio-prompts.ts`): 6 secciones colapsables con 10
+  prompts en total, cada tarjeta con textarea oscura de solo lectura y
+  botón Copiar ("Copiado ✓", con fallback de selección si el clipboard
+  falla). No llama a ninguna API, por diseño. Los prompts están
+  alineados con el flujo real: la sección 1 usa el skill
+  publish-newsletter (variante directa y con revisión, pasos 1-3 vs 5
+  del skill), la sección 2 lista los campos **en el orden exacto del
+  formulario de la pestaña Artículos** con la taxonomía y la escala de
+  Importancia literales de `lib/taxonomy.ts`/el skill, y todos llevan el
+  bloque de voz editorial (directa, tuteo MX, sin rayas largas, ángulo
+  LATAM) repetido a propósito para que cada prompt funcione pegado solo.
+- **Fix de paso, preexistente**: el LivePreview mostraba el encabezado
+  "Último en Playbook" duplicado — desde la Fase 7 `NewsGrid` renderiza
+  su propio section-head y el del preview quedó encima. Eliminado el
+  duplicado del preview (detectado en captura durante esta verificación,
+  re-verificado en render real: 1 solo encabezado).
+- **Verificación real end-to-end** (Postgres local + `next dev` +
+  Playwright, mismo estándar): migración 0003 aplicada, editor `aldo`
+  sembrado, y el flujo completo ejercitado de verdad — login de aldo →
+  pestaña Equipo → invitación creada (sin RESEND_API_KEY: toast honesto
+  + enlace fallback mostrado, capturado) → pendiente listada → el enlace
+  abierto en un contexto SIN sesión → contraseñas que no coinciden
+  rechazadas → activación → **el mismo enlace reusado da "Invitación no
+  válida"** (uso único confirmado, también vía curl) → login real de la
+  editora nueva con su contraseña → de vuelta en la sesión de aldo la
+  pendiente desapareció y la editora aparece activa. Studio: 6 secciones,
+  colapso/expansión, botón Copiar confirmando, botón Guardar oculto en
+  ambas pestañas nuevas, cero errores de JS de página en todo el flujo.
+  Capturas revisadas de Equipo, set-password, activación y Studio.
+  `tsc --noEmit`, `npm run lint` y `npm run build` limpios sin env vars
+  (paridad CI). La migración de producción la aplica solo `vercel-build`
+  en el próximo deploy (mecanismo de la entrada del incidente
+  `wall_teaser`).
+- **Pendiente**: para que el correo de invitación salga de verdad en
+  producción faltan las mismas credenciales Resend de siempre
+  (`RESEND_API_KEY` + `EMAIL_FROM` con dominio verificado, ver §12) —
+  hasta entonces el flujo funciona vía enlace copiable. Fase 9 sigue
+  pendiente según su lista (revisar contra lo ya construido).
+
+### 2026-07-23 — Ajuste por feedback: taxonomía del artículo plegada (cero tags de entrada)
+
+- Feedback directo del usuario sobre la pasada de auditoría: al lector no
+  lo deben recibir los tags — esconderlos detrás de un control, tipo
+  filtro. Aplicado en la página de artículo:
+  - **Cabecera sin taxonomía**: se quitaron los links alcance·deporte del
+    kicker; queda solo la ficha de publicación (identidad de marca, no
+    tag). El orden cabecera → titular → byline → foto de la auditoría se
+    mantiene.
+  - **"Temas del artículo" plegado**: el bloque del pie pasó a un
+    `<details>` nativo cerrado por defecto — summary silencioso
+    ("Temas del artículo (N)" + chevron que rota), fichas adentro.
+    `<details>/<summary>` a propósito: funciona sin JS, teclado gratis, y
+    las fichas quedan en el DOM así que los links a `/tema` siguen
+    crawleables.
+  - Las filas de tarjetas (hero de portada, archivo) conservan su línea
+    única de taxonomía en texto silencioso de la auditoría — el feedback
+    apuntaba a la experiencia de entrada del artículo; extenderlo a las
+    tarjetas queda a decisión del usuario.
+- **Verificado** (Postgres local + dev server + Playwright): cerrado por
+  defecto (`open:false`), cero links de taxonomía en la cabecera, al
+  abrir aparecen las 4 fichas, capturas revisadas de ambos estados.
+  `tsc --noEmit`, `npm run lint` y `npm run build` limpios sin env vars.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
@@ -2826,7 +3009,8 @@ misma sesión cubrió varios ítems de la Fase 9 (sidebar C, una versión de
 la sección de análisis D vía el restyle de Opinión, y el directorio de
 temas). Queda:
 
-1. Fase 8 (Studio + auth): independiente, puede arrancar cuando sea.
+1. Fase 8 (Studio + auth): **hecha** — ver la entrada 2026-07-23 "Fase 8"
+   en el registro de progreso.
 2. Fase 9 (UX homepage): **revisar su lista contra lo ya construido**
    antes de arrancar — el ticker (A) y los filtros por fuente ya existen
    desde la migración; los chips por deporte (B) y la sección Playbook
@@ -2836,10 +3020,9 @@ Antes de arrancar cada sesión: leer la sección de esa fase en HANDOFF.md
 para saber el estado actual y si hubo cambios desde que se escribió el
 prompt.
 
-Limpieza pendiente, sin fase asignada todavía: quitar el voseo argentino
-de los 7 archivos listados en la entrada de incidente de arriba (usar
-tuteo, igual que el resto del sitio) — candidato natural para agregar
-como primer paso de la Fase 9 o para resolver suelto antes.
+La limpieza de voseo que estaba pendiente acá quedó **resuelta** en la
+sesión de auditoría UI/UX del 2026-07-23 (ver esa entrada) — los 9
+archivos usan tuteo estándar, verificado con grep.
 
 Pendientes de verificación manual en producción (sin cambios de código,
 solo necesitan deploy con credenciales reales):

@@ -16,7 +16,7 @@ export default function TerminosPage() {
 
       <p>
         Al usar este sitio, operado por <strong>Playbook SAPI de C.V.</strong>
-        (&quot;Playbook&quot;, &quot;nosotros&quot;), aceptás estos Términos y Condiciones. Si no
+        (&quot;Playbook&quot;, &quot;nosotros&quot;), aceptas estos Términos y Condiciones. Si no
         estás de acuerdo, te pedimos que no uses el sitio.
       </p>
 
@@ -29,8 +29,8 @@ export default function TerminosPage() {
 
       <h2>Acceso al contenido</h2>
       <p>
-        Podés leer hasta {FREE_ARTICLES_PER_MONTH} artículos gratuitos por mes sin registrarte. Para
-        seguir leyendo más allá de ese límite, podés registrarte con tu correo electrónico usando un
+        Puedes leer hasta {FREE_ARTICLES_PER_MONTH} artículos gratuitos por mes sin registrarte. Para
+        seguir leyendo más allá de ese límite, puedes registrarte con tu correo electrónico usando un
         enlace de acceso. Nos reservamos el derecho de cambiar este límite o el modelo de acceso en
         el futuro.
       </p>
@@ -59,7 +59,7 @@ export default function TerminosPage() {
       <h2>Propiedad intelectual</h2>
       <p>
         Los artículos, textos, imágenes y demás contenido publicado en este sitio son propiedad de{' '}
-        <strong>Playbook SAPI de C.V.</strong> o de terceros que nos autorizaron su uso. Podés
+        <strong>Playbook SAPI de C.V.</strong> o de terceros que nos autorizaron su uso. Puedes
         compartir enlaces a nuestros artículos libremente; para cualquier otro uso (reproducción,
         traducción, republicación), escribinos a <strong>hola@playbook.la</strong>.
       </p>

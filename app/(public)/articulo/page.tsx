@@ -5,7 +5,7 @@ import { getAllArticles, getArticleById, getArticleMetaById } from '@/lib/data/a
 import { getSiteContent } from '@/lib/data/site-content';
 import { relatedArticles, shouldShowAuthor } from '@/lib/related-articles';
 import { resolveEntitlement } from '@/lib/metering';
-import { TagPillRow } from '@/components/article/TagPillRow';
+import { ArticleTopics } from '@/components/article/ArticleTopics';
 import { NewsRow } from '@/components/article/NewsRow';
 import { ShareRow } from '@/components/article/ShareRow';
 import { EmailWall } from '@/components/article/EmailWall';
@@ -132,9 +132,28 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
   const entitlement = await resolveEntitlement(meta.id);
 
+  // Header order (UI/UX audit 2026-07-23): publication chip → headline →
+  // byline → photo. Deliberately NO taxonomy anywhere in the header (user
+  // feedback: readers should never be greeted by tags) — the full
+  // three-tier index lives in a collapsed <ArticleTopics> disclosure at
+  // the article foot. The chip is brand/source identity, not a tag.
   const header = (
     <>
-      <span className="tag">{meta.publication}</span>
+      <div className="article-kicker">
+        <span className="tag">{meta.publication}</span>
+      </div>
+      <h1>{meta.title}</h1>
+      <div className="byline article-byline">
+        {showAuthor && meta.author && (
+          <>
+            <span className="byline-author">
+              Por <Link href={`/autor?nombre=${encodeURIComponent(meta.author)}`}>{meta.author}</Link>
+            </span>
+            {' '}·{' '}
+          </>
+        )}
+        {meta.dateFormatted} · {meta.readingTime || 1} min de lectura
+      </div>
       {meta.imageUrl && (
         <div className="lead-photo article-photo">
           {/* Editor-supplied URL, arbitrary host -- see
@@ -150,16 +169,6 @@ export default async function ArticuloPage({ searchParams }: Props) {
           />
         </div>
       )}
-      <h1>{meta.title}</h1>
-      <div className="byline">
-        {meta.dateFormatted} · {meta.readingTime || 1} min
-        {showAuthor && meta.author && (
-          <>
-            {' '}· Por <Link href={`/autor?nombre=${encodeURIComponent(meta.author)}`}>{meta.author}</Link>
-          </>
-        )}
-      </div>
-      <TagPillRow article={meta} />
     </>
   );
 
@@ -249,6 +258,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
             )}
           </div>
           <ShareRow url={canonicalUrl} title={article.title} />
+          <ArticleTopics article={article} />
           {article.substackUrl && (
             <a className="btn light article-cta" href={article.substackUrl} target="_blank" rel="noopener noreferrer">
               Ver en Substack
