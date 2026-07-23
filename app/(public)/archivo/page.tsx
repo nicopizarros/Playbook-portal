@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getArchiveArticles } from '@/lib/data/articles';
+import { getArchiveArticles, type Article } from '@/lib/data/articles';
 import { KNOWN_SOURCES, SOURCE_LABELS, type Source } from '@/lib/constants';
 import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '@/lib/taxonomy';
 import { NewsRow } from '@/components/article/NewsRow';
 import { ArchiveGridCard } from '@/components/article/ArchiveGridCard';
+import { ArchiveFeatureRow } from '@/components/article/ArchiveFeatureRow';
 
 export const metadata: Metadata = {
   title: 'Archivo',
@@ -38,10 +39,45 @@ function filterHref(current: Filters, key: keyof Filters, value: string) {
   return query ? `/archivo?${query}` : '/archivo';
 }
 
+// Magazine-style rhythm (user feedback: the uniform grid/list "looks too
+// uniform and boring" — researched how top publishers break that up: a
+// repeating featured-item that grows bigger, CSS Grid auto-placement fills
+// ordinary tiles around it). `articles` is already sorted by importance
+// (getArchiveArticles -> rankArticles), so each band of FEATURE_INTERVAL is
+// itself already ordered — a band's first member is automatically its
+// highest-ranked one, no extra sorting needed here.
+//
+// Featured-ness is gated by editorial rating (priority, the same 1-5 star
+// field that picks the homepage hero), not just position: a band only gets
+// a featured tile if its opening (highest-ranked) article is 4★+ — direct
+// follow-up feedback mid-design ("shouldn't only be about frequency, rating
+// should come into play"). Bands that don't clear the bar render as plain
+// ordinary tiles instead of forcing a feature.
+//
+// Only a FULL band (exactly FEATURE_INTERVAL members) is ever eligible — a
+// trailing partial band (e.g. list length 27: last band is just 2 items)
+// never gets a featured item, regardless of rating. This is stricter than
+// "just skip the literal last item": a featured pick needs FOUR regular
+// siblings after it in its own band to tile the grid's 2×2 span without a
+// gap (see styles/article.css's archive-grid comment for that math) — a
+// partial trailing band can't supply that even if its opener qualifies.
+const FEATURE_INTERVAL = 5;
+const FEATURE_MIN_PRIORITY = 4;
+
+function pickFeaturedIds(articles: Article[]): Set<string> {
+  const ids = new Set<string>();
+  for (let start = 0; start + FEATURE_INTERVAL <= articles.length; start += FEATURE_INTERVAL) {
+    const candidate = articles[start];
+    if (candidate.priority >= FEATURE_MIN_PRIORITY) ids.add(candidate.id);
+  }
+  return ids;
+}
+
 export default async function ArchivoPage({ searchParams }: Props) {
   const filters = await searchParams;
   const articles = await getArchiveArticles(filters);
   const grid = filters.view === 'grid';
+  const featuredIds = pickFeaturedIds(articles);
   // The whole taxonomy lives behind a closed-by-default <details> (same
   // "never greet the reader with tags" feedback as the article page's
   // ArticleTopics disclosure). It re-opens on its own while any filter is
@@ -125,13 +161,19 @@ export default async function ArchivoPage({ searchParams }: Props) {
         {grid ? (
           <div className="archive-grid fade-swap">
             {articles.length
-              ? articles.map(a => <ArchiveGridCard key={a.id} article={a} />)
+              ? articles.map((a, i) => (
+                  <ArchiveGridCard key={a.id} article={a} featured={featuredIds.has(a.id)} priority={i === 0} />
+                ))
               : <p className="empty-state">No hay más artículos con estos filtros.</p>}
           </div>
         ) : (
           <div className="news-list fade-swap">
             {articles.length
-              ? articles.map(a => <NewsRow key={a.id} article={a} heading="h3" withTagPills />)
+              ? articles.map((a, i) =>
+                  featuredIds.has(a.id)
+                    ? <ArchiveFeatureRow key={a.id} article={a} priority={i === 0} />
+                    : <NewsRow key={a.id} article={a} heading="h3" withTagPills />
+                )
               : <p className="empty-state">No hay más artículos con estos filtros.</p>}
           </div>
         )}

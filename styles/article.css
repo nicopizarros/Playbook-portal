@@ -154,16 +154,25 @@
 
 /* Vista cuadrícula (?view=grid): tarjetas cuadradas para barrer el archivo
    rápido — foto 1/1 (mismo tratamiento tipográfico de LeadStory para
-   artículos sin imagen, ver ArchiveGridCard), sin tag pills. */
+   artículos sin imagen, ver ArchiveGridCard), sin tag pills. Cada tarjeta
+   lleva un acento superior por fuente (mismo mecanismo que el borde
+   izquierdo de .news-row en hero.css, solo que arriba porque esto es una
+   ficha, no una fila) — textura por fuente incluso en las tarjetas
+   normales, sin tocar el resto del sistema. */
 .archive-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
-.archive-grid-card{display:block;color:inherit;}
+.archive-grid-card{display:block;color:inherit;position:relative;border-top:3px solid transparent;padding-top:12px;transition:border-color var(--duration-base) var(--ease-out);}
+.archive-grid-card[data-source="industry-shots"]{border-top-color:var(--src-industry);}
+.archive-grid-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
+.archive-grid-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
+.archive-grid-card[data-source="playbook"]{border-top-color:var(--src-playbook);}
+.archive-grid-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
 .archive-grid-photo{aspect-ratio:1/1;overflow:hidden;margin-bottom:12px;background:var(--rule);}
 .archive-grid-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
-.archive-grid-card:hover .archive-grid-photo img,.archive-grid-card:focus-visible .archive-grid-photo img{transform:scale(1.03);}
+.archive-grid-card:hover .archive-grid-photo img,.archive-grid-card:focus-within .archive-grid-photo img{transform:scale(1.03);}
 .archive-grid-visual{display:flex;align-items:flex-end;padding:16px;}
 .archive-grid-visual .visual-label{font-size:clamp(16px,1.6vw,20px);}
-.archive-grid-card h3{font-family:var(--sans);font-weight:600;font-size:14.5px;line-height:1.35;margin:0 0 6px;transition:color var(--duration-fast) ease;}
-.archive-grid-card:hover h3,.archive-grid-card:focus-visible h3{color:var(--green);}
+.archive-grid-card h3{font-family:var(--sans);font-weight:600;font-size:14.5px;line-height:1.35;margin:0 0 6px;transition:color var(--duration-fast) ease;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.archive-grid-card:hover h3,.archive-grid-card:focus-within h3{color:var(--green);}
 .archive-grid-card .byline{font-size:11px;}
 
 @media(max-width:920px){
@@ -171,6 +180,88 @@
 }
 @media(max-width:480px){
   .archive-grid{grid-template-columns:1fr 1fr;gap:14px;}
+}
+
+/* Ritmo tipo revista (feedback: la grilla/lista uniforme "se ve aburrida" —
+   researched cómo lo resuelven los medios grandes: un artículo destacado
+   periódico que crece, el resto se auto-acomoda alrededor por CSS Grid,
+   sin masonry ni JS). Qué artículos califican lo decide la página
+   (archivo/page.tsx's pickFeaturedIds — ritmo cada 5, con piso de rating
+   editorial ★4+, no solo posición).
+   Matemática del 2×2: la grilla desktop es de 4 columnas; una ficha
+   `span 2 / span 2` deja exactamente (4×2)−4 = 4 celdas en esa banda de
+   dos filas — las 4 fichas normales siguientes las llenan sin huecos bajo
+   el auto-placement "sparse" (el default, sin :dense) del navegador, que
+   nunca reordena visualmente por delante del orden del DOM (dense sí
+   podría, y eso rompe el orden de tabulación — WCAG 1.3.2). page.tsx solo
+   marca como destacada la primera ficha de una banda COMPLETA de 5, así
+   que esta garantía de cero-huecos siempre se cumple.
+   Los `-webkit-line-clamp` de arriba (h3 normal a 2 líneas, h3/desc del
+   destacado a 2 líneas) no son solo por prolijidad: cuando una banda
+   necesita más alto que sus vecinas por el titular/excerpt del destacado,
+   CSS Grid reparte ese alto extra entre las DOS filas de la banda aunque
+   la ficha corta de esa fila no lo necesite — sin los clamps, titulares
+   de largo variable hacían que algunas bandas dejaran un hueco visible
+   debajo del texto corto de sus vecinas (confirmado visualmente, no solo
+   en teoría). Clamps parejos = altura de fila más predecible en toda la
+   grilla, no solo en las bandas con destacado. */
+.archive-grid-card.is-featured{grid-column:span 2;grid-row:span 2;border-top-width:3px;}
+.archive-grid-card.is-featured .archive-grid-photo{aspect-ratio:16/10;}
+.archive-grid-card.is-featured .archive-grid-visual{padding:22px;}
+.archive-grid-card.is-featured .visual-label{font-size:clamp(22px,2.2vw,30px);}
+.archive-grid-card.is-featured h3{font-family:var(--serif-display);font-weight:400;font-size:clamp(20px,1.8vw,24px);line-height:1.15;margin:0 0 8px;text-transform:none;-webkit-line-clamp:2;}
+.archive-grid-card.is-featured .desc{font-size:13.5px;line-height:1.5;color:var(--gray-txt);margin:0 0 10px;max-width:52ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.archive-grid-card.is-featured .byline{font-size:12px;}
+.archive-grid-card.is-featured .tag-pill-row{margin-top:8px;}
+.archive-grid-card.is-featured .card-link{display:block;}
+.archive-grid-card.is-featured .card-link::after{content:"";position:absolute;inset:0;}
+
+@media(max-width:920px){
+  .archive-grid-card.is-featured{grid-column:1/-1;grid-row:auto;}
+}
+
+/* Misma cadencia y mismo tamaño de titular (clamp 20-24px serif) que el
+   destacado de la grilla, pero en formato fila horizontal para la vista
+   Lista — una LeadStory pequeña metida en el ritmo de la lista, que hoy
+   es 100% texto. Mismo mecanismo de acento por fuente que .news-row
+   (borde izquierdo) y las mismas convenciones de hover de .news-row/
+   .lead-story (levantar con translateY, oscurecer el borde inferior,
+   zoom de foto, titular a --green). */
+.archive-feature-row{display:flex;gap:24px;position:relative;padding:20px 0 20px 14px;border-bottom:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
+.archive-feature-row:first-child{padding-top:0;}
+.archive-feature-row:hover,.archive-feature-row:focus-within{border-bottom-color:rgba(0,0,0,.15);transform:translateY(-2px);}
+[data-theme="dark"] .archive-feature-row:hover,[data-theme="dark"] .archive-feature-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .archive-feature-row:hover,:root:not([data-theme="light"]) .archive-feature-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
+}
+.archive-feature-row[data-source="industry-shots"]{border-left-color:var(--src-industry);}
+.archive-feature-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
+.archive-feature-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
+.archive-feature-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
+.archive-feature-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
+.archive-feature-row .card-link{display:flex;gap:24px;flex:1;min-width:0;}
+.archive-feature-row .card-link::after{content:"";position:absolute;inset:0;}
+.archive-feature-photo{flex:0 0 260px;aspect-ratio:16/10;overflow:hidden;background:var(--rule);}
+.archive-feature-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
+.archive-feature-row:hover .archive-feature-photo img,.archive-feature-row:focus-within .archive-feature-photo img{transform:scale(1.03);}
+.archive-feature-visual{display:flex;align-items:flex-end;padding:18px;}
+.archive-feature-visual .visual-label{font-size:clamp(18px,1.8vw,24px);}
+.archive-feature-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+.archive-feature-body h3{font-family:var(--serif-display);font-weight:400;font-size:clamp(20px,1.8vw,24px);line-height:1.15;margin:0 0 8px;text-transform:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.archive-feature-row:hover .archive-feature-body h3,.archive-feature-row:focus-within .archive-feature-body h3{color:var(--green);}
+.archive-feature-body .desc{font-size:14px;line-height:1.55;color:var(--gray-dark);margin:0 0 10px;max-width:60ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.archive-feature-row .tag-pill-row{margin-top:10px;}
+
+@media(max-width:640px){
+  /* .archive-feature-row itself is a flex ROW at desktop (.card-link next to
+     .tag-pill-row, stacked width-wise), not just its .card-link child — a
+     column-only override on .card-link left the outer row still fighting
+     .card-link (min-width:0, free to shrink) against .tag-pill-row (no such
+     override) for horizontal space, collapsing .card-link toward 0 width.
+     Both levels need to go column here. */
+  .archive-feature-row{padding-left:0;border-left:none;flex-direction:column;gap:14px;}
+  .archive-feature-row .card-link{flex-direction:column;gap:14px;}
+  .archive-feature-photo{flex:none;width:100%;}
 }
 
 @media(max-width:640px){
