@@ -180,8 +180,16 @@
 .archive-grid-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
 .archive-grid-card[data-source="playbook"]{border-top-color:var(--src-playbook);}
 .archive-grid-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
-.archive-grid-card.tier-sm{flex:1 1 180px;max-width:220px;}
-.archive-grid-card.tier-md{flex:1 1 260px;max-width:320px;}
+/* flex-grow:0 a propósito (no flex:1 1 Npx): con grow, una ficha que
+   terminaba sola o casi sola en su fila se estiraba para llenar el
+   espacio sobrante, así que la MISMA talla nominal (tier-md) medía
+   distinto de una fila a otra según cuántos vecinos le tocaran — se veía
+   inconsistente, no como una jerarquía a propósito (feedback real del
+   usuario con capturas). Talla fija: si algo no entra en la fila pasa a
+   la siguiente y el espacio sobrante queda en blanco a la derecha, como
+   el margen irregular de un párrafo — consistente aunque no perfecto. */
+.archive-grid-card.tier-sm{flex:0 1 200px;}
+.archive-grid-card.tier-md{flex:0 1 280px;}
 .archive-grid-photo{aspect-ratio:1/1;overflow:hidden;margin-bottom:12px;background:var(--rule);}
 .archive-grid-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
 .archive-grid-card:hover .archive-grid-photo img,.archive-grid-card:focus-within .archive-grid-photo img{transform:scale(1.03);}

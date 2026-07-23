@@ -69,15 +69,18 @@ function pickFeaturedIds(articles: Article[]): Set<string> {
 // same field the homepage hero and Lista's featured gate use) maps 1:1 to
 // tier — no ranking/positional math needed, unlike Lista's band rhythm.
 //
-// Consecutive ★3/★4 articles are grouped into "clusters" that flow
-// together in one wrapped flex row (small + medium squares share a shape
-// and a similar height, so they tile without the row-height-sync gaps a
-// tall/short mismatch would cause — see the HANDOFF.md entry on the
-// line-clamp fix from the previous pass for exactly that failure mode).
-// ★1/★2 (text, no photo) and ★5 (full-width feature, reuses
-// ArchiveFeatureRow) always break the flow onto their own line instead of
-// sharing a row with squares, which sidesteps the mismatch problem
-// entirely rather than trying to out-clever it with CSS.
+// Consecutive articles of the SAME exact tier (★3 with ★3, ★4 with ★4 —
+// never mixed) are grouped into "clusters" that flow together in one
+// wrapped flex row. Originally this grouped any ★3/★4 run together, but
+// real screenshots (user feedback) showed why that's wrong: a 200px card
+// sitting next to 280px ones in the same row reads as broken/inconsistent
+// even though each individual size was correct — every row needs to be
+// internally uniform for the hierarchy to look intentional, with the size
+// STEP happening between rows, not within one. A same-tier cluster is
+// also inherently the same height (no row-height-sync gap risk — see the
+// HANDOFF.md entry on the line-clamp fix from an earlier pass for that
+// failure mode). ★1/★2 (text, no photo) and ★5 (full-width feature,
+// reuses ArchiveFeatureRow) always break the flow onto their own line.
 type RiverBlock = { type: 'cluster'; items: Article[] } | { type: 'solo'; item: Article; tier: 1 | 2 | 5 };
 
 function tierFor(article: Article): 1 | 2 | 3 | 4 | 5 {
@@ -87,16 +90,20 @@ function tierFor(article: Article): 1 | 2 | 3 | 4 | 5 {
 function groupRiver(articles: Article[]): RiverBlock[] {
   const blocks: RiverBlock[] = [];
   let cluster: Article[] = [];
+  let clusterTier: number | null = null;
   const flushCluster = () => {
     if (cluster.length) {
       blocks.push({ type: 'cluster', items: cluster });
       cluster = [];
+      clusterTier = null;
     }
   };
   for (const article of articles) {
     const tier = tierFor(article);
     if (tier === 3 || tier === 4) {
+      if (clusterTier !== null && clusterTier !== tier) flushCluster();
       cluster.push(article);
+      clusterTier = tier;
     } else {
       flushCluster();
       blocks.push({ type: 'solo', item: article, tier });

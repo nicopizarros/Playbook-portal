@@ -3247,6 +3247,54 @@ real, mismo estándar que Fases 1-3):
   mode revisadas visualmente en cada iteración del arreglo (no solo al
   final). `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
 
+### 2026-07-23 — Fix: tarjetas del río se veían inconsistentes (feedback con capturas del preview real)
+
+- El usuario mandó capturas de un deploy preview real de Vercel (no de
+  este entorno local) mostrando `/archivo` en Cuadrícula: "no se ve
+  uniforme, vamos por buen camino pero hay que mejorarlo". Dos bugs
+  reales, ambos confirmados con medición antes de tocar código (no solo
+  mirando las capturas):
+  1. **`.archive-grid-card.tier-sm`/`.tier-md` tenían `flex-grow:1`**
+     (`flex:1 1 180px`/`flex:1 1 260px`) — una ficha que quedaba sola o
+     casi sola al final de su fila se estiraba para llenar el espacio
+     sobrante, así que la MISMA talla nominal medía distinto de una fila
+     a otra según cuántas vecinas le tocaran ese renglón — confirmado
+     con `getBoundingClientRect` antes del fix (anchos dispares) y
+     después (7 tarjetas `tier-sm` a 200px exactos, 6 `tier-md` a 280px
+     exactos, sin excepción). Fix: `flex:0 1 200px`/`flex:0 1 280px` —
+     talla fija, sin crecer; lo que no entra en la fila pasa a la
+     siguiente y el espacio sobrante queda en blanco a la derecha (como
+     el margen irregular de un párrafo) en vez de forzar una talla
+     distinta.
+  2. **`groupRiver()` agrupaba CUALQUIER racha de ★3+★4 en un mismo
+     cluster** — aunque cada ficha ya medía su talla correcta (bug 1
+     resuelto), una ficha de 200px al lado de tres de 280px en la MISMA
+     fila seguía leyéndose como roto, no como jerarquía a propósito
+     (visto en captura real: 3 anchas + 1 angosta en una fila). Fix:
+     `groupRiver` ahora solo encadena artículos del MISMO tier exacto —
+     una racha ★4→★4→★3 corta el cluster en dos (uno de ★4, otro de ★3)
+     en vez de uno mixto. Cada fila queda perfectamente uniforme; el
+     salto de tamaño ahora ocurre ENTRE filas, nunca dentro de una.
+  - **De paso, se investigó si el preview real tenía más imágenes que el
+    dataset local** (las capturas mostraban headlines del ticker que no
+    existen en `articles.json` local, ej. "FIFA vende el pasto que pagó
+    Nueva Jersey" — evidencia de que el deploy preview corre contra un
+    Postgres de producción con más artículos que los 30 sembrados acá).
+    No hay acceso a esa base desde este entorno, pero las capturas
+    mismas muestran el mismo patrón (solo el hero real tiene foto, el
+    resto de los cuadrados están en blanco) — consistente con lo ya
+    encontrado localmente (revisar `articles.json`/Postgres local:
+    `image_url` vacío confirmado para todos los artículos ★3/★4). El
+    placeholder mudo se mantiene sin cambios; no se fabricaron fotos de
+    stock (mismo criterio que la entrada anterior).
+- **Verificado** (Postgres local + `next dev` + Playwright): mismos 17
+  checks del pase anterior siguen pasando (conteo de tiers, tamaños de
+  fuente, sin `<a>` anidados, toggle, filtro chico, mobile) más
+  medición directa de `getBoundingClientRect` confirmando talla uniforme
+  dentro de cada tier (200px×7, 280px×6, sin variación) y captura dark
+  mode revisada confirmando cada fila de cuadrados ahora homogénea.
+  `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
