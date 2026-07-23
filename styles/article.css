@@ -21,14 +21,12 @@
 
 .article-detail{display:block;}
 
-/* ——— Kicker: ficha de publicación + clasificación primaria alcance·deporte.
-   Una sola línea de clasificación arriba del titular — la taxonomía
-   completa vive en .article-topics, al pie. ——— */
+/* ——— Cabecera: solo la ficha de publicación (identidad de marca, no
+   taxonomía). Cero tags en la cabecera a propósito (feedback del usuario,
+   2026-07-23): la taxonomía completa vive plegada en .article-topics, al
+   pie. ——— */
 .article-kicker{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin-bottom:16px;}
 .article-detail .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px;}
-.kicker-path{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-txt);}
-.kicker-path a{color:var(--ink);}
-.kicker-path a:hover,.kicker-path a:focus-visible{text-decoration:underline;text-decoration-color:var(--green);text-decoration-thickness:2px;text-underline-offset:3px;}
 
 .article-detail h1{font-family:var(--serif-display);font-weight:400;font-size:clamp(28px,4.6vw,40px);line-height:1.08;margin:0 0 16px;text-transform:none;}
 
@@ -92,12 +90,20 @@
 .share-btn:hover,.share-btn:focus-visible{border-color:var(--ink);}
 .share-btn svg{flex-shrink:0;}
 
-/* ——— Temas (índice completo de taxonomía, al pie del artículo) ———
-   Fichas cuadradas a propósito: cuadrado = metadato (misma familia que la
-   ficha .tag de publicación), redondo = acción (.btn/.filter-btn). */
-.article-topics{margin-top:30px;padding-top:20px;border-top:1px solid var(--rule);}
-.article-topics-label{display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);margin-bottom:12px;}
-.article-topics-list{display:flex;flex-wrap:wrap;gap:8px;}
+/* ——— Temas (índice completo de taxonomía, plegado al pie) ———
+   <details> nativo, cerrado por defecto: el lector abre el índice si lo
+   quiere, nunca lo recibe de entrada. El summary se ve como un control
+   silencioso de filtro; las fichas cuadradas = metadato (misma familia
+   que la ficha .tag), redondo = acción (.btn/.filter-btn). */
+.article-topics{margin-top:30px;border-top:1px solid var(--rule);}
+.article-topics-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;cursor:pointer;list-style:none;color:var(--gray-txt);transition:color var(--duration-fast) ease;}
+.article-topics-summary::-webkit-details-marker{display:none;}
+.article-topics-summary:hover,.article-topics-summary:focus-visible{color:var(--ink);}
+.article-topics-label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;}
+.article-topics-count{font-weight:400;letter-spacing:0;}
+.article-topics-chevron{flex-shrink:0;transition:transform var(--duration-base) var(--ease-out);}
+.article-topics[open] .article-topics-chevron{transform:rotate(180deg);}
+.article-topics-list{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:18px;}
 .topic-chip{display:inline-flex;align-items:center;min-height:36px;padding:6px 14px;border:1px solid var(--rule);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--gray-dark);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease;}
 .topic-chip:hover,.topic-chip:focus-visible{border-color:var(--ink);color:var(--ink);}
 

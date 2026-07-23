@@ -2972,6 +2972,30 @@ real, mismo estándar que Fases 1-3):
   hasta entonces el flujo funciona vía enlace copiable. Fase 9 sigue
   pendiente según su lista (revisar contra lo ya construido).
 
+### 2026-07-23 — Ajuste por feedback: taxonomía del artículo plegada (cero tags de entrada)
+
+- Feedback directo del usuario sobre la pasada de auditoría: al lector no
+  lo deben recibir los tags — esconderlos detrás de un control, tipo
+  filtro. Aplicado en la página de artículo:
+  - **Cabecera sin taxonomía**: se quitaron los links alcance·deporte del
+    kicker; queda solo la ficha de publicación (identidad de marca, no
+    tag). El orden cabecera → titular → byline → foto de la auditoría se
+    mantiene.
+  - **"Temas del artículo" plegado**: el bloque del pie pasó a un
+    `<details>` nativo cerrado por defecto — summary silencioso
+    ("Temas del artículo (N)" + chevron que rota), fichas adentro.
+    `<details>/<summary>` a propósito: funciona sin JS, teclado gratis, y
+    las fichas quedan en el DOM así que los links a `/tema` siguen
+    crawleables.
+  - Las filas de tarjetas (hero de portada, archivo) conservan su línea
+    única de taxonomía en texto silencioso de la auditoría — el feedback
+    apuntaba a la experiencia de entrada del artículo; extenderlo a las
+    tarjetas queda a decisión del usuario.
+- **Verificado** (Postgres local + dev server + Playwright): cerrado por
+  defecto (`open:false`), cero links de taxonomía en la cabecera, al
+  abrir aparecen las 4 fichas, capturas revisadas de ambos estados.
+  `tsc --noEmit`, `npm run lint` y `npm run build` limpios sin env vars.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y

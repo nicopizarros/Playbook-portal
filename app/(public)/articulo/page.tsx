@@ -132,28 +132,15 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
   const entitlement = await resolveEntitlement(meta.id);
 
-  // Header order (UI/UX audit 2026-07-23): kicker → headline → byline →
-  // photo. The kicker carries the publication chip plus the PRIMARY
-  // scope·sport classification only — the full three-tier taxonomy moved to
-  // an <ArticleTopics> block at the article foot, where it works as
-  // navigation instead of sitting as a noise row between byline and body.
-  const kickerScope = meta.tagsScope[0];
-  const kickerSport = meta.tagsSport[0];
+  // Header order (UI/UX audit 2026-07-23): publication chip → headline →
+  // byline → photo. Deliberately NO taxonomy anywhere in the header (user
+  // feedback: readers should never be greeted by tags) — the full
+  // three-tier index lives in a collapsed <ArticleTopics> disclosure at
+  // the article foot. The chip is brand/source identity, not a tag.
   const header = (
     <>
       <div className="article-kicker">
         <span className="tag">{meta.publication}</span>
-        {(kickerScope || kickerSport) && (
-          <span className="kicker-path">
-            {kickerScope && (
-              <a href={`/tema?scope=${encodeURIComponent(kickerScope)}`}>{kickerScope}</a>
-            )}
-            {kickerScope && kickerSport && <span aria-hidden="true">·</span>}
-            {kickerSport && (
-              <a href={`/tema?sport=${encodeURIComponent(kickerSport)}`}>{kickerSport}</a>
-            )}
-          </span>
-        )}
       </div>
       <h1>{meta.title}</h1>
       <div className="byline article-byline">

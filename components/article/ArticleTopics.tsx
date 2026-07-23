@@ -6,12 +6,14 @@ const TIER_ORDER = [
   { key: 'tagsVertical', tier: 'vertical' },
 ] as const;
 
-// Full topic index at the foot of an article — the classic editorial
-// pattern (the headline area carries only the primary scope·sport kicker;
-// the complete taxonomy lives here, after the reader is done, where it
-// works as navigation instead of noise). Square chips on purpose: square =
-// metadata (same family as the .tag publication chip), round = action
-// (.btn/.filter-btn) — the shape distinction is part of the system.
+// Full topic index at the foot of an article — collapsed by default behind
+// a native <details> disclosure (user feedback, 2026-07-23: readers should
+// never be greeted by taxonomy; it's an index you opt into, like a filter).
+// <details>/<summary> on purpose: works with JS disabled, keyboard
+// accessible for free, and the chips stay in the DOM so /tema links remain
+// crawlable. Square chips = metadata (same family as the .tag publication
+// chip), round = action (.btn/.filter-btn) — the shape distinction is part
+// of the system.
 export function ArticleTopics({
   article,
 }: {
@@ -23,8 +25,15 @@ export function ArticleTopics({
   if (!entries.length) return null;
 
   return (
-    <nav className="article-topics" aria-label="Temas del artículo">
-      <span className="article-topics-label">Temas</span>
+    <details className="article-topics">
+      <summary className="article-topics-summary">
+        <span className="article-topics-label">
+          Temas del artículo <span className="article-topics-count">({entries.length})</span>
+        </span>
+        <svg className="article-topics-chevron" viewBox="0 0 12 8" width="11" height="7" aria-hidden="true">
+          <path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </summary>
       <div className="article-topics-list">
         {entries.map(({ tier, value }) => (
           <a
@@ -36,6 +45,6 @@ export function ArticleTopics({
           </a>
         ))}
       </div>
-    </nav>
+    </details>
   );
 }
