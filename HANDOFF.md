@@ -3295,6 +3295,57 @@ real, mismo estándar que Fases 1-3):
   mode revisada confirmando cada fila de cuadrados ahora homogénea.
   `tsc --noEmit`, `npm run lint` y `npm run build` limpios.
 
+### 2026-07-23 — El tamaño del río ahora decae con la antigüedad, no solo el rating
+
+- Feedback del usuario: "en un portal de noticias lo que más importa es
+  la recencia". Gap real: `tierFor` (Cuadrícula) y el piso de
+  `pickFeaturedIds` (Lista) usaban `priority` crudo — un artículo ★5 de
+  hace tres semanas recibía exactamente el mismo tratamiento gigante que
+  uno de esta mañana. Mal para un sitio de noticias: la importancia
+  editorial debería decaer con el tiempo, y un artículo apenas más nuevo
+  debería poder superar en jerarquía visual a uno "importante" pero
+  viejo — el mismo principio que `rankScore` (`lib/rank.ts`) ya aplica
+  para el ORDEN de artículos del home (prioridad × recencia).
+  - **`lib/rank.ts`**: `rankScore` ahora acepta un tercer parámetro
+    opcional `dayWeight` (default `PRIORITY_DAY_WEIGHT`, sin cambios de
+    comportamiento en ningún call site existente — home, ticker, admin
+    tab, todos siguen llamándolo con 2 argumentos). `daysSince` pasó a
+    exportarse también.
+  - **`archivo/page.tsx`**: `tierFor` ahora computa `rankScore(article,
+    now, ARCHIVE_TIER_DAY_WEIGHT)` en vez de leer `priority` directo.
+    Intento inicial: reusar el mismo peso que el home (`PRIORITY_DAY_WEIGHT
+    = 1.5`, "1 estrella ≈ 1.5 días") — resultado, verificado directo
+    contra los 24 artículos reales del archivo: los 24 caían en tier 1,
+    cero en cualquier otro tier. Ese peso está calibrado para competencia
+    del mismo día en el home; el archivo es lo opuesto por definición
+    (todo lo que hay ahí ya es más viejo que lo que muestra el home, acá
+    típicamente 1-5+ semanas con el ritmo de publicación real del sitio).
+    Se barrieron valores de peso contra los datos reales (`W=3` hasta
+    `W=30`) hasta encontrar uno que produjera una distribución sana en
+    los 5 tiers: `ARCHIVE_TIER_DAY_WEIGHT = 30` ("1 estrella ≈ 1 mes") da
+    {1:4, 2:7, 3:5, 4:6, 5:2} — y de paso demuestra que la recencia
+    realmente pesa: dos artículos ★3 de 16 días decaen POR DEBAJO de
+    otros ★3 de 9-14 días, cayendo un tier completo solo por antigüedad.
+  - **`pickFeaturedIds` (Lista)**: el piso pasó de `priority >= 4` a
+    `tierFor(candidate, now) === 5` — reusa el mismo tier recalibrado que
+    la Cuadrícula, así que un artículo ★4 viejo ya no fuerza la fila
+    destacada solo porque un editor lo calificó bien alguna vez, y ambas
+    vistas coinciden exactamente en qué 2 artículos son "los grandes"
+    (verificado: los mismos 2 IDs aparecen como destacado en Lista y como
+    tier-5 en Cuadrícula).
+- **Verificado** (Postgres local + `next dev` + Playwright): la
+  distribución real en vivo (`{"tier5":2,"tierSm":5,"tierMd":6,"tier1":4,
+  "tier2":7}`) coincide exactamente con la predicción del barrido hecho
+  contra Postgres antes de tocar código; los 17 checks anteriores (conteo
+  suma 24, tamaños de fuente decrecientes, sin `<a>` anidados, toggle,
+  filtro chico, mobile) siguen pasando sin cambios; capturas desktop
+  (Cuadrícula y Lista) revisadas confirmando que los mismos 2 artículos
+  aparecen como destacados en ambas vistas y que artículos ★3 viejos
+  correctamente bajaron a línea de texto. `tsc --noEmit`, `npm run lint`
+  y `npm run build` limpios; confirmado que ningún otro call site de
+  `rankScore`/`rankArticles`/`selectHero` (home, ticker, admin) cambió de
+  comportamiento — el nuevo parámetro es opcional con default compatible.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
