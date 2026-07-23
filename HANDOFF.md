@@ -102,7 +102,8 @@ Secciones del Studio:
 Todo el Studio en español. El equipo usa sus propias suscripciones de
 Claude; el Studio solo es la biblioteca de referencia.
 
-Estado: pendiente. Prompt de sesión listo.
+Estado: **hecho** — ver la entrada 2026-07-23 "Fase 8: invitaciones de
+editores + Studio" en el registro de progreso.
 
 ---
 
@@ -2882,6 +2883,95 @@ real, mismo estándar que Fases 1-3):
 - **Pendiente**: igual que la entrada anterior (red publicitaria, GA4 de
   producción, credenciales) — la limpieza de voseo ya NO está pendiente.
 
+### 2026-07-23 — Fase 8: invitaciones de editores + Studio (biblioteca de prompts)
+
+- Misma rama de la auditoría UI/UX (`claude/playbook-portal-audit-862cln`),
+  sesión posterior. Ejecuta la Fase 8 completa del plan (dos sub-tareas en
+  el mismo PR, como estaba definido).
+- **Sub-tarea A — Invitaciones de editores por email**:
+  - Tabla nueva `editor_invitations` (`lib/db/schema.ts` + migración
+    `drizzle/0003_dizzy_the_initiative.sql`): email, username,
+    displayName, `tokenHash` (unique), invitedBy (FK a editors, SET
+    NULL), createdAt, expiresAt (48 h), usedAt. **Solo se guarda el
+    SHA-256 del token**, nunca el token (misma postura que los
+    verification tokens de Auth.js: una fuga de base no alcanza para
+    aceptar una invitación). Las filas usadas se conservan con `usedAt`
+    como rastro; reinvitar borra la pendiente anterior del mismo
+    email/usuario.
+  - `lib/actions/team.ts`: `getTeamData()` (editores + invitaciones
+    pendientes con estado de vencimiento), `inviteEditor()` (valida
+    email/usuario/nombre, usuario único contra `editors`, token de 256
+    bits aleatorios), `revokeInvitation()`, y `acceptInvitation()` —
+    acción **pública** (el invitado no tiene sesión), rate-limited
+    5/10min/IP, valida token+vencimiento+uso único, crea el editor con
+    bcrypt costo 12 (mismo que `seed-editors`) en una transacción que
+    marca la invitación como usada; colisión de username (23505) da
+    error legible en vez de crashear.
+  - `lib/email.ts`: cliente Resend REST directo (los magic links de
+    lectores siguen por Auth.js; esto es para correos que Auth.js no
+    cubre). Degrada con `{sent:false, reason}` — sin `RESEND_API_KEY` o
+    con el send fallando, **la invitación igual se crea y el panel le da
+    al editor el enlace copiable** para compartirlo por su propio canal.
+    Decisión deliberada: el editor que invita ya es totalmente confiable,
+    y con Resend roto en producción (ver §12) este fallback es lo que
+    deja la función usable desde el día uno.
+  - Página pública `/admin/set-password?token=...`
+    (`app/admin/set-password/page.tsx`, fuera de `(protected)` a
+    propósito): valida el token en el render para el error amable
+    (inválida/vencida) y OTRA VEZ dentro de la acción (el check de
+    render es UX, no la frontera de seguridad). Form cliente
+    (`SetPasswordForm.tsx`) con confirmación de contraseña, mínimo 8,
+    `autocomplete` correcto para gestores de contraseñas, y estado de
+    éxito con link al login.
+  - Pestaña **Equipo** (`components/admin/tabs/TeamTab.tsx`): form de
+    invitación (correo/usuario/nombre), callout con el enlace copiable,
+    lista de pendientes (vencimiento visible, revocar) y de editores
+    activos. A diferencia de las demás pestañas no edita borradores:
+    actúa directo contra el servidor, así que **el botón Guardar del
+    topbar se oculta** en Equipo y Studio (`SAVELESS_TABS` en
+    `AdminDashboard`). El seed manual queda documentado en la pestaña
+    como camino de emergencia.
+- **Sub-tarea B — Studio**: pestaña estática de referencia
+  (`components/admin/tabs/StudioTab.tsx` + contenido en
+  `components/admin/studio-prompts.ts`): 6 secciones colapsables con 10
+  prompts en total, cada tarjeta con textarea oscura de solo lectura y
+  botón Copiar ("Copiado ✓", con fallback de selección si el clipboard
+  falla). No llama a ninguna API, por diseño. Los prompts están
+  alineados con el flujo real: la sección 1 usa el skill
+  publish-newsletter (variante directa y con revisión, pasos 1-3 vs 5
+  del skill), la sección 2 lista los campos **en el orden exacto del
+  formulario de la pestaña Artículos** con la taxonomía y la escala de
+  Importancia literales de `lib/taxonomy.ts`/el skill, y todos llevan el
+  bloque de voz editorial (directa, tuteo MX, sin rayas largas, ángulo
+  LATAM) repetido a propósito para que cada prompt funcione pegado solo.
+- **Fix de paso, preexistente**: el LivePreview mostraba el encabezado
+  "Último en Playbook" duplicado — desde la Fase 7 `NewsGrid` renderiza
+  su propio section-head y el del preview quedó encima. Eliminado el
+  duplicado del preview (detectado en captura durante esta verificación,
+  re-verificado en render real: 1 solo encabezado).
+- **Verificación real end-to-end** (Postgres local + `next dev` +
+  Playwright, mismo estándar): migración 0003 aplicada, editor `aldo`
+  sembrado, y el flujo completo ejercitado de verdad — login de aldo →
+  pestaña Equipo → invitación creada (sin RESEND_API_KEY: toast honesto
+  + enlace fallback mostrado, capturado) → pendiente listada → el enlace
+  abierto en un contexto SIN sesión → contraseñas que no coinciden
+  rechazadas → activación → **el mismo enlace reusado da "Invitación no
+  válida"** (uso único confirmado, también vía curl) → login real de la
+  editora nueva con su contraseña → de vuelta en la sesión de aldo la
+  pendiente desapareció y la editora aparece activa. Studio: 6 secciones,
+  colapso/expansión, botón Copiar confirmando, botón Guardar oculto en
+  ambas pestañas nuevas, cero errores de JS de página en todo el flujo.
+  Capturas revisadas de Equipo, set-password, activación y Studio.
+  `tsc --noEmit`, `npm run lint` y `npm run build` limpios sin env vars
+  (paridad CI). La migración de producción la aplica solo `vercel-build`
+  en el próximo deploy (mecanismo de la entrada del incidente
+  `wall_teaser`).
+- **Pendiente**: para que el correo de invitación salga de verdad en
+  producción faltan las mismas credenciales Resend de siempre
+  (`RESEND_API_KEY` + `EMAIL_FROM` con dominio verificado, ver §12) —
+  hasta entonces el flujo funciona vía enlace copiable. Fase 9 sigue
+  pendiente según su lista (revisar contra lo ya construido).
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
@@ -2895,7 +2985,8 @@ misma sesión cubrió varios ítems de la Fase 9 (sidebar C, una versión de
 la sección de análisis D vía el restyle de Opinión, y el directorio de
 temas). Queda:
 
-1. Fase 8 (Studio + auth): independiente, puede arrancar cuando sea.
+1. Fase 8 (Studio + auth): **hecha** — ver la entrada 2026-07-23 "Fase 8"
+   en el registro de progreso.
 2. Fase 9 (UX homepage): **revisar su lista contra lo ya construido**
    antes de arrancar — el ticker (A) y los filtros por fuente ya existen
    desde la migración; los chips por deporte (B) y la sección Playbook

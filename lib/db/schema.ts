@@ -26,6 +26,26 @@ export const editors = pgTable('editors', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Pending email invitations to join the editorial team (Fase 8). An
+// authenticated editor creates one; the invitee follows a 48-hour link to
+// /admin/set-password and picks their own password, which inserts the real
+// `editors` row above. Only the SHA-256 hash of the invite token is stored
+// (same posture as Auth.js verification tokens): a DB leak must not be
+// enough to accept an invitation. Rows are kept after use (usedAt set) as
+// a lightweight audit trail; re-inviting the same email/username deletes
+// the previous pending row first.
+export const editorInvitations = pgTable('editor_invitations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull(),
+  username: text('username').notNull(),
+  displayName: text('display_name').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  invitedBy: uuid('invited_by').references(() => editors.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  usedAt: timestamp('used_at', { withTimezone: true }),
+});
+
 // ---------------------------------------------------------------- Articles
 // id is the legacy slug (articles.json's `id` field) — preserved verbatim
 // so /articulo?id=... URLs never change across the migration.

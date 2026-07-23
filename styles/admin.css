@@ -311,6 +311,60 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .tiptap-content .ProseMirror img { max-width: 100%; border-radius: 6px; }
 .tiptap-content .ProseMirror blockquote { border-left: 3px solid var(--green); margin: 0; padding-left: 14px; color: var(--gray-dark); }
 
+/* ---------- Equipo (Fase 8A: invitaciones de editores) ---------- */
+
+.team-invite-form {
+  display: grid; grid-template-columns: 1.2fr 1fr 1.2fr auto; gap: 12px; align-items: end;
+  margin-bottom: 18px;
+}
+.team-invite-form .admin-field input { min-width: 0; }
+.team-invite-link { margin-bottom: 18px; }
+.team-invite-link-row { display: flex; gap: 8px; margin-top: 8px; }
+.team-invite-link-row .input { font-size: 12.5px; font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+
+.team-list { list-style: none; margin: 0 0 22px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.team-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); padding: 12px 14px;
+}
+.team-row-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.team-row-main b { font-size: 13.5px; }
+.team-row-meta { font-size: 12px; color: var(--gray-txt); overflow: hidden; text-overflow: ellipsis; }
+.team-row-meta.is-expired { color: #a3550f; font-weight: 600; }
+
+@media (max-width: 900px) {
+  .team-invite-form { grid-template-columns: 1fr; align-items: stretch; }
+}
+
+/* ---------- Studio (Fase 8B: biblioteca de prompts) ---------- */
+
+.studio-section { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); margin-bottom: 12px; overflow: hidden; }
+.studio-section-toggle {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  background: transparent; border: none; cursor: pointer; text-align: left;
+  padding: 14px 16px; font: inherit; color: var(--ink);
+}
+.studio-section-toggle:hover { background: var(--paper-soft); }
+.studio-section-title { flex: 1; font-size: 14px; font-weight: 800; }
+.studio-section-body { padding: 0 16px 16px; border-top: 1px solid var(--rule); }
+.studio-section-desc { font-size: 12.5px; color: var(--gray-txt); line-height: 1.55; margin: 12px 0 14px; }
+
+.studio-card { border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-soft); padding: 12px 14px; margin-bottom: 12px; }
+.studio-card:last-child { margin-bottom: 0; }
+.studio-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.studio-card-title { font-size: 13.5px; font-weight: 700; margin: 0 0 3px; }
+.studio-card-desc { font-size: 12px; color: var(--gray-txt); line-height: 1.5; margin: 0; }
+
+/* Textarea oscura a propósito (spec de la Fase 8): el prompt se ve como
+   "código para copiar", no como un campo editable del CMS. */
+.studio-prompt-text {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  background: var(--ink); color: #e9ebee; border: 1px solid var(--ink); border-radius: 9px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; line-height: 1.55;
+  padding: 12px 14px;
+}
+.studio-prompt-text:focus { outline: none; box-shadow: 0 0 0 3px rgba(154, 234, 57, .3); }
+
 /* ---------- Toasts ---------- */
 
 .admin-toast-stack {

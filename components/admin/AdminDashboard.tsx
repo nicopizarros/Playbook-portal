@@ -26,6 +26,8 @@ import { AboutTab } from './tabs/AboutTab';
 import { MidCtaTab } from './tabs/MidCtaTab';
 import { FooterTab } from './tabs/FooterTab';
 import { SettingsTab } from './tabs/SettingsTab';
+import { TeamTab } from './tabs/TeamTab';
+import { StudioTab } from './tabs/StudioTab';
 import { LivePreview } from './LivePreview';
 
 const TAB_DEFS = [
@@ -41,7 +43,13 @@ const TAB_DEFS = [
   { key: 'nav', label: 'Navegación' },
   { key: 'footer', label: 'Footer' },
   { key: 'settings', label: 'Ajustes' },
+  { key: 'team', label: 'Equipo' },
+  { key: 'studio', label: 'Studio' },
 ] as const;
+
+// Tabs that don't edit draft state (they act on the server immediately or
+// are pure reference), so the topbar save button doesn't apply to them.
+const SAVELESS_TABS: ReadonlySet<string> = new Set(['team', 'studio']);
 
 type TabKey = (typeof TAB_DEFS)[number]['key'];
 const DEFAULT_ORDER: TabKey[] = TAB_DEFS.map(t => t.key);
@@ -273,6 +281,7 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
   }
 
   function handleSave() {
+    if (SAVELESS_TABS.has(activeTab)) return;
     if (activeTab === 'articles') void handleSaveArticles();
     else void handleSaveContent();
   }
@@ -283,10 +292,12 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
         <span className={`admin-status${status.kind === 'error' ? ' is-error' : status.kind === 'ok' ? ' is-ok' : ''}`} role="status">
           {status.text}
         </span>
-        <button type="button" className="btn admin-save-btn" onClick={handleSave} disabled={saving}>
-          <span>{activeTab === 'articles' ? 'Guardar artículos' : 'Guardar contenido'}</span>
-          {(contentDirty || articlesDirty) && <span className="dirty-dot" title="Cambios sin guardar" />}
-        </button>
+        {!SAVELESS_TABS.has(activeTab) && (
+          <button type="button" className="btn admin-save-btn" onClick={handleSave} disabled={saving}>
+            <span>{activeTab === 'articles' ? 'Guardar artículos' : 'Guardar contenido'}</span>
+            {(contentDirty || articlesDirty) && <span className="dirty-dot" title="Cambios sin guardar" />}
+          </button>
+        )}
       </TopbarSaveSlot>
 
       <div className="admin-body-grid">
@@ -330,6 +341,8 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
             {activeTab === 'nav' && <NavTab data={content.nav} onChange={updateSection('nav')} />}
             {activeTab === 'footer' && <FooterTab data={content.footer} onChange={updateSection('footer')} />}
             {activeTab === 'settings' && <SettingsTab data={content.siteSettings} onChange={updateSection('siteSettings')} />}
+            {activeTab === 'team' && <TeamTab onToast={pushToast} />}
+            {activeTab === 'studio' && <StudioTab />}
           </section>
 
           <aside className="admin-preview-pane" aria-label="Vista previa en vivo">
