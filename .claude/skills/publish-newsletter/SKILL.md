@@ -35,6 +35,16 @@ items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
 what outlet each item cites. These details drive word count and Importancia
 below. Don't guess the publish date from context; confirm it from the page.
 
+Every edition also ends with a closing round-up section (e.g. "¿Qué más debes
+saber?") of short linked items, each a one-line teaser pointing to an outside
+outlet. These are full articles too, not skippable filler: fetch each closing
+item's outbound link directly and read the source article for the real facts,
+numbers, dates and outlet name (the newsletter's own line is never enough to
+draft from). Write each into its own article exactly like a main item, using
+whichever body-length bucket in Step 2 its actual content supports. Only skip
+a closing item, and say so explicitly, if the linked source itself turns out
+to be unreachable or too thin to responsibly write from.
+
 ## Step 2: Editorial voice
 
 Every article has two layers:
@@ -110,6 +120,18 @@ formatted as `"Foto: [Nombre] / Unsplash"`. It renders as a small caption
 under the lead photo. If a photo genuinely cannot be sourced/verified for a
 topic, say so explicitly rather than guessing a photo ID or falling back to
 a generic/unrelated image.
+
+**Closing round-up items are the exception**: since these aren't for-profit
+use of the image (a single-article editorial credit, not a stock swap), the
+image doesn't have to be Unsplash. Pull the lead/hero image straight off the
+linked source article itself (the outlet page fetched in Step 1) instead of
+searching Unsplash for it. This is the only case where a non-Unsplash image
+is allowed; main edition items still require a verified free Unsplash photo
+as above. Whatever the source, always credit it: set **imageCredit** to
+`"Foto: [outlet or photographer name] / [Outlet]"` (e.g. `"Foto: BBC Sport"`,
+`"Foto: Sportcal"`), taking the name straight from the source page's own
+byline or masthead. Never leave a closing item without an image or credit
+just because it isn't Unsplash-sourced.
 
 ## Step 5: Publish
 
