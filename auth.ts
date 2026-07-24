@@ -1,5 +1,5 @@
 import NextAuth from 'next-auth';
-import Resend from 'next-auth/providers/resend';
+import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import bcrypt from 'bcryptjs';
@@ -8,8 +8,10 @@ import { db } from './lib/db/client';
 import { users, accounts, verificationTokens, editors } from './lib/db/schema';
 
 // One Auth.js instance, two genuinely separate identity flows sharing it —
-// matches the brief's "email/passwordless for readers, credentials for
-// editors." The Drizzle adapter is scoped to the reader tables only
+// Google OAuth for readers, credentials for editors. (Was Resend
+// magic-link email; switched because sending to arbitrary reader
+// addresses needs a verified sending domain, which isn't set up.) The
+// Drizzle adapter is scoped to the reader tables only
 // (usersTable/accountsTable/verificationTokensTable); editors are never
 // persisted through it — Credentials + JWT sessions don't need adapter
 // involvement, and keeping editors out of the `users` table keeps the two
@@ -27,10 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter,
   session: { strategy: 'jwt' },
   providers: [
-    Resend({
-      apiKey: process.env.RESEND_API_KEY,
-      from: process.env.EMAIL_FROM,
-    }),
+    Google,
     Credentials({
       credentials: {
         username: { label: 'Usuario', type: 'text' },
