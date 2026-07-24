@@ -67,9 +67,10 @@ function parseInlineMarks(text: string): JSONContent[] {
 }
 
 // Minimal markdown-ish -> TipTap doc converter: blank-line-separated blocks,
-// "## " headings, "**bold**" inline spans. Enough for the editorial voice's
-// prose (fact layer + Opinión de Playbook layer) without pulling in a full
-// markdown parser dependency.
+// "## " headings, "**bold**" inline spans, "![alt](url)" image blocks. Enough
+// for the editorial voice's prose (fact layer + Opinión de Playbook layer)
+// plus in-body images carried over from the source article, without pulling
+// in a full markdown parser dependency.
 export function markdownToTipTap(markdown: string): Record<string, unknown> {
   const blocks = markdown
     .split(/\n\s*\n/)
@@ -77,6 +78,11 @@ export function markdownToTipTap(markdown: string): Record<string, unknown> {
     .filter(Boolean);
 
   const content: JSONContent[] = blocks.map(block => {
+    const imageMatch = block.match(/^!\[(.*?)\]\((\S+)\)$/);
+    if (imageMatch) {
+      const [, alt, src] = imageMatch;
+      return { type: 'image', attrs: { src, alt: alt || null, title: null } };
+    }
     const headingMatch = block.match(/^##\s+(.*)$/);
     if (headingMatch) {
       return { type: 'heading', attrs: { level: 2 }, content: parseInlineMarks(headingMatch[1]) };

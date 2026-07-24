@@ -34,6 +34,13 @@ date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
 what outlet each item cites. These details drive word count and Importancia
 below. Don't guess the publish date from context; confirm it from the page.
+Fetch the page a fourth time asking specifically for every image URL embedded
+in the post (the actual `substackcdn.com` / `substack-post-media.s3.amazonaws.com`
+src, not a description of the image), the order they appear in, and which
+news item/section each one sits next to. This feeds Step 4b: every one of
+these (other than pure masthead/avatar chrome) always gets carried over into
+the relevant article's body, in that same order, never skipped and never
+used as the cover image.
 
 ## Step 2: Editorial voice
 
@@ -54,8 +61,9 @@ Playbook layer; 400-600 words for La Lana del Mundial long-form pieces;
 100-180 words for brief items that have no Opinión in the source (facts only,
 no invented editorializing).
 
-Write the body as **bold**/`##` heading formatted prose (this becomes a TipTap
-document, see Step 4), never HTML tags.
+Write the body as **bold**/`##` heading formatted prose, plus any
+`![alt](url)` in-body images carried over per Step 4b (this becomes a TipTap
+document, see Step 5), never HTML tags.
 
 ## Step 3: Fields per article
 
@@ -86,30 +94,88 @@ document, see Step 4), never HTML tags.
 - **featured** (Destacado): `true` only for clearly THE story of the batch, normally at most one `priority: 5` / `featured: true` article per run. Before setting it `true`, query the DB for existing `featured = true` rows (see verification pattern in Step 5) so you know what you're competing with. It's fine to have several `priority: 5` rows live (the site allows it), just don't blindly stack `featured: true` on top of an unrelated existing one without checking.
 - **substackUrl**: the source URL, always required, same for every item from one edition.
 - **sourceUrl**: a unique per-item dedupe key: `` `${substackUrl}#<slug-of-title-or-topic>` ``. This is what the DB's unique index dedupes on (`articles.sourceUrl`), so re-running this skill on the same link will no-op on already-inserted stories instead of duplicating them.
-- **imageUrl** / **imageCredit**: see Step 4. Required for every article, regardless of priority.
+- **imageUrl** / **imageCredit**: the cover photo, see Step 4a. Required for every article, regardless of priority. Never one of the source article's embedded images (those go inline in `bodyMarkdown` instead, see Step 4b).
 
-## Step 4: Images (every article, as of 2026-07-23)
+## Step 4: Images (every article, as of 2026-07-24)
 
-Every article gets an image, not just `priority: 5` ones (this used to be
-priority-5-only; the policy changed to raise every article to the same
+Every article gets a cover image, not just `priority: 5` ones (this used to
+be priority-5-only; the policy changed to raise every article to the same
 visual standard). `imageUrl: ""` is no longer acceptable for a published
-article.
+article. There are two separate image jobs, and they use different sources,
+never the same one:
 
-Find a confirmed free Unsplash photo directly related to the specific topic
-(not a generic stadium if the story is about data privacy, not a generic
-football pitch if the story is about a business deal — match the actual
-subject: the company, the sport, the venue, the person). Verify the photo is
-real and free (not Unsplash+/premium) by fetching the actual photo page and
-reading the `images.unsplash.com/photo-[id]` URL off it. WebSearch alone only
-gives short slug-style IDs (e.g. `i9CqRlYZCV8`), which are not the same ID
-scheme as the `images.unsplash.com/photo-...` CDN URL. Never invent a photo
-ID. Format: `https://images.unsplash.com/photo-[id]?w=900&q=80`.
+### 4a. Cover image (`imageUrl` / `imageCredit`)
 
-Set **imageCredit** to the photographer's name from that same photo page,
-formatted as `"Foto: [Nombre] / Unsplash"`. It renders as a small caption
-under the lead photo. If a photo genuinely cannot be sourced/verified for a
-topic, say so explicitly rather than guessing a photo ID or falling back to
-a generic/unrelated image.
+This is the hero photo at the top of the article and the feed-card thumbnail.
+It is **never** one of the images embedded in the source Substack article
+(see 4b) — those are for the body, not the cover.
+
+**Always, always, always search for the best and most related cover photo
+for each article, trying different search angles before giving up, and
+always give credit in `imageCredit`.** Never publish with no cover image and
+never settle for a generic/unrelated one when a genuinely on-topic photo is
+findable: not a generic stadium if the story is about data privacy, not a
+generic football pitch if the story is about a business deal, match the
+actual subject (the company, the sport, the venue, the person).
+
+Playbook doesn't restrict sourcing to free-license libraries: pick whatever
+photo is genuinely the best match for the story, from any source (news
+agencies, team/league press photos, editorial stock, etc.), not just
+Unsplash/Pexels-style free libraries. Search in English first even when the
+article is in Spanish, English-language queries tend to surface far better
+and more specific editorial photography than Spanish ones. If the first
+search angle only turns up generic results, try others (the company/person
+name, the venue, the specific event, sport + business angle) before
+settling.
+
+Exception: never pull the image from an agency known to pursue unlicensed
+use aggressively (Getty Images foremost among them, this includes iStock
+since it's owned by Getty; treat AP Images/AP Photo the same way). If a
+search turns up exactly the right photo but it's hosted on one of these,
+keep searching for another source or angle rather than using it.
+
+Confirm the image actually exists and is genuinely on-topic before using it:
+fetch the photo's page (not just a search-result thumbnail) and confirm what
+it depicts. Never invent or guess an image URL or ID. Set `imageCredit` to
+identify the real source, whatever it is, for example `"Foto: [Fotógrafo] /
+Unsplash"`, `"Foto: [Agencia]"`, `"Foto: [Fotógrafo] / Getty Images"`, or
+`"Foto: [Club/Liga/Organización]"`, matched to whatever the photo's own page
+attributes it to. It renders as a small caption under the lead photo, so
+every article must have one, this is what backs the takedown-contact clause
+in the site's Términos y Condiciones (`app/(public)/terminos/page.tsx`): a
+correct, specific credit is what lets a rights holder actually identify
+their photo if they ever reach out. If a cover photo genuinely cannot be
+sourced for a topic after trying multiple search angles, say so explicitly
+rather than guessing.
+
+### 4b. In-body images, carried over from the source article
+
+Any image embedded in the source Substack post next to that specific news
+item (see the image pass in Step 1) always gets carried over into the
+article body itself, integrated inline with the text, never just used as
+the cover. Skip only pure page chrome (the publication's masthead logo, the
+author's avatar headshot); everything else that's part of the post's actual
+content (photos, banners, infographics, charts) gets carried over.
+
+- Preserve the exact order the images appear in in the Substack source,
+  relative to each other and to the surrounding text/sections.
+- Place each image in `bodyMarkdown` right at the point in the body that
+  corresponds to where it sat in the source (e.g. an infographic that
+  illustrated one specific section goes inside that section, not bunched at
+  the top or bottom).
+- Insert it as its own block, on its own blank-line-separated line, using
+  `![alt text](url)` (standard markdown image syntax), where `url` is the
+  real image src straight off the Substack page (the `substackcdn.com` /
+  `substack-post-media.s3.amazonaws.com` URL), not a re-description or a
+  substitute. Fetch the URL first to confirm it actually resolves to an
+  image before using it.
+- Immediately follow each image block with its own short caption paragraph
+  reading exactly `Foto: Playbook`, regardless of what byline or watermark
+  the original newsletter shows.
+- `scripts/publish-newsletter.ts`'s markdown-to-TipTap converter turns each
+  `![alt](url)` block into an inline `image` node in the body, in the same
+  position, so this only works through that exact syntax, not a raw `<img>`
+  tag or a description of the image.
 
 ## Step 5: Publish
 
@@ -126,10 +192,10 @@ a generic/unrelated image.
    (drop `--env-file` if `POSTGRES_URL` is already exported in the shell).
 3. The script prints one line per article (`ok`/`duplicate`) plus a summary
    count. It converts `bodyMarkdown` to a TipTap document (blank-line
-   paragraphs, `## ` headings, `**bold**` spans), renders `bodyHtml` the same
-   way the admin editor does, slugifies the title into the article `id`
-   (retrying with a suffix on collision), and inserts with
-   `status: 'published'`, live immediately.
+   paragraphs, `## ` headings, `**bold**` spans, `![alt](url)` inline images),
+   renders `bodyHtml` the same way the admin editor does, slugifies the title
+   into the article `id` (retrying with a suffix on collision), and inserts
+   with `status: 'published'`, live immediately.
 4. Report back a short confirmation per article: title, id, and the live URL
    (`https://playbook-portal-phi.vercel.app/articulo?id=<id>`), not a re-print
    of the full draft. If any came back `duplicate`, say so (it means that
