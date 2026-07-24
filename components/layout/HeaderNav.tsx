@@ -7,6 +7,23 @@ import { ThemeToggle } from '../theme/ThemeToggle';
 import { SearchBox, type SearchableArticle } from './SearchBox';
 import type { NavLink } from '@/lib/data/site-content';
 
+// The CMS stores these as bare fragments ("#noticias", "#analisis", …)
+// because the nav was built when the homepage was the only page. Every one
+// of those sections lives on the homepage only, so on /archivo, /articulo,
+// /tema, /autor and the legal pages all five links resolved to a fragment
+// with no matching element — clicking "Noticias" from an article did
+// nothing at all, no navigation, no scroll, no feedback. Prefixing with
+// "/" makes them navigate home and *then* anchor, which is what a reader
+// means by tapping "Video" from somewhere else on the site.
+// Deliberately normalised at render time rather than by rewriting
+// content.json: the hrefs stay editable as plain fragments in the CMS's
+// Navegación tab (where "#noticias" is the intuitive thing to type), and
+// an editor who enters a full path or an external URL still gets it
+// through untouched.
+function sectionHref(href: string) {
+  return href.startsWith('#') ? `/${href}` : href;
+}
+
 // Owns the mobile drawer's open/close state (nav-links, nav-overlay, and
 // the nav-toggle button all need to agree on it, mirroring
 // legacy/js/nav.js's initMobileDrawer) plus the two theme-toggle instances
@@ -60,7 +77,7 @@ export function HeaderNav({
             <a
               key={link.href}
               className={link.variant === 'infinitas' ? 'nav-link-infinitas' : undefined}
-              href={link.href}
+              href={sectionHref(link.href)}
               onClick={close}
             >
               {link.label}

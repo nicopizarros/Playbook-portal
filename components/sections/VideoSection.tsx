@@ -16,14 +16,21 @@ export function VideoSection({ data }: { data: SiteContentData['videoSection'] }
   return (
     <section className="video-section" id="video">
       <div className="container" style={{ padding: '0 24px 46px' }}>
+        {/* No .section-link here, unlike every other section head.
+            channelLinkLabel/channelLinkUrl used to render twice on this
+            one page — once as a quiet text link in this head, and again
+            360px lower as the .video-cta strip's button — same label ("Ir
+            al canal"), same href, nothing to distinguish them. Reported as
+            reading redundant, and it is: the CTA strip exists precisely to
+            be the section's single conversion point (see this component's
+            note above), so the duplicate here is the one to drop. The CMS
+            fields are untouched — the Video tab still edits one channel
+            link, it now just renders in one place. */}
         <div className="section-head reveal">
           <div>
             <h2>{data.heading}</h2>
             <p className="sub">{data.sub}</p>
           </div>
-          <a className="section-link" href={safeUrl(data.channelLinkUrl)} target="_blank" rel="noopener noreferrer">
-            {data.channelLinkLabel}
-          </a>
         </div>
 
         <div className="video-grid">

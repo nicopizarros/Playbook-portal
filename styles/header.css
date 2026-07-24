@@ -13,9 +13,16 @@ header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.08);}
   :root:not([data-theme="light"]) header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.5);}
 }
 header.topbar.is-scrolled .nav{height:62px;}
-header.topbar.is-scrolled .brand img{height:48px;}
+header.topbar.is-scrolled .brand img{height:42px;}
 .brand{display:block;flex-shrink:0;}
-.brand img{height:64px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);}
+/* 52px, down from 64px. Two reasons, one of them measured: at 64px the
+   wordmark renders 259px wide, and that alone was ~80px of the horizontal
+   overflow the header still had between 1181px and ~1300px (a 12.9" iPad
+   and most small laptops land in that band). The other is editorial — the
+   masthead was reported as reading a touch too large next to the nav. At
+   52px it's 211px wide and the row fits with room to spare. */
+.brand img{height:52px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);}
+
 /* Dos <img> en vez de un filtro: playbook-logo.webp trae el bracket de marca
    ya en --green horneado en el raster, y brightness(0) invert(1) aplanaba
    TODO (bracket incluido) a blanco parejo, perdiendo el acento en modo
@@ -67,7 +74,7 @@ header.topbar.is-scrolled .brand img{height:48px;}
 .nav-search:focus-within input{width:218px;}
 
 /* Search results dropdown */
-.search-results{position:absolute;top:calc(100% + 8px);right:0;width:min(360px,86vw);max-height:70vh;overflow-y:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:80;display:none;}
+.search-results{position:absolute;top:calc(100% + 8px);right:0;width:min(360px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:70vh;overflow-y:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:80;display:none;}
 .search-results.is-open{display:block;}
 .search-results .sr-item{display:block;padding:12px 16px;border-bottom:1px solid var(--rule);}
 .search-results .sr-item:last-child{border-bottom:none;}
@@ -75,6 +82,24 @@ header.topbar.is-scrolled .brand img{height:48px;}
 .search-results .sr-item h4{margin:0 0 4px;font-size:13.5px;font-weight:600;font-family:var(--sans);}
 .search-results .sr-item .tag-mini{margin-bottom:2px;}
 .search-results .sr-empty{padding:16px;font-size:13px;color:var(--gray-txt);}
+
+/* On a phone the dropdown ran off the LEFT edge of the screen: measured at
+   390px it sat at left:-49px, so the first ~50px of every result was
+   unreachable. `right:0` anchors it to .nav-search (position:relative), and
+   that pill's own right edge is only ~311px in — everything to its right
+   (theme toggle, hamburger) pushes it inward — so a 360px panel hanging off
+   it simply cannot fit, no matter how the width is clamped.
+   Clamping to 100vw doesn't help for the same reason: the constraint is the
+   distance from the PILL back to the screen edge, which CSS can't express
+   from here. Dropping .nav-search's positioning re-anchors the panel to
+   header.topbar (position:sticky, so it's the next containing block), and
+   left+right+width:auto then pins it to both screen edges with a 12px
+   gutter — a full-width sheet under the header, which is the ordinary
+   mobile pattern for this control anyway. */
+@media(max-width:520px){
+  .nav-search{position:static;}
+  .search-results{top:calc(100% + 4px);left:12px;right:12px;width:auto;max-width:none;}
+}
 
 /* ——— Theme toggle ———
    .theme-toggle-icon aloja los dos SVG uno encima del otro (position:relative
@@ -141,3 +166,23 @@ header.topbar.is-scrolled .brand img{height:48px;}
 @media(prefers-reduced-motion:reduce){
   .ticker-content{animation:none;position:static;transform:none;overflow-x:auto;}
 }
+
+/* ——— Drawer-only elements: hidden by default, switched on ONLY inside the
+   drawer media query in styles/responsive.css.
+   Three controls exist twice in the markup — the subscribe CTA, the login
+   link and the theme toggle — once for the desktop bar and once for the
+   mobile drawer. Hiding the drawer copy here, in the base state with no
+   media query attached, means exactly one rule ever turns each of them on.
+   The previous shape was a matched pair of queries (`min-width:921px`
+   hiding the drawer copies, `max-width:920px` hiding the desktop ones),
+   which is only correct while both numbers agree; the site shipped a state
+   where they didn't and both "Iniciar sesión" links rendered side by side
+   in the top bar on an iPad. A one-sided rule has no partner to drift from.
+   Placed at the END of this file deliberately: `.theme-toggle` below sets
+   `display:flex` at the same specificity (0,1,0), so an earlier
+   `.theme-toggle-drawer{display:none}` loses the cascade and the drawer's
+   toggle renders next to the desktop one — measured, two toggles visible
+   from 1200px up, before this moved down here. */
+.nav-drawer-cta,
+.nav-drawer-login,
+.theme-toggle.theme-toggle-drawer{display:none;}

@@ -26,19 +26,55 @@ import { usePathname } from 'next/navigation';
 // IntersectionObserver) on every route change, so newly-mounted `.reveal`
 // elements always get observed, regardless of whether this was a fresh
 // load or a client-side navigation within the same layout.
+//
+// ——— 2026-07-24: `pathname` turned out to be only a third of the fix.
+// A `.reveal` element can enter the DOM three different ways, and
+// re-running on pathname change only covers the first:
+//
+//   1. Route change (/articulo -> /)              pathname changes ✔
+//   2. Query-string-only navigation               pathname does NOT change:
+//      (/archivo -> /archivo?view=list, plus      usePathname() returns
+//      every archive filter link — all <Link>s    '/archivo' both times ✘
+//      that keep the same pathname)
+//   3. Pure client state, no navigation at all    nothing to depend on ✘
+//      (the homepage's 1+5 source filter
+//      re-renders NewsRow children keyed by id)
+//
+// Both misses were reproduced with Playwright against this build, and both
+// are what the editorial team reported from an iPad:
+//   - "cuando cambias entre lista y cuadrícula no se ve" — all 24 archive
+//     rows present in the DOM at computed opacity 0 after the view toggle.
+//   - "cuando le pones los filtros a los 5+1 del homepage solo se ve 1" —
+//     exactly 1 of 6 visible. The lead story survives because it renders
+//     unkeyed, so React reuses that DOM node along with the .is-visible
+//     class already on it; the five list rows are keyed by article id, so
+//     filtering unmounts them and mounts brand-new nodes no observer has
+//     ever seen.
+//
+// A MutationObserver on <body> covers all three at their common root — "a
+// .reveal element entered the DOM after the effect ran" — instead of
+// enumerating navigation shapes and hoping the list stays complete. The
+// pathname dependency is kept too: it resets the per-parent stagger index
+// on a real page change, the one thing the DOM watcher can't distinguish
+// from an in-page update.
 export function ScrollReveal() {
   const pathname = usePathname();
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // :not(.is-visible) so a route change that leaves some already-revealed
-    // elements mounted (e.g. only the query string changed) doesn't reset
-    // their transition-delay or redundantly re-observe them.
-    const elements = document.querySelectorAll<HTMLElement>('.reveal:not(.is-visible)');
 
     if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-      elements.forEach(el => el.classList.add('is-visible'));
-      return;
+      // Still needs the DOM watcher: without it, elements mounted later
+      // keep the stylesheet's default opacity:0 forever — the same bug,
+      // just reached by a different branch.
+      const revealAll = () =>
+        document
+          .querySelectorAll<HTMLElement>('.reveal:not(.is-visible)')
+          .forEach(el => el.classList.add('is-visible'));
+      revealAll();
+      const mo = new MutationObserver(revealAll);
+      mo.observe(document.body, { childList: true, subtree: true });
+      return () => mo.disconnect();
     }
 
     const observer = new IntersectionObserver(
@@ -53,16 +89,59 @@ export function ScrollReveal() {
       { threshold: 0.15 },
     );
 
+    // Per-parent, and persists across observeAll() calls within this
+    // effect, so a batch appended to an existing list continues the 60ms
+    // cadence instead of restarting it mid-row.
     const groupIndex = new Map<Element | null, number>();
-    elements.forEach(el => {
-      const parent = el.parentElement;
-      const idx = groupIndex.get(parent) || 0;
-      el.style.transitionDelay = `${idx * 60}ms`;
-      groupIndex.set(parent, idx + 1);
-      observer.observe(el);
-    });
 
-    return () => observer.disconnect();
+    // :not(.is-visible) so an update that leaves already-revealed elements
+    // mounted doesn't reset their transition-delay or re-observe them.
+    function observeAll(root: ParentNode) {
+      root.querySelectorAll<HTMLElement>('.reveal:not(.is-visible)').forEach(el => {
+        if (el.dataset.revealObserved === '1') return;
+        el.dataset.revealObserved = '1';
+        const parent = el.parentElement;
+        const idx = groupIndex.get(parent) || 0;
+        el.style.transitionDelay = `${idx * 60}ms`;
+        groupIndex.set(parent, idx + 1);
+        observer.observe(el);
+      });
+    }
+
+    observeAll(document);
+
+    // childList + subtree only. Attributes are deliberately NOT watched:
+    // this observer's own downstream effect adds `is-visible` and sets a
+    // data attribute on the elements it finds, so watching attributes
+    // would make it retrigger itself on every single reveal.
+    const mutationObserver = new MutationObserver(records => {
+      for (const record of records) {
+        record.addedNodes.forEach(node => {
+          if (node.nodeType !== 1) return;
+          const el = node as HTMLElement;
+          // The added node may itself be a .reveal, or merely contain some
+          // (React usually mounts a subtree, not a single element).
+          if (el.classList?.contains('reveal')) {
+            observeAll(el.parentNode ?? document);
+          } else {
+            observeAll(el);
+          }
+        });
+      }
+    });
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+      // The marker is scoped to this observer instance, not to the
+      // element's lifetime: after a route change a brand-new
+      // IntersectionObserver has to be able to pick these same elements up
+      // again, and a stale '1' would make it skip them.
+      document.querySelectorAll<HTMLElement>('[data-reveal-observed]').forEach(el => {
+        delete el.dataset.revealObserved;
+      });
+    };
   }, [pathname]);
 
   return null;

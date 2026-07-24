@@ -41,7 +41,11 @@ export default async function HomePage() {
       </main>
 
       <AdSlot slot="leaderboard-home" />
-      <OpinionSection data={content.opinionSection} />
+      {/* `articles` is the same React-cached getAllArticles() result the
+          news package above already uses — the opinion section derives its
+          cards from the source='opinion' subset (see that component), so
+          no extra query. */}
+      <OpinionSection data={content.opinionSection} articles={articles} />
       <MidCta data={content.midCta} />
       <TopicDirectory />
       <ProductsSection data={content.productsSection} />

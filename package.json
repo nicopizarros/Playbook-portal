@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/run-migrations.ts",
-    "db:seed-editors": "tsx scripts/seed-editors.ts",
+    "db:reset-editor-password": "tsx scripts/reset-editor-password.ts",
     "migrate:json": "tsx scripts/migrate-json-to-db.ts",
     "publish:newsletter": "tsx scripts/publish-newsletter.ts"
   },

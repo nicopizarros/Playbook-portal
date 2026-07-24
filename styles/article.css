@@ -175,7 +175,17 @@
    — chico y mediano comparten forma y alto similar, así que ese choque no
    ocurre entre ellos. */
 .archive-river{display:flex;flex-direction:column;gap:28px;}
-.archive-river-cluster{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+/* A fixed column grid, not flex-wrap. Flex sized each row from the tier's
+   flex-basis and wrapped whenever the row ran out, which is what produced
+   the lone orphan card at 40% row width. A grid with an explicit column
+   count can't wrap unpredictably: the page hands it groups of exactly
+   CARDS_PER_ROW (=4, see archivo/page.tsx), and 4 tiles perfectly into
+   both column counts below — one row of 4, or two rows of 2. 3 and 5
+   columns are deliberately never used for that reason. */
+.archive-river-cluster{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;align-items:start;}
+@media(min-width:900px){
+  .archive-river-cluster{grid-template-columns:repeat(4,1fr);}
+}
 .archive-grid-card{display:block;color:inherit;position:relative;border-top:3px solid transparent;padding-top:12px;transition:border-color var(--duration-base) var(--ease-out);}
 .archive-grid-card[data-source="industry-shots"]{border-top-color:var(--src-industry);}
 .archive-grid-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
@@ -190,8 +200,14 @@
    usuario con capturas). Talla fija: si algo no entra en la fila pasa a
    la siguiente y el espacio sobrante queda en blanco a la derecha, como
    el margen irregular de un párrafo — consistente aunque no perfecto. */
-.archive-grid-card.tier-sm{flex:0 1 200px;}
-.archive-grid-card.tier-md{flex:0 1 280px;}
+/* Width is now the grid's job — every card in a row is one equal track, so
+   the row is always exactly full. The ★3/★4 tier distinction moved from
+   width to the photo's aspect ratio: a tier-md card is a full square and a
+   tier-sm card is a shorter 4:3, so a more important band still occupies
+   visibly more of the page without needing to be wider than its neighbours
+   (which is what forced the ragged rows in the first place). */
+.archive-grid-card.tier-sm .archive-grid-photo{aspect-ratio:4/3;}
+.archive-grid-card.tier-md .archive-grid-photo{aspect-ratio:1/1;}
 .archive-grid-photo{aspect-ratio:1/1;overflow:hidden;margin-bottom:12px;background:var(--rule);}
 .archive-grid-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
 .archive-grid-card:hover .archive-grid-photo img,.archive-grid-card:focus-within .archive-grid-photo img{transform:scale(1.03);}
@@ -261,7 +277,26 @@
 .archive-feature-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
 .archive-feature-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
 .archive-feature-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
-.archive-feature-row .card-link{display:flex;gap:24px;flex:1;min-width:0;}
+/* flex-wrap + a real flex-basis on .card-link, instead of `flex:1` (= flex
+   basis 0) — 2026-07-24 iPad fix. .archive-feature-row is a flex ROW whose
+   two children are .card-link and .tag-pill-row. With basis 0 and
+   min-width:0, .card-link was infinitely squeezable while .tag-pill-row
+   (auto basis, sized by its own text) was not, so flexbox resolved every
+   shortage by crushing the card instead of the pills. At iPad portrait
+   that produced a ~50px content column — headline "La lla…", excerpt "El
+   caso…", byline wrapping one word per line — while the tags kept their
+   full ~350px. Measured, not theorised: .card-link came back 48px wide at
+   768px.
+   The @media(max-width:640px) block below already stacked this into a
+   column, which is why the bug was invisible on a phone and only showed up
+   between 641px and desktop.
+   Giving .card-link a 420px basis and letting the row wrap means the pills
+   drop to their own line exactly when the two no longer fit side by side,
+   at whatever width that happens to be — no breakpoint to keep in sync
+   with the pill text's length, and the desktop three-column arrangement is
+   untouched. */
+.archive-feature-row{flex-wrap:wrap;}
+.archive-feature-row .card-link{display:flex;gap:24px;flex:1 1 420px;min-width:0;}
 .archive-feature-row .card-link::after{content:"";position:absolute;inset:0;}
 .archive-feature-photo{flex:0 0 260px;aspect-ratio:16/10;overflow:hidden;background:var(--rule);}
 .archive-feature-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}

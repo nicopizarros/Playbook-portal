@@ -9,9 +9,19 @@ import { LeadStory } from '../article/LeadStory';
 import { NewsRow } from '../article/NewsRow';
 import { AdSlot } from '@/components/ads/AdSlot';
 
+// 'opinion' is deliberately excluded from BOTH the filter chips and the
+// story pool below. The homepage now renders a live Análisis/Opinión
+// section immediately under this band, built from exactly these articles
+// (see components/sections/OpinionSection.tsx) — so leaving them in the
+// news package meant the same piece could appear twice on one screen, and
+// gave the chip row an "Opinión" filter that duplicated a whole section
+// sitting a few hundred pixels lower. This band is the NEWS package;
+// opinion has its own home.
+const NEWS_SOURCES = KNOWN_SOURCES.filter(source => source !== 'opinion');
+
 const FILTERS: { source: string; label: string }[] = [
   { source: 'all', label: 'Todo' },
-  ...KNOWN_SOURCES.map(source => ({ source, label: SOURCE_LABELS[source] })),
+  ...NEWS_SOURCES.map(source => ({ source, label: SOURCE_LABELS[source] })),
 ];
 
 // Ported from legacy/js/articles.js's render()/applyFilterChange(). All 30
@@ -43,7 +53,8 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
     }, 180);
   }
 
-  const pool = activeSource === 'all' ? articles : articles.filter(a => a.source === activeSource);
+  const news = articles.filter(a => a.source !== 'opinion');
+  const pool = activeSource === 'all' ? news : news.filter(a => a.source === activeSource);
   const filtered = rankArticles(pool);
   const hero = selectHero(filtered);
   const list = filtered.filter(a => a !== hero).slice(0, LIST_COUNT);

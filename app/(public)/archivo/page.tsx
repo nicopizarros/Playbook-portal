@@ -84,23 +84,31 @@ function tierFor(article: Article, now: Date): 1 | 2 | 3 | 4 | 5 {
   return 1;
 }
 
-// ——— Lista: periodic featured row (unchanged rhythm from the prior
-// pass — see HANDOFF.md's 2026-07-23 "ritmo tipo revista" entry). A band
-// only gets a featured row if its opener's recency-decayed tier is the
-// top one (5) — previously this checked raw priority ≥4, now it reuses
-// the same tierFor everything else uses, so a stale high-priority article
-// no longer forces the rich featured-row treatment just because an editor
-// rated it well once. Only a FULL band of FEATURE_INTERVAL is ever
-// eligible (a featured pick needs FOUR regular siblings after it in its
-// band to avoid a stray gap in the equivalent grid math this pattern was
-// originally built for).
-const FEATURE_INTERVAL = 5;
-
+// ——— Lista: featured row (the "ritmo tipo revista" of HANDOFF.md's
+// 2026-07-23 entry). An article gets the rich photo treatment when its
+// recency-decayed tier is the top one (5) — previously this checked raw
+// editorial priority ≥4, now it reuses the same tierFor everything else
+// uses, so a stale high-priority article no longer forces the featured
+// treatment just because an editor rated it well once.
+//
+// ——— 2026-07-24: the position gate is gone. Requiring a tier-5 article to
+// ALSO land on an exact multiple of FEATURE_INTERVAL means the two views
+// disagree about the same article: Cuadrícula gives every tier-5 story the
+// full ArchiveFeatureRow treatment (it's a `solo` block in groupRiver),
+// while Lista only did so if that story happened to sit at index 0, 5, 10…
+// Against the real archive the two conditions never coincided — measured
+// with Playwright at all four breakpoints, Lista rendered 24 plain rows and
+// exactly 0 featured rows, so the "ritmo tipo revista" this function exists
+// to produce never actually fired, and a story shown as a photo feature in
+// one view silently became a text line in the other.
+// Tier 5 is already a scarce, recency-decayed signal (see TIER_THRESHOLDS —
+// it takes a top rating AND freshness), which is the rationing the interval
+// was standing in for. Using it directly makes the hierarchy identical in
+// both views, which is what a reader toggling between them expects.
 function pickFeaturedIds(articles: Article[], now: Date): Set<string> {
   const ids = new Set<string>();
-  for (let start = 0; start + FEATURE_INTERVAL <= articles.length; start += FEATURE_INTERVAL) {
-    const candidate = articles[start];
-    if (tierFor(candidate, now) === 5) ids.add(candidate.id);
+  for (const article of articles) {
+    if (tierFor(article, now) === 5) ids.add(article.id);
   }
   return ids;
 }
@@ -123,15 +131,54 @@ function pickFeaturedIds(articles: Article[], now: Date): Set<string> {
 // fix from an earlier pass for that failure mode). Tier 1/2 (text, no
 // photo) and tier 5 (full-width feature, reuses ArchiveFeatureRow) always
 // break the flow onto their own line.
-type RiverBlock = { type: 'cluster'; items: Article[] } | { type: 'solo'; item: Article; tier: 1 | 2 | 5 };
+//
+// ——— 2026-07-24: "hay varios cuadros solos con una fila vacía" (user
+// feedback from an iPad session). Splitting on every tier CHANGE, as this
+// originally did, means a single ★3 article sitting between two ★4s
+// becomes a cluster of exactly one — which renders as a lone 200px card
+// marooned in a 1180px flex row, with the rest of the row empty. Verified
+// against the real archive data: the runs came out [3, 2, 1, 4], and that
+// third run of one is precisely what the report describes.
+//
+// The fix is to merge singleton runs into a neighbour rather than to let
+// them stand alone. Which neighbour matters: merging into the PREVIOUS run
+// keeps reading order intact and inherits that run's size, so the row
+// stays internally uniform — the property the tier-cluster design exists
+// to guarantee (see the note above about a 200px card next to 280px ones
+// reading as broken). A singleton with no previous run (the river opens
+// with one) merges forward into the next instead. A singleton that is the
+// only cluster in the whole river has nowhere to go and keeps its own
+// size, which is correct: one card and nothing else isn't a ragged row,
+// it's just a short archive.
+//
+// Size is therefore a property of the CLUSTER, not of each card's own
+// tier, so it's resolved here and carried on the block instead of being
+// recomputed per card at render time.
+// Cards per full row. The river's grid is 4 columns at >=900px and 2 below
+// it (styles/article.css) — never 3, never 5 — so a group of exactly 4
+// tiles perfectly at both: one full row of 4, or two full rows of 2. That
+// is the whole reason the number is 4 and not "however many fit".
+//
+// This replaced a flex-wrap layout whose rows were sized by each tier's
+// flex-basis. That arrangement could not avoid orphans: a run of 4 cards in
+// a container with room for 3 wrapped to 3 + 1, and the trailing 1 sat
+// alone at 40% of the row width — measured at 1194px and 1440px alike, and
+// exactly the "cuadro solo con una fila vacía" in the report. No amount of
+// merging runs fixes that, because the orphan is produced by WRAPPING, not
+// by the run being short.
+const CARDS_PER_ROW = 4;
+
+type RiverBlock =
+  | { type: 'cluster'; items: Article[]; size: 'sm' | 'md' }
+  | { type: 'solo'; item: Article; tier: 1 | 2 | 5 };
 
 function groupRiver(articles: Article[], now: Date): RiverBlock[] {
   const blocks: RiverBlock[] = [];
   let cluster: Article[] = [];
-  let clusterTier: number | null = null;
+  let clusterTier: 3 | 4 | null = null;
   const flushCluster = () => {
     if (cluster.length) {
-      blocks.push({ type: 'cluster', items: cluster });
+      blocks.push({ type: 'cluster', items: cluster, size: clusterTier === 4 ? 'md' : 'sm' });
       cluster = [];
       clusterTier = null;
     }
@@ -148,7 +195,67 @@ function groupRiver(articles: Article[], now: Date): RiverBlock[] {
     }
   }
   flushCluster();
-  return blocks;
+
+  // Second pass: pull short runs into an adjacent run so the tiling below
+  // has enough cards to build full rows out of.
+  //
+  // Without this the tiling starves: the real tier sequence is noisy, not
+  // banded (measured runs against a production-sized archive:
+  // [2,2,3,2,4,4,2,2]), so cutting straight to rows of 4 produced ONE card
+  // row for the whole page and demoted 13 articles to text lines. Merging
+  // first turns those runs into [5,4,4] and yields three full rows.
+  // Only genuinely adjacent runs merge — a run separated from the next by
+  // a full-width line row stays where it is, because closing that gap
+  // would move an article past another and reorder the archive.
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    const block = blocks[i];
+    if (block.type !== 'cluster' || block.items.length >= CARDS_PER_ROW) continue;
+    const prev = blocks[i - 1];
+    const next = blocks[i + 1];
+    if (prev?.type === 'cluster') {
+      prev.items.push(...block.items);
+      blocks.splice(i, 1);
+    } else if (next?.type === 'cluster') {
+      next.items.unshift(...block.items);
+      blocks.splice(i, 1);
+    }
+  }
+
+  // Third pass: cut every run into rows of exactly CARDS_PER_ROW, and
+  // demote whatever is left over.
+  //
+  // A run of 9 becomes two full card rows plus one leftover; the leftover
+  // does NOT become a short third row, it becomes line rows. That is the
+  // trade this makes deliberately: an article that can't complete a band
+  // with its own tier-mates gets the compact one-line treatment rather
+  // than a half-empty row of its own. Every card row the reader sees is
+  // therefore full at every viewport width, and every non-card row is
+  // full-width text — there is no shape left that can leave a gap.
+  //
+  // Merging leftovers into a neighbouring run was the obvious alternative
+  // and is wrong here: runs are separated by full-width line rows, so
+  // merging across one would move an article past another and reorder the
+  // archive. Reading order is the one thing this list must not shuffle.
+  const tiled: RiverBlock[] = [];
+  for (const block of blocks) {
+    if (block.type !== 'cluster') {
+      tiled.push(block);
+      continue;
+    }
+    const full = Math.floor(block.items.length / CARDS_PER_ROW) * CARDS_PER_ROW;
+    for (let i = 0; i < full; i += CARDS_PER_ROW) {
+      tiled.push({ type: 'cluster', items: block.items.slice(i, i + CARDS_PER_ROW), size: block.size });
+    }
+    // A river consisting of nothing but one short run has no full rows to
+    // look ragged against, so it keeps its cards rather than degrading to
+    // a couple of text lines.
+    if (full === 0 && blocks.length === 1) {
+      tiled.push(block);
+      continue;
+    }
+    block.items.slice(full).forEach(item => tiled.push({ type: 'solo', item, tier: 2 }));
+  }
+  return tiled;
 }
 
 export default async function ArchivoPage({ searchParams }: Props) {
@@ -254,7 +361,7 @@ export default async function ArchivoPage({ searchParams }: Props) {
                         <ArchiveGridCard
                           key={a.id}
                           article={a}
-                          size={tierFor(a, now) === 4 ? 'md' : 'sm'}
+                          size={block.size}
                           priority={bi === 0 && ii === 0}
                         />
                       ))}

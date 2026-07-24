@@ -36,6 +36,13 @@
       "when": 1784810498831,
       "tag": "0004_first_vertigo",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784896898831,
+      "tag": "0005_editorial_team_accounts",
+      "breakpoints": true
     }
   ]
 }

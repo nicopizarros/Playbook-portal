@@ -115,11 +115,23 @@ export type ArchiveFilters = {
 // filters are applied on top of that overflow set.
 export async function getArchiveArticles(filters: ArchiveFilters): Promise<Article[]> {
   const all = await getAllArticles();
-  const ranked = rankArticles(all);
-  const hero = selectHero(ranked);
-  const list = ranked.filter(a => a !== hero).slice(0, LIST_COUNT);
+  // Mirrors NewsGrid's own pool exactly: the homepage news band excludes
+  // source='opinion' (those have their own live section further down the
+  // page), so the "what is already on the homepage" subtraction has to
+  // exclude them too. Computing the hero/list from a pool the homepage
+  // doesn't actually use would let an opinion piece occupy one of the six
+  // shown slots here and get subtracted out of the archive while never
+  // appearing on the homepage at all — i.e. reachable from neither page.
+  const newsRanked = rankArticles(all.filter(a => a.source !== 'opinion'));
+  const hero = selectHero(newsRanked);
+  const list = newsRanked.filter(a => a !== hero).slice(0, LIST_COUNT);
   const shownIds = new Set([hero, ...list].filter(Boolean).map(a => (a as Article).id));
-  const overflow = ranked.filter(a => !shownIds.has(a.id));
+  // Subtract from the FULL ranked pool, not from the news-only one: opinion
+  // pieces are never on the homepage news band, so they belong in the
+  // archive from the moment they're published — including behind
+  // /archivo?source=opinion, which is where the homepage's Opinión section
+  // sends readers.
+  const overflow = rankArticles(all).filter(a => !shownIds.has(a.id));
 
   return overflow.filter(a => {
     if (filters.source && filters.source !== 'all' && a.source !== filters.source) return false;

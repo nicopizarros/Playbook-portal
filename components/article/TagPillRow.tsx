@@ -1,4 +1,11 @@
 import type { Article } from '@/lib/data/articles';
+import { topicsForSection, type TaxonomyTier } from '@/lib/taxonomy';
+
+const TIER_COLUMN: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertical'> = {
+  scope: 'tagsScope',
+  sport: 'tagsSport',
+  vertical: 'tagsVertical',
+};
 
 // Taxonomy links for cards/rows (hero, archive rows). Each tag is a real
 // link to /tema so a reader can jump from "this piece is tagged Fútbol" to
@@ -9,13 +16,22 @@ import type { Article } from '@/lib/data/articles';
 // badges. Taxonomy renders as quiet interpunct-separated text links whose
 // tier is exposed via data-tier so CSS can weight the hierarchy (scope and
 // sport in ink, business verticals in gray) instead of showing three tiers
-// as identical pills. Order is fixed scope → sport → vertical.
-export function TagPillRow({ article }: { article: Pick<Article, 'tagsScope' | 'tagsSport' | 'tagsVertical'> }) {
-  const entries = [
-    ...article.tagsScope.map(value => ({ tier: 'scope', value })),
-    ...article.tagsSport.map(value => ({ tier: 'sport', value })),
-    ...article.tagsVertical.map(value => ({ tier: 'vertical', value })),
-  ];
+// as identical pills.
+//
+// Order is per-section (2026-07-24), from the same SECTION_TOPICS table
+// that drives the article foot's <ArticleTopics> — a card's pills and that
+// article's own topic index should lead with the same tier, or the reader
+// meets two different "most important tag" answers for one story. See
+// lib/taxonomy.ts for each section's order and why.
+export function TagPillRow({
+  article,
+}: {
+  article: Pick<Article, 'source' | 'tagsScope' | 'tagsSport' | 'tagsVertical'>;
+}) {
+  const { order } = topicsForSection(article.source);
+  const entries = order.flatMap(tier =>
+    article[TIER_COLUMN[tier]].map(value => ({ tier, value })),
+  );
   if (!entries.length) return null;
 
   return (

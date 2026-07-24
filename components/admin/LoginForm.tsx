@@ -24,7 +24,7 @@ export function LoginForm() {
           type="text"
           name="username"
           autoComplete="username"
-          placeholder="aldo / nico / guillermo"
+          placeholder="tu usuario"
           required
         />
       </label>

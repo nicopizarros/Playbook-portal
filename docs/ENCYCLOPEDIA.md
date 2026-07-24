@@ -630,7 +630,7 @@ flash, paired with `suppressHydrationWarning` on `<html>`.
 |---|---|---|
 | `run-migrations.ts` | `npm run db:migrate` | Applies pending Drizzle migrations |
 | `migrate-json-to-db.ts` | `npm run migrate:json` | **One-time, idempotent**: loads `articles.json`/`content.json` into Postgres |
-| `seed-editors.ts` | `npm run db:seed-editors` (needs `ADMIN_USERS` env) | **One-time**: seeds the `editors` table with bcrypt-hashed passwords from the legacy `user:pass,user:pass` format |
+| `reset-editor-password.ts` | `npm run db:reset-editor-password -- <username>` | Rotates one editor's password: generates it, prints it once, stores only the bcrypt hash. Replaced `seed-editors.ts` (which took the whole roster as plaintext in `ADMIN_USERS`) on 2026-07-24 — the roster itself now ships as hashes in `drizzle/0005_editorial_team_accounts.sql` |
 | `publish-newsletter.ts` | `npm run publish:newsletter <file.json>` | The write-side of the `publish-newsletter` Claude skill (§13) — converts markdown to a TipTap doc, inserts articles directly via Neon's HTTP driver (works from HTTPS-only sandboxes) |
 | `smoke-test.mjs` | `node scripts/smoke-test.mjs` (manual, against `localhost:3100`) | Playwright: theme toggle persistence, mobile drawer, search |
 | `test-email-wall.mjs` | `node scripts/test-email-wall.mjs` (manual) | Playwright: burns the 3-article quota, confirms the paywall form appears |
@@ -650,7 +650,7 @@ commented list. Summary:
 | `GA4_PROPERTY_ID`, `GA4_SERVICE_ACCOUNT_EMAIL`, `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` | "Más leídas" homepage module | Same casing bug as above |
 | `GA4_MEASUREMENT_ID` | Client-side gtag.js | Confirmed real value `G-0CG7JMK8RZ`, needs loading in Vercel |
 | `VERCEL_ANALYTICS_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`/`_SLUG` | Admin analytics dashboard | Pending real credential |
-| `ADMIN_USERS` | One-time `db:seed-editors` only | Not a runtime var |
+| ~~`ADMIN_USERS`~~ | Removed 2026-07-24 | Editor accounts come from `drizzle/0005_editorial_team_accounts.sql`; rotate with `db:reset-editor-password` |
 
 Every one of these degrades gracefully when absent (never crashes a page —
 each integration has its own try/catch and `available:false` fallback),
@@ -707,7 +707,7 @@ npm install
 cp .env.local.example .env.local   # fill in values, see §12
 npm run db:migrate                  # applies Postgres schema
 npm run migrate:json                # loads articles.json/content.json (idempotent)
-ADMIN_USERS="aldo:pw,nico:pw,guillermo:pw" npm run db:seed-editors
+npm run db:reset-editor-password -- nico   # rotate one password; prints it once
 npm run dev
 ```
 
