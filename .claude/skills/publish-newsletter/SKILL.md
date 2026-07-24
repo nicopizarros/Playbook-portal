@@ -116,20 +116,37 @@ always give credit in `imageCredit`.** Never publish with no cover image and
 never settle for a generic/unrelated one when a genuinely on-topic photo is
 findable: not a generic stadium if the story is about data privacy, not a
 generic football pitch if the story is about a business deal, match the
-actual subject (the company, the sport, the venue, the person). Find a
-confirmed free Unsplash photo. If the first search angle only turns up
-generic results, try others (the company/person name, the venue, the
-specific event, sport + business angle) before settling. Verify the photo is
-real and free (not Unsplash+/premium) by fetching the actual photo page and
-reading the `images.unsplash.com/photo-[id]` URL off it. WebSearch alone
-only gives short slug-style IDs (e.g. `i9CqRlYZCV8`), which are not the same
-ID scheme as the `images.unsplash.com/photo-...` CDN URL. Never invent a
-photo ID. Format: `https://images.unsplash.com/photo-[id]?w=900&q=80`. Set
-`imageCredit` to the photographer's name from that same photo page,
-formatted as `"Foto: [Nombre] / Unsplash"`. It renders as a small caption
-under the lead photo. If a cover photo genuinely cannot be sourced/verified
-for a topic after trying multiple search angles, say so explicitly rather
-than guessing a photo ID or falling back to a generic/unrelated image.
+actual subject (the company, the sport, the venue, the person).
+
+Playbook doesn't restrict sourcing to free-license libraries: pick whatever
+photo is genuinely the best match for the story, from any source (news
+agencies, team/league press photos, editorial stock, etc.), not just
+Unsplash/Pexels-style free libraries. Search in English first even when the
+article is in Spanish, English-language queries tend to surface far better
+and more specific editorial photography than Spanish ones. If the first
+search angle only turns up generic results, try others (the company/person
+name, the venue, the specific event, sport + business angle) before
+settling.
+
+Exception: never pull the image from an agency known to pursue unlicensed
+use aggressively (Getty Images foremost among them, this includes iStock
+since it's owned by Getty; treat AP Images/AP Photo the same way). If a
+search turns up exactly the right photo but it's hosted on one of these,
+keep searching for another source or angle rather than using it.
+
+Confirm the image actually exists and is genuinely on-topic before using it:
+fetch the photo's page (not just a search-result thumbnail) and confirm what
+it depicts. Never invent or guess an image URL or ID. Set `imageCredit` to
+identify the real source, whatever it is, for example `"Foto: [Fotógrafo] /
+Unsplash"`, `"Foto: [Agencia]"`, `"Foto: [Fotógrafo] / Getty Images"`, or
+`"Foto: [Club/Liga/Organización]"`, matched to whatever the photo's own page
+attributes it to. It renders as a small caption under the lead photo, so
+every article must have one, this is what backs the takedown-contact clause
+in the site's Términos y Condiciones (`app/(public)/terminos/page.tsx`): a
+correct, specific credit is what lets a rights holder actually identify
+their photo if they ever reach out. If a cover photo genuinely cannot be
+sourced for a topic after trying multiple search angles, say so explicitly
+rather than guessing.
 
 ### 4b. In-body images, carried over from the source article
 
