@@ -34,6 +34,11 @@ date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
 what outlet each item cites. These details drive word count and Importancia
 below. Don't guess the publish date from context; confirm it from the page.
+Fetch the page a fourth time asking specifically for every image URL embedded
+in the post (the actual `substackcdn.com` / `substack-post-media.s3.amazonaws.com`
+src, not a description of the image) and which news item each one sits next
+to. This feeds the image-sourcing priority in Step 4: images already inside
+the source article always get carried over first, never skipped.
 
 ## Step 2: Editorial voice
 
@@ -88,28 +93,50 @@ document, see Step 4), never HTML tags.
 - **sourceUrl**: a unique per-item dedupe key: `` `${substackUrl}#<slug-of-title-or-topic>` ``. This is what the DB's unique index dedupes on (`articles.sourceUrl`), so re-running this skill on the same link will no-op on already-inserted stories instead of duplicating them.
 - **imageUrl** / **imageCredit**: see Step 4. Required for every article, regardless of priority.
 
-## Step 4: Images (every article, as of 2026-07-23)
+## Step 4: Images (every article, as of 2026-07-24)
 
 Every article gets an image, not just `priority: 5` ones (this used to be
 priority-5-only; the policy changed to raise every article to the same
 visual standard). `imageUrl: ""` is no longer acceptable for a published
 article.
 
-Find a confirmed free Unsplash photo directly related to the specific topic
-(not a generic stadium if the story is about data privacy, not a generic
-football pitch if the story is about a business deal — match the actual
-subject: the company, the sport, the venue, the person). Verify the photo is
-real and free (not Unsplash+/premium) by fetching the actual photo page and
-reading the `images.unsplash.com/photo-[id]` URL off it. WebSearch alone only
-gives short slug-style IDs (e.g. `i9CqRlYZCV8`), which are not the same ID
-scheme as the `images.unsplash.com/photo-...` CDN URL. Never invent a photo
-ID. Format: `https://images.unsplash.com/photo-[id]?w=900&q=80`.
+**Always, always, always search for the best and most related image for
+each article, trying every strategy below before giving up, and always give
+credit in `imageCredit`.** Never publish with no image and never settle for
+a generic/unrelated one when a genuinely on-topic image is findable through
+one of these strategies:
 
-Set **imageCredit** to the photographer's name from that same photo page,
-formatted as `"Foto: [Nombre] / Unsplash"`. It renders as a small caption
-under the lead photo. If a photo genuinely cannot be sourced/verified for a
-topic, say so explicitly rather than guessing a photo ID or falling back to
-a generic/unrelated image.
+1. **Article-embedded image first, always carried over.** If the source
+   Substack post has an image embedded next to that specific news item (see
+   the image pass in Step 1), that image always wins and always gets carried
+   over as `imageUrl`, no exceptions. Use the real image src straight off the
+   Substack page (the `substackcdn.com` / `substack-post-media.s3.amazonaws.com`
+   URL), not a re-description or a substitute. Fetch the URL to confirm it
+   actually resolves to an image before using it. Set `imageCredit` to
+   `"Foto: Playbook"` for every image carried over this way, regardless of
+   what byline or watermark the original newsletter shows.
+2. **Unsplash search, as the fallback strategy.** Only when the item has no
+   embedded image in the source, or the embedded image isn't genuinely about
+   that item's subject. Find a confirmed free Unsplash photo directly related
+   to the specific topic (not a generic stadium if the story is about data
+   privacy, not a generic football pitch if the story is about a business
+   deal, match the actual subject: the company, the sport, the venue, the
+   person). If the first search angle only turns up generic results, try
+   others (the company/person name, the venue, the specific event, sport +
+   business angle) before settling. Verify the photo is real and free (not
+   Unsplash+/premium) by fetching the actual photo page and reading the
+   `images.unsplash.com/photo-[id]` URL off it. WebSearch alone only gives
+   short slug-style IDs (e.g. `i9CqRlYZCV8`), which are not the same ID
+   scheme as the `images.unsplash.com/photo-...` CDN URL. Never invent a
+   photo ID. Format: `https://images.unsplash.com/photo-[id]?w=900&q=80`. Set
+   **imageCredit** to the photographer's name from that same photo page,
+   formatted as `"Foto: [Nombre] / Unsplash"`.
+
+`imageCredit` renders as a small caption under the lead photo, so every
+article must have one, whichever strategy sourced the image. If a photo
+genuinely cannot be sourced/verified for a topic after exhausting both
+strategies, say so explicitly rather than guessing a photo ID or falling
+back to a generic/unrelated image.
 
 ## Step 5: Publish
 
