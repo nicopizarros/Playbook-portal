@@ -12,7 +12,7 @@ export default function TerminosPage() {
   return (
     <main className="container legal-page" id="terminos-main">
       <h1>Términos y Condiciones</h1>
-      <p className="legal-updated">Última actualización: 21 de julio de 2026.</p>
+      <p className="legal-updated">Última actualización: 24 de julio de 2026.</p>
 
       <p>
         Al usar este sitio, operado por <strong>Playbook SAPI de C.V.</strong>
@@ -62,6 +62,18 @@ export default function TerminosPage() {
         <strong>Playbook SAPI de C.V.</strong> o de terceros que nos autorizaron su uso. Puedes
         compartir enlaces a nuestros artículos libremente; para cualquier otro uso (reproducción,
         traducción, republicación), escribinos a <strong>hola@playbook.la</strong>.
+      </p>
+
+      <h2>Imágenes en artículos</h2>
+      <p>
+        Los artículos de Playbook incluyen fotografías e infografías ilustrativas, elegidas por su
+        relación con el contenido de cada nota. Cuando la fuente de una imagen es identificable
+        (fotógrafo, agencia, club, liga u otra organización), la acreditamos junto a la imagen.
+        Hacemos nuestro mejor esfuerzo por usar material del que tenemos derecho a disponer, pero si
+        sos el titular de los derechos de una imagen publicada en el sitio y considerás que su uso no
+        está debidamente autorizado, escribinos a <strong>hola@playbook.la</strong> con el enlace del
+        artículo y una acreditación de tu titularidad. Vamos a revisar el caso a la brevedad y, si
+        corresponde, retirar la imagen o corregir el crédito.
       </p>
 
       <h2>Contenido y enlaces de terceros</h2>
