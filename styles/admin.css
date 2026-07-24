@@ -129,7 +129,12 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 
 /* ---------- Sidebar tabs (desktop) / tab bar (mobile) ---------- */
 
-.admin-body-grid { display: grid; grid-template-columns: 216px 1fr; flex: 1; min-height: 0; }
+/* min-width:0 on the content column for the same automatic-minimum-size
+   reason spelled out in the responsive block at the bottom of this file:
+   without it the grid column refuses to shrink below its content, and a
+   wide tab (the Artículos list, the live preview) pushes the page sideways
+   rather than scrolling inside its own pane. */
+.admin-body-grid { display: grid; grid-template-columns: 216px minmax(0, 1fr); flex: 1; min-height: 0; }
 
 .admin-tabs {
   display: flex; flex-direction: column; gap: 3px; padding: 16px 12px;
@@ -442,19 +447,51 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 
 .analytics-empty { color: var(--gray-txt); font-size: 13px; padding: 24px 0; text-align: center; }
 
-/* ---------- Responsive: mobile drops the preview pane, tabs become a top bar ---------- */
-
-@media (max-width: 900px) {
+/* ---------- Responsive: narrow drops the preview pane, tabs become a top bar ----------
+   Breakpoint raised 900px -> 1180px on 2026-07-24. At 900px an iPad in
+   landscape (1024px) still got the full desktop shell: a 216px tab rail
+   PLUS a form pane PLUS the live-preview pane, which renders the real
+   homepage at its own natural width. Measured at 1024px, the preview pane's
+   right edge landed at x=1708 — 684px of horizontal overflow — on every
+   single CMS tab (Productos was the worst at 770px). The editor pane itself
+   was reachable only by scrolling the whole page sideways.
+   1180px matches the public site's --maxw and its header breakpoint, so
+   "tablet or narrower" now means one thing across the whole product. */
+@media (max-width: 1180px) {
   .admin-body-grid { grid-template-columns: 1fr; }
   .admin-tabs {
     flex-direction: row; overflow-x: auto; overflow-y: hidden; border-right: none;
     border-bottom: 1px solid var(--rule); padding: 10px 12px; gap: 6px;
+    /* The rail is a horizontal scroller here, so it must be allowed to be
+       narrower than its content — without an explicit min-width:0 a grid
+       item's automatic minimum size is its content's, which made the strip
+       force the PAGE to scroll sideways (52-138px at 768px, depending on
+       tab) instead of scrolling within itself. */
+    min-width: 0;
+    scrollbar-width: thin;
   }
   .admin-tab { width: auto; flex-shrink: 0; }
   .admin-preview-pane { display: none; }
-  .admin-form-pane { flex: 1 1 100%; max-height: none; }
-  .admin-main { flex-direction: column; }
-  .admin-status { display: none; }
+  .admin-form-pane { flex: 1 1 100%; max-height: none; min-width: 0; }
+  .admin-main { flex-direction: column; min-width: 0; }
   .analytics-kpi-grid { grid-template-columns: 1fr; }
   .analytics-panel-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .admin-status { display: none; }
+}
+
+/* The topbar packs brand + CMS/Analytics nav + save button + status +
+   "Salir" onto one non-wrapping row. On a phone that row is simply wider
+   than the screen — measured 107-115px of overflow at 390px, which pushed
+   the save button and the logout form off the right edge on every tab, so
+   an editor on a phone could edit but not save. Letting it wrap (and
+   dropping the fixed 120px right-aligned status column, already hidden at
+   this width) gives it a second line instead of a horizontal scrollbar. */
+@media (max-width: 620px) {
+  .admin-topbar { flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; }
+  .admin-topbar-actions { flex-wrap: wrap; gap: 8px; width: 100%; justify-content: flex-start; }
+  .admin-topbar-brand { font-size: 14px; }
+  .admin-status { min-width: 0; }
 }

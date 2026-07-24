@@ -1,8 +1,22 @@
-@media(min-width:921px){
+/* ——— Header breakpoint: 1180px, NOT 920px ———
+   2026-07-24. The header used to switch to the mobile drawer at 920px,
+   which meant an iPad in landscape (1024px) got the full desktop header:
+   logo at its 64px desktop height + five nav links + "Iniciar sesión" +
+   the 238px search box + theme toggle + the "Suscríbete gratis" button,
+   all on one 1024px line. Measured at 1024px: the row's content ended at
+   x=1258, i.e. 234px of horizontal overflow — the whole page scrolled
+   sideways, and the theme toggle and subscribe CTA sat entirely
+   off-screen. That is the "no entra bien en iPad" report; a screenshot at
+   1024px shows the search pill cut in half at the right edge.
+   1180px is --maxw, the width at which the container stops growing, so it
+   is exactly the narrowest viewport where the desktop header is known to
+   have the room it was designed for. iPad landscape now gets the drawer,
+   same as iPad portrait already did. */
+@media(min-width:1181px){
   .nav-toggle{display:none;}
   .nav-overlay{display:none;}
-  /* Below 920px #nav-cta hides and .nav-drawer-cta becomes the only subscribe
-     CTA; at desktop widths the reverse must hold, or both render side by side. */
+  /* Below the breakpoint #nav-cta hides and .nav-drawer-cta becomes the only
+     subscribe CTA; above it the reverse must hold, or both render side by side. */
   .nav-drawer-cta{display:none;}
   .nav-drawer-login{display:none;}
   /* Mismo criterio que #nav-cta / .nav-drawer-cta arriba: dos instancias del
@@ -11,7 +25,11 @@
   .theme-toggle-drawer{display:none;}
 }
 
-@media(max-width:920px){
+/* Header-only rules ride the 1180px breakpoint. The content-layout rules
+   further down deliberately stay at 920px: collapsing the three-column news
+   band or the analysis/product grids on an iPad in landscape would be a
+   layout redesign, not a fix for the overflow reported here. */
+@media(max-width:1180px){
   .nav-toggle{display:flex;}
   .brand img{height:38px;}
   header.topbar.is-scrolled .brand img{height:38px;}
@@ -21,6 +39,11 @@
   .nav-search{padding:8px 10px;}
   .nav-search input{width:64px;}
   .nav-search:focus-within input{width:64px;}
+  /* At 921-1180px the drawer is now in play, so the signed-in reader chip
+     would otherwise reappear next to the hamburger and re-crowd the row it
+     was just removed from (header.css hides it below 920px for exactly
+     this reason). */
+  .reader-status{display:none;}
 
   .nav-links{
     position:fixed;top:0;right:0;height:100vh;width:min(320px,86vw);
@@ -49,7 +72,11 @@
     font-size:15.5px;font-weight:500;
   }
   .theme-toggle-drawer .theme-toggle-label{display:inline;}
+}
 
+/* ——— Content layout: still 920px ——— (see the note on the header block
+   above for why these two breakpoints are deliberately different). */
+@media(max-width:920px){
   .news-grid{grid-template-columns:1fr;}
   .lead-story{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:20px;}
   .news-strip{grid-template-columns:1fr 1fr;}
@@ -73,6 +100,21 @@
   .mid-cta-box{flex-direction:column;align-items:flex-start;}
   .pill-form{max-width:100%;}
   .social-row{gap:10px;}
+}
+
+/* ——— Touch tap targets ———
+   Audited 2026-07-24 across mobile/iPad: several genuinely tappable
+   elements measured under 24px tall — .tag-topic at 17px, .section-link
+   ("Ver más") at 23px, the drawer's "Iniciar sesión" at 22px. They're fine
+   under a mouse, so this is scoped to coarse pointers rather than to a
+   width: the same iPad gets the roomier target and a desktop at the same
+   width keeps the tighter typography the design intends.
+   Padding + inline-block only — no font-size or colour changes — so the
+   rows they sit in look the same, they're just reachable with a thumb. */
+@media(pointer:coarse){
+  .tag-topic{display:inline-block;padding:6px 0;}
+  .section-link{display:inline-block;padding-top:8px;padding-bottom:8px;}
+  .nav-links .nav-drawer-login{min-height:44px;display:flex;align-items:center;justify-content:center;}
 }
 
 @media(max-width:520px){

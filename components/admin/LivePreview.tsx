@@ -130,8 +130,13 @@ export function LivePreview({ content, contentBaseline, articleEntries }: Props)
         </main>
       </PreviewSection>
 
+      {/* Same `previewArticles` the NewsGrid preview above uses: the
+          opinion section is derived from the source='opinion' articles now
+          (see components/sections/OpinionSection.tsx), so the preview has
+          to feed it the draft article list or it would show the CMS-card
+          fallback while the real homepage shows the live ones. */}
       <PreviewSection dataKey="opinionSection" changed={changed('opinionSection')}>
-        <OpinionSection data={content.opinionSection} />
+        <OpinionSection data={content.opinionSection} articles={previewArticles} />
       </PreviewSection>
 
       <PreviewSection dataKey="productsSection" changed={changed('productsSection')}>

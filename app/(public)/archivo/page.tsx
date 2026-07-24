@@ -84,23 +84,31 @@ function tierFor(article: Article, now: Date): 1 | 2 | 3 | 4 | 5 {
   return 1;
 }
 
-// ——— Lista: periodic featured row (unchanged rhythm from the prior
-// pass — see HANDOFF.md's 2026-07-23 "ritmo tipo revista" entry). A band
-// only gets a featured row if its opener's recency-decayed tier is the
-// top one (5) — previously this checked raw priority ≥4, now it reuses
-// the same tierFor everything else uses, so a stale high-priority article
-// no longer forces the rich featured-row treatment just because an editor
-// rated it well once. Only a FULL band of FEATURE_INTERVAL is ever
-// eligible (a featured pick needs FOUR regular siblings after it in its
-// band to avoid a stray gap in the equivalent grid math this pattern was
-// originally built for).
-const FEATURE_INTERVAL = 5;
-
+// ——— Lista: featured row (the "ritmo tipo revista" of HANDOFF.md's
+// 2026-07-23 entry). An article gets the rich photo treatment when its
+// recency-decayed tier is the top one (5) — previously this checked raw
+// editorial priority ≥4, now it reuses the same tierFor everything else
+// uses, so a stale high-priority article no longer forces the featured
+// treatment just because an editor rated it well once.
+//
+// ——— 2026-07-24: the position gate is gone. Requiring a tier-5 article to
+// ALSO land on an exact multiple of FEATURE_INTERVAL means the two views
+// disagree about the same article: Cuadrícula gives every tier-5 story the
+// full ArchiveFeatureRow treatment (it's a `solo` block in groupRiver),
+// while Lista only did so if that story happened to sit at index 0, 5, 10…
+// Against the real archive the two conditions never coincided — measured
+// with Playwright at all four breakpoints, Lista rendered 24 plain rows and
+// exactly 0 featured rows, so the "ritmo tipo revista" this function exists
+// to produce never actually fired, and a story shown as a photo feature in
+// one view silently became a text line in the other.
+// Tier 5 is already a scarce, recency-decayed signal (see TIER_THRESHOLDS —
+// it takes a top rating AND freshness), which is the rationing the interval
+// was standing in for. Using it directly makes the hierarchy identical in
+// both views, which is what a reader toggling between them expects.
 function pickFeaturedIds(articles: Article[], now: Date): Set<string> {
   const ids = new Set<string>();
-  for (let start = 0; start + FEATURE_INTERVAL <= articles.length; start += FEATURE_INTERVAL) {
-    const candidate = articles[start];
-    if (tierFor(candidate, now) === 5) ids.add(candidate.id);
+  for (const article of articles) {
+    if (tierFor(article, now) === 5) ids.add(article.id);
   }
   return ids;
 }
@@ -123,15 +131,40 @@ function pickFeaturedIds(articles: Article[], now: Date): Set<string> {
 // fix from an earlier pass for that failure mode). Tier 1/2 (text, no
 // photo) and tier 5 (full-width feature, reuses ArchiveFeatureRow) always
 // break the flow onto their own line.
-type RiverBlock = { type: 'cluster'; items: Article[] } | { type: 'solo'; item: Article; tier: 1 | 2 | 5 };
+//
+// ——— 2026-07-24: "hay varios cuadros solos con una fila vacía" (user
+// feedback from an iPad session). Splitting on every tier CHANGE, as this
+// originally did, means a single ★3 article sitting between two ★4s
+// becomes a cluster of exactly one — which renders as a lone 200px card
+// marooned in a 1180px flex row, with the rest of the row empty. Verified
+// against the real archive data: the runs came out [3, 2, 1, 4], and that
+// third run of one is precisely what the report describes.
+//
+// The fix is to merge singleton runs into a neighbour rather than to let
+// them stand alone. Which neighbour matters: merging into the PREVIOUS run
+// keeps reading order intact and inherits that run's size, so the row
+// stays internally uniform — the property the tier-cluster design exists
+// to guarantee (see the note above about a 200px card next to 280px ones
+// reading as broken). A singleton with no previous run (the river opens
+// with one) merges forward into the next instead. A singleton that is the
+// only cluster in the whole river has nowhere to go and keeps its own
+// size, which is correct: one card and nothing else isn't a ragged row,
+// it's just a short archive.
+//
+// Size is therefore a property of the CLUSTER, not of each card's own
+// tier, so it's resolved here and carried on the block instead of being
+// recomputed per card at render time.
+type RiverBlock =
+  | { type: 'cluster'; items: Article[]; size: 'sm' | 'md' }
+  | { type: 'solo'; item: Article; tier: 1 | 2 | 5 };
 
 function groupRiver(articles: Article[], now: Date): RiverBlock[] {
   const blocks: RiverBlock[] = [];
   let cluster: Article[] = [];
-  let clusterTier: number | null = null;
+  let clusterTier: 3 | 4 | null = null;
   const flushCluster = () => {
     if (cluster.length) {
-      blocks.push({ type: 'cluster', items: cluster });
+      blocks.push({ type: 'cluster', items: cluster, size: clusterTier === 4 ? 'md' : 'sm' });
       cluster = [];
       clusterTier = null;
     }
@@ -148,6 +181,23 @@ function groupRiver(articles: Article[], now: Date): RiverBlock[] {
     }
   }
   flushCluster();
+
+  // Second pass: absorb every one-card cluster into an adjacent one.
+  // Iterating backwards lets a merge collapse a run without invalidating
+  // the indices still ahead of the cursor.
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    const block = blocks[i];
+    if (block.type !== 'cluster' || block.items.length !== 1) continue;
+    const prev = blocks[i - 1];
+    const next = blocks[i + 1];
+    if (prev?.type === 'cluster') {
+      prev.items.push(block.items[0]);
+      blocks.splice(i, 1);
+    } else if (next?.type === 'cluster') {
+      next.items.unshift(block.items[0]);
+      blocks.splice(i, 1);
+    }
+  }
   return blocks;
 }
 
@@ -254,7 +304,7 @@ export default async function ArchivoPage({ searchParams }: Props) {
                         <ArchiveGridCard
                           key={a.id}
                           article={a}
-                          size={tierFor(a, now) === 4 ? 'md' : 'sm'}
+                          size={block.size}
                           priority={bi === 0 && ii === 0}
                         />
                       ))}

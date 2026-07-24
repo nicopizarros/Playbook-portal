@@ -59,7 +59,23 @@ export function ArrayEditor<T>({
     setExpanded(prev => new Set(Array.from(prev, i => i + 1)).add(0));
   }
 
+  // "Eliminar" used to fire on a single click with no confirmation at all.
+  // For a CMS array (opinion cards, testimonials, products…) that silently
+  // dropped the row — there's no undo, and the only recovery is to retype
+  // it or reload and lose every other unsaved edit on the tab. For the
+  // Articles tab it's worse: onRemove is wired to archiveArticle(), which
+  // hits the server immediately and takes the piece off the live site.
+  // Either way the button sits inches from the drag handle and the title,
+  // both of which are things an editor taps deliberately on an iPad — and
+  // the whole roster now works from tablets. A native confirm() matches the
+  // rest of this panel's plain-DOM idiom and can't be dismissed by accident.
   function removeItem(i: number) {
+    const label = itemTitle(items[i], i) || 'este elemento';
+    const question = onRemove
+      ? `¿Archivar "${label}"? Se quita del sitio de inmediato.`
+      : `¿Eliminar "${label}"? No se puede deshacer.`;
+    if (!window.confirm(question)) return;
+
     if (onRemove) {
       onRemove(items[i], i);
       return;

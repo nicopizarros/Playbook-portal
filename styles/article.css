@@ -261,7 +261,26 @@
 .archive-feature-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
 .archive-feature-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
 .archive-feature-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
-.archive-feature-row .card-link{display:flex;gap:24px;flex:1;min-width:0;}
+/* flex-wrap + a real flex-basis on .card-link, instead of `flex:1` (= flex
+   basis 0) — 2026-07-24 iPad fix. .archive-feature-row is a flex ROW whose
+   two children are .card-link and .tag-pill-row. With basis 0 and
+   min-width:0, .card-link was infinitely squeezable while .tag-pill-row
+   (auto basis, sized by its own text) was not, so flexbox resolved every
+   shortage by crushing the card instead of the pills. At iPad portrait
+   that produced a ~50px content column — headline "La lla…", excerpt "El
+   caso…", byline wrapping one word per line — while the tags kept their
+   full ~350px. Measured, not theorised: .card-link came back 48px wide at
+   768px.
+   The @media(max-width:640px) block below already stacked this into a
+   column, which is why the bug was invisible on a phone and only showed up
+   between 641px and desktop.
+   Giving .card-link a 420px basis and letting the row wrap means the pills
+   drop to their own line exactly when the two no longer fit side by side,
+   at whatever width that happens to be — no breakpoint to keep in sync
+   with the pill text's length, and the desktop three-column arrangement is
+   untouched. */
+.archive-feature-row{flex-wrap:wrap;}
+.archive-feature-row .card-link{display:flex;gap:24px;flex:1 1 420px;min-width:0;}
 .archive-feature-row .card-link::after{content:"";position:absolute;inset:0;}
 .archive-feature-photo{flex:0 0 260px;aspect-ratio:16/10;overflow:hidden;background:var(--rule);}
 .archive-feature-photo img{width:100%;height:100%;object-fit:cover;transition:transform var(--duration-slow) var(--ease-out);}
