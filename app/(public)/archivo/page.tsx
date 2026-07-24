@@ -154,6 +154,20 @@ function pickFeaturedIds(articles: Article[], now: Date): Set<string> {
 // Size is therefore a property of the CLUSTER, not of each card's own
 // tier, so it's resolved here and carried on the block instead of being
 // recomputed per card at render time.
+// Cards per full row. The river's grid is 4 columns at >=900px and 2 below
+// it (styles/article.css) — never 3, never 5 — so a group of exactly 4
+// tiles perfectly at both: one full row of 4, or two full rows of 2. That
+// is the whole reason the number is 4 and not "however many fit".
+//
+// This replaced a flex-wrap layout whose rows were sized by each tier's
+// flex-basis. That arrangement could not avoid orphans: a run of 4 cards in
+// a container with room for 3 wrapped to 3 + 1, and the trailing 1 sat
+// alone at 40% of the row width — measured at 1194px and 1440px alike, and
+// exactly the "cuadro solo con una fila vacía" in the report. No amount of
+// merging runs fixes that, because the orphan is produced by WRAPPING, not
+// by the run being short.
+const CARDS_PER_ROW = 4;
+
 type RiverBlock =
   | { type: 'cluster'; items: Article[]; size: 'sm' | 'md' }
   | { type: 'solo'; item: Article; tier: 1 | 2 | 5 };
@@ -182,23 +196,66 @@ function groupRiver(articles: Article[], now: Date): RiverBlock[] {
   }
   flushCluster();
 
-  // Second pass: absorb every one-card cluster into an adjacent one.
-  // Iterating backwards lets a merge collapse a run without invalidating
-  // the indices still ahead of the cursor.
+  // Second pass: pull short runs into an adjacent run so the tiling below
+  // has enough cards to build full rows out of.
+  //
+  // Without this the tiling starves: the real tier sequence is noisy, not
+  // banded (measured runs against a production-sized archive:
+  // [2,2,3,2,4,4,2,2]), so cutting straight to rows of 4 produced ONE card
+  // row for the whole page and demoted 13 articles to text lines. Merging
+  // first turns those runs into [5,4,4] and yields three full rows.
+  // Only genuinely adjacent runs merge — a run separated from the next by
+  // a full-width line row stays where it is, because closing that gap
+  // would move an article past another and reorder the archive.
   for (let i = blocks.length - 1; i >= 0; i--) {
     const block = blocks[i];
-    if (block.type !== 'cluster' || block.items.length !== 1) continue;
+    if (block.type !== 'cluster' || block.items.length >= CARDS_PER_ROW) continue;
     const prev = blocks[i - 1];
     const next = blocks[i + 1];
     if (prev?.type === 'cluster') {
-      prev.items.push(block.items[0]);
+      prev.items.push(...block.items);
       blocks.splice(i, 1);
     } else if (next?.type === 'cluster') {
-      next.items.unshift(block.items[0]);
+      next.items.unshift(...block.items);
       blocks.splice(i, 1);
     }
   }
-  return blocks;
+
+  // Third pass: cut every run into rows of exactly CARDS_PER_ROW, and
+  // demote whatever is left over.
+  //
+  // A run of 9 becomes two full card rows plus one leftover; the leftover
+  // does NOT become a short third row, it becomes line rows. That is the
+  // trade this makes deliberately: an article that can't complete a band
+  // with its own tier-mates gets the compact one-line treatment rather
+  // than a half-empty row of its own. Every card row the reader sees is
+  // therefore full at every viewport width, and every non-card row is
+  // full-width text — there is no shape left that can leave a gap.
+  //
+  // Merging leftovers into a neighbouring run was the obvious alternative
+  // and is wrong here: runs are separated by full-width line rows, so
+  // merging across one would move an article past another and reorder the
+  // archive. Reading order is the one thing this list must not shuffle.
+  const tiled: RiverBlock[] = [];
+  for (const block of blocks) {
+    if (block.type !== 'cluster') {
+      tiled.push(block);
+      continue;
+    }
+    const full = Math.floor(block.items.length / CARDS_PER_ROW) * CARDS_PER_ROW;
+    for (let i = 0; i < full; i += CARDS_PER_ROW) {
+      tiled.push({ type: 'cluster', items: block.items.slice(i, i + CARDS_PER_ROW), size: block.size });
+    }
+    // A river consisting of nothing but one short run has no full rows to
+    // look ragged against, so it keeps its cards rather than degrading to
+    // a couple of text lines.
+    if (full === 0 && blocks.length === 1) {
+      tiled.push(block);
+      continue;
+    }
+    block.items.slice(full).forEach(item => tiled.push({ type: 'solo', item, tier: 2 }));
+  }
+  return tiled;
 }
 
 export default async function ArchivoPage({ searchParams }: Props) {

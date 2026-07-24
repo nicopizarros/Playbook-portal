@@ -1,6 +1,15 @@
 .eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);display:inline-flex;align-items:center;gap:7px;}
 .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
-.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:40px 0 20px;border-bottom:2px solid var(--ink);margin-bottom:28px;flex-wrap:wrap;}
+/* align-items:baseline, not flex-end. With a two-line .sub underneath the
+   h2, flex-end dropped "Ver más" to the bottom of the block — so it sat
+   level with the END of the subtitle, far right, with a wide empty band
+   between the two and nothing on the h2's own line. Reported as dead
+   space, and that's what it is: the link had drifted away from the heading
+   it belongs to. Baseline puts it back on the h2's baseline (the left
+   block's first baseline is the h2's), which is the normal newspaper
+   section-header relationship and closes the void without moving the link
+   off the right edge, where the layout still wants it. */
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:40px 0 20px;border-bottom:2px solid var(--ink);margin-bottom:28px;flex-wrap:wrap;}
 .section-head h2{font-family:var(--serif-display);font-weight:400;font-size:25px;letter-spacing:.01em;margin:0;text-transform:uppercase;}
 .section-head .sub{font-size:13px;color:var(--gray-txt);margin-top:4px;font-weight:400;max-width:480px;}
 /* Cabecera de páginas de listado (/archivo, /tema, /autor): mismo bloque

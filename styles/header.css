@@ -13,9 +13,16 @@ header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.08);}
   :root:not([data-theme="light"]) header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.5);}
 }
 header.topbar.is-scrolled .nav{height:62px;}
-header.topbar.is-scrolled .brand img{height:48px;}
+header.topbar.is-scrolled .brand img{height:42px;}
 .brand{display:block;flex-shrink:0;}
-.brand img{height:64px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);}
+/* 52px, down from 64px. Two reasons, one of them measured: at 64px the
+   wordmark renders 259px wide, and that alone was ~80px of the horizontal
+   overflow the header still had between 1181px and ~1300px (a 12.9" iPad
+   and most small laptops land in that band). The other is editorial — the
+   masthead was reported as reading a touch too large next to the nav. At
+   52px it's 211px wide and the row fits with room to spare. */
+.brand img{height:52px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);}
+
 /* Dos <img> en vez de un filtro: playbook-logo.webp trae el bracket de marca
    ya en --green horneado en el raster, y brightness(0) invert(1) aplanaba
    TODO (bracket incluido) a blanco parejo, perdiendo el acento en modo
@@ -159,3 +166,23 @@ header.topbar.is-scrolled .brand img{height:48px;}
 @media(prefers-reduced-motion:reduce){
   .ticker-content{animation:none;position:static;transform:none;overflow-x:auto;}
 }
+
+/* ——— Drawer-only elements: hidden by default, switched on ONLY inside the
+   drawer media query in styles/responsive.css.
+   Three controls exist twice in the markup — the subscribe CTA, the login
+   link and the theme toggle — once for the desktop bar and once for the
+   mobile drawer. Hiding the drawer copy here, in the base state with no
+   media query attached, means exactly one rule ever turns each of them on.
+   The previous shape was a matched pair of queries (`min-width:921px`
+   hiding the drawer copies, `max-width:920px` hiding the desktop ones),
+   which is only correct while both numbers agree; the site shipped a state
+   where they didn't and both "Iniciar sesión" links rendered side by side
+   in the top bar on an iPad. A one-sided rule has no partner to drift from.
+   Placed at the END of this file deliberately: `.theme-toggle` below sets
+   `display:flex` at the same specificity (0,1,0), so an earlier
+   `.theme-toggle-drawer{display:none}` loses the cascade and the drawer's
+   toggle renders next to the desktop one — measured, two toggles visible
+   from 1200px up, before this moved down here. */
+.nav-drawer-cta,
+.nav-drawer-login,
+.theme-toggle.theme-toggle-drawer{display:none;}
