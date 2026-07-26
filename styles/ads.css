@@ -1,8 +1,10 @@
-/* ——— Ad slots (Fase 7) ———
+/* ——— Ad slots (Fase 7 + conexión a AdSense) ———
    Reservas de espacio silenciosas: sin borde, sin fondo, sin etiqueta.
    Cada slot mantiene sus dimensiones desde el día uno para que conectar
-   una red no mueva el layout (cero CLS). Las medidas vienen del plan de
-   Fase 7 en HANDOFF.md:
+   una red no mueva el layout (cero CLS). AdSense ya está conectado
+   (components/ads/AdSlot.tsx, lib/ad-slots.ts) — estas reglas siguen
+   aplicando igual: min-height por slot, el <ins> real ocupa el ancho
+   disponible adentro. Las medidas vienen del plan de Fase 7 en HANDOFF.md:
    - leaderboard-home: 970×90 desktop / 320×50 mobile
    - inline-feed: formato nativo (ocupa una celda del feed, sin alto fijo)
    - rail-home: 300×600 desktop; desaparece en mobile junto con el rail

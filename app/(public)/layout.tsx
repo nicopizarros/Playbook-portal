@@ -2,6 +2,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { AdSenseLoader } from '@/components/ads/AdSenseLoader';
 import { CookieNotice } from '@/components/CookieNotice';
 
 // Every public page reads live Postgres data (articles, site_content) that
@@ -25,6 +26,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <>
       {gaMeasurementId && <GoogleAnalytics measurementId={gaMeasurementId} />}
+      <AdSenseLoader />
       {/* Was previously declared per-page, after <Header/> in the render
           tree — meaning every nav link, the search box, and the theme
           toggle all sat *before* it in tab order, so a keyboard user had to

@@ -26,6 +26,12 @@ const legacyHtmlRedirects = [
 //    and YouTube (components/sections/VideoSection.tsx) embeds.
 //  - script-src for GA4 (googletagmanager.com, lib analytics still pending
 //    port — see HANDOFF.md); connect-src for GA4's own beacon domains.
+//  - script-src/frame-src/connect-src for AdSense (components/ads/AdSlot.tsx,
+//    AdSenseLoader.tsx) — domains per Google's published AdSense CSP
+//    guidance: pagead2.googlesyndication.com serves adsbygoogle.js and ad
+//    creative script, googleads.g.doubleclick.net + tpc.googlesyndication.com
+//    render ad iframes (safeframe), ep1/ep2.adtrafficquality.google is
+//    Google's invalid-traffic detection beacon.
 //  - Vercel Web Analytics (@vercel/analytics) is same-origin in production
 //    (script served from /_vercel/insights/script.js, confirmed reading
 //    node_modules/@vercel/analytics/dist source) — no external script-src
@@ -40,13 +46,13 @@ const csp = [
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'self'",
-  "frame-src 'self' https://www.youtube.com https://www.instagram.com",
+  "frame-src 'self' https://www.youtube.com https://www.instagram.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://*.safeframe.googlesyndication.com",
   "img-src 'self' https: data: blob:",
   "media-src 'self' https:",
-  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' https://va.vercel-scripts.com" : ''} https://www.instagram.com https://www.googletagmanager.com`,
+  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' https://va.vercel-scripts.com" : ''} https://www.instagram.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
-  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com",
+  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
 ]
   .join('; ')
   .replace(/\s+/g, ' ')

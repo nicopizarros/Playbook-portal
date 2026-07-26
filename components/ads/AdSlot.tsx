@@ -2,45 +2,27 @@
 
 import { useEffect, useState } from 'react';
 import { readConsent, CONSENT_EVENT } from '@/lib/consent';
+import {
+  type AdSlotName,
+  FORMAT_LABEL,
+  ADSENSE_FORMAT,
+  ADSENSE_CLIENT,
+  ADSENSE_SLOT_ID,
+  INLINE_FEED_LAYOUT_KEY,
+} from '@/lib/ad-slots';
 
-// The one component that changes when an ad network gets connected (Fase
-// 7). Until then every slot renders a visible PLACEHOLDER (user request,
-// 2026-07-22: "while we connect it to the real ads place a placeholder
-// so I can see it visually") — the dashed/striped vocabulary the design
-// prototypes used for ad slots, muted to the site's tokens. Dimensions
-// per slot live in styles/ads.css, keyed off the data-ad-slot attribute.
-// Connecting a network later means: replace the placeholder <div> below
-// with the network's tag when `consented` is true — nothing else moves
-// (and .ad-slot:empty{display:none} in ads.css takes care of unfilled
-// slots again once the placeholder is gone).
-//
-// Consent contract (see lib/consent.ts): advertising !== true means the
-// slot keeps its dimensions but must never load third-party code — that's
-// what data-ad-consent exposes for the future network integration, and
-// why the read happens in an effect (localStorage doesn't exist during
-// SSR; the server-rendered slot is always in the "denied" state and
-// upgrades client-side, which also keeps hydration deterministic).
+export type { AdSlotName };
 
-export type AdSlotName =
-  | 'leaderboard-home'
-  | 'inline-feed'
-  | 'rail-home'
-  | 'inline-mid-editorial'
-  | 'inline-article'
-  | 'vertical-sponsor-infinitas';
-
-// Format labels shown inside the placeholder — the sizes from the Fase 7
-// plan (HANDOFF.md), so anyone looking at the page knows exactly what
-// each position will hold.
-const FORMAT_LABEL: Record<AdSlotName, string> = {
-  'leaderboard-home': 'Leaderboard · 970×90',
-  'inline-feed': 'Formato nativo · in-feed',
-  'rail-home': 'Rail · 300×250',
-  'inline-mid-editorial': 'Mid editorial · 970×180',
-  'inline-article': 'In-article · ancho del cuerpo',
-  'vertical-sponsor-infinitas': 'Patrocinio de vertical',
-};
-
+// AdSense is wired: once a reader has granted advertising consent and the
+// slot's env vars are set (see .env.local.example / the manual setup
+// guide), this renders the real <ins class="adsbygoogle"> unit instead of
+// the placeholder below. Until then — locally, in preview deploys, or for
+// vertical-sponsor-infinitas which never gets an AdSense entry (see
+// lib/ad-slots.ts) — it falls back to the dashed/striped placeholder the
+// design prototypes used, so the reserved space is always visible even
+// with no network connected. Dimensions per slot live in styles/ads.css,
+// keyed off the data-ad-slot attribute; .ad-slot:empty{display:none} there
+// takes care of any slot that renders neither an ad nor a placeholder.
 export function AdSlot({ slot }: { slot: AdSlotName }) {
   const [consented, setConsented] = useState(false);
 
@@ -50,6 +32,65 @@ export function AdSlot({ slot }: { slot: AdSlotName }) {
     window.addEventListener(CONSENT_EVENT, update);
     return () => window.removeEventListener(CONSENT_EVENT, update);
   }, []);
+
+  const format = ADSENSE_FORMAT[slot];
+  const slotId = ADSENSE_SLOT_ID[slot];
+  const adReady = Boolean(
+    consented &&
+      ADSENSE_CLIENT &&
+      format &&
+      slotId &&
+      (format !== 'in-feed' || INLINE_FEED_LAYOUT_KEY)
+  );
+
+  // One push per <ins> tag, once it's in the DOM — the standard AdSense
+  // pattern. `adsbygoogle` is created here rather than assumed to already
+  // exist because the loader script (AdSenseLoader.tsx) is async and may
+  // not have run yet; queuing on a plain array is safe either way.
+  useEffect(() => {
+    if (!adReady) return;
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch {
+      // Script blocked (extension, network) or malformed unit — the slot
+      // just keeps its reserved dimensions, no crash.
+    }
+  }, [adReady]);
+
+  if (adReady) {
+    return (
+      <div className={`ad-slot ad-slot--${slot}`} data-ad-slot={slot} data-ad-consent="granted">
+        {format === 'in-feed' ? (
+          <ins
+            className="adsbygoogle"
+            style={{ display: 'block', width: '100%' }}
+            data-ad-format="fluid"
+            data-ad-layout-key={INLINE_FEED_LAYOUT_KEY}
+            data-ad-client={ADSENSE_CLIENT}
+            data-ad-slot={slotId}
+          />
+        ) : format === 'in-article' ? (
+          <ins
+            className="adsbygoogle"
+            style={{ display: 'block', textAlign: 'center' }}
+            data-ad-layout="in-article"
+            data-ad-format="fluid"
+            data-ad-client={ADSENSE_CLIENT}
+            data-ad-slot={slotId}
+          />
+        ) : (
+          <ins
+            className="adsbygoogle"
+            style={{ display: 'block', width: '100%' }}
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+            data-ad-client={ADSENSE_CLIENT}
+            data-ad-slot={slotId}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

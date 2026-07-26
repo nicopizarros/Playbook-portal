@@ -3395,6 +3395,64 @@ real, mismo estándar que Fases 1-3):
   `migrate:json` contra producción (riesgo: pisa cualquier edición
   hecha desde el CMS que no esté reflejada en `content.json`).
 
+### 2026-07-26 — Integración de Google AdSense en los 6 ad slots
+
+- Revisión pedida por el usuario: de los seis ad slots de Fase 7, cuáles
+  están en una posición natural para conectarse a AdSense y cuáles no.
+  Cinco quedan conectados: `leaderboard-home` y `rail-home` como display
+  responsive; `inline-feed` (después de la sexta historia del feed) como
+  nativo in-feed de AdSense — exactamente el formato para el que existe;
+  `inline-mid-editorial` (entre secciones editoriales) e `inline-article`
+  (dentro del cuerpo, tras el tercer párrafo) como nativo in-article. El
+  sexto, `vertical-sponsor-infinitas`, se deja explícitamente AFUERA: es
+  un patrocinio nombrado vendido directamente por el equipo comercial, no
+  programático (así estaba documentado desde la Fase 7) — conectarlo a
+  AdSense dejaría que cualquier anunciante programático llene un espacio
+  prometido a un sponsor específico. Sigue mostrando su placeholder para
+  siempre, sin variables de entorno ni código de AdSense involucrado.
+- `lib/ad-slots.ts` (nuevo): única fuente de verdad de qué formato de
+  AdSense (`display` / `in-feed` / `in-article`) le corresponde a cada
+  slot, más las variables de entorno `NEXT_PUBLIC_ADSENSE_*` (todas
+  públicas por naturaleza — terminan en el JS de la página igual, ver
+  comentario del archivo).
+- `components/ads/AdSlot.tsx`: ahora renderiza el `<ins class="adsbygoogle">`
+  real (con el formato correcto por slot) cuando el lector dio consentimiento
+  de publicidad Y las variables de entorno del slot están seteadas; si
+  falta cualquiera de las dos condiciones, cae al mismo placeholder
+  visible de siempre — cero cambio de comportamiento hasta que se carguen
+  las variables reales en Vercel.
+- `components/ads/AdSenseLoader.tsx` (nuevo): carga `adsbygoogle.js` una
+  vez, mismo patrón de gateo por consentimiento que ya usa
+  `GoogleAnalytics.tsx`. Montado en `app/(public)/layout.tsx`.
+- `next.config.ts`: CSP ampliada con los dominios de AdSense (`script-src`,
+  `frame-src` para los iframes de anuncio/safeframe, `connect-src` para el
+  beacon de tráfico inválido) — sin esto los anuncios reales quedarían
+  bloqueados por el navegador en cuanto se conecten las variables.
+- `.env.local.example`: documentadas las 7 variables nuevas
+  (`NEXT_PUBLIC_ADSENSE_CLIENT` + una por slot conectado + el layout key
+  de `inline-feed`), con la razón de por qué van con `NEXT_PUBLIC_` (a
+  diferencia de `GA4_MEASUREMENT_ID`, que se lee server-side solo por
+  convención de nombres con su hermano secreto `GA4_PROPERTY_ID`).
+- **Verificado**: `tsc --noEmit`, `npm run lint` y `next build` limpios.
+  Sin Postgres disponible en este sandbox para correr el sitio completo,
+  se montó una ruta de prueba aislada (`app/adhoctest`, fuera del route
+  group `(public)` para no depender de la base de datos vía
+  Header/Footer) con los 6 `AdSlot` renderizados, y se verificó con
+  Playwright en Chromium: (a) sin consentimiento — placeholders
+  idénticos a los de siempre; (b) con consentimiento pero sin variables
+  de entorno — sigue cayendo a placeholders (default seguro); (c) con
+  consentimiento y variables de entorno (client ID + slot IDs de
+  prueba) — los 5 slots conectados renderizan su `<ins class="adsbygoogle">`
+  con los atributos correctos (`data-ad-format`, `data-ad-layout`/
+  `data-ad-layout-key` según corresponda, `data-ad-client`,
+  `data-ad-slot`), y `vertical-sponsor-infinitas` se mantiene en
+  placeholder, confirmando que nunca se conecta a AdSense. La ruta de
+  prueba se borró antes de terminar la sesión, no quedó en el repo.
+- **Pendiente (parte manual del usuario)**: cuenta de AdSense aprobada +
+  crear una unidad de anuncio por slot conectado + cargar los IDs reales
+  como variables de entorno en Vercel. Guía paso a paso entregada al
+  usuario en el chat de esta sesión (no duplicada acá).
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
