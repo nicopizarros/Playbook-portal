@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { eq } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 import { db } from '../db/client';
 import { articles } from '../db/schema';
 import { rankArticles, selectHero } from '../rank';
@@ -7,6 +8,59 @@ import { LEAD_COUNT, LIST_COUNT } from '../constants';
 import type { TaxonomyTier } from '../taxonomy';
 
 export type Article = typeof articles.$inferSelect;
+
+export const ARTICLES_CACHE_TAG = 'articles';
+
+// Every column except bodyJson/bodyHtml (the two heavy ones — full TipTap
+// document + rendered HTML per article). Nothing that reads getAllArticles()
+// ever needs the body: Header/sitemap/feed/most-read/related-articles all
+// just need metadata to list, link, or rank. Fetching the body on every one
+// of those call sites is what blew through Neon's monthly network-transfer
+// allowance in 5 days (see postmortem) despite a ~30-row table — the fix is
+// this query, not more caching alone. getArticleById below still selects
+// everything, since the article page needs the real body for the one
+// article it's rendering.
+const LIST_COLUMNS = {
+  id: articles.id,
+  title: articles.title,
+  excerpt: articles.excerpt,
+  teaser: articles.teaser,
+  wallTeaser: articles.wallTeaser,
+  author: articles.author,
+  date: articles.date,
+  dateFormatted: articles.dateFormatted,
+  publication: articles.publication,
+  source: articles.source,
+  tagsScope: articles.tagsScope,
+  tagsSport: articles.tagsSport,
+  tagsVertical: articles.tagsVertical,
+  priority: articles.priority,
+  featured: articles.featured,
+  mostrarAutor: articles.mostrarAutor,
+  readingTime: articles.readingTime,
+  substackUrl: articles.substackUrl,
+  sourceUrl: articles.sourceUrl,
+  imageUrl: articles.imageUrl,
+  imageCredit: articles.imageCredit,
+  status: articles.status,
+  createdAt: articles.createdAt,
+  updatedAt: articles.updatedAt,
+  updatedBy: articles.updatedBy,
+} as const;
+
+// Also caches the query result itself for 60s across requests (tagged so an
+// editor's publish/save/archive invalidates it immediately via
+// revalidateTag) — every (public) route is force-dynamic (see that layout's
+// comment for why), so without this every page view, sitemap crawl, and RSS
+// fetch re-ran this query from scratch, with nothing shared between them.
+const queryPublishedArticles = unstable_cache(
+  async () => {
+    const rows = await db.select(LIST_COLUMNS).from(articles).where(eq(articles.status, 'published'));
+    return rows.map(row => ({ ...row, bodyJson: null, bodyHtml: null }));
+  },
+  ['articles-published-list'],
+  { revalidate: 60, tags: [ARTICLES_CACHE_TAG] },
+);
 
 // Mirrors the legacy architecture on purpose: legacy/js/articles.js fetched
 // the entire articles.json into memory and did all ranking/filtering
@@ -17,14 +71,17 @@ export type Article = typeof articles.$inferSelect;
 // React's cache() so multiple components (ticker, hero, list) don't each
 // issue their own query.
 export const getAllArticles = cache(async (): Promise<Article[]> => {
-  const rows = await db.select().from(articles).where(eq(articles.status, 'published'));
+  const rows = await queryPublishedArticles();
   return rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 });
 
-export async function getArticleById(id: string): Promise<Article | null> {
+// cache()-wrapped so a request that reads the full article (body included)
+// after already resolving it another way within the same render doesn't
+// issue the same by-id lookup twice.
+export const getArticleById = cache(async (id: string): Promise<Article | null> => {
   const [row] = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
   return row ?? null;
-}
+});
 
 export type ArticleMeta = {
   id: string;
@@ -54,7 +111,11 @@ export type ArticleMeta = {
 // body is never fetched into that request at all, not just fetched-and-
 // hidden. generateMetadata also uses this exclusively (og:description etc.
 // only ever need excerpt, never body, same as legacy behavior).
-export async function getArticleMetaById(id: string): Promise<ArticleMeta | null> {
+//
+// cache()-wrapped: generateMetadata and the page component both call this
+// with the same id during the same request (Next runs both per navigation)
+// — without this, every article view ran the identical lookup twice.
+export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta | null> => {
   const [row] = await db
     .select({
       id: articles.id,
@@ -79,7 +140,7 @@ export async function getArticleMetaById(id: string): Promise<ArticleMeta | null
     .where(eq(articles.id, id))
     .limit(1);
   return row ?? null;
-}
+});
 
 export async function getArticlesByAuthor(name: string): Promise<Article[]> {
   const all = await getAllArticles();

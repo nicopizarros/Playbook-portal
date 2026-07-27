@@ -3,11 +3,12 @@
 import { and, eq, sql } from 'drizzle-orm';
 import { generateHTML } from '@tiptap/html';
 import type { JSONContent } from '@tiptap/core';
+import { revalidateTag } from 'next/cache';
 import { auth } from '@/auth';
 import { db } from '@/lib/db/client';
 import { articles, contentRevisions, siteContent } from '@/lib/db/schema';
-import type { Article } from '@/lib/data/articles';
-import type { SiteContentData } from '@/lib/data/site-content';
+import { ARTICLES_CACHE_TAG, type Article } from '@/lib/data/articles';
+import { SITE_CONTENT_CACHE_TAG, type SiteContentData } from '@/lib/data/site-content';
 import { TIPTAP_EXTENSIONS } from '@/lib/tiptap-extensions';
 import { slugify } from '@/lib/slugify';
 
@@ -74,6 +75,7 @@ export async function saveSiteContent(
     snapshot: data,
   });
 
+  revalidateTag(SITE_CONTENT_CACHE_TAG);
   return { conflict: false, version: updated.version, updatedAt: updated.updatedAt };
 }
 
@@ -168,6 +170,7 @@ export async function saveArticle(
     snapshot: updated,
   });
 
+  revalidateTag(ARTICLES_CACHE_TAG);
   return { conflict: false, article: updated };
 }
 
@@ -177,6 +180,7 @@ export async function archiveArticle(id: string): Promise<{ ok: true }> {
     .update(articles)
     .set({ status: 'draft', updatedAt: new Date(), updatedBy: session.user.id })
     .where(eq(articles.id, id));
+  revalidateTag(ARTICLES_CACHE_TAG);
   return { ok: true };
 }
 
@@ -225,6 +229,7 @@ export async function createArticle(input: ArticleInput & { id?: string }): Prom
         snapshot: inserted,
       });
 
+      revalidateTag(ARTICLES_CACHE_TAG);
       return { article: inserted };
     } catch (err: unknown) {
       // Same id-collision fallback as app/api/update-articles/route.ts: a

@@ -5,8 +5,10 @@
 
 import { timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db/client';
 import { articles } from '@/lib/db/schema';
+import { ARTICLES_CACHE_TAG } from '@/lib/data/articles';
 import { SPORT_OPTIONS } from '@/lib/taxonomy';
 import { checkRateLimit } from '@/lib/rate-limit';
 
@@ -171,6 +173,7 @@ export async function POST(req: NextRequest) {
       if (!inserted) {
         return NextResponse.json({ status: 'duplicate', url: article.url });
       }
+      revalidateTag(ARTICLES_CACHE_TAG);
       return NextResponse.json({ status: 'ok', article: inserted.title });
     } catch (err: unknown) {
       // Postgres unique_violation on the id primary key: derive a fresh id
