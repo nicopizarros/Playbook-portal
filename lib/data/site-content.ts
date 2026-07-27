@@ -1,6 +1,9 @@
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { db } from '../db/client';
 import { siteContent } from '../db/schema';
+
+export const SITE_CONTENT_CACHE_TAG = 'site-content';
 
 // Mirrors content.json's shape 1:1 — see lib/db/schema.ts's comment on
 // site_content for why this lives as one jsonb blob instead of normalized
@@ -77,13 +80,24 @@ export type SiteContentData = {
   };
 };
 
+// Also cached across requests for 60s (unstable_cache, tagged so the admin
+// save action can invalidate it immediately) — every (public) route is
+// force-dynamic, so without this every page view re-ran this query even
+// though site_content (nav links, homepage sections, footer) changes only
+// when an editor saves it.
+const querySiteContent = unstable_cache(
+  async () => {
+    const [row] = await db.select().from(siteContent).limit(1);
+    if (!row) {
+      throw new Error('site_content has no row (id=1) — run npm run migrate:json first');
+    }
+    return row.data as SiteContentData;
+  },
+  ['site-content-row'],
+  { revalidate: 60, tags: [SITE_CONTENT_CACHE_TAG] },
+);
+
 // React's cache() dedupes this within a single request/render — several
 // components (Header, Footer, each homepage section) all want the same
 // row without each issuing its own query.
-export const getSiteContent = cache(async (): Promise<SiteContentData> => {
-  const [row] = await db.select().from(siteContent).limit(1);
-  if (!row) {
-    throw new Error('site_content has no row (id=1) — run npm run migrate:json first');
-  }
-  return row.data as SiteContentData;
-});
+export const getSiteContent = cache(querySiteContent);

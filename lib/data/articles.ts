@@ -75,10 +75,13 @@ export const getAllArticles = cache(async (): Promise<Article[]> => {
   return rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 });
 
-export async function getArticleById(id: string): Promise<Article | null> {
+// cache()-wrapped so a request that reads the full article (body included)
+// after already resolving it another way within the same render doesn't
+// issue the same by-id lookup twice.
+export const getArticleById = cache(async (id: string): Promise<Article | null> => {
   const [row] = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
   return row ?? null;
-}
+});
 
 export type ArticleMeta = {
   id: string;
@@ -108,7 +111,11 @@ export type ArticleMeta = {
 // body is never fetched into that request at all, not just fetched-and-
 // hidden. generateMetadata also uses this exclusively (og:description etc.
 // only ever need excerpt, never body, same as legacy behavior).
-export async function getArticleMetaById(id: string): Promise<ArticleMeta | null> {
+//
+// cache()-wrapped: generateMetadata and the page component both call this
+// with the same id during the same request (Next runs both per navigation)
+// — without this, every article view ran the identical lookup twice.
+export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta | null> => {
   const [row] = await db
     .select({
       id: articles.id,
@@ -133,7 +140,7 @@ export async function getArticleMetaById(id: string): Promise<ArticleMeta | null
     .where(eq(articles.id, id))
     .limit(1);
   return row ?? null;
-}
+});
 
 export async function getArticlesByAuthor(name: string): Promise<Article[]> {
   const all = await getAllArticles();

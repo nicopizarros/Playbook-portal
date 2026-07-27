@@ -8,7 +8,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db/client';
 import { articles, contentRevisions, siteContent } from '@/lib/db/schema';
 import { ARTICLES_CACHE_TAG, type Article } from '@/lib/data/articles';
-import type { SiteContentData } from '@/lib/data/site-content';
+import { SITE_CONTENT_CACHE_TAG, type SiteContentData } from '@/lib/data/site-content';
 import { TIPTAP_EXTENSIONS } from '@/lib/tiptap-extensions';
 import { slugify } from '@/lib/slugify';
 
@@ -75,6 +75,7 @@ export async function saveSiteContent(
     snapshot: data,
   });
 
+  revalidateTag(SITE_CONTENT_CACHE_TAG);
   return { conflict: false, version: updated.version, updatedAt: updated.updatedAt };
 }
 
