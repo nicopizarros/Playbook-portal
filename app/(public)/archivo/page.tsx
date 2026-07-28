@@ -8,11 +8,21 @@ import { NewsRow } from '@/components/article/NewsRow';
 import { ArchiveGridCard } from '@/components/article/ArchiveGridCard';
 import { ArchiveFeatureRow } from '@/components/article/ArchiveFeatureRow';
 import { ArchiveLineRow } from '@/components/article/ArchiveLineRow';
+import { SITE_URL } from '@/lib/site-url';
 
+// Unlike /tema and /autor (each a single filter dimension, so their own
+// canonical per value is real, bounded content), /archivo has 4 independent
+// simultaneous filter tiers (source × scope × sport × vertical) plus view —
+// every combination is the same underlying article list sliced a different
+// way, not a distinct page worth indexing on its own. Canonicalizing every
+// combination back to the bare URL (paired with robots.ts's /archivo?*
+// disallow) stops that permutation space from being treated as thousands of
+// separate pages — see robots.ts's comment for the crawl-volume half of this.
 export const metadata: Metadata = {
   title: 'Archivo',
   description:
     'Todo lo publicado en Playbook: noticias, análisis y video sobre el negocio del deporte en México y LATAM, filtrable por fuente y por tema.',
+  alternates: { canonical: `${SITE_URL}/archivo` },
 };
 
 type Filters = { source?: string; scope?: string; sport?: string; vertical?: string; view?: string };
