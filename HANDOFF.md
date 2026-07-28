@@ -6,6 +6,12 @@ historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
 2026-07-22.
 
+**Dominio (2026-07-28)**: el subdominio de Vercel (`playbook-portal-phi.vercel.app`)
+quedó retirado — **playbook.la es el único dominio del sitio** de ahora en
+adelante. `lib/site-url.ts`'s `FALLBACK_SITE_URL` ya apunta a `https://playbook.la`.
+No volver a usar el subdominio `.vercel.app` en docs, código ni comunicación con
+el usuario salvo que se hable explícitamente de una preview deployment.
+
 **PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; la
 Fase 6 (migración completa) también mergeó. La sesión más reciente trabaja
 en `claude/playbook-homepage-ads-7vayvz` (Fase 7: rediseño de homepage +
