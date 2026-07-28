@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Anton, Inter } from 'next/font/google';
 import Script from 'next/script';
-import { Analytics } from '@vercel/analytics/next';
+import { AnalyticsClient } from '@/components/analytics/AnalyticsClient';
 import { SITE_URL } from '@/lib/site-url';
 
 import '../styles/reset.css';
@@ -103,11 +103,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="va-init" strategy="beforeInteractive">
           {VA_INIT_SCRIPT}
         </Script>
-        {/* Official @vercel/analytics package, site-wide (reader and admin
-            routes both) — replaces legacy's manual window.va shim + hand-
-            written /_vercel/insights/script.js <script> tag. The shim above
-            is still needed alongside it; see VA_INIT_SCRIPT's comment. */}
-        <Analytics />
+        {/* Official @vercel/analytics package, site-wide — replaces legacy's
+            manual window.va shim + hand-written /_vercel/insights/script.js
+            <script> tag. The shim above is still needed alongside it; see
+            VA_INIT_SCRIPT's comment. AnalyticsClient's beforeSend drops
+            /admin and non-production-host page views before they're sent —
+            see that file for why. */}
+        <AnalyticsClient productionHost={new URL(SITE_URL).hostname} />
         {children}
       </body>
     </html>
