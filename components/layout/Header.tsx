@@ -39,6 +39,26 @@ export async function Header() {
             alt="Playbook"
             priority
           />
+          {/* Isotope stand-in for the wordmark on narrow phones only (see
+              styles/responsive.css's 520px breakpoint) — a more minimal mark
+              in the tightest header, same light/dark swap as the wordmark
+              pair above. */}
+          <Image
+            className="logo-light-mobile"
+            src="/assets/img/playbook-isotope-light.png"
+            width={32}
+            height={32}
+            alt="Playbook"
+            priority
+          />
+          <Image
+            className="logo-dark-mobile"
+            src="/assets/img/playbook-isotope-dark.png"
+            width={32}
+            height={32}
+            alt="Playbook"
+            priority
+          />
         </Link>
         <HeaderNav
           links={nav.links}

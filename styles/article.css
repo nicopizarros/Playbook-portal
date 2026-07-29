@@ -58,9 +58,20 @@
 .article-body > p:first-child,
 .article-body > div:first-child > p:first-child{font-size:18.5px;line-height:1.7;color:var(--ink);}
 
-/* Remate editorial: cuadrado de marca al final del último párrafo. */
+/* Remate editorial: isotopo de marca al final del último párrafo (antes un
+   cuadrado verde plano). Isotopo claro (P negra) por defecto porque
+   .article-body vive sobre --paper; --paper se oscurece tanto por
+   preferencia de sistema como por el toggle manual (cascada de tres capas
+   de tokens.css), así que el isotopo sigue la misma cascada para seguir
+   siendo legible en ambos modos, no solo bajo el toggle explícito. */
 .article-body > p:last-child::after,
-.article-body > div:last-child > p:last-child::after{content:"";display:inline-block;width:7px;height:7px;background:var(--green);margin-left:9px;}
+.article-body > div:last-child > p:last-child::after{content:"";display:inline-block;width:15px;height:15px;margin-left:9px;vertical-align:-3px;background:url("/assets/img/playbook-isotope-light.png") no-repeat center/contain;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-body > p:last-child::after,
+  :root:not([data-theme="light"]) .article-body > div:last-child > p:last-child::after{background-image:url("/assets/img/playbook-isotope-dark.png");}
+}
+[data-theme="dark"] .article-body > p:last-child::after,
+[data-theme="dark"] .article-body > div:last-child > p:last-child::after{background-image:url("/assets/img/playbook-isotope-dark.png");}
 
 /* Links del cuerpo: subrayado en verde de marca (el reset global quita el
    subrayado — sin esto un link dentro del texto es indistinguible). */
