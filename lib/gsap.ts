@@ -1,4 +1,4 @@
-import { gsap as gsapUntyped, SteppedEase as SteppedEaseUntyped } from '@/vendor/gsap/esm/index.js';
+import { gsap as gsapUntyped } from '@/vendor/gsap/esm/index.js';
 import { ScrollTrigger as ScrollTriggerUntyped } from '@/vendor/gsap/esm/ScrollTrigger.js';
 import { SplitText } from '@/vendor/gsap/esm/SplitText.js';
 
@@ -11,19 +11,6 @@ interface GsapTween {
   kill(): void;
   scrollTrigger?: { kill(): void } | null;
 }
-interface GsapTimeline {
-  to(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
-  from(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
-  fromTo(
-    targets: unknown,
-    fromVars: Record<string, unknown>,
-    toVars: Record<string, unknown>,
-    position?: string | number,
-  ): GsapTimeline;
-  set(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
-  call(callback: () => void, params?: unknown[], position?: string | number): GsapTimeline;
-  kill(): void;
-}
 interface GsapCore {
   registerPlugin(...args: unknown[]): void;
   to(targets: unknown, vars: Record<string, unknown>): GsapTween;
@@ -34,7 +21,6 @@ interface GsapCore {
     toVars: Record<string, unknown>,
   ): GsapTween;
   set(targets: unknown, vars: Record<string, unknown>): void;
-  timeline(vars?: Record<string, unknown>): GsapTimeline;
 }
 
 const gsap = gsapUntyped as unknown as GsapCore;
@@ -48,11 +34,6 @@ interface ScrollTriggerStatic {
   create(vars: Record<string, unknown>): ScrollTriggerInstance;
 }
 const ScrollTrigger = ScrollTriggerUntyped as unknown as ScrollTriggerStatic;
-
-interface SteppedEaseStatic {
-  config(steps: number): unknown;
-}
-const SteppedEase = SteppedEaseUntyped as unknown as SteppedEaseStatic;
 
 // Only ScrollTrigger + SplitText are registered here — the two plugins
 // actually used anywhere in the app today (see the grep-able set of `@/lib/
@@ -73,4 +54,4 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, SplitText);
 }
 
-export { gsap, ScrollTrigger, SplitText, SteppedEase };
+export { gsap, ScrollTrigger, SplitText };
