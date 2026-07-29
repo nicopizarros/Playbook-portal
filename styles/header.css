@@ -21,7 +21,7 @@ header.topbar.is-scrolled .brand img{height:42px;}
    and most small laptops land in that band). The other is editorial — the
    masthead was reported as reading a touch too large next to the nav. At
    52px it's 211px wide and the row fits with room to spare. */
-.brand img{height:52px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);}
+.brand img{height:52px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);transform-origin:left center;}
 
 /* Dos <img> en vez de un filtro: playbook-logo.webp trae el bracket de marca
    ya en --green horneado en el raster, y brightness(0) invert(1) aplanaba
@@ -38,9 +38,29 @@ header.topbar.is-scrolled .brand img{height:42px;}
 }
 [data-theme="dark"] .brand img.logo-light{display:none;}
 [data-theme="dark"] .brand img.logo-dark{display:block;}
-/* Isotope mobile stand-ins: hidden everywhere by default, turned on only
-   inside the 520px breakpoint in responsive.css. */
-.brand img.logo-light-mobile,.brand img.logo-dark-mobile{display:none;}
+
+/* Compact isotope pair: hidden at rest (only the wordmark pair above ever
+   shows), swapped in once scrolled — components/layout/HeaderScrollEffect.tsx
+   drives the actual crossfade timeline; these rules are just the resting
+   states on either side of it, and the ONLY place that decides which of
+   the four images is display:block for a given (theme × scrolled)
+   combination, so a theme toggle mid-scroll or a scroll event mid-toggle
+   both self-correct instead of needing JS to track the other axis.
+   Each layer below adds MORE qualifying selectors than the one before —
+   never a same-specificity rule meant to override by source order alone
+   (that's what silently lost to header.topbar.is-scrolled once already,
+   see the responsive.css history for the 520px breakpoint). */
+.brand img.logo-light-compact,.brand img.logo-dark-compact{display:none;}
+
+header.topbar.is-scrolled .brand img.logo-light,
+header.topbar.is-scrolled .brand img.logo-dark{display:none;}
+header.topbar.is-scrolled .brand img.logo-light-compact{display:block;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) header.topbar.is-scrolled .brand img.logo-light-compact{display:none;}
+  :root:not([data-theme="light"]) header.topbar.is-scrolled .brand img.logo-dark-compact{display:block;}
+}
+[data-theme="dark"] header.topbar.is-scrolled .brand img.logo-light-compact{display:none;}
+[data-theme="dark"] header.topbar.is-scrolled .brand img.logo-dark-compact{display:block;}
 .nav-links{display:flex;align-items:center;gap:26px;font-size:13.5px;font-weight:500;}
 /* Wrapper que content.js re-renderiza (ver js/content.js) — display:contents
    lo saca del árbol de layout para que sus hijos sigan siendo flex items

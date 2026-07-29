@@ -175,6 +175,8 @@ footer{background:var(--ink-fixed);color:#fff;padding:44px 0 30px;border-top:1px
 .footer-brand img{height:34px;width:auto;}
 .footer-brand p{font-size:12.5px;color:rgba(255,255,255,.55);max-width:40ch;margin-top:14px;font-weight:400;line-height:1.5;}
 .social-row{display:flex;gap:10px;flex-wrap:wrap;}
+.social-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.3);color:#fff;transition:border-color var(--duration-base) var(--ease-out),color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
+.social-icon-btn:hover,.social-icon-btn:focus-visible{border-color:var(--green);color:var(--green);transform:translateY(-2px);}
 .footer-legal-row{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:32px;}
 .footer-legal-row a{font-size:11.5px;color:rgba(255,255,255,.55);text-decoration:underline;text-underline-offset:2px;}
 .footer-legal-row a:hover{color:#fff;}

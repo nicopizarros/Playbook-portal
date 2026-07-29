@@ -41,7 +41,10 @@
 .lead-story .card-link,.news-row .card-link{display:block;}
 .lead-story .card-link::after,.news-row .card-link::after{content:"";position:absolute;inset:0;}
 
-.news-list{display:flex;flex-direction:column;}
+/* gap, not just the row's own padding: without it each row's colored
+   source border sat flush against the next row's, reading as one
+   continuous stripe rather than distinct per-story color accents. */
+.news-list{display:flex;flex-direction:column;gap:10px;}
 .news-row{display:block;position:relative;padding:16px 0 16px 14px;border-bottom:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
 .news-row:first-child{padding-top:0;}
 .news-row:hover,.news-row:focus-within{border-bottom-color:rgba(0,0,0,.15);transform:translateY(-2px);}

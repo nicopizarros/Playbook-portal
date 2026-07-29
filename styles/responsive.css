@@ -188,26 +188,12 @@
 }
 
 @media(max-width:520px){
+  /* Wordmark→isotope is scroll-driven at every width now (see
+     components/layout/HeaderScrollEffect.tsx and header.css's
+     header.topbar.is-scrolled rules) — this breakpoint only still owns
+     the resting-state logo height, same as it always did. */
   .brand img{height:32px;}
   header.topbar.is-scrolled .brand img{height:32px;}
-  /* Swap the full wordmark for the compact isotope at this width — see
-     the logo-*-mobile <Image>s in components/layout/Header.tsx.
-     logo-dark's "display:block" rules in header.css are written at
-     [data-theme="dark"]/:root:not([data-theme="light"]) specificity, which
-     ties with (or beats) a plain ".brand img.logo-dark{display:none}"
-     override here — a tie resolves on source order, and an outright loss
-     doesn't resolve at all, so every override below repeats the exact
-     selector shape it needs to beat, not just the class. */
-  .brand img.logo-light,.brand img.logo-dark{display:none;}
-  [data-theme="dark"] .brand img.logo-dark{display:none;}
-  .brand img.logo-light-mobile{display:block;}
-  [data-theme="dark"] .brand img.logo-light-mobile{display:none;}
-  [data-theme="dark"] .brand img.logo-dark-mobile{display:block;}
   .nav-search input{width:48px;}
   .nav-search:focus-within input{width:48px;}
-}
-@media(max-width:520px) and (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .brand img.logo-dark{display:none;}
-  :root:not([data-theme="light"]) .brand img.logo-light-mobile{display:none;}
-  :root:not([data-theme="light"]) .brand img.logo-dark-mobile{display:block;}
 }

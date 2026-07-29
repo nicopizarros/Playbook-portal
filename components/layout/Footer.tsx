@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getSiteContent } from '@/lib/data/site-content';
+import { SocialIcon } from './SocialIcon';
 
 export async function Footer() {
   const { footer } = await getSiteContent();
@@ -14,11 +15,21 @@ export async function Footer() {
         </div>
         <div>
           <div className="social-row">
-            {footer.socialLinks.map(s => (
-              <a key={s.url} className="pill" href={s.url} target="_blank" rel="noopener noreferrer">
-                {s.label}
-              </a>
-            ))}
+            {footer.socialLinks.map(s => {
+              const icon = <SocialIcon label={s.label} />;
+              return (
+                <a
+                  key={s.url}
+                  className={icon ? 'social-icon-btn' : 'pill'}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                >
+                  {icon ?? s.label}
+                </a>
+              );
+            })}
           </div>
           <div style={{ marginTop: 12 }}>
             <a className="pill inf-pill" href={footer.infinitasLinkUrl} target="_blank" rel="noopener noreferrer">

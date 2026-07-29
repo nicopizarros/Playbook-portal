@@ -11,6 +11,18 @@ interface GsapTween {
   kill(): void;
   scrollTrigger?: { kill(): void } | null;
 }
+interface GsapTimeline {
+  to(targets: unknown, vars: Record<string, unknown>): GsapTimeline;
+  from(targets: unknown, vars: Record<string, unknown>): GsapTimeline;
+  fromTo(
+    targets: unknown,
+    fromVars: Record<string, unknown>,
+    toVars: Record<string, unknown>,
+  ): GsapTimeline;
+  set(targets: unknown, vars: Record<string, unknown>): GsapTimeline;
+  call(callback: () => void): GsapTimeline;
+  kill(): void;
+}
 interface GsapCore {
   registerPlugin(...args: unknown[]): void;
   to(targets: unknown, vars: Record<string, unknown>): GsapTween;
@@ -21,6 +33,7 @@ interface GsapCore {
     toVars: Record<string, unknown>,
   ): GsapTween;
   set(targets: unknown, vars: Record<string, unknown>): void;
+  timeline(vars?: Record<string, unknown>): GsapTimeline;
 }
 
 const gsap = gsapUntyped as unknown as GsapCore;
