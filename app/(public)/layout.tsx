@@ -1,6 +1,7 @@
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollReveal } from '@/components/ScrollReveal';
+import { HeaderScrollEffect } from '@/components/layout/HeaderScrollEffect';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { CookieNotice } from '@/components/CookieNotice';
 
@@ -38,6 +39,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <div id="main-content">{children}</div>
       <Footer />
       <ScrollReveal />
+      <HeaderScrollEffect />
       <CookieNotice />
     </>
   );

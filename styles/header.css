@@ -14,14 +14,24 @@ header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.08);}
 }
 header.topbar.is-scrolled .nav{height:62px;}
 header.topbar.is-scrolled .brand img{height:42px;}
-.brand{display:block;flex-shrink:0;}
+.brand{display:block;flex-shrink:0;position:relative;}
 /* 52px, down from 64px. Two reasons, one of them measured: at 64px the
    wordmark renders 259px wide, and that alone was ~80px of the horizontal
    overflow the header still had between 1181px and ~1300px (a 12.9" iPad
    and most small laptops land in that band). The other is editorial — the
    masthead was reported as reading a touch too large next to the nav. At
    52px it's 211px wide and the row fits with room to spare. */
-.brand img{height:52px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);}
+/* object-fit/position: components/layout/HeaderScrollEffect.tsx tweens
+   this element's own `width` (not a class toggle) on scroll — shrinking
+   width with object-position:left crops away the right side of the image
+   as it narrows, which is what actually makes "Playbook" read as
+   disappearing letter-by-letter from the right down to just the "P",
+   instead of the whole wordmark just scaling down. Because it's the
+   image's real width shrinking (not a clip-path leaving the layout box
+   full-size), .brand — sized by this child, flex-shrink:0 — narrows right
+   along with it, so the rest of the row reflows smoothly in step with the
+   wipe instead of snapping over at the end. */
+.brand img{height:52px;width:auto;display:block;object-fit:cover;object-position:left center;transition:height var(--duration-base) var(--ease-out);transform-origin:left center;}
 
 /* Dos <img> en vez de un filtro: playbook-logo.webp trae el bracket de marca
    ya en --green horneado en el raster, y brightness(0) invert(1) aplanaba
@@ -38,6 +48,16 @@ header.topbar.is-scrolled .brand img{height:42px;}
 }
 [data-theme="dark"] .brand img.logo-light{display:none;}
 [data-theme="dark"] .brand img.logo-dark{display:block;}
+
+/* Green bracket accent: same clip-path shape as the end-of-article mark
+   (styles/article.css) — reused rather than a second image asset because
+   it's theme-invariant (--green never changes between light/dark) and
+   guarantees a crisp vector edge at any size. Hidden at rest; faded in by
+   components/layout/HeaderScrollEffect.tsx once the wordmark has narrowed
+   down to just the "P". Positioned with right:-Xpx off .brand's own edge
+   (position:relative, set above) so it tracks the wordmark's shrinking
+   width automatically instead of needing its own coordinates recomputed. */
+.brand-mark-accent{position:absolute;top:1px;right:-5px;width:10px;height:9px;background:var(--green);clip-path:polygon(0 0,100% 0,100% 100%,70.7% 100%,70.7% 30%,0 30%);opacity:0;pointer-events:none;}
 .nav-links{display:flex;align-items:center;gap:26px;font-size:13.5px;font-weight:500;}
 /* Wrapper que content.js re-renderiza (ver js/content.js) — display:contents
    lo saca del árbol de layout para que sus hijos sigan siendo flex items
@@ -73,9 +93,12 @@ header.topbar.is-scrolled .brand img{height:42px;}
 .nav-search:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(154,234,57,.18);background:var(--paper);}
 .nav-search:focus-within input{width:218px;}
 
-/* Search results dropdown */
-.search-results{position:absolute;top:calc(100% + 8px);right:0;width:min(360px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:70vh;overflow-y:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:80;display:none;}
-.search-results.is-open{display:block;}
+/* Search results dropdown. Always mounted (no display:none/block toggle
+   anymore) — SearchBox.tsx drives open/close via GSAP's autoAlpha, which
+   pairs opacity with visibility so it's still out of the tab order and
+   unclickable while closed; this default state matches what a JS-less
+   render (or the instant prefers-reduced-motion set()) should look like. */
+.search-results{position:absolute;top:calc(100% + 8px);right:0;width:min(360px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:70vh;overflow-y:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:80;opacity:0;visibility:hidden;}
 .search-results .sr-item{display:block;padding:12px 16px;border-bottom:1px solid var(--rule);}
 .search-results .sr-item:last-child{border-bottom:none;}
 .search-results .sr-item:hover,.search-results .sr-item:focus-visible{background:var(--paper-soft);}

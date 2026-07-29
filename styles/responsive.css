@@ -188,6 +188,10 @@
 }
 
 @media(max-width:520px){
+  /* Wordmark→isotope is scroll-driven at every width now (see
+     components/layout/HeaderScrollEffect.tsx and header.css's
+     header.topbar.is-scrolled rules) — this breakpoint only still owns
+     the resting-state logo height, same as it always did. */
   .brand img{height:32px;}
   header.topbar.is-scrolled .brand img{height:32px;}
   .nav-search input{width:48px;}

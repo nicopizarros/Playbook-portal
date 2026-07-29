@@ -44,7 +44,7 @@ export default async function SetPasswordPage({ searchParams }: Props) {
   return (
     <main className="admin-login admin-body-login">
       <div className="admin-login-card">
-          <Image className="admin-login-logo" src="/assets/img/playbook-logo.webp" width={34} height={34} alt="Playbook" />
+          <Image className="admin-login-logo" src="/assets/img/playbook-isotope-light.png" width={34} height={34} alt="Playbook" />
           {state === 'ok' ? (
             <>
               <h1>Hola, {displayName}</h1>

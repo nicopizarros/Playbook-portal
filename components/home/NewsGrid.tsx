@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { rankArticles, selectHero } from '@/lib/rank';
 import { LEAD_COUNT, LIST_COUNT, KNOWN_SOURCES, SOURCE_LABELS } from '@/lib/constants';
@@ -8,6 +8,7 @@ import type { Article } from '@/lib/data/articles';
 import { LeadStory } from '../article/LeadStory';
 import { NewsRow } from '../article/NewsRow';
 import { AdSlot } from '@/components/ads/AdSlot';
+import { gsap } from '@/lib/gsap';
 
 // 'opinion' is deliberately excluded from BOTH the filter chips and the
 // story pool below. The homepage now renders a live Análisis/Opinión
@@ -42,16 +43,41 @@ const FILTERS: { source: string; label: string }[] = [
 // re-rendering it.
 export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?: React.ReactNode }) {
   const [activeSource, setActiveSource] = useState('all');
-  const [isFading, setIsFading] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
+  // Was a CSS class toggle (.is-fading) paired with a 180ms setTimeout
+  // guessing when the fade-out would finish — except .fade-swap's actual
+  // CSS transition ran on --duration-base (220ms), so the DOM swap fired
+  // 40ms before the fade-out visually completed: a real, visible glitch
+  // (new content flashing in through the still-fading-out old content),
+  // not just a rougher edge. Driving both the fade-out and the swap from
+  // the same GSAP tween's onComplete keeps them from ever drifting apart
+  // again — the swap can't run before the fade finishes by construction.
   function selectSource(source: string) {
     if (source === activeSource) return;
-    setIsFading(true);
-    window.setTimeout(() => {
+    const el = gridRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setActiveSource(source);
-      setIsFading(false);
-    }, 180);
+      return;
+    }
+    gsap.to(el, {
+      opacity: 0,
+      duration: 0.18,
+      ease: 'power1.in',
+      onComplete: () => setActiveSource(source),
+    });
   }
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const el = gridRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.to(el, { opacity: 1, duration: 0.22, ease: 'power1.out' });
+  }, [activeSource]);
 
   const news = articles.filter(a => a.source !== 'opinion');
   const pool = activeSource === 'all' ? news : news.filter(a => a.source === activeSource);
@@ -90,7 +116,7 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
       </div>
 
       <div aria-live="polite">
-        <div className={`news-grid fade-swap${isFading ? ' is-fading' : ''}`}>
+        <div className="news-grid" ref={gridRef}>
           {!filtered.length ? (
             <p className="empty-state">Sin artículos en esta categoría todavía.</p>
           ) : (

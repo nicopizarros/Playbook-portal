@@ -1,8 +1,13 @@
 .container{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
 
-/* Scroll-reveal (see js/ui.js) */
-.reveal{opacity:0;transform:translateY(16px);transition:opacity var(--duration-slow) var(--ease-out),transform var(--duration-slow) var(--ease-out);}
-.reveal.is-visible{opacity:1;transform:translateY(0);}
+/* Scroll-reveal resting state (see components/ScrollReveal.tsx) — no CSS
+   transition here anymore: the reveal itself is a GSAP tween now (nicer
+   native stagger, one less thing to keep in sync with a hand-set
+   transitionDelay), so a transition on the same properties would just
+   fight GSAP's own per-frame inline-style writes. .is-visible carries no
+   styles of its own; it's purely the dedupe marker ScrollReveal.tsx's
+   querySelectors use. */
+.reveal{opacity:0;transform:translateY(16px);}
 @media(prefers-reduced-motion:reduce){
-  .reveal{opacity:1;transform:none;transition:none;}
+  .reveal{opacity:1;transform:none;}
 }

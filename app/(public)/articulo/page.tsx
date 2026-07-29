@@ -6,6 +6,8 @@ import { getSiteContent } from '@/lib/data/site-content';
 import { relatedArticles, shouldShowAuthor } from '@/lib/related-articles';
 import { resolveEntitlement } from '@/lib/metering';
 import { ArticleTopics } from '@/components/article/ArticleTopics';
+import { ArticleHeadline } from '@/components/article/ArticleHeadline';
+import { ArticleEndMark } from '@/components/article/ArticleEndMark';
 import { NewsRow } from '@/components/article/NewsRow';
 import { ShareRow } from '@/components/article/ShareRow';
 import { EmailWall } from '@/components/article/EmailWall';
@@ -142,7 +144,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
       <div className="article-kicker">
         <span className="tag">{meta.publication}</span>
       </div>
-      <h1>{meta.title}</h1>
+      <ArticleHeadline title={meta.title} />
       <div className="byline article-byline">
         {showAuthor && meta.author && (
           <>
@@ -260,6 +262,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
               <p>{article.excerpt}</p>
             )}
           </div>
+          <ArticleEndMark />
           <ShareRow url={canonicalUrl} title={article.title} />
           <ArticleTopics article={article} />
           {article.substackUrl && (

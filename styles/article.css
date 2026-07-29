@@ -58,9 +58,15 @@
 .article-body > p:first-child,
 .article-body > div:first-child > p:first-child{font-size:18.5px;line-height:1.7;color:var(--ink);}
 
-/* Remate editorial: cuadrado de marca al final del último párrafo. */
+/* Remate editorial: el bracket verde del isotopo (no la "P" completa —
+   ver public/assets/img/playbook-isotope-*.png), recreado en CSS puro vía
+   clip-path en vez de una imagen: --green es el mismo hex en claro y
+   oscuro (tokens.css nunca lo redefine por tema), así que una sola regla
+   sin variantes de imagen ya queda legible en ambos modos. Polígono
+   medido directamente del isotopo fuente: barra superior de ancho
+   completo + barra derecha que baja más, proporciones 628:600 ≈ 1:0.955. */
 .article-body > p:last-child::after,
-.article-body > div:last-child > p:last-child::after{content:"";display:inline-block;width:7px;height:7px;background:var(--green);margin-left:9px;}
+.article-body > div:last-child > p:last-child::after{content:"";display:inline-block;width:14px;height:13px;margin-left:9px;vertical-align:-1px;background:var(--green);clip-path:polygon(0 0,100% 0,100% 100%,70.7% 100%,70.7% 30%,0 30%);transform:scale(var(--mark-scale,1));transform-origin:left center;}
 
 /* Links del cuerpo: subrayado en verde de marca (el reset global quita el
    subrayado — sin esto un link dentro del texto es indistinguible). */
@@ -105,7 +111,7 @@
 .article-topics-count{font-weight:400;letter-spacing:0;}
 .article-topics-chevron{flex-shrink:0;transition:transform var(--duration-base) var(--ease-out);}
 .article-topics[open] .article-topics-chevron{transform:rotate(180deg);}
-.article-topics-list{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:18px;}
+.article-topics-list{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:18px;overflow:hidden;}
 .topic-chip{display:inline-flex;align-items:center;min-height:36px;padding:6px 14px;border:1px solid var(--rule);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--gray-dark);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease;}
 .topic-chip:hover,.topic-chip:focus-visible{border-color:var(--ink);color:var(--ink);}
 

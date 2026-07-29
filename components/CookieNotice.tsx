@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { readConsent, writeConsent } from '@/lib/consent';
+import { gsap } from '@/lib/gsap';
 
 // Fase 7: upgraded from the old notice-only banner to a real advertising
 // consent flow (LFPDPPP framework — essential always on, advertising/
@@ -17,6 +18,7 @@ export function CookieNotice() {
   const [visible, setVisible] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
   const [advertisingChecked, setAdvertisingChecked] = useState(false);
+  const prefsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // readConsent() also migrates the pre-Fase-7 dismissal flag
@@ -24,6 +26,17 @@ export function CookieNotice() {
     // informed readers never see the banner again.
     if (!readConsent()) setVisible(true);
   }, []);
+
+  // The prefs panel used to just appear — a conditional render with no
+  // transition at all. It only ever opens (never collapses back — "Guardar
+  // preferencias" dismisses the whole banner), so a one-shot reveal on
+  // mount is all this needs, no exit animation to coordinate.
+  useEffect(() => {
+    if (!showPrefs) return;
+    const el = prefsRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.fromTo(el, { opacity: 0, y: -6 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+  }, [showPrefs]);
 
   function acceptAll() {
     writeConsent(true);
@@ -46,7 +59,7 @@ export function CookieNotice() {
       </p>
 
       {showPrefs && (
-        <div className="cookie-prefs">
+        <div className="cookie-prefs" ref={prefsRef}>
           <label className="cookie-pref">
             <input type="checkbox" checked disabled />
             <span>
