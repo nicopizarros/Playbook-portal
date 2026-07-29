@@ -1,4 +1,4 @@
-import { gsap as gsapUntyped } from '@/vendor/gsap/esm/index.js';
+import { gsap as gsapUntyped, SteppedEase as SteppedEaseUntyped } from '@/vendor/gsap/esm/index.js';
 import { ScrollTrigger as ScrollTriggerUntyped } from '@/vendor/gsap/esm/ScrollTrigger.js';
 import { SplitText } from '@/vendor/gsap/esm/SplitText.js';
 
@@ -49,6 +49,11 @@ interface ScrollTriggerStatic {
 }
 const ScrollTrigger = ScrollTriggerUntyped as unknown as ScrollTriggerStatic;
 
+interface SteppedEaseStatic {
+  config(steps: number): unknown;
+}
+const SteppedEase = SteppedEaseUntyped as unknown as SteppedEaseStatic;
+
 // Only ScrollTrigger + SplitText are registered here — the two plugins
 // actually used anywhere in the app today (see the grep-able set of `@/lib/
 // gsap` importers). The rest of the Club GreenSock bundle (SplitText's
@@ -68,4 +73,4 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, SplitText);
 }
 
-export { gsap, ScrollTrigger, SplitText };
+export { gsap, ScrollTrigger, SplitText, SteppedEase };
