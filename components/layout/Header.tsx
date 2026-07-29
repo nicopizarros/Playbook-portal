@@ -39,11 +39,6 @@ export async function Header() {
             alt="Playbook"
             priority
           />
-          {/* Green bracket accent — same clip-path shape as the
-              end-of-article mark (styles/article.css). Hidden at rest;
-              components/layout/HeaderScrollEffect.tsx fades it in once the
-              wordmark has narrowed down to just the "P" on scroll. */}
-          <span className="brand-mark-accent" aria-hidden="true"></span>
         </Link>
         <HeaderNav
           links={nav.links}
