@@ -90,10 +90,6 @@
    el texto tampoco (--ink-fixed). */
 .inf-pill{background:var(--green);color:var(--ink-fixed);border-color:var(--green);font-weight:700;}
 
-/* Crossfade helper for filtered article grids */
-.fade-swap{transition:opacity var(--duration-base) var(--ease-in-out);}
-.fade-swap.is-fading{opacity:0;}
-
 /* Skeleton loading state */
 .skeleton-card{padding:16px 0;border-bottom:1px solid var(--rule);}
 .skel{background:linear-gradient(90deg,var(--rule) 25%,var(--paper-soft) 50%,var(--rule) 75%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:6px;}

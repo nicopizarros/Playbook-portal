@@ -2,6 +2,18 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { gsap } from '@/lib/gsap';
+
+// The reveal itself (the kind of thing var(--ease-out) has full CSS-transition
+// support for) is expressed as a GSAP tween now, not a CSS transition toggled
+// by a class — reusing the same cubic-bezier the rest of the site's hover
+// states already use (tokens.css's --ease-out) so the motion still reads as
+// one system, just driven by GSAP's own per-element stagger delay instead of
+// a hand-set `transitionDelay` inline style, which is the same 60ms cadence
+// with less bookkeeping.
+const REVEAL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const REVEAL_DURATION = 0.38;
+const STAGGER_STEP = 0.06;
 
 // Reproduces legacy/js/ui.js's initScrollReveal(): every element with the
 // `.reveal` class fades/slides in once it's 15% visible, staggered by 60ms
@@ -77,12 +89,26 @@ export function ScrollReveal() {
       return () => mo.disconnect();
     }
 
+    // Per-element stagger delay, computed at observe time (same as the old
+    // transitionDelay assignment) but consumed later, inside the
+    // intersection callback, since a GSAP tween's delay is a call argument
+    // rather than a persistent inline style.
+    const staggerDelay = new WeakMap<Element, number>();
+
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
+            const el = entry.target as HTMLElement;
+            el.classList.add('is-visible');
+            observer.unobserve(el);
+            gsap.to(el, {
+              opacity: 1,
+              y: 0,
+              duration: REVEAL_DURATION,
+              ease: REVEAL_EASE,
+              delay: staggerDelay.get(el) ?? 0,
+            });
           }
         });
       },
@@ -95,14 +121,14 @@ export function ScrollReveal() {
     const groupIndex = new Map<Element | null, number>();
 
     // :not(.is-visible) so an update that leaves already-revealed elements
-    // mounted doesn't reset their transition-delay or re-observe them.
+    // mounted doesn't reset their stagger delay or re-observe them.
     function observeAll(root: ParentNode) {
       root.querySelectorAll<HTMLElement>('.reveal:not(.is-visible)').forEach(el => {
         if (el.dataset.revealObserved === '1') return;
         el.dataset.revealObserved = '1';
         const parent = el.parentElement;
         const idx = groupIndex.get(parent) || 0;
-        el.style.transitionDelay = `${idx * 60}ms`;
+        staggerDelay.set(el, idx * STAGGER_STEP);
         groupIndex.set(parent, idx + 1);
         observer.observe(el);
       });
