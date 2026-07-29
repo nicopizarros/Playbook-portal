@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { gsap } from '@/lib/gsap';
 
 export type SearchableArticle = {
   id: string;
@@ -35,6 +36,7 @@ export function SearchBox({ articles }: { articles: SearchableArticle[] }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -43,6 +45,25 @@ export function SearchBox({ articles }: { articles: SearchableArticle[] }) {
     document.addEventListener('click', onDocClick);
     return () => document.removeEventListener('click', onDocClick);
   }, []);
+
+  // Was a hard display:none/block toggle with no transition at all — this
+  // was the one interactive surface in the header with zero motion on
+  // open/close. autoAlpha (opacity + visibility together) keeps it out of
+  // the tab order and unclickable while closed, same as display:none did.
+  useEffect(() => {
+    const el = resultsRef.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(el, { autoAlpha: isOpen ? 1 : 0, y: 0 });
+      return;
+    }
+    gsap.to(el, {
+      autoAlpha: isOpen ? 1 : 0,
+      y: isOpen ? 0 : -6,
+      duration: 0.2,
+      ease: isOpen ? 'power2.out' : 'power2.in',
+    });
+  }, [isOpen]);
 
   const trimmed = query.trim();
   const results = trimmed ? articles.filter(a => matches(a, trimmed)).slice(0, 8) : [];
@@ -71,7 +92,7 @@ export function SearchBox({ articles }: { articles: SearchableArticle[] }) {
           }
         }}
       />
-      <div className={`search-results${isOpen ? ' is-open' : ''}`} id="search-results" role="listbox" aria-label="Resultados de búsqueda">
+      <div className="search-results" ref={resultsRef} id="search-results" role="listbox" aria-label="Resultados de búsqueda">
         {trimmed && results.length === 0 && (
           <p className="sr-empty">Sin resultados para &quot;{trimmed}&quot;</p>
         )}

@@ -76,9 +76,12 @@ header.topbar.is-scrolled .brand img{height:42px;}
 .nav-search:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(154,234,57,.18);background:var(--paper);}
 .nav-search:focus-within input{width:218px;}
 
-/* Search results dropdown */
-.search-results{position:absolute;top:calc(100% + 8px);right:0;width:min(360px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:70vh;overflow-y:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:80;display:none;}
-.search-results.is-open{display:block;}
+/* Search results dropdown. Always mounted (no display:none/block toggle
+   anymore) — SearchBox.tsx drives open/close via GSAP's autoAlpha, which
+   pairs opacity with visibility so it's still out of the tab order and
+   unclickable while closed; this default state matches what a JS-less
+   render (or the instant prefers-reduced-motion set()) should look like. */
+.search-results{position:absolute;top:calc(100% + 8px);right:0;width:min(360px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:70vh;overflow-y:auto;background:var(--paper);border:1px solid var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:80;opacity:0;visibility:hidden;}
 .search-results .sr-item{display:block;padding:12px 16px;border-bottom:1px solid var(--rule);}
 .search-results .sr-item:last-child{border-bottom:none;}
 .search-results .sr-item:hover,.search-results .sr-item:focus-visible{background:var(--paper-soft);}

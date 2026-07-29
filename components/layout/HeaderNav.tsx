@@ -6,6 +6,7 @@ import { signOut } from 'next-auth/react';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { SearchBox, type SearchableArticle } from './SearchBox';
 import type { NavLink } from '@/lib/data/site-content';
+import { gsap } from '@/lib/gsap';
 
 // The CMS stores these as bare fragments ("#noticias", "#analisis", …)
 // because the nav was built when the homepage was the only page. Every one
@@ -62,6 +63,22 @@ export function HeaderNav({
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isOpen]);
+
+  // The drawer panel itself already slides in via CSS (.nav-links.is-open,
+  // styles/responsive.css) — this staggers its links in on top of that
+  // slide, the kind of coordinated multi-element timing CSS transitions
+  // can't express cleanly since every link would otherwise appear all at
+  // once the instant the panel stops moving.
+  useEffect(() => {
+    if (!isOpen || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const items = drawerRef.current?.querySelectorAll('#nav-links-dynamic > *, .theme-toggle-drawer');
+    if (!items?.length) return;
+    gsap.fromTo(
+      items,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.045, delay: 0.08 },
+    );
   }, [isOpen]);
 
   return (

@@ -1,55 +1,47 @@
-import { gsap } from '@/vendor/gsap/esm/index.js';
-import { CustomEase } from '@/vendor/gsap/esm/CustomEase.js';
-import { CustomBounce } from '@/vendor/gsap/esm/CustomBounce.js';
-import { CustomWiggle } from '@/vendor/gsap/esm/CustomWiggle.js';
-import { Draggable } from '@/vendor/gsap/esm/Draggable.js';
-import { DrawSVGPlugin } from '@/vendor/gsap/esm/DrawSVGPlugin.js';
-import { Flip } from '@/vendor/gsap/esm/Flip.js';
-import { GSDevTools } from '@/vendor/gsap/esm/GSDevTools.js';
-import { InertiaPlugin } from '@/vendor/gsap/esm/InertiaPlugin.js';
-import { MorphSVGPlugin } from '@/vendor/gsap/esm/MorphSVGPlugin.js';
-import { MotionPathPlugin } from '@/vendor/gsap/esm/MotionPathPlugin.js';
-import { Physics2DPlugin } from '@/vendor/gsap/esm/Physics2DPlugin.js';
-import { ScrollSmoother } from '@/vendor/gsap/esm/ScrollSmoother.js';
+import { gsap as gsapUntyped } from '@/vendor/gsap/esm/index.js';
 import { ScrollTrigger } from '@/vendor/gsap/esm/ScrollTrigger.js';
 import { SplitText } from '@/vendor/gsap/esm/SplitText.js';
 
-// Single registration point for the self-hosted Club GreenSock bundle (see
-// vendor/gsap/README.md) — import gsap/plugins from here, never straight
-// from vendor/gsap/esm/*, so a plugin is never registered more than once.
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(
-    CustomEase,
-    CustomBounce,
-    CustomWiggle,
-    Draggable,
-    DrawSVGPlugin,
-    Flip,
-    GSDevTools,
-    InertiaPlugin,
-    MorphSVGPlugin,
-    MotionPathPlugin,
-    Physics2DPlugin,
-    ScrollSmoother,
-    ScrollTrigger,
-    SplitText,
-  );
+// gsap-core.js attaches to/from/fromTo/set to the gsap object at runtime
+// (not via statically-analyzable property syntax), so allowJs's inference
+// (there's no shipped .d.ts for a vendored, non-npm bundle) can't see them.
+// This is the actual surface used across the app — narrower than real
+// GSAP's, but real types beat casting every call site to `any`.
+interface GsapTween {
+  kill(): void;
+  scrollTrigger?: { kill(): void } | null;
+}
+interface GsapCore {
+  registerPlugin(...args: unknown[]): void;
+  to(targets: unknown, vars: Record<string, unknown>): GsapTween;
+  from(targets: unknown, vars: Record<string, unknown>): GsapTween;
+  fromTo(
+    targets: unknown,
+    fromVars: Record<string, unknown>,
+    toVars: Record<string, unknown>,
+  ): GsapTween;
+  set(targets: unknown, vars: Record<string, unknown>): void;
 }
 
-export {
-  gsap,
-  CustomEase,
-  CustomBounce,
-  CustomWiggle,
-  Draggable,
-  DrawSVGPlugin,
-  Flip,
-  GSDevTools,
-  InertiaPlugin,
-  MorphSVGPlugin,
-  MotionPathPlugin,
-  Physics2DPlugin,
-  ScrollSmoother,
-  ScrollTrigger,
-  SplitText,
-};
+const gsap = gsapUntyped as unknown as GsapCore;
+
+// Only ScrollTrigger + SplitText are registered here — the two plugins
+// actually used anywhere in the app today (see the grep-able set of `@/lib/
+// gsap` importers). The rest of the Club GreenSock bundle (SplitText's
+// siblings — MorphSVGPlugin, DrawSVGPlugin, InertiaPlugin, ScrollSmoother,
+// GSDevTools, Draggable, Flip, CustomEase, CustomBounce, CustomWiggle,
+// Physics2DPlugin, MotionPathPlugin) is still fully vendored in
+// vendor/gsap/esm/ and ready to use, but deliberately NOT imported/
+// registered from this shared entry point: every plugin imported here is
+// static-imported into every route that touches @/lib/gsap regardless of
+// whether that route actually needs it (registerPlugin() calls keep them
+// all from being tree-shaken), so registering all 14 by default was
+// costing ~100KB of unused JS on every page with any GSAP usage at all. A
+// future feature that genuinely needs e.g. Draggable or Flip should import
+// it straight from vendor/gsap/esm/ and register it locally, or add a
+// second lean entry point here — not grow this shared one.
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+}
+
+export { gsap, ScrollTrigger, SplitText };
