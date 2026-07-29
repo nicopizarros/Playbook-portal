@@ -14,14 +14,24 @@ header.topbar.is-scrolled{box-shadow:0 1px 20px rgba(0,0,0,.08);}
 }
 header.topbar.is-scrolled .nav{height:62px;}
 header.topbar.is-scrolled .brand img{height:42px;}
-.brand{display:block;flex-shrink:0;}
+.brand{display:block;flex-shrink:0;position:relative;}
 /* 52px, down from 64px. Two reasons, one of them measured: at 64px the
    wordmark renders 259px wide, and that alone was ~80px of the horizontal
    overflow the header still had between 1181px and ~1300px (a 12.9" iPad
    and most small laptops land in that band). The other is editorial — the
    masthead was reported as reading a touch too large next to the nav. At
    52px it's 211px wide and the row fits with room to spare. */
-.brand img{height:52px;width:auto;display:block;transition:height var(--duration-base) var(--ease-out);transform-origin:left center;}
+/* object-fit/position: components/layout/HeaderScrollEffect.tsx tweens
+   this element's own `width` (not a class toggle) on scroll — shrinking
+   width with object-position:left crops away the right side of the image
+   as it narrows, which is what actually makes "Playbook" read as
+   disappearing letter-by-letter from the right down to just the "P",
+   instead of the whole wordmark just scaling down. Because it's the
+   image's real width shrinking (not a clip-path leaving the layout box
+   full-size), .brand — sized by this child, flex-shrink:0 — narrows right
+   along with it, so the rest of the row reflows smoothly in step with the
+   wipe instead of snapping over at the end. */
+.brand img{height:52px;width:auto;display:block;object-fit:cover;object-position:left center;transition:height var(--duration-base) var(--ease-out);transform-origin:left center;}
 
 /* Dos <img> en vez de un filtro: playbook-logo.webp trae el bracket de marca
    ya en --green horneado en el raster, y brightness(0) invert(1) aplanaba
@@ -39,28 +49,15 @@ header.topbar.is-scrolled .brand img{height:42px;}
 [data-theme="dark"] .brand img.logo-light{display:none;}
 [data-theme="dark"] .brand img.logo-dark{display:block;}
 
-/* Compact isotope pair: hidden at rest (only the wordmark pair above ever
-   shows), swapped in once scrolled — components/layout/HeaderScrollEffect.tsx
-   drives the actual crossfade timeline; these rules are just the resting
-   states on either side of it, and the ONLY place that decides which of
-   the four images is display:block for a given (theme × scrolled)
-   combination, so a theme toggle mid-scroll or a scroll event mid-toggle
-   both self-correct instead of needing JS to track the other axis.
-   Each layer below adds MORE qualifying selectors than the one before —
-   never a same-specificity rule meant to override by source order alone
-   (that's what silently lost to header.topbar.is-scrolled once already,
-   see the responsive.css history for the 520px breakpoint). */
-.brand img.logo-light-compact,.brand img.logo-dark-compact{display:none;}
-
-header.topbar.is-scrolled .brand img.logo-light,
-header.topbar.is-scrolled .brand img.logo-dark{display:none;}
-header.topbar.is-scrolled .brand img.logo-light-compact{display:block;}
-@media(prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) header.topbar.is-scrolled .brand img.logo-light-compact{display:none;}
-  :root:not([data-theme="light"]) header.topbar.is-scrolled .brand img.logo-dark-compact{display:block;}
-}
-[data-theme="dark"] header.topbar.is-scrolled .brand img.logo-light-compact{display:none;}
-[data-theme="dark"] header.topbar.is-scrolled .brand img.logo-dark-compact{display:block;}
+/* Green bracket accent: same clip-path shape as the end-of-article mark
+   (styles/article.css) — reused rather than a second image asset because
+   it's theme-invariant (--green never changes between light/dark) and
+   guarantees a crisp vector edge at any size. Hidden at rest; faded in by
+   components/layout/HeaderScrollEffect.tsx once the wordmark has narrowed
+   down to just the "P". Positioned with right:-Xpx off .brand's own edge
+   (position:relative, set above) so it tracks the wordmark's shrinking
+   width automatically instead of needing its own coordinates recomputed. */
+.brand-mark-accent{position:absolute;top:1px;right:-5px;width:10px;height:9px;background:var(--green);clip-path:polygon(0 0,100% 0,100% 100%,70.7% 100%,70.7% 30%,0 30%);opacity:0;pointer-events:none;}
 .nav-links{display:flex;align-items:center;gap:26px;font-size:13.5px;font-weight:500;}
 /* Wrapper que content.js re-renderiza (ver js/content.js) — display:contents
    lo saca del árbol de layout para que sus hijos sigan siendo flex items

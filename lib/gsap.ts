@@ -12,15 +12,16 @@ interface GsapTween {
   scrollTrigger?: { kill(): void } | null;
 }
 interface GsapTimeline {
-  to(targets: unknown, vars: Record<string, unknown>): GsapTimeline;
-  from(targets: unknown, vars: Record<string, unknown>): GsapTimeline;
+  to(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
+  from(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
   fromTo(
     targets: unknown,
     fromVars: Record<string, unknown>,
     toVars: Record<string, unknown>,
+    position?: string | number,
   ): GsapTimeline;
-  set(targets: unknown, vars: Record<string, unknown>): GsapTimeline;
-  call(callback: () => void): GsapTimeline;
+  set(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
+  call(callback: () => void, params?: unknown[], position?: string | number): GsapTimeline;
   kill(): void;
 }
 interface GsapCore {

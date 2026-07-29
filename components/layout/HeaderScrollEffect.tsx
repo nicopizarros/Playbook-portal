@@ -3,54 +3,94 @@
 import { useEffect } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 
-const FADE_OUT_DURATION = 0.16;
-const FADE_IN_DURATION = 0.22;
+// Measured directly from public/assets/img/playbook-logo-dark.png
+// (640×158 intrinsic): pixel content starts at x=8, and the "P" glyph's
+// right edge — the gap before "l" starts — sits at x≈90. That's the
+// fraction of the wordmark's own rendered width to crop down to so the
+// wipe lands just past the P, not mid-letter.
+const P_FRACTION = 90 / 640;
 
-// Two things live here: the .is-scrolled shrink treatment that already
-// existed in CSS (smaller logo, shorter nav, box-shadow — see
-// styles/header.css) but was never wired to anything until this component,
-// and — the actual point of this file now — a crossfade between the full
-// wordmark and the compact isotope mark as that same threshold is crossed.
-//
-// header.css's is-scrolled rules are the single source of truth for WHICH
-// of the four logo <img>s (wordmark × 2 themes, compact × 2 themes) is
-// display:block for a given (theme, scrolled) pair — this component only
-// ever toggles the `is-scrolled` class and runs the opacity/scale
-// crossfade alongside it. It never has to know which theme is active: the
-// two `querySelectorAll` groups below always contain both theme variants,
-// and CSS ensures only the theme-correct one in each group is actually
-// visible, so animating the whole group is a no-op on the hidden one and
-// a real fade on the shown one either way.
+// styles/header.css already had a full is-scrolled shrink treatment
+// (smaller logo, shorter nav, box-shadow) carried over from the legacy
+// port, but nothing ever toggled the class — no scroll listener existed
+// anywhere. This component supplies that trigger, and — the main event —
+// narrows the wordmark's own rendered width on the way in, which (with
+// object-fit:cover;object-position:left in header.css) crops away its
+// right side as it shrinks: "Playbook" reads as disappearing letter by
+// letter from the right, down to just the "P", rather than a crossfade to
+// a second image. A small CSS bracket accent (styles/header.css's
+// .brand-mark-accent, same clip-path shape as the end-of-article mark)
+// fades in once the wipe lands, since the wordmark's own green bracket
+// glyph sits out past "book" and gets wiped away with the rest of it.
 export function HeaderScrollEffect() {
   useEffect(() => {
     const header = document.querySelector<HTMLElement>('header.topbar');
-    const wordmark = document.querySelectorAll<HTMLElement>('.brand img.logo-light, .brand img.logo-dark');
-    const compact = document.querySelectorAll<HTMLElement>(
-      '.brand img.logo-light-compact, .brand img.logo-dark-compact',
+    const wordmarks = Array.from(
+      document.querySelectorAll<HTMLElement>('.brand img.logo-light, .brand img.logo-dark'),
     );
-    if (!header) return;
+    const accent = document.querySelector<HTMLElement>('.brand-mark-accent');
+    if (!header || !wordmarks.length) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let animating = false;
 
+    // A single shared measurement, not one per image: logo-light and
+    // logo-dark render at the same CSS height (header.css's .brand img
+    // rule doesn't differ by theme) so they always share the same natural
+    // width — and only ONE of them is ever display:block at a time
+    // (theme-gated), so measuring the OTHER one directly would read 0
+    // (getBoundingClientRect on a display:none element is always empty).
+    // Real bug this replaced: toggling dark mode while already scrolled
+    // revealed logo-dark at width:0 — invisible — because its own
+    // rect had been measured back when it was the hidden one.
+    // Cleared (clearProps) every time a reader returns to rest, so a
+    // viewport resize between interactions gets a fresh measurement.
+    let restingWidth: number | null = null;
+
+    function currentRestingWidth(): number {
+      if (restingWidth !== null) return restingWidth;
+      const visible = wordmarks.find(img => getComputedStyle(img).display !== 'none');
+      restingWidth = visible ? visible.getBoundingClientRect().width : 0;
+      return restingWidth;
+    }
+
+    function settleAtRest() {
+      wordmarks.forEach(img => gsap.set(img, { clearProps: 'width' }));
+      restingWidth = null;
+    }
+
     function setScrolled(isScrolled: boolean) {
       if (header!.classList.contains('is-scrolled') === isScrolled) return;
+      header!.classList.toggle('is-scrolled', isScrolled);
 
-      if (reducedMotion || !wordmark.length || !compact.length || animating) {
-        header!.classList.toggle('is-scrolled', isScrolled);
+      if (reducedMotion || animating) {
+        const full = currentRestingWidth();
+        wordmarks.forEach(img => gsap.set(img, { width: isScrolled ? full * P_FRACTION : full }));
+        if (accent) gsap.set(accent, { opacity: isScrolled ? 1 : 0 });
+        if (!isScrolled) settleAtRest();
         return;
       }
 
       animating = true;
-      const outGroup = isScrolled ? wordmark : compact;
-      const inGroup = isScrolled ? compact : wordmark;
+      const full = currentRestingWidth();
+      const tl = gsap.timeline({
+        onComplete: () => {
+          animating = false;
+          if (!isScrolled) settleAtRest();
+        },
+      });
 
-      gsap
-        .timeline({ onComplete: () => { animating = false; } })
-        .to(outGroup, { opacity: 0, scale: 0.85, duration: FADE_OUT_DURATION, ease: 'power1.in' })
-        .call(() => header!.classList.toggle('is-scrolled', isScrolled))
-        .set(inGroup, { opacity: 0, scale: 0.85 })
-        .to(inGroup, { opacity: 1, scale: 1, duration: FADE_IN_DURATION, ease: 'power2.out' });
+      if (isScrolled) {
+        wordmarks.forEach(img => {
+          tl.to(img, { width: full * P_FRACTION, duration: 0.45, ease: 'power2.inOut' }, 0);
+        });
+        if (accent) tl.to(accent, { opacity: 1, duration: 0.2, ease: 'power2.out' }, 0.28);
+      } else {
+        if (accent) tl.to(accent, { opacity: 0, duration: 0.15, ease: 'power1.in' }, 0);
+        wordmarks.forEach(img => {
+          tl.to(img, { width: full, duration: 0.4, ease: 'power2.inOut' }, 0.05);
+        });
+      }
     }
 
     const trigger = ScrollTrigger.create({

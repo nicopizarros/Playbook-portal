@@ -39,26 +39,11 @@ export async function Header() {
             alt="Playbook"
             priority
           />
-          {/* Compact isotope stand-in for the wordmark — hidden until
-              scrolled, at which point components/layout/HeaderScrollEffect.tsx
-              crossfades into whichever of these two matches the current
-              theme (same light/dark swap as the wordmark pair above). */}
-          <Image
-            className="logo-light-compact"
-            src="/assets/img/playbook-isotope-light.png"
-            width={32}
-            height={32}
-            alt="Playbook"
-            priority
-          />
-          <Image
-            className="logo-dark-compact"
-            src="/assets/img/playbook-isotope-dark.png"
-            width={32}
-            height={32}
-            alt="Playbook"
-            priority
-          />
+          {/* Green bracket accent — same clip-path shape as the
+              end-of-article mark (styles/article.css). Hidden at rest;
+              components/layout/HeaderScrollEffect.tsx fades it in once the
+              wordmark has narrowed down to just the "P" on scroll. */}
+          <span className="brand-mark-accent" aria-hidden="true"></span>
         </Link>
         <HeaderNav
           links={nav.links}
