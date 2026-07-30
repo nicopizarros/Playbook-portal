@@ -361,11 +361,22 @@ top-priority story can still beat a fresher low-priority one, but nothing
 two weeks old can ever beat *any* same-day story. This is purely an
 **ordering** change (no hard age cutoff), so pages that intentionally show
 old content (archive, author, tag) are unaffected in what they list, only
-in what order. `selectHero()` filters to `featured===true || priority===5`
-after ranking, falling back to the single most recent article if nothing
-qualifies. `rankArticles`/`selectHero` share exactly one call site's worth
-of logic across the homepage, ticker, archive, author, tag pages, and the
-admin live preview — "what counts as important" is defined once.
+in what order.
+
+`selectHero()` used to filter candidates to `featured===true ||
+priority===5` before picking the best-scoring one — **changed 2026-07-30**
+because that gate reintroduced the exact stale-story problem `rankScore`
+was built to fix, one level up: a single old 5-star article was the only
+thing eligible for hero for as long as no other 5-star/featured story
+existed, locking out every fresher lower-priority story regardless of its
+`rankScore`. Now `selectHero()` just takes the top of `rankArticles()`
+directly, so recency competes for the hero slot exactly like it competes
+for list order; `featured===true` remains the one deliberate override (an
+editor explicitly forcing the hero slot regardless of stars or date, per
+`components/admin/tabs/ArticlesTab.tsx`'s own copy) and is checked first.
+`rankArticles`/`selectHero` share exactly one call site's worth of logic
+across the homepage, ticker, archive, author, tag pages, and the admin
+live preview — "what counts as important" is defined once.
 
 ### 8.2 Taxonomy — `lib/taxonomy.ts`
 Fixed, closed three-tier tag system, shared by the CMS and every public

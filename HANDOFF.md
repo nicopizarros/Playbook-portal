@@ -3395,6 +3395,107 @@ real, mismo estándar que Fases 1-3):
   `migrate:json` contra producción (riesgo: pisa cualquier edición
   hecha desde el CMS que no esté reflejada en `content.json`).
 
+### 2026-07-30 — El hero ya no se queda pegado en un ★5 viejo
+
+- Feedback del usuario: "way too much importance on the stars, what
+  matters most is recency" para el hero/top-five de portada. Gap real
+  encontrado en `lib/rank.ts`: `rankScore` (el blend prioridad×recencia,
+  ver entrada 2026-07-21 arriba) ya hacía bien el ORDEN de la lista, pero
+  `selectHero()` filtraba candidatos a `featured===true || priority===5`
+  **antes** de aplicar ese score — así que mientras existiera un solo
+  artículo ★5/Destacado en toda la tabla, ningún artículo más fresco de
+  menor prioridad podía ser hero jamás, sin importar cuánto le ganara en
+  `rankScore`. Exactamente el mismo bug de "historia vieja importante
+  atascada" que esa entrada dice haber arreglado, reintroducido un nivel
+  arriba.
+  - **`lib/rank.ts`**: `selectHero()` ahora toma directo el primero de
+    `rankArticles()` (mismo score que ordena la lista); `featured===true`
+    sigue siendo la única forma de forzar el puesto sin importar estrellas
+    ni fecha (columna que ya existía para eso). El gate de `priority===5`
+    se eliminó — 5 estrellas da el boost de recencia más grande posible,
+    pero ya no es un requisito para calificar.
+  - **`components/admin/tabs/ArticlesTab.tsx`**: se actualizó la copia que
+    le prometía al editor "5 estrellas o Destacado = hero" (ya no es
+    cierto) y se sacó el banner de "conflicto" por artículos ★5
+    simultáneos (ya no hay tal conflicto — el score decide solo). El
+    banner de "Destacado" duplicado se mantiene, porque `featured` sigue
+    siendo un override real.
+  - **`docs/ENCYCLOPEDIA.md`** (§8.1): actualizado para reflejar el nuevo
+    comportamiento de `selectHero()`.
+- **Verificado**: `tsc --noEmit`, `npm run lint` y `npm run build`
+  limpios. Chequeo directo con `tsx` sobre `lib/rank.ts`: con un artículo
+  ★5 de 15 días, uno ★3 de hoy y uno ★1 de ayer, `selectHero` ahora
+  devuelve el ★3 de hoy (antes hubiera devuelto el ★5 viejo por ser el
+  único candidato); agregando un cuarto artículo `featured:true` viejo,
+  ese gana igual — confirma que el override editorial sigue intacto.
+
+### 2026-07-30 — El placeholder de ads se apaga; queda listo para AdSense
+
+- Pedido directo del usuario, revirtiendo el de 2026-07-22: ya no hay
+  ganas de mostrar el placeholder rayado mientras no exista una red de
+  ads conectada — "collapse this places right now [...] we establish the
+  connection automatically" en cuanto haya cuenta de AdSense real. Sin
+  cuenta de AdSense todavía (confirmado con el usuario), así que este
+  cambio es apagar el placeholder ahora + dejar el código listo para que
+  conectar la red sea nada más setear variables de entorno, no volver a
+  tocar componentes.
+  - **`components/ads/AdSlot.tsx`**: ya no renderiza el `<div
+    className="ad-slot-placeholder">` fijo. Ahora, si no hay consentimiento
+    de publicidad, o no hay `ADSENSE_CLIENT_ID`, o no hay un
+    `ADSENSE_SLOT_*` configurado para ese slot puntual, el componente
+    devuelve `null` — ni caja, ni espacio reservado, ni atributos. Recién
+    cuando las tres condiciones se cumplen renderiza el `<ins
+    class="adsbygoogle">` real (con el script de Google cargado vía
+    `next/script`, `strategy="afterInteractive"`) dentro del mismo `<div
+    className="ad-slot ad-slot--{slot}">` de siempre, para que ese slot sí
+    reserve su tamaño planeado (cero CLS) una vez que hay un anuncio real
+    que mostrar. El contrato de consentimiento (`lib/consent.ts`) no
+    cambió: sin consentimiento de publicidad, nunca se carga el script de
+    Google, config de AdSense o no.
+  - **`lib/adsense.ts`** (nuevo): `getAdSenseConfig()` lee
+    `ADSENSE_CLIENT_ID` + los seis `ADSENSE_SLOT_*` (uno por posición) del
+    lado del servidor — mismo criterio que `GA4_MEASUREMENT_ID` en
+    `app/(public)/layout.tsx`: no son secretos, pero se leen server-side y
+    se pasan hacia abajo en vez de vivir como `NEXT_PUBLIC_*`.
+  - **`components/ads/AdSenseProvider.tsx`** (nuevo): contexto liviano que
+    reparte esa config a los seis call sites de `AdSlot` sin tener que
+    pasarla a mano por cada uno; `app/(public)/layout.tsx` lo instancia una
+    sola vez con la config leída server-side.
+  - **`app/ads.txt/route.ts`** (nuevo): AdSense exige este archivo en la
+    raíz del dominio una vez que hay inventario real, o marca el sitio
+    como no autorizado para vender su propio espacio. Sirve vacío (200)
+    hasta que `ADSENSE_CLIENT_ID` tenga valor — mismo criterio que
+    `AdSlot.tsx`, una variable de entorno lo activa.
+  - **`styles/ads.css`**: se borraron las reglas del placeholder
+    (`.ad-slot-placeholder` y compañía); quedan solo las reglas de tamaño
+    por slot, que ahora solo aplican mientras un `<ins>` real está
+    montado.
+  - **`.env.local.example`**: documenta `ADSENSE_CLIENT_ID` y los seis
+    `ADSENSE_SLOT_*`, todos vacíos por ahora.
+- **Pendiente/importante**: no hay cuenta de AdSense todavía — eso es un
+  paso manual del usuario (alta en Google AdSense, verificación del
+  sitio, aprobación) que este entorno no puede hacer por él. Una vez
+  aprobada, conectar la red real es: pegar el publisher ID en
+  `ADSENSE_CLIENT_ID` y, a medida que se crean los ad units en el
+  dashboard de AdSense, ir completando cada `ADSENSE_SLOT_*` — cada slot
+  se activa solo en cuanto su variable tiene valor, sin tocar código ni
+  volver a desplegar.
+- **Verificado**: `tsc --noEmit`, `npm run lint` y `npm run build`
+  limpios. Local con Postgres real (`db:migrate` + `migrate:json`) +
+  `next dev` + Playwright: (1) sin ninguna variable de AdSense seteada,
+  cero elementos `[data-ad-slot]` en el DOM del home, con o sin
+  consentimiento otorgado — confirma el colapso total pedido; (2)
+  seteando `ADSENSE_CLIENT_ID` + `ADSENSE_SLOT_LEADERBOARD_HOME` (valores
+  de prueba, no reales) y otorgando consentimiento, solo el slot
+  `leaderboard-home` renderiza su `<ins class="adsbygoogle">` con el
+  client/slot correctos; el resto de los slots (sin su variable seteada)
+  siguen colapsados — confirma que cada posición se activa
+  independientemente. Sin consentimiento, ningún slot renderiza nada
+  aunque esté configurado. Sin errores nuevos en consola del navegador
+  (los dos que aparecen, `MissingSecret` de next-auth y el bloqueo de
+  Vercel Web Analytics, son gaps preexistentes del sandbox sin relación
+  con este cambio).
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
