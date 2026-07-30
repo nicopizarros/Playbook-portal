@@ -4,6 +4,8 @@ import { ScrollReveal } from '@/components/ScrollReveal';
 import { HeaderScrollEffect } from '@/components/layout/HeaderScrollEffect';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { CookieNotice } from '@/components/CookieNotice';
+import { AdSenseProvider } from '@/components/ads/AdSenseProvider';
+import { getAdSenseConfig } from '@/lib/adsense';
 
 // Every public page reads live Postgres data (articles, site_content) that
 // changes outside of a deploy — the Make.com webhook and (Phase 4) the
@@ -22,9 +24,10 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   // rather than referenced as NEXT_PUBLIC_* in client code — one fewer env
   // var naming scheme to keep in sync with what's already set in Vercel.
   const gaMeasurementId = process.env.GA4_MEASUREMENT_ID;
+  const adSenseConfig = getAdSenseConfig();
 
   return (
-    <>
+    <AdSenseProvider config={adSenseConfig}>
       {gaMeasurementId && <GoogleAnalytics measurementId={gaMeasurementId} />}
       {/* Was previously declared per-page, after <Header/> in the render
           tree — meaning every nav link, the search box, and the theme
@@ -41,6 +44,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <ScrollReveal />
       <HeaderScrollEffect />
       <CookieNotice />
-    </>
+    </AdSenseProvider>
   );
 }

@@ -1,25 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Script from 'next/script';
 import { readConsent, CONSENT_EVENT } from '@/lib/consent';
+import { useAdSenseConfig } from './AdSenseProvider';
 
-// The one component that changes when an ad network gets connected (Fase
-// 7). Until then every slot renders a visible PLACEHOLDER (user request,
-// 2026-07-22: "while we connect it to the real ads place a placeholder
-// so I can see it visually") — the dashed/striped vocabulary the design
-// prototypes used for ad slots, muted to the site's tokens. Dimensions
-// per slot live in styles/ads.css, keyed off the data-ad-slot attribute.
-// Connecting a network later means: replace the placeholder <div> below
-// with the network's tag when `consented` is true — nothing else moves
-// (and .ad-slot:empty{display:none} in ads.css takes care of unfilled
-// slots again once the placeholder is gone).
+// Changed 2026-07-30: this used to always render a visible dashed
+// placeholder box (user request, 2026-07-22: "while we connect it to the
+// real ads place a placeholder so I can see it visually"). Reversed on
+// direct user request now that there's still no network connected and
+// nothing to show for it -- a slot with nothing configured renders NOTHING
+// (not even a reserved-space div), so the layout is clean until there's an
+// actual ad to show.
 //
-// Consent contract (see lib/consent.ts): advertising !== true means the
-// slot keeps its dimensions but must never load third-party code — that's
-// what data-ad-consent exposes for the future network integration, and
-// why the read happens in an effect (localStorage doesn't exist during
-// SSR; the server-rendered slot is always in the "denied" state and
-// upgrades client-side, which also keeps hydration deterministic).
+// "Connecting the network" is no longer a code change: set ADSENSE_CLIENT_ID
+// plus this slot's ADSENSE_SLOT_* env var (see lib/adsense.ts, .env.local.example)
+// and this exact slot starts rendering a real <ins class="adsbygoogle">
+// automatically, without redeploying this file -- units can go live one at a
+// time as they're created in the AdSense dashboard.
+//
+// Consent contract (see lib/consent.ts) is unchanged: advertising !== true
+// means the slot must never load third-party code, network configured or
+// not -- that's why `consented` gates everything below, read client-side
+// (localStorage doesn't exist during SSR, so the server-rendered slot is
+// always "denied" and upgrades after mount, keeping hydration deterministic).
 
 export type AdSlotName =
   | 'leaderboard-home'
@@ -29,20 +33,11 @@ export type AdSlotName =
   | 'inline-article'
   | 'vertical-sponsor-infinitas';
 
-// Format labels shown inside the placeholder — the sizes from the Fase 7
-// plan (HANDOFF.md), so anyone looking at the page knows exactly what
-// each position will hold.
-const FORMAT_LABEL: Record<AdSlotName, string> = {
-  'leaderboard-home': 'Leaderboard · 970×90',
-  'inline-feed': 'Formato nativo · in-feed',
-  'rail-home': 'Rail · 300×250',
-  'inline-mid-editorial': 'Mid editorial · 970×180',
-  'inline-article': 'In-article · ancho del cuerpo',
-  'vertical-sponsor-infinitas': 'Patrocinio de vertical',
-};
-
 export function AdSlot({ slot }: { slot: AdSlotName }) {
   const [consented, setConsented] = useState(false);
+  const pushed = useRef(false);
+  const { clientId, slots } = useAdSenseConfig();
+  const adUnitId = slots[slot];
 
   useEffect(() => {
     const update = () => setConsented(readConsent()?.advertising === true);
@@ -51,17 +46,36 @@ export function AdSlot({ slot }: { slot: AdSlotName }) {
     return () => window.removeEventListener(CONSENT_EVENT, update);
   }, []);
 
+  const canServe = consented && !!clientId && !!adUnitId;
+
+  useEffect(() => {
+    if (!canServe || pushed.current) return;
+    try {
+      // @ts-expect-error -- adsbygoogle is injected by the script below, not typed
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      pushed.current = true;
+    } catch {
+      // Script not loaded yet or blocked -- nothing to reserve space for.
+    }
+  }, [canServe]);
+
+  if (!canServe) return null;
+
   return (
-    <div
-      className={`ad-slot ad-slot--${slot}`}
-      data-ad-slot={slot}
-      data-ad-consent={consented ? 'granted' : 'denied'}
-      aria-hidden="true"
-    >
-      <div className="ad-slot-placeholder">
-        <b>Publicidad</b>
-        <span>{FORMAT_LABEL[slot]}</span>
-      </div>
+    <div className={`ad-slot ad-slot--${slot}`} data-ad-slot={slot} data-ad-consent="granted">
+      <Script
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`}
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block', width: '100%', height: '100%' }}
+        data-ad-client={clientId}
+        data-ad-slot={adUnitId}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
     </div>
   );
 }

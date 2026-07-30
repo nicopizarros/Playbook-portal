@@ -3429,6 +3429,73 @@ real, mismo estándar que Fases 1-3):
   único candidato); agregando un cuarto artículo `featured:true` viejo,
   ese gana igual — confirma que el override editorial sigue intacto.
 
+### 2026-07-30 — El placeholder de ads se apaga; queda listo para AdSense
+
+- Pedido directo del usuario, revirtiendo el de 2026-07-22: ya no hay
+  ganas de mostrar el placeholder rayado mientras no exista una red de
+  ads conectada — "collapse this places right now [...] we establish the
+  connection automatically" en cuanto haya cuenta de AdSense real. Sin
+  cuenta de AdSense todavía (confirmado con el usuario), así que este
+  cambio es apagar el placeholder ahora + dejar el código listo para que
+  conectar la red sea nada más setear variables de entorno, no volver a
+  tocar componentes.
+  - **`components/ads/AdSlot.tsx`**: ya no renderiza el `<div
+    className="ad-slot-placeholder">` fijo. Ahora, si no hay consentimiento
+    de publicidad, o no hay `ADSENSE_CLIENT_ID`, o no hay un
+    `ADSENSE_SLOT_*` configurado para ese slot puntual, el componente
+    devuelve `null` — ni caja, ni espacio reservado, ni atributos. Recién
+    cuando las tres condiciones se cumplen renderiza el `<ins
+    class="adsbygoogle">` real (con el script de Google cargado vía
+    `next/script`, `strategy="afterInteractive"`) dentro del mismo `<div
+    className="ad-slot ad-slot--{slot}">` de siempre, para que ese slot sí
+    reserve su tamaño planeado (cero CLS) una vez que hay un anuncio real
+    que mostrar. El contrato de consentimiento (`lib/consent.ts`) no
+    cambió: sin consentimiento de publicidad, nunca se carga el script de
+    Google, config de AdSense o no.
+  - **`lib/adsense.ts`** (nuevo): `getAdSenseConfig()` lee
+    `ADSENSE_CLIENT_ID` + los seis `ADSENSE_SLOT_*` (uno por posición) del
+    lado del servidor — mismo criterio que `GA4_MEASUREMENT_ID` en
+    `app/(public)/layout.tsx`: no son secretos, pero se leen server-side y
+    se pasan hacia abajo en vez de vivir como `NEXT_PUBLIC_*`.
+  - **`components/ads/AdSenseProvider.tsx`** (nuevo): contexto liviano que
+    reparte esa config a los seis call sites de `AdSlot` sin tener que
+    pasarla a mano por cada uno; `app/(public)/layout.tsx` lo instancia una
+    sola vez con la config leída server-side.
+  - **`app/ads.txt/route.ts`** (nuevo): AdSense exige este archivo en la
+    raíz del dominio una vez que hay inventario real, o marca el sitio
+    como no autorizado para vender su propio espacio. Sirve vacío (200)
+    hasta que `ADSENSE_CLIENT_ID` tenga valor — mismo criterio que
+    `AdSlot.tsx`, una variable de entorno lo activa.
+  - **`styles/ads.css`**: se borraron las reglas del placeholder
+    (`.ad-slot-placeholder` y compañía); quedan solo las reglas de tamaño
+    por slot, que ahora solo aplican mientras un `<ins>` real está
+    montado.
+  - **`.env.local.example`**: documenta `ADSENSE_CLIENT_ID` y los seis
+    `ADSENSE_SLOT_*`, todos vacíos por ahora.
+- **Pendiente/importante**: no hay cuenta de AdSense todavía — eso es un
+  paso manual del usuario (alta en Google AdSense, verificación del
+  sitio, aprobación) que este entorno no puede hacer por él. Una vez
+  aprobada, conectar la red real es: pegar el publisher ID en
+  `ADSENSE_CLIENT_ID` y, a medida que se crean los ad units en el
+  dashboard de AdSense, ir completando cada `ADSENSE_SLOT_*` — cada slot
+  se activa solo en cuanto su variable tiene valor, sin tocar código ni
+  volver a desplegar.
+- **Verificado**: `tsc --noEmit`, `npm run lint` y `npm run build`
+  limpios. Local con Postgres real (`db:migrate` + `migrate:json`) +
+  `next dev` + Playwright: (1) sin ninguna variable de AdSense seteada,
+  cero elementos `[data-ad-slot]` en el DOM del home, con o sin
+  consentimiento otorgado — confirma el colapso total pedido; (2)
+  seteando `ADSENSE_CLIENT_ID` + `ADSENSE_SLOT_LEADERBOARD_HOME` (valores
+  de prueba, no reales) y otorgando consentimiento, solo el slot
+  `leaderboard-home` renderiza su `<ins class="adsbygoogle">` con el
+  client/slot correctos; el resto de los slots (sin su variable seteada)
+  siguen colapsados — confirma que cada posición se activa
+  independientemente. Sin consentimiento, ningún slot renderiza nada
+  aunque esté configurado. Sin errores nuevos en consola del navegador
+  (los dos que aparecen, `MissingSecret` de next-auth y el bloqueo de
+  Vercel Web Analytics, son gaps preexistentes del sandbox sin relación
+  con este cambio).
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
