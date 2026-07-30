@@ -1,12 +1,16 @@
-// Inserts drafted newsletter articles straight into Postgres as published
-// rows, the automated counterpart to an editor manually filling out the
-// /admin "Artículos" form. Used by the publish-newsletter skill
-// (.claude/skills/publish-newsletter), never by hand.
+// Inserts drafted articles straight into Postgres as published rows, the
+// automated counterpart to an editor manually filling out the /admin
+// "Artículos" form. Shared write-side for two skills: publish-newsletter
+// (.claude/skills/publish-newsletter, Playbook's own Substack) and
+// publish-sourced-article (.claude/skills/publish-sourced-article,
+// third-party links with human review). Never run by hand.
 //
 // Usage: tsx scripts/publish-newsletter.ts <path-to-json-file>
-// Input: a JSON array of NewsletterArticleInput (see type below). bodyMarkdown
-// supports blank-line-separated paragraphs, "## " headings, and **bold** spans,
-// exactly what the editorial voice in the skill produces.
+// Input: a JSON array of ArticleInput (see type below). bodyMarkdown supports
+// blank-line-separated paragraphs, "## " headings, "**bold**" spans,
+// "[text](url)" links, and "- " bullet-list blocks (every non-empty line in
+// the block starting with "- "), exactly what the editorial voice in each
+// skill produces.
 
 import { readFile } from 'node:fs/promises';
 import { neon } from '@neondatabase/serverless';
@@ -25,7 +29,7 @@ import { slugify } from '../lib/slugify';
 // Neon works fine.
 const db = drizzle(neon(process.env.POSTGRES_URL!), { schema: { articles } });
 
-type NewsletterArticleInput = {
+type ArticleInput = {
   title: string;
   excerpt: string;
   teaser: string;
@@ -50,14 +54,24 @@ type NewsletterArticleInput = {
 
 function parseInlineMarks(text: string): JSONContent[] {
   const nodes: JSONContent[] = [];
-  const boldPattern = /\*\*(.+?)\*\*/g;
+  // **bold** or [link text](url), whichever comes first; no nesting between
+  // the two (not needed by any editorial voice that produces this markdown).
+  const pattern = /\*\*(.+?)\*\*|\[(.+?)\]\((\S+?)\)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
-  while ((match = boldPattern.exec(text))) {
+  while ((match = pattern.exec(text))) {
     if (match.index > lastIndex) {
       nodes.push({ type: 'text', text: text.slice(lastIndex, match.index) });
     }
-    nodes.push({ type: 'text', text: match[1], marks: [{ type: 'bold' }] });
+    if (match[1] !== undefined) {
+      nodes.push({ type: 'text', text: match[1], marks: [{ type: 'bold' }] });
+    } else {
+      nodes.push({
+        type: 'text',
+        text: match[2],
+        marks: [{ type: 'link', attrs: { href: match[3], target: '_blank', rel: 'noopener noreferrer' } }],
+      });
+    }
     lastIndex = match.index + match[0].length;
   }
   if (lastIndex < text.length) {
@@ -87,13 +101,23 @@ export function markdownToTipTap(markdown: string): Record<string, unknown> {
     if (headingMatch) {
       return { type: 'heading', attrs: { level: 2 }, content: parseInlineMarks(headingMatch[1]) };
     }
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length && lines.every(l => l.startsWith('- '))) {
+      return {
+        type: 'bulletList',
+        content: lines.map(l => ({
+          type: 'listItem',
+          content: [{ type: 'paragraph', content: parseInlineMarks(l.slice(2).trim()) }],
+        })),
+      };
+    }
     return { type: 'paragraph', content: parseInlineMarks(block) };
   });
 
   return { type: 'doc', content: content.length ? content : [{ type: 'paragraph' }] };
 }
 
-async function insertOne(input: NewsletterArticleInput) {
+async function insertOne(input: ArticleInput) {
   const bodyJson = markdownToTipTap(input.bodyMarkdown);
   const bodyHtml = generateHTML(bodyJson as JSONContent, TIPTAP_EXTENSIONS);
   const baseId = slugify(input.title) || `articulo-${Date.now().toString(36)}`;
@@ -155,7 +179,7 @@ async function main() {
   }
 
   const raw = await readFile(filePath, 'utf-8');
-  const items = JSON.parse(raw) as NewsletterArticleInput[];
+  const items = JSON.parse(raw) as ArticleInput[];
   if (!Array.isArray(items) || !items.length) {
     console.error('Input file must contain a non-empty JSON array of articles.');
     process.exitCode = 1;
