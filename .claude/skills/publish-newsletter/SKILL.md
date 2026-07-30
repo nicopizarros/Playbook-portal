@@ -32,7 +32,8 @@ Industry Shots or La Lana del Mundial edition is a separate article. Also
 fetch the page a second time asking specifically for the exact publication
 date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
-what outlet each item cites. These details drive word count and Importancia
+what outlet each item cites. These details drive whether a La Lana piece
+supports a second Opinión paragraph (Step 3) and the Importancia call
 below. Don't guess the publish date from context; confirm it from the page.
 Fetch the page a fourth time asking specifically for every image URL embedded
 in the post (the actual `substackcdn.com` / `substack-post-media.s3.amazonaws.com`
@@ -48,48 +49,54 @@ Applies to Industry Shots and Infinitas items. Does **not** apply to La Lana
 del Mundial: its fact/analysis content tracks the source as written, never
 supplemented with outside research (see Step 3's La Lana section).
 
-For each Industry Shots/Infinitas item, look for at least one concrete fact
-the Substack brief doesn't fully spell out: a number, a comparable deal
-size, a market/audience figure, relevant history (prior similar deals, past
-precedents), a regulatory detail, or a quote from an official source. Use
-WebSearch/WebFetch to find it from a reputable outlet (wire services,
-established sports-business or general press, the company's/league's own
-newsroom), not a random blog or forum.
+Mandatory, always attempted, for every Industry Shots/Infinitas item: search
+for at least one concrete fact the Substack brief doesn't fully spell out, a
+number, a comparable deal size, a market/audience figure, relevant history
+(prior similar deals, past precedents), a regulatory detail, or a quote from
+an official source. Use WebSearch/WebFetch to find it from a reputable
+outlet (wire services, established sports-business or general press, the
+company's/league's own newsroom), not a random blog or forum.
 
 Rules:
 - Fetch the actual source page and confirm the figure/fact there. Never take
   a search-snippet at face value and never invent a number.
 - Only use it if it's genuinely additive, context or scale the Substack item
   omitted, not a restatement of what's already there.
-- If nothing solid turns up after a couple of honest attempts, don't
-  fabricate one: instead pull an additional genuine detail straight from the
-  source itself (a second figure, a second named party, more of the
-  source's own context) to fill out the second paragraph. Every article
-  still needs three paragraphs of real information (see Step 3), the
-  outside fact is the preferred way to get there, not the only way.
-- This research feeds Step 3's paragraph structure below, and can sharpen
-  the priority/Importancia call in Step 4.
+- Write it as its own full paragraph in Playbook's voice (Step 3's tone),
+  woven into the article's flow like any other paragraph, never a bare
+  citation or a "según [fuente]" data dump bolted on.
+- The search itself must happen every time, don't skip it by default. If,
+  after genuinely trying multiple angles, nothing solid can be verified,
+  fall back to an additional genuine detail pulled straight from the source
+  (a second figure, a second named party, more of its own context) so the
+  paragraph still exists, just built from the source instead of outside
+  research.
+- This research is always paragraph 2 of Step 3's structure below, and can
+  sharpen the priority/Importancia call in Step 4.
 
 ## Step 3: Editorial voice
 
 ### Industry Shots / Infinitas
 
-Every article has up to three layers of information:
-1. The fact: what happened, who, the key numbers, source context.
-2. Added context: the data point, comparison, or history surfaced in Step 2
-   (or, when research turns up nothing solid, an additional genuine detail
-   pulled from the source itself).
-3. Opinión de Playbook: what it means for the industry, always with a Mexico
-   or LATAM angle when relevant. When the source genuinely has no opinion
-   angle and none can be responsibly added, this third paragraph is
-   fact/context instead, never invented editorializing.
+Every article is four paragraphs, always: three paragraphs of information,
+then a separate Opinión de Playbook paragraph.
 
-Minimum three paragraphs of information per article, no exceptions: if
-Step 2's research comes up empty, use the source-detail fallback above
-rather than leaving the article at two paragraphs.
+1. Fact paragraph: what happened, who, the key numbers, source context.
+2. Independent research paragraph (Step 2, mandatory): the data point,
+   comparison, or history the Substack brief didn't have, in Playbook's
+   voice, not a citation dump.
+3. Detail paragraph: more from the source itself, background, mechanics,
+   additional named parties, why it happened, whatever rounds the story out.
+4. Opinión de Playbook: what it means for the industry, always with a Mexico
+   or LATAM angle when relevant. Always present, every article, in the same
+   direct/analytical register as the rest, grounded in what's actually in
+   the piece rather than reaching for a take that isn't there.
 
-Word-count ranges: roughly 250-450 words for pieces with an Opinión
-paragraph; roughly 200-320 words for three-paragraph facts-only pieces.
+No exceptions to the four-paragraph structure: a "brief, no real angle"
+story still gets all four, it just stays tight and grounded rather than
+padded or invented.
+
+Word-count range: roughly 300-500 words across the four paragraphs.
 
 ### La Lana del Mundial
 
@@ -121,13 +128,20 @@ document, see Step 6), never HTML tags.
 - **title**: headline, in Spanish.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
-- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact layer paragraph(s), the Step 2 research (or source-detail fallback) paragraph, then a `**Opinión de Playbook:**` paragraph when the source has one, minimum three paragraphs total. For La Lana del Mundial: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
+- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Mundial: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
 - **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
     - La Lana del Mundial: `"La Lana del Mundial"` / `"la-lana"`
     - Infinitas: `"Infinitas"` / `"infinitas"`
     - Anything else: `"Playbook"` / `"playbook"`
+
+  "Industry Shots" is only this skill's internal name for that Substack
+  newsletter, used to pick the fields above. It is never a label readers
+  see: `SOURCE_LABELS['industry-shots']` in `lib/constants.ts` renders it as
+  "Noticias" everywhere on the site. Never write the literal string
+  "Industry Shots" into any visible field (title, excerpt, teaser, body,
+  author).
 - **tagsScope**: any of `Nacional`, `Internacional` (array, can be empty).
 - **tagsSport**: choose only from (case-sensitive, don't invent new ones):
   `Fútbol, Liga MX, NFL, NBA, Béisbol, Tenis, Golf, F1, Olímpico, Multi-deporte / Otros` (see `lib/taxonomy.ts`, `SPORT_OPTIONS`).
@@ -135,7 +149,7 @@ document, see Step 6), never HTML tags.
   `Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`.
 - **date**: `YYYY-MM-DD`, confirmed from the page (Step 1), not guessed.
 - **dateFormatted**: e.g. `"21 jul 2026"` (day, 3-letter lowercase month, year).
-- **readingTime**: `1` for brief items, `2` for standard Industry Shots pieces with an Opinión, `3` for La Lana long-form.
+- **readingTime**: `2` for Industry Shots/Infinitas (four-paragraph standard), `3` for La Lana long-form.
 - **priority** (Importancia): 1-5, objective scale:
     - `5` = Mexico/LATAM-specific regulatory, structural, or major business story.
     - `4` = Major international story with clear LATAM or business implication.
