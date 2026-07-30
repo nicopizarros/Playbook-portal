@@ -44,9 +44,13 @@ used as the cover image.
 
 ## Step 2: Independent research
 
-Before drafting, for each news item look for at least one concrete fact the
-Substack brief doesn't fully spell out: a number, a comparable deal size, a
-market/audience figure, relevant history (prior similar deals, past
+Applies to Industry Shots and Infinitas items. Does **not** apply to La Lana
+del Mundial: its fact/analysis content tracks the source as written, never
+supplemented with outside research (see Step 3's La Lana section).
+
+For each Industry Shots/Infinitas item, look for at least one concrete fact
+the Substack brief doesn't fully spell out: a number, a comparable deal
+size, a market/audience figure, relevant history (prior similar deals, past
 precedents), a regulatory detail, or a quote from an official source. Use
 WebSearch/WebFetch to find it from a reputable outlet (wire services,
 established sports-business or general press, the company's/league's own
@@ -57,36 +61,56 @@ Rules:
   a search-snippet at face value and never invent a number.
 - Only use it if it's genuinely additive, context or scale the Substack item
   omitted, not a restatement of what's already there.
-- If nothing solid turns up after a couple of honest attempts, don't force
-  it: a shorter, fact-accurate article beats a padded one with a
-  manufactured detail.
-- This research feeds Step 3's paragraph/word-count expansion below, and can
-  sharpen the priority/Importancia call in Step 4.
+- If nothing solid turns up after a couple of honest attempts, don't
+  fabricate one: instead pull an additional genuine detail straight from the
+  source itself (a second figure, a second named party, more of the
+  source's own context) to fill out the second paragraph. Every article
+  still needs three paragraphs of real information (see Step 3), the
+  outside fact is the preferred way to get there, not the only way.
+- This research feeds Step 3's paragraph structure below, and can sharpen
+  the priority/Importancia call in Step 4.
 
 ## Step 3: Editorial voice
 
-Every article has up to three layers:
-1. The fact: what happened, who, the key numbers, source context.
-2. Added context: the data point, comparison, or history surfaced in Step 2,
-   when the research turned up something genuinely additive.
-3. Opinión de Playbook: what it means for the industry, always with a Mexico
-   or LATAM angle when relevant.
+### Industry Shots / Infinitas
 
-Tone: direct, analytical, authoritative. No filler, no sensationalism. The
-reader should finish each article feeling they got something a press summary
-wouldn't give them.
+Every article has up to three layers of information:
+1. The fact: what happened, who, the key numbers, source context.
+2. Added context: the data point, comparison, or history surfaced in Step 2
+   (or, when research turns up nothing solid, an additional genuine detail
+   pulled from the source itself).
+3. Opinión de Playbook: what it means for the industry, always with a Mexico
+   or LATAM angle when relevant. When the source genuinely has no opinion
+   angle and none can be responsibly added, this third paragraph is
+   fact/context instead, never invented editorializing.
+
+Minimum three paragraphs of information per article, no exceptions: if
+Step 2's research comes up empty, use the source-detail fallback above
+rather than leaving the article at two paragraphs.
+
+Word-count ranges: roughly 250-450 words for pieces with an Opinión
+paragraph; roughly 200-320 words for three-paragraph facts-only pieces.
+
+### La Lana del Mundial
+
+Content stays exactly as it would without Step 2: don't run outside
+research on La Lana pieces, and don't otherwise pad or alter what the
+source says. The fact/analysis layers keep their existing length target,
+roughly 400-600 words, unchanged.
+
+The one addition: if a second Opinión de Playbook paragraph is genuinely
+supportable, i.e. there's a real second point to make, add it, in the exact
+same tone and voice as the first (direct, analytical, same Mexico/LATAM
+lens where relevant), not filler stretched to hit a length. If there isn't
+a genuine second point, leave the single Opinión paragraph as before rather
+than padding it.
+
+Tone (both sections above): direct, analytical, authoritative. No filler,
+no sensationalism. The reader should finish each article feeling they got
+something a press summary wouldn't give them.
 
 Style rule: never use em dashes (the "—" character) anywhere in the drafted
 text, in any field. Use commas, periods, parentheses, or "y"/"pero" instead.
-
-Body length: at least three paragraphs whenever the story supports it, using
-the Step 2 research to build a genuine additional paragraph rather than
-padding the fact layer. Word-count ranges: 250-450 words for Industry Shots
-articles with an Opinión de Playbook layer; 500-700 words for La Lana del
-Mundial long-form pieces; 100-180 words for brief items that have no
-Opinión in the source and no researchable angle (facts only, still fine to
-stay short and two paragraphs when there's genuinely nothing more to
-responsibly add, no invented editorializing).
 
 Write the body as **bold**/`##` heading formatted prose, plus any
 `![alt](url)` in-body images carried over per Step 5b (this becomes a TipTap
@@ -97,7 +121,7 @@ document, see Step 6), never HTML tags.
 - **title**: headline, in Spanish.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
-- **bodyMarkdown**: see Step 3. Fact layer paragraph(s), the Step 2 research paragraph when there is one, then a `**Opinión de Playbook:**` paragraph when the source has one.
+- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact layer paragraph(s), the Step 2 research (or source-detail fallback) paragraph, then a `**Opinión de Playbook:**` paragraph when the source has one, minimum three paragraphs total. For La Lana del Mundial: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
 - **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
