@@ -631,7 +631,7 @@ flash, paired with `suppressHydrationWarning` on `<html>`.
 | `run-migrations.ts` | `npm run db:migrate` | Applies pending Drizzle migrations |
 | `migrate-json-to-db.ts` | `npm run migrate:json` | **One-time, idempotent**: loads `articles.json`/`content.json` into Postgres |
 | `reset-editor-password.ts` | `npm run db:reset-editor-password -- <username>` | Rotates one editor's password: generates it, prints it once, stores only the bcrypt hash. Replaced `seed-editors.ts` (which took the whole roster as plaintext in `ADMIN_USERS`) on 2026-07-24 — the roster itself now ships as hashes in `drizzle/0005_editorial_team_accounts.sql` |
-| `publish-newsletter.ts` | `npm run publish:newsletter <file.json>` | The write-side of the `publish-newsletter` Claude skill (§13) — converts markdown to a TipTap doc, inserts articles directly via Neon's HTTP driver (works from HTTPS-only sandboxes) |
+| `publish-newsletter.ts` | `npm run publish:newsletter <file.json>` | The write-side of both the `publish-newsletter` and `publish-sourced-article` Claude skills (§13) — converts markdown (incl. `[text](url)` links, `- ` bullet lists) to a TipTap doc, inserts articles directly via Neon's HTTP driver (works from HTTPS-only sandboxes) |
 | `smoke-test.mjs` | `node scripts/smoke-test.mjs` (manual, against `localhost:3100`) | Playwright: theme toggle persistence, mobile drawer, search |
 | `test-email-wall.mjs` | `node scripts/test-email-wall.mjs` (manual) | Playwright: burns the 3-article quota, confirms the paywall form appears |
 
@@ -661,13 +661,28 @@ error message — it's not a crash, just non-functional).
 ## 13. Claude Code Skills (`.claude/skills/`)
 
 - **`publish-newsletter`** — a fully automated, zero-human-review editorial
-  pipeline: given one or more Substack URLs, fetches each edition, treats
-  each story as a separate article, drafts it in Playbook's two-layer
-  editorial voice (facts + "Opinión de Playbook" analysis with a
-  Mexico/LATAM angle), and inserts it directly into production Postgres as
+  pipeline: given one or more Playbook Substack URLs (Industry Shots, La
+  Lana del Mundial, Infinitas), fetches each edition, treats each story as
+  a separate article, drafts it in Playbook's editorial voice (Industry
+  Shots/Infinitas: fixed four-paragraph shape, fact + mandatory
+  independent-research paragraph + detail + "Opinión de Playbook"; La Lana:
+  source content left unchanged, at most an added second Opinión
+  paragraph), and inserts it directly into production Postgres as
   `status: 'published'` via `scripts/publish-newsletter.ts`. Uses the Neon
   HTTP driver rather than the app's normal TCP `pg` Pool, because it's
   designed to run from sandboxes with HTTPS-only egress.
+- **`publish-sourced-article`** — the human-reviewed counterpart, for links
+  to third-party (non-Playbook) outlets rather than Playbook's own
+  Substack. Cross-references other outlets covering the same story
+  (mandatory, both to verify facts and to avoid paraphrasing a single
+  competitor), appends a visible "Fuentes" citation list at the bottom of
+  the body, defaults the cover image to the referenced article's own photo
+  (falling back to `publish-newsletter`'s broader search), and always
+  pauses for explicit human approval in the Claude Code session before
+  writing anything to the database. Shares `scripts/publish-newsletter.ts`
+  as its write-side (that script's markdown-to-TipTap converter also
+  supports `[text](url)` links and `- ` bullet lists, added for this
+  skill's Fuentes block).
 - **`verify`** — documents how to run/verify the site in a sandbox with no
   `npm`/build step/Vercel CLI available. **Note: this skill's content still
   describes the pre-migration legacy static-site architecture**
