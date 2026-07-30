@@ -54,9 +54,20 @@ export function rankArticles<T extends Rankable>(articles: T[], now: Date = new 
   });
 }
 
+// Changed 2026-07-30: this used to gate candidates to `featured===true ||
+// priority===5` before picking the best-scoring one -- which meant a
+// single stale 5-star article was the ONLY thing eligible to be hero for
+// as long as no other 5-star/featured story existed, locking out every
+// fresher lower-priority story regardless of how much rankScore already
+// favored them. That's the exact "old important story stuck" bug the
+// header comment above describes for rankScore itself, just reintroduced
+// one level up. `featured` stays as the one deliberate override (an
+// editor explicitly saying "this is the hero, ignore its stars" per
+// components/admin/tabs/ArticlesTab.tsx's own copy) -- everything else
+// goes through the same blended score as the rest of the list, so recency
+// can win the hero slot exactly like it wins list order.
 export function selectHero<T extends Rankable>(articles: T[], now: Date = new Date()): T | null {
   const ranked = rankArticles(articles, now);
-  const candidates = ranked.filter(a => a.featured === true || Number(a.priority) === 5);
-  if (candidates.length) return candidates[0];
-  return (articles || []).slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0] || null;
+  const featured = ranked.find(a => a.featured === true);
+  return featured || ranked[0] || null;
 }

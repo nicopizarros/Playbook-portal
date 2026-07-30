@@ -30,7 +30,6 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
   const list = entries.map(e => e.data);
   const ranked = rankArticles(list);
   const mainPageIds = new Set(ranked.slice(0, MAIN_PAGE_COUNT).map(a => a.id));
-  const heroCount = list.filter(a => Number(a.priority) === 5).length;
   const featuredCount = list.filter(a => a.featured === true).length;
 
   function updateEntry(i: number, patch: Partial<ArticleEntry['data']>) {
@@ -57,14 +56,8 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
         archivarlos a mano.
       </p>
 
-      {(heroCount > 1 || featuredCount > 1) && (
+      {featuredCount > 1 && (
         <div className="admin-hero-conflict-banner">
-          {heroCount > 1 && (
-            <p>
-              Hay {heroCount} artículos con 5 estrellas al mismo tiempo. Solo el más reciente se muestra
-              como principal en portada — el resto sigue apareciendo con prioridad alta en el resto del sitio.
-            </p>
-          )}
           {featuredCount > 1 && (
             <p>
               Hay {featuredCount} artículos marcados como &quot;Destacado&quot; al mismo tiempo. Solo el más
@@ -111,7 +104,6 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
         newItem={newArticleEntry}
         renderItem={(entry, i) => {
           const a = entry.data;
-          const otherHero = list.find((other, idx) => idx !== i && Number(other.priority) === 5);
           const otherFeatured = list.find((other, idx) => idx !== i && other.featured === true);
           const showHeroNote = Number(a.priority) === 5 || a.featured === true;
 
@@ -221,18 +213,15 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
               </div>
               {showHeroNote && (
                 <div className="admin-hero-note">
-                  <strong>5 estrellas o &quot;Destacado&quot; = tratamiento de portada (hero). </strong>
-                  <span>Normalmente debe haber solo un artículo destacado a la vez.</span>
-                  {otherHero && (
-                    <div className="admin-hero-warning">
-                      Ya hay otro artículo con 5 estrellas: &quot;{otherHero.title || 'sin título'}&quot;. Solo
-                      el más reciente de los dos se mostrará como principal.
-                    </div>
-                  )}
-                  {otherFeatured && (
+                  <strong>
+                    La portada la decide la mezcla de estrellas + fecha: 5 estrellas no garantizan el
+                    puesto si algo más reciente pesa más.{' '}
+                  </strong>
+                  <span>&quot;Destacado&quot; es la única forma de forzar el puesto principal sin importar estrellas ni fecha.</span>
+                  {a.featured === true && otherFeatured && (
                     <div className="admin-hero-warning">
                       Ya hay otro artículo marcado como &quot;Destacado&quot;: &quot;{otherFeatured.title || 'sin título'}&quot;.
-                      Solo el más reciente de los dos se mostrará como principal.
+                      Solo uno de los dos se muestra como principal (el de mejor combinación de estrellas y fecha).
                     </div>
                   )}
                 </div>

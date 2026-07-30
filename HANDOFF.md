@@ -3395,6 +3395,40 @@ real, mismo estándar que Fases 1-3):
   `migrate:json` contra producción (riesgo: pisa cualquier edición
   hecha desde el CMS que no esté reflejada en `content.json`).
 
+### 2026-07-30 — El hero ya no se queda pegado en un ★5 viejo
+
+- Feedback del usuario: "way too much importance on the stars, what
+  matters most is recency" para el hero/top-five de portada. Gap real
+  encontrado en `lib/rank.ts`: `rankScore` (el blend prioridad×recencia,
+  ver entrada 2026-07-21 arriba) ya hacía bien el ORDEN de la lista, pero
+  `selectHero()` filtraba candidatos a `featured===true || priority===5`
+  **antes** de aplicar ese score — así que mientras existiera un solo
+  artículo ★5/Destacado en toda la tabla, ningún artículo más fresco de
+  menor prioridad podía ser hero jamás, sin importar cuánto le ganara en
+  `rankScore`. Exactamente el mismo bug de "historia vieja importante
+  atascada" que esa entrada dice haber arreglado, reintroducido un nivel
+  arriba.
+  - **`lib/rank.ts`**: `selectHero()` ahora toma directo el primero de
+    `rankArticles()` (mismo score que ordena la lista); `featured===true`
+    sigue siendo la única forma de forzar el puesto sin importar estrellas
+    ni fecha (columna que ya existía para eso). El gate de `priority===5`
+    se eliminó — 5 estrellas da el boost de recencia más grande posible,
+    pero ya no es un requisito para calificar.
+  - **`components/admin/tabs/ArticlesTab.tsx`**: se actualizó la copia que
+    le prometía al editor "5 estrellas o Destacado = hero" (ya no es
+    cierto) y se sacó el banner de "conflicto" por artículos ★5
+    simultáneos (ya no hay tal conflicto — el score decide solo). El
+    banner de "Destacado" duplicado se mantiene, porque `featured` sigue
+    siendo un override real.
+  - **`docs/ENCYCLOPEDIA.md`** (§8.1): actualizado para reflejar el nuevo
+    comportamiento de `selectHero()`.
+- **Verificado**: `tsc --noEmit`, `npm run lint` y `npm run build`
+  limpios. Chequeo directo con `tsx` sobre `lib/rank.ts`: con un artículo
+  ★5 de 15 días, uno ★3 de hoy y uno ★1 de ayer, `selectHero` ahora
+  devuelve el ★3 de hoy (antes hubiera devuelto el ★5 viejo por ser el
+  único candidato); agregando un cuarto artículo `featured:true` viejo,
+  ese gana igual — confirma que el override editorial sigue intacto.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
