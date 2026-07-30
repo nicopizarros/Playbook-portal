@@ -170,9 +170,20 @@ Importancia scale. Differences from that skill:
 
 - **author**: leave `""` unless a byline is genuinely known, same as
   `publish-newsletter`.
-- **publication** / **source**: `"Playbook"` / `"playbook"`, the "anything
-  else" pair in `publish-newsletter`'s mapping, this content isn't from one
-  of the three Substack newsletters.
+- **publication** / **source**: `"Noticias"` / `"industry-shots"`. This
+  reuses Industry Shots' pair rather than `publish-newsletter`'s "anything
+  else" fallback (`"Playbook"` / `"playbook"`): a third-party wire pickup
+  reads as a news brief, not as a Playbook-branded opinion piece, and the
+  `"Playbook"` kicker/tag (`app/(public)/articulo/page.tsx`'s
+  `article-kicker`, and the `tag-mini` chip on every card,
+  `components/article/NewsRow.tsx` and friends) should say "Noticias" on
+  these the same way it does on an Industry Shots item, both visually
+  (`styles/components.css`'s `.tag-mini.industry-shots` color) and in the
+  taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
+  `topicsForSection`). There's no separate "wire story" entry in
+  `KNOWN_SOURCES`/`SOURCE_LABELS` (`lib/constants.ts`) to reach for
+  instead, reusing `industry-shots` is the pragmatic way to get the
+  "Noticias" label without adding a new taxonomy value for this.
 - **substackUrl**: always `""`, leave it empty. `app/(public)/articulo/page.tsx`
   renders a "Ver en Substack" button whenever this field is non-empty,
   pointing wherever it's set. That label is wrong for a third-party link,
