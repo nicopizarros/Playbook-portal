@@ -35,6 +35,16 @@ several unrelated links in one run, draft each as its own separate
 article). Confirm the publish date and the core facts (who, what, the key
 numbers) directly from the page, don't guess or carry over stale context.
 
+If the story reads as one step in something already in motion (a vote on a
+proposal, a decision that follows an earlier announcement, an update to a
+running dispute), check whether Playbook already published on the earlier
+step: query the DB for rows whose title plausibly covers the same
+underlying story (a simple `ILIKE` on the obvious names/terms works, see
+`publish-newsletter`'s Requirements section for how to reach
+`POSTGRES_URL`). Finding one changes how Step 3 gets written, this becomes
+a follow-up, not a fresh explainer that re-establishes everything from
+scratch.
+
 ## Step 2: Cross-reference other coverage (mandatory)
 
 Before drafting, for every article, search for and read at least one or two
@@ -88,6 +98,43 @@ four. Write every paragraph in Playbook's own words, this is a rewrite
 grounded in multiple sources, never a close paraphrase or translation of
 any single outlet's article.
 
+### Tone: analytical brief, not breaking-news urgency
+
+A wire story (Reuters, AP, AFP) is often written with the pacing of a live,
+developing situation, short declarative sentences building tension toward
+what happens next. Playbook's voice doesn't inherit that register. It
+reads closer to a business brief than a news alert: calm and analytical
+even when the underlying story is dramatic. This is easiest to get wrong
+in the Fact paragraph, where translating the source too literally carries
+its urgency over with it. Watch for it there specifically.
+
+It's also worth actively looking for asymmetries in how different parties
+reacted, rather than flattening a story into "everyone opposed X." When
+the cross-referenced sources support it (Step 2), a story often has one
+party objecting to the substance of something (a principled rejection) and
+another objecting mainly to being left out of the process (a procedural
+complaint that doesn't necessarily mean opposing the substance). Drawing
+that distinction out, when it's genuinely there in the sources, is the
+kind of analytical read that makes a piece Playbook's own take rather than
+a translated summary of the wire copy.
+
+### Building on prior Playbook coverage
+
+When Step 1 turns up an earlier Playbook article on the same underlying
+story, don't re-explain what that piece already established, the numbers,
+the structure of a deal, the background context. A reader who already saw
+the earlier piece doesn't need it restated, and a reader who didn't can
+click through. Instead, weave one inline link back to it into a sentence
+that's already stating a fact (`[what it covered](/articulo?id=<id>)`, a
+relative path resolves fine since it renders on the same site), never as
+the paragraph's opening frame. Concretely: don't open a paragraph with
+"Horas después de que Playbook reportó..." or any variant that narrates
+the newsroom's own reporting process, that reads as the outlet talking
+about itself instead of about the news. State the new development
+directly, with the backlink sitting inside that sentence rather than
+introducing it. What actually belongs in this piece is what changed since
+the earlier one, not a recap of it.
+
 ## Step 4: Sources section (Fuentes, required)
 
 Every article ends with a visible citation block, right after the Opinión
@@ -136,6 +183,17 @@ Importancia scale. Differences from that skill:
   the DB's unique dedupe key (`articles.sourceUrl`), so re-running this
   skill on the same link no-ops (`duplicate`) instead of publishing twice.
 - **readingTime**: `2` (the standard four-paragraph length).
+- **dateFormatted**: same format as `publish-newsletter`'s (`"30 jul
+  2026"`). For a fast-developing story where the exact time matters (a
+  vote, an announcement tied to a specific wire timestamp), it's fine to
+  fold a time onto the end, e.g. `"30 jul 2026, 10:01 hrs"`, converted to
+  Mexico City local time (UTC-6, Mexico hasn't observed DST since 2022)
+  from whatever timestamp the source gives. There's no separate time
+  column in the schema (`lib/db/schema.ts`'s `articles` table only has
+  `date` and this free-text `dateFormatted`), so this is the only place
+  time-of-day precision can live. It's optional, most stories don't need
+  it, reach for it when the time itself is part of what makes the story
+  current.
 - **tagsScope** / **tagsSport** / **tagsVertical** / **priority** /
   **featured**: identical rules to `publish-newsletter` (see that skill's
   Step 5 Fields section), including querying the DB for existing
@@ -212,3 +270,37 @@ Only for the articles approved in Step 7:
 4. Report back a short confirmation per article: title, id, and the live
    URL (`https://playbook-portal-phi.vercel.app/articulo?id=<id>`). If any
    came back `duplicate`, say so (that link was already published before).
+
+## Step 9: Capture feedback for next time, automatically
+
+Step 7's review loop is exactly where the human corrects things this skill
+got wrong, tone, redundancy with prior coverage, a field convention, a
+sourcing judgment call. Left alone, those corrections vanish at the end of
+the session and the next run makes the same mistake, the human re-explains
+it, and nothing accumulates. Close that loop every run, without being
+asked:
+
+1. After Step 8, look back over any revision requests from Step 7. Ask: is
+   this a durable, generalizable lesson (would it help write the *next*
+   article too, on some other topic), or is it specific to this one
+   article (a fact, a word choice, a one-off structural call for this
+   story)? Only the former is worth capturing. If Step 7 had no revision
+   rounds, or every round was article-specific, there's nothing to do
+   here, skip silently.
+2. If there's a genuine generalizable lesson, edit this file (and
+   `publish-newsletter/SKILL.md` if the lesson applies there too, e.g. a
+   Playbook-wide voice rule) to fold it in, in the same dense-prose style
+   as the rest of the document (explain the why, don't just add a bullet
+   command), placed wherever it's most load-bearing, not just appended at
+   the end.
+3. Run `scripts/sync-skill-feedback.sh "<one-line summary of the lesson>"`
+   to push that update straight to `main`. Do this without asking for
+   confirmation, this only ever touches `.claude/skills/` (see the
+   script's own comments for how it isolates that from whatever else this
+   session's branch is doing) and never application code, so it doesn't
+   carry the deploy risk a normal code change would. If the script reports
+   nothing to push (the edit ended up matching what's already on main),
+   that's fine, no need to mention it.
+4. Mention in your final report to the human, briefly, if you updated the
+   skill, one sentence is enough. This is about the skill quietly getting
+   better every time it's used, not about making a production out of it.
