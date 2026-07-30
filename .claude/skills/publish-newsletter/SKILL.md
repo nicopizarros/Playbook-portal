@@ -96,6 +96,15 @@ No exceptions to the four-paragraph structure: a "brief, no real angle"
 story still gets all four, it just stays tight and grounded rather than
 padded or invented.
 
+If an item is itself a follow-up to a story Playbook already covered (a
+prior Industry Shots/Infinitas item, findable by querying the DB), don't
+re-explain what that earlier piece established, link back to it inline
+from within a sentence that's stating the new fact (`/articulo?id=<id>`),
+and never open a paragraph narrating that Playbook covered it before
+("Horas después de que Playbook reportó..." reads as the outlet talking
+about itself rather than the news). See `publish-sourced-article`'s Step 3
+for the fuller treatment of this, it comes up more often there.
+
 Readability: every paragraph, not only the Opinión one, opens with a short
 bold lead-in (2-5 words, ending in a colon, e.g. `**El plan:**`,
 `**El comparativo:**`, `**Los números:**`), specific to what that paragraph
@@ -123,8 +132,12 @@ a genuine second point, leave the single Opinión paragraph as before rather
 than padding it.
 
 Tone (both sections above): direct, analytical, authoritative. No filler,
-no sensationalism. The reader should finish each article feeling they got
-something a press summary wouldn't give them.
+no sensationalism. Playbook reads closer to a business brief than to a
+news alert, calm and analytical even when the underlying story is
+dramatic, rather than adopting the urgent, developing-situation pacing a
+breaking-news source might use for the same facts. The reader should
+finish each article feeling they got something a press summary wouldn't
+give them.
 
 Style rule: never use em dashes (the "—" character) anywhere in the drafted
 text, in any field. Use commas, periods, parentheses, or "y"/"pero" instead.
