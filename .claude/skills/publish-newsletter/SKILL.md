@@ -96,6 +96,16 @@ No exceptions to the four-paragraph structure: a "brief, no real angle"
 story still gets all four, it just stays tight and grounded rather than
 padded or invented.
 
+Readability: every paragraph, not only the Opinión one, opens with a short
+bold lead-in (2-5 words, ending in a colon, e.g. `**El plan:**`,
+`**El comparativo:**`, `**Los números:**`), specific to what that paragraph
+covers, not a generic repeated label. Four paragraphs of unbroken prose
+read as one dense block on the article page (font size and line height
+leave no visual break beyond the paragraph gap); the bold lead-in gives a
+reader something to scan before committing to the paragraph, the same way
+`**Opinión de Playbook:**` already does for the fourth. Vary the lead-in's
+wording per article rather than reusing the same word in every piece.
+
 Word-count range: roughly 300-500 words across the four paragraphs.
 
 ### La Lana del Mundial

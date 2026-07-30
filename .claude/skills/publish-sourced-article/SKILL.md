@@ -78,10 +78,15 @@ analytical, authoritative, Mexico/LATAM angle, never an em dash "—"):
 4. Opinión de Playbook: what it means for the industry, Mexico/LATAM angle
    when relevant. Always present, grounded in what's actually in the piece.
 
-Always four paragraphs, no exceptions. Word-count range: roughly 300-500
-words across the four. Write every paragraph in Playbook's own words, this
-is a rewrite grounded in multiple sources, never a close paraphrase or
-translation of any single outlet's article.
+Always four paragraphs, no exceptions. Every paragraph, not only the
+Opinión one, opens with a short bold lead-in (2-5 words, ending in a
+colon, specific to what that paragraph covers, not a generic repeated
+label across articles), same readability rule as `publish-newsletter`'s
+Step 3, four paragraphs of unbroken prose read as one dense block on the
+article page otherwise. Word-count range: roughly 300-500 words across the
+four. Write every paragraph in Playbook's own words, this is a rewrite
+grounded in multiple sources, never a close paraphrase or translation of
+any single outlet's article.
 
 ## Step 4: Sources section (Fuentes, required)
 
