@@ -302,3 +302,21 @@ Do not ask for approval before step 6. Publishing without a review step is
 the point of this flow. Do flag anything genuinely uncertain (e.g. couldn't
 confirm a fact, no free Unsplash photo found for a story) rather than
 guessing silently.
+
+## Step 7: Capture feedback for next time, automatically
+
+This skill has no review gate, but the person who asked for the run often
+still reacts afterward, a tone note, a correction, a "don't do X again."
+That reaction is exactly the kind of lesson that should stick permanently
+instead of getting re-explained on some future run. If the human reacts
+with a correction that's genuinely generalizable (would help write the
+*next* article, on some other topic, not just fix this one), fold it into
+this file (and `publish-sourced-article/SKILL.md` if it's a voice rule
+that applies there too) in the same dense-prose style as the rest of the
+document, then run
+`scripts/sync-skill-feedback.sh "<one-line summary of the lesson>"` to
+push it straight to `main`, no need to ask first, the script only ever
+touches `.claude/skills/`. Article-specific corrections (a fact, a word
+choice for this one story) aren't worth capturing, skip those silently.
+Mention in one sentence if you updated the skill; this should stay quiet
+and routine, not a production.

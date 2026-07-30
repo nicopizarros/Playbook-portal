@@ -270,3 +270,37 @@ Only for the articles approved in Step 7:
 4. Report back a short confirmation per article: title, id, and the live
    URL (`https://playbook-portal-phi.vercel.app/articulo?id=<id>`). If any
    came back `duplicate`, say so (that link was already published before).
+
+## Step 9: Capture feedback for next time, automatically
+
+Step 7's review loop is exactly where the human corrects things this skill
+got wrong, tone, redundancy with prior coverage, a field convention, a
+sourcing judgment call. Left alone, those corrections vanish at the end of
+the session and the next run makes the same mistake, the human re-explains
+it, and nothing accumulates. Close that loop every run, without being
+asked:
+
+1. After Step 8, look back over any revision requests from Step 7. Ask: is
+   this a durable, generalizable lesson (would it help write the *next*
+   article too, on some other topic), or is it specific to this one
+   article (a fact, a word choice, a one-off structural call for this
+   story)? Only the former is worth capturing. If Step 7 had no revision
+   rounds, or every round was article-specific, there's nothing to do
+   here, skip silently.
+2. If there's a genuine generalizable lesson, edit this file (and
+   `publish-newsletter/SKILL.md` if the lesson applies there too, e.g. a
+   Playbook-wide voice rule) to fold it in, in the same dense-prose style
+   as the rest of the document (explain the why, don't just add a bullet
+   command), placed wherever it's most load-bearing, not just appended at
+   the end.
+3. Run `scripts/sync-skill-feedback.sh "<one-line summary of the lesson>"`
+   to push that update straight to `main`. Do this without asking for
+   confirmation, this only ever touches `.claude/skills/` (see the
+   script's own comments for how it isolates that from whatever else this
+   session's branch is doing) and never application code, so it doesn't
+   carry the deploy risk a normal code change would. If the script reports
+   nothing to push (the edit ended up matching what's already on main),
+   that's fine, no need to mention it.
+4. Mention in your final report to the human, briefly, if you updated the
+   skill, one sentence is enough. This is about the skill quietly getting
+   better every time it's used, not about making a production out of it.
