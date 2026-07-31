@@ -2,26 +2,19 @@
    (already global via app/layout.tsx) so the preview pane is visually
    accurate to the live site. */
 
-/* legacy/admin/*.html each hardcoded <html data-theme="light"> — the admin
-   panel is deliberately excluded from Etapa 6 dark mode (see tokens.css),
-   since it reuses the site's own tokens for the live preview and a half-dark
-   editing surface would be confusing. That's not portable as-is here: this
-   app has one shared <html> for every route, whose data-theme reflects the
-   *reader's* stored preference. Pinning the theme tokens back to their light
-   values, scoped to .admin-body, reproduces the same "always light" intent
-   without fighting the public site's dark-mode toggle. */
-.admin-body {
-  --ink: #0a0a0a;
-  --paper: #FAF8F5;
-  --paper-soft: #F1ECE4;
-  --rule: #E6DFD3;
-  --gray-txt: #6b6459;
-  --gray-dark: #332f27;
-  --src-industry: #1c2b4a;
-  --src-lana: #b5850a;
-  --src-infinitas: #6b2fbf;
-  --src-opinion: #146c64;
-}
+/* Fase 9: the admin panel used to pin its tokens back to fixed light
+   values here, deliberately opting out of tokens.css's dark mode — the
+   ThemeToggle (components/theme/ThemeToggle.tsx) was reader-facing only.
+   Reversed: the admin topbar now renders that same toggle
+   (app/admin/(protected)/layout.tsx), so .admin-body follows the exact
+   same [data-theme]/prefers-color-scheme cascade as the public portal —
+   "the visual line the main portal follows" is the token system itself,
+   and the CMS now speaks it instead of a separate fixed palette. The
+   handful of rules below that assumed --ink is always the dark color (an
+   active tab's solid fill, a toast, the login screen) switch to
+   --ink-fixed instead, same pattern the public site already uses for its
+   own always-dark surfaces (ticker, footer, primary button — see
+   tokens.css). */
 
 .admin-body {
   background: var(--paper-soft);
@@ -35,7 +28,9 @@ button, input, select, textarea { font-family: inherit; }
 /* ---------- Login ---------- */
 
 .admin-body-login {
-  background: var(--ink);
+  /* Always the dark brand look, independent of the reader's theme
+     preference — same reasoning as the site's own footer/ticker. */
+  background: var(--ink-fixed);
   background-image: radial-gradient(circle at 20% 20%, rgba(154, 234, 57, .10), transparent 45%),
                      radial-gradient(circle at 80% 80%, rgba(154, 234, 57, .06), transparent 40%);
 }
@@ -49,7 +44,10 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 .admin-login-card {
-  background: var(--paper);
+  /* --paper-soft, not --paper: the backdrop behind it is a fixed dark
+     (--ink-fixed above), and in dark theme --paper alone sits too close to
+     that same near-black to read as a distinct floating card. */
+  background: var(--paper-soft);
   border: 1px solid var(--rule);
   border-radius: 18px;
   padding: 36px 32px;
@@ -141,6 +139,12 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   background: var(--paper); border-right: 1px solid var(--rule);
   overflow-y: auto;
 }
+.admin-tab-group-item { display: flex; flex-direction: column; gap: 2px; }
+.admin-tab-group-label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--gray-txt); opacity: .7; margin: 12px 10px 2px;
+}
+.admin-tab-group-item:first-child .admin-tab-group-label { margin-top: 2px; }
 .admin-tab {
   display: flex; align-items: center; gap: 9px;
   border: 1.5px solid transparent; background: transparent;
@@ -148,7 +152,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   cursor: grab; color: var(--gray-txt); text-align: left; width: 100%;
 }
 .admin-tab:hover { background: var(--paper-soft); color: var(--ink); }
-.admin-tab.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.admin-tab.is-active { background: var(--ink-fixed); border-color: var(--ink-fixed); color: #fff; }
 .admin-tab.is-dragging { opacity: .4; }
 .admin-tab.is-drag-over { border-color: var(--green); }
 .admin-tab-handle { opacity: .45; font-size: 12px; flex-shrink: 0; cursor: grab; }
@@ -186,7 +190,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .preview-section-tag {
   display: none; position: absolute; top: 8px; right: 8px; z-index: 6;
   font-size: 10.5px; font-weight: 800; letter-spacing: .04em;
-  background: var(--ink); color: var(--green); padding: 4px 10px; border-radius: 999px;
+  background: var(--ink-fixed); color: var(--green); padding: 4px 10px; border-radius: 999px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
 }
 .preview-section.is-changed .preview-section-tag { display: inline-flex; }
@@ -237,7 +241,8 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   padding: 3px 8px; border-radius: 999px; flex-shrink: 0; white-space: nowrap;
   background: var(--paper-soft); color: var(--gray-txt); border: 1px solid var(--rule);
 }
-.badge-pill.is-hero { background: var(--ink); color: var(--green); border-color: var(--ink); }
+.badge-pill.is-hero { background: var(--ink-fixed); color: var(--green); border-color: var(--ink-fixed); }
+.badge-pill.is-hero-main { background: #d9a441; color: #2a1c02; border-color: #d9a441; }
 .badge-pill.is-archive { background: var(--paper-soft); color: var(--gray-txt); }
 
 /* ---------- Star rating (article importance) ---------- */
@@ -257,15 +262,6 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 }
 .admin-hero-note.is-hidden { display: none; }
 .admin-hero-warning { margin-top: 8px; color: #a3550f; font-weight: 600; }
-
-.admin-hero-conflict-banner {
-  font-size: 12.5px; line-height: 1.5; color: #a3550f; font-weight: 600; background: var(--paper-soft);
-  border: 1px solid var(--rule); border-left: 3px solid #a3550f; border-radius: 8px;
-  padding: 10px 12px; margin: 0 0 14px;
-}
-.admin-hero-conflict-banner p { margin: 0; }
-.admin-hero-conflict-banner p + p { margin-top: 6px; }
-.admin-hero-conflict-banner.is-hidden { display: none; }
 
 /* ---------- Tagging coverage panel (read-only, Articles tab) ---------- */
 
@@ -305,7 +301,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   padding: 10px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; color: var(--ink);
 }
 .btn-add:hover, .btn-mini:hover { border-color: var(--ink); }
-.btn-mini.is-active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn-mini.is-active { background: var(--ink-fixed); color: #fff; border-color: var(--ink-fixed); }
 
 /* ---------- TipTap body editor (Articles tab) ---------- */
 
@@ -341,6 +337,23 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   .team-invite-form { grid-template-columns: 1fr; align-items: stretch; }
 }
 
+/* ---------- Guía (Fase 9: tutorial arriba de la biblioteca de prompts) ---------- */
+
+.studio-howto { margin-bottom: 22px; }
+.studio-howto-title { font-size: 14px; font-weight: 800; margin: 0 0 10px; }
+.studio-howto-list { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.studio-howto-item {
+  border: 1px solid var(--rule); border-radius: 10px; background: var(--paper);
+  padding: 10px 14px;
+}
+.studio-howto-item dt { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.studio-howto-item dd { font-size: 12.5px; color: var(--gray-txt); line-height: 1.55; margin: 0; }
+.studio-howto-item code {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 11.5px;
+  background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 5px; padding: 1px 5px;
+}
+.studio-library-title { margin-top: 30px; }
+
 /* ---------- Studio (Fase 8B: biblioteca de prompts) ---------- */
 
 .studio-section { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); margin-bottom: 12px; overflow: hidden; }
@@ -364,7 +377,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
    "código para copiar", no como un campo editable del CMS. */
 .studio-prompt-text {
   width: 100%; box-sizing: border-box; resize: vertical;
-  background: var(--ink); color: #e9ebee; border: 1px solid var(--ink); border-radius: 9px;
+  background: var(--ink-fixed); color: #e9ebee; border: 1px solid var(--ink-fixed); border-radius: 9px;
   font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; line-height: 1.55;
   padding: 12px 14px;
 }
@@ -377,7 +390,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
 }
 .admin-toast {
-  background: var(--ink); color: #fff; font-size: 13.5px; font-weight: 600;
+  background: var(--ink-fixed); color: #fff; font-size: 13.5px; font-weight: 600;
   padding: 13px 18px; border-radius: 11px; box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
   max-width: 340px; opacity: 0; transform: translateY(10px); transition: opacity .2s ease, transform .2s ease;
   border-left: 4px solid var(--green);
@@ -470,6 +483,11 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
     min-width: 0;
     scrollbar-width: thin;
   }
+  /* Group labels make sense stacked above tabs in the desktop sidebar, but
+     read as clutter in a horizontal scroller — drop them here and just
+     keep the boundary implicit (a slightly bigger gap wouldn't survive the
+     scroller either, so this is a deliberate simplification, not a miss). */
+  .admin-tab-group-label { display: none; }
   .admin-tab { width: auto; flex-shrink: 0; }
   .admin-preview-pane { display: none; }
   .admin-form-pane { flex: 1 1 100%; max-height: none; min-width: 0; }
@@ -480,6 +498,41 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 
 @media (max-width: 900px) {
   .admin-status { display: none; }
+}
+
+/* ---------- Phone-width pass (Fase 9): the 1180px block above gets the
+   shell usable on a tablet, but at an actual phone width (360-430px) the
+   desktop paddings/tap targets are still what a mouse cursor wants, not a
+   thumb. Measured on a 390px viewport: 24-28px side padding ate ~15% of
+   the usable width on every form field, the "Eliminar"/"Copiar" buttons
+   (30px tall) and star-rating dots sat well under the ~44px iOS/Android
+   comfortable tap-target guideline, and the tag-coverage / studio-card
+   rows wrapped their counts and buttons onto the label instead of a new
+   line. ---------- */
+@media (max-width: 480px) {
+  .admin-form-pane { padding: 16px 14px; }
+  .admin-tab { min-height: 40px; }
+  .admin-section-title { font-size: 15px; margin-top: 20px; }
+  .array-item-body { padding-left: 14px; }
+  .array-item-header { padding: 10px 8px; gap: 6px; }
+  .array-item-title { max-width: 46vw; }
+
+  .btn-mini { min-height: 38px; padding: 0 12px; }
+  .btn-add { padding: 12px 14px; }
+  .checkbox-option { min-height: 30px; }
+  .star-btn { font-size: 26px; padding: 6px; }
+
+  .tag-coverage-row { flex-wrap: wrap; row-gap: 2px; }
+  .team-row { flex-wrap: wrap; row-gap: 8px; }
+  .team-invite-link-row { flex-direction: column; }
+
+  .studio-card-head { flex-direction: column; align-items: stretch; }
+  .studio-card-head .btn-mini { align-self: flex-start; }
+  .studio-howto-item { padding: 10px; }
+
+  .analytics-barlist-row { grid-template-columns: 1fr; row-gap: 4px; }
+  .analytics-barlist-value { text-align: left; }
+  .analytics-kpi-row { gap: 18px; flex-wrap: wrap; }
 }
 
 /* The topbar packs brand + CMS/Analytics nav + save button + status +
@@ -495,3 +548,37 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   .admin-topbar-brand { font-size: 14px; }
   .admin-status { min-width: 0; }
 }
+
+/* ---------- Dark mode: literal status colors ----------
+   Everything above that reads --ink/--paper/--rule/etc. already retints
+   correctly through tokens.css's cascade now that the light-only pin at
+   the top of this file is gone. These few were never var()-based — they're
+   literal hex tuned against the light paper background — and go muddy
+   (dark-on-dark) once that background actually goes dark. Same three-layer
+   cascade tokens.css uses (auto via prefers-color-scheme, [data-theme]
+   override wins over it, [data-theme="light"] forces back), just applied
+   to these selectors directly instead of custom properties. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .admin-status.is-ok { color: #4ade80; }
+  :root:not([data-theme="light"]) .admin-error,
+  :root:not([data-theme="light"]) .field-error,
+  :root:not([data-theme="light"]) .admin-status.is-error { color: #f87171; }
+  :root:not([data-theme="light"]) .input.is-invalid { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248, 113, 113, .18); }
+  :root:not([data-theme="light"]) .admin-hero-warning,
+  :root:not([data-theme="light"]) .team-row-meta.is-expired { color: #e0995a; }
+  :root:not([data-theme="light"]) .btn-mini.btn-danger { color: #f87171; border-color: #6b332e; }
+  :root:not([data-theme="light"]) .btn-mini.btn-danger:hover { background: #3a201c; border-color: #f87171; }
+  :root:not([data-theme="light"]) .analytics-delta.is-up { color: #86e678; background: rgba(154, 234, 57, .15); }
+  :root:not([data-theme="light"]) .analytics-delta.is-down { color: #f87171; background: rgba(248, 113, 113, .15); }
+}
+[data-theme="dark"] .admin-status.is-ok { color: #4ade80; }
+[data-theme="dark"] .admin-error,
+[data-theme="dark"] .field-error,
+[data-theme="dark"] .admin-status.is-error { color: #f87171; }
+[data-theme="dark"] .input.is-invalid { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248, 113, 113, .18); }
+[data-theme="dark"] .admin-hero-warning,
+[data-theme="dark"] .team-row-meta.is-expired { color: #e0995a; }
+[data-theme="dark"] .btn-mini.btn-danger { color: #f87171; border-color: #6b332e; }
+[data-theme="dark"] .btn-mini.btn-danger:hover { background: #3a201c; border-color: #f87171; }
+[data-theme="dark"] .analytics-delta.is-up { color: #86e678; background: rgba(154, 234, 57, .15); }
+[data-theme="dark"] .analytics-delta.is-down { color: #f87171; background: rgba(248, 113, 113, .15); }

@@ -1,7 +1,10 @@
-// Contenido estático del Studio (Fase 8B): la biblioteca de prompts que el
-// equipo copia y pega en su propia sesión de Claude. Nada de aquí llama a
-// ninguna API; es texto de referencia. Mantenerlo alineado con:
-// - .claude/skills/publish-newsletter/SKILL.md (flujo real de publicación)
+// Contenido estático de la Guía (/admin/guia, movida fuera del CMS central
+// en la redada de Fase 9 — antes vivía como pestaña "Studio"). La parte de
+// arriba (StudioTab.tsx) es tutorial real, paso a paso; esto de aquí es solo
+// lo que sobra sin un skill dedicado: la biblioteca de prompts que el equipo
+// copia y pega en su propia sesión de Claude. Nada de aquí llama a ninguna
+// API; es texto de referencia. Mantenerlo alineado con:
+// - .claude/skills/publish-newsletter/SKILL.md y publish-sourced-article/SKILL.md (flujos reales)
 // - components/admin/tabs/ArticlesTab.tsx (orden exacto de los campos)
 // - lib/taxonomy.ts (valores exactos de las etiquetas, no inventar)
 
@@ -12,7 +15,9 @@ const VOZ = `Voz Playbook: directa, analítica, con autoridad. Español de Méxi
 const TAXONOMIA = `Etiquetas permitidas (exactas, no inventes otras):
 - Alcance: Nacional, Internacional
 - Deporte: Fútbol, Liga MX, NFL, NBA, Béisbol, Tenis, Golf, F1, Olímpico, Multi-deporte / Otros
-- Vertical de negocio: Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`;
+- Vertical de negocio: Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights
+
+En Deporte, usa la etiqueta más específica que aplique antes de caer en una genérica: si la nota es sobre la competencia Liga MX en sí (sus reglas, sus clubes en conjunto), usa "Liga MX", no "Fútbol". Si la nota es de un solo deporte con etiqueta propia (béisbol, tenis, golf, F1, olímpico), usa esa etiqueta, no "Multi-deporte / Otros" — ese bucket es solo para notas genuinamente multi-deporte o sin etiqueta propia.`;
 
 const IMPORTANCIA = `Importancia (1 a 5, escala objetiva):
 - 5 = historia regulatoria, estructural o de negocio mayor, específica de México/LATAM
@@ -26,38 +31,10 @@ export type StudioSection = { key: string; title: string; description: string; p
 
 export const STUDIO_SECTIONS: StudioSection[] = [
   {
-    key: 'newsletter-publish',
-    title: '1 · Publicación de newsletter',
-    description:
-      'Convierte una edición de Substack (Industry Shots, La Lana del Mundial, Infinitas) en artículos del portal. Requiere una sesión de Claude Code dentro del repo Playbook-portal, porque usa el skill publish-newsletter y la base de datos de producción.',
-    prompts: [
-      {
-        title: 'Publicación directa (sin revisión)',
-        description:
-          'El flujo automático completo: lee la edición, redacta cada nota y la publica en vivo. Úsalo solo cuando de verdad quieras publicar sin revisar.',
-        prompt: `Usa el skill publish-newsletter con estos enlaces de Substack:
-
-[PEGA AQUÍ UNO O MÁS ENLACES]
-
-Procesa cada edición completa (cada historia es un artículo aparte) y publícalos directo, sin paso de revisión, como indica el skill. Al final dame el resumen por artículo: título, id y URL en vivo, y avísame si alguno salió como duplicate.`,
-      },
-      {
-        title: 'Con revisión antes de publicar',
-        description:
-          'El mismo flujo pero en dos tiempos: primero borradores completos para revisar, y solo se publica lo que apruebes.',
-        prompt: `Usa el skill publish-newsletter con estos enlaces de Substack:
-
-[PEGA AQUÍ UNO O MÁS ENLACES]
-
-Haz solo la parte de lectura y redacción (pasos 1 a 3 del skill): muéstrame cada borrador completo con todos sus campos (título, extracto, teaser, cuerpo, etiquetas, importancia, destacado, fechas, URLs). NO publiques nada todavía. Cuando te diga cuáles quedan aprobados (y con qué ajustes), publica únicamente esos con el paso 5 del skill y dame el resumen por artículo: título, id y URL en vivo.`,
-      },
-    ],
-  },
-  {
     key: 'articles',
-    title: '2 · Artículos',
+    title: '1 · Artículos',
     description:
-      'Redacta un artículo listo para capturar en la pestaña Artículos de este panel, con todos los campos en el mismo orden del formulario.',
+      'Redacta un artículo listo para capturar en la pestaña Artículos de este panel, con todos los campos en el mismo orden del formulario. Úsalo cuando NO tengas una sesión de Claude Code a mano (por ejemplo, redactando desde el celular en claude.ai) — dentro de Claude Code, el skill publish-sourced-article hace este mismo trabajo de punta a punta (cruza fuentes, cita todo, pide tu aprobación y publica), ver la sección de arriba.',
     prompts: [
       {
         title: 'Artículo desde una URL externa',
@@ -96,7 +73,7 @@ ${IMPORTANCIA}`,
   },
   {
     key: 'social',
-    title: '3 · Redes sociales',
+    title: '2 · Redes sociales',
     description: 'Convierte un artículo ya publicado en piezas para X, LinkedIn e Instagram.',
     prompts: [
       {
@@ -155,7 +132,7 @@ Reglas del carrusel:
   },
   {
     key: 'research',
-    title: '4 · Investigación y preparación',
+    title: '3 · Investigación y preparación',
     description: 'Trabajo previo: briefs de investigación y preparación de entrevistas.',
     prompts: [
       {
@@ -200,7 +177,7 @@ Preguntas concretas y con números cuando se pueda; nada de "¿cómo ves el futu
   },
   {
     key: 'weekly',
-    title: '5 · Newsletter semanal',
+    title: '4 · Newsletter semanal',
     description: 'El digest editorial de la semana a partir de lo ya publicado.',
     prompts: [
       {
@@ -225,7 +202,7 @@ Si una nota no aporta a la narrativa de la semana, dilo y déjala fuera en vez d
   },
   {
     key: 'base',
-    title: '6 · Playbook Base',
+    title: '5 · Playbook Base',
     description: 'Contenido evergreen: el diccionario del negocio del deporte y explainers de fondo.',
     prompts: [
       {

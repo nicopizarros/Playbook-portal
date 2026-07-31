@@ -6,13 +6,15 @@ import { usePathname } from 'next/navigation';
 export function AdminTopbarNav() {
   const pathname = usePathname();
   const isAnalytics = pathname?.startsWith('/admin/analytics') ?? false;
+  const isGuide = pathname?.startsWith('/admin/guia') ?? false;
+  const isCms = !isAnalytics && !isGuide;
 
   return (
     <nav className="admin-topbar-nav" aria-label="Secciones del panel">
       <Link
         href="/admin/dashboard"
-        className={`admin-tab${isAnalytics ? '' : ' is-active'}`}
-        aria-current={isAnalytics ? undefined : 'page'}
+        className={`admin-tab${isCms ? ' is-active' : ''}`}
+        aria-current={isCms ? 'page' : undefined}
       >
         CMS
       </Link>
@@ -22,6 +24,13 @@ export function AdminTopbarNav() {
         aria-current={isAnalytics ? 'page' : undefined}
       >
         Analytics
+      </Link>
+      <Link
+        href="/admin/guia"
+        className={`admin-tab${isGuide ? ' is-active' : ''}`}
+        aria-current={isGuide ? 'page' : undefined}
+      >
+        Guía
       </Link>
     </nav>
   );

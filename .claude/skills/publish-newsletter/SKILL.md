@@ -168,6 +168,26 @@ document, see Step 6), never HTML tags.
 - **tagsScope**: any of `Nacional`, `Internacional` (array, can be empty).
 - **tagsSport**: choose only from (case-sensitive, don't invent new ones):
   `Fútbol, Liga MX, NFL, NBA, Béisbol, Tenis, Golf, F1, Olímpico, Multi-deporte / Otros` (see `lib/taxonomy.ts`, `SPORT_OPTIONS`).
+  Pick the **most specific** value the story actually supports before
+  falling back to a broader one — a 2026-07-31 audit of live articles found
+  several stories sitting on the generic bucket one tier up from the tag
+  that actually fit:
+    - The story is specifically about the Liga MX competition/organization
+      itself (its rules, its clubs collectively, its front office, e.g. a
+      promotion-and-relegation change or a league-structure story) → `Liga
+      MX`, not `Fútbol`. `Fútbol` is for the sport in general: a single
+      club's business, the national team, FIFA/a tournament, or any other
+      story that isn't about the Liga MX competition as an entity.
+    - A single-sport story (baseball, tennis, golf, F1, Olympic) →
+      that sport's own tag, not `Multi-deporte / Otros`. That bucket is for
+      stories that are genuinely cross-sport (a multi-team ownership group,
+      a broadcaster's general sports deal) or for a sport with no tag of
+      its own (e.g. cycling) — not a stand-in for "didn't check if a
+      specific tag existed." Concretely: a story about MLB's Home Run
+      Derby is `Béisbol`, not `Multi-deporte / Otros`.
+  Before writing the final value, re-read the story's own core subject (not
+  just the sports mentioned in passing) and check it against the list above
+  for the closest match.
 - **tagsVertical**: choose only from `lib/taxonomy.ts`'s `VERTICAL_OPTIONS`:
   `Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`.
 - **date**: `YYYY-MM-DD`, confirmed from the page (Step 1), not guessed.
