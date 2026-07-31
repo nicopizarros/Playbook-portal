@@ -58,10 +58,10 @@ export const SECTION_TOPICS: Record<string, SectionTopics> = {
   // (derechos de TV, patrocinios, M&A…) is the reason a reader clicks
   // through, the sport is context.
   'industry-shots': { order: ['vertical', 'sport', 'scope'], label: 'Temas de esta noticia' },
-  // La Lana del Mundial is a single-tournament newsletter — every piece is
+  // La Lana del Deporte is a single-tournament newsletter — every piece is
   // football, so leading with the sport would say nothing. Scope
   // (Nacional/Internacional) is what separates one piece from the next.
-  'la-lana': { order: ['scope', 'vertical', 'sport'], label: 'Temas de La Lana del Mundial' },
+  'la-lana': { order: ['scope', 'vertical', 'sport'], label: 'Temas de La Lana del Deporte' },
   // Infinitas covers women's sport across disciplines: which sport it is
   // carries the most information here.
   infinitas: { order: ['sport', 'vertical', 'scope'], label: 'Temas de Infinitas' },

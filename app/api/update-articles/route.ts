@@ -47,7 +47,7 @@ function stripHtml(str: string) {
 
 function detectPublication(title: string) {
   if (/industry shots/i.test(title)) return { publication: 'Noticias', source: 'industry-shots' };
-  if (/lana/i.test(title)) return { publication: 'La Lana del Mundial', source: 'la-lana' };
+  if (/lana/i.test(title)) return { publication: 'La Lana del Deporte', source: 'la-lana' };
   if (/infinitas/i.test(title)) return { publication: 'Infinitas', source: 'infinitas' };
   return { publication: 'Playbook', source: 'playbook' };
 }

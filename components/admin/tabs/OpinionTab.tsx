@@ -40,7 +40,7 @@ export function OpinionTab({ data, onChange }: Props) {
                 set('cards', cards);
               }}
             />
-            <TextField label="Publicación" help="El nombre que aparece arriba del título (ej. La Lana del Mundial)." value={item.masthead} onChange={v => { const cards = data.cards.slice(); cards[i] = { ...cards[i], masthead: v }; set('cards', cards); }} />
+            <TextField label="Publicación" help="El nombre que aparece arriba del título (ej. La Lana del Deporte)." value={item.masthead} onChange={v => { const cards = data.cards.slice(); cards[i] = { ...cards[i], masthead: v }; set('cards', cards); }} />
             <TextField label="Título" help="El titular que se muestra en la tarjeta." value={item.title} onChange={v => { const cards = data.cards.slice(); cards[i] = { ...cards[i], title: v }; set('cards', cards); }} />
             <TextField label="Extracto" multiline help="Uno o dos renglones que resumen el artículo." value={item.excerpt} onChange={v => { const cards = data.cards.slice(); cards[i] = { ...cards[i], excerpt: v }; set('cards', cards); }} />
             <TextField label="Enlace del artículo" type="url" required help="La URL a la que lleva la tarjeta al hacer clic." value={item.url} onChange={v => { const cards = data.cards.slice(); cards[i] = { ...cards[i], url: v }; set('cards', cards); }} />

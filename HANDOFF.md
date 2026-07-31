@@ -2330,7 +2330,7 @@ real, mismo estándar que Fases 1-3):
 - **Navegación: enlaces de productos editoriales a Substack** — las 4
   tarjetas de "Productos editoriales" (`site_content.productsSection`)
   enlazaban las 4 a Substack. 3 de las 4 corresponden a un `source` real
-  del sitio (Noticias→`industry-shots`, La Lana del Mundial→`la-lana`,
+  del sitio (Noticias→`industry-shots`, La Lana del Deporte→`la-lana`,
   Infinitas→`infinitas`) y ahora enlazan a su colección interna
   (`/archivo?source=...`) en vez de salir del sitio — verificado con
   Playwright que los 3 `href` cambiaron y el 4º no. **The Futbol Business

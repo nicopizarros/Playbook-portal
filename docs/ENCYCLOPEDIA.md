@@ -24,7 +24,7 @@ private equity, sports marketing, talent management, audiences, fan
 experience, naming rights. Content comes from three editorial lines/sources:
 
 - **Industry Shots** (source key `industry-shots`) — general news digest.
-- **La Lana del Mundial** (source key `la-lana`) — World Cup business
+- **La Lana del Deporte** (source key `la-lana`) — sports business
   coverage.
 - **Infinitas** (source key `infinitas`) — a distinct newsletter product
   with its own homepage section.
@@ -673,7 +673,7 @@ error message — it's not a crash, just non-functional).
 
 - **`publish-newsletter`** — a fully automated, zero-human-review editorial
   pipeline: given one or more Playbook Substack URLs (Industry Shots, La
-  Lana del Mundial, Infinitas), fetches each edition, treats each story as
+  Lana del Deporte, Infinitas), fetches each edition, treats each story as
   a separate article, drafts it in Playbook's editorial voice (Industry
   Shots/Infinitas: fixed four-paragraph shape, fact + mandatory
   independent-research paragraph + detail + "Opinión de Playbook"; La Lana:
