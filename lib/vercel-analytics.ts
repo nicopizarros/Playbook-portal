@@ -1,10 +1,11 @@
 // Near-literal port of legacy/lib/vercel-analytics.js — same REST API, same
 // env vars, same graceful-degradation contract (throws on a real failure,
-// caller decides how to degrade). Powers only the admin analytics
-// dashboard (app/admin/(protected)/analytics/page.tsx); NOT the same thing
-// as lib/ga4.js, which legacy/api/top-articles.js uses for the homepage
-// "Más leídas" module — that's a separate, still-deferred feature (see
-// HANDOFF.md's Fase 2 log), not part of this checkpoint.
+// caller decides how to degrade). Powers the admin analytics dashboard
+// (app/admin/(protected)/analytics/page.tsx) via lib/analytics-data.ts —
+// since 2026-07-31, only as the fallback there when GA4 isn't configured or
+// a specific report call fails, see lib/ga4-analytics.ts and
+// lib/analytics-data.ts's withGa4Fallback(). Separate credential/module from
+// lib/ga4.ts, which powers the homepage "Más leídas" module.
 
 const API_BASE = 'https://api.vercel.com/v1/query/web-analytics';
 

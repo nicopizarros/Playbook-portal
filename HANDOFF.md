@@ -3596,6 +3596,67 @@ real, mismo estándar que Fases 1-3):
   después de este cambio GA4 real-time sigue sin mostrar datos, ese es el
   primer lugar a revisar, no el código.
 
+### 2026-07-31 — Panel de analítica del admin: GA4 primero, Vercel de respaldo
+
+- **Pedido del usuario**: el panel `/admin/analytics` (`lib/analytics-data.ts`)
+  solo leía de Vercel Analytics (`lib/vercel-analytics.ts`); el usuario, ante
+  la sospecha de que se agotó la cuota mensual de eventos de Vercel, pidió
+  traer del lado de Google todo lo que se pueda, dejando en Vercel solo lo
+  que sea exclusivo de Vercel. Auditados los cinco paneles (KPIs, artículos
+  más leídos, referidos, países, dispositivos): los cinco tienen equivalente
+  en la GA4 Data API, así que no queda nada genuinamente exclusivo de Vercel
+  para este panel — Vercel pasa a ser el respaldo, no una fuente aparte.
+- **`lib/ga4.ts`**: `runReport()` extraído como export compartido (antes
+  vivía inline dentro de `topArticleIds()`) — mismo login de JWT/token, ahora
+  reutilizable. `topArticleIds()` no cambió de comportamiento, solo de
+  implementación interna.
+- **`lib/ga4-analytics.ts`** (nuevo): `count`/`aggregateVisits`/
+  `aggregateEvents`, mismas firmas que sus equivalentes de
+  `lib/vercel-analytics.ts` — reemplazos directos. `aggregateVisits` mapea
+  las dimensiones de Vercel a las de GA4 (`referrerHostname`→`sessionSource`,
+  `country`→`country`, `deviceType`→`deviceCategory`) y devuelve las filas
+  bajo la misma clave que espera `breakdownPanel()` en `analytics-data.ts`
+  (`row[dimension]`), así que ese archivo no necesitó tocar su lógica de
+  lectura. `aggregateEvents` no tiene equivalente real de evento
+  personalizado en GA4 (el sitio nunca dispara uno) — reusa la misma técnica
+  de `topArticleIds()` (`pagePath` que contiene `/articulo`, `?id=` como
+  identificador del artículo).
+- **`lib/analytics-data.ts`**: nuevo `withGa4Fallback()` — si GA4 está
+  configurado (`ga4Analytics.isConfigured()`), lo intenta primero; si tira
+  error, cae a Vercel; si GA4 no está configurado, va directo a Vercel. Los
+  tres call sites (`safeCount`, `topArticlesPanel`, `breakdownPanel`) pasan
+  por ahí. `getAnalyticsSnapshot()` y todo lo que la consume
+  (`AnalyticsView.tsx`, `refreshAnalytics()`, la página del panel) no
+  cambiaron — mismo shape de siempre.
+- **Advertencia dejada como comentario, no resuelta**: los rangos de fecha de
+  GA4 (`YYYY-MM-DD`) se interpretan en la zona horaria de la propiedad (GA4
+  Admin → Configuración de la propiedad), no necesariamente UTC, mientras que
+  los límites de este panel se calculan en UTC — puede haber un desfase de
+  algunas horas justo en el cambio de día. No se resolvió con una segunda
+  llamada a la Admin API solo para un panel que ya rotula sus propios números
+  de país/dispositivo como "aproximado" en otro lado.
+- **Verificado**: `tsc --noEmit`, `npm run lint`, `npm run build` limpios los
+  tres. Además, con credenciales de GA4 falsas (par RSA descartable, sin
+  tocar Vercel) y `global.fetch` mockeado para las dos URLs reales que llama
+  `lib/ga4.ts` (token OAuth + `:runReport`), confirmado con un script
+  standalone (no un test formal, no queda en el repo) que `count()`,
+  `aggregateVisits()` (las tres dimensiones) y `aggregateEvents()` de
+  `lib/ga4-analytics.ts` devuelven la forma exacta que espera
+  `analytics-data.ts`, incluida la extracción del id de artículo desde
+  `pagePath` y el mapeo de dimensión-a-clave para countries/devices/referrers.
+  No se pudo probar `getAnalyticsSnapshot()` completo con datos simulados en
+  este entorno porque, apenas hay filas de "artículos más leídos", llama a
+  `getAllArticlesForAdmin()` (Postgres real) para resolver títulos, y este
+  sandbox no tiene acceso rápido a esa base — no es una limitación del
+  cambio, ya pasaba antes de este mismo.
+- **Pendiente/importante, no de código**: para que esto realmente empiece a
+  traer datos de Google, faltan migrar en Vercel las tres variables de
+  entorno de GA4 con el casing correcto (`GA4_property_id` →
+  `GA4_PROPERTY_ID`, etc. — bug real ya encontrado y anotado el 2026-07-21,
+  ver ese día en este mismo registro) y confirmar que la cuenta de servicio
+  tiene rol Viewer en la propiedad real. Sin eso, `isConfigured()` sigue
+  devolviendo `false` y el panel sigue leyendo de Vercel como hasta ahora.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y

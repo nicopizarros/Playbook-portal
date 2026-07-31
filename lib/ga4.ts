@@ -69,7 +69,38 @@ async function getAccessToken(): Promise<string> {
   return data.access_token;
 }
 
-type Ga4Row = { dimensionValues: { value: string }[]; metricValues: { value: string }[] };
+export type Ga4Row = { dimensionValues: { value: string }[]; metricValues: { value: string }[] };
+
+// Shared runReport call -- both this file's topArticleIds() (below) and
+// lib/ga4-analytics.ts's KPI/breakdown queries (admin analytics panel) go
+// through this, so the JWT signing + token exchange above happens the same
+// way everywhere. `revalidateSeconds` opts into Next's per-fetch data cache
+// (used by the homepage's "Más leídas" module, which reads under a
+// force-dynamic layout and would otherwise hit the GA4 Data API on every
+// request); omitted, the call is never cached -- what the admin panel's
+// "Actualizar" button needs.
+export async function runReport(
+  body: Record<string, unknown>,
+  { revalidateSeconds }: { revalidateSeconds?: number } = {}
+): Promise<Ga4Row[]> {
+  if (!isConfigured()) return [];
+
+  const accessToken = await getAccessToken();
+  const propertyId = process.env.GA4_PROPERTY_ID;
+
+  const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    ...(revalidateSeconds ? { next: { revalidate: revalidateSeconds } } : { cache: 'no-store' as const }),
+  });
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    throw new Error(`GA4 Data API respondió ${res.status}: ${errBody}`);
+  }
+  const data = await res.json();
+  return data.rows || [];
+}
 
 // Returns [{ id, pageviews }] for the top /articulo ids by pageviews over
 // the last `days` days, or null when GA4 isn't configured yet — null is the
@@ -78,18 +109,12 @@ type Ga4Row = { dimensionValues: { value: string }[]; metricValues: { value: str
 export async function topArticleIds({ days = 7, limit = 10 }: { days?: number; limit?: number } = {}) {
   if (!isConfigured()) return null;
 
-  const accessToken = await getAccessToken();
-  const propertyId = process.env.GA4_PROPERTY_ID;
-
   // 30-minute freshness window via Next's per-fetch data cache — replaces
   // legacy's Cache-Control: max-age=1800 on its now-gone /api/top-articles
   // route, so the homepage (force-dynamic) doesn't hit the GA4 Data API on
-  // every single request. Deliberately NOT applied to the token fetch above
-  // (tokens expire in 1 hour; caching that risks reusing one past expiry).
-  const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  // every single request.
+  const rows = await runReport(
+    {
       dateRanges: [{ startDate: `${days}daysAgo`, endDate: 'today' }],
       dimensions: [{ name: 'pagePath' }],
       metrics: [{ name: 'screenPageViews' }],
@@ -98,15 +123,9 @@ export async function topArticleIds({ days = 7, limit = 10 }: { days?: number; l
       },
       orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
       limit,
-    }),
-    next: { revalidate: 1800 },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`GA4 Data API respondió ${res.status}: ${body}`);
-  }
-  const data = await res.json();
-  const rows: Ga4Row[] = data.rows || [];
+    },
+    { revalidateSeconds: 1800 }
+  );
 
   return rows
     .map(row => {

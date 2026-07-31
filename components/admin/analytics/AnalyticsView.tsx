@@ -65,9 +65,9 @@ function BarList({ items }: { items: { label: string; pageviews: number }[] }) {
 
 function unavailableMessage(panel: string) {
   if (panel === 'topArticles') {
-    return 'No se pudo cargar — este panel necesita eventos personalizados (permiso "Custom Events" de Vercel Analytics, ver lib/vercel-analytics.ts).';
+    return 'No se pudo cargar — necesita GA4 configurado (ver lib/ga4.ts) o, como respaldo, el permiso "Custom Events" de Vercel Analytics (ver lib/vercel-analytics.ts).';
   }
-  return 'No se pudo cargar este panel todavía.';
+  return 'No se pudo cargar este panel todavía — revisá la configuración de GA4 (lib/ga4.ts) o de Vercel Analytics (lib/vercel-analytics.ts).';
 }
 
 export function AnalyticsView({ initialSnapshot }: { initialSnapshot: AnalyticsSnapshot }) {
