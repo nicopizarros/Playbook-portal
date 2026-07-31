@@ -21,7 +21,7 @@
     "cards": [
       {
         "variant": "standard",
-        "masthead": "La Lana del Mundial",
+        "masthead": "La Lana del Deporte",
         "title": "¿Por qué FIFA nunca pierde con el Mundial?",
         "excerpt": "El Modelo FIFA explica cómo controla las ganancias del Mundial mientras otros cargan con los riesgos operativos del evento.",
         "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa",
@@ -29,7 +29,7 @@
       },
       {
         "variant": "standard",
-        "masthead": "La Lana del Mundial",
+        "masthead": "La Lana del Deporte",
         "title": "¿La pausa de hidratación es el primer timeout comercial del fútbol?",
         "excerpt": "Una medida nacida para cuidar jugadores abrió una conversación incómoda sobre televisoras, pausas y experiencia del fan.",
         "url": "https://playbookmedia.substack.com/p/la-lana-del-mundial-la-pausa-de-hidratacion",
@@ -66,8 +66,8 @@
         "description": "Los negocios, decisiones y tensiones alrededor del Mundial 2026.",
         "meta": "Viernes",
         "url": "/archivo?source=la-lana",
-        "image": "/assets/img/lana-banner.webp",
-        "imageAlt": "La Lana del Mundial"
+        "image": "/assets/img/lana-banner.jpg",
+        "imageAlt": "La Lana del Deporte"
       },
       {
         "variant": "banner",
@@ -210,7 +210,7 @@
     "pullQuoteMain": "Tú ves el partido",
     "pullQuoteEm": "Nosotros vemos el negocio",
     "body": "Playbook es el medio para líderes —y futuros líderes— del deporte en LATAM: el dinero, los medios, las marcas, los datos y la relación con el fan, contados con contexto.",
-    "productsLine": "Noticias · La Lana del Mundial · The Futbol Business Review · Infinitas",
+    "productsLine": "Noticias · La Lana del Deporte · The Futbol Business Review · Infinitas",
     "productsLineNote": "— cuatro formatos, una misma casa editorial.",
     "actions": [
       { "label": "Ver YouTube", "url": "https://www.youtube.com/@AldoSalesPlaybook", "style": "light" },
@@ -218,7 +218,7 @@
     ]
   },
   "footer": {
-    "brandBlurb": "El medio para líderes del deporte en LATAM. Noticias, La Lana del Mundial, The Futbol Business Review e Infinitas: análisis y video del negocio deportivo, todo en una misma casa editorial.",
+    "brandBlurb": "El medio para líderes del deporte en LATAM. Noticias, La Lana del Deporte, The Futbol Business Review e Infinitas: análisis y video del negocio deportivo, todo en una misma casa editorial.",
     "socialLinks": [
       { "label": "Substack", "url": "https://playbookmedia.substack.com/" },
       { "label": "YouTube", "url": "https://www.youtube.com/@AldoSalesPlaybook" },

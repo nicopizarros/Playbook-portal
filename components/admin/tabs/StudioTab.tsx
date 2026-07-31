@@ -116,7 +116,7 @@ export function StudioTab() {
         </p>
         <dl className="studio-howto-list">
           <div className="studio-howto-item">
-            <dt>Una edición de newsletter (Industry Shots, La Lana del Mundial, Infinitas)</dt>
+            <dt>Una edición de newsletter (Industry Shots, La Lana del Deporte, Infinitas)</dt>
             <dd>
               “Usa el skill <code>publish-newsletter</code> con este enlace: [URL]”. Publica directo, sin
               paso de revisión — es contenido propio de Playbook.
