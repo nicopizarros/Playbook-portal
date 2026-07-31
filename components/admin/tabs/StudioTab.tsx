@@ -49,7 +49,7 @@ function PromptCard({ prompt, promptKey }: { prompt: StudioPrompt; promptKey: st
 }
 
 export function StudioTab() {
-  const [openSections, setOpenSections] = useState<Set<string>>(() => new Set([STUDIO_SECTIONS[0].key]));
+  const [openSections, setOpenSections] = useState<Set<string>>(() => new Set());
 
   function toggle(key: string) {
     setOpenSections(prev => {
@@ -62,11 +62,85 @@ export function StudioTab() {
 
   return (
     <div>
-      <h2 className="admin-section-title">Studio</h2>
+      <h2 className="admin-section-title">Guía</h2>
       <p className="admin-section-desc">
-        La biblioteca de prompts del equipo. Copia el que necesites y pégalo en tu propia sesión de
-        Claude; aquí no se llama a ninguna API. Los prompts ya traen la voz editorial, la taxonomía
-        exacta del panel y la escala de importancia.
+        Cómo hacer las tareas del día a día — a mano en este panel o con Claude Code — y, más abajo,
+        una biblioteca de prompts para lo que todavía no tiene un flujo dedicado.
+      </p>
+
+      <section className="studio-howto">
+        <h3 className="studio-howto-title">A mano en el CMS</h3>
+        <dl className="studio-howto-list">
+          <div className="studio-howto-item">
+            <dt>Publicar un artículo nuevo</dt>
+            <dd>
+              Pestaña <b>Artículos</b> → “+ Agregar artículo manualmente” → llena los campos (el ID se
+              genera solo a partir del título) → <b>Guardar artículos</b>.
+            </dd>
+          </div>
+          <div className="studio-howto-item">
+            <dt>Marcar el destacado (hero) de portada</dt>
+            <dd>
+              Abre el artículo en <b>Artículos</b> y activa “Destacado”. Si ya hay otro marcado, el sitio
+              solo muestra el más reciente de los dos como principal — desmarca el viejo si quieres forzar
+              el nuevo.
+            </dd>
+          </div>
+          <div className="studio-howto-item">
+            <dt>Subir la prioridad de un artículo</dt>
+            <dd>
+              Campo “Importancia” (1 a 5 estrellas) en el mismo formulario. Junto con la fecha, decide el
+              orden real del sitio: más estrellas y más reciente pesa más.
+            </dd>
+          </div>
+          <div className="studio-howto-item">
+            <dt>Corregir o archivar un artículo</dt>
+            <dd>
+              Edita cualquier campo y <b>Guardar artículos</b>. Para quitarlo de la portada usa “Eliminar”
+              en la tarjeta — archiva el artículo, no lo borra; sigue viviendo en /archivo.
+            </dd>
+          </div>
+          <div className="studio-howto-item">
+            <dt>Reordenar las pestañas de este panel</dt>
+            <dd>Arrastra cualquier pestaña de la barra izquierda. El orden se guarda por editor.</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section className="studio-howto">
+        <h3 className="studio-howto-title">Con Claude Code</h3>
+        <p className="studio-section-desc">
+          Si tienes una sesión de Claude Code abierta en el repo Playbook-portal, usa los skills reales
+          del proyecto en vez de copiar un prompt suelto — ya conocen la base de datos de producción, la
+          taxonomía exacta y, según el caso, piden tu aprobación antes de publicar.
+        </p>
+        <dl className="studio-howto-list">
+          <div className="studio-howto-item">
+            <dt>Una edición de newsletter (Industry Shots, La Lana del Mundial, Infinitas)</dt>
+            <dd>
+              “Usa el skill <code>publish-newsletter</code> con este enlace: [URL]”. Publica directo, sin
+              paso de revisión — es contenido propio de Playbook.
+            </dd>
+          </div>
+          <div className="studio-howto-item">
+            <dt>Una nota de otro medio (ESPN, Reuters, un comunicado, cualquier link que no sea de Playbook)</dt>
+            <dd>
+              “Usa el skill <code>publish-sourced-article</code> con este enlace: [URL]”. Cruza otras
+              coberturas, cita todas las fuentes al final y siempre se detiene a pedir tu aprobación antes
+              de publicar.
+            </dd>
+          </div>
+          <div className="studio-howto-item">
+            <dt>Cualquier otra cosa (redes sociales, un brief, el digest semanal, Playbook Base…)</dt>
+            <dd>Todavía no tiene un skill dedicado — usa la biblioteca de prompts de abajo.</dd>
+          </div>
+        </dl>
+      </section>
+
+      <h3 className="admin-section-title studio-library-title">Biblioteca de prompts</h3>
+      <p className="admin-section-desc">
+        Para lo de arriba sin skill dedicado, o para cuando no tienes una sesión de Claude Code a la
+        mano. Copia el prompt y pégalo en tu propia sesión de Claude; nada de esto llama a ninguna API.
       </p>
 
       {STUDIO_SECTIONS.map(section => {

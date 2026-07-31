@@ -27,33 +27,39 @@ import { MidCtaTab } from './tabs/MidCtaTab';
 import { FooterTab } from './tabs/FooterTab';
 import { SettingsTab } from './tabs/SettingsTab';
 import { TeamTab } from './tabs/TeamTab';
-import { StudioTab } from './tabs/StudioTab';
 import { LivePreview } from './LivePreview';
 
+// `group` drives the section headers rendered above the tab rail
+// (.admin-tabs) — grouping the previously-flat 14-tab list into something
+// scannable. Purely a display grouping: tabOrder (drag-reordered, persisted
+// per editor below) still governs the actual order, a group header is
+// rendered whenever the group changes walking that order, so an editor who
+// drags a tab across group lines just gets a repeated/out-of-place header
+// rather than broken state.
 const TAB_DEFS = [
-  { key: 'articles', label: 'Artículos' },
-  { key: 'opinion', label: 'Opinión' },
-  { key: 'video', label: 'Video' },
-  { key: 'infinitas', label: 'Infinitas' },
-  { key: 'products', label: 'Productos' },
-  { key: 'stats', label: 'Números' },
-  { key: 'testimonials', label: 'Testimonios' },
-  { key: 'about', label: 'Acerca' },
-  { key: 'midCta', label: 'CTA' },
-  { key: 'nav', label: 'Navegación' },
-  { key: 'footer', label: 'Footer' },
-  { key: 'settings', label: 'Ajustes' },
-  { key: 'team', label: 'Equipo' },
-  { key: 'studio', label: 'Studio' },
+  { key: 'articles', label: 'Artículos', group: 'Contenido editorial' },
+  { key: 'opinion', label: 'Opinión', group: 'Contenido editorial' },
+  { key: 'video', label: 'Video', group: 'Contenido editorial' },
+  { key: 'infinitas', label: 'Infinitas', group: 'Contenido editorial' },
+  { key: 'products', label: 'Productos', group: 'Secciones de portada' },
+  { key: 'stats', label: 'Números', group: 'Secciones de portada' },
+  { key: 'testimonials', label: 'Testimonios', group: 'Secciones de portada' },
+  { key: 'about', label: 'Acerca', group: 'Secciones de portada' },
+  { key: 'midCta', label: 'CTA', group: 'Secciones de portada' },
+  { key: 'nav', label: 'Navegación', group: 'Sitio' },
+  { key: 'footer', label: 'Footer', group: 'Sitio' },
+  { key: 'settings', label: 'Ajustes', group: 'Sitio' },
+  { key: 'team', label: 'Equipo', group: 'Equipo' },
 ] as const;
 
 // Tabs that don't edit draft state (they act on the server immediately or
 // are pure reference), so the topbar save button doesn't apply to them.
-const SAVELESS_TABS: ReadonlySet<string> = new Set(['team', 'studio']);
+const SAVELESS_TABS: ReadonlySet<string> = new Set(['team']);
 
 type TabKey = (typeof TAB_DEFS)[number]['key'];
 const DEFAULT_ORDER: TabKey[] = TAB_DEFS.map(t => t.key);
 const LABELS: Record<TabKey, string> = Object.fromEntries(TAB_DEFS.map(t => [t.key, t.label])) as Record<TabKey, string>;
+const GROUPS: Record<TabKey, string> = Object.fromEntries(TAB_DEFS.map(t => [t.key, t.group])) as Record<TabKey, string>;
 
 type Toast = { id: number; message: string; error?: boolean };
 type Status = { text: string; kind?: 'ok' | 'error' };
@@ -302,25 +308,31 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
 
       <div className="admin-body-grid">
         <nav className="admin-tabs" aria-label="Secciones del sitio">
-          {tabOrder.map(key => (
-            <button
-              key={key}
-              type="button"
-              draggable
-              className={`admin-tab${activeTab === key ? ' is-active' : ''}`}
-              onClick={() => setActiveTab(key)}
-              onDragStart={e => e.dataTransfer.setData('text/tab-key', key)}
-              onDragOver={e => e.preventDefault()}
-              onDrop={e => {
-                e.preventDefault();
-                const from = e.dataTransfer.getData('text/tab-key') as TabKey;
-                if (from) reorderTabs(from, key);
-              }}
-            >
-              <span className="admin-tab-handle" aria-hidden="true">⠿</span>
-              <span className="admin-tab-label">{LABELS[key]}</span>
-            </button>
-          ))}
+          {tabOrder.map((key, i) => {
+            const group = GROUPS[key];
+            const showGroupHeader = group !== GROUPS[tabOrder[i - 1]];
+            return (
+              <div key={key} className="admin-tab-group-item">
+                {showGroupHeader && <div className="admin-tab-group-label">{group}</div>}
+                <button
+                  type="button"
+                  draggable
+                  className={`admin-tab${activeTab === key ? ' is-active' : ''}`}
+                  onClick={() => setActiveTab(key)}
+                  onDragStart={e => e.dataTransfer.setData('text/tab-key', key)}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => {
+                    e.preventDefault();
+                    const from = e.dataTransfer.getData('text/tab-key') as TabKey;
+                    if (from) reorderTabs(from, key);
+                  }}
+                >
+                  <span className="admin-tab-handle" aria-hidden="true">⠿</span>
+                  <span className="admin-tab-label">{LABELS[key]}</span>
+                </button>
+              </div>
+            );
+          })}
         </nav>
 
         <main className="admin-main">
@@ -342,7 +354,6 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
             {activeTab === 'footer' && <FooterTab data={content.footer} onChange={updateSection('footer')} />}
             {activeTab === 'settings' && <SettingsTab data={content.siteSettings} onChange={updateSection('siteSettings')} />}
             {activeTab === 'team' && <TeamTab onToast={pushToast} />}
-            {activeTab === 'studio' && <StudioTab />}
           </section>
 
           <aside className="admin-preview-pane" aria-label="Vista previa en vivo">
