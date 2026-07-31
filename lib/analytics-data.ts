@@ -6,8 +6,25 @@
 // getAllArticlesForAdmin() (direct DB read) instead of legacy's
 // `fetch(${siteUrl}/articles.json)` self-HTTP-call, which only existed
 // because that serverless function had no direct database access.
-import { count, aggregateVisits, aggregateEvents } from './vercel-analytics';
+import * as vercelAnalytics from './vercel-analytics';
+import * as ga4Analytics from './ga4-analytics';
 import { getAllArticlesForAdmin } from './data/articles';
+
+// Added 2026-07-31: try Google Analytics first for every panel below, fall
+// back to Vercel Analytics only when GA4 isn't configured yet or a specific
+// report call fails -- see lib/ga4-analytics.ts for why GA4 can cover all
+// five panels here, leaving Vercel as the safety net rather than a source
+// for anything exclusive to it.
+async function withGa4Fallback<T>(label: string, ga4Call: () => Promise<T>, vercelCall: () => Promise<T>): Promise<T> {
+  if (ga4Analytics.isConfigured()) {
+    try {
+      return await ga4Call();
+    } catch (err) {
+      console.error(`[Playbook] analytics-data ${label} (GA4) error, falling back to Vercel Analytics:`, (err as Error).message);
+    }
+  }
+  return vercelCall();
+}
 
 const ARTICLE_EVENT_NAME = 'pageview_article';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -38,7 +55,7 @@ export type PeriodKpi = {
 
 async function safeCount(range: { since: string; until: string }) {
   try {
-    return await count(range);
+    return await withGa4Fallback('count', () => ga4Analytics.count(range), () => vercelAnalytics.count(range));
   } catch (err) {
     console.error('[Playbook] analytics-data count error:', (err as Error).message);
     return null;
@@ -62,15 +79,20 @@ export type TopArticleItem = { id: string; title: string; url: string; publicati
 export type TopArticlesPanel = { available: boolean; items: TopArticleItem[]; error: string | null };
 
 async function topArticlesPanel(): Promise<TopArticlesPanel> {
+  const params = {
+    by: 'eventData/article_id',
+    since: isoDaysAgo(30),
+    until: isoNow(),
+    limit: 10,
+    filter: `eventName eq '${ARTICLE_EVENT_NAME}'`,
+  };
   let rows: Record<string, unknown>[];
   try {
-    rows = await aggregateEvents({
-      by: 'eventData/article_id',
-      since: isoDaysAgo(30),
-      until: isoNow(),
-      limit: 10,
-      filter: `eventName eq '${ARTICLE_EVENT_NAME}'`,
-    });
+    rows = await withGa4Fallback(
+      'topArticles',
+      () => ga4Analytics.aggregateEvents(params),
+      () => vercelAnalytics.aggregateEvents(params)
+    );
   } catch (err) {
     console.error('[Playbook] analytics-data topArticles error:', (err as Error).message);
     return { available: false, items: [], error: (err as Error).message };
@@ -101,8 +123,13 @@ export type PanelItem = { label: string; pageviews: number; visitors: number };
 export type Panel = { available: boolean; items: PanelItem[]; error: string | null };
 
 async function breakdownPanel(dimension: string): Promise<Panel> {
+  const params = { by: dimension, since: isoDaysAgo(30), until: isoNow(), limit: 5 };
   try {
-    const rows = await aggregateVisits({ by: dimension, since: isoDaysAgo(30), until: isoNow(), limit: 5 });
+    const rows = await withGa4Fallback(
+      `breakdown(${dimension})`,
+      () => ga4Analytics.aggregateVisits(params),
+      () => vercelAnalytics.aggregateVisits(params)
+    );
     const items = rows
       .map(row => ({
         label: String(row[dimension] ?? 'Desconocido') || 'Desconocido',
