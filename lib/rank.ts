@@ -61,13 +61,47 @@ export function rankArticles<T extends Rankable>(articles: T[], now: Date = new 
 // fresher lower-priority story regardless of how much rankScore already
 // favored them. That's the exact "old important story stuck" bug the
 // header comment above describes for rankScore itself, just reintroduced
-// one level up. `featured` stays as the one deliberate override (an
-// editor explicitly saying "this is the hero, ignore its stars" per
-// components/admin/tabs/ArticlesTab.tsx's own copy) -- everything else
-// goes through the same blended score as the rest of the list, so recency
-// can win the hero slot exactly like it wins list order.
+// one level up.
+
+// Changed 2026-07-31: `featured` then became an UNCONDITIONAL override --
+// `find()` returned the first featured article in ranked order no matter
+// its own score, so a several-days-old featured story (an editor's
+// deliberate call from a prior day, simply never unchecked) permanently
+// blocked a brand-new, higher-priority, better-scoring story from ever
+// becoming hero. Real bug: a same-day priority-5 story with the single
+// highest rankScore in the DB sat in the list while a 1-day-old featured
+// story with a strictly lower score kept the hero slot.
+//
+// `featured` is now a boost, not a gate: full strength for about a day (so
+// a deliberate "this is today's story" call reliably wins), then it decays
+// to zero over FEATURED_BOOST_DAYS so a forgotten checkbox can't lock out
+// newer content indefinitely -- and even while boosted, it only wins if it
+// actually beats the naturally top-ranked article's own score, so a
+// stronger new story can already supersede a fading featured one before
+// the boost fully expires.
+export const FEATURED_BOOST = 10;
+export const FEATURED_BOOST_DAYS = 1;
+
+export function featuredBoost(article: Rankable, now: Date): number {
+  if (!article.featured) return 0;
+  const age = daysSince(article.date, now);
+  return Math.max(0, FEATURED_BOOST * (1 - age / FEATURED_BOOST_DAYS));
+}
+
 export function selectHero<T extends Rankable>(articles: T[], now: Date = new Date()): T | null {
   const ranked = rankArticles(articles, now);
-  const featured = ranked.find(a => a.featured === true);
-  return featured || ranked[0] || null;
+  if (!ranked.length) return null;
+  const top = ranked[0];
+  let bestFeatured: T | null = null;
+  let bestFeaturedScore = -Infinity;
+  for (const a of ranked) {
+    if (!a.featured) continue;
+    const boosted = rankScore(a, now) + featuredBoost(a, now);
+    if (boosted > bestFeaturedScore) {
+      bestFeaturedScore = boosted;
+      bestFeatured = a;
+    }
+  }
+  if (bestFeatured && bestFeaturedScore > rankScore(top, now)) return bestFeatured;
+  return top;
 }
