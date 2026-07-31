@@ -30,3 +30,13 @@ export function getAdSenseConfig(): AdSenseConfig {
     },
   };
 }
+
+// Google's "Privacy & messaging" (Funding Choices) consent tag is identified
+// by the publisher ID with its "ca-" prefix stripped (ca-pub-XXXX -> pub-XXXX)
+// -- see https://support.google.com/adsense/answer/9942617. Same AdSense
+// account, no separate credential: once ADSENSE_CLIENT_ID is set, this is
+// derived automatically rather than needing its own env var.
+export function getFundingChoicesPublisherId(): string | null {
+  const clientId = process.env.ADSENSE_CLIENT_ID;
+  return clientId ? clientId.replace(/^ca-/, '') : null;
+}

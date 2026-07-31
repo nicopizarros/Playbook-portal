@@ -71,6 +71,14 @@ export default function PrivacidadPage() {
           <strong>Analítica</strong> (Google Analytics 4, Vercel Web Analytics): entender el tráfico
           del sitio en conjunto, no perfilarte individualmente.
         </li>
+        <li>
+          <strong>Publicidad</strong> (Google AdSense): solo con tu consentimiento, para mostrar
+          anuncios y financiar el contenido. Si visitás el sitio desde la Unión Europea, el Reino
+          Unido o Suiza, Google puede mostrarte además su propio aviso de consentimiento
+          (&quot;Privacy &amp; messaging&quot;), gestionado por Google como plataforma de gestión de
+          consentimiento (CMP) certificada, conforme al marco de transparencia y consentimiento de
+          IAB Europe (TCF).
+        </li>
       </ul>
       <p>
         Puedes borrar las cookies de este sitio en cualquier momento desde la configuración de tu
@@ -83,6 +91,14 @@ export default function PrivacidadPage() {
         <li><strong>Resend</strong> — envío de los correos con el enlace de acceso.</li>
         <li><strong>Vercel</strong> — hospedaje del sitio, almacenamiento de imágenes, analítica de uso.</li>
         <li><strong>Google Analytics 4</strong> — analítica de uso.</li>
+        <li>
+          <strong>Google AdSense</strong> — publicidad, solo con consentimiento. Podés revisar o
+          ajustar tus preferencias de anuncios directamente con Google en{' '}
+          <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer">
+            myadcenter.google.com
+          </a>
+          .
+        </li>
       </ul>
       <p>Cada uno procesa datos por nuestra cuenta, bajo sus propias políticas de privacidad.</p>
 

@@ -4,7 +4,7 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-07-22.
+2026-07-31.
 
 **PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; la
 Fase 6 (migración completa) también mergeó. La sesión más reciente trabaja
@@ -3495,6 +3495,64 @@ real, mismo estándar que Fases 1-3):
   (los dos que aparecen, `MissingSecret` de next-auth y el bloqueo de
   Vercel Web Analytics, son gaps preexistentes del sandbox sin relación
   con este cambio).
+
+### 2026-07-31 — CMP certificado de Google (Funding Choices) para AdSense
+
+- **Motivo**: la capa de consentimiento de Fase 7 (`lib/consent.ts` +
+  `CookieNotice.tsx`) es un opt-in binario propio, marco de referencia
+  LFPDPPP — nunca fue un CMP certificado IAB TCF v2 (no había
+  `window.__tcfapi`, ni Vendor List, ni registro CMP; una entrada previa de
+  este archivo, 2026-07-22, lo etiquetaba mal como "TCF/LFPDPPP"). AdSense
+  exige un CMP certificado por Google para servir anuncios a visitantes de
+  la UE/Reino Unido/Suiza. De las tres formas que ofrece Google de cumplir
+  esto (mensaje propio vía "Privacy & messaging"/Funding Choices, un CMP de
+  terceros certificado como Cookiebot/OneTrust/Sourcepoint, o un CMP propio
+  registrado directamente ante IAB), se eligió la primera — es la que Google
+  aloja y certifica por completo, no requiere cuenta ni credencial de un
+  tercero, y usa el mismo publisher ID que ya existe para AdSense.
+- **`lib/adsense.ts`**: nueva `getFundingChoicesPublisherId()` — deriva el
+  ID de Funding Choices (`pub-XXXX`) de `ADSENSE_CLIENT_ID` (`ca-pub-XXXX`)
+  quitando el prefijo `ca-`. Ninguna variable de entorno nueva.
+- **`app/layout.tsx`**: agrega el snippet oficial de Google (tag loader +
+  script `googlefcPresent`) como `<Script strategy="beforeInteractive">`,
+  condicionado a que `ADSENSE_CLIENT_ID` tenga valor. Va en el root layout
+  (no en `app/(public)/layout.tsx` donde vive el resto de ads/analytics)
+  porque Next.js exige que los scripts `beforeInteractive` estén ahí — ver
+  el comentario junto a `FUNDING_CHOICES_PRESENT_SCRIPT` para el porqué de
+  mantenerlo inline en vez de un componente en `components/` (un componente
+  separado dispara una falsa alarma de
+  `no-before-interactive-script-outside-document`, la regla de ESLint solo
+  ignora archivos bajo `app/`).
+- **`next.config.ts`**: CSP ampliada — `script-src`/`connect-src` suman
+  `pagead2.googlesyndication.com` (AdSense, que ya cargaba un script de ahí
+  sin tener el dominio permitido — gap preexistente, ahora corregido) y
+  `fundingchoicesmessages.google.com`; `frame-src` suma esos dos dominios
+  más `googleads.g.doubleclick.net`/`tpc.googlesyndication.com` (iframes de
+  creatividades/mensaje de consentimiento).
+- **`app/(public)/privacidad/page.tsx`**: agrega mención de la cookie de
+  publicidad (AdSense, opt-in) y, para visitantes de la UE/Reino
+  Unido/Suiza, del aviso de consentimiento propio de Google gestionado como
+  CMP certificado bajo el marco IAB TCF. Esto es una mención mínima, no una
+  reescritura legal completa — el resto del documento sigue enfocado en
+  LFPDPPP; falta una revisión legal si el sitio empieza a recibir tráfico
+  real de la UE (base legal, representante en la UE, lista de proveedores
+  IAB, etc., ver "Pendiente" abajo).
+- **Sin cambios**: `AdSlot.tsx`/`GoogleAnalytics.tsx` — el propio tag de
+  AdSense ya es TCF-aware (respeta el TC string automáticamente una vez que
+  Funding Choices lo genera); nuestra propia gate de `advertising===true`
+  sigue siendo una capa adicional independiente, no reemplazada.
+- **Verificado**: `tsc --noEmit`, `npm run lint` (cero warnings, incluida
+  la regla `no-before-interactive-script-outside-document`) y `npm run
+  build`, limpios los tres.
+- **Pendiente/importante**: igual que Fase 7, no hay cuenta de AdSense
+  todavía, así que `ADSENSE_CLIENT_ID` vacío = nada de esto se renderiza.
+  Una vez que exista la cuenta: (1) pegar el publisher ID en
+  `ADSENSE_CLIENT_ID` (ya activa Funding Choices sin cambio de código); (2)
+  configurar el mensaje real de GDPR/UK en el dashboard de AdSense
+  ("Privacy & messaging") — qué mensaje mostrar, a quién, y si bloquea la
+  carga de anuncios hasta obtener consentimiento es todo configuración de
+  dashboard, no código; (3) revisión legal del aviso de privacidad si hay
+  tráfico real de la UE.
 
 ## Próximos pasos
 

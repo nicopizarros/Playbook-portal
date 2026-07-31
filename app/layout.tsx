@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Anton, Inter } from 'next/font/google';
 import Script from 'next/script';
 import { AnalyticsClient } from '@/components/analytics/AnalyticsClient';
+import { getFundingChoicesPublisherId } from '@/lib/adsense';
 import { SITE_URL } from '@/lib/site-url';
 
 import '../styles/reset.css';
@@ -94,7 +95,50 @@ const VA_INIT_SCRIPT = `
 window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 `;
 
+// Google's official "Privacy & messaging" (Funding Choices) tag -- the
+// Google-certified CMP that satisfies AdSense's requirement to obtain and
+// signal IAB TCF v2 consent for EEA/UK/Swiss visitors (and, once configured
+// in the AdSense dashboard, US state-privacy messages elsewhere). This is
+// Google's documented snippet verbatim, not a custom implementation --
+// https://support.google.com/adsense/answer/9942617 -- so it stays a
+// Google-certified CMP rather than something we'd need to self-certify with
+// the IAB. It only loads the message *loader*; which message shows (if
+// any), to whom, and whether it blocks ad requests until consent is given,
+// is all configured in AdSense's dashboard, not here. Independent of and
+// additional to the site's own LFPDPPP consent banner
+// (components/CookieNotice.tsx) -- that one governs our own advertising/
+// analytics gating for the site's primary Mexico/LATAM audience; this one is
+// what Google's ad-serving pipeline itself reads for EEA/UK/CH traffic.
+// Must live here rather than in its own component: Next.js requires
+// beforeInteractive scripts to be declared directly in the root layout
+// (see next/script docs), and Google's own instructions call for the tag as
+// high in <head> as possible on every page.
+const FUNDING_CHOICES_PRESENT_SCRIPT = `
+(function() {
+  function signalGooglefcPresent() {
+    if (!window.frames['googlefcPresent']) {
+      if (document.body) {
+        var iframe = document.createElement('iframe');
+        iframe.style.cssText = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;';
+        iframe.style.display = 'none';
+        iframe.name = 'googlefcPresent';
+        document.body.appendChild(iframe);
+      } else {
+        setTimeout(signalGooglefcPresent, 0);
+      }
+    }
+  }
+  signalGooglefcPresent();
+})();
+`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Not secret (same reasoning as GA4_MEASUREMENT_ID/ADSENSE_CLIENT_ID in
+  // app/(public)/layout.tsx) -- read here, in the root layout, only because
+  // Next.js requires beforeInteractive scripts to live there. Renders
+  // nothing until ADSENSE_CLIENT_ID is set (no AdSense account exists yet).
+  const fundingChoicesPublisherId = getFundingChoicesPublisherId();
+
   return (
     // suppressHydrationWarning: the theme-init script below sets
     // data-theme on this element before React hydrates (that's the whole
@@ -104,6 +148,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // this is Next.js's own documented pattern for this case.
     <html lang="es" className={`${anton.variable} ${inter.variable}`} suppressHydrationWarning>
       <body>
+        {fundingChoicesPublisherId && (
+          <>
+            <Script
+              id="google-funding-choices"
+              src={`https://fundingchoicesmessages.google.com/i/${fundingChoicesPublisherId}?ers=1`}
+              strategy="beforeInteractive"
+            />
+            <Script id="google-funding-choices-present" strategy="beforeInteractive">
+              {FUNDING_CHOICES_PRESENT_SCRIPT}
+            </Script>
+          </>
+        )}
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
