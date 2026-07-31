@@ -1,16 +1,23 @@
-// Client-side consent state for advertising/analytics (Fase 7). One shape,
-// one storage key, read by everything that can load third-party code:
-// components/CookieNotice.tsx writes it, components/ads/AdSlot.tsx and
-// components/analytics/GoogleAnalytics.tsx gate on it. Framework of
-// reference: LFPDPPP (México) — essential cookies always on, advertising/
-// analytics strictly opt-in.
+// Client-side consent state for advertising (Fase 7, narrowed 2026-07-31).
+// One shape, one storage key: components/CookieNotice.tsx writes it,
+// components/ads/AdSlot.tsx gates on it. Framework of reference: LFPDPPP
+// (México) — essential cookies and aggregate analytics (GA4, Vercel Web
+// Analytics) always on; advertising strictly opt-in.
+//
+// Analytics used to share this same "advertising" flag (both opt-in
+// together) until 2026-07-31 -- see that day's HANDOFF.md entry: gating
+// aggregate, non-advertising analytics behind the same consent step as ad
+// personalization meant almost no real visitor (who mostly never interact
+// with the banner) was ever measured. components/analytics/GoogleAnalytics.tsx
+// no longer reads this module at all; it fires unconditionally, same as
+// pre-Fase-7 and same as Google's own gtag.js snippet.
 //
 // This module is imported from client components only ('use client' files).
 // Every function is defensive about localStorage being unavailable
 // (private browsing, storage disabled) — same fail-open criterion the old
 // notice-only banner already used: a reader whose storage is blocked keeps
 // browsing normally, they just never persist a choice (and therefore never
-// get ads/analytics, which is the safe default).
+// get ads, which is the safe default).
 
 export type ConsentState = {
   essential: true;
