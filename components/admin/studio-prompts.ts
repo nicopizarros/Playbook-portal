@@ -15,7 +15,9 @@ const VOZ = `Voz Playbook: directa, analítica, con autoridad. Español de Méxi
 const TAXONOMIA = `Etiquetas permitidas (exactas, no inventes otras):
 - Alcance: Nacional, Internacional
 - Deporte: Fútbol, Liga MX, NFL, NBA, Béisbol, Tenis, Golf, F1, Olímpico, Multi-deporte / Otros
-- Vertical de negocio: Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`;
+- Vertical de negocio: Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights
+
+En Deporte, usa la etiqueta más específica que aplique antes de caer en una genérica: si la nota es sobre la competencia Liga MX en sí (sus reglas, sus clubes en conjunto), usa "Liga MX", no "Fútbol". Si la nota es de un solo deporte con etiqueta propia (béisbol, tenis, golf, F1, olímpico), usa esa etiqueta, no "Multi-deporte / Otros" — ese bucket es solo para notas genuinamente multi-deporte o sin etiqueta propia.`;
 
 const IMPORTANCIA = `Importancia (1 a 5, escala objetiva):
 - 5 = historia regulatoria, estructural o de negocio mayor, específica de México/LATAM

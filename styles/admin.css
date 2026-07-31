@@ -2,26 +2,19 @@
    (already global via app/layout.tsx) so the preview pane is visually
    accurate to the live site. */
 
-/* legacy/admin/*.html each hardcoded <html data-theme="light"> — the admin
-   panel is deliberately excluded from Etapa 6 dark mode (see tokens.css),
-   since it reuses the site's own tokens for the live preview and a half-dark
-   editing surface would be confusing. That's not portable as-is here: this
-   app has one shared <html> for every route, whose data-theme reflects the
-   *reader's* stored preference. Pinning the theme tokens back to their light
-   values, scoped to .admin-body, reproduces the same "always light" intent
-   without fighting the public site's dark-mode toggle. */
-.admin-body {
-  --ink: #0a0a0a;
-  --paper: #FAF8F5;
-  --paper-soft: #F1ECE4;
-  --rule: #E6DFD3;
-  --gray-txt: #6b6459;
-  --gray-dark: #332f27;
-  --src-industry: #1c2b4a;
-  --src-lana: #b5850a;
-  --src-infinitas: #6b2fbf;
-  --src-opinion: #146c64;
-}
+/* Fase 9: the admin panel used to pin its tokens back to fixed light
+   values here, deliberately opting out of tokens.css's dark mode — the
+   ThemeToggle (components/theme/ThemeToggle.tsx) was reader-facing only.
+   Reversed: the admin topbar now renders that same toggle
+   (app/admin/(protected)/layout.tsx), so .admin-body follows the exact
+   same [data-theme]/prefers-color-scheme cascade as the public portal —
+   "the visual line the main portal follows" is the token system itself,
+   and the CMS now speaks it instead of a separate fixed palette. The
+   handful of rules below that assumed --ink is always the dark color (an
+   active tab's solid fill, a toast, the login screen) switch to
+   --ink-fixed instead, same pattern the public site already uses for its
+   own always-dark surfaces (ticker, footer, primary button — see
+   tokens.css). */
 
 .admin-body {
   background: var(--paper-soft);
@@ -35,7 +28,9 @@ button, input, select, textarea { font-family: inherit; }
 /* ---------- Login ---------- */
 
 .admin-body-login {
-  background: var(--ink);
+  /* Always the dark brand look, independent of the reader's theme
+     preference — same reasoning as the site's own footer/ticker. */
+  background: var(--ink-fixed);
   background-image: radial-gradient(circle at 20% 20%, rgba(154, 234, 57, .10), transparent 45%),
                      radial-gradient(circle at 80% 80%, rgba(154, 234, 57, .06), transparent 40%);
 }
@@ -49,7 +44,10 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 .admin-login-card {
-  background: var(--paper);
+  /* --paper-soft, not --paper: the backdrop behind it is a fixed dark
+     (--ink-fixed above), and in dark theme --paper alone sits too close to
+     that same near-black to read as a distinct floating card. */
+  background: var(--paper-soft);
   border: 1px solid var(--rule);
   border-radius: 18px;
   padding: 36px 32px;
@@ -154,7 +152,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   cursor: grab; color: var(--gray-txt); text-align: left; width: 100%;
 }
 .admin-tab:hover { background: var(--paper-soft); color: var(--ink); }
-.admin-tab.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.admin-tab.is-active { background: var(--ink-fixed); border-color: var(--ink-fixed); color: #fff; }
 .admin-tab.is-dragging { opacity: .4; }
 .admin-tab.is-drag-over { border-color: var(--green); }
 .admin-tab-handle { opacity: .45; font-size: 12px; flex-shrink: 0; cursor: grab; }
@@ -192,7 +190,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .preview-section-tag {
   display: none; position: absolute; top: 8px; right: 8px; z-index: 6;
   font-size: 10.5px; font-weight: 800; letter-spacing: .04em;
-  background: var(--ink); color: var(--green); padding: 4px 10px; border-radius: 999px;
+  background: var(--ink-fixed); color: var(--green); padding: 4px 10px; border-radius: 999px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
 }
 .preview-section.is-changed .preview-section-tag { display: inline-flex; }
@@ -243,7 +241,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   padding: 3px 8px; border-radius: 999px; flex-shrink: 0; white-space: nowrap;
   background: var(--paper-soft); color: var(--gray-txt); border: 1px solid var(--rule);
 }
-.badge-pill.is-hero { background: var(--ink); color: var(--green); border-color: var(--ink); }
+.badge-pill.is-hero { background: var(--ink-fixed); color: var(--green); border-color: var(--ink-fixed); }
 .badge-pill.is-hero-main { background: #d9a441; color: #2a1c02; border-color: #d9a441; }
 .badge-pill.is-archive { background: var(--paper-soft); color: var(--gray-txt); }
 
@@ -303,7 +301,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   padding: 10px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; color: var(--ink);
 }
 .btn-add:hover, .btn-mini:hover { border-color: var(--ink); }
-.btn-mini.is-active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn-mini.is-active { background: var(--ink-fixed); color: #fff; border-color: var(--ink-fixed); }
 
 /* ---------- TipTap body editor (Articles tab) ---------- */
 
@@ -379,7 +377,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
    "código para copiar", no como un campo editable del CMS. */
 .studio-prompt-text {
   width: 100%; box-sizing: border-box; resize: vertical;
-  background: var(--ink); color: #e9ebee; border: 1px solid var(--ink); border-radius: 9px;
+  background: var(--ink-fixed); color: #e9ebee; border: 1px solid var(--ink-fixed); border-radius: 9px;
   font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; line-height: 1.55;
   padding: 12px 14px;
 }
@@ -392,7 +390,7 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
 }
 .admin-toast {
-  background: var(--ink); color: #fff; font-size: 13.5px; font-weight: 600;
+  background: var(--ink-fixed); color: #fff; font-size: 13.5px; font-weight: 600;
   padding: 13px 18px; border-radius: 11px; box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
   max-width: 340px; opacity: 0; transform: translateY(10px); transition: opacity .2s ease, transform .2s ease;
   border-left: 4px solid var(--green);
@@ -550,3 +548,37 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   .admin-topbar-brand { font-size: 14px; }
   .admin-status { min-width: 0; }
 }
+
+/* ---------- Dark mode: literal status colors ----------
+   Everything above that reads --ink/--paper/--rule/etc. already retints
+   correctly through tokens.css's cascade now that the light-only pin at
+   the top of this file is gone. These few were never var()-based — they're
+   literal hex tuned against the light paper background — and go muddy
+   (dark-on-dark) once that background actually goes dark. Same three-layer
+   cascade tokens.css uses (auto via prefers-color-scheme, [data-theme]
+   override wins over it, [data-theme="light"] forces back), just applied
+   to these selectors directly instead of custom properties. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .admin-status.is-ok { color: #4ade80; }
+  :root:not([data-theme="light"]) .admin-error,
+  :root:not([data-theme="light"]) .field-error,
+  :root:not([data-theme="light"]) .admin-status.is-error { color: #f87171; }
+  :root:not([data-theme="light"]) .input.is-invalid { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248, 113, 113, .18); }
+  :root:not([data-theme="light"]) .admin-hero-warning,
+  :root:not([data-theme="light"]) .team-row-meta.is-expired { color: #e0995a; }
+  :root:not([data-theme="light"]) .btn-mini.btn-danger { color: #f87171; border-color: #6b332e; }
+  :root:not([data-theme="light"]) .btn-mini.btn-danger:hover { background: #3a201c; border-color: #f87171; }
+  :root:not([data-theme="light"]) .analytics-delta.is-up { color: #86e678; background: rgba(154, 234, 57, .15); }
+  :root:not([data-theme="light"]) .analytics-delta.is-down { color: #f87171; background: rgba(248, 113, 113, .15); }
+}
+[data-theme="dark"] .admin-status.is-ok { color: #4ade80; }
+[data-theme="dark"] .admin-error,
+[data-theme="dark"] .field-error,
+[data-theme="dark"] .admin-status.is-error { color: #f87171; }
+[data-theme="dark"] .input.is-invalid { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248, 113, 113, .18); }
+[data-theme="dark"] .admin-hero-warning,
+[data-theme="dark"] .team-row-meta.is-expired { color: #e0995a; }
+[data-theme="dark"] .btn-mini.btn-danger { color: #f87171; border-color: #6b332e; }
+[data-theme="dark"] .btn-mini.btn-danger:hover { background: #3a201c; border-color: #f87171; }
+[data-theme="dark"] .analytics-delta.is-up { color: #86e678; background: rgba(154, 234, 57, .15); }
+[data-theme="dark"] .analytics-delta.is-down { color: #f87171; background: rgba(248, 113, 113, .15); }

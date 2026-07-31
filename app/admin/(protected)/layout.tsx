@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import { auth, signOut } from '@/auth';
 import { AdminTopbarNav } from '@/components/admin/AdminTopbarNav';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
         </div>
         <div className="admin-topbar-actions">
           <AdminTopbarNav />
+          <ThemeToggle variant="desktop" />
           {/* AdminDashboard (rendered inside {children}, a sibling of this
               header — not a descendant) portals its save-button/dirty-dot/
               status text here, matching legacy/admin/dashboard.html's
