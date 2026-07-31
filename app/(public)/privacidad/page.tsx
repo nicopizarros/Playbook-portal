@@ -68,8 +68,8 @@ export default function PrivacidadPage() {
           activo entre páginas.
         </li>
         <li>
-          <strong>Analítica</strong> (Google Analytics 4, Vercel Web Analytics): entender el tráfico
-          del sitio en conjunto, no perfilarte individualmente.
+          <strong>Analítica</strong> (Google Analytics 4, Vercel Web Analytics): siempre activa,
+          para entender el tráfico del sitio en conjunto, no perfilarte individualmente.
         </li>
         <li>
           <strong>Publicidad</strong> (Google AdSense): solo con tu consentimiento, para mostrar

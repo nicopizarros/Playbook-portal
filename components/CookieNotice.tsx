@@ -6,14 +6,16 @@ import { readConsent, writeConsent } from '@/lib/consent';
 import { gsap } from '@/lib/gsap';
 
 // Fase 7: upgraded from the old notice-only banner to a real advertising
-// consent flow (LFPDPPP framework — essential always on, advertising/
-// analytics strictly opt-in). Two paths: "Aceptar todo" grants advertising
-// in one tap; "Gestionar preferencias" expands an inline panel (not a
-// modal, deliberately — no position:fixed layering beyond the banner
-// itself, no focus-trap machinery to get wrong) with the two categories.
-// The stored shape and the migration of the old dismissal flag live in
-// lib/consent.ts; GA4 (components/analytics/GoogleAnalytics.tsx) and every
-// ad slot (components/ads/AdSlot.tsx) gate on what this banner persists.
+// consent flow (LFPDPPP framework — essential and aggregate analytics
+// always on, advertising strictly opt-in; narrowed from "advertising/
+// analytics" to advertising-only on 2026-07-31, see lib/consent.ts). Two
+// paths: "Aceptar todo" grants advertising in one tap; "Gestionar
+// preferencias" expands an inline panel (not a modal, deliberately — no
+// position:fixed layering beyond the banner itself, no focus-trap machinery
+// to get wrong) with the three categories. The stored shape and the
+// migration of the old dismissal flag live in lib/consent.ts; every ad slot
+// (components/ads/AdSlot.tsx) gates on what this banner persists — GA4
+// (components/analytics/GoogleAnalytics.tsx) no longer does.
 export function CookieNotice() {
   const [visible, setVisible] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
@@ -54,7 +56,8 @@ export function CookieNotice() {
     <div className="cookie-notice" role="region" aria-label="Preferencias de cookies">
       <p>
         Usamos cookies esenciales para que el sitio funcione (como contar tus lecturas gratuitas
-        del mes) y, solo con tu permiso, cookies de analítica y publicidad.{' '}
+        del mes) y de analítica agregada para entender qué se lee. Con tu permiso, además, cookies
+        de publicidad.{' '}
         <Link href="/privacidad">Más información</Link>.
       </p>
 
@@ -68,14 +71,20 @@ export function CookieNotice() {
             </span>
           </label>
           <label className="cookie-pref">
+            <input type="checkbox" checked disabled />
+            <span>
+              <b>Analítica</b> — siempre activa. Tráfico agregado del sitio, no te identifica
+              individualmente.
+            </span>
+          </label>
+          <label className="cookie-pref">
             <input
               type="checkbox"
               checked={advertisingChecked}
               onChange={e => setAdvertisingChecked(e.target.checked)}
             />
             <span>
-              <b>Analítica y publicidad</b> — nos ayudan a entender qué se lee y a financiar el
-              contenido.
+              <b>Publicidad</b> — nos ayuda a financiar el contenido.
             </span>
           </label>
         </div>

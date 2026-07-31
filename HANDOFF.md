@@ -3554,6 +3554,48 @@ real, mismo estándar que Fases 1-3):
   dashboard, no código; (3) revisión legal del aviso de privacidad si hay
   tráfico real de la UE.
 
+### 2026-07-31 — GA4 deja de requerir consentimiento (solo publicidad sigue opt-in)
+
+- **Motivo, reportado por el usuario**: "Google Analytics no funciona" —
+  dio el measurement ID real (`G-0CG7JMK8RZ`, ya confirmado en
+  `docs/ENCYCLOPEDIA.md`) y el snippet estándar de `gtag.js`. El código ya
+  leía ese mismo ID desde `GA4_MEASUREMENT_ID` y montaba el snippet
+  equivalente — no había ningún bug de wiring ni de ID incorrecto.
+  Diagnóstico real: desde Fase 7 (2026-07-22), `GoogleAnalytics.tsx` solo
+  cargaba `gtag` si el visitante otorgaba la categoría "advertising" del
+  banner de cookies — la inmensa mayoría de visitantes reales nunca
+  interactúa con el banner, así que la medición quedó, en la práctica, casi
+  en cero pese a estar bien configurada. Es un cambio de comportamiento
+  deliberado de esa sesión, no un bug de código, así que se le preguntó al
+  usuario cómo resolverlo antes de tocar nada — eligió separar analítica de
+  publicidad en vez de revertir todo el consentimiento o solo auditar el
+  banner.
+- **`components/analytics/GoogleAnalytics.tsx`**: ya no lee
+  `lib/consent.ts` — vuelve a cargar `gtag` incondicionalmente para toda
+  visita a una página pública (igual que antes de Fase 7, igual que el
+  snippet que Google entrega). Ya no necesita `'use client'` (sin hooks).
+  Sigue montado solo en `app/(public)/layout.tsx`, nunca en `/admin` — esa
+  parte no cambió.
+- **`lib/consent.ts`** + **`components/CookieNotice.tsx`**: el shape
+  guardado (`{essential, advertising, timestamp}`) no cambió — solo se
+  angostó el alcance de lo que representa. El banner ahora muestra tres
+  filas en "Gestionar preferencias" (antes dos): Esenciales (siempre
+  activa), Analítica (siempre activa, informativa, sin checkbox
+  interactivo), Publicidad (el único opt-in real, sigue gateando
+  `components/ads/AdSlot.tsx` sin cambios). Texto superior del banner
+  actualizado para no prometer que la analítica requiere permiso.
+- **`app/(public)/privacidad/page.tsx`**: aclarado que Analítica está
+  "siempre activa" (ya no aparecía distinguida de Publicidad, que sigue
+  siendo la única con consentimiento).
+- **Verificado**: `tsc --noEmit`, `npm run lint`, `npm run build` limpios
+  los tres.
+- **Pendiente/importante, no de código**: seguir sin poder confirmar desde
+  acá si `GA4_MEASUREMENT_ID` está realmente cargada en Vercel Production
+  ahora mismo (una auditoría de 2026-07-21 la encontró cargada, pero este
+  entorno no tiene acceso al dashboard de Vercel para reverificar) — si
+  después de este cambio GA4 real-time sigue sin mostrar datos, ese es el
+  primer lugar a revisar, no el código.
+
 ## Próximos pasos
 
 El incidente de `wall_teaser` de la entrada anterior está **resuelto y
