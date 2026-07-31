@@ -209,8 +209,8 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
               <div className="field">
                 <span className="field-label">Destacado (hero)</span>
                 <span className="field-help">
-                  Marca este artículo para que ocupe el puesto principal de portada, sin importar sus
-                  estrellas.
+                  Marca este artículo para que ocupe el puesto principal de portada durante
+                  aproximadamente un día, sin importar sus estrellas.
                 </span>
                 <label className="checkbox-option">
                   <input type="checkbox" checked={a.featured === true} onChange={e => updateEntry(entry.clientKey, { featured: e.target.checked })} />
@@ -223,11 +223,16 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
                     La portada la decide la mezcla de estrellas + fecha: 5 estrellas no garantizan el
                     puesto si algo más reciente pesa más.{' '}
                   </strong>
-                  <span>&quot;Destacado&quot; es la única forma de forzar el puesto principal sin importar estrellas ni fecha.</span>
+                  <span>
+                    &quot;Destacado&quot; fuerza el puesto principal durante aproximadamente un día;
+                    después se apaga solo y el puesto vuelve a decidirse por estrellas + fecha, así
+                    que no hace falta desmarcarlo a mano.
+                  </span>
                   {a.featured === true && otherFeatured && (
                     <div className="admin-hero-warning">
                       Ya hay otro artículo marcado como &quot;Destacado&quot;: &quot;{otherFeatured.title || 'sin título'}&quot;.
-                      Solo uno de los dos se muestra como principal (el de mejor combinación de estrellas y fecha).
+                      Solo uno de los dos se muestra como principal (el que aún conserve el impulso de
+                      &quot;Destacado&quot; o, si ya se apagó en ambos, el de mejor combinación de estrellas y fecha).
                     </div>
                   )}
                 </div>
