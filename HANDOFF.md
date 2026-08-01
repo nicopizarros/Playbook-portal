@@ -68,8 +68,11 @@ producción real (bloqueo de red del sandbox, no de código).
 - [x] Reemplazar el nombre del tag "Análisis" por "Artículo" en la ficha de
       cada pieza — mergeado 2026-08-01 (interpretado como el CTA por-tarjeta
       de la sección de opinión, ver esa entrada para el porqué).
-- [ ] Reubicar el módulo de "Tips" y "5 más leídas" debajo del bloque de
-      suscripción
+- [x] Reubicar el módulo de "Tips" y "5 más leídas" debajo del bloque de
+      suscripción — "5 más leídas" reubicado 2026-08-01. **"Tips" no existe
+      en el código ni en ningún prototipo** (grep sin resultados) — no se
+      tocó nada por ese nombre; preguntar al usuario a qué se refiere antes
+      de la siguiente sesión.
 - [ ] Crear carpetas internas para los productos editoriales (en vez de
       redirigir a Substack), con diseño propio por producto, no la vista
       clásica de "ver más" — **nota de la sesión de planeación**: separar
@@ -3989,13 +3992,13 @@ real, mismo estándar que Fases 1-3):
   (base vacía sin datos reales, `.env.local` con secretos falsos,
   ignorado por git) — no queda nada de esto en el repo.
 
-### 2026-08-01 — Fase 1 (parcial): tag Playbook, "Más noticias", "Leer el artículo"
+### 2026-08-01 — Fase 1 (parcial): tag Playbook, "Más noticias", "Leer el artículo", sidebar
 
 - **Contexto**: cerrado el botón de Playbook (ver entrada anterior de este
   mismo día), el usuario pidió seguir directo con Fase 1 sin más aviso.
-  Cubiertos los 3 ítems más simples de esa fase (1, 2, 3); el 4 (reubicar
-  Tips/5 más leídas) y el 5 (carpetas internas con diseño propio, ya
-  anotado como separado del resto) quedan para la siguiente sesión.
+  Cubiertos 4 de los 5 ítems de esa fase (1, 2, 3, 4); el 5 (carpetas
+  internas con diseño propio, ya anotado como su propio mini-proyecto,
+  separado del resto) queda para la siguiente sesión.
 - **Ítem 1, "borrar el tag Playbook, traspasar sus artículos a Noticias"**:
   `'playbook'` era un cuarto `source` real (`KNOWN_SOURCES`/
   `SOURCE_LABELS`, `lib/constants.ts`), no una etiqueta cosmética — tocaba
@@ -4068,6 +4071,29 @@ real, mismo estándar que Fases 1-3):
   opinión dicen "Leer el artículo →", ninguna dice "análisis". Re-corrida
   también la verificación del fix del logo de la entrada anterior sobre
   este mismo estado, sin regresión.
+- **Ítem 4, "reubicar Tips y 5 más leídas debajo del bloque de
+  suscripción"**: `components/home/HomeSidebar.tsx` — el orden pasa de
+  [Más leídas, ad rail, newsletter] a [newsletter, Más leídas, ad rail]. El
+  ad rail se dejó pegado a Más leídas (el pedido no decía nada sobre
+  moverlo a él) en vez de quedarse atrás en el viejo primer lugar.
+  **"Tips" no se tocó porque no existe**: grep de "Tips" en todo el
+  código, `docs/` y los prototipos HTML no encuentra ningún módulo,
+  componente, ni sección con ese nombre — el sidebar del homepage hoy solo
+  tiene Más leídas + ad + newsletter (ver el propio comentario de
+  `HomeSidebar.tsx` antes de este cambio, documentaba exactamente esos
+  tres). O es un nombre informal del usuario para algo que sí existe con
+  otro nombre en código, o es algo que nunca se construyó — **preguntar
+  antes de inventar un módulo nuevo** en la siguiente sesión en vez de
+  asumir cuál de las dos es.
+  **No se pudo confirmar visualmente el nuevo orden con Más leídas
+  presente**: `MostReadSection` (GA4-backed) renderiza `null` sin
+  credenciales de GA4 reales (comportamiento documentado en el propio
+  componente, no un bug), y este sandbox no las tiene — confirmado con
+  Playwright que el bloque de newsletter ya es el primer hijo de
+  `.sidebar-sticky`, pero no que Más leídas efectivamente aparece después
+  de él con contenido real dentro, porque no hay contenido real que
+  mostrar acá. Verificación visual completa pendiente contra producción
+  real (o un entorno con credenciales de GA4).
 - **Verificado**: `tsc --noEmit`, `npx eslint .` (proyecto completo) y
   `next build`, limpios los tres.
 
@@ -4105,14 +4131,21 @@ operativo:
    exactas en la entrada del diagnóstico). Todo el código ya está
    verificado con Playwright contra Postgres local — esto es la
    confirmación en el sitio real desplegado, no un diagnóstico nuevo.
-4. Fase 1 sigue en progreso — ítems 1, 2 y 3 ya tienen código mergeado
-   (ver la entrada del 2026-08-01 "Fase 1 (parcial)"). Quedan:
-   - Ítem 4: reubicar el módulo de Tips y "5 más leídas" debajo del
-     bloque de suscripción.
+4. Fase 1 sigue en progreso — ítems 1, 2, 3 y 4 ya tienen código mergeado
+   (ver la entrada del 2026-08-01 "Fase 1 (parcial)"). Queda:
    - Ítem 5: carpetas internas por producto editorial con diseño propio —
      tratarlo como su propio mini-proyecto (definir primero los "temas
      centrales" de cada producto), no como un cambio de navegación
      simple, ver la nota ya anotada en la sección de Fase 1 arriba.
+   - **Preguntarle al usuario qué es "Tips"** antes de dar el ítem 4 por
+     cerrado del todo: no existe ningún módulo con ese nombre en el
+     código ni en los prototipos (ver la entrada del 2026-08-01), así que
+     solo se reubicó "5 más leídas". Puede ser un nombre informal para
+     algo que ya existe con otro nombre, o algo que nunca se construyó.
+   - Verificar en producción real (con GA4 configurado) que "Más leídas"
+     efectivamente aparece debajo del bloque de newsletter con contenido
+     real — no se pudo confirmar visualmente en este sandbox (sin
+     credenciales GA4, ver esa misma entrada).
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se
