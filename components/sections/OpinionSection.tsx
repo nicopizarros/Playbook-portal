@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { OpinionCard, SiteContentData } from '@/lib/data/site-content';
 import type { Article } from '@/lib/data/articles';
 import { safeUrl } from '@/lib/safe-url';
+import { rankArticles } from '@/lib/rank';
 
 // Fase 7 UX: restyled to the v24 prototype's analysis-grid/analysis-card
 // pattern (docs/playbook-portal-v24-medio-consulta(1).html) — cards share
@@ -87,7 +88,11 @@ export function OpinionSection({
   data: SiteContentData['opinionSection'];
   articles: Article[];
 }) {
-  const live = articles.filter(a => a.source === 'opinion').slice(0, MAX_CARDS);
+  // Roadmap Agosto 2026, Fase 4: rotate by the same recency+priority
+  // formula that decides the 5+1's order (lib/rank.ts), instead of
+  // whatever order the caller's query happened to return articles in --
+  // one ranking formula sitewide, not a second one reinvented here.
+  const live = rankArticles(articles.filter(a => a.source === 'opinion')).slice(0, MAX_CARDS);
   const fallback: OpinionCard[] = live.length ? [] : data.cards;
 
   return (

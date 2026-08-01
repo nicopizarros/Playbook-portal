@@ -131,9 +131,11 @@ compartir se vea igual de bien en mobile que en desktop.
 
 ### Fase 4 — Contenido dinámico
 
-- [ ] Hacer dinámico el bloque de artículos de opinión: que rote según
+- [x] Hacer dinámico el bloque de artículos de opinión: que rote según
       ranking (recencia + estrellas) con la misma fórmula del 5+1, fuera
-      del 5+1 por default salvo excepción manual
+      del 5+1 por default salvo excepción manual — mergeado 2026-08-01,
+      verificado con artículos de prueba reales contra Postgres local (ver
+      esa entrada del registro). **Fase 4 completa.**
 
 **Nota de la sesión de planeación, confirmada leyendo el código**: la
 fórmula ya existe como función compartida y reutilizable en `lib/rank.ts`
@@ -4165,6 +4167,62 @@ real, mismo estándar que Fases 1-3):
 - **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
   los tres.
 
+### 2026-08-01 — Fase 4: bloque de opinión dinámico, con excepción manual al 5+1
+
+- **Contexto**: siguiendo el mismo criterio de "próximo fix sin decisiones"
+  que Fase 3, se saltó Fase 2 (entrenar el skill de tags/portada no es un
+  fix de código, es una tarea de evaluación/iteración aparte) y se fue
+  directo a Fase 4, que sí tenía una implementación mecánica sin ninguna
+  pregunta abierta — la nota de la sesión de planeación ya había
+  confirmado que la fórmula de `lib/rank.ts` es reutilizable tal cual.
+- **"Que rote según ranking, misma fórmula que el 5+1"**:
+  `components/sections/OpinionSection.tsx` — `live` ahora pasa por
+  `rankArticles()` (de `lib/rank.ts`, la misma función que ordena el 5+1)
+  antes de cortar a `MAX_CARDS`, en vez de quedarse con el orden que
+  devolviera la query. Cero fórmula nueva, cero parámetro nuevo.
+- **"Por default fuera del 5+1 salvo excepción manual"**: el "por default
+  fuera" ya existía desde antes (`NewsGrid.tsx` ya excluía `source ===
+  'opinion'` del paquete de noticias). Lo que faltaba era la excepción.
+  `components/home/NewsGrid.tsx` — el filtro pasa de `a.source !==
+  'opinion'` a `a.source !== 'opinion' || a.featured`. **No se agregó
+  ningún campo nuevo**: `featured` es exactamente el mismo booleano que
+  `selectHero()`/`featuredBoost()` (`lib/rank.ts`) ya usan como "el editor
+  lo marcó a propósito" para forzar un artículo al puesto de hero — acá
+  simplemente también desbloquea la ENTRADA al pool para un artículo de
+  opinión (uno no marcado sigue sin competir nunca, no solo "compite y
+  pierde"). Una vez adentro, compite por rankScore como cualquier otro —
+  "puede forzarse" no es "se fuerza incondicionalmente": si su score no es
+  competitivo, no gana ningún lugar, tal como debe ser.
+- **Verificado de punta a punta contra Postgres local, con datos reales
+  insertados a propósito para probar los cuatro comportamientos, no solo
+  leyendo el código**: insertadas 3 filas de prueba (`test-op-low-old`
+  prioridad 1/vieja, `test-op-high-recent` prioridad 5/reciente,
+  `test-op-featured` prioridad 3→5, `featured` true) —
+  1. Orden de `OpinionSection` coincide exactamente con el orden esperado
+     por rankScore, confirmado dos veces con dos configuraciones de datos
+     distintas (una vez con `test-op-featured` en prioridad 3 quedando en
+     medio, otra vez subida a prioridad 5/fecha de hoy quedando primera —
+     el orden se movió exactamente como predice la fórmula, no una vez
+     fija).
+  2. Con `test-op-featured` en su configuración más competitiva, apareció
+     como HERO real del 5+1 (`.lead-story h1`, leído del DOM, no asumido
+     por su sola presencia en el HTML).
+  3. Los otros dos artículos de opinión (no `featured`, uno de ellos con
+     prioridad 5 igual de alta) **nunca** aparecieron en `.news-grid` en
+     ninguna de las corridas — confirma que "opinión" solo entra al pool
+     vía la excepción manual, nunca por ranking alto solo.
+  4. Puesto `featured = false` de nuevo en la misma fila (vía `psql`
+     directo, sin pasar por `saveArticle`) y confirmado que **volvió a
+     desaparecer** del 5+1 tras reiniciar `next dev` — el primer intento
+     de esta verificación dio un falso "sigue apareciendo" por el cache de
+     60s de `unstable_cache` en `lib/data/articles.ts` (un SQL directo no
+     dispara `revalidateTag`, a diferencia de `saveArticle` en producción
+     real) — no un bug del cambio; anotado acá para que la próxima sesión
+     no se confunda con el mismo falso positivo si prueba con SQL directo.
+  Filas de prueba borradas al cierre.
+- **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
+  los tres.
+
 ## Próximos pasos
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
@@ -4222,6 +4280,17 @@ operativo:
      decisión de diseño ("refinar" sin más contexto) — preguntar qué
      específicamente no funciona del color actual antes de programar
      nada.
+6. **Fase 4: completa** — bloque de opinión dinámico, con excepción manual
+   al 5+1 vía `featured`, mergeado y verificado 2026-08-01 (ver esa
+   entrada). Nada pendiente de esta fase.
+7. Fase 2 (skill de tags/portada) sigue sin arrancar — se saltó a
+   propósito dos veces (Fase 3 y Fase 4 ambas se priorizaron por ser
+   "fixes sin decisiones"; Fase 2 es una tarea de evaluación/iteración de
+   skill, no un fix mecánico) y Fase 5/6 necesitan decisión de producto.
+   Si el usuario sigue pidiendo "el siguiente fix sin decisiones", ya no
+   queda ninguno obvio en Fases 0-4 sin bloqueo — el turno lógico es Fase
+   2, o resolver los bloqueos ya anotados (video de Windows, credenciales
+   de producción, qué es "Tips", color del buscador).
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se

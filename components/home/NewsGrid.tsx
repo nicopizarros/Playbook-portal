@@ -10,14 +10,12 @@ import { NewsRow } from '../article/NewsRow';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { gsap } from '@/lib/gsap';
 
-// 'opinion' is deliberately excluded from BOTH the filter chips and the
-// story pool below. The homepage now renders a live Análisis/Opinión
-// section immediately under this band, built from exactly these articles
-// (see components/sections/OpinionSection.tsx) — so leaving them in the
-// news package meant the same piece could appear twice on one screen, and
-// gave the chip row an "Opinión" filter that duplicated a whole section
-// sitting a few hundred pixels lower. This band is the NEWS package;
-// opinion has its own home.
+// 'opinion' is deliberately excluded from the filter chips. The homepage
+// renders a live Análisis/Opinión section immediately under this band,
+// built from exactly those articles (see components/sections/
+// OpinionSection.tsx) — an "Opinión" chip here would duplicate a whole
+// section sitting a few hundred pixels lower. This band is the NEWS
+// package; opinion has its own home.
 const NEWS_SOURCES = KNOWN_SOURCES.filter(source => source !== 'opinion');
 
 const FILTERS: { source: string; label: string }[] = [
@@ -98,7 +96,15 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
     return () => window.removeEventListener('playbook:reset-home', resetToDefault);
   }, []);
 
-  const news = articles.filter(a => a.source !== 'opinion');
+  // Roadmap Agosto 2026, Fase 4: opinion pieces stay out of the 5+1 by
+  // default (see the NEWS_SOURCES comment above), but an editor can force
+  // one in by marking it `featured` -- the same "editor's deliberate call"
+  // flag rank.ts's selectHero()/featuredBoost() already use to promote a
+  // story into the hero slot, extended here to also unlock a featured
+  // opinion piece INTO the pool at all (a non-featured one still never
+  // competes, never mind wins). No new field, no second override
+  // mechanism: reuses exactly the escape hatch that already exists.
+  const news = articles.filter(a => a.source !== 'opinion' || a.featured);
   const pool = activeSource === 'all' ? news : news.filter(a => a.source === activeSource);
   const filtered = rankArticles(pool);
   const hero = selectHero(filtered);
