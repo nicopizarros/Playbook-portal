@@ -1,8 +1,7 @@
-import Link from 'next/link';
-import Image from 'next/image';
 import { auth } from '@/auth';
 import { getSiteContent } from '@/lib/data/site-content';
 import { getAllArticles } from '@/lib/data/articles';
+import { BrandLink } from './BrandLink';
 import { HeaderNav } from './HeaderNav';
 import { Ticker } from './Ticker';
 
@@ -22,24 +21,7 @@ export async function Header() {
   return (
     <header className="topbar">
       <div className="container nav">
-        <Link href="/" className="brand" aria-label="Playbook — inicio">
-          <Image
-            className="logo-light"
-            src="/assets/img/playbook-logo.webp"
-            width={640}
-            height={158}
-            alt="Playbook"
-            priority
-          />
-          <Image
-            className="logo-dark"
-            src="/assets/img/playbook-logo-dark.png"
-            width={640}
-            height={158}
-            alt="Playbook"
-            priority
-          />
-        </Link>
+        <BrandLink />
         <HeaderNav
           links={nav.links}
           ctaLabel={nav.ctaLabel}

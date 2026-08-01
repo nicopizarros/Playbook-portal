@@ -77,8 +77,8 @@ export const articles = pgTable(
     author: text('author').notNull().default(''),
     date: text('date').notNull(), // YYYY-MM-DD, matches legacy string format
     dateFormatted: text('date_formatted').notNull().default(''),
-    publication: text('publication').notNull().default('Playbook'),
-    source: text('source').notNull().default('playbook'),
+    publication: text('publication').notNull().default('Noticias'),
+    source: text('source').notNull().default('industry-shots'),
     tagsScope: text('tags_scope').array().notNull().default([]),
     tagsSport: text('tags_sport').array().notNull().default([]),
     tagsVertical: text('tags_vertical').array().notNull().default([]),

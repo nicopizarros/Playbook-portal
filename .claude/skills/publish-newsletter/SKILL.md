@@ -1,6 +1,6 @@
 ---
 name: publish-newsletter
-description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Mundial, Infinitas) into Playbook.
+description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Deporte, Infinitas) into Playbook.
 ---
 
 # Publish Newsletter: Substack link to live article, no human in the loop
@@ -28,7 +28,7 @@ Vercel, does not work from a sandboxed agent session).
 Fetch every Substack URL given (use WebFetch; it follows the `open.substack.com`
 to `<pub>.substack.com` redirect automatically, re-fetch the redirect URL it
 reports). For each edition, identify individual news items: each story in an
-Industry Shots or La Lana del Mundial edition is a separate article. Also
+Industry Shots or La Lana del Deporte edition is a separate article. Also
 fetch the page a second time asking specifically for the exact publication
 date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
@@ -46,7 +46,7 @@ used as the cover image.
 ## Step 2: Independent research
 
 Applies to Industry Shots and Infinitas items. Does **not** apply to La Lana
-del Mundial: its fact/analysis content tracks the source as written, never
+del Deporte: its fact/analysis content tracks the source as written, never
 supplemented with outside research (see Step 3's La Lana section).
 
 Mandatory, always attempted, for every Industry Shots/Infinitas item: search
@@ -117,7 +117,7 @@ wording per article rather than reusing the same word in every piece.
 
 Word-count range: roughly 300-500 words across the four paragraphs.
 
-### La Lana del Mundial
+### La Lana del Deporte
 
 Content stays exactly as it would without Step 2: don't run outside
 research on La Lana pieces, and don't otherwise pad or alter what the
@@ -151,13 +151,15 @@ document, see Step 6), never HTML tags.
 - **title**: headline, in Spanish.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
-- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Mundial: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
+- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
 - **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
-    - La Lana del Mundial: `"La Lana del Mundial"` / `"la-lana"`
+    - La Lana del Deporte: `"La Lana del Deporte"` / `"la-lana"`
     - Infinitas: `"Infinitas"` / `"infinitas"`
-    - Anything else: `"Playbook"` / `"playbook"`
+    - Anything else: `"Noticias"` / `"industry-shots"` (the old `"Playbook"` /
+      `"playbook"` fallback was retired 2026-08-01, folded into Noticias —
+      see `lib/constants.ts`)
 
   "Industry Shots" is only this skill's internal name for that Substack
   newsletter, used to pick the fields above. It is never a label readers

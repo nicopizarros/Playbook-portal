@@ -9,20 +9,21 @@ import { AdSlot } from '@/components/ads/AdSlot';
 // source filters, only the stories do.
 //
 // Three modules, top to bottom:
+// - compact newsletter module (from the Fase 9 plan's sidebar spec) —
+//   a conversion point the sales side asked to keep close to the top of
+//   the page. Moved above Más leídas 2026-08-01 (Roadmap Agosto 2026,
+//   Fase 1, item 4: "reubicar Más leídas debajo del bloque de
+//   suscripción") -- was the first module in the rail before that.
 // - Más leídas (GA4-backed; renders nothing until credentials exist —
 //   available:false degradation, see lib/most-read.ts)
 // - rail-home ad, directly below Más leídas (the Fase 7 spec position;
 //   now that the slot shows a visible placeholder it sits here rather
-//   than at the bottom)
-// - compact newsletter module (from the Fase 9 plan's sidebar spec) —
-//   real content that keeps the rail earning its column while GA4/ads
-//   are pending, and a conversion point the sales side asked to keep
-//   close to the top of the page.
+//   than at the bottom) — kept paired with Más leídas rather than left
+//   behind at the old top-of-rail spot, since nothing in the Fase 1
+//   request said to move the ad specifically.
 export function HomeSidebar() {
   return (
     <div className="sidebar-sticky">
-      <MostReadSection />
-      <AdSlot slot="rail-home" />
       <section className="side-module side-newsletter" aria-labelledby="side-nl-title">
         <h2 className="side-title" id="side-nl-title">Newsletter</h2>
         <p className="side-newsletter-copy">
@@ -37,6 +38,8 @@ export function HomeSidebar() {
           successMessage="¡Listo! Revisa tu correo."
         />
       </section>
+      <MostReadSection />
+      <AdSlot slot="rail-home" />
     </div>
   );
 }

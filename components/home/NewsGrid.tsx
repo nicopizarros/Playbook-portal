@@ -10,14 +10,12 @@ import { NewsRow } from '../article/NewsRow';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { gsap } from '@/lib/gsap';
 
-// 'opinion' is deliberately excluded from BOTH the filter chips and the
-// story pool below. The homepage now renders a live Análisis/Opinión
-// section immediately under this band, built from exactly these articles
-// (see components/sections/OpinionSection.tsx) — so leaving them in the
-// news package meant the same piece could appear twice on one screen, and
-// gave the chip row an "Opinión" filter that duplicated a whole section
-// sitting a few hundred pixels lower. This band is the NEWS package;
-// opinion has its own home.
+// 'opinion' is deliberately excluded from the filter chips. The homepage
+// renders a live Análisis/Opinión section immediately under this band,
+// built from exactly those articles (see components/sections/
+// OpinionSection.tsx) — an "Opinión" chip here would duplicate a whole
+// section sitting a few hundred pixels lower. This band is the NEWS
+// package; opinion has its own home.
 const NEWS_SOURCES = KNOWN_SOURCES.filter(source => source !== 'opinion');
 
 const FILTERS: { source: string; label: string }[] = [
@@ -79,7 +77,34 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
     gsap.to(el, { opacity: 1, duration: 0.22, ease: 'power1.out' });
   }, [activeSource]);
 
-  const news = articles.filter(a => a.source !== 'opinion');
+  // Ref instead of a `selectSource` dependency: this listener is registered
+  // once and must always call the CURRENT selectSource (it closes over
+  // activeSource each render), not the one from whichever render happened
+  // to run when the listener was attached.
+  const selectSourceRef = useRef(selectSource);
+  selectSourceRef.current = selectSource;
+
+  // BrandLink.tsx dispatches this when the logo is clicked while already on
+  // "/" (a plain Link href="/" is a no-op in that case, so filtering down
+  // to one source and clicking the logo did nothing — real bug report,
+  // 2026-08-01). Brings the 5+1 back to its default "all" view.
+  useEffect(() => {
+    function resetToDefault() {
+      selectSourceRef.current('all');
+    }
+    window.addEventListener('playbook:reset-home', resetToDefault);
+    return () => window.removeEventListener('playbook:reset-home', resetToDefault);
+  }, []);
+
+  // Roadmap Agosto 2026, Fase 4: opinion pieces stay out of the 5+1 by
+  // default (see the NEWS_SOURCES comment above), but an editor can force
+  // one in by marking it `featured` -- the same "editor's deliberate call"
+  // flag rank.ts's selectHero()/featuredBoost() already use to promote a
+  // story into the hero slot, extended here to also unlock a featured
+  // opinion piece INTO the pool at all (a non-featured one still never
+  // competes, never mind wins). No new field, no second override
+  // mechanism: reuses exactly the escape hatch that already exists.
+  const news = articles.filter(a => a.source !== 'opinion' || a.featured);
   const pool = activeSource === 'all' ? news : news.filter(a => a.source === activeSource);
   const filtered = rankArticles(pool);
   const hero = selectHero(filtered);
@@ -96,9 +121,6 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
             comunidad en un mismo sistema editorial.
           </p>
         </div>
-        <Link className="section-link" id="btn-ver-archivo" href="/archivo">
-          {overflow > 0 ? `Ver más (${overflow})` : 'Ver más'}
-        </Link>
       </div>
 
       <div className="source-filter" role="group" aria-label="Filtrar por fuente">
@@ -134,6 +156,12 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
             {sidebar}
           </aside>
         </div>
+      </div>
+
+      <div className="news-grid-more">
+        <Link className="section-link" id="btn-ver-archivo" href="/archivo">
+          {overflow > 0 ? `Más noticias (${overflow})` : 'Más noticias'}
+        </Link>
       </div>
     </>
   );

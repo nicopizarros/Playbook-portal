@@ -67,7 +67,15 @@ header.topbar.is-scrolled .brand img{height:42px;}
 @media(max-width:920px){
   .reader-status{display:none;}
 }
-.nav-search{display:flex;align-items:center;gap:6px;background:var(--rule);border-radius:999px;padding:8px 14px;min-height:44px;flex-shrink:0;position:relative;border:1px solid transparent;transition:border-color var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out),width var(--duration-base) var(--ease-out);}
+/* Roadmap Agosto 2026, Fase 3: antes era un óvalo relleno de --rule (un
+   gris/beige plano, la única "pill" del sitio sin el lenguaje de borde
+   fino sobre --paper que ya usan .filter-btn y .share-btn) -- leía como
+   una pieza de otra pasada de diseño, no un componente pulido a juego con
+   el resto del header. Mismo tratamiento outline que esos dos: fondo
+   --paper, borde --rule en reposo, borde --ink en hover, mismo estado de
+   foco fuerte (ink + glow verde) que ya tenía. */
+.nav-search{display:flex;align-items:center;gap:6px;background:var(--paper);border-radius:999px;padding:8px 14px;min-height:44px;flex-shrink:0;position:relative;border:1.5px solid var(--rule);transition:border-color var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out),width var(--duration-base) var(--ease-out);}
+.nav-search:hover{border-color:var(--ink);}
 .nav-search svg{opacity:.55;flex-shrink:0;}
 .nav-search input{border:none;background:transparent;font-family:var(--sans);font-size:13px;outline:none;width:188px;color:var(--ink);transition:width var(--duration-base) var(--ease-out);}
 .nav-search:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(154,234,57,.18);background:var(--paper);}

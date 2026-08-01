@@ -4,15 +4,193 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-07-31.
+2026-08-01.
 
 **PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; la
-Fase 6 (migración completa) también mergeó. La sesión más reciente trabaja
-en `claude/playbook-homepage-ads-7vayvz` (Fase 7: rediseño de homepage +
-infraestructura publicitaria + consentimiento, ver la última entrada del
-registro de progreso). El PR #22 original de la migración (rama
-`claude/playbook-nextjs-migration-9zn6nh`) sigue superado por el flujo de
-Fases 1-6 ya mergeado — no seguir trabajando ahí.
+Fase 6 (migración completa) también mergeó. La sesión activa trabaja en
+`claude/playbook-portal-roadmap-05yooe` sobre el "Roadmap Agosto 2026"
+(ver sección siguiente) — arrancó por su Fase 0, ver la última entrada del
+registro de progreso para el estado exacto. El plan anterior (Fases 7, 8 y
+9, más abajo) ya está completo salvo lo anotado en "Próximos pasos". El PR
+#22 original de la migración (rama `claude/playbook-nextjs-migration-9zn6nh`)
+sigue superado por el flujo de Fases 1-6 ya mergeado — no seguir trabajando
+ahí.
+
+## Plan de desarrollo — Roadmap Agosto 2026 (Fases 0-6)
+
+Backlog acumulado, recibido del usuario como documento de trabajo el
+2026-08-01, para ejecutarse en fases — cada fase pensada como una sesión
+independiente de Claude Code. Agrupado por tipo de trabajo (no por urgencia
+de negocio) para no tocar el mismo sistema en sesiones separadas. Dentro de
+cada fase, de más simple a más complejo.
+
+**Antes de arrancar cualquier fase de este plan**: leer primero la entrada
+del registro de progreso de la fase anterior (si existe) — varias fases de
+este plan tienen ítems que ya estaban resueltos en el código antes de
+arrancar (ver Fase 0 abajo) o que dependen de una fase anterior.
+
+### Fase 0 — Bugs visuales críticos — **completa**
+
+- [x] Tag negro del hero del 5+1 y footer: "La Lana del Mundial" → "La Lana
+      del Deporte" — corregido en código (31-jul) y en los 4 artículos +
+      footer de producción real (`fix:lana-rebrand`, corrido 2026-08-01).
+- [x] Foto de portada de "La Lana del Deporte" no carga — verificado
+      directo en producción: ya estaba bien, no hacía falta nada.
+- [x] Fotos de los testimoniales no cargan — el campo `avatar` no existía
+      en absoluto en producción (no una ruta rota); corregido con
+      `fix:testimonial-avatars`, corrido 2026-08-01.
+- [x] El botón de Playbook (logo del header) no regresa a home cuando estás
+      dentro de un tag del 5+1 — resuelto en código
+      (`components/layout/BrandLink.tsx`), verificado con Playwright.
+
+**Criterio de aceptación:** revisar el 5+1 completo y el footer en
+producción, confirmar que no queda ninguna referencia visual o textual a
+"Mundial" donde debería decir "Deporte", y que todas las imágenes cargan en
+desktop y mobile.
+
+**Estado**: los 4 ítems tienen fix de código Y de datos de producción
+confirmados — ver las entradas del 2026-08-01 en el registro de progreso
+(diagnóstico inicial, fix del botón, y la entrada "Fase 0 cerrada de
+verdad" donde los 3 scripts de datos corrieron contra la Neon real).
+Pendiente solo que el usuario lo confirme visualmente en el sitio
+desplegado.
+
+### Fase 1 — Arquitectura de navegación e información
+
+- [x] Borrar el tag "Playbook" y traspasar todos sus artículos al tag
+      "Noticias" — código mergeado 2026-08-01; los 5 artículos reales de
+      producción reasignados el mismo día (`fix:reassign-playbook-tag`,
+      ver la entrada "Fase 0 cerrada de verdad"). **Ítem completo.**
+- [x] Cambiar el botón "Ver más" del 5+1 por "Más noticias", moverlo debajo
+      del bloque del 5+1 (no arriba) — mergeado 2026-08-01.
+- [x] Reemplazar el nombre del tag "Análisis" por "Artículo" en la ficha de
+      cada pieza — mergeado 2026-08-01 (interpretado como el CTA por-tarjeta
+      de la sección de opinión, ver esa entrada para el porqué).
+- [x] Reubicar el módulo de "Tips" y "5 más leídas" debajo del bloque de
+      suscripción — "5 más leídas" reubicado 2026-08-01. **"Tips" no existe
+      en el código ni en ningún prototipo** (grep sin resultados) — no se
+      tocó nada por ese nombre; preguntar al usuario a qué se refiere antes
+      de la siguiente sesión.
+- [ ] Crear carpetas internas para los productos editoriales (en vez de
+      redirigir a Substack), con diseño propio por producto, no la vista
+      clásica de "ver más" — **nota de la sesión de planeación**: separar
+      este último ítem del resto de la fase, es un mini-proyecto de diseño
+      (hay que definir primero "los temas centrales" de cada producto),
+      no un cambio de navegación simple como los otros cuatro. Además, 3 de
+      los 4 productos (Noticias, La Lana del Deporte, Infinitas) YA
+      enlazan a una colección interna (`/archivo?source=...`) en vez de
+      Substack desde una sesión anterior (ver HANDOFF, entrada sin fecha
+      dedicada, buscar "Navegación: enlaces de productos editoriales a
+      Substack") — lo que falta es el diseño propio por producto, no la
+      desconexión de Substack en sí. The Futbol Business Review se deja
+      apuntando a Substack a propósito (no tiene `source` propio todavía).
+
+**Criterio de aceptación:** navegar el portal de punta a punta sin
+encontrar un link que saque al usuario a Substack que sea evitable, y
+confirmar que la jerarquía de tags (Noticias, Artículo, y los productos
+editoriales) es consistente en todo el sitio.
+
+### Fase 2 — Automatización de contenido y skills
+
+- [ ] Entrenar el skill de tags para que asigne todos los tags relevantes
+      por artículo
+- [ ] Modificar el skill para que la portada de cada artículo de opinión
+      sea la imagen de portada real de Substack, nunca una foto del cuerpo
+
+**Criterio de aceptación (endurecido en la sesión de planeación, el
+original era débil)**: correr el skill sobre una muestra de 10 artículos
+existentes (mezcla de noticias y opinión) y exigir un umbral explícito
+antes de aplicarlo al catálogo completo — ej. tags correctos en 9/10 sin
+ningún falso positivo de portada — no solo "confirmar manualmente que se
+ven bien".
+
+### Fase 3 — Pulido visual — **completa**
+
+- [x] Glitch/parpadeo del header en Windows en el tab de Infinitas —
+      **mecanismo real encontrado y corregido 2026-08-01, sin video**: no
+      es el shrink-on-scroll del header, es que cruzar de "página con
+      scroll" a "sin scroll" (Infinitas con solo 2 artículos) hace
+      aparecer/desaparecer la scrollbar clásica de Windows, reflowing todo
+      el ancho de la página — `html{scrollbar-gutter:stable}`
+      (`styles/reset.css`). Ver esa entrada del registro para la
+      investigación completa. **Pedirle confirmación al usuario en
+      Windows real** — no se pudo observar el efecto exacto en este
+      sandbox (Chromium headless en Linux no reserva scrollbar de la misma
+      forma).
+- [x] Agregar el morado de Infinitas al botón de hasta abajo de esa
+      sección — mergeado 2026-08-01 (el botón real es el `.inf-pill` del
+      footer).
+- [x] Refinar el color del pill del buscador — el usuario aclaró la queja
+      ("se ve viejo, no pulido"); corregido 2026-08-01, era el único pill
+      del sitio con fondo relleno en vez del lenguaje "outline" (borde
+      fino sobre `--paper`) que usa el resto del sistema de diseño.
+- [x] "Compartir" de cada artículo: agregar logos de redes, sumar más
+      opciones, mover el bloque debajo de los tags del artículo —
+      mergeado 2026-08-01 (Facebook + LinkedIn + copiar enlace agregados;
+      si el usuario quería otras redes específicas, decirlo).
+
+**Criterio de aceptación:** revisar en Chrome, Safari y un navegador en
+Windows que no haya parpadeos ni desalineaciones, y que el bloque de
+compartir se vea igual de bien en mobile que en desktop.
+
+### Fase 4 — Contenido dinámico
+
+- [x] Hacer dinámico el bloque de artículos de opinión: que rote según
+      ranking (recencia + estrellas) con la misma fórmula del 5+1, fuera
+      del 5+1 por default salvo excepción manual — mergeado 2026-08-01,
+      verificado con artículos de prueba reales contra Postgres local (ver
+      esa entrada del registro). **Fase 4 completa.**
+
+**Nota de la sesión de planeación, confirmada leyendo el código**: la
+fórmula ya existe como función compartida y reutilizable en `lib/rank.ts`
+(`rankScore`/`rankArticles`/`selectHero`, con comentarios explicando cada
+decisión de tuning) — extenderla a opinión es bajo riesgo, no hay que
+construir una segunda fórmula ni razonar el diseño desde cero.
+
+**Criterio de aceptación:** confirmar que el ranking de opinión usa
+exactamente la misma fórmula del 5+1 (sin una segunda fórmula paralela), y
+que un artículo de opinión marcado como excepción sí puede forzarse dentro
+del 5+1.
+
+### Fase 5 — Sistema de cuentas y autenticación
+
+Orden de preferencia: (1) Auth vía Substack, (2) Resend como alternativa,
+(3) formulario simple solo-correo. **Nota de la sesión de planeación**: no
+existe ningún sistema de auth de lector vía Substack ni formulario simple
+hoy en el código — sí existe auth de lector vía Resend (magic link, Fase 3
+de la migración original) y auth de editor vía Credentials, ambos ya en
+producción. La opción (2) del orden de preferencia ya está construida; las
+opciones (1) y (3) son trabajo nuevo si se decide no usar lo que ya existe.
+
+**Criterio de aceptación:** confirmar el orden de implementación con el
+equipo antes de programar, y documentar esa decisión antes de tocar código.
+
+### Fase 6 — Legal y compliance
+
+- [ ] Corregir argentinismos en los términos y condiciones
+- [ ] Llevar el compliance general al 100% (definir primero el checklist:
+      aviso de privacidad, cookies, términos, todo lo que aplique a un
+      medio digital en México)
+
+**Dependencia no explícita en el doc original, anotada en la sesión de
+planeación**: si Fase 5 termina eligiendo Resend o un formulario de email
+(en vez de, o adicional a, Substack), el aviso de privacidad de esta fase
+tiene que reflejar esa recolección de datos — no tratar esta fase como
+aislada de la decisión de Fase 5.
+
+**Criterio de aceptación:** que un tercero (no quien escribió el texto) lea
+los términos y condiciones completos y confirme que el español es
+neutro/mexicano, y que exista un checklist de compliance marcado como
+completo.
+
+### Notas de secuencia del roadmap
+
+- Fase 0 y Fase 3 pueden correr en paralelo (no tocan los mismos archivos)
+  si hay dos sesiones disponibles.
+- Fase 2 debería completarse antes de re-generar contenido masivamente,
+  para no re-etiquetar todo dos veces.
+- Fase 5 es la única que necesita una decisión de producto (no solo de
+  código) antes de empezar a construir.
 
 ## Plan de desarrollo — Fases 7, 8 y 9
 
@@ -3657,29 +3835,615 @@ real, mismo estándar que Fases 1-3):
   tiene rol Viewer en la propiedad real. Sin eso, `isConfigured()` sigue
   devolviendo `false` y el panel sigue leyendo de Vercel como hasta ahora.
 
+### 2026-08-01 — Roadmap Agosto 2026 recibido; arranque de Fase 0 (bugs visuales)
+
+- **Contexto**: el usuario compartió un roadmap nuevo de 7 fases (0-6,
+  sección propia arriba, "Roadmap Agosto 2026") para el trabajo pendiente
+  del portal. Antes de programar nada se discutieron los ítems con el
+  usuario y se anotaron ajustes de secuencia/alcance directamente en cada
+  fase de esa sección — no repetirlos acá.
+- **Fase 0, ítems 1-3 (tag negro "Mundial", footer, portada de La Lana del
+  Deporte): diagnosticados a fondo, NO son bugs de código.** Investigación,
+  no asumida:
+  1. `git log` muestra el commit `f7359f1` ("Rebrand La Lana del Mundial a
+     La Lana del Deporte", 31-jul, ya en `main`) — cambió
+     `lib/constants.ts` (`SOURCE_LABELS`), `app/api/update-articles/route.ts`
+     (`detectPublication`), `content.json`/`articles.json`, y reemplazó
+     `public/assets/img/lana-banner.webp` por `lana-banner.jpg`. Grep de
+     "Mundial" en todo el árbol de código/JSON (excluyendo `docs/`, que son
+     prototipos HTML estáticos de archivo) no encuentra ninguna ocurrencia
+     de la frase de marca — el código ya está limpio.
+  2. Pero el tag negro del hero (`components/article/LeadStory.tsx`, línea
+     `<span className="tag">{article.publication}</span>`) y el footer
+     (`Footer.tsx` vía `site_content.footer.brandBlurb`) **leen de
+     Postgres, no de `content.json`/`articles.json`** — esos JSON solo
+     existen como semilla de un migrador manual
+     (`scripts/migrate-json-to-db.ts`, `npm run migrate:json`).
+  3. Ese migrador **no corre solo**: `scripts/predeploy-migrate.ts`, lo
+     único que sí corre automático en cada build de producción
+     (`vercel-build` en `package.json`), solo aplica migraciones de
+     *schema* de Drizzle — nunca resincroniza contenido. Confirmado leyendo
+     el archivo, no asumido.
+  4. Conclusión: cualquier artículo o fila de `site_content` que ya
+     existía en Postgres antes del commit de rebrand se quedó con el texto
+     viejo para siempre, hasta que algo la reescriba explícitamente — y
+     nadie corrió `npm run migrate:json` contra producción después de ese
+     merge (no hay entrada de HANDOFF documentándolo, y el propio commit
+     del rebrand no lo menciona). Esto explica por qué el usuario sigue
+     viendo "Mundial" en producción un día después del merge: es un
+     **desfase de datos, no una regresión de código**.
+  5. Además, re-correr `npm run migrate:json` tal cual **no alcanzaría**:
+     ese script hace upsert solo de los ids que ya están en el
+     `articles.json` del repo — cualquier artículo insertado directo en
+     Postgres por el webhook de Make.com después de que se tomó esa
+     foto (con el `detectPublication()` viejo, antes del rebrand) quedaría
+     fuera del upsert igual.
+- **Fix escrito para lo anterior**: `scripts/fix-lana-rebrand-content.ts`
+  (nuevo, agregado a `package.json` como `npm run fix:lana-rebrand`). Es un
+  find/replace acotado y seguro de correr contra datos reales: busca la
+  frase exacta de 4 palabras `"La Lana del Mundial"` (nunca aparece
+  legítimamente — un artículo real sobre el torneo dice "el Mundial 2026",
+  nunca la frase de marca completa) y la ruta vieja del asset
+  (`lana-banner.webp`) en `articles.publication`/`articles.imageUrl` y de
+  forma recursiva en todo el árbol JSON de `site_content.data`, y
+  solo reescribe lo que de verdad cambió — usa el mismo patrón de
+  concurrencia optimista (`version`) que `saveSiteContent()` en
+  `lib/actions/admin.ts`, e inserta una fila en `content_revisions` para
+  mantener el registro de auditoría. Soporta `--dry-run`.
+  **No se pudo correr contra producción ni contra ninguna Postgres real**:
+  este sandbox no tiene salida de red hacia el host de Neon (confirmado con
+  un `psql`/TCP directo, ambos con timeout — la política de red del
+  entorno solo permite el proxy HTTPS configurado, no puertos Postgres
+  arbitrarios), así que el script está escrito, tipado limpio
+  (`tsc --noEmit`), lint limpio, y probado en modo `--dry-run` hasta el
+  punto de intentar conectar (falla ahí por la misma razón), pero **nunca
+  ejecutado de punta a punta contra datos reales**. `next build` completo
+  sí corrido y limpio después de estos cambios.
+  **Queda pendiente, de operación, no de código**: correr
+  `POSTGRES_URL=<producción real> npm run fix:lana-rebrand -- --dry-run`
+  primero para ver el diagnóstico exacto, y sin `--dry-run` para aplicarlo,
+  desde un entorno con salida de red hacia Postgres (local del equipo, o
+  una sesión con acceso real).
+- **Fase 0, ítem 3 (fotos de testimoniales) — mismo diagnóstico probable,
+  sin confirmar**: `content.json` y los archivos
+  `public/assets/img/testimonial-barbara.jpg`/`testimonial-juan.jpg` ya
+  existen y son correctos en el repo (commit `71128cb`). El script de
+  arriba no los toca porque no hay una ruta vieja conocida para buscar (a
+  diferencia del banner de La Lana, nunca se identificó cuál era el valor
+  stale exacto en Postgres para estos dos avatares — podrían estar
+  simplemente vacíos si se crearon antes de que existieran esos archivos).
+  Si tras desplegar este código las fotos siguen sin cargar, es edición
+  directa de dos campos vía el tab Testimonios del admin, no requiere
+  código: pegar `/assets/img/testimonial-barbara.jpg` y
+  `/assets/img/testimonial-juan.jpg` en los avatares de Bárbara y Juan
+  Pablo respectivamente.
+- **Fase 0, ítem 4 (botón de Playbook no regresa a home dentro de un tag
+  del 5+1) — causa real distinta a la investigada primero, y ya
+  corregida.** El usuario aclaró el repro real: no es un problema de
+  navegar DESDE una página de tag, es que **el logo no hace nada estando
+  ya en `/`**. Causa raíz, una vez con el repro correcto: `<Link
+  href="/">` de Next.js no dispara ninguna navegación cuando ya estás en
+  esa misma ruta — así que filtrar el paquete 5+1 por una fuente (`.filter-
+  btn`, estado `activeSource` local de `components/home/NewsGrid.tsx`, sin
+  cambio de URL) y después clickear el logo esperando volver a la vista
+  "todo" arriba de la página no hacía absolutamente nada, ni scroll ni
+  reset de filtro. Fuera de `/` el comportamiento ya era correcto (App
+  Router resetea el scroll y remonta la página en una navegación real), así
+  que el fix solo intercepta el caso mismo-ruta.
+  - `components/layout/BrandLink.tsx` (nuevo): extrae el link/logo del
+    header a su propio client component (`Header.tsx` es un Server
+    Component async, no puede tener el `onClick` necesario). En `onClick`,
+    si `usePathname() === '/'`: `preventDefault`, limpia cualquier hash de
+    la URL, hace `scrollTo({top:0, behavior:'smooth'})` y dispara un
+    `CustomEvent('playbook:reset-home')` en `window`. Fuera de `/` deja que
+    el `<Link>` navegue normal.
+  - `components/home/NewsGrid.tsx`: escucha ese evento y llama
+    `selectSource('all')` (a través de un ref que siempre apunta a la
+    versión más reciente de esa función, para no capturar un closure
+    viejo de `activeSource`) — reutiliza el mismo fade GSAP que ya usa el
+    click en un chip de filtro, en vez de duplicar esa lógica.
+  - **Verificado de punta a punta contra un servidor real, no solo
+    compilación** — ver la entrada de infraestructura de verificación local
+    abajo para cómo se levantó: Playwright headless contra `next dev` real
+    con Postgres real (local, sembrada con `migrate:json`): clic en el chip
+    "La Lana del Deporte" → `activeSource` pasa a `la-lana`; scroll manual a
+    600px; clic en el logo → `activeSource` vuelve a `all` y `scrollY` baja
+    a `0`, confirmado leyendo el DOM real después de cada paso, no
+    asumido. **No se reprodujo el bug original antes del fix** (no se
+    corrió el mismo script contra el `Header.tsx` viejo) — la causa se
+    infirió del comportamiento documentado de Next.js (`<Link>` a la ruta
+    actual no navega) más la descripción del usuario, y se verificó
+    directamente que el fix funciona; si alguien quiere el antes/y-después
+    exacto, revertir `BrandLink.tsx` a un `<Link>` plano y correr el mismo
+    script de Playwright lo confirmaría en un minuto.
+- **Nueva infraestructura de verificación local, releer antes de asumir que
+  este sandbox no puede levantar el sitio**: `postgresql-16` viene
+  preinstalado en este entorno (servidor, no solo el cliente `psql` que ya
+  se sabía que existía) pero apagado por defecto. `service postgresql
+  start` lo levanta; la sesión creó un rol/base `playbook`/`playbook` local
+  y corrió `db:migrate` + `migrate:json` contra ella con `POSTGRES_URL`
+  **pasada inline en el comando** (no alcanza con escribir `.env.local`:
+  este sandbox ya trae un `POSTGRES_URL` real de Neon exportado como
+  variable de entorno del proceso, y eso pisa cualquier `.env.local` — hay
+  que sobreescribirlo explícitamente en cada comando/en el env del server).
+  Con eso, `next dev` corre normal contra datos reales locales y Playwright
+  (mismo patrón de import que documenta `.claude/skills/verify/SKILL.md`,
+  aunque esa skill en sí describe el setup del sitio legado — desactualizada,
+  ver nota de abajo) puede manejar el navegador real. Esto **cierra el gap
+  de verificación** que bloqueó a la sesión anterior de este mismo día
+  (diagnóstico de Fase 0 sin poder reproducir nada en vivo) — la próxima
+  sesión que necesite probar algo contra un servidor real puede repetir
+  esto en vez de asumir que no se puede. La Neon de producción real sigue
+  sin ser alcanzable desde acá (confirmado con timeout de TCP directo) —
+  esto es un Postgres local nuevo y vacío, no un atajo a producción.
+- **Fase 0, ítem 5 no evaluado todavía**: la skill `verify` del repo
+  (`.claude/skills/verify/SKILL.md`) describe un setup de servidor Node
+  plano para el sitio **legado pre-migración** (`api/sitemap.js`,
+  `articulo.html`, sin `package.json`) — quedó desactualizada desde la
+  migración a Next.js (este repo sí tiene `package.json`/`next.config.ts`
+  hoy). Con Postgres local ya resuelto (ver arriba), lo único que le falta
+  a esa skill es reemplazar su sección de setup por "levantar Postgres
+  local + `next dev`" — no se reescribió en esta sesión por no ser parte
+  del pedido, pero ya no hay excusa de infraestructura para no hacerlo
+  cuando alguien la retome.
+- **`scripts/fix-lana-rebrand-content.ts` verificado de punta a punta
+  contra el Postgres local**, algo que la entrada anterior de este mismo
+  día no había podido hacer: se corrompieron a propósito 3 filas de
+  `articles` (`publication`/`image_url` puestos al valor viejo) y
+  `site_content.footer.brandBlurb` de la misma forma, se corrió el script
+  con `--dry-run` (reportó las 3 filas + el campo de `site_content`
+  correctamente, sin escribir nada — confirmado con una segunda lectura de
+  la base) y después sin `--dry-run` (las 3 filas y el blurb quedaron en
+  "La Lana del Deporte"/`lana-banner.jpg`, `site_content.version`
+  incrementó de 1 a 2, confirmado con `SELECT` directo). Sigue pendiente
+  correrlo contra la Neon real de producción — eso sigue bloqueado por red
+  desde este sandbox — pero ya no es "código sin probar", es "probado
+  localmente, pendiente de ejecutarse donde haya red hacia producción".
+- **Verificado**: `tsc --noEmit`, `npx eslint` sobre los archivos tocados y
+  `next build`, limpios los tres, con `node_modules` instalado en este
+  sandbox para poder correrlos (no estaba instalado al arrancar la
+  sesión). Postgres local y `.env.local` de este sandbox son desechables
+  (base vacía sin datos reales, `.env.local` con secretos falsos,
+  ignorado por git) — no queda nada de esto en el repo.
+
+### 2026-08-01 — Fase 1 (parcial): tag Playbook, "Más noticias", "Leer el artículo", sidebar
+
+- **Contexto**: cerrado el botón de Playbook (ver entrada anterior de este
+  mismo día), el usuario pidió seguir directo con Fase 1 sin más aviso.
+  Cubiertos 4 de los 5 ítems de esa fase (1, 2, 3, 4); el 5 (carpetas
+  internas con diseño propio, ya anotado como su propio mini-proyecto,
+  separado del resto) queda para la siguiente sesión.
+- **Ítem 1, "borrar el tag Playbook, traspasar sus artículos a Noticias"**:
+  `'playbook'` era un cuarto `source` real (`KNOWN_SOURCES`/
+  `SOURCE_LABELS`, `lib/constants.ts`), no una etiqueta cosmética — tocaba
+  10 archivos. Cambios de código: `lib/constants.ts` (removido de
+  `KNOWN_SOURCES`/`SOURCE_LABELS`), `lib/taxonomy.ts` (removida la entrada
+  `SECTION_TOPICS.playbook`), `app/api/update-articles/route.ts`
+  (`detectPublication()`'s fallback pasa de `Playbook`/`playbook` a
+  `Noticias`/`industry-shots`), `lib/db/schema.ts` (los *defaults* de las
+  columnas `publication`/`source` cambian a `'Noticias'`/`'industry-shots'`
+  — nueva migración `drizzle/0006_freezing_ben_grimm.sql`, generada con
+  `drizzle-kit generate`, no escrita a mano), `scripts/migrate-json-to-db.ts`
+  (mismo cambio en sus fallbacks JS), `components/admin/article-entry.ts`
+  (`newArticleEntry()` ya no propone Playbook por default a un editor
+  creando un artículo nuevo), y limpieza de CSS muerto (`--src-playbook` en
+  `tokens.css` y los 6 selectores `[data-source="playbook"]`/
+  `.tag-mini.playbook` en `hero.css`/`article.css`/`components.css` —
+  ningún artículo va a volver a tener ese `source`, así que esas reglas ya
+  no podían matchear nunca). `articles.json`: los 4 artículos con
+  `source: "playbook"` pasan a `"industry-shots"`/`"Noticias"`.
+  **Documentación actualizada para que no se reintroduzca el bug**:
+  `docs/ENCYCLOPEDIA.md` (§1, la tabla del schema de `articles`) y los dos
+  skills de publicación (`publish-newsletter`, `publish-sourced-article`)
+  — ambos tenían un fallback `"Playbook"`/`"playbook"` explícito en sus
+  instrucciones que, de correr sin corregir, habría vuelto a crear
+  artículos con un `source` que ya no es válido. De paso, `publish-
+  newsletter/SKILL.md` todavía decía "La Lana del Mundial" en 5 lugares
+  (branding, no URLs — los slugs `la-lana`/`la-lana-del-mundial-...` de
+  Substack NO se tocaron, siguen siendo el identificador real) — corregido
+  a "La Lana del Deporte" mientras se estaba ahí, mismo bug de fondo que
+  el diagnóstico de Fase 0 de esta mañana, solo que en un skill en vez de
+  en Postgres: de no corregirse, la próxima vez que este skill publicara
+  algo de La Lana habría reintroducido el texto viejo.
+  **Dato existente en producción, mismo patrón que Fase 0**: cualquier
+  artículo con `source='playbook'` que ya esté en Postgres real se queda
+  así hasta que algo lo reasigne — `scripts/reassign-playbook-tag.ts`
+  (nuevo, `npm run fix:reassign-playbook-tag`, soporta `--dry-run`) hace
+  exactamente eso, mismo patrón que `fix-lana-rebrand-content.ts`. No
+  alcanza con la migración de schema por sí sola: esa solo cambia el
+  *default* para filas nuevas, no toca las que ya existen.
+- **Ítem 2, "Ver más" → "Más noticias", reubicado debajo del bloque**:
+  `components/home/NewsGrid.tsx` — el link salió de `.section-head`
+  (arriba, junto al título) y ahora vive en un `.news-grid-more` nuevo,
+  centrado, después de todo el bloque hero+lista+sidebar. Mismo `id`
+  (`btn-ver-archivo`, nada más lo referencia) y mismo conteo de overflow
+  entre paréntesis, solo cambió el texto y la posición. CSS nueva en
+  `styles/hero.css`.
+- **Ítem 3, tag "Análisis" → "Artículo" en la ficha de cada pieza**:
+  interpretado como el CTA por-tarjeta de la sección de opinión
+  (`components/sections/OpinionSection.tsx`, `<span className="read">Leer
+  el análisis →</span>` → "Leer el artículo →") — es literalmente lo único
+  en el código que dice "análisis" **por pieza individual** ("ficha de
+  cada pieza" del pedido original). No se tocó el link de nav "Análisis"
+  (`content.json` → `nav.links`, apunta a toda la sección, no a una pieza)
+  ni la palabra "análisis" donde aparece como prosa genérica (meta
+  descriptions, términos) — ninguno de esos es "el tag... en la ficha de
+  cada pieza". Si el usuario quería también el link de nav, decirlo
+  explícito en la siguiente sesión.
+- **Verificado de punta a punta contra un servidor real** (mismo Postgres
+  local + Playwright que la entrada anterior, no solo compilación):
+  aplicada la migración 0006 y re-corrido `migrate:json` contra la base
+  local; confirmado con `psql` que 0 artículos quedan con
+  `source='playbook'`; corrompida a propósito 1 fila a `source='playbook'`
+  y confirmado que `fix:reassign-playbook-tag` (dry-run y aplicado) la
+  corrige igual que como se probó `fix-lana-rebrand-content.ts` en la
+  entrada anterior. Con `next dev` real: el filtro de fuente del 5+1 ya no
+  tiene chip "Playbook" (`['all','industry-shots','la-lana','infinitas']`,
+  leído del DOM); el link "Más noticias (24)" ya no está dentro de
+  `.section-head` y aparece después de `.news-grid` en el orden real del
+  DOM (`compareDocumentPosition`, no solo CSS visual); las 3 tarjetas de
+  opinión dicen "Leer el artículo →", ninguna dice "análisis". Re-corrida
+  también la verificación del fix del logo de la entrada anterior sobre
+  este mismo estado, sin regresión.
+- **Ítem 4, "reubicar Tips y 5 más leídas debajo del bloque de
+  suscripción"**: `components/home/HomeSidebar.tsx` — el orden pasa de
+  [Más leídas, ad rail, newsletter] a [newsletter, Más leídas, ad rail]. El
+  ad rail se dejó pegado a Más leídas (el pedido no decía nada sobre
+  moverlo a él) en vez de quedarse atrás en el viejo primer lugar.
+  **"Tips" no se tocó porque no existe**: grep de "Tips" en todo el
+  código, `docs/` y los prototipos HTML no encuentra ningún módulo,
+  componente, ni sección con ese nombre — el sidebar del homepage hoy solo
+  tiene Más leídas + ad + newsletter (ver el propio comentario de
+  `HomeSidebar.tsx` antes de este cambio, documentaba exactamente esos
+  tres). O es un nombre informal del usuario para algo que sí existe con
+  otro nombre en código, o es algo que nunca se construyó — **preguntar
+  antes de inventar un módulo nuevo** en la siguiente sesión en vez de
+  asumir cuál de las dos es.
+  **No se pudo confirmar visualmente el nuevo orden con Más leídas
+  presente**: `MostReadSection` (GA4-backed) renderiza `null` sin
+  credenciales de GA4 reales (comportamiento documentado en el propio
+  componente, no un bug), y este sandbox no las tiene — confirmado con
+  Playwright que el bloque de newsletter ya es el primer hijo de
+  `.sidebar-sticky`, pero no que Más leídas efectivamente aparece después
+  de él con contenido real dentro, porque no hay contenido real que
+  mostrar acá. Verificación visual completa pendiente contra producción
+  real (o un entorno con credenciales de GA4).
+- **Verificado**: `tsc --noEmit`, `npx eslint .` (proyecto completo) y
+  `next build`, limpios los tres.
+
+### 2026-08-01 — Fase 3 (parcial): morado de Infinitas, compartir reubicado y ampliado
+
+- **Contexto**: pedido explícito del usuario de "seguir con el siguiente
+  fix que no requiera decisiones", dejando Fase 1 ítem 5 (carpetas
+  internas) parqueado. De los 4 ítems de Fase 3, el del glitch de Windows
+  sigue bloqueado (el usuario tiene un video pero todavía no lo mandó) y
+  "refinar el color del pill del buscador" se dejó afuera por ser
+  subjetivo ("refinar" sin una referencia concreta de qué está mal, eso sí
+  es una decisión de diseño) — cubiertos los otros dos, que tenían
+  respuesta objetiva sin pedir nada al usuario.
+- **"Agregar el morado de Infinitas al botón de hasta abajo de esa
+  sección"**: el botón real es `.inf-pill` en el footer
+  (`components/layout/Footer.tsx`, `<a className="pill inf-pill">`) — el
+  único botón de marca Infinitas que existe hoy, y literalmente el más
+  abajo de toda la página (footer). Antes usaba `var(--green)` (verde
+  genérico del sitio) con texto `--ink-fixed`; ahora usa el morado de
+  marca. **No se reusó `--src-infinitas` directamente**: ese token cambia
+  de valor con el tema (`#6b2fbf` claro / `#a875e8` oscuro, pensado para
+  texto/bordes legibles contra el fondo de PÁGINA que sí cambia), pero el
+  footer es una superficie siempre oscura que nunca se invierte
+  (`--ink-fixed`, mismo criterio documentado en `styles/sections.css`) —
+  usar el valor de tema oscuro más claro como fondo de botón con texto
+  blanco habría quedado con contraste pobre. Se agregó
+  `--src-infinitas-fixed` en `tokens.css` (mismo patrón que `--ink-fixed`:
+  declarado una vez en `:root`, nunca sobreescrito en las capas de tema
+  oscuro) fijado al valor claro (`#6b2fbf`), y el texto pasó de
+  `--ink-fixed` a blanco (el morado es oscuro/saturado, no claro como
+  `--green`, necesita texto claro para contraste).
+- **"Compartir": logos + más opciones + reubicado debajo de los tags**:
+  `app/(public)/articulo/page.tsx` — `<ArticleTopics>` (los tags, antes
+  llamado así porque es literalmente el índice de temas del artículo) y
+  `<ShareRow>` intercambiaron orden; compartir ahora renderiza después.
+  `components/article/ShareRow.tsx` — WhatsApp y X ya tenían ícono; se
+  agregaron Facebook y LinkedIn (mismo patrón sin SDK, solo URLs de
+  share-intent, igual que los dos existentes — no se agregó ninguna cuenta
+  ni API key nueva) y un botón de "Copiar enlace" (`navigator.clipboard`,
+  con estado local `copied` que muestra "¡Copiado!" con un check por 2s,
+  silencioso si el navegador niega el permiso de portapapeles en vez de
+  mostrar un error por algo no esencial). Elegidos Facebook (alcance
+  amplio en México) y LinkedIn (la audiencia B2B de sports business de
+  Playbook) como las dos redes nuevas — es la única parte de este ítem que
+  implicó un juicio de implementación en vez de una respuesta puramente
+  mecánica; si el usuario quería otras (Telegram, email), decirlo en la
+  siguiente sesión.
+- **Verificado de punta a punta contra un servidor real** (mismo Postgres
+  local + Playwright de las entradas anteriores, con capturas de pantalla
+  además esta vez): `getComputedStyle` del `.inf-pill` real confirma
+  `rgb(107, 47, 191)` (el morado, no el verde de antes); orden real del
+  DOM confirma que `.share-row` aparece después de `.article-topics`
+  (`compareDocumentPosition`); los 5 botones de compartir están presentes
+  (`WhatsApp`, `Facebook`, `X`, `LinkedIn`, `Copiar enlace`); clic real en
+  "Copiar enlace" con permisos de portapapeles otorgados en el navegador
+  headless confirma que el texto cambia a "¡Copiado!" Y que el portapapeles
+  real contiene la URL canónica del artículo, no solo que el botón cambió
+  de texto. Capturas de pantalla del footer y del bloque de compartir
+  revisadas visualmente (contraste del texto blanco sobre el morado,
+  layout de los 5 botones con wrap).
+- **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
+  los tres.
+
+### 2026-08-01 — Fase 4: bloque de opinión dinámico, con excepción manual al 5+1
+
+- **Contexto**: siguiendo el mismo criterio de "próximo fix sin decisiones"
+  que Fase 3, se saltó Fase 2 (entrenar el skill de tags/portada no es un
+  fix de código, es una tarea de evaluación/iteración aparte) y se fue
+  directo a Fase 4, que sí tenía una implementación mecánica sin ninguna
+  pregunta abierta — la nota de la sesión de planeación ya había
+  confirmado que la fórmula de `lib/rank.ts` es reutilizable tal cual.
+- **"Que rote según ranking, misma fórmula que el 5+1"**:
+  `components/sections/OpinionSection.tsx` — `live` ahora pasa por
+  `rankArticles()` (de `lib/rank.ts`, la misma función que ordena el 5+1)
+  antes de cortar a `MAX_CARDS`, en vez de quedarse con el orden que
+  devolviera la query. Cero fórmula nueva, cero parámetro nuevo.
+- **"Por default fuera del 5+1 salvo excepción manual"**: el "por default
+  fuera" ya existía desde antes (`NewsGrid.tsx` ya excluía `source ===
+  'opinion'` del paquete de noticias). Lo que faltaba era la excepción.
+  `components/home/NewsGrid.tsx` — el filtro pasa de `a.source !==
+  'opinion'` a `a.source !== 'opinion' || a.featured`. **No se agregó
+  ningún campo nuevo**: `featured` es exactamente el mismo booleano que
+  `selectHero()`/`featuredBoost()` (`lib/rank.ts`) ya usan como "el editor
+  lo marcó a propósito" para forzar un artículo al puesto de hero — acá
+  simplemente también desbloquea la ENTRADA al pool para un artículo de
+  opinión (uno no marcado sigue sin competir nunca, no solo "compite y
+  pierde"). Una vez adentro, compite por rankScore como cualquier otro —
+  "puede forzarse" no es "se fuerza incondicionalmente": si su score no es
+  competitivo, no gana ningún lugar, tal como debe ser.
+- **Verificado de punta a punta contra Postgres local, con datos reales
+  insertados a propósito para probar los cuatro comportamientos, no solo
+  leyendo el código**: insertadas 3 filas de prueba (`test-op-low-old`
+  prioridad 1/vieja, `test-op-high-recent` prioridad 5/reciente,
+  `test-op-featured` prioridad 3→5, `featured` true) —
+  1. Orden de `OpinionSection` coincide exactamente con el orden esperado
+     por rankScore, confirmado dos veces con dos configuraciones de datos
+     distintas (una vez con `test-op-featured` en prioridad 3 quedando en
+     medio, otra vez subida a prioridad 5/fecha de hoy quedando primera —
+     el orden se movió exactamente como predice la fórmula, no una vez
+     fija).
+  2. Con `test-op-featured` en su configuración más competitiva, apareció
+     como HERO real del 5+1 (`.lead-story h1`, leído del DOM, no asumido
+     por su sola presencia en el HTML).
+  3. Los otros dos artículos de opinión (no `featured`, uno de ellos con
+     prioridad 5 igual de alta) **nunca** aparecieron en `.news-grid` en
+     ninguna de las corridas — confirma que "opinión" solo entra al pool
+     vía la excepción manual, nunca por ranking alto solo.
+  4. Puesto `featured = false` de nuevo en la misma fila (vía `psql`
+     directo, sin pasar por `saveArticle`) y confirmado que **volvió a
+     desaparecer** del 5+1 tras reiniciar `next dev` — el primer intento
+     de esta verificación dio un falso "sigue apareciendo" por el cache de
+     60s de `unstable_cache` en `lib/data/articles.ts` (un SQL directo no
+     dispara `revalidateTag`, a diferencia de `saveArticle` en producción
+     real) — no un bug del cambio; anotado acá para que la próxima sesión
+     no se confunda con el mismo falso positivo si prueba con SQL directo.
+  Filas de prueba borradas al cierre.
+- **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
+  los tres.
+
+### 2026-08-01 — Fase 0 cerrada de verdad: los 3 scripts corrieron contra producción real
+
+- **Contexto**: el usuario corrigió una suposición equivocada de la
+  entrada anterior — este sandbox **sí tiene forma de llegar a la Neon de
+  producción**, solo que no por TCP directo (`psql`, `pg` Pool — eso sigue
+  bloqueado, confirmado de nuevo). `scripts/publish-newsletter.ts` ya
+  resolvía exactamente este problema desde antes: usa
+  `@neondatabase/serverless` + `drizzle-orm/neon-http`, el driver HTTP de
+  Neon, que sí pasa por el proxy HTTPS de este entorno. Los tres scripts
+  de esta fase (`fix-lana-rebrand-content.ts`, `reassign-playbook-tag.ts`,
+  y uno nuevo, `fix-testimonial-avatars.ts`) se migraron al mismo driver
+  (antes importaban `db` de `lib/db/client.ts`, el Pool de `pg`, TCP-only)
+  y **corrieron de verdad contra la Neon real de producción**, no contra
+  el Postgres local de las entradas anteriores.
+- **`fix-lana-rebrand-content.ts` corrido contra producción**: `--dry-run`
+  encontró 4 artículos reales con `publication="La Lana del Mundial"`
+  (`lana-pausa-hidratacion-timeout`, `lana-fifa-super-bowl-halftime`,
+  `el-futuro-del-mundial-mexico-en-2038`,
+  `la-lana-del-deporte-el-deal-que-le-volteo-el-tablero-a-infantino`) más
+  el `footer.brandBlurb` de `site_content` — exactamente lo que predecía
+  el diagnóstico de la entrada de la mañana. Corrido sin `--dry-run`:
+  los 4 quedaron en `"La Lana del Deporte"`, `site_content.version` subió
+  de 1 a 2. Re-corrido `--dry-run` después: 0 resultados, confirma que
+  quedó aplicado.
+- **`reassign-playbook-tag.ts` corrido contra producción**: encontró 5
+  artículos reales con `source='playbook'`
+  (`atleti-metropolitano-conciertos`, `coi-regreso-ruso-la2028`,
+  `mexico-inglaterra-audiencia-record`, `chelsea-strava`,
+  `breaking-news-infantino-cancela-plan-de-privatizacion`). Corrido sin
+  `--dry-run`: los 5 pasaron a `source='industry-shots'`,
+  `publication='Noticias'`. Re-corrido `--dry-run` después: 0 resultados.
+- **Nuevo hallazgo verificando producción directamente, antes no
+  confirmado**: los 3 testimonios de `site_content.testimonialsSection`
+  **no tenían campo `avatar` en absoluto** — no era una ruta rota, el
+  campo nunca se llegó a guardar (ni siquiera Adriana lo tiene en el seed
+  local, así que dejarla sin foto es correcto, no un hueco). Creado
+  `scripts/fix-testimonial-avatars.ts` (mismo patrón que los otros dos:
+  driver HTTP de Neon, `--dry-run`, matchea por `name` en vez de índice
+  de array porque `site_content` es editable desde el admin y el orden
+  podría haber cambiado, nunca pisa un avatar que ya exista). Corrido
+  contra producción: Bárbara González Briseño y Juan Pablo Robert
+  recibieron sus rutas reales (`/assets/img/testimonial-barbara.jpg`,
+  `/assets/img/testimonial-juan.jpg`, los archivos ya están en el repo
+  desde el commit `71128cb`). Re-corrido `--dry-run` después: "nada que
+  cambiar", confirma que quedó aplicado.
+- **También verificado de paso, sin necesidad de arreglar nada**: la
+  portada de "La Lana del Deporte" en `productsSection` (el ítem 3
+  original de Fase 0) **ya estaba bien en producción**
+  (`image: "/assets/img/lana-banner.jpg"`, `imageAlt: "La Lana del
+  Deporte"`) — no hacía falta ningún fix ahí. El `url` de esa tarjeta
+  sigue apuntando al slug viejo de Substack
+  (`la-lana-del-mundial-por-que-fifa`) a propósito, mismo criterio que el
+  propio commit del rebrand documentó: los slugs de Substack ya guardados
+  no se tocan para no romper enlaces existentes.
+- **Con esto, Fase 0 queda cerrada del todo** — los 4 ítems originales
+  tienen fix de código Y de datos de producción confirmados. Nada
+  pendiente de esta fase salvo que el usuario lo confirme visualmente en
+  el sitio real.
+- **Verificado**: `tsc --noEmit`, `npx eslint` sobre los 3 scripts y
+  `next build`, limpios los tres. Los tres scripts corridos con
+  `--dry-run` antes y después de cada escritura real, no solo una vez.
+
+### 2026-08-01 — Fase 3: glitch de Windows (mecanismo real encontrado) y color del buscador
+
+- **Glitch del header en Windows — causa real encontrada, no la que se
+  sospechaba primero.** El usuario aclaró el síntoma real (sin video, por
+  texto): "el logo se hacía chico y grande, probablemente porque
+  Infinitas solo tiene 2 [artículos] en el 5+1". Investigado a fondo antes
+  de tocar nada:
+  1. Confirmado en `header.topbar.is-scrolled .brand img{height:42px}`
+     (`styles/header.css`) que SÍ existe un tratamiento que encoge el logo
+     — así que "el logo cambia de tamaño" tiene una causa real en el CSS,
+     no es percepción.
+  2. Primera hipótesis (descartada tras medir): que filtrar a Infinitas
+     encoge la altura de la página lo suficiente como para que el scroll
+     se recorte por debajo del umbral de 4px que activa `.is-scrolled`
+     (`components/layout/HeaderScrollEffect.tsx`, GSAP ScrollTrigger).
+     Reproducido con Playwright en Postgres local: el recorte de scroll sí
+     ocurre (de 1386px a 1098px al filtrar), pero **nunca cruza el umbral
+     de 4px** en un escenario realista — el navegador solo recorta el
+     scroll a la nueva altura máxima, no lo manda a 0 (un primer intento
+     de la prueba SÍ vio un salto a 0px, pero era un artefacto del propio
+     Playwright — `.click()` hace scroll-into-view automático antes de
+     clickear — no algo que le pase a un usuario real; confirmado
+     repitiendo la prueba con un `.click()` de DOM real, sin ese
+     comportamiento).
+  3. **Causa real, confirmada con datos medidos**: `/archivo` con todas
+     las fuentes tiene `scrollHeight: 2469` (con scroll) en un viewport de
+     1200px; `/archivo?source=infinitas` (2 artículos reales en
+     producción) tiene `scrollHeight: 1200`, exactamente igual al
+     viewport — **cruza de "con scroll" a "sin scroll"**. En Windows
+     (Chrome/Firefox/Edge reservan espacio para la scrollbar vertical por
+     default, a diferencia de las scrollbars superpuestas de macOS/iOS),
+     cruzar ese umbral hace que la scrollbar aparezca o desaparezca, lo
+     que reacomoda el ancho disponible de toda la página unos 15-17px —
+     el header, con logo en un layout flex, se redibuja con ese ancho
+     nuevo. Esto es exactamente el tipo de bug conocido como "layout
+     shift por scrollbar", específico de sistemas con scrollbar clásica
+     (Windows), invisible en macOS (donde probablemente se probó esto
+     antes) y no relacionado con `.is-scrolled`/ScrollTrigger en absoluto
+     — la pista del usuario ("Infinitas solo tiene 2") apuntaba al
+     síntoma correcto (contenido corto) pero el mecanismo real es el
+     reflow de la scrollbar, no el shrink-on-scroll del header.
+  - **Fix**: `html{scrollbar-gutter:stable;}` en `styles/reset.css` —
+     reserva el espacio de la scrollbar siempre, haya o no contenido para
+     hacer scroll, así que cruzar ese umbral nunca vuelve a cambiar el
+     ancho disponible de la página. Una sola propiedad CSS, soporte amplio
+     de navegadores modernos, sin riesgo de romper nada más.
+  - **No se pudo confirmar visualmente el efecto exacto en este sandbox**:
+    Chromium headless en Linux no reserva/libera espacio de scrollbar de
+    la misma forma que un Windows real (`scrollbarWidth` midió 0 en ambos
+    casos en las pruebas), así que no hay captura de "antes vs después"
+    real del glitch — sí se confirmó con certeza la condición que lo
+    dispara (`scrollHeight` cruzando el viewport al filtrar por Infinitas
+    en producción real, mismos 2 artículos que el usuario mencionó).
+    **Pedirle al usuario que confirme en Windows real** después del
+    siguiente deploy en vez de asumir que esto lo cierra del todo.
+- **Color del pill del buscador**: el usuario aclaró la queja ("se ve
+  viejo, no pulido") en vez de dejarlo bloqueado. Causa encontrada:
+  `.nav-search` (`styles/header.css`) era el único pill/chip de todo el
+  sitio con un fondo RELLENO (`background:var(--rule)`, un gris/beige
+  plano) — cada otro pill del sistema de diseño (`.filter-btn`,
+  `.share-btn`) usa el mismo lenguaje "outline": fondo `--paper`, borde
+  fino `--rule` en reposo, borde `--ink` en hover. Corregido a ese mismo
+  patrón (fondo `--paper`, borde `1.5px solid var(--rule)`, hover oscurece
+  el borde) — el estado de foco (borde ink + glow verde) ya estaba bien y
+  no se tocó. Confirmado visualmente con capturas de Playwright: pasó de
+  un óvalo gris plano a un pill con borde fino sobre fondo claro,
+  consistente con el resto del header.
+- **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
+  los tres.
+
+### 2026-08-01 — "Tips" era un typo, sin acción
+
+El usuario confirmó que "Tips" (Fase 1, ítem 4) fue un error de tipeo, no
+un módulo real pendiente de construir. Cierra la pregunta dejada en la
+entrada de Fase 1 — no hace falta preguntar de nuevo ni construir nada por
+ese nombre.
+
+### 2026-08-01 — Copy de la tarjeta "La Lana del Deporte" (Productos editoriales)
+
+- **Pedido del usuario**: reemplazar la descripción de esa tarjeta por "Un
+  espacio semanal para meternos a fondo en el dinero, el poder y las
+  decisiones que mueven al deporte fuera de la cancha", con permiso
+  explícito para acortarla si no entraba.
+- **Se acortó, a propósito**: el texto del usuario mide ~123 caracteres,
+  más largo que las otras 3 tarjetas del mismo grid (86-110 caracteres,
+  todas taglines cortas y declarativas, no oraciones de apertura). Se
+  publicó tal cual: **"El dinero, el poder y las decisiones que mueven al
+  deporte fuera de la cancha."** (80 caracteres) — se recortó únicamente
+  el arranque ("Un espacio semanal para meternos a fondo en"), que además
+  duplicaba el campo `meta` de la misma tarjeta (ya dice "Viernes"); el
+  resto de la frase del usuario quedó intacta, palabra por palabra.
+- **De paso, corrigió un problema de fondo que no era el pedido pero
+  estaba ahí**: el texto que reemplazó en `content.json` todavía decía
+  "...alrededor del Mundial 2026" (el mismo tipo de framing viejo que
+  Fase 0 encontró en otros lugares, solo que este nunca usaba la frase
+  exacta "La Lana del Mundial" así que el script de esa fase no lo tocó).
+  El copy nuevo no menciona "Mundial" en absoluto.
+- **Aplicado en los dos lugares que hace falta, mismo patrón que el resto
+  de la sesión**: `content.json` (semilla local) editado directo, y
+  `scripts/update-la-lana-description.ts` (nuevo, mismo driver HTTP de
+  Neon, `--dry-run` primero) corrido contra la Neon real de producción —
+  el valor que había ahí en verdad era distinto al de la semilla local
+  ("Deep Dives sobre el negocio del Mundial 2026.", confirma que
+  producción y `content.json` ya habían divergido, esperable porque
+  `site_content` se edita desde el admin). Confirmado con un segundo
+  `--dry-run` después: "ya coincide, nada que cambiar".
+- **Verificado visualmente, no solo que el string cambió**: Postgres local
+  re-sembrado con el `content.json` nuevo, `next dev` real, captura de
+  Playwright de la tarjeta completa — el texto entra en 3 líneas sin
+  desbordar el `.product-copy`, se ve consistente con el resto del grid.
+- **Verificado**: `tsc --noEmit`, `npx eslint` sobre el script nuevo, y
+  `next build`, limpios los tres.
+
 ## Próximos pasos
 
-El incidente de `wall_teaser` de la entrada anterior está **resuelto y
-confirmado en producción real** (ver esa misma entrada) — no queda nada
-pendiente de ese incidente salvo la rotación de contraseña ya anotada
-ahí, que es del usuario, no de código.
+**Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
+El plan anterior (Fases 7, 8 y 9, más abajo) está completo salvo lo
+anotado en su propia sección — no es lo que sigue ahora.
 
-El plan de trabajo está en la sección "Fases 7, 8 y 9" arriba.
-**La Fase 7 ya está hecha** (ver la última entrada del registro), y esa
-misma sesión cubrió varios ítems de la Fase 9 (sidebar C, una versión de
-la sección de análisis D vía el restyle de Opinión, y el directorio de
-temas). Queda:
+**Fases 0, 3 y 4: completas** (código Y datos de producción, no solo
+código — ver las entradas del 2026-08-01, especialmente "Fase 0 cerrada de
+verdad" para cómo se llegó a la Neon real desde este sandbox vía el driver
+HTTP de `@neondatabase/serverless`, el mismo que ya usaba
+`publish-newsletter.ts`. **Importante para la próxima sesión en este mismo
+entorno**: `psql`/TCP directo contra Neon siguen bloqueados, pero el driver
+HTTP SÍ funciona — no asumir que producción es inalcanzable solo porque
+`psql` falla.). Pendiente solo que el usuario confirme visualmente en el
+sitio desplegado, en particular el glitch de Windows (no se pudo observar
+el efecto exacto de `scrollbar-gutter` en este sandbox, headless Linux no
+reserva scrollbar igual que Windows).
 
-1. Fase 8 (Studio + auth): **hecha** — ver la entrada 2026-07-23 "Fase 8"
-   en el registro de progreso.
-2. Fase 9 (UX homepage): **revisar su lista contra lo ya construido**
-   antes de arrancar — el ticker (A) y los filtros por fuente ya existen
-   desde la migración; los chips por deporte (B) y la sección Playbook
-   Base (E) siguen pendientes.
+Fase 1 sigue en progreso — ítems 1, 2, 3 y 4 ya tienen código Y datos de
+producción resueltos (ítem 1: los 5 artículos reales reasignados; ítem 4:
+"Tips" confirmado como typo del usuario, sin acción pendiente). Queda:
+- Ítem 5: carpetas internas por producto editorial con diseño propio —
+  tratarlo como su propio mini-proyecto (definir primero los "temas
+  centrales" de cada producto), no como un cambio de navegación simple,
+  ver la nota ya anotada en la sección de Fase 1 arriba.
+- Verificar en producción real (con GA4 configurado) que "Más leídas"
+  efectivamente aparece debajo del bloque de newsletter con contenido
+  real — no se pudo confirmar visualmente en este sandbox (sin
+  credenciales GA4).
 
-Antes de arrancar cada sesión: leer la sección de esa fase en HANDOFF.md
-para saber el estado actual y si hubo cambios desde que se escribió el
-prompt.
+Fase 2 (skill de tags/portada) sigue sin arrancar — se saltó dos veces a
+propósito (Fase 3 y Fase 4 se priorizaron por ser "fixes sin decisiones";
+Fase 2 es una tarea de evaluación/iteración de skill, no un fix mecánico).
+Con Fases 0/3/4 ahora completas y Fase 1 reducida a un solo ítem grande
+(carpetas internas, que necesita definición de producto) más una
+verificación pendiente, el turno lógico si el usuario vuelve a pedir "el
+siguiente fix sin decisiones" es Fase 2, o resolver lo que queda de Fase 1.
+Fase 5/6 siguen necesitando decisión de producto antes de programar nada.
+
+Antes de arrancar cada sesión: leer la sección de la fase correspondiente
+en HANDOFF.md para saber el estado actual y si hubo cambios desde que se
+escribió el prompt.
 
 La limpieza de voseo que estaba pendiente acá quedó **resuelta** en la
 sesión de auditoría UI/UX del 2026-07-23 (ver esa entrada) — los 9

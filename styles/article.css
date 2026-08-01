@@ -94,9 +94,14 @@
 /* ——— Compartir ——— */
 .share-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:30px;}
 .share-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);}
-.share-btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);font-size:12.5px;font-weight:600;color:var(--ink);transition:border-color var(--duration-fast) ease;}
+.share-btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);font-size:12.5px;font-weight:600;color:var(--ink);background:none;cursor:pointer;font-family:var(--sans);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease;}
 .share-btn:hover,.share-btn:focus-visible{border-color:var(--ink);}
 .share-btn svg{flex-shrink:0;}
+.share-btn.is-copied{border-color:var(--green);color:#3f7d0a;}
+[data-theme="dark"] .share-btn.is-copied{color:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .share-btn.is-copied{color:var(--green);}
+}
 
 /* ——— Temas (índice completo de taxonomía, plegado al pie) ———
    <details> nativo, cerrado por defecto: el lector abre el índice si lo
@@ -196,7 +201,6 @@
 .archive-grid-card[data-source="industry-shots"]{border-top-color:var(--src-industry);}
 .archive-grid-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
 .archive-grid-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
-.archive-grid-card[data-source="playbook"]{border-top-color:var(--src-playbook);}
 .archive-grid-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
 /* flex-grow:0 a propósito (no flex:1 1 Npx): con grow, una ficha que
    terminaba sola o casi sola en su fila se estiraba para llenar el
@@ -281,7 +285,6 @@
 .archive-feature-row[data-source="industry-shots"]{border-left-color:var(--src-industry);}
 .archive-feature-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .archive-feature-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
-.archive-feature-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
 .archive-feature-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
 /* flex-wrap + a real flex-basis on .card-link, instead of `flex:1` (= flex
    basis 0) — 2026-07-24 iPad fix. .archive-feature-row is a flex ROW whose
