@@ -24,10 +24,20 @@
 //
 // Usage: POSTGRES_URL=<production> npx tsx scripts/fix-lana-rebrand-content.ts
 // Add --dry-run to only print what would change, without writing anything.
+//
+// Uses Neon's HTTP driver (plain HTTPS, one query per request) instead of
+// lib/db/client.ts's node-postgres Pool -- same reasoning as
+// scripts/publish-newsletter.ts: this runs from environments (Claude Code
+// sessions, CI) whose egress only permits HTTPS, not the raw TCP
+// node-postgres needs. The deployed app keeps using the pg Pool, since
+// that runs on Vercel where raw TCP to Neon works fine.
 
 import { and, eq, like, or } from 'drizzle-orm';
-import { db } from '../lib/db/client';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import { articles, siteContent, contentRevisions } from '../lib/db/schema';
+
+const db = drizzle(neon(process.env.POSTGRES_URL!), { schema: { articles, siteContent, contentRevisions } });
 
 const OLD_BRAND = 'La Lana del Mundial';
 const NEW_BRAND = 'La Lana del Deporte';

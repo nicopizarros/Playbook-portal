@@ -15,10 +15,18 @@
 //
 // Usage: POSTGRES_URL=<production> npx tsx scripts/reassign-playbook-tag.ts
 // Add --dry-run to only print what would change, without writing anything.
+//
+// Uses Neon's HTTP driver, same reasoning as scripts/publish-newsletter.ts
+// and scripts/fix-lana-rebrand-content.ts: this runs from environments
+// (Claude Code sessions, CI) whose egress only permits HTTPS, not the raw
+// TCP lib/db/client.ts's node-postgres Pool needs.
 
 import { eq } from 'drizzle-orm';
-import { db } from '../lib/db/client';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import { articles } from '../lib/db/schema';
+
+const db = drizzle(neon(process.env.POSTGRES_URL!), { schema: { articles } });
 
 const DRY_RUN = process.argv.includes('--dry-run');
 

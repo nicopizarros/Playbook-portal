@@ -29,40 +29,38 @@ del registro de progreso de la fase anterior (si existe) — varias fases de
 este plan tienen ítems que ya estaban resueltos en el código antes de
 arrancar (ver Fase 0 abajo) o que dependen de una fase anterior.
 
-### Fase 0 — Bugs visuales críticos
+### Fase 0 — Bugs visuales críticos — **completa**
 
-- [ ] Tag negro del hero del 5+1 y footer: "La Lana del Mundial" → "La Lana
-      del Deporte"
-- [ ] Foto de portada de "La Lana del Deporte" no carga
-- [ ] Fotos de los testimoniales no cargan
-- [ ] El botón de Playbook (logo del header) no regresa a home cuando estás
-      dentro de un tag del 5+1
+- [x] Tag negro del hero del 5+1 y footer: "La Lana del Mundial" → "La Lana
+      del Deporte" — corregido en código (31-jul) y en los 4 artículos +
+      footer de producción real (`fix:lana-rebrand`, corrido 2026-08-01).
+- [x] Foto de portada de "La Lana del Deporte" no carga — verificado
+      directo en producción: ya estaba bien, no hacía falta nada.
+- [x] Fotos de los testimoniales no cargan — el campo `avatar` no existía
+      en absoluto en producción (no una ruta rota); corregido con
+      `fix:testimonial-avatars`, corrido 2026-08-01.
+- [x] El botón de Playbook (logo del header) no regresa a home cuando estás
+      dentro de un tag del 5+1 — resuelto en código
+      (`components/layout/BrandLink.tsx`), verificado con Playwright.
 
 **Criterio de aceptación:** revisar el 5+1 completo y el footer en
 producción, confirmar que no queda ninguna referencia visual o textual a
 "Mundial" donde debería decir "Deporte", y que todas las imágenes cargan en
 desktop y mobile.
 
-**Estado real, importante para no repetir el diagnóstico**: ver la entrada
-2026-08-01 del registro de progreso. Los primeros tres ítems **no son bugs
-de código** — el código y los archivos semilla (`content.json`/
-`articles.json`) ya tienen el texto/asset correcto desde el commit
-`f7359f1` (31-jul) y siguientes. Lo que persiste en producción es un
-desfase de **datos en Postgres** que el flujo de deploy nunca sincroniza
-automáticamente (ver esa entrada para el porqué exacto). El cuarto ítem (el
-botón de Playbook) **ya tiene fix en código, mergeado en esta misma
-sesión** — `components/layout/BrandLink.tsx` + un listener en
-`NewsGrid.tsx`, verificado con Playwright contra un servidor real (ver la
-entrada de ese mismo día). De los cuatro ítems de esta fase, el único que
-sigue bloqueado es correr `npm run fix:lana-rebrand` contra Postgres de
-producción real (bloqueo de red del sandbox, no de código).
+**Estado**: los 4 ítems tienen fix de código Y de datos de producción
+confirmados — ver las entradas del 2026-08-01 en el registro de progreso
+(diagnóstico inicial, fix del botón, y la entrada "Fase 0 cerrada de
+verdad" donde los 3 scripts de datos corrieron contra la Neon real).
+Pendiente solo que el usuario lo confirme visualmente en el sitio
+desplegado.
 
 ### Fase 1 — Arquitectura de navegación e información
 
 - [x] Borrar el tag "Playbook" y traspasar todos sus artículos al tag
-      "Noticias" — código mergeado 2026-08-01 (ver esa entrada del
-      registro); falta correr `npm run fix:reassign-playbook-tag` contra
-      producción real (operativo, ver "Próximos pasos").
+      "Noticias" — código mergeado 2026-08-01; los 5 artículos reales de
+      producción reasignados el mismo día (`fix:reassign-playbook-tag`,
+      ver la entrada "Fase 0 cerrada de verdad"). **Ítem completo.**
 - [x] Cambiar el botón "Ver más" del 5+1 por "Más noticias", moverlo debajo
       del bloque del 5+1 (no arriba) — mergeado 2026-08-01.
 - [x] Reemplazar el nombre del tag "Análisis" por "Artículo" en la ficha de
@@ -106,20 +104,26 @@ antes de aplicarlo al catálogo completo — ej. tags correctos en 9/10 sin
 ningún falso positivo de portada — no solo "confirmar manualmente que se
 ven bien".
 
-### Fase 3 — Pulido visual
+### Fase 3 — Pulido visual — **completa**
 
-- [ ] Glitch/parpadeo del header en Windows en el tab de Infinitas — **el
-      usuario ya tiene un video de repro** (2026-08-01), pedirlo al
-      arrancar esta fase en vez de intentar reproducirlo a ciegas: este
-      entorno no tiene forma de reproducir un bug específico de Windows.
+- [x] Glitch/parpadeo del header en Windows en el tab de Infinitas —
+      **mecanismo real encontrado y corregido 2026-08-01, sin video**: no
+      es el shrink-on-scroll del header, es que cruzar de "página con
+      scroll" a "sin scroll" (Infinitas con solo 2 artículos) hace
+      aparecer/desaparecer la scrollbar clásica de Windows, reflowing todo
+      el ancho de la página — `html{scrollbar-gutter:stable}`
+      (`styles/reset.css`). Ver esa entrada del registro para la
+      investigación completa. **Pedirle confirmación al usuario en
+      Windows real** — no se pudo observar el efecto exacto en este
+      sandbox (Chromium headless en Linux no reserva scrollbar de la misma
+      forma).
 - [x] Agregar el morado de Infinitas al botón de hasta abajo de esa
       sección — mergeado 2026-08-01 (el botón real es el `.inf-pill` del
       footer).
-- [ ] Refinar el color del pill del buscador — **dejado sin tocar a
-      propósito**: "refinar" sin una referencia de qué está mal es una
-      decisión de diseño, no algo con una respuesta objetiva única;
-      preguntar al usuario qué específicamente no funciona del color
-      actual antes de tocarlo.
+- [x] Refinar el color del pill del buscador — el usuario aclaró la queja
+      ("se ve viejo, no pulido"); corregido 2026-08-01, era el único pill
+      del sitio con fondo relleno en vez del lenguaje "outline" (borde
+      fino sobre `--paper`) que usa el resto del sistema de diseño.
 - [x] "Compartir" de cada artículo: agregar logos de redes, sumar más
       opciones, mover el bloque debajo de los tags del artículo —
       mergeado 2026-08-01 (Facebook + LinkedIn + copiar enlace agregados;
@@ -4223,74 +4227,183 @@ real, mismo estándar que Fases 1-3):
 - **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
   los tres.
 
+### 2026-08-01 — Fase 0 cerrada de verdad: los 3 scripts corrieron contra producción real
+
+- **Contexto**: el usuario corrigió una suposición equivocada de la
+  entrada anterior — este sandbox **sí tiene forma de llegar a la Neon de
+  producción**, solo que no por TCP directo (`psql`, `pg` Pool — eso sigue
+  bloqueado, confirmado de nuevo). `scripts/publish-newsletter.ts` ya
+  resolvía exactamente este problema desde antes: usa
+  `@neondatabase/serverless` + `drizzle-orm/neon-http`, el driver HTTP de
+  Neon, que sí pasa por el proxy HTTPS de este entorno. Los tres scripts
+  de esta fase (`fix-lana-rebrand-content.ts`, `reassign-playbook-tag.ts`,
+  y uno nuevo, `fix-testimonial-avatars.ts`) se migraron al mismo driver
+  (antes importaban `db` de `lib/db/client.ts`, el Pool de `pg`, TCP-only)
+  y **corrieron de verdad contra la Neon real de producción**, no contra
+  el Postgres local de las entradas anteriores.
+- **`fix-lana-rebrand-content.ts` corrido contra producción**: `--dry-run`
+  encontró 4 artículos reales con `publication="La Lana del Mundial"`
+  (`lana-pausa-hidratacion-timeout`, `lana-fifa-super-bowl-halftime`,
+  `el-futuro-del-mundial-mexico-en-2038`,
+  `la-lana-del-deporte-el-deal-que-le-volteo-el-tablero-a-infantino`) más
+  el `footer.brandBlurb` de `site_content` — exactamente lo que predecía
+  el diagnóstico de la entrada de la mañana. Corrido sin `--dry-run`:
+  los 4 quedaron en `"La Lana del Deporte"`, `site_content.version` subió
+  de 1 a 2. Re-corrido `--dry-run` después: 0 resultados, confirma que
+  quedó aplicado.
+- **`reassign-playbook-tag.ts` corrido contra producción**: encontró 5
+  artículos reales con `source='playbook'`
+  (`atleti-metropolitano-conciertos`, `coi-regreso-ruso-la2028`,
+  `mexico-inglaterra-audiencia-record`, `chelsea-strava`,
+  `breaking-news-infantino-cancela-plan-de-privatizacion`). Corrido sin
+  `--dry-run`: los 5 pasaron a `source='industry-shots'`,
+  `publication='Noticias'`. Re-corrido `--dry-run` después: 0 resultados.
+- **Nuevo hallazgo verificando producción directamente, antes no
+  confirmado**: los 3 testimonios de `site_content.testimonialsSection`
+  **no tenían campo `avatar` en absoluto** — no era una ruta rota, el
+  campo nunca se llegó a guardar (ni siquiera Adriana lo tiene en el seed
+  local, así que dejarla sin foto es correcto, no un hueco). Creado
+  `scripts/fix-testimonial-avatars.ts` (mismo patrón que los otros dos:
+  driver HTTP de Neon, `--dry-run`, matchea por `name` en vez de índice
+  de array porque `site_content` es editable desde el admin y el orden
+  podría haber cambiado, nunca pisa un avatar que ya exista). Corrido
+  contra producción: Bárbara González Briseño y Juan Pablo Robert
+  recibieron sus rutas reales (`/assets/img/testimonial-barbara.jpg`,
+  `/assets/img/testimonial-juan.jpg`, los archivos ya están en el repo
+  desde el commit `71128cb`). Re-corrido `--dry-run` después: "nada que
+  cambiar", confirma que quedó aplicado.
+- **También verificado de paso, sin necesidad de arreglar nada**: la
+  portada de "La Lana del Deporte" en `productsSection` (el ítem 3
+  original de Fase 0) **ya estaba bien en producción**
+  (`image: "/assets/img/lana-banner.jpg"`, `imageAlt: "La Lana del
+  Deporte"`) — no hacía falta ningún fix ahí. El `url` de esa tarjeta
+  sigue apuntando al slug viejo de Substack
+  (`la-lana-del-mundial-por-que-fifa`) a propósito, mismo criterio que el
+  propio commit del rebrand documentó: los slugs de Substack ya guardados
+  no se tocan para no romper enlaces existentes.
+- **Con esto, Fase 0 queda cerrada del todo** — los 4 ítems originales
+  tienen fix de código Y de datos de producción confirmados. Nada
+  pendiente de esta fase salvo que el usuario lo confirme visualmente en
+  el sitio real.
+- **Verificado**: `tsc --noEmit`, `npx eslint` sobre los 3 scripts y
+  `next build`, limpios los tres. Los tres scripts corridos con
+  `--dry-run` antes y después de cada escritura real, no solo una vez.
+
+### 2026-08-01 — Fase 3: glitch de Windows (mecanismo real encontrado) y color del buscador
+
+- **Glitch del header en Windows — causa real encontrada, no la que se
+  sospechaba primero.** El usuario aclaró el síntoma real (sin video, por
+  texto): "el logo se hacía chico y grande, probablemente porque
+  Infinitas solo tiene 2 [artículos] en el 5+1". Investigado a fondo antes
+  de tocar nada:
+  1. Confirmado en `header.topbar.is-scrolled .brand img{height:42px}`
+     (`styles/header.css`) que SÍ existe un tratamiento que encoge el logo
+     — así que "el logo cambia de tamaño" tiene una causa real en el CSS,
+     no es percepción.
+  2. Primera hipótesis (descartada tras medir): que filtrar a Infinitas
+     encoge la altura de la página lo suficiente como para que el scroll
+     se recorte por debajo del umbral de 4px que activa `.is-scrolled`
+     (`components/layout/HeaderScrollEffect.tsx`, GSAP ScrollTrigger).
+     Reproducido con Playwright en Postgres local: el recorte de scroll sí
+     ocurre (de 1386px a 1098px al filtrar), pero **nunca cruza el umbral
+     de 4px** en un escenario realista — el navegador solo recorta el
+     scroll a la nueva altura máxima, no lo manda a 0 (un primer intento
+     de la prueba SÍ vio un salto a 0px, pero era un artefacto del propio
+     Playwright — `.click()` hace scroll-into-view automático antes de
+     clickear — no algo que le pase a un usuario real; confirmado
+     repitiendo la prueba con un `.click()` de DOM real, sin ese
+     comportamiento).
+  3. **Causa real, confirmada con datos medidos**: `/archivo` con todas
+     las fuentes tiene `scrollHeight: 2469` (con scroll) en un viewport de
+     1200px; `/archivo?source=infinitas` (2 artículos reales en
+     producción) tiene `scrollHeight: 1200`, exactamente igual al
+     viewport — **cruza de "con scroll" a "sin scroll"**. En Windows
+     (Chrome/Firefox/Edge reservan espacio para la scrollbar vertical por
+     default, a diferencia de las scrollbars superpuestas de macOS/iOS),
+     cruzar ese umbral hace que la scrollbar aparezca o desaparezca, lo
+     que reacomoda el ancho disponible de toda la página unos 15-17px —
+     el header, con logo en un layout flex, se redibuja con ese ancho
+     nuevo. Esto es exactamente el tipo de bug conocido como "layout
+     shift por scrollbar", específico de sistemas con scrollbar clásica
+     (Windows), invisible en macOS (donde probablemente se probó esto
+     antes) y no relacionado con `.is-scrolled`/ScrollTrigger en absoluto
+     — la pista del usuario ("Infinitas solo tiene 2") apuntaba al
+     síntoma correcto (contenido corto) pero el mecanismo real es el
+     reflow de la scrollbar, no el shrink-on-scroll del header.
+  - **Fix**: `html{scrollbar-gutter:stable;}` en `styles/reset.css` —
+     reserva el espacio de la scrollbar siempre, haya o no contenido para
+     hacer scroll, así que cruzar ese umbral nunca vuelve a cambiar el
+     ancho disponible de la página. Una sola propiedad CSS, soporte amplio
+     de navegadores modernos, sin riesgo de romper nada más.
+  - **No se pudo confirmar visualmente el efecto exacto en este sandbox**:
+    Chromium headless en Linux no reserva/libera espacio de scrollbar de
+    la misma forma que un Windows real (`scrollbarWidth` midió 0 en ambos
+    casos en las pruebas), así que no hay captura de "antes vs después"
+    real del glitch — sí se confirmó con certeza la condición que lo
+    dispara (`scrollHeight` cruzando el viewport al filtrar por Infinitas
+    en producción real, mismos 2 artículos que el usuario mencionó).
+    **Pedirle al usuario que confirme en Windows real** después del
+    siguiente deploy en vez de asumir que esto lo cierra del todo.
+- **Color del pill del buscador**: el usuario aclaró la queja ("se ve
+  viejo, no pulido") en vez de dejarlo bloqueado. Causa encontrada:
+  `.nav-search` (`styles/header.css`) era el único pill/chip de todo el
+  sitio con un fondo RELLENO (`background:var(--rule)`, un gris/beige
+  plano) — cada otro pill del sistema de diseño (`.filter-btn`,
+  `.share-btn`) usa el mismo lenguaje "outline": fondo `--paper`, borde
+  fino `--rule` en reposo, borde `--ink` en hover. Corregido a ese mismo
+  patrón (fondo `--paper`, borde `1.5px solid var(--rule)`, hover oscurece
+  el borde) — el estado de foco (borde ink + glow verde) ya estaba bien y
+  no se tocó. Confirmado visualmente con capturas de Playwright: pasó de
+  un óvalo gris plano a un pill con borde fino sobre fondo claro,
+  consistente con el resto del header.
+- **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
+  los tres.
+
+### 2026-08-01 — "Tips" era un typo, sin acción
+
+El usuario confirmó que "Tips" (Fase 1, ítem 4) fue un error de tipeo, no
+un módulo real pendiente de construir. Cierra la pregunta dejada en la
+entrada de Fase 1 — no hace falta preguntar de nuevo ni construir nada por
+ese nombre.
+
 ## Próximos pasos
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
 El plan anterior (Fases 7, 8 y 9, más abajo) está completo salvo lo
 anotado en su propia sección — no es lo que sigue ahora.
 
-Fase 0 (bugs visuales críticos) está en progreso, arrancada 2026-08-01 —
-ver las dos entradas de ese día en el registro (diagnóstico, y luego el fix
-del botón de Playbook + la infraestructura de Postgres local). El código de
-los 4 ítems ya está resuelto o tiene fix mergeado; lo único que queda es
-operativo:
+**Fases 0, 3 y 4: completas** (código Y datos de producción, no solo
+código — ver las entradas del 2026-08-01, especialmente "Fase 0 cerrada de
+verdad" para cómo se llegó a la Neon real desde este sandbox vía el driver
+HTTP de `@neondatabase/serverless`, el mismo que ya usaba
+`publish-newsletter.ts`. **Importante para la próxima sesión en este mismo
+entorno**: `psql`/TCP directo contra Neon siguen bloqueados, pero el driver
+HTTP SÍ funciona — no asumir que producción es inalcanzable solo porque
+`psql` falla.). Pendiente solo que el usuario confirme visualmente en el
+sitio desplegado, en particular el glitch de Windows (no se pudo observar
+el efecto exacto de `scrollbar-gutter` en este sandbox, headless Linux no
+reserva scrollbar igual que Windows).
 
-1. **Operativo, no de código, bloquea el cierre de Fase 0**: correr
-   `npm run fix:lana-rebrand` (con `--dry-run` primero) contra Postgres de
-   producción real, desde un entorno con salida de red hacia Neon — este
-   sandbox no la tiene (confirmado dos veces, con `psql` y con TCP directo),
-   así que ninguna sesión futura en este mismo entorno va a poder hacerlo
-   tampoco sin acceso de red distinto. El script en sí ya está probado de
-   punta a punta contra un Postgres local (ver la entrada del 2026-08-01),
-   no es código sin verificar.
-2. **También operativo, mismo bloqueo de red**: correr también `npm run
-   fix:reassign-playbook-tag` (con `--dry-run` primero) contra producción
-   — reasigna cualquier artículo real que haya quedado con
-   `source='playbook'` (Fase 1, ítem 1). Mismo comando/misma sesión que el
-   punto anterior, dos scripts distintos, correrlos juntos.
-3. Después de correr los scripts: verificar en producción real que el tag
-   negro del hero, el footer y la portada de La Lana del Deporte ya dicen
-   "Deporte" y cargan, que ya no queda ningún artículo con el chip
-   "Playbook", y que el logo resetea el filtro del 5+1 + hace scroll al
-   top estando en home. Si las fotos de testimoniales siguen sin cargar,
-   editar esos dos avatares a mano vía el tab Testimonios del admin (rutas
-   exactas en la entrada del diagnóstico). Todo el código ya está
-   verificado con Playwright contra Postgres local — esto es la
-   confirmación en el sitio real desplegado, no un diagnóstico nuevo.
-4. Fase 1 sigue en progreso — ítems 1, 2, 3 y 4 ya tienen código mergeado
-   (ver la entrada del 2026-08-01 "Fase 1 (parcial)"). Queda:
-   - Ítem 5: carpetas internas por producto editorial con diseño propio —
-     tratarlo como su propio mini-proyecto (definir primero los "temas
-     centrales" de cada producto), no como un cambio de navegación
-     simple, ver la nota ya anotada en la sección de Fase 1 arriba.
-   - **Preguntarle al usuario qué es "Tips"** antes de dar el ítem 4 por
-     cerrado del todo: no existe ningún módulo con ese nombre en el
-     código ni en los prototipos (ver la entrada del 2026-08-01), así que
-     solo se reubicó "5 más leídas". Puede ser un nombre informal para
-     algo que ya existe con otro nombre, o algo que nunca se construyó.
-   - Verificar en producción real (con GA4 configurado) que "Más leídas"
-     efectivamente aparece debajo del bloque de newsletter con contenido
-     real — no se pudo confirmar visualmente en este sandbox (sin
-     credenciales GA4, ver esa misma entrada).
-5. Fase 3 también en progreso — 2 de 4 ítems mergeados 2026-08-01 (morado
-   de Infinitas, compartir). Quedan:
-   - El glitch de Windows: **pedirle al usuario el video** que ya dijo
-     tener, no se puede reproducir a ciegas desde acá.
-   - El color del pill del buscador: dejado sin tocar a propósito, es una
-     decisión de diseño ("refinar" sin más contexto) — preguntar qué
-     específicamente no funciona del color actual antes de programar
-     nada.
-6. **Fase 4: completa** — bloque de opinión dinámico, con excepción manual
-   al 5+1 vía `featured`, mergeado y verificado 2026-08-01 (ver esa
-   entrada). Nada pendiente de esta fase.
-7. Fase 2 (skill de tags/portada) sigue sin arrancar — se saltó a
-   propósito dos veces (Fase 3 y Fase 4 ambas se priorizaron por ser
-   "fixes sin decisiones"; Fase 2 es una tarea de evaluación/iteración de
-   skill, no un fix mecánico) y Fase 5/6 necesitan decisión de producto.
-   Si el usuario sigue pidiendo "el siguiente fix sin decisiones", ya no
-   queda ninguno obvio en Fases 0-4 sin bloqueo — el turno lógico es Fase
-   2, o resolver los bloqueos ya anotados (video de Windows, credenciales
-   de producción, qué es "Tips", color del buscador).
+Fase 1 sigue en progreso — ítems 1, 2, 3 y 4 ya tienen código Y datos de
+producción resueltos (ítem 1: los 5 artículos reales reasignados; ítem 4:
+"Tips" confirmado como typo del usuario, sin acción pendiente). Queda:
+- Ítem 5: carpetas internas por producto editorial con diseño propio —
+  tratarlo como su propio mini-proyecto (definir primero los "temas
+  centrales" de cada producto), no como un cambio de navegación simple,
+  ver la nota ya anotada en la sección de Fase 1 arriba.
+- Verificar en producción real (con GA4 configurado) que "Más leídas"
+  efectivamente aparece debajo del bloque de newsletter con contenido
+  real — no se pudo confirmar visualmente en este sandbox (sin
+  credenciales GA4).
+
+Fase 2 (skill de tags/portada) sigue sin arrancar — se saltó dos veces a
+propósito (Fase 3 y Fase 4 se priorizaron por ser "fixes sin decisiones";
+Fase 2 es una tarea de evaluación/iteración de skill, no un fix mecánico).
+Con Fases 0/3/4 ahora completas y Fase 1 reducida a un solo ítem grande
+(carpetas internas, que necesita definición de producto) más una
+verificación pendiente, el turno lógico si el usuario vuelve a pedir "el
+siguiente fix sin decisiones" es Fase 2, o resolver lo que queda de Fase 1.
+Fase 5/6 siguen necesitando decisión de producto antes de programar nada.
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se
