@@ -50,8 +50,12 @@ de código** — el código y los archivos semilla (`content.json`/
 `f7359f1` (31-jul) y siguientes. Lo que persiste en producción es un
 desfase de **datos en Postgres** que el flujo de deploy nunca sincroniza
 automáticamente (ver esa entrada para el porqué exacto). El cuarto ítem (el
-botón de Playbook) no tiene causa identificada todavía — ver "Pendiente" en
-esa misma entrada, necesita repro real.
+botón de Playbook) **ya tiene fix en código, mergeado en esta misma
+sesión** — `components/layout/BrandLink.tsx` + un listener en
+`NewsGrid.tsx`, verificado con Playwright contra un servidor real (ver la
+entrada de ese mismo día). De los cuatro ítems de esta fase, el único que
+sigue bloqueado es correr `npm run fix:lana-rebrand` contra Postgres de
+producción real (bloqueo de red del sandbox, no de código).
 
 ### Fase 1 — Arquitectura de navegación e información
 
@@ -3894,30 +3898,93 @@ real, mismo estándar que Fases 1-3):
   `/assets/img/testimonial-juan.jpg` en los avatares de Bárbara y Juan
   Pablo respectivamente.
 - **Fase 0, ítem 4 (botón de Playbook no regresa a home dentro de un tag
-  del 5+1) — sin resolver, sin causa identificada.** Revisado
-  `components/layout/Header.tsx` (el logo es un `<Link href="/">` simple,
-  sin condicionales), `HeaderNav.tsx` (sin logo duplicado en el drawer
-  móvil), `app/(public)/tema/page.tsx` y `app/(public)/layout.tsx` (la
-  página de tag usa el mismo layout compartido, mismo Header) — no se
-  encontró ningún código que pueda romper este link específicamente en una
-  página de tag. Tampoco se pudo reproducir en vivo (mismo bloqueo de red
-  hacia Postgres que arriba: las páginas públicas necesitan datos reales
-  para renderizar, no hay forma de levantar el sitio completo en este
-  sandbox). **Pendiente**: pedir al usuario un repro concreto (captura o
-  video, como ya ofreció para el bug de Windows de la Fase 3) — navegador,
-  si es desktop o mobile, y la URL exacta del tag donde pasa, antes de
-  intentar un fix a ciegas.
+  del 5+1) — causa real distinta a la investigada primero, y ya
+  corregida.** El usuario aclaró el repro real: no es un problema de
+  navegar DESDE una página de tag, es que **el logo no hace nada estando
+  ya en `/`**. Causa raíz, una vez con el repro correcto: `<Link
+  href="/">` de Next.js no dispara ninguna navegación cuando ya estás en
+  esa misma ruta — así que filtrar el paquete 5+1 por una fuente (`.filter-
+  btn`, estado `activeSource` local de `components/home/NewsGrid.tsx`, sin
+  cambio de URL) y después clickear el logo esperando volver a la vista
+  "todo" arriba de la página no hacía absolutamente nada, ni scroll ni
+  reset de filtro. Fuera de `/` el comportamiento ya era correcto (App
+  Router resetea el scroll y remonta la página en una navegación real), así
+  que el fix solo intercepta el caso mismo-ruta.
+  - `components/layout/BrandLink.tsx` (nuevo): extrae el link/logo del
+    header a su propio client component (`Header.tsx` es un Server
+    Component async, no puede tener el `onClick` necesario). En `onClick`,
+    si `usePathname() === '/'`: `preventDefault`, limpia cualquier hash de
+    la URL, hace `scrollTo({top:0, behavior:'smooth'})` y dispara un
+    `CustomEvent('playbook:reset-home')` en `window`. Fuera de `/` deja que
+    el `<Link>` navegue normal.
+  - `components/home/NewsGrid.tsx`: escucha ese evento y llama
+    `selectSource('all')` (a través de un ref que siempre apunta a la
+    versión más reciente de esa función, para no capturar un closure
+    viejo de `activeSource`) — reutiliza el mismo fade GSAP que ya usa el
+    click en un chip de filtro, en vez de duplicar esa lógica.
+  - **Verificado de punta a punta contra un servidor real, no solo
+    compilación** — ver la entrada de infraestructura de verificación local
+    abajo para cómo se levantó: Playwright headless contra `next dev` real
+    con Postgres real (local, sembrada con `migrate:json`): clic en el chip
+    "La Lana del Deporte" → `activeSource` pasa a `la-lana`; scroll manual a
+    600px; clic en el logo → `activeSource` vuelve a `all` y `scrollY` baja
+    a `0`, confirmado leyendo el DOM real después de cada paso, no
+    asumido. **No se reprodujo el bug original antes del fix** (no se
+    corrió el mismo script contra el `Header.tsx` viejo) — la causa se
+    infirió del comportamiento documentado de Next.js (`<Link>` a la ruta
+    actual no navega) más la descripción del usuario, y se verificó
+    directamente que el fix funciona; si alguien quiere el antes/y-después
+    exacto, revertir `BrandLink.tsx` a un `<Link>` plano y correr el mismo
+    script de Playwright lo confirmaría en un minuto.
+- **Nueva infraestructura de verificación local, releer antes de asumir que
+  este sandbox no puede levantar el sitio**: `postgresql-16` viene
+  preinstalado en este entorno (servidor, no solo el cliente `psql` que ya
+  se sabía que existía) pero apagado por defecto. `service postgresql
+  start` lo levanta; la sesión creó un rol/base `playbook`/`playbook` local
+  y corrió `db:migrate` + `migrate:json` contra ella con `POSTGRES_URL`
+  **pasada inline en el comando** (no alcanza con escribir `.env.local`:
+  este sandbox ya trae un `POSTGRES_URL` real de Neon exportado como
+  variable de entorno del proceso, y eso pisa cualquier `.env.local` — hay
+  que sobreescribirlo explícitamente en cada comando/en el env del server).
+  Con eso, `next dev` corre normal contra datos reales locales y Playwright
+  (mismo patrón de import que documenta `.claude/skills/verify/SKILL.md`,
+  aunque esa skill en sí describe el setup del sitio legado — desactualizada,
+  ver nota de abajo) puede manejar el navegador real. Esto **cierra el gap
+  de verificación** que bloqueó a la sesión anterior de este mismo día
+  (diagnóstico de Fase 0 sin poder reproducir nada en vivo) — la próxima
+  sesión que necesite probar algo contra un servidor real puede repetir
+  esto en vez de asumir que no se puede. La Neon de producción real sigue
+  sin ser alcanzable desde acá (confirmado con timeout de TCP directo) —
+  esto es un Postgres local nuevo y vacío, no un atajo a producción.
 - **Fase 0, ítem 5 no evaluado todavía**: la skill `verify` del repo
   (`.claude/skills/verify/SKILL.md`) describe un setup de servidor Node
   plano para el sitio **legado pre-migración** (`api/sitemap.js`,
   `articulo.html`, sin `package.json`) — quedó desactualizada desde la
   migración a Next.js (este repo sí tiene `package.json`/`next.config.ts`
-  hoy). No se siguió esa skill tal cual; queda como deuda documentada para
-  quien la retome, no se corrigió en esta sesión por no ser parte del
-  pedido.
-- **Verificado**: `tsc --noEmit`, `npx eslint scripts/fix-lana-rebrand-content.ts`
-  y `next build` limpios los tres, con `node_modules` instalado en este
-  sandbox para poder correrlos (no estaba instalado al arrancar la sesión).
+  hoy). Con Postgres local ya resuelto (ver arriba), lo único que le falta
+  a esa skill es reemplazar su sección de setup por "levantar Postgres
+  local + `next dev`" — no se reescribió en esta sesión por no ser parte
+  del pedido, pero ya no hay excusa de infraestructura para no hacerlo
+  cuando alguien la retome.
+- **`scripts/fix-lana-rebrand-content.ts` verificado de punta a punta
+  contra el Postgres local**, algo que la entrada anterior de este mismo
+  día no había podido hacer: se corrompieron a propósito 3 filas de
+  `articles` (`publication`/`image_url` puestos al valor viejo) y
+  `site_content.footer.brandBlurb` de la misma forma, se corrió el script
+  con `--dry-run` (reportó las 3 filas + el campo de `site_content`
+  correctamente, sin escribir nada — confirmado con una segunda lectura de
+  la base) y después sin `--dry-run` (las 3 filas y el blurb quedaron en
+  "La Lana del Deporte"/`lana-banner.jpg`, `site_content.version`
+  incrementó de 1 a 2, confirmado con `SELECT` directo). Sigue pendiente
+  correrlo contra la Neon real de producción — eso sigue bloqueado por red
+  desde este sandbox — pero ya no es "código sin probar", es "probado
+  localmente, pendiente de ejecutarse donde haya red hacia producción".
+- **Verificado**: `tsc --noEmit`, `npx eslint` sobre los archivos tocados y
+  `next build`, limpios los tres, con `node_modules` instalado en este
+  sandbox para poder correrlos (no estaba instalado al arrancar la
+  sesión). Postgres local y `.env.local` de este sandbox son desechables
+  (base vacía sin datos reales, `.env.local` con secretos falsos,
+  ignorado por git) — no queda nada de esto en el repo.
 
 ## Próximos pasos
 
@@ -3926,24 +3993,28 @@ El plan anterior (Fases 7, 8 y 9, más abajo) está completo salvo lo
 anotado en su propia sección — no es lo que sigue ahora.
 
 Fase 0 (bugs visuales críticos) está en progreso, arrancada 2026-08-01 —
-ver esa entrada del registro para el diagnóstico completo. Queda, en
-orden:
+ver las dos entradas de ese día en el registro (diagnóstico, y luego el fix
+del botón de Playbook + la infraestructura de Postgres local). El código de
+los 4 ítems ya está resuelto o tiene fix mergeado; lo único que queda es
+operativo:
 
-1. **Operativo, no de código, bloquea el resto de Fase 0**: correr
-   `npm run fix:lana-rebrand` (recién agregado) contra Postgres de
-   producción real, primero con `--dry-run`. Este sandbox no tiene salida
-   de red hacia Postgres, así que ninguna sesión futura en este mismo
-   entorno va a poder hacerlo tampoco sin acceso de red distinto — si la
-   próxima sesión corre acá, decirle esto de entrada en vez de
-   redescubrirlo.
+1. **Operativo, no de código, bloquea el cierre de Fase 0**: correr
+   `npm run fix:lana-rebrand` (con `--dry-run` primero) contra Postgres de
+   producción real, desde un entorno con salida de red hacia Neon — este
+   sandbox no la tiene (confirmado dos veces, con `psql` y con TCP directo),
+   así que ninguna sesión futura en este mismo entorno va a poder hacerlo
+   tampoco sin acceso de red distinto. El script en sí ya está probado de
+   punta a punta contra un Postgres local (ver la entrada del 2026-08-01),
+   no es código sin verificar.
 2. Después de correr el script: verificar en producción real que el tag
    negro del hero, el footer y la portada de La Lana del Deporte ya dicen
    "Deporte" y cargan. Si las fotos de testimoniales siguen sin cargar,
    editar esos dos avatares a mano vía el tab Testimonios del admin (rutas
-   exactas en la entrada del 2026-08-01).
-3. Bug del botón de Playbook (ítem 4 de Fase 0): pedir repro al usuario
-   (captura o video, navegador, URL exacta) antes de intentar un fix — no
-   se encontró causa por lectura de código.
+   exactas en la entrada del diagnóstico).
+3. Verificar en producción real (no solo local) que el logo ya resetea el
+   filtro del 5+1 y hace scroll al top estando en home — el fix ya está
+   verificado con Playwright contra Postgres local, falta la confirmación
+   del usuario en el sitio real desplegado.
 4. Después de cerrar Fase 0: seguir con Fase 1 (arquitectura de
    navegación), con la nota de la sesión de planeación de separar el ítem
    de carpetas de productos editoriales del resto de la fase.

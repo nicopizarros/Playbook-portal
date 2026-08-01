@@ -79,6 +79,25 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
     gsap.to(el, { opacity: 1, duration: 0.22, ease: 'power1.out' });
   }, [activeSource]);
 
+  // Ref instead of a `selectSource` dependency: this listener is registered
+  // once and must always call the CURRENT selectSource (it closes over
+  // activeSource each render), not the one from whichever render happened
+  // to run when the listener was attached.
+  const selectSourceRef = useRef(selectSource);
+  selectSourceRef.current = selectSource;
+
+  // BrandLink.tsx dispatches this when the logo is clicked while already on
+  // "/" (a plain Link href="/" is a no-op in that case, so filtering down
+  // to one source and clicking the logo did nothing — real bug report,
+  // 2026-08-01). Brings the 5+1 back to its default "all" view.
+  useEffect(() => {
+    function resetToDefault() {
+      selectSourceRef.current('all');
+    }
+    window.addEventListener('playbook:reset-home', resetToDefault);
+    return () => window.removeEventListener('playbook:reset-home', resetToDefault);
+  }, []);
+
   const news = articles.filter(a => a.source !== 'opinion');
   const pool = activeSource === 'all' ? news : news.filter(a => a.source === activeSource);
   const filtered = rankArticles(pool);
