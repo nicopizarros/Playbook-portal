@@ -13,7 +13,8 @@
     "db:migrate": "tsx scripts/run-migrations.ts",
     "db:reset-editor-password": "tsx scripts/reset-editor-password.ts",
     "migrate:json": "tsx scripts/migrate-json-to-db.ts",
-    "publish:newsletter": "tsx scripts/publish-newsletter.ts"
+    "publish:newsletter": "tsx scripts/publish-newsletter.ts",
+    "fix:lana-rebrand": "tsx scripts/fix-lana-rebrand-content.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.7.4",

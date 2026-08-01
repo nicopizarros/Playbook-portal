@@ -4,15 +4,169 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-07-31.
+2026-08-01.
 
 **PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; la
-Fase 6 (migración completa) también mergeó. La sesión más reciente trabaja
-en `claude/playbook-homepage-ads-7vayvz` (Fase 7: rediseño de homepage +
-infraestructura publicitaria + consentimiento, ver la última entrada del
-registro de progreso). El PR #22 original de la migración (rama
-`claude/playbook-nextjs-migration-9zn6nh`) sigue superado por el flujo de
-Fases 1-6 ya mergeado — no seguir trabajando ahí.
+Fase 6 (migración completa) también mergeó. La sesión activa trabaja en
+`claude/playbook-portal-roadmap-05yooe` sobre el "Roadmap Agosto 2026"
+(ver sección siguiente) — arrancó por su Fase 0, ver la última entrada del
+registro de progreso para el estado exacto. El plan anterior (Fases 7, 8 y
+9, más abajo) ya está completo salvo lo anotado en "Próximos pasos". El PR
+#22 original de la migración (rama `claude/playbook-nextjs-migration-9zn6nh`)
+sigue superado por el flujo de Fases 1-6 ya mergeado — no seguir trabajando
+ahí.
+
+## Plan de desarrollo — Roadmap Agosto 2026 (Fases 0-6)
+
+Backlog acumulado, recibido del usuario como documento de trabajo el
+2026-08-01, para ejecutarse en fases — cada fase pensada como una sesión
+independiente de Claude Code. Agrupado por tipo de trabajo (no por urgencia
+de negocio) para no tocar el mismo sistema en sesiones separadas. Dentro de
+cada fase, de más simple a más complejo.
+
+**Antes de arrancar cualquier fase de este plan**: leer primero la entrada
+del registro de progreso de la fase anterior (si existe) — varias fases de
+este plan tienen ítems que ya estaban resueltos en el código antes de
+arrancar (ver Fase 0 abajo) o que dependen de una fase anterior.
+
+### Fase 0 — Bugs visuales críticos
+
+- [ ] Tag negro del hero del 5+1 y footer: "La Lana del Mundial" → "La Lana
+      del Deporte"
+- [ ] Foto de portada de "La Lana del Deporte" no carga
+- [ ] Fotos de los testimoniales no cargan
+- [ ] El botón de Playbook (logo del header) no regresa a home cuando estás
+      dentro de un tag del 5+1
+
+**Criterio de aceptación:** revisar el 5+1 completo y el footer en
+producción, confirmar que no queda ninguna referencia visual o textual a
+"Mundial" donde debería decir "Deporte", y que todas las imágenes cargan en
+desktop y mobile.
+
+**Estado real, importante para no repetir el diagnóstico**: ver la entrada
+2026-08-01 del registro de progreso. Los primeros tres ítems **no son bugs
+de código** — el código y los archivos semilla (`content.json`/
+`articles.json`) ya tienen el texto/asset correcto desde el commit
+`f7359f1` (31-jul) y siguientes. Lo que persiste en producción es un
+desfase de **datos en Postgres** que el flujo de deploy nunca sincroniza
+automáticamente (ver esa entrada para el porqué exacto). El cuarto ítem (el
+botón de Playbook) no tiene causa identificada todavía — ver "Pendiente" en
+esa misma entrada, necesita repro real.
+
+### Fase 1 — Arquitectura de navegación e información
+
+- [ ] Borrar el tag "Playbook" y traspasar todos sus artículos al tag
+      "Noticias"
+- [ ] Cambiar el botón "Ver más" del 5+1 por "Más noticias", moverlo debajo
+      del bloque del 5+1 (no arriba)
+- [ ] Reemplazar el nombre del tag "Análisis" por "Artículo" en la ficha de
+      cada pieza
+- [ ] Reubicar el módulo de "Tips" y "5 más leídas" debajo del bloque de
+      suscripción
+- [ ] Crear carpetas internas para los productos editoriales (en vez de
+      redirigir a Substack), con diseño propio por producto, no la vista
+      clásica de "ver más" — **nota de la sesión de planeación**: separar
+      este último ítem del resto de la fase, es un mini-proyecto de diseño
+      (hay que definir primero "los temas centrales" de cada producto),
+      no un cambio de navegación simple como los otros cuatro. Además, 3 de
+      los 4 productos (Noticias, La Lana del Deporte, Infinitas) YA
+      enlazan a una colección interna (`/archivo?source=...`) en vez de
+      Substack desde una sesión anterior (ver HANDOFF, entrada sin fecha
+      dedicada, buscar "Navegación: enlaces de productos editoriales a
+      Substack") — lo que falta es el diseño propio por producto, no la
+      desconexión de Substack en sí. The Futbol Business Review se deja
+      apuntando a Substack a propósito (no tiene `source` propio todavía).
+
+**Criterio de aceptación:** navegar el portal de punta a punta sin
+encontrar un link que saque al usuario a Substack que sea evitable, y
+confirmar que la jerarquía de tags (Noticias, Artículo, y los productos
+editoriales) es consistente en todo el sitio.
+
+### Fase 2 — Automatización de contenido y skills
+
+- [ ] Entrenar el skill de tags para que asigne todos los tags relevantes
+      por artículo
+- [ ] Modificar el skill para que la portada de cada artículo de opinión
+      sea la imagen de portada real de Substack, nunca una foto del cuerpo
+
+**Criterio de aceptación (endurecido en la sesión de planeación, el
+original era débil)**: correr el skill sobre una muestra de 10 artículos
+existentes (mezcla de noticias y opinión) y exigir un umbral explícito
+antes de aplicarlo al catálogo completo — ej. tags correctos en 9/10 sin
+ningún falso positivo de portada — no solo "confirmar manualmente que se
+ven bien".
+
+### Fase 3 — Pulido visual
+
+- [ ] Glitch/parpadeo del header en Windows en el tab de Infinitas — **el
+      usuario ya tiene un video de repro** (2026-08-01), pedirlo al
+      arrancar esta fase en vez de intentar reproducirlo a ciegas: este
+      entorno no tiene forma de reproducir un bug específico de Windows.
+- [ ] Agregar el morado de Infinitas al botón de hasta abajo de esa sección
+- [ ] Refinar el color del pill del buscador
+- [ ] "Compartir" de cada artículo: agregar logos de redes, sumar más
+      opciones, mover el bloque debajo de los tags del artículo
+
+**Criterio de aceptación:** revisar en Chrome, Safari y un navegador en
+Windows que no haya parpadeos ni desalineaciones, y que el bloque de
+compartir se vea igual de bien en mobile que en desktop.
+
+### Fase 4 — Contenido dinámico
+
+- [ ] Hacer dinámico el bloque de artículos de opinión: que rote según
+      ranking (recencia + estrellas) con la misma fórmula del 5+1, fuera
+      del 5+1 por default salvo excepción manual
+
+**Nota de la sesión de planeación, confirmada leyendo el código**: la
+fórmula ya existe como función compartida y reutilizable en `lib/rank.ts`
+(`rankScore`/`rankArticles`/`selectHero`, con comentarios explicando cada
+decisión de tuning) — extenderla a opinión es bajo riesgo, no hay que
+construir una segunda fórmula ni razonar el diseño desde cero.
+
+**Criterio de aceptación:** confirmar que el ranking de opinión usa
+exactamente la misma fórmula del 5+1 (sin una segunda fórmula paralela), y
+que un artículo de opinión marcado como excepción sí puede forzarse dentro
+del 5+1.
+
+### Fase 5 — Sistema de cuentas y autenticación
+
+Orden de preferencia: (1) Auth vía Substack, (2) Resend como alternativa,
+(3) formulario simple solo-correo. **Nota de la sesión de planeación**: no
+existe ningún sistema de auth de lector vía Substack ni formulario simple
+hoy en el código — sí existe auth de lector vía Resend (magic link, Fase 3
+de la migración original) y auth de editor vía Credentials, ambos ya en
+producción. La opción (2) del orden de preferencia ya está construida; las
+opciones (1) y (3) son trabajo nuevo si se decide no usar lo que ya existe.
+
+**Criterio de aceptación:** confirmar el orden de implementación con el
+equipo antes de programar, y documentar esa decisión antes de tocar código.
+
+### Fase 6 — Legal y compliance
+
+- [ ] Corregir argentinismos en los términos y condiciones
+- [ ] Llevar el compliance general al 100% (definir primero el checklist:
+      aviso de privacidad, cookies, términos, todo lo que aplique a un
+      medio digital en México)
+
+**Dependencia no explícita en el doc original, anotada en la sesión de
+planeación**: si Fase 5 termina eligiendo Resend o un formulario de email
+(en vez de, o adicional a, Substack), el aviso de privacidad de esta fase
+tiene que reflejar esa recolección de datos — no tratar esta fase como
+aislada de la decisión de Fase 5.
+
+**Criterio de aceptación:** que un tercero (no quien escribió el texto) lea
+los términos y condiciones completos y confirme que el español es
+neutro/mexicano, y que exista un checklist de compliance marcado como
+completo.
+
+### Notas de secuencia del roadmap
+
+- Fase 0 y Fase 3 pueden correr en paralelo (no tocan los mismos archivos)
+  si hay dos sesiones disponibles.
+- Fase 2 debería completarse antes de re-generar contenido masivamente,
+  para no re-etiquetar todo dos veces.
+- Fase 5 es la única que necesita una decisión de producto (no solo de
+  código) antes de empezar a construir.
 
 ## Plan de desarrollo — Fases 7, 8 y 9
 
@@ -3657,29 +3811,146 @@ real, mismo estándar que Fases 1-3):
   tiene rol Viewer en la propiedad real. Sin eso, `isConfigured()` sigue
   devolviendo `false` y el panel sigue leyendo de Vercel como hasta ahora.
 
+### 2026-08-01 — Roadmap Agosto 2026 recibido; arranque de Fase 0 (bugs visuales)
+
+- **Contexto**: el usuario compartió un roadmap nuevo de 7 fases (0-6,
+  sección propia arriba, "Roadmap Agosto 2026") para el trabajo pendiente
+  del portal. Antes de programar nada se discutieron los ítems con el
+  usuario y se anotaron ajustes de secuencia/alcance directamente en cada
+  fase de esa sección — no repetirlos acá.
+- **Fase 0, ítems 1-3 (tag negro "Mundial", footer, portada de La Lana del
+  Deporte): diagnosticados a fondo, NO son bugs de código.** Investigación,
+  no asumida:
+  1. `git log` muestra el commit `f7359f1` ("Rebrand La Lana del Mundial a
+     La Lana del Deporte", 31-jul, ya en `main`) — cambió
+     `lib/constants.ts` (`SOURCE_LABELS`), `app/api/update-articles/route.ts`
+     (`detectPublication`), `content.json`/`articles.json`, y reemplazó
+     `public/assets/img/lana-banner.webp` por `lana-banner.jpg`. Grep de
+     "Mundial" en todo el árbol de código/JSON (excluyendo `docs/`, que son
+     prototipos HTML estáticos de archivo) no encuentra ninguna ocurrencia
+     de la frase de marca — el código ya está limpio.
+  2. Pero el tag negro del hero (`components/article/LeadStory.tsx`, línea
+     `<span className="tag">{article.publication}</span>`) y el footer
+     (`Footer.tsx` vía `site_content.footer.brandBlurb`) **leen de
+     Postgres, no de `content.json`/`articles.json`** — esos JSON solo
+     existen como semilla de un migrador manual
+     (`scripts/migrate-json-to-db.ts`, `npm run migrate:json`).
+  3. Ese migrador **no corre solo**: `scripts/predeploy-migrate.ts`, lo
+     único que sí corre automático en cada build de producción
+     (`vercel-build` en `package.json`), solo aplica migraciones de
+     *schema* de Drizzle — nunca resincroniza contenido. Confirmado leyendo
+     el archivo, no asumido.
+  4. Conclusión: cualquier artículo o fila de `site_content` que ya
+     existía en Postgres antes del commit de rebrand se quedó con el texto
+     viejo para siempre, hasta que algo la reescriba explícitamente — y
+     nadie corrió `npm run migrate:json` contra producción después de ese
+     merge (no hay entrada de HANDOFF documentándolo, y el propio commit
+     del rebrand no lo menciona). Esto explica por qué el usuario sigue
+     viendo "Mundial" en producción un día después del merge: es un
+     **desfase de datos, no una regresión de código**.
+  5. Además, re-correr `npm run migrate:json` tal cual **no alcanzaría**:
+     ese script hace upsert solo de los ids que ya están en el
+     `articles.json` del repo — cualquier artículo insertado directo en
+     Postgres por el webhook de Make.com después de que se tomó esa
+     foto (con el `detectPublication()` viejo, antes del rebrand) quedaría
+     fuera del upsert igual.
+- **Fix escrito para lo anterior**: `scripts/fix-lana-rebrand-content.ts`
+  (nuevo, agregado a `package.json` como `npm run fix:lana-rebrand`). Es un
+  find/replace acotado y seguro de correr contra datos reales: busca la
+  frase exacta de 4 palabras `"La Lana del Mundial"` (nunca aparece
+  legítimamente — un artículo real sobre el torneo dice "el Mundial 2026",
+  nunca la frase de marca completa) y la ruta vieja del asset
+  (`lana-banner.webp`) en `articles.publication`/`articles.imageUrl` y de
+  forma recursiva en todo el árbol JSON de `site_content.data`, y
+  solo reescribe lo que de verdad cambió — usa el mismo patrón de
+  concurrencia optimista (`version`) que `saveSiteContent()` en
+  `lib/actions/admin.ts`, e inserta una fila en `content_revisions` para
+  mantener el registro de auditoría. Soporta `--dry-run`.
+  **No se pudo correr contra producción ni contra ninguna Postgres real**:
+  este sandbox no tiene salida de red hacia el host de Neon (confirmado con
+  un `psql`/TCP directo, ambos con timeout — la política de red del
+  entorno solo permite el proxy HTTPS configurado, no puertos Postgres
+  arbitrarios), así que el script está escrito, tipado limpio
+  (`tsc --noEmit`), lint limpio, y probado en modo `--dry-run` hasta el
+  punto de intentar conectar (falla ahí por la misma razón), pero **nunca
+  ejecutado de punta a punta contra datos reales**. `next build` completo
+  sí corrido y limpio después de estos cambios.
+  **Queda pendiente, de operación, no de código**: correr
+  `POSTGRES_URL=<producción real> npm run fix:lana-rebrand -- --dry-run`
+  primero para ver el diagnóstico exacto, y sin `--dry-run` para aplicarlo,
+  desde un entorno con salida de red hacia Postgres (local del equipo, o
+  una sesión con acceso real).
+- **Fase 0, ítem 3 (fotos de testimoniales) — mismo diagnóstico probable,
+  sin confirmar**: `content.json` y los archivos
+  `public/assets/img/testimonial-barbara.jpg`/`testimonial-juan.jpg` ya
+  existen y son correctos en el repo (commit `71128cb`). El script de
+  arriba no los toca porque no hay una ruta vieja conocida para buscar (a
+  diferencia del banner de La Lana, nunca se identificó cuál era el valor
+  stale exacto en Postgres para estos dos avatares — podrían estar
+  simplemente vacíos si se crearon antes de que existieran esos archivos).
+  Si tras desplegar este código las fotos siguen sin cargar, es edición
+  directa de dos campos vía el tab Testimonios del admin, no requiere
+  código: pegar `/assets/img/testimonial-barbara.jpg` y
+  `/assets/img/testimonial-juan.jpg` en los avatares de Bárbara y Juan
+  Pablo respectivamente.
+- **Fase 0, ítem 4 (botón de Playbook no regresa a home dentro de un tag
+  del 5+1) — sin resolver, sin causa identificada.** Revisado
+  `components/layout/Header.tsx` (el logo es un `<Link href="/">` simple,
+  sin condicionales), `HeaderNav.tsx` (sin logo duplicado en el drawer
+  móvil), `app/(public)/tema/page.tsx` y `app/(public)/layout.tsx` (la
+  página de tag usa el mismo layout compartido, mismo Header) — no se
+  encontró ningún código que pueda romper este link específicamente en una
+  página de tag. Tampoco se pudo reproducir en vivo (mismo bloqueo de red
+  hacia Postgres que arriba: las páginas públicas necesitan datos reales
+  para renderizar, no hay forma de levantar el sitio completo en este
+  sandbox). **Pendiente**: pedir al usuario un repro concreto (captura o
+  video, como ya ofreció para el bug de Windows de la Fase 3) — navegador,
+  si es desktop o mobile, y la URL exacta del tag donde pasa, antes de
+  intentar un fix a ciegas.
+- **Fase 0, ítem 5 no evaluado todavía**: la skill `verify` del repo
+  (`.claude/skills/verify/SKILL.md`) describe un setup de servidor Node
+  plano para el sitio **legado pre-migración** (`api/sitemap.js`,
+  `articulo.html`, sin `package.json`) — quedó desactualizada desde la
+  migración a Next.js (este repo sí tiene `package.json`/`next.config.ts`
+  hoy). No se siguió esa skill tal cual; queda como deuda documentada para
+  quien la retome, no se corrigió en esta sesión por no ser parte del
+  pedido.
+- **Verificado**: `tsc --noEmit`, `npx eslint scripts/fix-lana-rebrand-content.ts`
+  y `next build` limpios los tres, con `node_modules` instalado en este
+  sandbox para poder correrlos (no estaba instalado al arrancar la sesión).
+
 ## Próximos pasos
 
-El incidente de `wall_teaser` de la entrada anterior está **resuelto y
-confirmado en producción real** (ver esa misma entrada) — no queda nada
-pendiente de ese incidente salvo la rotación de contraseña ya anotada
-ahí, que es del usuario, no de código.
+**Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
+El plan anterior (Fases 7, 8 y 9, más abajo) está completo salvo lo
+anotado en su propia sección — no es lo que sigue ahora.
 
-El plan de trabajo está en la sección "Fases 7, 8 y 9" arriba.
-**La Fase 7 ya está hecha** (ver la última entrada del registro), y esa
-misma sesión cubrió varios ítems de la Fase 9 (sidebar C, una versión de
-la sección de análisis D vía el restyle de Opinión, y el directorio de
-temas). Queda:
+Fase 0 (bugs visuales críticos) está en progreso, arrancada 2026-08-01 —
+ver esa entrada del registro para el diagnóstico completo. Queda, en
+orden:
 
-1. Fase 8 (Studio + auth): **hecha** — ver la entrada 2026-07-23 "Fase 8"
-   en el registro de progreso.
-2. Fase 9 (UX homepage): **revisar su lista contra lo ya construido**
-   antes de arrancar — el ticker (A) y los filtros por fuente ya existen
-   desde la migración; los chips por deporte (B) y la sección Playbook
-   Base (E) siguen pendientes.
+1. **Operativo, no de código, bloquea el resto de Fase 0**: correr
+   `npm run fix:lana-rebrand` (recién agregado) contra Postgres de
+   producción real, primero con `--dry-run`. Este sandbox no tiene salida
+   de red hacia Postgres, así que ninguna sesión futura en este mismo
+   entorno va a poder hacerlo tampoco sin acceso de red distinto — si la
+   próxima sesión corre acá, decirle esto de entrada en vez de
+   redescubrirlo.
+2. Después de correr el script: verificar en producción real que el tag
+   negro del hero, el footer y la portada de La Lana del Deporte ya dicen
+   "Deporte" y cargan. Si las fotos de testimoniales siguen sin cargar,
+   editar esos dos avatares a mano vía el tab Testimonios del admin (rutas
+   exactas en la entrada del 2026-08-01).
+3. Bug del botón de Playbook (ítem 4 de Fase 0): pedir repro al usuario
+   (captura o video, navegador, URL exacta) antes de intentar un fix — no
+   se encontró causa por lectura de código.
+4. Después de cerrar Fase 0: seguir con Fase 1 (arquitectura de
+   navegación), con la nota de la sesión de planeación de separar el ítem
+   de carpetas de productos editoriales del resto de la fase.
 
-Antes de arrancar cada sesión: leer la sección de esa fase en HANDOFF.md
-para saber el estado actual y si hubo cambios desde que se escribió el
-prompt.
+Antes de arrancar cada sesión: leer la sección de la fase correspondiente
+en HANDOFF.md para saber el estado actual y si hubo cambios desde que se
+escribió el prompt.
 
 La limpieza de voseo que estaba pendiente acá quedó **resuelta** en la
 sesión de auditoría UI/UX del 2026-07-23 (ver esa entrada) — los 9
