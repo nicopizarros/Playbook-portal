@@ -7,6 +7,10 @@
    un compromiso negociado con el lado comercial (bloque de texto corto
    antes de las secciones que les interesan) — pulirlo, no crecerlo. */
 .news-grid{display:grid;grid-template-columns:1.35fr 1fr 300px;gap:36px;margin-bottom:8px;align-items:start;}
+/* "Más noticias" link (Fase 1 del roadmap de agosto 2026): antes vivía en
+   .section-head, arriba del paquete de noticias, junto al título -- se
+   movió acá, debajo del bloque entero, a pedido del usuario. */
+.news-grid-more{display:flex;justify-content:center;margin-top:28px;}
 /* El caso "sin artículos en esta categoría" ocupa las dos columnas
    editoriales y deja el rail en su lugar. */
 .news-grid .empty-state{grid-column:span 2;}
@@ -15,7 +19,6 @@
 .lead-story[data-source="industry-shots"]{border-left-color:var(--src-industry);}
 .lead-story[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .lead-story[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
-.lead-story[data-source="playbook"]{border-left-color:var(--src-playbook);}
 .lead-story[data-source="opinion"]{border-left-color:var(--src-opinion);}
 .lead-story .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 10px;margin-bottom:14px;}
 .lead-photo{aspect-ratio:16/10;overflow:hidden;margin-bottom:16px;background:var(--rule);}
@@ -57,7 +60,6 @@
 .news-row[data-source="industry-shots"]{border-left-color:var(--src-industry);}
 .news-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .news-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
-.news-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
 .news-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
 .news-row h3{font-family:var(--sans);font-weight:600;font-size:15.5px;line-height:1.35;margin:0 0 6px;transition:color var(--duration-fast) ease;}
 .news-row .byline{font-size:11.5px;}

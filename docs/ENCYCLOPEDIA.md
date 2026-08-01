@@ -28,8 +28,16 @@ experience, naming rights. Content comes from three editorial lines/sources:
   coverage.
 - **Infinitas** (source key `infinitas`) — a distinct newsletter product
   with its own homepage section.
-- Plus a generic **Playbook** (`playbook`) bucket for content that doesn't
-  fit those three.
+- **Opinión** (source key `opinion`) — bylined opinion pieces, own homepage
+  section (§ Análisis/Opinión).
+
+There used to be a fourth, generic **Playbook** (`playbook`) bucket for
+content that didn't fit the three newsletters above. Retired 2026-08-01 at
+the user's request (Roadmap Agosto 2026, Fase 1) — it never had a distinct
+editorial identity from Industry Shots, so it was folded into
+`industry-shots`/Noticias everywhere: `KNOWN_SOURCES`, the webhook's
+`detectPublication()` fallback, the `articles` table's column defaults, and
+every article that had `source: 'playbook'`.
 
 The publication's actual writing lives on **Substack**
 (`playbookmedia.substack.com`); this site is the **owned-and-operated
@@ -159,7 +167,7 @@ verbatim so `/articulo?id=...` URLs never break.
 | `bodyJson` | jsonb, nullable | TipTap document; `null` for legacy articles that never got a native editor body |
 | `bodyHtml` | text | **Server-rendered cache** of `bodyJson`, regenerated on every save (`@tiptap/html`'s `generateHTML`) so pages render plain HTML without re-walking the JSON tree per request |
 | `author`, `date` (`YYYY-MM-DD` text, not a date column), `dateFormatted` | | |
-| `publication` (default `'Playbook'`), `source` (default `'playbook'`) | | |
+| `publication` (default `'Noticias'`), `source` (default `'industry-shots'`) | | `'playbook'` was a distinct source until 2026-08-01, retired and folded into `'industry-shots'`/Noticias |
 | `tagsScope`, `tagsSport`, `tagsVertical` | text[], default `{}` | the three-tier taxonomy (§8.2) |
 | `priority` | smallint, default 3 | 1–5 star editorial importance |
 | `featured` | boolean | hero-eligibility override |

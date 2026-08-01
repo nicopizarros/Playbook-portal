@@ -59,12 +59,15 @@ producción real (bloqueo de red del sandbox, no de código).
 
 ### Fase 1 — Arquitectura de navegación e información
 
-- [ ] Borrar el tag "Playbook" y traspasar todos sus artículos al tag
-      "Noticias"
-- [ ] Cambiar el botón "Ver más" del 5+1 por "Más noticias", moverlo debajo
-      del bloque del 5+1 (no arriba)
-- [ ] Reemplazar el nombre del tag "Análisis" por "Artículo" en la ficha de
-      cada pieza
+- [x] Borrar el tag "Playbook" y traspasar todos sus artículos al tag
+      "Noticias" — código mergeado 2026-08-01 (ver esa entrada del
+      registro); falta correr `npm run fix:reassign-playbook-tag` contra
+      producción real (operativo, ver "Próximos pasos").
+- [x] Cambiar el botón "Ver más" del 5+1 por "Más noticias", moverlo debajo
+      del bloque del 5+1 (no arriba) — mergeado 2026-08-01.
+- [x] Reemplazar el nombre del tag "Análisis" por "Artículo" en la ficha de
+      cada pieza — mergeado 2026-08-01 (interpretado como el CTA por-tarjeta
+      de la sección de opinión, ver esa entrada para el porqué).
 - [ ] Reubicar el módulo de "Tips" y "5 más leídas" debajo del bloque de
       suscripción
 - [ ] Crear carpetas internas para los productos editoriales (en vez de
@@ -3986,6 +3989,88 @@ real, mismo estándar que Fases 1-3):
   (base vacía sin datos reales, `.env.local` con secretos falsos,
   ignorado por git) — no queda nada de esto en el repo.
 
+### 2026-08-01 — Fase 1 (parcial): tag Playbook, "Más noticias", "Leer el artículo"
+
+- **Contexto**: cerrado el botón de Playbook (ver entrada anterior de este
+  mismo día), el usuario pidió seguir directo con Fase 1 sin más aviso.
+  Cubiertos los 3 ítems más simples de esa fase (1, 2, 3); el 4 (reubicar
+  Tips/5 más leídas) y el 5 (carpetas internas con diseño propio, ya
+  anotado como separado del resto) quedan para la siguiente sesión.
+- **Ítem 1, "borrar el tag Playbook, traspasar sus artículos a Noticias"**:
+  `'playbook'` era un cuarto `source` real (`KNOWN_SOURCES`/
+  `SOURCE_LABELS`, `lib/constants.ts`), no una etiqueta cosmética — tocaba
+  10 archivos. Cambios de código: `lib/constants.ts` (removido de
+  `KNOWN_SOURCES`/`SOURCE_LABELS`), `lib/taxonomy.ts` (removida la entrada
+  `SECTION_TOPICS.playbook`), `app/api/update-articles/route.ts`
+  (`detectPublication()`'s fallback pasa de `Playbook`/`playbook` a
+  `Noticias`/`industry-shots`), `lib/db/schema.ts` (los *defaults* de las
+  columnas `publication`/`source` cambian a `'Noticias'`/`'industry-shots'`
+  — nueva migración `drizzle/0006_freezing_ben_grimm.sql`, generada con
+  `drizzle-kit generate`, no escrita a mano), `scripts/migrate-json-to-db.ts`
+  (mismo cambio en sus fallbacks JS), `components/admin/article-entry.ts`
+  (`newArticleEntry()` ya no propone Playbook por default a un editor
+  creando un artículo nuevo), y limpieza de CSS muerto (`--src-playbook` en
+  `tokens.css` y los 6 selectores `[data-source="playbook"]`/
+  `.tag-mini.playbook` en `hero.css`/`article.css`/`components.css` —
+  ningún artículo va a volver a tener ese `source`, así que esas reglas ya
+  no podían matchear nunca). `articles.json`: los 4 artículos con
+  `source: "playbook"` pasan a `"industry-shots"`/`"Noticias"`.
+  **Documentación actualizada para que no se reintroduzca el bug**:
+  `docs/ENCYCLOPEDIA.md` (§1, la tabla del schema de `articles`) y los dos
+  skills de publicación (`publish-newsletter`, `publish-sourced-article`)
+  — ambos tenían un fallback `"Playbook"`/`"playbook"` explícito en sus
+  instrucciones que, de correr sin corregir, habría vuelto a crear
+  artículos con un `source` que ya no es válido. De paso, `publish-
+  newsletter/SKILL.md` todavía decía "La Lana del Mundial" en 5 lugares
+  (branding, no URLs — los slugs `la-lana`/`la-lana-del-mundial-...` de
+  Substack NO se tocaron, siguen siendo el identificador real) — corregido
+  a "La Lana del Deporte" mientras se estaba ahí, mismo bug de fondo que
+  el diagnóstico de Fase 0 de esta mañana, solo que en un skill en vez de
+  en Postgres: de no corregirse, la próxima vez que este skill publicara
+  algo de La Lana habría reintroducido el texto viejo.
+  **Dato existente en producción, mismo patrón que Fase 0**: cualquier
+  artículo con `source='playbook'` que ya esté en Postgres real se queda
+  así hasta que algo lo reasigne — `scripts/reassign-playbook-tag.ts`
+  (nuevo, `npm run fix:reassign-playbook-tag`, soporta `--dry-run`) hace
+  exactamente eso, mismo patrón que `fix-lana-rebrand-content.ts`. No
+  alcanza con la migración de schema por sí sola: esa solo cambia el
+  *default* para filas nuevas, no toca las que ya existen.
+- **Ítem 2, "Ver más" → "Más noticias", reubicado debajo del bloque**:
+  `components/home/NewsGrid.tsx` — el link salió de `.section-head`
+  (arriba, junto al título) y ahora vive en un `.news-grid-more` nuevo,
+  centrado, después de todo el bloque hero+lista+sidebar. Mismo `id`
+  (`btn-ver-archivo`, nada más lo referencia) y mismo conteo de overflow
+  entre paréntesis, solo cambió el texto y la posición. CSS nueva en
+  `styles/hero.css`.
+- **Ítem 3, tag "Análisis" → "Artículo" en la ficha de cada pieza**:
+  interpretado como el CTA por-tarjeta de la sección de opinión
+  (`components/sections/OpinionSection.tsx`, `<span className="read">Leer
+  el análisis →</span>` → "Leer el artículo →") — es literalmente lo único
+  en el código que dice "análisis" **por pieza individual** ("ficha de
+  cada pieza" del pedido original). No se tocó el link de nav "Análisis"
+  (`content.json` → `nav.links`, apunta a toda la sección, no a una pieza)
+  ni la palabra "análisis" donde aparece como prosa genérica (meta
+  descriptions, términos) — ninguno de esos es "el tag... en la ficha de
+  cada pieza". Si el usuario quería también el link de nav, decirlo
+  explícito en la siguiente sesión.
+- **Verificado de punta a punta contra un servidor real** (mismo Postgres
+  local + Playwright que la entrada anterior, no solo compilación):
+  aplicada la migración 0006 y re-corrido `migrate:json` contra la base
+  local; confirmado con `psql` que 0 artículos quedan con
+  `source='playbook'`; corrompida a propósito 1 fila a `source='playbook'`
+  y confirmado que `fix:reassign-playbook-tag` (dry-run y aplicado) la
+  corrige igual que como se probó `fix-lana-rebrand-content.ts` en la
+  entrada anterior. Con `next dev` real: el filtro de fuente del 5+1 ya no
+  tiene chip "Playbook" (`['all','industry-shots','la-lana','infinitas']`,
+  leído del DOM); el link "Más noticias (24)" ya no está dentro de
+  `.section-head` y aparece después de `.news-grid` en el orden real del
+  DOM (`compareDocumentPosition`, no solo CSS visual); las 3 tarjetas de
+  opinión dicen "Leer el artículo →", ninguna dice "análisis". Re-corrida
+  también la verificación del fix del logo de la entrada anterior sobre
+  este mismo estado, sin regresión.
+- **Verificado**: `tsc --noEmit`, `npx eslint .` (proyecto completo) y
+  `next build`, limpios los tres.
+
 ## Próximos pasos
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
@@ -4006,18 +4091,28 @@ operativo:
    tampoco sin acceso de red distinto. El script en sí ya está probado de
    punta a punta contra un Postgres local (ver la entrada del 2026-08-01),
    no es código sin verificar.
-2. Después de correr el script: verificar en producción real que el tag
+2. **También operativo, mismo bloqueo de red**: correr también `npm run
+   fix:reassign-playbook-tag` (con `--dry-run` primero) contra producción
+   — reasigna cualquier artículo real que haya quedado con
+   `source='playbook'` (Fase 1, ítem 1). Mismo comando/misma sesión que el
+   punto anterior, dos scripts distintos, correrlos juntos.
+3. Después de correr los scripts: verificar en producción real que el tag
    negro del hero, el footer y la portada de La Lana del Deporte ya dicen
-   "Deporte" y cargan. Si las fotos de testimoniales siguen sin cargar,
+   "Deporte" y cargan, que ya no queda ningún artículo con el chip
+   "Playbook", y que el logo resetea el filtro del 5+1 + hace scroll al
+   top estando en home. Si las fotos de testimoniales siguen sin cargar,
    editar esos dos avatares a mano vía el tab Testimonios del admin (rutas
-   exactas en la entrada del diagnóstico).
-3. Verificar en producción real (no solo local) que el logo ya resetea el
-   filtro del 5+1 y hace scroll al top estando en home — el fix ya está
-   verificado con Playwright contra Postgres local, falta la confirmación
-   del usuario en el sitio real desplegado.
-4. Después de cerrar Fase 0: seguir con Fase 1 (arquitectura de
-   navegación), con la nota de la sesión de planeación de separar el ítem
-   de carpetas de productos editoriales del resto de la fase.
+   exactas en la entrada del diagnóstico). Todo el código ya está
+   verificado con Playwright contra Postgres local — esto es la
+   confirmación en el sitio real desplegado, no un diagnóstico nuevo.
+4. Fase 1 sigue en progreso — ítems 1, 2 y 3 ya tienen código mergeado
+   (ver la entrada del 2026-08-01 "Fase 1 (parcial)"). Quedan:
+   - Ítem 4: reubicar el módulo de Tips y "5 más leídas" debajo del
+     bloque de suscripción.
+   - Ítem 5: carpetas internas por producto editorial con diseño propio —
+     tratarlo como su propio mini-proyecto (definir primero los "temas
+     centrales" de cada producto), no como un cambio de navegación
+     simple, ver la nota ya anotada en la sección de Fase 1 arriba.
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se

@@ -68,7 +68,6 @@ export const SECTION_TOPICS: Record<string, SectionTopics> = {
   // Opinión is argument-led; the business vertical is the axis an opinion
   // piece actually takes a position on.
   opinion: { order: ['vertical', 'scope', 'sport'], label: 'Temas de esta opinión' },
-  playbook: { order: ['vertical', 'sport', 'scope'], label: 'Temas de este análisis' },
 };
 
 export function topicsForSection(source: string): SectionTopics {

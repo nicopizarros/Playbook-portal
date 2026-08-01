@@ -63,8 +63,6 @@
 .tag-mini.la-lana::before{background:var(--src-lana);}
 .tag-mini.infinitas{color:var(--src-infinitas);}
 .tag-mini.infinitas::before{background:var(--src-infinitas);}
-.tag-mini.playbook{color:var(--src-playbook);}
-.tag-mini.playbook::before{background:var(--src-playbook);}
 .tag-mini.opinion{color:var(--src-opinion);}
 .tag-mini.opinion::before{background:var(--src-opinion);}
 

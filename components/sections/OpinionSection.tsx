@@ -62,7 +62,7 @@ function AnalysisCard({
       {masthead && <span className="eyebrow">{masthead}</span>}
       <h3>{title}</h3>
       <p>{excerpt}</p>
-      <span className="read">Leer el análisis →</span>
+      <span className="read">Leer el artículo →</span>
     </>
   );
 

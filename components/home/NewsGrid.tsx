@@ -115,9 +115,6 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
             comunidad en un mismo sistema editorial.
           </p>
         </div>
-        <Link className="section-link" id="btn-ver-archivo" href="/archivo">
-          {overflow > 0 ? `Ver más (${overflow})` : 'Ver más'}
-        </Link>
       </div>
 
       <div className="source-filter" role="group" aria-label="Filtrar por fuente">
@@ -153,6 +150,12 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
             {sidebar}
           </aside>
         </div>
+      </div>
+
+      <div className="news-grid-more">
+        <Link className="section-link" id="btn-ver-archivo" href="/archivo">
+          {overflow > 0 ? `Más noticias (${overflow})` : 'Más noticias'}
+        </Link>
       </div>
     </>
   );

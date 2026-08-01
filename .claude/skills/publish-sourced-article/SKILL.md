@@ -170,16 +170,17 @@ Importancia scale. Differences from that skill:
 
 - **author**: leave `""` unless a byline is genuinely known, same as
   `publish-newsletter`.
-- **publication** / **source**: `"Noticias"` / `"industry-shots"`. This
-  reuses Industry Shots' pair rather than `publish-newsletter`'s "anything
-  else" fallback (`"Playbook"` / `"playbook"`): a third-party wire pickup
-  reads as a news brief, not as a Playbook-branded opinion piece, and the
-  `"Playbook"` kicker/tag (`app/(public)/articulo/page.tsx`'s
-  `article-kicker`, and the `tag-mini` chip on every card,
-  `components/article/NewsRow.tsx` and friends) should say "Noticias" on
-  these the same way it does on an Industry Shots item, both visually
-  (`styles/components.css`'s `.tag-mini.industry-shots` color) and in the
-  taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
+- **publication** / **source**: `"Noticias"` / `"industry-shots"`. Same
+  pair `publish-newsletter`'s own "anything else" fallback uses (there used
+  to be a separate `"Playbook"` / `"playbook"` fallback; retired 2026-08-01,
+  folded into `industry-shots` — see `lib/constants.ts`), so this no longer
+  needs to special-case anything: a third-party wire pickup reads as a news
+  brief either way, and the "Noticias" kicker/tag
+  (`app/(public)/articulo/page.tsx`'s `article-kicker`, and the `tag-mini`
+  chip on every card, `components/article/NewsRow.tsx` and friends) is
+  correct on these the same way it is on an Industry Shots item, both
+  visually (`styles/components.css`'s `.tag-mini.industry-shots` color) and
+  in the taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
   `topicsForSection`). There's no separate "wire story" entry in
   `KNOWN_SOURCES`/`SOURCE_LABELS` (`lib/constants.ts`) to reach for
   instead, reusing `industry-shots` is the pragmatic way to get the

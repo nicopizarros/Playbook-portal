@@ -10,14 +10,18 @@ export const LIST_COUNT = 5;
 export const TICKER_COUNT = 6;
 export const RELATED_COUNT = 3;
 
-export const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'playbook', 'opinion'] as const;
+// 'playbook' was a real, separate source/tag until the Roadmap Agosto
+// 2026 Fase 1 session (2026-08-01): folded into 'industry-shots' at the
+// user's request ("borrar el tag Playbook, traspasar sus artículos a
+// Noticias") since it never had a distinct editorial identity from
+// Noticias. See scripts/reassign-playbook-tag.ts for the data-side move.
+export const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'opinion'] as const;
 export type Source = (typeof KNOWN_SOURCES)[number];
 
 export const SOURCE_LABELS: Record<Source, string> = {
   'industry-shots': 'Noticias',
   'la-lana': 'La Lana del Deporte',
   infinitas: 'Infinitas',
-  playbook: 'Playbook',
   opinion: 'Opinión',
 };
 

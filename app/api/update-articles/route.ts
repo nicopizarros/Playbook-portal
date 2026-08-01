@@ -49,7 +49,10 @@ function detectPublication(title: string) {
   if (/industry shots/i.test(title)) return { publication: 'Noticias', source: 'industry-shots' };
   if (/lana/i.test(title)) return { publication: 'La Lana del Deporte', source: 'la-lana' };
   if (/infinitas/i.test(title)) return { publication: 'Infinitas', source: 'infinitas' };
-  return { publication: 'Playbook', source: 'playbook' };
+  // 'playbook' as its own source was retired 2026-08-01 (folded into
+  // Noticias, see lib/constants.ts) -- anything that doesn't match a known
+  // newsletter title now defaults to Noticias instead.
+  return { publication: 'Noticias', source: 'industry-shots' };
 }
 
 function escapeRegExp(str: string) {
