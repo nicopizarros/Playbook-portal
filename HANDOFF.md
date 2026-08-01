@@ -4366,6 +4366,42 @@ un módulo real pendiente de construir. Cierra la pregunta dejada en la
 entrada de Fase 1 — no hace falta preguntar de nuevo ni construir nada por
 ese nombre.
 
+### 2026-08-01 — Copy de la tarjeta "La Lana del Deporte" (Productos editoriales)
+
+- **Pedido del usuario**: reemplazar la descripción de esa tarjeta por "Un
+  espacio semanal para meternos a fondo en el dinero, el poder y las
+  decisiones que mueven al deporte fuera de la cancha", con permiso
+  explícito para acortarla si no entraba.
+- **Se acortó, a propósito**: el texto del usuario mide ~123 caracteres,
+  más largo que las otras 3 tarjetas del mismo grid (86-110 caracteres,
+  todas taglines cortas y declarativas, no oraciones de apertura). Se
+  publicó tal cual: **"El dinero, el poder y las decisiones que mueven al
+  deporte fuera de la cancha."** (80 caracteres) — se recortó únicamente
+  el arranque ("Un espacio semanal para meternos a fondo en"), que además
+  duplicaba el campo `meta` de la misma tarjeta (ya dice "Viernes"); el
+  resto de la frase del usuario quedó intacta, palabra por palabra.
+- **De paso, corrigió un problema de fondo que no era el pedido pero
+  estaba ahí**: el texto que reemplazó en `content.json` todavía decía
+  "...alrededor del Mundial 2026" (el mismo tipo de framing viejo que
+  Fase 0 encontró en otros lugares, solo que este nunca usaba la frase
+  exacta "La Lana del Mundial" así que el script de esa fase no lo tocó).
+  El copy nuevo no menciona "Mundial" en absoluto.
+- **Aplicado en los dos lugares que hace falta, mismo patrón que el resto
+  de la sesión**: `content.json` (semilla local) editado directo, y
+  `scripts/update-la-lana-description.ts` (nuevo, mismo driver HTTP de
+  Neon, `--dry-run` primero) corrido contra la Neon real de producción —
+  el valor que había ahí en verdad era distinto al de la semilla local
+  ("Deep Dives sobre el negocio del Mundial 2026.", confirma que
+  producción y `content.json` ya habían divergido, esperable porque
+  `site_content` se edita desde el admin). Confirmado con un segundo
+  `--dry-run` después: "ya coincide, nada que cambiar".
+- **Verificado visualmente, no solo que el string cambió**: Postgres local
+  re-sembrado con el `content.json` nuevo, `next dev` real, captura de
+  Playwright de la tarjeta completa — el texto entra en 3 líneas sin
+  desbordar el `.product-copy`, se ve consistente con el resto del grid.
+- **Verificado**: `tsc --noEmit`, `npx eslint` sobre el script nuevo, y
+  `next build`, limpios los tres.
+
 ## Próximos pasos
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
