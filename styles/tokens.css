@@ -19,6 +19,15 @@
   --src-lana:#b5850a;
   --src-infinitas:#6b2fbf;
   --src-opinion:#146c64;
+  /* Same "-fixed" pattern as --ink-fixed above, for the same reason: the
+     footer (styles/sections.css) is always a dark surface regardless of
+     the theme toggle, so a color used on it can't be the theme-adaptive
+     --src-infinitas -- that swaps to a lighter purple (#a875e8) in dark
+     mode, meant for text/borders legible against a dark PAGE background,
+     not for pairing with white text as a button fill on an always-dark
+     surface (low contrast). This stays the light-mode purple value in
+     every theme, same as --ink-fixed never gets overridden below. */
+  --src-infinitas-fixed:#6b2fbf;
 
   /* Motion system */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);

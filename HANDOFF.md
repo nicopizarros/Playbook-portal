@@ -112,10 +112,18 @@ ven bien".
       usuario ya tiene un video de repro** (2026-08-01), pedirlo al
       arrancar esta fase en vez de intentar reproducirlo a ciegas: este
       entorno no tiene forma de reproducir un bug específico de Windows.
-- [ ] Agregar el morado de Infinitas al botón de hasta abajo de esa sección
-- [ ] Refinar el color del pill del buscador
-- [ ] "Compartir" de cada artículo: agregar logos de redes, sumar más
-      opciones, mover el bloque debajo de los tags del artículo
+- [x] Agregar el morado de Infinitas al botón de hasta abajo de esa
+      sección — mergeado 2026-08-01 (el botón real es el `.inf-pill` del
+      footer).
+- [ ] Refinar el color del pill del buscador — **dejado sin tocar a
+      propósito**: "refinar" sin una referencia de qué está mal es una
+      decisión de diseño, no algo con una respuesta objetiva única;
+      preguntar al usuario qué específicamente no funciona del color
+      actual antes de tocarlo.
+- [x] "Compartir" de cada artículo: agregar logos de redes, sumar más
+      opciones, mover el bloque debajo de los tags del artículo —
+      mergeado 2026-08-01 (Facebook + LinkedIn + copiar enlace agregados;
+      si el usuario quería otras redes específicas, decirlo).
 
 **Criterio de aceptación:** revisar en Chrome, Safari y un navegador en
 Windows que no haya parpadeos ni desalineaciones, y que el bloque de
@@ -4097,6 +4105,66 @@ real, mismo estándar que Fases 1-3):
 - **Verificado**: `tsc --noEmit`, `npx eslint .` (proyecto completo) y
   `next build`, limpios los tres.
 
+### 2026-08-01 — Fase 3 (parcial): morado de Infinitas, compartir reubicado y ampliado
+
+- **Contexto**: pedido explícito del usuario de "seguir con el siguiente
+  fix que no requiera decisiones", dejando Fase 1 ítem 5 (carpetas
+  internas) parqueado. De los 4 ítems de Fase 3, el del glitch de Windows
+  sigue bloqueado (el usuario tiene un video pero todavía no lo mandó) y
+  "refinar el color del pill del buscador" se dejó afuera por ser
+  subjetivo ("refinar" sin una referencia concreta de qué está mal, eso sí
+  es una decisión de diseño) — cubiertos los otros dos, que tenían
+  respuesta objetiva sin pedir nada al usuario.
+- **"Agregar el morado de Infinitas al botón de hasta abajo de esa
+  sección"**: el botón real es `.inf-pill` en el footer
+  (`components/layout/Footer.tsx`, `<a className="pill inf-pill">`) — el
+  único botón de marca Infinitas que existe hoy, y literalmente el más
+  abajo de toda la página (footer). Antes usaba `var(--green)` (verde
+  genérico del sitio) con texto `--ink-fixed`; ahora usa el morado de
+  marca. **No se reusó `--src-infinitas` directamente**: ese token cambia
+  de valor con el tema (`#6b2fbf` claro / `#a875e8` oscuro, pensado para
+  texto/bordes legibles contra el fondo de PÁGINA que sí cambia), pero el
+  footer es una superficie siempre oscura que nunca se invierte
+  (`--ink-fixed`, mismo criterio documentado en `styles/sections.css`) —
+  usar el valor de tema oscuro más claro como fondo de botón con texto
+  blanco habría quedado con contraste pobre. Se agregó
+  `--src-infinitas-fixed` en `tokens.css` (mismo patrón que `--ink-fixed`:
+  declarado una vez en `:root`, nunca sobreescrito en las capas de tema
+  oscuro) fijado al valor claro (`#6b2fbf`), y el texto pasó de
+  `--ink-fixed` a blanco (el morado es oscuro/saturado, no claro como
+  `--green`, necesita texto claro para contraste).
+- **"Compartir": logos + más opciones + reubicado debajo de los tags**:
+  `app/(public)/articulo/page.tsx` — `<ArticleTopics>` (los tags, antes
+  llamado así porque es literalmente el índice de temas del artículo) y
+  `<ShareRow>` intercambiaron orden; compartir ahora renderiza después.
+  `components/article/ShareRow.tsx` — WhatsApp y X ya tenían ícono; se
+  agregaron Facebook y LinkedIn (mismo patrón sin SDK, solo URLs de
+  share-intent, igual que los dos existentes — no se agregó ninguna cuenta
+  ni API key nueva) y un botón de "Copiar enlace" (`navigator.clipboard`,
+  con estado local `copied` que muestra "¡Copiado!" con un check por 2s,
+  silencioso si el navegador niega el permiso de portapapeles en vez de
+  mostrar un error por algo no esencial). Elegidos Facebook (alcance
+  amplio en México) y LinkedIn (la audiencia B2B de sports business de
+  Playbook) como las dos redes nuevas — es la única parte de este ítem que
+  implicó un juicio de implementación en vez de una respuesta puramente
+  mecánica; si el usuario quería otras (Telegram, email), decirlo en la
+  siguiente sesión.
+- **Verificado de punta a punta contra un servidor real** (mismo Postgres
+  local + Playwright de las entradas anteriores, con capturas de pantalla
+  además esta vez): `getComputedStyle` del `.inf-pill` real confirma
+  `rgb(107, 47, 191)` (el morado, no el verde de antes); orden real del
+  DOM confirma que `.share-row` aparece después de `.article-topics`
+  (`compareDocumentPosition`); los 5 botones de compartir están presentes
+  (`WhatsApp`, `Facebook`, `X`, `LinkedIn`, `Copiar enlace`); clic real en
+  "Copiar enlace" con permisos de portapapeles otorgados en el navegador
+  headless confirma que el texto cambia a "¡Copiado!" Y que el portapapeles
+  real contiene la URL canónica del artículo, no solo que el botón cambió
+  de texto. Capturas de pantalla del footer y del bloque de compartir
+  revisadas visualmente (contraste del texto blanco sobre el morado,
+  layout de los 5 botones con wrap).
+- **Verificado**: `tsc --noEmit`, `npx eslint .` y `next build`, limpios
+  los tres.
+
 ## Próximos pasos
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
@@ -4146,6 +4214,14 @@ operativo:
      efectivamente aparece debajo del bloque de newsletter con contenido
      real — no se pudo confirmar visualmente en este sandbox (sin
      credenciales GA4, ver esa misma entrada).
+5. Fase 3 también en progreso — 2 de 4 ítems mergeados 2026-08-01 (morado
+   de Infinitas, compartir). Quedan:
+   - El glitch de Windows: **pedirle al usuario el video** que ya dijo
+     tener, no se puede reproducir a ciegas desde acá.
+   - El color del pill del buscador: dejado sin tocar a propósito, es una
+     decisión de diseño ("refinar" sin más contexto) — preguntar qué
+     específicamente no funciona del color actual antes de programar
+     nada.
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se

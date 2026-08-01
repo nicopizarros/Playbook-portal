@@ -263,8 +263,8 @@ export default async function ArticuloPage({ searchParams }: Props) {
             )}
           </div>
           <ArticleEndMark />
-          <ShareRow url={canonicalUrl} title={article.title} />
           <ArticleTopics article={article} />
+          <ShareRow url={canonicalUrl} title={article.title} />
           {article.substackUrl && (
             <a className="btn light article-cta" href={article.substackUrl} target="_blank" rel="noopener noreferrer">
               Ver en Substack

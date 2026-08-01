@@ -84,9 +84,14 @@
 
 .pill{display:inline-flex;align-items:center;min-height:38px;border:1px solid rgba(255,255,255,.3);padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:500;transition:background var(--duration-base) var(--ease-out);}
 .pill:hover,.pill:focus-visible{background:rgba(255,255,255,.08);}
-/* Mismo criterio que .btn.accent: --green no cambia con el tema, así que
-   el texto tampoco (--ink-fixed). */
-.inf-pill{background:var(--green);color:var(--ink-fixed);border-color:var(--green);font-weight:700;}
+/* Roadmap Agosto 2026, Fase 3: usa el morado de marca de Infinitas en vez
+   del verde genérico del sitio -- este botón vive en el footer, que es
+   siempre oscuro, así que necesita el valor fijo (--src-infinitas-fixed,
+   ver tokens.css) en vez del --src-infinitas que sí cambia con el tema.
+   Texto blanco en vez de --ink-fixed: el morado es un fondo oscuro y
+   saturado, no claro como --green, así que necesita texto claro para
+   contraste en vez del texto oscuro que usa .inf-pill sobre verde. */
+.inf-pill{background:var(--src-infinitas-fixed);color:#fff;border-color:var(--src-infinitas-fixed);font-weight:700;}
 
 /* Skeleton loading state */
 .skeleton-card{padding:16px 0;border-bottom:1px solid var(--rule);}
