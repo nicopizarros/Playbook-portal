@@ -199,7 +199,16 @@ document, see Step 6), never HTML tags.
     - `3` = Interesting but secondary: global trends, platform moves, product launches.
     - `2` = Brief update: follow-up, niche, or no strong opinion angle.
     - `1` = Minor, rarely used.
-- **featured** (Destacado): `true` only for clearly THE story of the batch, normally at most one `priority: 5` / `featured: true` article per run. Before setting it `true`, query the DB for existing `featured = true` rows (see verification pattern in Step 6) so you know what you're competing with. It's fine to have several `priority: 5` rows live (the site allows it), just don't blindly stack `featured: true` on top of an unrelated existing one without checking.
+  - Breaking News override (team directive, 2026-08-01): when the Substack source itself
+    is presented as a flash/urgent update outside its normal newsletter cadence (its own
+    title reads "Breaking News:" or equivalent, rather than a scheduled Industry
+    Shots/La Lana/Infinitas edition), set `priority: 5` regardless of where the story would
+    otherwise land on the rubric above, and set `featured: true` too, breaking news is
+    meant to run as the portal's top story every time. This deliberately overrides the "at
+    most one 5-star/featured live at a time" norm in the next bullet: each new breaking-news
+    item is meant to bump whatever was previously featured, so don't hold off setting it out
+    of caution, that's the intended effect, not a conflict to resolve.
+- **featured** (Destacado): `true` only for clearly THE story of the batch, normally at most one `priority: 5` / `featured: true` article per run (Breaking News items are the deliberate exception, see above). Before setting it `true`, query the DB for existing `featured = true` rows (see verification pattern in Step 6) so you know what you're competing with. It's fine to have several `priority: 5` rows live (the site allows it), just don't blindly stack `featured: true` on top of an unrelated existing one without checking.
 - **substackUrl**: the source URL, always required, same for every item from one edition.
 - **sourceUrl**: a unique per-item dedupe key: `` `${substackUrl}#<slug-of-title-or-topic>` ``. This is what the DB's unique index dedupes on (`articles.sourceUrl`), so re-running this skill on the same link will no-op on already-inserted stories instead of duplicating them.
 - **imageUrl** / **imageCredit**: the cover photo, see Step 5a. Required for every article, regardless of priority. Never one of the source article's embedded images (those go inline in `bodyMarkdown` instead, see Step 5b).
