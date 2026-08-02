@@ -25,7 +25,7 @@ export default function PrivacidadPage() {
       <h2>Qué datos recolectamos</h2>
       <ul>
         <li>
-          <strong>Correo electrónico</strong>, si te registrás como lector para acceder a más
+          <strong>Correo electrónico</strong>, si te registras como lector para acceder a más
           artículos de los que permite el límite gratuito, a través de un enlace de acceso
           (&quot;magic link&quot;) enviado por correo. No pedimos ni guardamos contraseñas de
           lectores.
@@ -42,7 +42,7 @@ export default function PrivacidadPage() {
           abajo.
         </li>
         <li>
-          <strong>Credenciales de acceso del equipo editorial</strong>, si trabajás como editor de
+          <strong>Credenciales de acceso del equipo editorial</strong>, si trabajas como editor de
           Playbook — estas cuentas son internas, no de lectores públicos.
         </li>
       </ul>
@@ -73,7 +73,7 @@ export default function PrivacidadPage() {
         </li>
         <li>
           <strong>Publicidad</strong> (Google AdSense): solo con tu consentimiento, para mostrar
-          anuncios y financiar el contenido. Si visitás el sitio desde la Unión Europea, el Reino
+          anuncios y financiar el contenido. Si visitas el sitio desde la Unión Europea, el Reino
           Unido o Suiza, Google puede mostrarte además su propio aviso de consentimiento
           (&quot;Privacy &amp; messaging&quot;), gestionado por Google como plataforma de gestión de
           consentimiento (CMP) certificada, conforme al marco de transparencia y consentimiento de
@@ -81,9 +81,10 @@ export default function PrivacidadPage() {
         </li>
       </ul>
       <p>
-        Puedes borrar las cookies de este sitio en cualquier momento desde la configuración de tu
-        navegador. Hacerlo no te bloquea el acceso, aunque sí reinicia el conteo de lecturas
-        gratuitas.
+        Puedes cambiar tu elección sobre la cookie de publicidad en cualquier momento desde{' '}
+        <strong>&quot;Preferencias de cookies&quot;</strong>, al pie de cualquier página del sitio.
+        También puedes borrar las cookies de este sitio desde la configuración de tu navegador;
+        hacerlo no te bloquea el acceso, aunque sí reinicia el conteo de lecturas gratuitas.
       </p>
 
       <h2>Con quién compartimos datos (terceros)</h2>
@@ -92,7 +93,7 @@ export default function PrivacidadPage() {
         <li><strong>Vercel</strong> — hospedaje del sitio, almacenamiento de imágenes, analítica de uso.</li>
         <li><strong>Google Analytics 4</strong> — analítica de uso.</li>
         <li>
-          <strong>Google AdSense</strong> — publicidad, solo con consentimiento. Podés revisar o
+          <strong>Google AdSense</strong> — publicidad, solo con consentimiento. Puedes revisar o
           ajustar tus preferencias de anuncios directamente con Google en{' '}
           <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer">
             myadcenter.google.com
@@ -108,7 +109,16 @@ export default function PrivacidadPage() {
         tratamiento de tus datos personales. Si eres lector registrado, puedes exportar o eliminar tu
         cuenta y tu historial de lectura tú mismo, sin escribirnos, desde{' '}
         <a href="/cuenta">Mi cuenta</a>. Para cualquier otro pedido relacionado con tus datos,
-        escribinos a <strong>hola@playbook.la</strong>.
+        escríbenos a <strong>hola@playbook.la</strong>.
+      </p>
+
+      <h2>Menores de edad</h2>
+      <p>
+        Este sitio está dirigido a un público general interesado en el negocio del deporte, no
+        específicamente a menores de edad, y no solicitamos intencionalmente datos personales de
+        menores de edad. Si eres madre, padre o tutor y tienes conocimiento de que un menor a tu
+        cargo nos proporcionó datos personales, escríbenos a <strong>hola@playbook.la</strong> para
+        eliminarlos.
       </p>
 
       <h2>Cambios a este aviso</h2>

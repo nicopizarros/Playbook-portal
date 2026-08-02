@@ -90,11 +90,11 @@ encontrar un link que saque al usuario a Substack que sea evitable, y
 confirmar que la jerarquía de tags (Noticias, Artículo, y los productos
 editoriales) es consistente en todo el sitio.
 
-### Fase 2 — Automatización de contenido y skills
+### Fase 2 — Automatización de contenido y skills — **completa**
 
-- [ ] Entrenar el skill de tags para que asigne todos los tags relevantes
+- [x] Entrenar el skill de tags para que asigne todos los tags relevantes
       por artículo
-- [ ] Modificar el skill para que la portada de cada artículo de opinión
+- [x] Modificar el skill para que la portada de cada artículo de opinión
       sea la imagen de portada real de Substack, nunca una foto del cuerpo
 
 **Criterio de aceptación (endurecido en la sesión de planeación, el
@@ -103,6 +103,22 @@ existentes (mezcla de noticias y opinión) y exigir un umbral explícito
 antes de aplicarlo al catálogo completo — ej. tags correctos en 9/10 sin
 ningún falso positivo de portada — no solo "confirmar manualmente que se
 ven bien".
+
+**2026-08-02 — hecho:** `publish-newsletter/SKILL.md` reescrito para que
+`tagsScope`/`tagsSport`/`tagsVertical` asignen todos los valores que
+apliquen por nivel (antes pedía "el más específico", de ahí el
+sub-etiquetado — 61 de 62 artículos vivos tenían un solo `tagsSport`).
+Se agregó la rama `Opinión`/`opinion` faltante en el mapeo
+publication/source (no existía ninguna) y, para `source: 'opinion'`, la
+portada ahora sale de la imagen de portada propia del post de Substack en
+vez de una búsqueda externa. Auditoría de los 62 artículos publicados:
+se corrigieron 3 artículos de Liga MX (les faltaba `Fútbol` junto a `Liga
+MX`) y 1 artículo se completó con `Gobernanza y Regulación`; el resto del
+catálogo ya tenía un etiquetado de `tagsVertical`/`tagsScope` razonable,
+no se tocó por no tener alta confianza editorial. No había ningún
+artículo con `source: 'opinion'` publicado (ni en otro estado) al momento
+de la auditoría, así que el fix de portada no tuvo nada que retro-aplicar
+— aplica hacia adelante.
 
 ### Fase 3 — Pulido visual — **completa**
 
@@ -167,10 +183,13 @@ equipo antes de programar, y documentar esa decisión antes de tocar código.
 
 ### Fase 6 — Legal y compliance
 
-- [ ] Corregir argentinismos en los términos y condiciones
+- [x] Corregir argentinismos en los términos y condiciones
 - [ ] Llevar el compliance general al 100% (definir primero el checklist:
       aviso de privacidad, cookies, términos, todo lo que aplique a un
-      medio digital en México)
+      medio digital en México) — checklist definido y casi todo
+      implementado, ver nota 2026-08-02; quedan dos placeholders que
+      necesitan un dato de negocio real, no algo que se pueda inventar
+      desde código.
 
 **Dependencia no explícita en el doc original, anotada en la sesión de
 planeación**: si Fase 5 termina eligiendo Resend o un formulario de email
@@ -182,6 +201,45 @@ aislada de la decisión de Fase 5.
 los términos y condiciones completos y confirme que el español es
 neutro/mexicano, y que exista un checklist de compliance marcado como
 completo.
+
+**2026-08-02 — hecho:** se corrigió el voseo argentino tanto en
+`/terminos` como en `/privacidad` (`sos`/`escribinos`/`te registrás`/
+`trabajás`/`visitás`/`podés` → `eres`/`escríbenos`/`te registras`/
+`trabajas`/`visitas`/`puedes`; "casilla de correo" → "cuenta de correo
+electrónico"); no había más voseo en el resto del sitio (`app/`,
+`components/`).
+
+Checklist de compliance definido para un medio digital en México
+(LFPDPPP + buenas prácticas), con estado de cada punto:
+- [x] Aviso de Privacidad (`/privacidad`): identidad del responsable,
+  datos recolectados, finalidades, terceros, derechos ARCO, ya existía.
+- [x] Términos y Condiciones (`/terminos`): ya existía.
+- [x] Mecanismo de consentimiento de cookies granular
+  (`components/CookieNotice.tsx` + `lib/consent.ts`): esenciales/analítica
+  siempre activas, publicidad opt-in, ya existía.
+- [x] CMP certificado (Google Funding Choices) para tráfico EEA/UK/CH, ya
+  existía (`app/layout.tsx`).
+- [x] `ads.txt`, ya existía.
+- [x] Autoservicio de derechos ARCO (exportar/eliminar cuenta) en
+  `/cuenta`, ya existía.
+- [x] Enlaces a ambos documentos legales visibles en el footer de cada
+  página, ya existía.
+- [x] **Gap real encontrado y corregido:** no había forma de revisar o
+  cambiar la elección de publicidad después del primer aviso, solo se
+  sugería borrar cookies del navegador a mano. Se agregó un link
+  "Preferencias de cookies" al footer (`CookiePreferencesLink.tsx`) que
+  reabre el banner en modo edición vía un evento
+  (`REOPEN_COOKIE_NOTICE_EVENT`); `/privacidad` actualizado para
+  mencionarlo.
+- [x] **Gap real encontrado y corregido:** el aviso de privacidad no
+  tenía cláusula de menores de edad. Se agregó una sección estándar
+  ("Menores de edad") a `/privacidad`.
+- [ ] **Pendiente, necesita un dato real, no se puede completar desde
+  código:** `/terminos` tiene `[JURISDICCIÓN]` y `/privacidad` tiene
+  `[DOMICILIO FISCAL]` como placeholders literales — LFPDPPP exige el
+  domicilio real del responsable en el aviso de privacidad, y los
+  términos necesitan una jurisdicción real, no una inventada. Esto es lo
+  único que falta para marcar el checklist 100% completo.
 
 ### Notas de secuencia del roadmap
 
@@ -4402,6 +4460,45 @@ ese nombre.
 - **Verificado**: `tsc --noEmit`, `npx eslint` sobre el script nuevo, y
   `next build`, limpios los tres.
 
+### 2026-08-02 — Fase 2 completa (skill de tags/portada) + Fase 6 casi completa (legal)
+
+Sesión larga, sin decisiones de producto pendientes: se avanzó todo lo que
+no dependía de que el usuario eligiera algo (Fase 1 ítem 5 y Fase 5 siguen
+bloqueadas por eso, no se tocaron).
+
+- **Fase 2, completa** (ver su propia sección arriba para el detalle):
+  `publish-newsletter/SKILL.md` corregido para tags multi-valor por nivel
+  y portada de opinión desde Substack en vez de búsqueda externa; rama
+  `Opinión`/`opinion` agregada al mapeo publication/source, que antes no
+  existía. Backfill aplicado contra la Neon real (driver HTTP, mismo
+  patrón que sesiones anteriores): 3 artículos de Liga MX + `Fútbol`, 1
+  artículo + `Gobernanza y Regulación`.
+- **Fase 6, ítem 1 (argentinismos): completo.** Voseo corregido en
+  `/terminos` y `/privacidad` (la entrada del 2026-07-23 que decía esto ya
+  estaba resuelto solo cubría otros 9 archivos, no estas dos páginas
+  legales — confirmado con grep antes y después).
+- **Fase 6, ítem 2 (compliance 100%): checklist definido, casi todo
+  cerrado**, ver el detalle completo en la sección de Fase 6 arriba. Dos
+  gaps reales encontrados y corregidos (nadie los había pedido
+  explícitamente, salieron de auditar contra LFPDPPP + buenas prácticas):
+  no había forma de revisar la elección de cookies de publicidad después
+  del primer aviso (ahora hay un link "Preferencias de cookies" en el
+  footer), y no había cláusula de menores de edad en el aviso de
+  privacidad (agregada). Lo único que queda para el 100%:
+  `[DOMICILIO FISCAL]` en `/privacidad` y `[JURISDICCIÓN]` en `/terminos`
+  son placeholders literales que necesitan un dato de negocio real — no
+  se pueden inventar desde código, es lo único de esta fase que sigue
+  necesitando que el usuario lo provea.
+- **Verificado**: `tsc --noEmit` limpio. No se corrió `next build`/
+  Playwright esta sesión (cambios de texto/copy y de un skill markdown,
+  sin superficie visual nueva más allá del link del footer, que sí quedó
+  cubierto por el `tsc` limpio + revisión manual del JSX).
+- **Pendiente para la siguiente sesión**: si el usuario quiere Fase 6 al
+  100% de verdad, pedirle el domicilio fiscal real y la jurisdicción antes
+  de tocar esos dos placeholders. Fuera de eso, lo único que queda en el
+  roadmap activo son Fase 1 ítem 5 y Fase 5 completa, ambas bloqueadas en
+  una decisión de producto, no en código.
+
 ## Próximos pasos
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
@@ -4426,28 +4523,38 @@ producción resueltos (ítem 1: los 5 artículos reales reasignados; ítem 4:
 - Ítem 5: carpetas internas por producto editorial con diseño propio —
   tratarlo como su propio mini-proyecto (definir primero los "temas
   centrales" de cada producto), no como un cambio de navegación simple,
-  ver la nota ya anotada en la sección de Fase 1 arriba.
+  ver la nota ya anotada en la sección de Fase 1 arriba. **Bloqueado en
+  decisión de producto.**
 - Verificar en producción real (con GA4 configurado) que "Más leídas"
   efectivamente aparece debajo del bloque de newsletter con contenido
   real — no se pudo confirmar visualmente en este sandbox (sin
   credenciales GA4).
 
-Fase 2 (skill de tags/portada) sigue sin arrancar — se saltó dos veces a
-propósito (Fase 3 y Fase 4 se priorizaron por ser "fixes sin decisiones";
-Fase 2 es una tarea de evaluación/iteración de skill, no un fix mecánico).
-Con Fases 0/3/4 ahora completas y Fase 1 reducida a un solo ítem grande
-(carpetas internas, que necesita definición de producto) más una
-verificación pendiente, el turno lógico si el usuario vuelve a pedir "el
-siguiente fix sin decisiones" es Fase 2, o resolver lo que queda de Fase 1.
-Fase 5/6 siguen necesitando decisión de producto antes de programar nada.
+**Fases 0, 2, 3 y 4: completas** (ver entrada 2026-08-02 para el detalle
+de Fase 2: skill de tags/portada corregido + backfill contra producción).
+
+Fase 6 (legal): ítem 1 (argentinismos) completo. Ítem 2 (compliance 100%)
+tiene el checklist definido y casi todo implementado (ver entrada
+2026-08-02) — lo único que falta es que el usuario provea el domicilio
+fiscal real y la jurisdicción, dos placeholders literales
+(`[DOMICILIO FISCAL]`, `[JURISDICCIÓN]`) que no se pueden inventar desde
+código.
+
+Lo único que queda en el roadmap activo bloqueado por decisión de
+producto: Fase 1 ítem 5 (carpetas internas por producto) y Fase 5 completa
+(sistema de cuentas — elegir entre Substack/Resend/formulario propio antes
+de programar nada). Si el usuario resuelve cualquiera de esas dos
+decisiones, ese es el siguiente trabajo con código real disponible.
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se
 escribió el prompt.
 
-La limpieza de voseo que estaba pendiente acá quedó **resuelta** en la
-sesión de auditoría UI/UX del 2026-07-23 (ver esa entrada) — los 9
-archivos usan tuteo estándar, verificado con grep.
+La limpieza de voseo de la sesión de auditoría UI/UX del 2026-07-23 cubrió
+9 archivos, pero no incluía `/terminos` ni `/privacidad` (esas dos páginas
+tenían su propio voseo, sin relación con esa sesión). Corregidas en la
+sesión del 2026-08-02 (Fase 6, ver esa entrada) — a hoy, `app/` y
+`components/` están libres de voseo, verificado con grep.
 
 Pendientes de verificación manual en producción (sin cambios de código,
 solo necesitan deploy con credenciales reales):

@@ -39,8 +39,8 @@ export default function TerminosPage() {
       <ul>
         <li>
           <strong>Lectores</strong>: el registro es gratuito y usa un enlace de acceso enviado por
-          correo, sin contraseña. Sos responsable de mantener el acceso a tu propia casilla de
-          correo.
+          correo, sin contraseña. Eres responsable de mantener el acceso a tu propia cuenta de
+          correo electrónico.
         </li>
         <li>
           <strong>Editores</strong>: cuentas internas del equipo de Playbook, no disponibles para el
@@ -61,7 +61,7 @@ export default function TerminosPage() {
         Los artículos, textos, imágenes y demás contenido publicado en este sitio son propiedad de{' '}
         <strong>Playbook SAPI de C.V.</strong> o de terceros que nos autorizaron su uso. Puedes
         compartir enlaces a nuestros artículos libremente; para cualquier otro uso (reproducción,
-        traducción, republicación), escribinos a <strong>hola@playbook.la</strong>.
+        traducción, republicación), escríbenos a <strong>hola@playbook.la</strong>.
       </p>
 
       <h2>Imágenes en artículos</h2>
@@ -70,8 +70,8 @@ export default function TerminosPage() {
         relación con el contenido de cada nota. Cuando la fuente de una imagen es identificable
         (fotógrafo, agencia, club, liga u otra organización), la acreditamos junto a la imagen.
         Hacemos nuestro mejor esfuerzo por usar material del que tenemos derecho a disponer, pero si
-        sos el titular de los derechos de una imagen publicada en el sitio y considerás que su uso no
-        está debidamente autorizado, escribinos a <strong>hola@playbook.la</strong> con el enlace del
+        eres el titular de los derechos de una imagen publicada en el sitio y consideras que su uso no
+        está debidamente autorizado, escríbenos a <strong>hola@playbook.la</strong> con el enlace del
         artículo y una acreditación de tu titularidad. Vamos a revisar el caso a la brevedad y, si
         corresponde, retirar la imagen o corregir el crédito.
       </p>
