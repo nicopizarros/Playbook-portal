@@ -116,10 +116,6 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
       <div className="section-head" style={{ borderBottom: 'none', marginBottom: 0, paddingTop: 0 }}>
         <div>
           <h2>Último en Playbook</h2>
-          <p className="sub">
-            La casa editorial para entender el negocio del deporte: newsletter, portal, video y
-            comunidad en un mismo sistema editorial.
-          </p>
         </div>
       </div>
 
