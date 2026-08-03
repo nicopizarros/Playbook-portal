@@ -4584,67 +4584,67 @@ bloqueadas por eso, no se tocaron).
 El plan anterior (Fases 7, 8 y 9, más abajo) está completo salvo lo
 anotado en su propia sección — no es lo que sigue ahora.
 
-**Fases 0, 3 y 4: completas** (código Y datos de producción, no solo
-código — ver las entradas del 2026-08-01, especialmente "Fase 0 cerrada de
-verdad" para cómo se llegó a la Neon real desde este sandbox vía el driver
-HTTP de `@neondatabase/serverless`, el mismo que ya usaba
-`publish-newsletter.ts`. **Importante para la próxima sesión en este mismo
-entorno**: `psql`/TCP directo contra Neon siguen bloqueados, pero el driver
-HTTP SÍ funciona — no asumir que producción es inalcanzable solo porque
-`psql` falla.). Pendiente solo que el usuario confirme visualmente en el
-sitio desplegado, en particular el glitch de Windows (no se pudo observar
-el efecto exacto de `scrollbar-gutter` en este sandbox, headless Linux no
-reserva scrollbar igual que Windows).
+**Estado por fase, a 2026-08-02, fin de sesión:**
+- **Fase 0 (bugs visuales): completa.** Código y datos de producción
+  resueltos. Solo falta que el usuario confirme visualmente en el sitio
+  desplegado, en particular el glitch de Windows (`scrollbar-gutter`) —
+  no se pudo observar el efecto exacto en este sandbox, Chromium headless
+  en Linux no reserva scrollbar igual que Windows real.
+- **Fase 1 (navegación): en progreso.** Ítems 1-4 completos (código y
+  datos de producción). Ítem 5 (carpetas internas por producto editorial,
+  diseño propio) sigue sin arrancar — las decisiones de producto ya están
+  tomadas (diseño 100% custom por producto, no una plantilla compartida;
+  The Futbol Business Review entra al mismo tratamiento que los otros
+  tres, con su propio `source`; el usuario da el visto bueno al
+  posicionamiento antes de construir nada), pero **el trabajo en sí
+  (redactar el posicionamiento de cada producto para aprobación) todavía
+  no se hizo** — quedó pendiente cuando la sesión se desvió a Fase 5. Es
+  lo próximo si el usuario retoma esto.
+- **Fase 2 (skills de contenido): completa.**
+- **Fase 3 (pulido visual): completa.**
+- **Fase 4 (contenido dinámico): completa.**
+- **Fase 5 (cuentas/auth): efectivamente resuelta**, con un cabo suelto.
+  Auth de lector: Google OAuth (ya estaba) + email/contraseña propio
+  (agregado hoy, ver esa sección para el detalle técnico completo).
+  Substack se investigó y se descartó (su API pública no ofrece login de
+  terceros). Sin construir todavía, pedido por el usuario en esta misma
+  sesión: exportar/subir los emails de lectores registrados a Substack
+  como suscriptores — falta que el usuario diga si es un export manual o
+  algo automatizado antes de tocar código. **Tampoco verificado en
+  navegador/DB real** el flujo nuevo de correo+contraseña (alta, login,
+  rechazo de una cuenta Google-only) — el pool TCP de
+  `lib/db/client.ts` no conecta desde este sandbox, solo el driver HTTP
+  que usan los scripts sueltos. Probarlo después del próximo deploy.
+- **Fase 6 (legal): ítem 1 completo**, argentinismos corregidos en ambas
+  páginas legales. **Ítem 2 (compliance 100%): checklist definido, casi
+  todo implementado**, ver esa sección para el detalle. Lo único que
+  falta: `[DOMICILIO FISCAL]` en `/privacidad` y `[JURISDICCIÓN]` en
+  `/terminos` son placeholders literales, necesitan un dato de negocio
+  real del usuario, no se pueden completar desde código.
 
-Fase 1 sigue en progreso — ítems 1, 2, 3 y 4 ya tienen código Y datos de
-producción resueltos (ítem 1: los 5 artículos reales reasignados; ítem 4:
-"Tips" confirmado como typo del usuario, sin acción pendiente). Queda:
-- Ítem 5: carpetas internas por producto editorial con diseño propio —
-  tratarlo como su propio mini-proyecto (definir primero los "temas
-  centrales" de cada producto), no como un cambio de navegación simple,
-  ver la nota ya anotada en la sección de Fase 1 arriba. **Bloqueado en
-  decisión de producto.**
-- Verificar en producción real (con GA4 configurado) que "Más leídas"
-  efectivamente aparece debajo del bloque de newsletter con contenido
-  real — no se pudo confirmar visualmente en este sandbox (sin
-  credenciales GA4).
-
-**Fases 0, 2, 3 y 4: completas** (ver entrada 2026-08-02 para el detalle
-de Fase 2: skill de tags/portada corregido + backfill contra producción).
-
-Fase 6 (legal): ítem 1 (argentinismos) completo. Ítem 2 (compliance 100%)
-tiene el checklist definido y casi todo implementado (ver entrada
-2026-08-02) — lo único que falta es que el usuario provea el domicilio
-fiscal real y la jurisdicción, dos placeholders literales
-(`[DOMICILIO FISCAL]`, `[JURISDICCIÓN]`) que no se pueden inventar desde
-código.
-
-Lo único que queda en el roadmap activo bloqueado por decisión de
-producto: Fase 1 ítem 5 (carpetas internas por producto) y Fase 5 completa
-(sistema de cuentas — elegir entre Substack/Resend/formulario propio antes
-de programar nada). Si el usuario resuelve cualquiera de esas dos
-decisiones, ese es el siguiente trabajo con código real disponible.
+**Resumen de lo que falta, en una lista (a 2026-08-02):**
+1. Fase 1 ítem 5 — redactar y aprobar el posicionamiento de cada producto
+   editorial, después construir las 4 páginas custom.
+2. Fase 5 — decidir manual vs. automatizado para subir emails de lectores
+   a Substack como suscriptores, y construirlo.
+3. Fase 5 — verificar en navegador real (después de deploy) el flujo de
+   registro/login con correo y contraseña.
+4. Fase 6 — el usuario provee domicilio fiscal real y jurisdicción para
+   cerrar los dos placeholders.
+5. Verificaciones manuales sin cambio de código, solo necesitan deploy
+   con credenciales reales: subida de imágenes a Vercel Blob (gap desde
+   Fase 4), panel de analítica con credenciales reales de Vercel
+   Analytics (gap desde Fase 4), datos reales de GA4 en el módulo "Más
+   leídas" (gap desde Fase 5 original), y confirmar en el dashboard de
+   Vercel que las variables de entorno tienen el nombre correcto —
+   PLAYBOOK_SECRET (no Playbook_secret), GA4_PROPERTY_ID,
+   GA4_SERVICE_ACCOUNT_EMAIL, GA4_SERVICE_ACCOUNT_PRIVATE_KEY — el código
+   ya usa el nombre correcto en todos lados, es solo el valor en Vercel el
+   que puede estar mal.
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se
 escribió el prompt.
-
-La limpieza de voseo de la sesión de auditoría UI/UX del 2026-07-23 cubrió
-9 archivos, pero no incluía `/terminos` ni `/privacidad` (esas dos páginas
-tenían su propio voseo, sin relación con esa sesión). Corregidas en la
-sesión del 2026-08-02 (Fase 6, ver esa entrada) — a hoy, `app/` y
-`components/` están libres de voseo, verificado con grep.
-
-Pendientes de verificación manual en producción (sin cambios de código,
-solo necesitan deploy con credenciales reales):
-- Magic link de lectores (Resend, gap desde Fase 3)
-- Subida de imágenes a Vercel Blob (gap desde Fase 4)
-- Panel de analítica con credenciales reales de Vercel Analytics (gap
-  desde Fase 4)
-- Datos reales de GA4 en módulo Más leídas (gap desde Fase 5)
-- Variables de entorno en Vercel con nombres correctos: PLAYBOOK_SECRET
-  (no Playbook_secret), GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL,
-  GA4_SERVICE_ACCOUNT_PRIVATE_KEY (confirmar que ya fueron corregidas)
 
 ## Convención: cómo mantener este archivo
 
