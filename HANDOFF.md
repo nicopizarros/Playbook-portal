@@ -168,15 +168,45 @@ exactamente la misma fórmula del 5+1 (sin una segunda fórmula paralela), y
 que un artículo de opinión marcado como excepción sí puede forzarse dentro
 del 5+1.
 
-### Fase 5 — Sistema de cuentas y autenticación
+### Fase 5 — Sistema de cuentas y autenticación — **efectivamente resuelta**
 
-Orden de preferencia: (1) Auth vía Substack, (2) Resend como alternativa,
-(3) formulario simple solo-correo. **Nota de la sesión de planeación**: no
-existe ningún sistema de auth de lector vía Substack ni formulario simple
-hoy en el código — sí existe auth de lector vía Resend (magic link, Fase 3
-de la migración original) y auth de editor vía Credentials, ambos ya en
-producción. La opción (2) del orden de preferencia ya está construida; las
-opciones (1) y (3) son trabajo nuevo si se decide no usar lo que ya existe.
+Orden de preferencia original: (1) Auth vía Substack, (2) Resend como
+alternativa, (3) formulario simple solo-correo. **La nota de la sesión de
+planeación que describía esto quedó desactualizada** — no reflejaba
+`auth.ts` real. Estado real, confirmado en el código (commit `8c24e4d
+Switch reader auth from Resend magic-link to Google OAuth`, ya en `main`):
+
+- **(1) Substack: investigado y descartado 2026-08-02.** La Developer API
+  pública de Substack (`substack.com/api-tos`) solo expone datos públicos
+  de perfil de creador/publicación (nombre, conteo de suscriptores, links
+  sociales) para discovery/analítica/embeds — no hay OAuth de login ni
+  forma de verificar si un email es suscriptor de una publicación. No es
+  una cuestión de esfuerzo, Substack simplemente no ofrece esto para
+  terceros.
+- **(2) Resend: se intentó, se abandonó por la misma razón que motivó
+  reconsiderar esto.** El dominio de envío de Resend nunca se verificó
+  (el usuario no administra ese dominio), así que el magic-link de lector
+  nunca pudo enviarse a direcciones reales en producción.
+- **Lo que reemplazó a (1) y (2), ya en producción:** auth de lector vía
+  **Google OAuth** (`auth.ts`, provider `Google`), auth de editor vía
+  Credentials (usuario/contraseña contra la tabla `editors`), ambos con
+  sesión JWT y el rol derivado del provider que autenticó, nunca del
+  cliente. Resend sigue existiendo solo para invitaciones de editor
+  (`lib/actions/editor-auth.ts`), con degradación agraciada a un link
+  copiable si `RESEND_API_KEY`/`EMAIL_FROM` faltan o fallan — no bloquea
+  nada, es un fallback ya contemplado.
+
+**Nuevo ítem abierto (2026-08-02, pedido explícito del usuario), no
+estaba en el plan original:** agregar una segunda opción de registro de
+lector con email + contraseña propios (sin depender de ningún envío de
+correo), y exportar/subir periódicamente esa base de emails a Substack
+como suscriptores, para que el reader-signup del sitio también alimente
+la lista de Substack. Sin definir todavía: si el registro con contraseña
+reemplaza o complementa a Google OAuth, y si la subida a Substack es un
+export manual (botón admin, el usuario lo sube él mismo al CSV de
+Substack) o algo automatizado. Si se construye, `/privacidad` necesita un
+párrafo nuevo declarando esa transferencia a Substack como tercero — hoy
+esa página no la menciona.
 
 **Criterio de aceptación:** confirmar el orden de implementación con el
 equipo antes de programar, y documentar esa decisión antes de tocar código.
