@@ -260,6 +260,60 @@ transferencia a Substack como tercero.
 **Criterio de aceptación:** confirmar el orden de implementación con el
 equipo antes de programar, y documentar esa decisión antes de tocar código.
 
+**2026-08-02 — pedido nuevo del usuario, fuera del roadmap original:
+panel admin de lectores + sincronización a Google Sheets.**
+- **`components/admin/tabs/ReadersTab.tsx`** (nuevo, pestaña "Lectores",
+  grupo "Equipo" en `AdminDashboard.tsx`): lista de lectores registrados
+  (correo, nombre, método de alta Google/contraseña, fecha, lecturas
+  totales), con buscador por correo/nombre. Mismo patrón de
+  auto-carga sin draft que `TeamTab.tsx`. Fuente: `getReadersData()` en
+  `lib/actions/readers.ts` (nuevo), un solo query con `leftJoin` +
+  `count` contra `article_reads`, sin paginar todavía (pocos lectores a
+  esta altura, revisar si la lista crece).
+- **`lib/google-sheets.ts`** (nuevo): agrega una fila a una Google Sheet
+  cada vez que se crea una cuenta de lector nueva, vía Google o vía
+  correo+contraseña. Reutiliza el mismo service account que ya usa
+  `lib/ga4.ts` (mismo JWT hand-rolled, sin paquete `googleapis`), pidiendo
+  el scope de Sheets en vez del de Analytics — no hace falta una
+  credencial nueva, pero sí dos pasos de setup fuera de código:
+  1. Habilitar la **Google Sheets API** en el mismo proyecto de Google
+     Cloud del service account de GA4 (es una API separada de la
+     Analytics Data API que GA4 ya tiene habilitada).
+  2. Crear la hoja de cálculo y **compartirla con el correo del service
+     account** (`GA4_SERVICE_ACCOUNT_EMAIL`) como Editor, igual que se
+     comparte con cualquier persona — el acceso a Sheets no depende de
+     los permisos de la propiedad de GA4 en absoluto, es un share aparte.
+  3. Poner el ID de esa hoja (la cadena larga en su URL) en la variable
+     nueva `READERS_SHEET_ID` (Vercel + `.env.local.example` ya
+     documentado ahí).
+  Sin `READERS_SHEET_ID` configurada, `appendReaderRow()` no hace nada —
+  nunca bloquea ni falla un registro real, mismo criterio de degradación
+  agraciada que el resto de las integraciones opcionales del proyecto
+  (`isConfigured()` + try/catch que solo loguea, nunca lanza).
+- **Columnas escritas** (pedido explícito del usuario): fecha de
+  registro, correo, nombre, método (Google/Contraseña), lecturas totales.
+  **Ojo con la última columna**: se escribe una sola vez, al momento del
+  alta, siempre en 0 (un lector recién registrado no leyó nada todavía) —
+  esto es un append puntual, no una sincronización continua, así que la
+  hoja no refleja actividad de lectura posterior. Si eso importa, hace
+  falta una sincronización periódica aparte, no pedida todavía.
+- **Dos puntos de enganche**, uno por cada camino de alta (no hay un solo
+  lugar que cubra ambos): `auth.ts`'s `events.createUser` (dispara solo
+  para altas vía el adapter, o sea Google) y directamente después del
+  `db.insert(users)` exitoso en `lib/actions/reader-auth.ts` (alta por
+  contraseña, que nunca pasa por el adapter). El caso de condición de
+  carrera (23505, dos altas concurrentes con el mismo correo) no dispara
+  el append por partida doble — solo la request que efectivamente creó la
+  fila lo hace.
+- **Verificado:** `tsc --noEmit`, `npx eslint` sobre los archivos
+  tocados, y `next build`, limpios los tres. **No verificado**: ni la
+  pestaña de lectores ni el append a Sheets se probaron contra Neon/Google
+  reales desde este sandbox — mismo bloqueo de siempre (pool TCP no
+  conecta aquí) más el hecho de que `READERS_SHEET_ID` no está configurada
+  todavía (el usuario no ha hecho los 3 pasos de setup de arriba). Pedirle
+  al usuario que, después de configurar la hoja y hacer deploy, registre
+  un lector de prueba y confirme que la fila aparece.
+
 ### Fase 6 — Legal y compliance
 
 - [x] Corregir argentinismos en los términos y condiciones

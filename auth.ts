@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { db } from './lib/db/client';
 import { users, accounts, verificationTokens, editors } from './lib/db/schema';
+import { appendReaderRow } from './lib/google-sheets';
 
 // One Auth.js instance, three identity flows sharing it — Google OAuth
 // for readers, email+password for readers who'd rather not use Google
@@ -105,6 +106,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as 'reader' | 'editor';
       }
       return session;
+    },
+  },
+  events: {
+    // Only fires for adapter-backed sign-ins, i.e. Google — the
+    // reader-credentials provider bypasses the adapter entirely (it
+    // inserts into `users` itself, see lib/actions/reader-auth.ts, which
+    // calls appendReaderRow directly instead of relying on this event).
+    async createUser({ user }) {
+      await appendReaderRow({
+        createdAt: new Date(),
+        email: user.email || '',
+        name: user.name ?? null,
+        authMethod: 'google',
+        totalReads: 0,
+      });
     },
   },
   // No custom `pages` config: readers sign in inline via the <EmailWall>

@@ -8,6 +8,7 @@ import { db } from '@/lib/db/client';
 import { users } from '@/lib/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { getClientIp } from '@/lib/request-ip';
+import { appendReaderRow } from '@/lib/google-sheets';
 
 // Google OAuth is a redirect-based flow: signIn() without redirect:false
 // throws Auth.js's internal NEXT_REDIRECT to send the browser to Google
@@ -69,8 +70,14 @@ export async function signUpOrSignInWithPasswordAction(
 
   if (!existing) {
     const passwordHash = await bcrypt.hash(password, 10);
+    const createdAt = new Date();
     try {
-      await db.insert(users).values({ email, passwordHash });
+      await db.insert(users).values({ email, passwordHash, createdAt });
+      // Fire-and-forget on purpose (see appendReaderRow's own comment) --
+      // only reached when this request itself created the row, not the
+      // 23505 race-loser branch below, so a concurrent double-signup
+      // never appends twice for the same reader.
+      void appendReaderRow({ createdAt, email, name: null, authMethod: 'password', totalReads: 0 });
     } catch (err) {
       // 23505 = unique_violation on users.email -- two concurrent
       // first-time signups for the same address (double-click, two tabs).
