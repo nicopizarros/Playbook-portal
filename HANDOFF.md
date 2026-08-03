@@ -90,11 +90,11 @@ encontrar un link que saque al usuario a Substack que sea evitable, y
 confirmar que la jerarquía de tags (Noticias, Artículo, y los productos
 editoriales) es consistente en todo el sitio.
 
-### Fase 2 — Automatización de contenido y skills
+### Fase 2 — Automatización de contenido y skills — **completa**
 
-- [ ] Entrenar el skill de tags para que asigne todos los tags relevantes
+- [x] Entrenar el skill de tags para que asigne todos los tags relevantes
       por artículo
-- [ ] Modificar el skill para que la portada de cada artículo de opinión
+- [x] Modificar el skill para que la portada de cada artículo de opinión
       sea la imagen de portada real de Substack, nunca una foto del cuerpo
 
 **Criterio de aceptación (endurecido en la sesión de planeación, el
@@ -103,6 +103,22 @@ existentes (mezcla de noticias y opinión) y exigir un umbral explícito
 antes de aplicarlo al catálogo completo — ej. tags correctos en 9/10 sin
 ningún falso positivo de portada — no solo "confirmar manualmente que se
 ven bien".
+
+**2026-08-02 — hecho:** `publish-newsletter/SKILL.md` reescrito para que
+`tagsScope`/`tagsSport`/`tagsVertical` asignen todos los valores que
+apliquen por nivel (antes pedía "el más específico", de ahí el
+sub-etiquetado — 61 de 62 artículos vivos tenían un solo `tagsSport`).
+Se agregó la rama `Opinión`/`opinion` faltante en el mapeo
+publication/source (no existía ninguna) y, para `source: 'opinion'`, la
+portada ahora sale de la imagen de portada propia del post de Substack en
+vez de una búsqueda externa. Auditoría de los 62 artículos publicados:
+se corrigieron 3 artículos de Liga MX (les faltaba `Fútbol` junto a `Liga
+MX`) y 1 artículo se completó con `Gobernanza y Regulación`; el resto del
+catálogo ya tenía un etiquetado de `tagsVertical`/`tagsScope` razonable,
+no se tocó por no tener alta confianza editorial. No había ningún
+artículo con `source: 'opinion'` publicado (ni en otro estado) al momento
+de la auditoría, así que el fix de portada no tuvo nada que retro-aplicar
+— aplica hacia adelante.
 
 ### Fase 3 — Pulido visual — **completa**
 
@@ -152,25 +168,107 @@ exactamente la misma fórmula del 5+1 (sin una segunda fórmula paralela), y
 que un artículo de opinión marcado como excepción sí puede forzarse dentro
 del 5+1.
 
-### Fase 5 — Sistema de cuentas y autenticación
+### Fase 5 — Sistema de cuentas y autenticación — **efectivamente resuelta**
 
-Orden de preferencia: (1) Auth vía Substack, (2) Resend como alternativa,
-(3) formulario simple solo-correo. **Nota de la sesión de planeación**: no
-existe ningún sistema de auth de lector vía Substack ni formulario simple
-hoy en el código — sí existe auth de lector vía Resend (magic link, Fase 3
-de la migración original) y auth de editor vía Credentials, ambos ya en
-producción. La opción (2) del orden de preferencia ya está construida; las
-opciones (1) y (3) son trabajo nuevo si se decide no usar lo que ya existe.
+Orden de preferencia original: (1) Auth vía Substack, (2) Resend como
+alternativa, (3) formulario simple solo-correo. **La nota de la sesión de
+planeación que describía esto quedó desactualizada** — no reflejaba
+`auth.ts` real. Estado real, confirmado en el código (commit `8c24e4d
+Switch reader auth from Resend magic-link to Google OAuth`, ya en `main`):
+
+- **(1) Substack: investigado y descartado 2026-08-02.** La Developer API
+  pública de Substack (`substack.com/api-tos`) solo expone datos públicos
+  de perfil de creador/publicación (nombre, conteo de suscriptores, links
+  sociales) para discovery/analítica/embeds — no hay OAuth de login ni
+  forma de verificar si un email es suscriptor de una publicación. No es
+  una cuestión de esfuerzo, Substack simplemente no ofrece esto para
+  terceros.
+- **(2) Resend: se intentó, se abandonó por la misma razón que motivó
+  reconsiderar esto.** El dominio de envío de Resend nunca se verificó
+  (el usuario no administra ese dominio), así que el magic-link de lector
+  nunca pudo enviarse a direcciones reales en producción.
+- **Lo que reemplazó a (1) y (2), ya en producción:** auth de lector vía
+  **Google OAuth** (`auth.ts`, provider `Google`), auth de editor vía
+  Credentials (usuario/contraseña contra la tabla `editors`), ambos con
+  sesión JWT y el rol derivado del provider que autenticó, nunca del
+  cliente. Resend sigue existiendo solo para invitaciones de editor
+  (`lib/actions/editor-auth.ts`), con degradación agraciada a un link
+  copiable si `RESEND_API_KEY`/`EMAIL_FROM` faltan o fallan — no bloquea
+  nada, es un fallback ya contemplado.
+
+**Ítem nuevo pedido explícitamente por el usuario (2026-08-02), no estaba
+en el plan original — construido, ver detalle abajo:** una segunda opción
+de registro de lector con email + contraseña propios de Playbook,
+colapsada por default junto al botón de Google, pensada para bajar la
+fricción de no depender de Google. **Todavía sin resolver, pedido en la
+misma sesión pero no construido:** exportar/subir esa base de emails a
+Substack como suscriptores — no se definió si es manual o automatizado,
+así que no se tocó código para eso. Si se construye más adelante,
+`/privacidad` va a necesitar un párrafo nuevo declarando esa
+transferencia a Substack como tercero.
+
+**2026-08-02 — construido: registro de lector con email + contraseña**
+(alternativa a Google, no reemplazo — ambas opciones conviven):
+- `lib/db/schema.ts`: columna nueva `password_hash` (nullable) en `user`,
+  migración `drizzle/0007_add-user-password-hash.sql` generada con
+  `drizzle-kit generate` (no se pudo aplicar contra la Neon real desde
+  este sandbox, el pool `pg`/TCP que usa `lib/db/client.ts` en tiempo de
+  ejecución de la app sigue bloqueado aquí a diferencia del driver HTTP
+  que sí funciona para scripts sueltos — se aplica sola en el próximo
+  deploy de Vercel vía `scripts/predeploy-migrate.ts`, que corre en cada
+  build).
+- `auth.ts`: segundo provider `Credentials` con `id: 'reader-credentials'`
+  (distinto del `credentials` de editores), verifica contra
+  `users.passwordHash` con bcrypt, nunca compara si el hash es null (cuenta
+  Google-only). El `jwt` callback ya clasificaba cualquier provider
+  distinto de `'credentials'` como lector, así que no necesitó cambios.
+- `lib/actions/reader-auth.ts`: `signUpOrSignInWithPasswordAction`, un
+  solo formulario para alta y login (el lector no necesita saber si ya
+  tenía cuenta). Rate-limit igual que el login de editor (10 intentos/5
+  min por IP). Si el correo ya existe sin `passwordHash` (cuenta de
+  Google), rechaza con un mensaje explícito en vez de "adjuntar" una
+  contraseña a esa cuenta silenciosamente. Corre con `redirect:true`
+  (mismo patrón que `loginAction` de editores): éxito lanza el
+  `NEXT_REDIRECT` interno de Next, que debe propagar sin capturarse; solo
+  un `AuthError` real se convierte en mensaje de formulario. Maneja la
+  condición de carrera de dos altas concurrentes con el mismo correo nuevo
+  (violación de unicidad `23505`) sin tronar.
+- `components/account/PasswordAuthForm.tsx` (nuevo, cliente): colapsado
+  por default detrás de "O continúa con tu correo y contraseña", un solo
+  campo de correo + contraseña + botón "Continuar". Montado en
+  `EmailWall.tsx` (muro de artículos) y `AccountSignInPrompt.tsx`
+  (`/cuenta`), debajo del botón de Google en ambos.
+- `/privacidad` y `/terminos` corregidos para reflejar la realidad actual
+  (Google OAuth + contraseña propia opcional) — **ya estaban
+  desactualizados antes de este cambio**, seguían describiendo el
+  magic-link de Resend que el commit `8c24e4d` había retirado; se
+  aprovechó para corregir eso también, no solo para documentar lo nuevo.
+  Se agregó un tercero nuevo a la lista de `/privacidad` (Google como
+  proveedor de identidad, antes solo aparecía como GA4/AdSense) y se quitó
+  el bullet de Resend (ya no aplica a lectores).
+- **Verificado:** `tsc --noEmit`, `npx eslint` sobre los archivos
+  tocados, y `next build`, limpios los tres. **No verificado en
+  navegador/DB real:** el pool TCP de `lib/db/client.ts` sigue sin
+  conexión posible desde este sandbox (confirmado de nuevo, un `select 1`
+  contra Neon vía ese pool cuelga y hay que matarlo por timeout) — no se
+  pudo probar el flujo de alta/login end-to-end ni tomar capturas. Pedirle
+  al usuario que lo prueba después del próximo deploy: registrarse con
+  correo+contraseña nueva, cerrar sesión, volver a entrar con la misma
+  contraseña, y confirmar que un correo ya registrado por Google rechaza
+  el intento de registro con contraseña con el mensaje esperado.
 
 **Criterio de aceptación:** confirmar el orden de implementación con el
 equipo antes de programar, y documentar esa decisión antes de tocar código.
 
 ### Fase 6 — Legal y compliance
 
-- [ ] Corregir argentinismos en los términos y condiciones
+- [x] Corregir argentinismos en los términos y condiciones
 - [ ] Llevar el compliance general al 100% (definir primero el checklist:
       aviso de privacidad, cookies, términos, todo lo que aplique a un
-      medio digital en México)
+      medio digital en México) — checklist definido y casi todo
+      implementado, ver nota 2026-08-02; quedan dos placeholders que
+      necesitan un dato de negocio real, no algo que se pueda inventar
+      desde código.
 
 **Dependencia no explícita en el doc original, anotada en la sesión de
 planeación**: si Fase 5 termina eligiendo Resend o un formulario de email
@@ -182,6 +280,45 @@ aislada de la decisión de Fase 5.
 los términos y condiciones completos y confirme que el español es
 neutro/mexicano, y que exista un checklist de compliance marcado como
 completo.
+
+**2026-08-02 — hecho:** se corrigió el voseo argentino tanto en
+`/terminos` como en `/privacidad` (`sos`/`escribinos`/`te registrás`/
+`trabajás`/`visitás`/`podés` → `eres`/`escríbenos`/`te registras`/
+`trabajas`/`visitas`/`puedes`; "casilla de correo" → "cuenta de correo
+electrónico"); no había más voseo en el resto del sitio (`app/`,
+`components/`).
+
+Checklist de compliance definido para un medio digital en México
+(LFPDPPP + buenas prácticas), con estado de cada punto:
+- [x] Aviso de Privacidad (`/privacidad`): identidad del responsable,
+  datos recolectados, finalidades, terceros, derechos ARCO, ya existía.
+- [x] Términos y Condiciones (`/terminos`): ya existía.
+- [x] Mecanismo de consentimiento de cookies granular
+  (`components/CookieNotice.tsx` + `lib/consent.ts`): esenciales/analítica
+  siempre activas, publicidad opt-in, ya existía.
+- [x] CMP certificado (Google Funding Choices) para tráfico EEA/UK/CH, ya
+  existía (`app/layout.tsx`).
+- [x] `ads.txt`, ya existía.
+- [x] Autoservicio de derechos ARCO (exportar/eliminar cuenta) en
+  `/cuenta`, ya existía.
+- [x] Enlaces a ambos documentos legales visibles en el footer de cada
+  página, ya existía.
+- [x] **Gap real encontrado y corregido:** no había forma de revisar o
+  cambiar la elección de publicidad después del primer aviso, solo se
+  sugería borrar cookies del navegador a mano. Se agregó un link
+  "Preferencias de cookies" al footer (`CookiePreferencesLink.tsx`) que
+  reabre el banner en modo edición vía un evento
+  (`REOPEN_COOKIE_NOTICE_EVENT`); `/privacidad` actualizado para
+  mencionarlo.
+- [x] **Gap real encontrado y corregido:** el aviso de privacidad no
+  tenía cláusula de menores de edad. Se agregó una sección estándar
+  ("Menores de edad") a `/privacidad`.
+- [ ] **Pendiente, necesita un dato real, no se puede completar desde
+  código:** `/terminos` tiene `[JURISDICCIÓN]` y `/privacidad` tiene
+  `[DOMICILIO FISCAL]` como placeholders literales — LFPDPPP exige el
+  domicilio real del responsable en el aviso de privacidad, y los
+  términos necesitan una jurisdicción real, no una inventada. Esto es lo
+  único que falta para marcar el checklist 100% completo.
 
 ### Notas de secuencia del roadmap
 
@@ -4402,63 +4539,112 @@ ese nombre.
 - **Verificado**: `tsc --noEmit`, `npx eslint` sobre el script nuevo, y
   `next build`, limpios los tres.
 
+### 2026-08-02 — Fase 2 completa (skill de tags/portada) + Fase 6 casi completa (legal)
+
+Sesión larga, sin decisiones de producto pendientes: se avanzó todo lo que
+no dependía de que el usuario eligiera algo (Fase 1 ítem 5 y Fase 5 siguen
+bloqueadas por eso, no se tocaron).
+
+- **Fase 2, completa** (ver su propia sección arriba para el detalle):
+  `publish-newsletter/SKILL.md` corregido para tags multi-valor por nivel
+  y portada de opinión desde Substack en vez de búsqueda externa; rama
+  `Opinión`/`opinion` agregada al mapeo publication/source, que antes no
+  existía. Backfill aplicado contra la Neon real (driver HTTP, mismo
+  patrón que sesiones anteriores): 3 artículos de Liga MX + `Fútbol`, 1
+  artículo + `Gobernanza y Regulación`.
+- **Fase 6, ítem 1 (argentinismos): completo.** Voseo corregido en
+  `/terminos` y `/privacidad` (la entrada del 2026-07-23 que decía esto ya
+  estaba resuelto solo cubría otros 9 archivos, no estas dos páginas
+  legales — confirmado con grep antes y después).
+- **Fase 6, ítem 2 (compliance 100%): checklist definido, casi todo
+  cerrado**, ver el detalle completo en la sección de Fase 6 arriba. Dos
+  gaps reales encontrados y corregidos (nadie los había pedido
+  explícitamente, salieron de auditar contra LFPDPPP + buenas prácticas):
+  no había forma de revisar la elección de cookies de publicidad después
+  del primer aviso (ahora hay un link "Preferencias de cookies" en el
+  footer), y no había cláusula de menores de edad en el aviso de
+  privacidad (agregada). Lo único que queda para el 100%:
+  `[DOMICILIO FISCAL]` en `/privacidad` y `[JURISDICCIÓN]` en `/terminos`
+  son placeholders literales que necesitan un dato de negocio real — no
+  se pueden inventar desde código, es lo único de esta fase que sigue
+  necesitando que el usuario lo provea.
+- **Verificado**: `tsc --noEmit` limpio. No se corrió `next build`/
+  Playwright esta sesión (cambios de texto/copy y de un skill markdown,
+  sin superficie visual nueva más allá del link del footer, que sí quedó
+  cubierto por el `tsc` limpio + revisión manual del JSX).
+- **Pendiente para la siguiente sesión**: si el usuario quiere Fase 6 al
+  100% de verdad, pedirle el domicilio fiscal real y la jurisdicción antes
+  de tocar esos dos placeholders. Fuera de eso, lo único que queda en el
+  roadmap activo son Fase 1 ítem 5 y Fase 5 completa, ambas bloqueadas en
+  una decisión de producto, no en código.
+
 ## Próximos pasos
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
 El plan anterior (Fases 7, 8 y 9, más abajo) está completo salvo lo
 anotado en su propia sección — no es lo que sigue ahora.
 
-**Fases 0, 3 y 4: completas** (código Y datos de producción, no solo
-código — ver las entradas del 2026-08-01, especialmente "Fase 0 cerrada de
-verdad" para cómo se llegó a la Neon real desde este sandbox vía el driver
-HTTP de `@neondatabase/serverless`, el mismo que ya usaba
-`publish-newsletter.ts`. **Importante para la próxima sesión en este mismo
-entorno**: `psql`/TCP directo contra Neon siguen bloqueados, pero el driver
-HTTP SÍ funciona — no asumir que producción es inalcanzable solo porque
-`psql` falla.). Pendiente solo que el usuario confirme visualmente en el
-sitio desplegado, en particular el glitch de Windows (no se pudo observar
-el efecto exacto de `scrollbar-gutter` en este sandbox, headless Linux no
-reserva scrollbar igual que Windows).
+**Estado por fase, a 2026-08-02, fin de sesión:**
+- **Fase 0 (bugs visuales): completa.** Código y datos de producción
+  resueltos. Solo falta que el usuario confirme visualmente en el sitio
+  desplegado, en particular el glitch de Windows (`scrollbar-gutter`) —
+  no se pudo observar el efecto exacto en este sandbox, Chromium headless
+  en Linux no reserva scrollbar igual que Windows real.
+- **Fase 1 (navegación): en progreso.** Ítems 1-4 completos (código y
+  datos de producción). Ítem 5 (carpetas internas por producto editorial,
+  diseño propio) sigue sin arrancar — las decisiones de producto ya están
+  tomadas (diseño 100% custom por producto, no una plantilla compartida;
+  The Futbol Business Review entra al mismo tratamiento que los otros
+  tres, con su propio `source`; el usuario da el visto bueno al
+  posicionamiento antes de construir nada), pero **el trabajo en sí
+  (redactar el posicionamiento de cada producto para aprobación) todavía
+  no se hizo** — quedó pendiente cuando la sesión se desvió a Fase 5. Es
+  lo próximo si el usuario retoma esto.
+- **Fase 2 (skills de contenido): completa.**
+- **Fase 3 (pulido visual): completa.**
+- **Fase 4 (contenido dinámico): completa.**
+- **Fase 5 (cuentas/auth): efectivamente resuelta**, con un cabo suelto.
+  Auth de lector: Google OAuth (ya estaba) + email/contraseña propio
+  (agregado hoy, ver esa sección para el detalle técnico completo).
+  Substack se investigó y se descartó (su API pública no ofrece login de
+  terceros). Sin construir todavía, pedido por el usuario en esta misma
+  sesión: exportar/subir los emails de lectores registrados a Substack
+  como suscriptores — falta que el usuario diga si es un export manual o
+  algo automatizado antes de tocar código. **Tampoco verificado en
+  navegador/DB real** el flujo nuevo de correo+contraseña (alta, login,
+  rechazo de una cuenta Google-only) — el pool TCP de
+  `lib/db/client.ts` no conecta desde este sandbox, solo el driver HTTP
+  que usan los scripts sueltos. Probarlo después del próximo deploy.
+- **Fase 6 (legal): ítem 1 completo**, argentinismos corregidos en ambas
+  páginas legales. **Ítem 2 (compliance 100%): checklist definido, casi
+  todo implementado**, ver esa sección para el detalle. Lo único que
+  falta: `[DOMICILIO FISCAL]` en `/privacidad` y `[JURISDICCIÓN]` en
+  `/terminos` son placeholders literales, necesitan un dato de negocio
+  real del usuario, no se pueden completar desde código.
 
-Fase 1 sigue en progreso — ítems 1, 2, 3 y 4 ya tienen código Y datos de
-producción resueltos (ítem 1: los 5 artículos reales reasignados; ítem 4:
-"Tips" confirmado como typo del usuario, sin acción pendiente). Queda:
-- Ítem 5: carpetas internas por producto editorial con diseño propio —
-  tratarlo como su propio mini-proyecto (definir primero los "temas
-  centrales" de cada producto), no como un cambio de navegación simple,
-  ver la nota ya anotada en la sección de Fase 1 arriba.
-- Verificar en producción real (con GA4 configurado) que "Más leídas"
-  efectivamente aparece debajo del bloque de newsletter con contenido
-  real — no se pudo confirmar visualmente en este sandbox (sin
-  credenciales GA4).
-
-Fase 2 (skill de tags/portada) sigue sin arrancar — se saltó dos veces a
-propósito (Fase 3 y Fase 4 se priorizaron por ser "fixes sin decisiones";
-Fase 2 es una tarea de evaluación/iteración de skill, no un fix mecánico).
-Con Fases 0/3/4 ahora completas y Fase 1 reducida a un solo ítem grande
-(carpetas internas, que necesita definición de producto) más una
-verificación pendiente, el turno lógico si el usuario vuelve a pedir "el
-siguiente fix sin decisiones" es Fase 2, o resolver lo que queda de Fase 1.
-Fase 5/6 siguen necesitando decisión de producto antes de programar nada.
+**Resumen de lo que falta, en una lista (a 2026-08-02):**
+1. Fase 1 ítem 5 — redactar y aprobar el posicionamiento de cada producto
+   editorial, después construir las 4 páginas custom.
+2. Fase 5 — decidir manual vs. automatizado para subir emails de lectores
+   a Substack como suscriptores, y construirlo.
+3. Fase 5 — verificar en navegador real (después de deploy) el flujo de
+   registro/login con correo y contraseña.
+4. Fase 6 — el usuario provee domicilio fiscal real y jurisdicción para
+   cerrar los dos placeholders.
+5. Verificaciones manuales sin cambio de código, solo necesitan deploy
+   con credenciales reales: subida de imágenes a Vercel Blob (gap desde
+   Fase 4), panel de analítica con credenciales reales de Vercel
+   Analytics (gap desde Fase 4), datos reales de GA4 en el módulo "Más
+   leídas" (gap desde Fase 5 original), y confirmar en el dashboard de
+   Vercel que las variables de entorno tienen el nombre correcto —
+   PLAYBOOK_SECRET (no Playbook_secret), GA4_PROPERTY_ID,
+   GA4_SERVICE_ACCOUNT_EMAIL, GA4_SERVICE_ACCOUNT_PRIVATE_KEY — el código
+   ya usa el nombre correcto en todos lados, es solo el valor en Vercel el
+   que puede estar mal.
 
 Antes de arrancar cada sesión: leer la sección de la fase correspondiente
 en HANDOFF.md para saber el estado actual y si hubo cambios desde que se
 escribió el prompt.
-
-La limpieza de voseo que estaba pendiente acá quedó **resuelta** en la
-sesión de auditoría UI/UX del 2026-07-23 (ver esa entrada) — los 9
-archivos usan tuteo estándar, verificado con grep.
-
-Pendientes de verificación manual en producción (sin cambios de código,
-solo necesitan deploy con credenciales reales):
-- Magic link de lectores (Resend, gap desde Fase 3)
-- Subida de imágenes a Vercel Blob (gap desde Fase 4)
-- Panel de analítica con credenciales reales de Vercel Analytics (gap
-  desde Fase 4)
-- Datos reales de GA4 en módulo Más leídas (gap desde Fase 5)
-- Variables de entorno en Vercel con nombres correctos: PLAYBOOK_SECRET
-  (no Playbook_secret), GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL,
-  GA4_SERVICE_ACCOUNT_PRIVATE_KEY (confirmar que ya fueron corregidas)
 
 ## Convención: cómo mantener este archivo
 
