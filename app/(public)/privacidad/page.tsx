@@ -25,10 +25,12 @@ export default function PrivacidadPage() {
       <h2>Qué datos recolectamos</h2>
       <ul>
         <li>
-          <strong>Correo electrónico</strong>, si te registras como lector para acceder a más
-          artículos de los que permite el límite gratuito, a través de un enlace de acceso
-          (&quot;magic link&quot;) enviado por correo. No pedimos ni guardamos contraseñas de
-          lectores.
+          <strong>Correo electrónico, y opcionalmente una contraseña</strong>, si te registras como
+          lector para acceder a más artículos de los que permite el límite gratuito. Dos formas de
+          hacerlo: con tu cuenta de Google (Google comparte tu correo con nosotros, nunca tu
+          contraseña de Google), o con un correo y una contraseña que eliges tú, propios de
+          Playbook — en ese segundo caso guardamos tu contraseña de forma cifrada (hash), nunca en
+          texto plano, y ni el equipo de Playbook puede leerla.
         </li>
         <li>
           <strong>Historial de lectura y una cookie de identificación anónima</strong> (
@@ -49,7 +51,7 @@ export default function PrivacidadPage() {
 
       <h2>Para qué usamos tus datos</h2>
       <ul>
-        <li>Enviarte el enlace de acceso que tú mismo solicitaste.</li>
+        <li>Darte acceso a tu cuenta cuando inicias sesión.</li>
         <li>Aplicar el límite de artículos gratuitos por mes.</li>
         <li>Entender qué contenido funciona, para decisiones editoriales.</li>
         <li>Mantener la seguridad del sitio (por ejemplo, frenar intentos de acceso abusivos).</li>
@@ -89,7 +91,11 @@ export default function PrivacidadPage() {
 
       <h2>Con quién compartimos datos (terceros)</h2>
       <ul>
-        <li><strong>Resend</strong> — envío de los correos con el enlace de acceso.</li>
+        <li>
+          <strong>Google (Iniciar sesión con Google)</strong> — si eliges registrarte con tu cuenta
+          de Google, Google actúa como proveedor de identidad y nos comparte tu correo; no
+          controlamos ni almacenamos tu contraseña de Google.
+        </li>
         <li><strong>Vercel</strong> — hospedaje del sitio, almacenamiento de imágenes, analítica de uso.</li>
         <li><strong>Google Analytics 4</strong> — analítica de uso.</li>
         <li>

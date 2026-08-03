@@ -196,17 +196,66 @@ Switch reader auth from Resend magic-link to Google OAuth`, ya en `main`):
   copiable si `RESEND_API_KEY`/`EMAIL_FROM` faltan o fallan — no bloquea
   nada, es un fallback ya contemplado.
 
-**Nuevo ítem abierto (2026-08-02, pedido explícito del usuario), no
-estaba en el plan original:** agregar una segunda opción de registro de
-lector con email + contraseña propios (sin depender de ningún envío de
-correo), y exportar/subir periódicamente esa base de emails a Substack
-como suscriptores, para que el reader-signup del sitio también alimente
-la lista de Substack. Sin definir todavía: si el registro con contraseña
-reemplaza o complementa a Google OAuth, y si la subida a Substack es un
-export manual (botón admin, el usuario lo sube él mismo al CSV de
-Substack) o algo automatizado. Si se construye, `/privacidad` necesita un
-párrafo nuevo declarando esa transferencia a Substack como tercero — hoy
-esa página no la menciona.
+**Ítem nuevo pedido explícitamente por el usuario (2026-08-02), no estaba
+en el plan original — construido, ver detalle abajo:** una segunda opción
+de registro de lector con email + contraseña propios de Playbook,
+colapsada por default junto al botón de Google, pensada para bajar la
+fricción de no depender de Google. **Todavía sin resolver, pedido en la
+misma sesión pero no construido:** exportar/subir esa base de emails a
+Substack como suscriptores — no se definió si es manual o automatizado,
+así que no se tocó código para eso. Si se construye más adelante,
+`/privacidad` va a necesitar un párrafo nuevo declarando esa
+transferencia a Substack como tercero.
+
+**2026-08-02 — construido: registro de lector con email + contraseña**
+(alternativa a Google, no reemplazo — ambas opciones conviven):
+- `lib/db/schema.ts`: columna nueva `password_hash` (nullable) en `user`,
+  migración `drizzle/0007_add-user-password-hash.sql` generada con
+  `drizzle-kit generate` (no se pudo aplicar contra la Neon real desde
+  este sandbox, el pool `pg`/TCP que usa `lib/db/client.ts` en tiempo de
+  ejecución de la app sigue bloqueado aquí a diferencia del driver HTTP
+  que sí funciona para scripts sueltos — se aplica sola en el próximo
+  deploy de Vercel vía `scripts/predeploy-migrate.ts`, que corre en cada
+  build).
+- `auth.ts`: segundo provider `Credentials` con `id: 'reader-credentials'`
+  (distinto del `credentials` de editores), verifica contra
+  `users.passwordHash` con bcrypt, nunca compara si el hash es null (cuenta
+  Google-only). El `jwt` callback ya clasificaba cualquier provider
+  distinto de `'credentials'` como lector, así que no necesitó cambios.
+- `lib/actions/reader-auth.ts`: `signUpOrSignInWithPasswordAction`, un
+  solo formulario para alta y login (el lector no necesita saber si ya
+  tenía cuenta). Rate-limit igual que el login de editor (10 intentos/5
+  min por IP). Si el correo ya existe sin `passwordHash` (cuenta de
+  Google), rechaza con un mensaje explícito en vez de "adjuntar" una
+  contraseña a esa cuenta silenciosamente. Corre con `redirect:true`
+  (mismo patrón que `loginAction` de editores): éxito lanza el
+  `NEXT_REDIRECT` interno de Next, que debe propagar sin capturarse; solo
+  un `AuthError` real se convierte en mensaje de formulario. Maneja la
+  condición de carrera de dos altas concurrentes con el mismo correo nuevo
+  (violación de unicidad `23505`) sin tronar.
+- `components/account/PasswordAuthForm.tsx` (nuevo, cliente): colapsado
+  por default detrás de "O continúa con tu correo y contraseña", un solo
+  campo de correo + contraseña + botón "Continuar". Montado en
+  `EmailWall.tsx` (muro de artículos) y `AccountSignInPrompt.tsx`
+  (`/cuenta`), debajo del botón de Google en ambos.
+- `/privacidad` y `/terminos` corregidos para reflejar la realidad actual
+  (Google OAuth + contraseña propia opcional) — **ya estaban
+  desactualizados antes de este cambio**, seguían describiendo el
+  magic-link de Resend que el commit `8c24e4d` había retirado; se
+  aprovechó para corregir eso también, no solo para documentar lo nuevo.
+  Se agregó un tercero nuevo a la lista de `/privacidad` (Google como
+  proveedor de identidad, antes solo aparecía como GA4/AdSense) y se quitó
+  el bullet de Resend (ya no aplica a lectores).
+- **Verificado:** `tsc --noEmit`, `npx eslint` sobre los archivos
+  tocados, y `next build`, limpios los tres. **No verificado en
+  navegador/DB real:** el pool TCP de `lib/db/client.ts` sigue sin
+  conexión posible desde este sandbox (confirmado de nuevo, un `select 1`
+  contra Neon vía ese pool cuelga y hay que matarlo por timeout) — no se
+  pudo probar el flujo de alta/login end-to-end ni tomar capturas. Pedirle
+  al usuario que lo prueba después del próximo deploy: registrarse con
+  correo+contraseña nueva, cerrar sesión, volver a entrar con la misma
+  contraseña, y confirmar que un correo ya registrado por Google rechaza
+  el intento de registro con contraseña con el mensaje esperado.
 
 **Criterio de aceptación:** confirmar el orden de implementación con el
 equipo antes de programar, y documentar esa decisión antes de tocar código.

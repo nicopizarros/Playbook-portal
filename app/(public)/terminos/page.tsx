@@ -38,9 +38,9 @@ export default function TerminosPage() {
       <h2>Cuentas</h2>
       <ul>
         <li>
-          <strong>Lectores</strong>: el registro es gratuito y usa un enlace de acceso enviado por
-          correo, sin contraseña. Eres responsable de mantener el acceso a tu propia cuenta de
-          correo electrónico.
+          <strong>Lectores</strong>: el registro es gratuito, con tu cuenta de Google o con un
+          correo y una contraseña propios de Playbook. Eres responsable de mantener segura tu
+          contraseña (si elegiste esa opción) y el acceso a tu propia cuenta de correo electrónico.
         </li>
         <li>
           <strong>Editores</strong>: cuentas internas del equipo de Playbook, no disponibles para el

@@ -145,15 +145,23 @@ export const contentRevisions = pgTable('content_revisions', {
 });
 
 // ---------------------------------------------------------------- Auth.js reader tables
-// Standard @auth/drizzle-adapter shape, scoped to readers only (email
-// passwordless sign-in). Editors never touch these tables.
-
+// Standard @auth/drizzle-adapter shape, scoped to readers only. Editors
+// never touch these tables (see `editors` above for their own auth).
+//
+// passwordHash: nullable because a reader who signed up via Google never
+// sets one — only readers who use the email+password option (auth.ts's
+// `reader-credentials` provider, added 2026-08-02 alongside Google as a
+// lower-friction alternative that needs no outbound email at all) have
+// this set. A null value here means "no password login for this account",
+// not "any password accepted" — auth.ts's authorize() must reject the
+// login attempt outright when it's null, never compare against it.
 export const users = pgTable('user', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull().unique(),
   emailVerified: timestamp('email_verified', { withTimezone: true }),
   name: text('name'),
   image: text('image'),
+  passwordHash: text('password_hash'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
