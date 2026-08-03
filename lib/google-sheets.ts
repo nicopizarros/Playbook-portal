@@ -92,10 +92,11 @@ const dateTimeFmt = new Intl.DateTimeFormat('es-MX', {
 // copyable link instead of failing the invite.
 //
 // totalReads is always 0 at signup time (a reader hasn't read anything
-// yet) -- included because the user asked for a reading-activity column,
-// but this is a one-time append, not a live sync, so the sheet won't
-// reflect reading activity after the row is written. Revisit with a
-// periodic re-sync if that staleness turns out to matter.
+// yet) -- this is a point-in-time append, not a live sync. The daily cron
+// below (syncAllReadersToSheet, app/api/cron/sync-readers-sheet) is what
+// keeps reading-activity numbers from going stale; this function's job is
+// just "a new signup shows up in the sheet right away", not "the sheet is
+// always accurate".
 export async function appendReaderRow(row: ReaderSignupRow): Promise<void> {
   if (!isConfigured()) return;
 
@@ -123,5 +124,71 @@ export async function appendReaderRow(row: ReaderSignupRow): Promise<void> {
     }
   } catch (err) {
     console.error('[google-sheets] no se pudo escribir la fila:', (err as Error).message);
+  }
+}
+
+const HEADER_ROW = ['Fecha de registro', 'Correo', 'Nombre', 'Método', 'Lecturas totales'];
+// Generous enough that a full re-sync always overwrites every row a
+// previous, larger sync might have left behind -- cleared before every
+// write rather than computed exactly, since knowing the previous sync's
+// row count would mean persisting extra state this doesn't otherwise need.
+const CLEAR_RANGE = 'A1:Z10000';
+
+export type ReaderSheetRow = {
+  createdAt: Date;
+  email: string;
+  name: string | null;
+  authMethod: 'google' | 'password';
+  totalReads: number;
+};
+
+// Full-snapshot re-sync, not an append: clears the sheet and rewrites
+// every reader with a current totalReads, called on a schedule
+// (app/api/cron/sync-readers-sheet) rather than per-signup. This is what
+// keeps the reading-activity column from just permanently showing 0 the
+// way a per-signup append would (see appendReaderRow above). The two
+// don't conflict in practice -- a signup between two scheduled runs shows
+// up immediately via appendReaderRow, and the next scheduled run
+// overwrites the whole sheet (that signup included, now with an accurate
+// count) rather than trying to reconcile individual rows by email, which
+// would break the moment someone manually edits the sheet.
+export async function syncAllReadersToSheet(readers: ReaderSheetRow[]): Promise<{ ok: boolean; error?: string }> {
+  if (!isConfigured()) return { ok: false, error: 'READERS_SHEET_ID (o el service account) no está configurada.' };
+
+  try {
+    const accessToken = await getAccessToken();
+    const spreadsheetId = process.env.READERS_SHEET_ID;
+    const base = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values`;
+
+    const clearRes = await fetch(`${base}/${CLEAR_RANGE}:clear`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!clearRes.ok) {
+      const body = await clearRes.text().catch(() => '');
+      return { ok: false, error: `clear respondió ${clearRes.status}: ${body.slice(0, 300)}` };
+    }
+
+    const rows = readers.map(r => [
+      dateTimeFmt.format(r.createdAt),
+      r.email,
+      r.name || '',
+      r.authMethod === 'google' ? 'Google' : 'Correo y contraseña',
+      r.totalReads,
+    ]);
+
+    const updateRes = await fetch(`${base}/A1?valueInputOption=USER_ENTERED`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [HEADER_ROW, ...rows] }),
+    });
+    if (!updateRes.ok) {
+      const body = await updateRes.text().catch(() => '');
+      return { ok: false, error: `update respondió ${updateRes.status}: ${body.slice(0, 300)}` };
+    }
+
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: (err as Error).message };
   }
 }

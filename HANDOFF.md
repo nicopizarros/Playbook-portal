@@ -292,11 +292,10 @@ panel admin de lectores + sincronización a Google Sheets.**
   (`isConfigured()` + try/catch que solo loguea, nunca lanza).
 - **Columnas escritas** (pedido explícito del usuario): fecha de
   registro, correo, nombre, método (Google/Contraseña), lecturas totales.
-  **Ojo con la última columna**: se escribe una sola vez, al momento del
-  alta, siempre en 0 (un lector recién registrado no leyó nada todavía) —
-  esto es un append puntual, no una sincronización continua, así que la
-  hoja no refleja actividad de lectura posterior. Si eso importa, hace
-  falta una sincronización periódica aparte, no pedida todavía.
+  **La columna de lecturas totales se queda en 0** en la fila que este
+  append escribe al momento del alta (un lector recién registrado no leyó
+  nada todavía) — resuelto con la sincronización periódica de más abajo,
+  no con este append en sí.
 - **Dos puntos de enganche**, uno por cada camino de alta (no hay un solo
   lugar que cubra ambos): `auth.ts`'s `events.createUser` (dispara solo
   para altas vía el adapter, o sea Google) y directamente después del
@@ -313,6 +312,74 @@ panel admin de lectores + sincronización a Google Sheets.**
   todavía (el usuario no ha hecho los 3 pasos de setup de arriba). Pedirle
   al usuario que, después de configurar la hoja y hacer deploy, registre
   un lector de prueba y confirme que la fila aparece.
+
+**2026-08-02 — construido, mismo día: sincronización periódica completa a
+Sheets** (pedido del usuario tras leer el caveat de arriba: "Build it").
+- `lib/data/readers.ts` (nuevo): la query de lectores se movió acá desde
+  `lib/actions/readers.ts` sin cambiar su forma, para que tanto la pestaña
+  admin (que la envuelve en `requireEditor()`) como el cron de abajo
+  (que la protege distinto, ver siguiente punto) compartan una sola
+  fuente en vez de dos copias de la misma query.
+- `lib/google-sheets.ts`: `syncAllReadersToSheet()`, nueva. A diferencia
+  de `appendReaderRow` (agrega una fila), esta **limpia la hoja entera y
+  la reescribe completa** con el conteo de lecturas actualizado de cada
+  lector — se eligió sobre "actualizar solo las filas que cambiaron"
+  porque hacer eso bien requeriría rastrear en qué fila de la hoja quedó
+  cada lector, y eso se rompe apenas alguien edita la hoja a mano. Las dos
+  formas de escritura conviven sin pisarse: el append por alta dice "este
+  lector ya existe" casi al instante, y la resincronización completa
+  (corre una vez al día) termina sobrescribiendo esa fila con el conteo
+  real la próxima vez que corre.
+- `app/api/cron/sync-readers-sheet/route.ts` (nuevo) + `vercel.json`
+  (nuevo, no existía): un cron de Vercel, todos los días a las 9:00 UTC
+  (~3-4am Ciudad de México, tráfico bajo a propósito). Protegido con
+  `CRON_SECRET` vía el header `Authorization: Bearer` que Vercel firma
+  solo con que la variable exista — no hay nada que configurar del lado
+  de Vercel más allá de poner un valor random en esa variable de entorno.
+  Sin `READERS_SHEET_ID` configurada todavía, el cron sigue disparando en
+  su horario pero no hace nada (`{synced:false, reason:'not configured'}`),
+  arranca a sincronizar solo con que el usuario complete el setup de
+  Sheets, sin tocar código ni el cron en sí.
+- **Verificado:** `tsc --noEmit`, `npx eslint`, `next build`, limpios los
+  tres. **No verificado**: el cron en sí (necesita un deploy real en
+  Vercel para disparar por primera vez, no algo simulable desde este
+  sandbox) ni la escritura real a Sheets (mismo bloqueo de siempre:
+  `READERS_SHEET_ID` sin configurar todavía). Una vez desplegado y
+  configurado, confirmar desde el dashboard de Vercel (pestaña Cron Jobs
+  del proyecto) que la primera corrida programada de verdad sincronizó.
+
+**2026-08-02 — investigado, sin cambio de código: bug reportado de
+"Iniciar sesión" duplicado en el header (iPad, captura del usuario).**
+Este bug exacto — dos links "Iniciar sesión" visibles al mismo tiempo en
+la barra superior en un iPad — **ya estaba arreglado en código antes de
+esta sesión**, commit `a834d09` ("Fix duplicate header controls, header
+fit 1181-1400px, archive orphan rows", 2026-07-24), **ya mergeado a
+`main`** (confirmado con `git merge-base --is-ancestor` y comparando
+`styles/header.css`/`styles/responsive.css`/`HeaderNav.tsx` contra `main`
+línea por línea: sin diferencias en esa lógica entre esta rama y `main`).
+El fix convirtió lo que eran dos media queries que debían coincidir
+(`min-width:921px` ocultando las copias del drawer, `max-width:920px`
+ocultando las de escritorio) en una sola regla de un solo lado (oculto
+por default, encendido solo dentro de la media query del drawer,
+`max-width:1180px`) — estructuralmente ya no puede desincronizarse porque
+no tiene una regla pareja de la que desincronizarse. Revisado de nuevo
+esta sesión sin encontrar ninguna regresión ni ningún tercer lugar que
+renderice "Iniciar sesión".
+
+**Conclusión: no es un bug de código vigente, es casi con certeza un
+deploy de producción desactualizado** (playbook.la sirviendo un build
+anterior a `a834d09`) o caché de CDN/navegador — la lógica actual, la
+misma en esta rama y en `main`, no permite que las dos versiones se vean
+a la vez. El push de esta sesión a `main` (que ya incluía este fix, así
+que no lo repite, pero sí dispara un deploy nuevo) es lo que debería
+resolverlo. **Pedirle al usuario que, después del próximo deploy,
+recargue `playbook.la` con caché forzada (Cmd+Shift+R o equivalente) y
+confirme en el iPad real.** Si el bug persiste incluso después de un
+deploy confirmado como posterior a `a834d09`, eso apuntaría a algo más
+sutil (un ancho de viewport específico no cubierto por los 1180px, poco
+probable dado el diseño de regla única, pero no descartado sin poder
+probarlo en un iPad real) y ameritaría una sesión dedicada con acceso a
+production real.
 
 ### Fase 6 — Legal y compliance
 
