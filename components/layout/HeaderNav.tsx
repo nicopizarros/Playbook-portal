@@ -59,6 +59,40 @@ export function HeaderNav({
       if (e.key === 'Escape') {
         close();
         toggleRef.current?.focus();
+        return;
+      }
+
+      // Keep Tab inside the open drawer. While it's open, .nav-overlay
+      // covers the page with pointer-events:auto, so everything behind it
+      // is unreachable by mouse — but tabbing past the drawer's last item
+      // walked straight into it anyway (measured: after "Iniciar sesión"
+      // focus landed on the header search field, then the homepage filter
+      // buttons, all of them dimmed and un-clickable). A keyboard user was
+      // the only one who could reach controls the drawer is deliberately
+      // covering. Wrapping to the other end matches how the overlay
+      // already behaves for a pointer.
+      if (e.key !== 'Tab') return;
+      const panel = drawerRef.current;
+      if (!panel) return;
+      const focusables = panel.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      // Focus outside the panel entirely (e.g. it started on the toggle
+      // button, which lives outside .nav-links) pulls back to an end
+      // rather than being left wherever it was.
+      if (!panel.contains(active)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
       }
     }
     document.addEventListener('keydown', onKeyDown);

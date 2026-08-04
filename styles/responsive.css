@@ -54,7 +54,17 @@
   .nav-toggle{display:flex;}
   .nav-drawer-cta{display:block;}
   .nav-drawer-login{display:block;}
-  .theme-toggle-drawer{display:flex;}
+  /* `.theme-toggle.theme-toggle-drawer`, not `.theme-toggle-drawer`: the
+     base rule that hides it (end of styles/header.css) is written with both
+     classes, deliberately, so it can outrank `.theme-toggle{display:flex}`.
+     This rule has to match that specificity to turn it back on — as a
+     single class it scored (0,1,0) against the base rule's (0,2,0) and
+     simply lost, at every width in this query. Measured, not read off the
+     cascade: the drawer's theme toggle computed to `display:none` at 390,
+     768, 1024 and 1180px, and since `.nav-actions .theme-toggle` is hidden
+     here too, there was no way at all to switch between light and dark on
+     any phone or tablet. */
+  .theme-toggle.theme-toggle-drawer{display:flex;}
   .brand img{height:38px;}
   header.topbar.is-scrolled .brand img{height:38px;}
   #nav-cta{display:none;}
@@ -98,7 +108,15 @@
   .nav-links.is-open{transform:translateX(0);visibility:visible;transition:transform var(--duration-slow) var(--ease-out),visibility 0s;}
   .nav-links a{width:100%;padding:14px 0;border-bottom:1px solid var(--rule);font-size:15.5px;}
   .nav-link-infinitas{margin-left:0;}
-  .nav-links .nav-drawer-cta{width:100%;margin-top:16px;padding:0;min-height:48px;border-bottom:none;text-align:center;}
+  /* color:#fff restates what .btn already sets. Without it the drawer CTA
+     rendered black-on-black: `.nav-links a` (styles/header.css) sets
+     `color:var(--ink)` and scores (0,1,1), which outranks `.btn`'s (0,1,0),
+     so the pill kept .btn's --ink-fixed background but took the nav's ink
+     text colour. Measured at 390/768/1024/1180px: colour and background
+     both rgb(10,10,10) — a 1:1 contrast ratio, i.e. an entirely blank
+     black pill where "Suscríbete gratis" should be, on every phone and
+     tablet. This selector is (0,2,0) so it wins over both. */
+  .nav-links .nav-drawer-cta{width:100%;margin-top:16px;padding:0;min-height:48px;border-bottom:none;text-align:center;color:#fff;}
   .nav-links .nav-drawer-login{width:100%;margin-top:10px;padding:0;border-bottom:none;text-align:center;font-size:13.5px;color:var(--gray-txt);text-decoration:underline;text-decoration-color:var(--rule);}
   /* El toggle del drawer se ve como una fila más del menú (ícono + texto),
      no como el botón cuadrado de escritorio — reutiliza .theme-toggle-icon
