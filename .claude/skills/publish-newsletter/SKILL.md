@@ -1,6 +1,6 @@
 ---
 name: publish-newsletter
-description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Deporte, Infinitas) into Playbook.
+description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Mundial, Infinitas) into Playbook.
 ---
 
 # Publish Newsletter: Substack link to live article, no human in the loop
@@ -28,7 +28,7 @@ Vercel, does not work from a sandboxed agent session).
 Fetch every Substack URL given (use WebFetch; it follows the `open.substack.com`
 to `<pub>.substack.com` redirect automatically, re-fetch the redirect URL it
 reports). For each edition, identify individual news items: each story in an
-Industry Shots or La Lana del Deporte edition is a separate article. Also
+Industry Shots or La Lana del Mundial edition is a separate article. Also
 fetch the page a second time asking specifically for the exact publication
 date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
@@ -46,7 +46,7 @@ used as the cover image.
 ## Step 2: Independent research
 
 Applies to Industry Shots and Infinitas items. Does **not** apply to La Lana
-del Deporte: its fact/analysis content tracks the source as written, never
+del Mundial: its fact/analysis content tracks the source as written, never
 supplemented with outside research (see Step 3's La Lana section).
 
 Mandatory, always attempted, for every Industry Shots/Infinitas item: search
@@ -117,7 +117,7 @@ wording per article rather than reusing the same word in every piece.
 
 Word-count range: roughly 300-500 words across the four paragraphs.
 
-### La Lana del Deporte
+### La Lana del Mundial
 
 Content stays exactly as it would without Step 2: don't run outside
 research on La Lana pieces, and don't otherwise pad or alter what the
@@ -151,23 +151,13 @@ document, see Step 6), never HTML tags.
 - **title**: headline, in Spanish.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
-- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
+- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Mundial: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
 - **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
-    - La Lana del Deporte: `"La Lana del Deporte"` / `"la-lana"`
+    - La Lana del Mundial: `"La Lana del Mundial"` / `"la-lana"`
     - Infinitas: `"Infinitas"` / `"infinitas"`
-    - A bylined opinion piece (the item is presented as one person's
-      argument/column, explicitly labeled Opinión on the source page, or
-      the user identifies it as one) rather than a newsletter news item:
-      `"Opinión"` / `"opinion"` (`opinion` is a real `KNOWN_SOURCES` value,
-      see `lib/constants.ts`; it has its own homepage section and `/tema`
-      filter, distinct from the `**Opinión de Playbook:**` closing
-      paragraph every Industry Shots/La Lana/Infinitas item already gets,
-      which is a paragraph within a news article, not this).
-    - Anything else: `"Noticias"` / `"industry-shots"` (the old `"Playbook"` /
-      `"playbook"` fallback was retired 2026-08-01, folded into Noticias —
-      see `lib/constants.ts`)
+    - Anything else: `"Playbook"` / `"playbook"`
 
   "Industry Shots" is only this skill's internal name for that Substack
   newsletter, used to pick the fields above. It is never a label readers
@@ -175,33 +165,19 @@ document, see Step 6), never HTML tags.
   "Noticias" everywhere on the site. Never write the literal string
   "Industry Shots" into any visible field (title, excerpt, teaser, body,
   author).
-All three tag fields below are arrays in the schema (`lib/db/schema.ts`) and
-the site renders every value given as its own chip/filter
-(`ArticleTopics`/`TagPillRow`, `/tema`). Assign **every value in each tier
-that genuinely applies to the story**, not just a single "best" one — a
-2026-08-02 audit of live articles found most had exactly one tag per tier
-even when several plainly fit, which makes the story harder to find via
-`/tema` for no reason. This doesn't mean padding with anything
-tangential: still only tag what the story is actually, substantively about.
-
 - **tagsScope**: any of `Nacional`, `Internacional` (array, can be empty).
-  Most stories are cleanly one or the other; tag both only when the story
-  genuinely has both angles (e.g. a Liga MX club's international transfer
-  saga).
 - **tagsSport**: choose only from (case-sensitive, don't invent new ones):
   `Fútbol, Liga MX, NFL, NBA, Béisbol, Tenis, Golf, F1, Olímpico, Multi-deporte / Otros` (see `lib/taxonomy.ts`, `SPORT_OPTIONS`).
-  A 2026-07-31 audit of live articles found stories sitting on a generic
-  bucket one tier up from the tag that actually fit; the guidance below
-  still holds, but don't read it as "pick exactly one" — apply every value
-  that's true at once:
+  Pick the **most specific** value the story actually supports before
+  falling back to a broader one — a 2026-07-31 audit of live articles found
+  several stories sitting on the generic bucket one tier up from the tag
+  that actually fit:
     - The story is specifically about the Liga MX competition/organization
       itself (its rules, its clubs collectively, its front office, e.g. a
-      promotion-and-relegation change or a league-structure story) → tag it
-      **both** `Liga MX` **and** `Fútbol` (Liga MX is football; a reader
-      filtering by either should find it). `Fútbol` alone, without `Liga
-      MX`, is for football stories that aren't about the Liga MX
-      competition as an entity: a single club's business, the national
-      team, FIFA/a tournament, or similar.
+      promotion-and-relegation change or a league-structure story) → `Liga
+      MX`, not `Fútbol`. `Fútbol` is for the sport in general: a single
+      club's business, the national team, FIFA/a tournament, or any other
+      story that isn't about the Liga MX competition as an entity.
     - A single-sport story (baseball, tennis, golf, F1, Olympic) →
       that sport's own tag, not `Multi-deporte / Otros`. That bucket is for
       stories that are genuinely cross-sport (a multi-team ownership group,
@@ -209,17 +185,11 @@ tangential: still only tag what the story is actually, substantively about.
       its own (e.g. cycling) — not a stand-in for "didn't check if a
       specific tag existed." Concretely: a story about MLB's Home Run
       Derby is `Béisbol`, not `Multi-deporte / Otros`.
-  Before writing the final value(s), re-read the story's own core subject
-  (not just sports mentioned in passing) and list every tag above that
-  genuinely fits, not just the single closest match.
+  Before writing the final value, re-read the story's own core subject (not
+  just the sports mentioned in passing) and check it against the list above
+  for the closest match.
 - **tagsVertical**: choose only from `lib/taxonomy.ts`'s `VERTICAL_OPTIONS`:
   `Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`.
-  Same rule: apply every vertical the story genuinely touches, not just
-  one. In particular, a story centered on a governing body (FIFA, Concacaf,
-  a federation, a league's own regulatory arm) should carry `Gobernanza y
-  Regulación` **alongside** its `tagsSport` value(s), not instead of them —
-  there is no separate "governing bodies" sport tag; this vertical is what
-  carries that angle.
 - **date**: `YYYY-MM-DD`, confirmed from the page (Step 1), not guessed.
 - **dateFormatted**: e.g. `"21 jul 2026"` (day, 3-letter lowercase month, year).
 - **readingTime**: `2` for Industry Shots/Infinitas (four-paragraph standard), `3` for La Lana long-form.
@@ -257,24 +227,9 @@ This is the hero photo at the top of the article and the feed-card thumbnail.
 It is **never** one of the images embedded in the source Substack article
 (see 5b) — those are for the body, not the cover.
 
-**Exception, `source: 'opinion'` articles only:** use the Substack post's own
-cover image, not an external search. Substack sets a dedicated cover photo
-for each post (the hero image shown above the title/byline on the post page
-itself and in its social/share preview), separate from any images embedded
-further down in the body. Fetch the post page and ask specifically for that
-cover image's own URL (the `substackcdn.com` src of the header/hero photo,
-not a body image and not a search-result guess), and use that as `imageUrl`.
-Set `imageCredit` to whatever the post itself credits the photo to; if the
-post gives no credit, credit it to the publication, e.g. `"Foto: [Nombre del
-autor] / Substack"`. Only fall back to the external-search process below if
-the post genuinely has no cover image of its own. This does not apply to
-Industry Shots, La Lana del Deporte, or Infinitas items, which keep the
-external-search process below.
-
-For every other source, **always, always, always search for the best and
-most related cover photo for each article, trying different search angles
-and different sources before giving up, and always give credit in
-`imageCredit`.** Never publish
+**Always, always, always search for the best and most related cover photo
+for each article, trying different search angles and different sources
+before giving up, and always give credit in `imageCredit`.** Never publish
 with no cover image and never settle for a generic/unrelated one when a
 genuinely on-topic photo is findable: not a generic stadium if the story is
 about data privacy, not a generic football pitch if the story is about a
@@ -318,6 +273,36 @@ correct, specific credit is what lets a rights holder actually identify
 their photo if they ever reach out. If a cover photo genuinely cannot be
 sourced for a topic after trying multiple search angles and platforms, say
 so explicitly rather than guessing.
+
+**No cropped-looking cover images (team directive, 2026-08-04):** the site
+never shows a cover photo at its native aspect ratio. `.lead-photo`/
+`.article-photo` (homepage hero and every article page, `styles/hero.css`,
+`styles/article.css`) force `aspect-ratio: 16/10` with `object-fit: cover`,
+and the archive grid forces `4/3` or `1/1` (`.archive-grid-photo`,
+`styles/article.css`). A tall portrait or square source photo gets centered
+and the excess top/bottom sliced off automatically, with no control over
+which part survives, this is exactly what cut a subject's face in half on
+a prior run and, on a later run, silently cropped four separate cover
+photos down to the wrong slice before anyone noticed. Before finalizing any
+`imageUrl`, check the actual pixel dimensions of the candidate (fetch the
+file, don't guess from the thumbnail) and compute its ratio: anything
+between roughly 1.4:1 and 1.8:1 survives a 16:10 crop with only minor,
+harmless trimming at the edges, so prefer photos already in that range.
+A portrait or square photo (ratio below ~1.3:1, this includes most single-
+subject action shots and headshots) will lose most of its vertical content
+when forced into 16:10, so either find a different, naturally wide-format
+photo of the same subject (a wide match/celebration/podium shot instead of
+a tight vertical portrait), or, if the best available photo of the subject
+is portrait-oriented, pre-crop it yourself to 16:10 around the part that
+matters (the face, the branding, the key detail) using an image tool
+before publishing, the same fix used for a custom graphic and for a
+Wikimedia portrait earlier in the project's history. A self-cropped image
+needs the same hosting path as any other custom asset: commit it to
+`public/assets/img/`, push, and use the resulting
+`https://playbook-portal-phi.vercel.app/assets/img/...` URL, since Wikimedia
+and Unsplash only serve their own original crops. Never publish a cover
+photo without doing this ratio check first, regardless of how good the
+photo looks in isolation.
 
 ### 5b. In-body images, carried over from the source article
 
