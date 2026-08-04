@@ -12,7 +12,7 @@ export default function TerminosPage() {
   return (
     <main className="container legal-page" id="terminos-main">
       <h1>Términos y Condiciones</h1>
-      <p className="legal-updated">Última actualización: 24 de julio de 2026.</p>
+      <p className="legal-updated">Última actualización: 4 de agosto de 2026.</p>
 
       <p>
         Al usar este sitio, operado por <strong>Playbook SAPI de C.V.</strong>
@@ -30,9 +30,9 @@ export default function TerminosPage() {
       <h2>Acceso al contenido</h2>
       <p>
         Puedes leer hasta {FREE_ARTICLES_PER_MONTH} artículos gratuitos por mes sin registrarte. Para
-        seguir leyendo más allá de ese límite, puedes registrarte con tu correo electrónico usando un
-        enlace de acceso. Nos reservamos el derecho de cambiar este límite o el modelo de acceso en
-        el futuro.
+        seguir leyendo más allá de ese límite, puedes crear una cuenta gratuita con tu cuenta de
+        Google o con un correo y una contraseña propios de Playbook. Nos reservamos el derecho de
+        cambiar este límite o el modelo de acceso en el futuro.
       </p>
 
       <h2>Cuentas</h2>

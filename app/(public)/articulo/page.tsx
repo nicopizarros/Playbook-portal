@@ -14,6 +14,7 @@ import { EmailWall } from '@/components/article/EmailWall';
 import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { splitAfterParagraph } from '@/lib/split-after-paragraph';
+import { jsonLdScript } from '@/lib/json-ld';
 import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
 
@@ -221,7 +222,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
         </main>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBase) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLdBase) }}
         />
       </>
     );
@@ -318,7 +319,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify({ ...jsonLdBase, articleBody: article.teaser || article.excerpt || '' }) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript({ ...jsonLdBase, articleBody: article.teaser || article.excerpt || '' }) }}
       />
     </>
   );
