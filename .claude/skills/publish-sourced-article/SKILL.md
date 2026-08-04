@@ -1,6 +1,6 @@
 ---
 name: publish-sourced-article
-description: Turn a link from a third-party (non-Playbook) news source into a Playbook article, cross-referencing other outlets covering the same story, citing every source at the bottom of the piece, and pulling the cover photo from the referenced article when possible. Unlike publish-newsletter, this always pauses for explicit human approval in this Claude Code session before publishing. Use when asked to draft, process, or write up a link from an outlet other than Playbook's own Substack (ESPN, Reuters, a press release, any competitor or wire link).
+description: Turn a link from a third-party (non-Playbook) news source into a Playbook article, cross-referencing other outlets covering the same story for verification and enrichment, and pulling the cover photo from the referenced article when possible. Unlike publish-newsletter, this always pauses for explicit human approval in this Claude Code session before publishing. Use when asked to draft, process, or write up a link from an outlet other than Playbook's own Substack (ESPN, Reuters, a press release, any competitor or wire link).
 ---
 
 # Publish Sourced Article: third-party link to Playbook article, with human approval
@@ -9,15 +9,24 @@ This is the human-reviewed counterpart to the `publish-newsletter` skill. That
 skill is for Playbook's own Substack editions (trusted first-party content,
 zero review, straight to `status: 'published'`). This one is for links to
 someone else's article, an outlet Playbook doesn't own or control, so it
-never publishes without an explicit yes from the human in this session, and
-every article always carries a visible source list at the bottom.
+never publishes without an explicit yes from the human in this session.
 
 Same field shape, same taxonomy, same production database and insert script
 as `publish-newsletter` (see that skill's SKILL.md for anything not repeated
 here), except: mandatory cross-referencing against other outlets (Step 2),
-mandatory Fuentes citation block (Step 4), cover-image sourcing that starts
-with the referenced article itself (Step 6), and the human-approval gate
-(Step 7) before anything reaches the database.
+cover-image sourcing that starts with the referenced article itself (Step 5),
+and the human-approval gate (Step 6) before anything reaches the database.
+
+**No visible Fuentes/citation block** (changed 2026-08-04, publisher
+directive): earlier versions of this skill appended a visible "Fuentes"
+list of linked outlets at the bottom of every article's body. The human
+reviewer decided that space should never appear on a live article page,
+so it's gone for good, not just for one draft. Step 2's cross-referencing
+is still mandatory, it's still what makes a piece Playbook's own take
+instead of a paraphrase of one competitor, it just no longer surfaces as
+a citation list in `bodyMarkdown`. The only place a source URL still shows
+up anywhere is the internal `sourceUrl` field (Step 4), which is a DB
+dedupe key, never rendered on the page.
 
 ## Requirements before running
 
@@ -64,14 +73,11 @@ skill:
 Rules: fetch the actual pages (never rely on a search snippet), prefer
 reputable outlets (wire services, established sports-business or general
 press, official newsrooms) over blogs or forums, and never fabricate a fact
-or a source. Keep track of every outlet actually fetched and used, in the
-order used, this list feeds Step 4's Fuentes section and Step 5's
-`sourceUrl`.
+or a source.
 
 If, after genuinely trying, no other outlet has covered the story (a truly
 exclusive or very fresh item), say so explicitly rather than inventing a
-second source, and draft from the primary article alone, still citing it
-in Step 4.
+second source, and draft from the primary article alone.
 
 ## Step 3: Editorial voice
 
@@ -135,34 +141,7 @@ directly, with the backlink sitting inside that sentence rather than
 introducing it. What actually belongs in this piece is what changed since
 the earlier one, not a recap of it.
 
-## Step 4: Sources section (Fuentes, required)
-
-Every article ends with a visible citation block, right after the Opinión
-paragraph, as its own two blocks in `bodyMarkdown` (a blank line between
-each, this matters, see below):
-
-```
-**Opinión de Playbook:** ...(the paragraph itself)...
-
-**Fuentes:**
-
-- [Outlet: article title or short description](https://the-real-url)
-- [Outlet: article title or short description](https://the-real-url)
-```
-
-- One bullet per source actually fetched and used to write the piece, the
-  primary link from Step 1 plus every cross-referenced article from Step 2.
-  Never list a source you didn't actually read.
-- `**Fuentes:**` must be its own block, separated by a blank line from the
-  bullet list that follows: `scripts/publish-newsletter.ts`'s converter
-  only recognizes a block as a list when *every* line in it starts with
-  `- `, so `**Fuentes:**` and the list have to be two separate
-  blank-line-separated blocks, not one.
-- Use real `[text](url)` markdown links, the converter turns these into
-  actual `link`-marked text (`target="_blank"`), not literal bracket text.
-  Use the outlet's real name and the actual URL, never invent one.
-
-## Step 5: Fields per article
+## Step 4: Fields per article
 
 Same shape as `publish-newsletter`'s `ArticleInput`
 (`scripts/publish-newsletter.ts`), same taxonomy (`lib/taxonomy.ts`), same
@@ -188,11 +167,12 @@ Importancia scale. Differences from that skill:
   renders a "Ver en Substack" button whenever this field is non-empty,
   pointing wherever it's set. That label is wrong for a third-party link,
   and there's no generic "ver fuente" variant of that button today, so
-  don't populate it with the source URL. Step 4's Fuentes block is the
-  citation mechanism for this skill, not this field.
+  don't populate it with the source URL.
 - **sourceUrl**: the primary reference URL from Step 1, used as-is. It's
   the DB's unique dedupe key (`articles.sourceUrl`), so re-running this
   skill on the same link no-ops (`duplicate`) instead of publishing twice.
+  This is an internal field only, never rendered on the article page, it's
+  not a substitute for the Fuentes block that used to exist here.
 - **readingTime**: `2` (the standard four-paragraph length).
 - **dateFormatted**: same format as `publish-newsletter`'s (`"30 jul
   2026"`). For a fast-developing story where the exact time matters (a
@@ -207,10 +187,10 @@ Importancia scale. Differences from that skill:
   current.
 - **tagsScope** / **tagsSport** / **tagsVertical** / **priority** /
   **featured**: identical rules to `publish-newsletter` (see that skill's
-  Step 5 Fields section), including querying the DB for existing
+  Step 4 Fields section), including querying the DB for existing
   `featured = true` rows before setting one here.
 
-## Step 6: Image
+## Step 5: Image
 
 ### 6a. Cover image, default source: the referenced article itself
 
@@ -252,27 +232,26 @@ one cover image from 6a. Reproducing a competitor's full photo set inside a
 Playbook article is a different risk profile than Playbook's own Substack
 content, so body images stay out unless a human explicitly asks for one.
 
-## Step 7: Human review, before anything touches the database
+## Step 6: Human review, before anything touches the database
 
-This is the difference that defines this skill. Never run Step 8 without an
+This is the difference that defines this skill. Never run Step 7 without an
 explicit yes in this session, no exceptions, no "seems fine, publishing":
 
-1. After Step 6, present the complete draft for every article in the batch:
-   every field from Step 5 (title, excerpt, teaser, full bodyMarkdown
-   including the Fuentes block, tags, priority, featured, image + credit,
-   sourceUrl), not a summary.
+1. After Step 5, present the complete draft for every article in the batch:
+   every field from Step 4 (title, excerpt, teaser, full bodyMarkdown, tags,
+   priority, featured, image + credit, sourceUrl), not a summary.
 2. Then explicitly ask whether to publish, per article if there's more than
    one (use `AskUserQuestion`, or just ask directly if that fits the
    conversation better). Don't default to "yes" on silence or an
    ambiguous reply.
 3. If changes are requested, revise and re-present the full draft before
    asking again. Repeat until each article is either approved or dropped.
-4. Only articles that got an explicit approval move to Step 8. Anything
+4. Only articles that got an explicit approval move to Step 7. Anything
    not approved is simply not published, no need to explain why.
 
-## Step 8: Publish
+## Step 7: Publish
 
-Only for the articles approved in Step 7:
+Only for the articles approved in Step 6:
 
 1. Write a JSON array of the approved article objects (same shape as
    `publish-newsletter`'s `ArticleInput` in `scripts/publish-newsletter.ts`)
@@ -289,16 +268,16 @@ Only for the articles approved in Step 7:
    URL (`https://playbook-portal-phi.vercel.app/articulo?id=<id>`). If any
    came back `duplicate`, say so (that link was already published before).
 
-## Step 9: Capture feedback for next time, automatically
+## Step 8: Capture feedback for next time, automatically
 
-Step 7's review loop is exactly where the human corrects things this skill
+Step 6's review loop is exactly where the human corrects things this skill
 got wrong, tone, redundancy with prior coverage, a field convention, a
 sourcing judgment call. Left alone, those corrections vanish at the end of
 the session and the next run makes the same mistake, the human re-explains
 it, and nothing accumulates. Close that loop every run, without being
 asked:
 
-1. After Step 8, look back over any revision requests from Step 7. Ask: is
+1. After Step 7, look back over any revision requests from Step 6. Ask: is
    this a durable, generalizable lesson (would it help write the *next*
    article too, on some other topic), or is it specific to this one
    article (a fact, a word choice, a one-off structural call for this
