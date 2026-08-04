@@ -274,6 +274,36 @@ their photo if they ever reach out. If a cover photo genuinely cannot be
 sourced for a topic after trying multiple search angles and platforms, say
 so explicitly rather than guessing.
 
+**No cropped-looking cover images (team directive, 2026-08-04):** the site
+never shows a cover photo at its native aspect ratio. `.lead-photo`/
+`.article-photo` (homepage hero and every article page, `styles/hero.css`,
+`styles/article.css`) force `aspect-ratio: 16/10` with `object-fit: cover`,
+and the archive grid forces `4/3` or `1/1` (`.archive-grid-photo`,
+`styles/article.css`). A tall portrait or square source photo gets centered
+and the excess top/bottom sliced off automatically, with no control over
+which part survives, this is exactly what cut a subject's face in half on
+a prior run and, on a later run, silently cropped four separate cover
+photos down to the wrong slice before anyone noticed. Before finalizing any
+`imageUrl`, check the actual pixel dimensions of the candidate (fetch the
+file, don't guess from the thumbnail) and compute its ratio: anything
+between roughly 1.4:1 and 1.8:1 survives a 16:10 crop with only minor,
+harmless trimming at the edges, so prefer photos already in that range.
+A portrait or square photo (ratio below ~1.3:1, this includes most single-
+subject action shots and headshots) will lose most of its vertical content
+when forced into 16:10, so either find a different, naturally wide-format
+photo of the same subject (a wide match/celebration/podium shot instead of
+a tight vertical portrait), or, if the best available photo of the subject
+is portrait-oriented, pre-crop it yourself to 16:10 around the part that
+matters (the face, the branding, the key detail) using an image tool
+before publishing, the same fix used for a custom graphic and for a
+Wikimedia portrait earlier in the project's history. A self-cropped image
+needs the same hosting path as any other custom asset: commit it to
+`public/assets/img/`, push, and use the resulting
+`https://playbook-portal-phi.vercel.app/assets/img/...` URL, since Wikimedia
+and Unsplash only serve their own original crops. Never publish a cover
+photo without doing this ratio check first, regardless of how good the
+photo looks in isolation.
+
 ### 5b. In-body images, carried over from the source article
 
 Any image embedded in the source Substack post next to that specific news

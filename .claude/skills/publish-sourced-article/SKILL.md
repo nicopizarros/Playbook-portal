@@ -236,6 +236,13 @@ here is the primary source article's own lead/hero image:
   never invent or guess a URL. Set `imageCredit` to the real photographer
   or agency, matched to whatever the image's own page attributes it to,
   same as `publish-newsletter`'s Step 5a. Required for every article.
+- **No cropped-looking cover images:** check the candidate's actual pixel
+  dimensions before settling on it, same rule and same reasoning as
+  `publish-newsletter`'s Step 5a (search that file for "No cropped-looking"
+  for the full explanation of the site's forced `16/10`/`4/3`/`1/1`
+  crop boxes). A source article's own hero image is exactly as likely to be
+  an awkward portrait crop as anything found by search, so this check
+  applies to it too, not only to fallback-search results.
 
 ### 6b. No automatic in-body images
 
