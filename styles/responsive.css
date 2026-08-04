@@ -193,3 +193,27 @@
   .nav-search input{width:48px;}
   .nav-search:focus-within input{width:48px;}
 }
+
+/* ——— Header, narrowest tier (≤400px) ———
+   2026-08-04. Measured at a 320px viewport (iPhone SE / smallest phone
+   still in real use, and the width WCAG 2.1 SC 1.4.10 Reflow is written
+   against): the row needed 346px of content — 24px padding + 130px logo +
+   24px gap + 144px of actions + 24px padding — inside a 305px content box
+   (320 minus the 15px `scrollbar-gutter:stable` reserves). The hamburger
+   sat at x=278-322, so 17px of the only control that opens navigation on a
+   phone was clipped past the right edge, and `html{overflow-x:clip}` from
+   the drawer block above means it could not be scrolled into view either.
+   Fixed by giving the row back the space rather than by hiding anything:
+   padding and gaps tighten, and the search pill — which at this width is
+   already a stub with a 48px input — becomes the flexible element that
+   absorbs whatever is left instead of holding a width the row can't
+   afford. `min-width:0` is required on both the pill and its input for
+   that to work: a flex item's default `min-width:auto` floors it at the
+   input's intrinsic size, which is exactly what was overflowing. */
+@media(max-width:400px){
+  .nav{gap:10px;padding-left:14px;padding-right:14px;}
+  .nav-actions{gap:8px;min-width:0;}
+  .nav-search{flex-shrink:1;min-width:0;}
+  .nav-search input,
+  .nav-search:focus-within input{width:100%;min-width:0;}
+}

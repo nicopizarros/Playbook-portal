@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { SITE_URL } from '@/lib/site-url';
 
 export const metadata: Metadata = {
@@ -114,7 +115,7 @@ export default function PrivacidadPage() {
         Como titular de tus datos, tienes derecho a Acceder, Rectificar, Cancelar u Oponerte (ARCO) al
         tratamiento de tus datos personales. Si eres lector registrado, puedes exportar o eliminar tu
         cuenta y tu historial de lectura tú mismo, sin escribirnos, desde{' '}
-        <a href="/cuenta">Mi cuenta</a>. Para cualquier otro pedido relacionado con tus datos,
+        <Link href="/cuenta">Mi cuenta</Link>. Para cualquier otro pedido relacionado con tus datos,
         escríbenos a <strong>hola@playbook.la</strong>.
       </p>
 

@@ -14,6 +14,7 @@ import { EmailWall } from '@/components/article/EmailWall';
 import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { splitAfterParagraph } from '@/lib/split-after-paragraph';
+import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
 
 type Props = { searchParams: Promise<{ id?: string }> };
@@ -34,7 +35,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   const canonicalUrl = canonicalUrlFor(article.id);
-  const image = article.imageUrl || `${SITE_URL}/assets/img/playbook-logo.webp`;
+  // Fallback is the 1200×630 site card, not the logo file this used to
+  // point at: playbook-logo.webp is a ~180×44 wordmark, which every social
+  // network either letterboxes into a mostly-empty box or rejects outright
+  // for being under its minimum. An article with no cover photo is common
+  // here (most industry-shots rows have imageUrl empty — checked against
+  // the real table), so this is the *usual* card, not an edge case.
+  const image = article.imageUrl || `${SITE_URL}${DEFAULT_OG_IMAGE.url}`;
   const description = article.excerpt || '';
 
   return {
@@ -42,7 +49,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     description,
     alternates: { canonical: canonicalUrl },
     robots: { index: true, follow: true },
+    // siteName/locale restated from OG_DEFAULTS on purpose: declaring
+    // `openGraph` at all replaces the root layout's object wholesale rather
+    // than merging into it, so without this an article card loses
+    // og:site_name and og:locale (confirmed in the served HTML).
     openGraph: {
+      ...OG_DEFAULTS,
       type: 'article',
       title: article.title,
       description,
@@ -52,7 +64,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       section: article.publication || undefined,
     },
     twitter: {
-      card: article.imageUrl ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title: article.title,
       description,
       images: [image],

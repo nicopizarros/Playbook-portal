@@ -71,6 +71,14 @@ export default async function CuentaPage() {
         necesidad de escribirnos (ver <Link href="/privacidad">Aviso de Privacidad</Link>).
       </p>
       <div className="account-actions">
+        {/* Plain <a>, not next/link: this is a Route Handler that answers
+            with Content-Disposition: attachment, so it must be a real
+            browser navigation the download manager can take over. A <Link>
+            would client-side navigate instead and the download would never
+            start. eslint's no-html-link-for-pages can't tell a downloadable
+            route from a page — it only started flagging this once
+            app/(public)/[...slug]/page.tsx made every path route-shaped. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className="btn light" href="/api/account/export">Exportar mis datos</a>
         <DeleteAccountButton />
       </div>

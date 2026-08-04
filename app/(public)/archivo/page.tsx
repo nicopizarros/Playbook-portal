@@ -292,7 +292,7 @@ export default async function ArchivoPage({ searchParams }: Props) {
       <main className="container news-section archive-page" id="archivo-main">
         <div className="section-head page-head">
           <div>
-            <h2>Archivo</h2>
+            <h1>Archivo</h1>
             <p className="sub">Todo lo publicado en Playbook que ya no está en la portada.</p>
           </div>
           <Link className="section-link" href="/">← Volver a Noticias</Link>

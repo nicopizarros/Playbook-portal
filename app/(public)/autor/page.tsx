@@ -36,7 +36,7 @@ export default async function AutorPage({ searchParams }: Props) {
         <div className="section-head page-head">
           <div>
             {nombre && <span className="eyebrow">Autor</span>}
-            <h2>{nombre || 'Autor'}</h2>
+            <h1>{nombre || 'Autor'}</h1>
             <p className="sub">Todo lo publicado por este autor en Playbook.</p>
           </div>
           <Link className="section-link" href="/">← Volver a Noticias</Link>
