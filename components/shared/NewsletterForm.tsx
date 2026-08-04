@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
+import { newsletterActionUrl } from '@/lib/newsletter-url';
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -11,7 +12,9 @@ function isValidEmail(value: string) {
 // to an external Substack URL in a new tab (target="_blank") — this
 // component can't know the real subscription result, so "success" here is
 // the same "assumed success once the email looks valid" UX legacy already
-// shipped, not a confirmed server round-trip.
+// shipped, not a confirmed server round-trip. `successMessage` should
+// therefore say what actually happened (the reader was handed off to
+// Substack to confirm), not promise a mail that nothing here has sent.
 export function NewsletterForm({
   formClassName,
   action,
@@ -85,7 +88,10 @@ export function NewsletterForm({
   return (
     <form
       className={`pill-form ${formClassName}${hasError ? ' has-error' : ''}${isSuccess ? ' is-success' : ''}`}
-      action={action}
+      // Normalised, not used raw: the configured URL is a Substack
+      // publication root, where the submitted ?email= is silently dropped.
+      // See lib/newsletter-url.ts.
+      action={newsletterActionUrl(action)}
       target="_blank"
       rel="noopener noreferrer"
       onSubmit={handleSubmit}

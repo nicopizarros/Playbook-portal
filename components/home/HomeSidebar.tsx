@@ -35,7 +35,7 @@ export function HomeSidebar() {
           emailId="nl-email-side"
           emailLabel="Tu correo"
           buttonLabel="Suscribirme"
-          successMessage="¡Listo! Revisa tu correo."
+          successMessage="Te abrimos Substack para confirmar."
         />
       </section>
       <MostReadSection />

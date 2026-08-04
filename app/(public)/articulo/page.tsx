@@ -20,7 +20,14 @@ import { SITE_URL } from '@/lib/site-url';
 type Props = { searchParams: Promise<{ id?: string }> };
 
 function canonicalUrlFor(id: string) {
-  return `${SITE_URL}/articulo?id=${encodeURIComponent(id)}`;
+  return `${SITE_URL}${pathFor(id)}`;
+}
+
+// Same article, as a site-relative path. Used for anything that has to
+// work against the origin the reader is actually on rather than the
+// canonical one — see EmailWall's redirectTo below.
+function pathFor(id: string) {
+  return `/articulo?id=${encodeURIComponent(id)}`;
 }
 
 // Uses getArticleMetaById exclusively — metadata (og:description etc.)
@@ -196,7 +203,20 @@ export default async function ArticuloPage({ searchParams }: Props) {
           <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
           <article className="article-detail">
             {header}
-            <EmailWall articleUrl={canonicalUrl} teaser={meta.wallTeaser} />
+            {/* Relative path, not canonicalUrl: this value becomes Auth.js's
+                `redirectTo`, and Auth.js drops any redirect target whose
+                origin doesn't match the request's own — so an absolute
+                canonical built from SITE_URL silently fell back to "/"
+                whenever the reader was on any other host. Measured, not
+                theorised: signing up from the wall landed on the homepage
+                instead of the article. Production happens to match today,
+                but every preview deployment, the project's own
+                *.vercel.app URL (which serves the site and is reachable)
+                and local dev do not. A relative path is resolved against
+                whatever origin the reader is on, so it's correct on all of
+                them — and getting a reader back to the article they were
+                blocked on is the entire point of the sign-up. */}
+            <EmailWall articleUrl={pathFor(meta.id)} teaser={meta.wallTeaser} />
           </article>
         </main>
         <script
