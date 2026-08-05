@@ -126,6 +126,28 @@ export function extractMoneyTrailFromHtml(html: string): MoneyTrailExtraction | 
   };
 }
 
+// Hub masthead: the route should be REAL, not decorative (user feedback
+// 2026-08-05 — arbitrary cities with no label read as noise). This pulls
+// the "Ruta del dinero" out of an article's body (native TipTap HTML,
+// HTML teaser, or plain-text teaser alike) so the hub can show the latest
+// expediente's actual money route, labeled as such. Returns null when the
+// story declares none — the hub then falls back to the CMS-configured
+// route and caption.
+export function extractTrailStops(bodyHtml: string | null, teaser: string | null): string[] | null {
+  for (const html of [bodyHtml, teaser]) {
+    if (html && /<[a-z][\s\S]*>/i.test(html)) {
+      const found = extractMoneyTrailFromHtml(html);
+      if (found) return found.stops;
+    }
+  }
+  if (teaser && !/<[a-z][\s\S]*>/i.test(teaser)) {
+    const paragraphs = teaser.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    const found = extractMoneyTrailFromParagraphs(paragraphs);
+    if (found) return found.stops;
+  }
+  return null;
+}
+
 export function extractMoneyTrailFromParagraphs(paragraphs: string[]): { stops: string[]; index: number } | null {
   for (let i = 0; i < paragraphs.length; i++) {
     if (TRAIL_TEXT_PREFIX.test(paragraphs[i])) {

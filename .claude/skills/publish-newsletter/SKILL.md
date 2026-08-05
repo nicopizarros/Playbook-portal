@@ -178,13 +178,14 @@ them right at drafting time:
   title or the excerpt — not only buried in a middle paragraph — or the
   hero renders without its hook.
 - **Infinitas: El Marcador.** The hub shows a scoreboard of sourced
-  women's-sports business metrics, hardcoded in
-  `app/(public)/infinitas/page.tsx` (`SCOREBOARD`). If an Infinitas item
-  being published contains a headline metric that supersedes one on that
-  board (a new attendance record, a new revenue projection from a named
-  source), don't edit page code as part of the publish run — flag it in
-  one line of the run report ("El Marcador: la cifra X quedó superada por
-  Y (fuente Z)") so it gets refreshed deliberately.
+  women's-sports business metrics, editable in the admin CMS ("Hubs de
+  producto" tab — no deploy needed; defaults live in
+  `lib/product-hubs-content.ts`). If an Infinitas item being published
+  contains a headline metric that supersedes one on the board (a new
+  attendance record, a new revenue projection from a named source), don't
+  edit anything as part of the publish run — flag it in one line of the
+  run report ("El Marcador: la cifra X quedó superada por Y (fuente Z)")
+  so editorial updates it in the CMS deliberately.
 
 Tone (both sections above): direct, analytical, authoritative. No filler,
 no sensationalism. Playbook reads closer to a business brief than to a

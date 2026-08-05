@@ -1,22 +1,23 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getArticlesBySource } from '@/lib/data/articles';
-import { shotsFor, shotLabel, weekdayFor, MINUTES_PER_SHOT } from '@/lib/product-hubs';
+import { getArticlesBySource, type Article } from '@/lib/data/articles';
+import { getSiteContent } from '@/lib/data/site-content';
+import { productHubsContent } from '@/lib/product-hubs-content';
+import { shotsFor, shotLabel, weekdayFor, extractPullFigure, MINUTES_PER_SHOT } from '@/lib/product-hubs';
 import { SITE_URL } from '@/lib/site-url';
 
-// Noticias — the news product's own front page (design brief 2026-08-05,
-// reworked same day on user feedback: the page is called NOTICIAS — the
-// name readers see everywhere else on the portal — not "Industry Shots";
-// the accent is Playbook green, not an imported blue; and the weekday
-// badges lost their two-tone treatment, which read as random colors
-// against real off-cadence publish days. /industry-shots 301s here.)
-//
-// The design still rewards scanning speed — a dense vertical list, not a
-// magazine grid — but importance now shows through TYPE SIZE: the latest
-// edition leads big, and each row's headline scales with its editorial
-// priority, so the eye lands on what matters without reading dates. The
-// shot measure stays as the reading unit (1 shot ≈ 3 min, the same unit
-// the article page's progress glass uses).
+// Noticias — the news product's own front page (design brief 2026-08-05;
+// renamed + re-accented same day; river treatment added on the next round
+// of user feedback: "rn it is a boring list"). The page still rewards
+// scanning, but it now reads as a RIVER with three alternating forms
+// driven by each story's data, not a uniform list:
+//   - tier lg (priority 5): full-width feature band — photo when the
+//     story has one, its biggest figure pulled out as a green chip.
+//   - tier md (priority 4): two-up cards, thumbnail when available.
+//   - tier sm (rest): tight "shots rápidos" clusters — the dense scan
+//     rows, grouped under a green tick so density reads as a deliberate
+//     rhythm instead of the whole page's only register.
+// Masthead copy is CMS-editable (Hubs tab) via productHubsContent().
 
 export const metadata: Metadata = {
   title: 'Noticias',
@@ -25,12 +26,36 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/noticias` },
 };
 
-// Headline scale per editorial priority (the same 1-5 stars the homepage
-// ranks with): the row's size IS the importance signal.
 function tierFor(priority: number | null): 'lg' | 'md' | 'sm' {
   if ((priority ?? 0) >= 5) return 'lg';
   if ((priority ?? 0) >= 4) return 'md';
   return 'sm';
+}
+
+type NewsBlock =
+  | { kind: 'feature'; article: Article }
+  | { kind: 'cards'; articles: Article[] }
+  | { kind: 'quick'; articles: Article[] };
+
+// Consecutive same-tier stories cluster together (same principle as the
+// archive river: the size STEP happens between rows, never within one).
+// Publication order is never reshuffled.
+function groupRiver(articles: Article[]): NewsBlock[] {
+  const blocks: NewsBlock[] = [];
+  for (const article of articles) {
+    const tier = tierFor(article.priority);
+    const prev = blocks[blocks.length - 1];
+    if (tier === 'lg') {
+      blocks.push({ kind: 'feature', article });
+    } else if (tier === 'md') {
+      if (prev?.kind === 'cards') prev.articles.push(article);
+      else blocks.push({ kind: 'cards', articles: [article] });
+    } else {
+      if (prev?.kind === 'quick') prev.articles.push(article);
+      else blocks.push({ kind: 'quick', articles: [article] });
+    }
+  }
+  return blocks;
 }
 
 function ShotGlyph() {
@@ -42,9 +67,38 @@ function ShotGlyph() {
   );
 }
 
+function When({ article }: { article: Article }) {
+  return (
+    <span className="shots-row-when">
+      <span className="shots-badge">{weekdayFor(article.date)}</span>
+      <span className="shots-row-date">{article.dateFormatted}</span>
+    </span>
+  );
+}
+
+function Measure({ article, glyphs = 1 }: { article: Article; glyphs?: number }) {
+  return (
+    <span className="shots-row-measure">
+      {Array.from({ length: Math.min(glyphs, 3) }, (_, i) => (
+        <ShotGlyph key={i} />
+      ))}
+      {shotLabel(article.readingTime)}
+    </span>
+  );
+}
+
+function articleHref(article: Article) {
+  return `/articulo?id=${encodeURIComponent(article.id)}`;
+}
+
 export default async function NoticiasHubPage() {
-  const articles = await getArticlesBySource('industry-shots');
+  const [articles, content] = await Promise.all([
+    getArticlesBySource('industry-shots'),
+    getSiteContent(),
+  ]);
+  const hubs = productHubsContent(content.productHubs);
   const [lead, ...rest] = articles;
+  const river = groupRiver(rest);
 
   return (
     <main className="hub hub-shots" id="noticias-hub">
@@ -54,57 +108,89 @@ export default async function NoticiasHubPage() {
         <header className="hub-shots-masthead">
           <p className="hub-shots-eyebrow">By Playbook</p>
           <h1 className="hub-shots-title">Noticias</h1>
-          <p className="hub-shots-sub">
-            Lo que debes saber de sports business para tomar mejores decisiones, en menos de 5 minutos.
-          </p>
+          <p className="hub-shots-sub">{hubs.noticias.sub}</p>
           <p className="hub-shots-cadence">
-            Nuevas ediciones <strong>martes y jueves</strong>
+            {hubs.noticias.cadenceNote}
             <span className="hub-shots-measure">· 1 shot ≈ {MINUTES_PER_SHOT} min</span>
           </p>
         </header>
 
         {lead ? (
           <section className="shots-lead reveal" aria-label="Última edición">
-            <Link className="shots-lead-link" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
+            <Link className="shots-lead-link" href={articleHref(lead)}>
               <span className="shots-lead-when">
                 <span className="shots-badge">{weekdayFor(lead.date)}</span>
                 <span className="shots-row-date">{lead.dateFormatted}</span>
               </span>
               <h2 className="shots-lead-title">{lead.title}</h2>
               {lead.excerpt && <p className="shots-lead-excerpt">{lead.excerpt}</p>}
-              <span className="shots-row-measure">
-                <ShotGlyph />
-                {shotLabel(lead.readingTime)}
-              </span>
+              <Measure article={lead} />
             </Link>
           </section>
         ) : (
           <p className="empty-state hub-empty">Todavía no hay ediciones publicadas.</p>
         )}
 
-        {rest.length > 0 && (
-          <section className="shots-list" aria-label="Ediciones anteriores">
-            {rest.map(article => {
-              const shots = shotsFor(article.readingTime);
-              return (
-                <Link
-                  className="shots-row"
-                  data-tier={tierFor(article.priority)}
-                  href={`/articulo?id=${encodeURIComponent(article.id)}`}
-                  key={article.id}
-                >
-                  <span className="shots-row-when">
-                    <span className="shots-badge">{weekdayFor(article.date)}</span>
-                    <span className="shots-row-date">{article.dateFormatted}</span>
-                  </span>
-                  <h3 className="shots-row-title">{article.title}</h3>
-                  <span className="shots-row-measure">
-                    {Array.from({ length: Math.min(shots, 3) }, (_, i) => (
-                      <ShotGlyph key={i} />
+        {river.length > 0 && (
+          <section className="shots-river" aria-label="Ediciones anteriores">
+            {river.map(block => {
+              if (block.kind === 'feature') {
+                const a = block.article;
+                const figure = extractPullFigure(a.title, a.excerpt);
+                return (
+                  <Link className="shots-feature reveal" href={articleHref(a)} key={a.id}>
+                    <span className="shots-feature-copy">
+                      <When article={a} />
+                      {figure && <span className="shots-figure-chip">{figure}</span>}
+                      <h3>{a.title}</h3>
+                      {a.excerpt && <p>{a.excerpt}</p>}
+                      <Measure article={a} glyphs={shotsFor(a.readingTime)} />
+                    </span>
+                    {a.imageUrl && (
+                      <span className="shots-feature-photo">
+                        {/* Editor-supplied URL, arbitrary host — see
+                            components/sections/AboutSection.tsx's comment. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={a.imageUrl} alt="" width={640} height={400} loading="lazy" decoding="async" />
+                      </span>
+                    )}
+                  </Link>
+                );
+              }
+              if (block.kind === 'cards') {
+                return (
+                  <div className="shots-cards" key={`cards-${block.articles[0].id}`}>
+                    {block.articles.map(a => (
+                      <Link className="shots-card reveal" href={articleHref(a)} key={a.id}>
+                        {a.imageUrl && (
+                          <span className="shots-card-photo">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={a.imageUrl} alt="" width={480} height={280} loading="lazy" decoding="async" />
+                          </span>
+                        )}
+                        <span className="shots-card-copy">
+                          <When article={a} />
+                          <h3>{a.title}</h3>
+                          <Measure article={a} />
+                        </span>
+                      </Link>
                     ))}
-                    {shotLabel(article.readingTime)}
+                  </div>
+                );
+              }
+              return (
+                <div className="shots-quick" key={`quick-${block.articles[0].id}`}>
+                  <span className="shots-quick-tick" aria-hidden="true">
+                    Shots rápidos
                   </span>
-                </Link>
+                  {block.articles.map(a => (
+                    <Link className="shots-row" href={articleHref(a)} key={a.id}>
+                      <When article={a} />
+                      <h3 className="shots-row-title">{a.title}</h3>
+                      <Measure article={a} />
+                    </Link>
+                  ))}
+                </div>
               );
             })}
           </section>

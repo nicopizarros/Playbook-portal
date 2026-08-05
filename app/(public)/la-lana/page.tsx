@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getArticlesBySource } from '@/lib/data/articles';
-import { caseNumber, caseStatus, extractPullFigure } from '@/lib/product-hubs';
+import { getArticlesBySource, getArticleById } from '@/lib/data/articles';
+import { getSiteContent } from '@/lib/data/site-content';
+import { productHubsContent } from '@/lib/product-hubs-content';
+import { caseNumber, caseStatus, extractPullFigure, extractTrailStops } from '@/lib/product-hubs';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { SITE_URL } from '@/lib/site-url';
 
@@ -22,12 +24,6 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/la-lana` },
 };
 
-// Masthead route: the money-moves motif (México y LATAM hacia los centros
-// de dinero del deporte) — decorative in the same way the card art's
-// departures board is; real per-story routes render inside articles via
-// the "Ruta del dinero:" convention.
-const MASTHEAD_ROUTE = ['CDMX', 'MIAMI', 'MADRID', 'RIYADH'];
-
 function Stamp({ status }: { status: 'abierto' | 'archivado' }) {
   return (
     <span className={`lana-stamp lana-stamp-${status}`}>
@@ -37,9 +33,26 @@ function Stamp({ status }: { status: 'abierto' | 'archivado' }) {
 }
 
 export default async function LaLanaHubPage() {
-  const articles = await getArticlesBySource('la-lana');
+  const [articles, content] = await Promise.all([getArticlesBySource('la-lana'), getSiteContent()]);
+  const hubs = productHubsContent(content.productHubs);
   const now = new Date();
   const [lead, ...rest] = articles;
+
+  // The masthead route explains itself or it doesn't run (user feedback
+  // 2026-08-05: unlabeled cities read as decoration). First choice: the
+  // latest expediente's own declared "Ruta del dinero" (needs the full
+  // row — list queries strip bodies), captioned with that case's number.
+  // Fallback: the CMS-configured route and caption (Hubs tab in the
+  // admin), which editorial owns.
+  const leadFull = lead ? await getArticleById(lead.id) : null;
+  const leadTrail = leadFull ? extractTrailStops(leadFull.bodyHtml, leadFull.teaser) : null;
+  const trailStops = leadTrail ?? hubs.lana.routeStops;
+  const trailLabel = leadTrail
+    ? `${hubs.lana.routeLabel} · Expediente ${caseNumber(lead, articles)}`
+    : hubs.lana.routeLabel;
+  const trailNote = leadTrail
+    ? `Así se movió el dinero del último caso: ${lead.title}`
+    : hubs.lana.routeNote;
 
   return (
     <main className="hub hub-lana" id="la-lana">
@@ -47,15 +60,14 @@ export default async function LaLanaHubPage() {
         <Link className="section-link back-link hub-back" href="/">← Volver a Playbook</Link>
 
         <header className="hub-lana-masthead">
-          <p className="hub-lana-eyebrow">Una investigación de Playbook</p>
+          <p className="hub-lana-eyebrow">{hubs.lana.eyebrow}</p>
           <h1 className="hub-lana-title">
             La Lana <span className="hub-lana-title-accent">del Deporte</span>
           </h1>
-          <p className="hub-lana-sub">
-            El dinero, el poder y las decisiones que mueven al deporte fuera de la cancha.
-            Un expediente a la vez.
-          </p>
-          <MoneyTrail stops={MASTHEAD_ROUTE} />
+          <p className="hub-lana-sub">{hubs.lana.sub}</p>
+          {trailStops.length >= 2 && (
+            <MoneyTrail stops={trailStops} label={trailLabel} note={trailNote} />
+          )}
         </header>
 
         {lead ? (

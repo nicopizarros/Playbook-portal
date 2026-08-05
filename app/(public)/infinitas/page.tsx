@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getArticlesBySource } from '@/lib/data/articles';
+import { getSiteContent } from '@/lib/data/site-content';
+import { productHubsContent, type HubMetric } from '@/lib/product-hubs-content';
 import { Scoreboard, type ScoreboardMetric } from '@/components/products/Scoreboard';
 import { SITE_URL } from '@/lib/site-url';
 
@@ -26,36 +28,30 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/infinitas` },
 };
 
-// El Marcador's opening metrics. Real, attributed public figures — a
-// scoreboard invents nothing. Values chosen with editorial care but frozen
-// at write time (2026-08-05): confirm/refresh with the Infinitas team each
-// season, or wire to the CMS if they want to own them (the component
-// already takes them as data).
-const SCOREBOARD: ScoreboardMetric[] = [
-  {
-    value: 2.35,
-    decimals: 2,
-    prefix: 'US$',
-    suffix: 'B',
-    label: 'Ingresos globales del deporte femenil de élite proyectados para 2025',
-    source: 'Deloitte',
-  },
-  {
-    value: 91553,
-    label: 'Récord mundial de asistencia a un partido de fútbol femenil (Camp Nou, 2022)',
-    source: 'FC Barcelona',
-  },
-  {
-    value: 1.98,
-    decimals: 2,
-    suffix: 'M',
-    label: 'Asistentes al Mundial Femenil 2023, récord histórico del torneo',
-    source: 'FIFA',
-  },
-];
+// El Marcador's metrics are CMS-owned as of 2026-08-05 (Hubs tab in the
+// admin; defaults in lib/data/site-content.ts's PRODUCT_HUBS_DEFAULTS) —
+// editorial refreshes them without a deploy. The editor types the number
+// as text ("2.35", "91,553"); this parses it and derives the decimal
+// count for the count-up animation. Unparseable or empty values are
+// dropped rather than animating to 0.
+function toScoreboardMetric(metric: HubMetric): ScoreboardMetric | null {
+  const raw = metric.value.trim().replace(/,/g, '');
+  const value = Number(raw);
+  if (!raw || Number.isNaN(value)) return null;
+  return {
+    value,
+    decimals: raw.includes('.') ? Math.min(raw.split('.')[1].length, 3) : 0,
+    prefix: metric.prefix || undefined,
+    suffix: metric.suffix || undefined,
+    label: metric.label,
+    source: metric.source,
+  };
+}
 
 export default async function InfinitasHubPage() {
-  const articles = await getArticlesBySource('infinitas');
+  const [articles, content] = await Promise.all([getArticlesBySource('infinitas'), getSiteContent()]);
+  const hub = productHubsContent(content.productHubs).infinitas;
+  const metrics = hub.metrics.map(toScoreboardMetric).filter((m): m is ScoreboardMetric => m !== null);
   const [lead, ...rest] = articles;
 
   return (
@@ -66,16 +62,16 @@ export default async function InfinitasHubPage() {
         <header className="hub-inf-masthead">
           <p className="hub-inf-eyebrow">By Playbook</p>
           <h1 className="hub-inf-title">infinitas</h1>
-          <p className="hub-inf-sub">La nueva era del deporte, leída como industria.</p>
+          <p className="hub-inf-sub">{hub.sub}</p>
         </header>
 
-        <section className="infhub-marcador" aria-label="El Marcador">
-          <h2 className="infhub-marcador-head">El Marcador</h2>
-          <p className="infhub-marcador-sub">
-            El deporte femenil como fuerza de negocio, en cifras que no dejan de subir.
-          </p>
-          <Scoreboard metrics={SCOREBOARD} />
-        </section>
+        {metrics.length > 0 && (
+          <section className="infhub-marcador" aria-label="El Marcador">
+            <h2 className="infhub-marcador-head">El Marcador</h2>
+            <p className="infhub-marcador-sub">{hub.marcadorSub}</p>
+            <Scoreboard metrics={metrics} />
+          </section>
+        )}
 
         {lead ? (
           <section className="infhub-lead" aria-label="Historia principal">

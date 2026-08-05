@@ -5143,6 +5143,50 @@ numeración de expedientes se recorre (es cronológica calculada, "dated by
 case") — si algún día se quiere numeración congelada, haría falta campo
 en DB.
 
+### 2026-08-05 — Hubs, cuarta pasada: ruta con significado, panel de CMS y río en Noticias
+
+Feedback del usuario sobre el preview (captura del masthead de La Lana):
+la gráfica de ruta gustaba como elemento pero "no es autoexplicativa"
+(ciudades arbitrarias sin etiqueta), pidió un panel para editar todo esto
+en el CMS, y Noticias seguía siendo "una lista aburrida".
+
+- **La ruta ahora se explica sola y es real.** El masthead de /la-lana
+  intenta primero la "Ruta del dinero" declarada en el CUERPO del último
+  expediente (extractTrailStops en lib/product-hubs.ts — el hub pide la
+  fila completa vía getArticleById porque las queries de lista quitan el
+  cuerpo) y la rotula "La ruta del dinero · Expediente NNN" + "Así se
+  movió el dinero del último caso: <título>". Si el caso no declara ruta,
+  cae a la ruta y nota configuradas en el CMS. MoneyTrail ganó props
+  label/note (figcaption).
+- **Panel "Hubs de producto" en el admin** (grupo Contenido editorial,
+  components/admin/tabs/HubsTab.tsx): edita mastheads de los 4 hubs, la
+  ruta por defecto de La Lana, la nota de cadencia de Noticias, el
+  tagline/URL de TFBR y — clave — las cifras de El Marcador de Infinitas
+  (cifra/prefijo/sufijo/descripción/fuente), que dejaron de estar
+  hardcodeadas en la página. **Arquitectura**: la sección `productHubs` es
+  OPCIONAL en site_content; todo se lee vía `productHubsContent()` en
+  `lib/product-hubs-content.ts` (módulo aparte y client-safe a propósito:
+  el dashboard es client component y lib/data/site-content.ts importa el
+  cliente de DB server-only — no mover esto de vuelta). Defaults en
+  código; una fila vieja se edita igual y el primer guardado escribe la
+  sección. No hace falta tocar datos de producción.
+- **Noticias es un río, no una lista**: la última edición abre grande;
+  después bloques alternados por prioridad — banda destacada full-width
+  (★5: foto si hay, y la cifra más grande de la nota como chip verde
+  rotado), tarjetas a dos columnas (★4, thumbnail si hay; una tarjeta
+  sola se estira a todo el ancho), y clusters "Shots rápidos" (el resto,
+  filas densas detrás de una regla verde para que la densidad lea como
+  registro deliberado). Agrupación por corridas consecutivas del mismo
+  tier, orden de publicación intacto (mismo principio que el río del
+  archivo).
+
+**Verificación** (app corriendo, Postgres local): Playwright — /noticias
+(0 anchors anidados, 0 overflow, capturas revisadas: bandas, pares,
+clusters y chips "MX$42.8 millones"/"60 millones" reales), /la-lana con
+ruta auto-derivada del cuerpo del caso 003 (rótulo confirmado por texto),
+y login real al admin (reset-editor-password local) con el tab nuevo
+renderizando todos los campos junto al preview. tsc/eslint/build limpios.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

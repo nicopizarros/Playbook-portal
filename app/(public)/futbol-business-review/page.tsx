@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getArticlesBySource } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
+import { productHubsContent } from '@/lib/product-hubs-content';
 import { SITE_URL } from '@/lib/site-url';
 
 // The Futbol Business Review — "La Sala de Juntas" (design brief,
@@ -28,11 +29,6 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/futbol-business-review` },
 };
 
-// Where the editions actually live today. Hardcoded rather than read from
-// the TFBR product card's CMS url: that card now points AT this hub, so
-// reading it back would be circular.
-const TFBR_SUBSTACK_URL = 'https://playbookmedia.substack.com/';
-
 function TrendArrow({ direction = 'up' }: { direction?: 'up' | 'right' }) {
   return (
     <svg
@@ -54,6 +50,11 @@ export default async function FutbolBusinessReviewHubPage() {
     getSiteContent(),
   ]);
   const stats = content.statsSection.stats;
+  // Masthead copy + the Substack destination are CMS-editable (Hubs tab).
+  // The Substack URL lives here rather than being read from the TFBR
+  // product card: that card now points AT this hub, so reading it back
+  // would be circular.
+  const hub = productHubsContent(content.productHubs).tfbr;
 
   return (
     <main className="hub hub-tfbr" id="futbol-business-review">
@@ -74,12 +75,9 @@ export default async function FutbolBusinessReviewHubPage() {
           <div className="hub-tfbr-lede">
             <TrendArrow />
             <p className="hub-tfbr-tagline">
-              <em>The insights</em> behind the game.
+              <em>{hub.taglineEm}</em> {hub.taglineRest}
             </p>
-            <p className="hub-tfbr-sub">
-              El fútbol en el mercado hispano de US es un gigante en aceleración. Acá lo leemos
-              como negocio, junto con Interticket.
-            </p>
+            <p className="hub-tfbr-sub">{hub.sub}</p>
           </div>
         </header>
 
@@ -131,7 +129,7 @@ export default async function FutbolBusinessReviewHubPage() {
             </p>
             <a
               className="btn tfbr-cta"
-              href={TFBR_SUBSTACK_URL}
+              href={hub.substackUrl}
               target="_blank"
               rel="noopener noreferrer"
             >

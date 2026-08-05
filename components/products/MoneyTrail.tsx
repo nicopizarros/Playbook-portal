@@ -35,7 +35,21 @@ function routePath(count: number): { d: string; xs: number[] } {
   return { d, xs };
 }
 
-export function MoneyTrail({ stops, scrub = false }: { stops: string[]; scrub?: boolean }) {
+// `label`/`note` render a caption above the route so the graphic explains
+// itself (user feedback 2026-08-05: an unlabeled route reads as decoration)
+// — e.g. label "La ruta del dinero · Expediente 006", note "Así se movió
+// el dinero del último caso".
+export function MoneyTrail({
+  stops,
+  scrub = false,
+  label,
+  note,
+}: {
+  stops: string[];
+  scrub?: boolean;
+  label?: string;
+  note?: string;
+}) {
   const rootRef = useRef<SVGSVGElement>(null);
   const { d, xs } = useMemo(() => routePath(stops.length), [stops.length]);
 
@@ -90,6 +104,12 @@ export function MoneyTrail({ stops, scrub = false }: { stops: string[]; scrub?: 
 
   return (
     <figure className="money-trail" role="img" aria-label={`Ruta del dinero: ${stops.join(' a ')}`}>
+      {(label || note) && (
+        <figcaption className="money-trail-caption">
+          {label && <span className="money-trail-caption-label">{label}</span>}
+          {note && <span className="money-trail-caption-note">{note}</span>}
+        </figcaption>
+      )}
       <svg
         ref={rootRef}
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
