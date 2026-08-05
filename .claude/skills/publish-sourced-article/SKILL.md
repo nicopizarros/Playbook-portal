@@ -79,11 +79,34 @@ If, after genuinely trying, no other outlet has covered the story (a truly
 exclusive or very fresh item), say so explicitly rather than inventing a
 second source, and draft from the primary article alone.
 
+**The Mexico/LATAM angle is part of this research pass, not something to
+reason out at drafting time.** A foreign outlet's article will almost never
+carry the regional hook Step 3's Opinión paragraph needs, so it has to be
+found, and the failure mode is inferring it from the story's own logic
+rather than checking it. On 2026-08-05 a draft argued that a shrinking
+league would probably drop its Mexican stop; the league had in fact already
+announced that venue's next edition months earlier, so the honest read was
+the reverse (a shorter calendar makes a surviving venue more important, not
+less). Before the Opinión gets written, search the things that could
+falsify it: whether the league/competition actually plays in Mexico and at
+which venue, whether the next edition is already confirmed, who the local
+commercial partner is, and which Mexican or LATAM athletes are involved and
+on which team. Naming a real club, promoter, and player roster is also what
+makes the closing paragraph something the reader can't get from the
+original outlet.
+
 ## Step 3: Editorial voice
 
 Same four-paragraph structure and tone as `publish-newsletter`'s Industry
 Shots format (see that skill's Step 3 for the exact voice rules: direct,
-analytical, authoritative, Mexico/LATAM angle, never an em dash "—"):
+analytical, authoritative, Mexico/LATAM angle, never an em dash "—", at
+most one negative-parallelism construction per piece, no computed
+percentages or ratios used as rhetoric, metric units throughout, and
+background facts explained rather than name-dropped). Those last four
+matter more here than in `publish-newsletter`: a third-party article is
+being rewritten rather than expanded, and a rewrite that keeps reaching
+for the same rhetorical shapes is exactly what reads as a machine
+paraphrase of someone else's piece.
 
 1. Fact paragraph: what happened, who, the key numbers, source context.
 2. Cross-referenced context paragraph (Step 2): the data point, comparison,

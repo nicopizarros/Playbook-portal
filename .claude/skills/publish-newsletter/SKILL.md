@@ -73,6 +73,19 @@ Rules:
   research.
 - This research is always paragraph 2 of Step 3's structure below, and can
   sharpen the priority/Importancia call in Step 4.
+- **Research the Mexico/LATAM angle too, don't reason your way to it.** The
+  Opinión paragraph almost always reaches for a regional hook, and the
+  temptation is to derive it from the story's logic (a league is shrinking,
+  therefore its Mexican stop is presumably at risk) instead of checking. On
+  2026-08-05 that inference was exactly backwards: the venue's next edition
+  had already been confirmed by the league months earlier, which made the
+  real angle the opposite of the drafted one. Before writing the Opinión,
+  run the searches that would falsify it: does this league/competition
+  actually play in Mexico, at which venue, is the next edition confirmed,
+  who is the local commercial partner, and which Mexican or LATAM athletes
+  are involved. Those specifics (a named club, a named promoter, named
+  players and their team) are also what turns a generic "esto importa para
+  la región" closer into something a reader can't get elsewhere.
 
 ## Step 3: Editorial voice
 
@@ -141,6 +154,41 @@ give them.
 
 Style rule: never use em dashes (the "—" character) anywhere in the drafted
 text, in any field. Use commas, periods, parentheses, or "y"/"pero" instead.
+
+Three more style rules, all from a 2026-08-05 review round where the human
+read a draft back as stiff and formulaic:
+
+- **Don't lean on negative parallelism.** The "no es X, es Y" shape (and its
+  variants: "el golpe no vino de A, vino de B", "en un calendario de 14 era
+  una plaza más; en uno de 10, es indispensable", "deja de ser A y se
+  convierte en B") is genuinely useful once in a piece. Used three or four
+  times across four paragraphs it stops reading as analysis and starts
+  reading as a tic, every point arriving in the same rhetorical costume.
+  Cap it at one per article, and prefer just stating the thing directly.
+- **No arithmetic showmanship.** Don't compute a ratio or percentage the
+  sources didn't publish in order to land a rhetorical punch ("el rescate
+  vale menos del 5% de lo que costó llegar hasta aquí", "la aritmética es
+  brutal"). Put the two real figures next to each other and say what the
+  gap means in business terms; the reader does the division. This reads as
+  a business brief; a calculated stat wearing a verdict reads as a hot take.
+- **Metric units always.** Convert anything a US or UK source gives in feet,
+  miles, yards, pounds, or acres into meters/kilometers/kilos before it
+  reaches any field. Playbook's reader is in Mexico and LATAM; "7,300 pies
+  de altura" is a unit they have to translate mid-sentence, "más de 2,200
+  metros" is one they feel. Sport-specific units that are genuinely used in
+  Spanish-language coverage of that sport (yardas in golf/NFL) are the
+  exception, keep those.
+
+Related: when a paragraph name-drops a background fact the reader can't be
+assumed to carry (a state's incentive package, a canceled event, a prior
+lawsuit, a regulatory ruling), spend the extra clause explaining it rather
+than dropping the bare reference. "Luisiana espera la devolución de 1.2
+millones de dólares de un acuerdo de sede" tells a reader nothing;
+the same fact with its shape (a 7.2-million incentive package, 5 of it a
+hosting fee, 1.2 already advanced, the event canceled in April, the money
+never returned) is the kind of detail that makes the piece worth reading.
+It costs one sentence and it's usually the sentence a competitor's recap
+left out.
 
 Write the body as **bold**/`##` heading formatted prose, plus any
 `![alt](url)` in-body images carried over per Step 5b (this becomes a TipTap
