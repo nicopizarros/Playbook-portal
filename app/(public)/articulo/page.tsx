@@ -14,6 +14,15 @@ import { EmailWall } from '@/components/article/EmailWall';
 import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { splitAfterParagraph } from '@/lib/split-after-paragraph';
+import {
+  hubForSource,
+  extractMoneyTrailFromHtml,
+  extractMoneyTrailFromParagraphs,
+  markOpinionCallout,
+  OPINION_TEXT_PREFIX,
+} from '@/lib/product-hubs';
+import { MoneyTrail } from '@/components/products/MoneyTrail';
+import { ShotProgress } from '@/components/products/ShotProgress';
 import { jsonLdScript } from '@/lib/json-ld';
 import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
@@ -109,6 +118,71 @@ function paragraphsFrom(text: string) {
     .filter(Boolean);
 }
 
+// ——— Product article templates (design brief, 2026-08-05). Each editorial
+// product gets body-level devices on top of the shared article shell,
+// driven by plain authoring conventions (see lib/product-hubs.ts) so they
+// need no schema or editor changes:
+//   - La Lana del Deporte: a "Ruta del dinero: A → B → C" paragraph
+//     becomes the animated money-trail route, drawn as the reader scrolls.
+//   - Industry Shots: a "La opinión de Playbook: …" paragraph becomes the
+//     visually separated opinion callout (fact/opinion line made explicit),
+//     and a shot-glass progress indicator tracks the read.
+// Styling (torn-paper quotes, stamps, accents) rides on the
+// .article-product-<source> class — see styles/product-hubs.css.
+
+// HTML bodies: the money-trail paragraph is lifted out and replaced by the
+// component. Runs on each ad-split half independently — the trail <p> is
+// always intact inside exactly one half because the ad split only cuts at
+// top-level paragraph boundaries.
+function ProductHtml({ html, source }: { html: string; source: string }) {
+  if (source === 'la-lana') {
+    const trail = extractMoneyTrailFromHtml(html);
+    if (trail) {
+      return (
+        <>
+          {trail.before.trim() !== '' && <div dangerouslySetInnerHTML={{ __html: trail.before }} />}
+          <MoneyTrail stops={trail.stops} scrub />
+          {trail.after.trim() !== '' && <div dangerouslySetInnerHTML={{ __html: trail.after }} />}
+        </>
+      );
+    }
+  }
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+// Plain-text bodies (legacy/migrated articles): same conventions, applied
+// per paragraph instead of via string transforms.
+type PlainBlock =
+  | { kind: 'text'; text: string }
+  | { kind: 'opinion'; text: string }
+  | { kind: 'trail'; stops: string[] };
+
+function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
+  const blocks: PlainBlock[] = paragraphs.map(p =>
+    source === 'industry-shots' && OPINION_TEXT_PREFIX.test(p)
+      ? { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') }
+      : { kind: 'text', text: p },
+  );
+  if (source === 'la-lana') {
+    const trail = extractMoneyTrailFromParagraphs(paragraphs);
+    if (trail) blocks.splice(trail.index, 1, { kind: 'trail', stops: trail.stops });
+  }
+  return blocks;
+}
+
+function PlainBlockView({ block }: { block: PlainBlock }) {
+  if (block.kind === 'trail') return <MoneyTrail stops={block.stops} scrub />;
+  if (block.kind === 'opinion') {
+    return (
+      <aside className="shot-opinion">
+        <span className="shot-opinion-kicker">La opinión de Playbook</span>
+        <p>{block.text}</p>
+      </aside>
+    );
+  }
+  return <p>{block.text}</p>;
+}
+
 export default async function ArticuloPage({ searchParams }: Props) {
   const { id } = await searchParams;
   const meta = id ? await getArticleMetaById(id) : null;
@@ -154,15 +228,27 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
   const entitlement = await resolveEntitlement(meta.id);
 
+  // Product hub for this article's source (null for non-product sources,
+  // e.g. opinion): links the kicker chip to the product's own hub and
+  // scopes the per-product template CSS on the <article>.
+  const hub = hubForSource(meta.source);
+  const articleClass = `article-detail${hub ? ` article-product-${hub.source}` : ''}`;
+
   // Header order (UI/UX audit 2026-07-23): publication chip → headline →
   // byline → photo. Deliberately NO taxonomy anywhere in the header (user
   // feedback: readers should never be greeted by tags) — the full
   // three-tier index lives in a collapsed <ArticleTopics> disclosure at
-  // the article foot. The chip is brand/source identity, not a tag.
+  // the article foot. The chip is brand/source identity, not a tag — and
+  // for a product source it now links to that product's hub, which is the
+  // brand-level navigation the chip always implied.
   const header = (
     <>
       <div className="article-kicker">
-        <span className="tag">{meta.publication}</span>
+        {hub ? (
+          <Link className="tag tag-hub-link" href={hub.path}>{meta.publication}</Link>
+        ) : (
+          <span className="tag">{meta.publication}</span>
+        )}
       </div>
       <ArticleHeadline title={meta.title} />
       <div className="byline article-byline">
@@ -202,7 +288,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
       <>
         <main className="container article-page" id="articulo">
           <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
-          <article className="article-detail">
+          <article className={articleClass}>
             {header}
             {/* Relative path, not canonicalUrl: this value becomes Auth.js's
                 `redirectTo`, and Auth.js drops any redirect target whose
@@ -253,9 +339,15 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // all — see lib/split-after-paragraph.ts); plain-text bodies just slice
   // the paragraph array. Either way the ad never trails the final
   // paragraph, and the walled branch above never reaches this code.
-  const htmlBody = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
+  //
+  // The Industry Shots opinion callout is applied BEFORE the ad split —
+  // splitAfterParagraph tracks <aside> so it can't cut the callout open.
+  const rawHtmlBody = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
+  const htmlBody =
+    rawHtmlBody && article.source === 'industry-shots' ? markOpinionCallout(rawHtmlBody) : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
-  const splitPlain = paragraphs.length > 3 ? [paragraphs.slice(0, 3), paragraphs.slice(3)] : null;
+  const blocks = plainBlocksFor(paragraphs, article.source);
+  const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
 
   return (
     <>
@@ -264,32 +356,37 @@ export default async function ArticuloPage({ searchParams }: Props) {
       <main className="container article-page" id="articulo">
         <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
 
-        <article className="article-detail">
+        {/* El Trago: the shot glass fills as the reader advances through
+            .article-body — only where there's a body to advance through
+            (the walled branch never renders it). */}
+        {article.source === 'industry-shots' && <ShotProgress />}
+
+        <article className={articleClass}>
           {header}
           <div className="article-body">
             {htmlBody ? (
               splitHtml ? (
                 <>
-                  <div dangerouslySetInnerHTML={{ __html: splitHtml[0] }} />
+                  <ProductHtml html={splitHtml[0]} source={article.source} />
                   <AdSlot slot="inline-article" />
-                  <div dangerouslySetInnerHTML={{ __html: splitHtml[1] }} />
+                  <ProductHtml html={splitHtml[1]} source={article.source} />
                 </>
               ) : (
-                <div dangerouslySetInnerHTML={{ __html: htmlBody }} />
+                <ProductHtml html={htmlBody} source={article.source} />
               )
-            ) : paragraphs.length ? (
+            ) : blocks.length ? (
               splitPlain ? (
                 <>
-                  {splitPlain[0].map((p, i) => (
-                    <p key={`a-${i}`}>{p}</p>
+                  {splitPlain[0].map((block, i) => (
+                    <PlainBlockView key={`a-${i}`} block={block} />
                   ))}
                   <AdSlot slot="inline-article" />
-                  {splitPlain[1].map((p, i) => (
-                    <p key={`b-${i}`}>{p}</p>
+                  {splitPlain[1].map((block, i) => (
+                    <PlainBlockView key={`b-${i}`} block={block} />
                   ))}
                 </>
               ) : (
-                paragraphs.map((p, i) => <p key={i}>{p}</p>)
+                blocks.map((block, i) => <PlainBlockView key={i} block={block} />)
               )
             ) : (
               <p>{article.excerpt}</p>

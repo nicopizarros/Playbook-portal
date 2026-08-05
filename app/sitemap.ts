@@ -3,6 +3,7 @@ import { getAllArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { shouldShowAuthor } from '@/lib/related-articles';
 import { TAXONOMY, type TaxonomyTier } from '@/lib/taxonomy';
+import { PRODUCT_HUBS } from '@/lib/product-hubs';
 import { SITE_URL } from '@/lib/site-url';
 
 // Originally set to `revalidate = 3600` (ISR) to match legacy/api/sitemap.js's
@@ -47,6 +48,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   entries.push({ url: `${SITE_URL}/`, lastModified: latestArticleDate, ...TIERS.home });
   entries.push({ url: `${SITE_URL}/archivo`, lastModified: latestArticleDate, ...TIERS.archive });
+
+  // Product hubs (2026-08-05): each product's own front page. Same tier as
+  // the archive — they aggregate articles — with lastModified from that
+  // product's own latest piece (or the site's latest for a hub whose
+  // source has no articles yet, i.e. TFBR).
+  PRODUCT_HUBS.forEach(hub => {
+    const hubDate = mostRecentDate(articles.filter(a => a.source === hub.source).map(a => a.date));
+    entries.push({
+      url: `${SITE_URL}${hub.path}`,
+      lastModified: hubDate ?? latestArticleDate,
+      ...TIERS.archive,
+    });
+  });
 
   articles.forEach(a => {
     entries.push({

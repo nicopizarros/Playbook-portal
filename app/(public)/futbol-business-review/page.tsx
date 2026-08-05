@@ -1,0 +1,145 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { getArticlesBySource } from '@/lib/data/articles';
+import { getSiteContent } from '@/lib/data/site-content';
+import { SITE_URL } from '@/lib/site-url';
+
+// The Futbol Business Review — "La Sala de Juntas" (design brief,
+// 2026-08-05). Black, not navy: a market briefing a business reader
+// consults, not a magazine they browse. The red arrow from the card art is
+// a functional trend indicator used throughout, and the Interticket
+// co-brand is a persistent partner strip across the hub (the partnership
+// is core to the product's credibility), not a one-off footer logo.
+//
+// Content: TFBR has no `source` of its own yet (HANDOFF: kept pointing at
+// Substack on purpose). The hub queries `futbol-business-review` anyway —
+// the day editorial mints that source, editions list here with no code
+// change; until then the briefing states plainly where the editions live.
+//
+// Brief question deliberately NOT built: an ES/EN toggle for the US
+// Hispanic audience is a real structural differentiator worth deciding
+// with the team before build, not a cosmetic default to sneak in — raised
+// in HANDOFF.md instead.
+
+export const metadata: Metadata = {
+  title: 'The Futbol Business Review — La Sala de Juntas',
+  description:
+    'El fútbol en el mercado hispano de US, leído como negocio. The insights behind the game — engineered by Interticket, powered by Playbook.',
+  alternates: { canonical: `${SITE_URL}/futbol-business-review` },
+};
+
+// Where the editions actually live today. Hardcoded rather than read from
+// the TFBR product card's CMS url: that card now points AT this hub, so
+// reading it back would be circular.
+const TFBR_SUBSTACK_URL = 'https://playbookmedia.substack.com/';
+
+function TrendArrow({ direction = 'up' }: { direction?: 'up' | 'right' }) {
+  return (
+    <svg
+      className={`tfbr-arrow tfbr-arrow-${direction}`}
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M3 12h13M11 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="3" />
+    </svg>
+  );
+}
+
+export default async function FutbolBusinessReviewHubPage() {
+  const [articles, content] = await Promise.all([
+    getArticlesBySource('futbol-business-review'),
+    getSiteContent(),
+  ]);
+  const stats = content.statsSection.stats;
+
+  return (
+    <main className="hub hub-tfbr" id="futbol-business-review">
+      {/* Persistent partner strip: sticks to the top of the hub while the
+          reader scrolls it — the co-brand travels with the page. */}
+      <div className="tfbr-partner-strip">
+        <span className="tfbr-partner-brand">The Futbol Business Review</span>
+        <span className="tfbr-partner-note">Engineered by Interticket × Powered by Playbook</span>
+      </div>
+
+      <div className="container">
+        <Link className="section-link back-link hub-back" href="/">← Volver a Playbook</Link>
+
+        <header className="hub-tfbr-masthead">
+          <h1 className="hub-tfbr-title">
+            The<br />Futbol<br />Business<br />Review
+          </h1>
+          <div className="hub-tfbr-lede">
+            <TrendArrow />
+            <p className="hub-tfbr-tagline">
+              <em>The insights</em> behind the game.
+            </p>
+            <p className="hub-tfbr-sub">
+              El fútbol en el mercado hispano de US es un gigante en aceleración. Acá lo leemos
+              como negocio, junto con Interticket.
+            </p>
+          </div>
+        </header>
+
+        {/* Data-forward briefing band. These are the site's own CMS-edited
+            numbers (statsSection, "Playbook en números") — real, already
+            maintained figures — not invented market indicators. */}
+        {stats.length > 0 && (
+          <section className="tfbr-board" aria-label="Playbook en números">
+            <h2 className="tfbr-board-head">El alcance, en números</h2>
+            <div className="tfbr-board-grid">
+              {stats.map(stat => (
+                <div className="tfbr-board-item" key={stat.label}>
+                  <span className="tfbr-board-value">
+                    <TrendArrow direction="up" />
+                    {stat.value}
+                  </span>
+                  <span className="tfbr-board-label">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {articles.length ? (
+          <section className="tfbr-list" aria-label="Ediciones">
+            <h2 className="tfbr-board-head">Ediciones</h2>
+            {articles.map(article => (
+              <Link
+                className="tfbr-row"
+                href={`/articulo?id=${encodeURIComponent(article.id)}`}
+                key={article.id}
+              >
+                <TrendArrow direction="right" />
+                <span className="tfbr-row-main">
+                  <h3>{article.title}</h3>
+                  <span className="tfbr-row-meta">
+                    {article.dateFormatted} · {article.readingTime || 1} min
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </section>
+        ) : (
+          <section className="tfbr-briefing" aria-label="Dónde leer las ediciones">
+            <h2 className="tfbr-briefing-head">Minuta de la sala</h2>
+            <p>
+              Las ediciones de The Futbol Business Review se publican hoy en Substack.
+              Cuando se editen dentro del portal, aparecerán en esta misma sala.
+            </p>
+            <a
+              className="btn tfbr-cta"
+              href={TFBR_SUBSTACK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Leer las ediciones →
+            </a>
+          </section>
+        )}
+      </div>
+    </main>
+  );
+}

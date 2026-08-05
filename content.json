@@ -55,7 +55,7 @@
         "wordmark": "",
         "description": "Lo que debes saber de sports business para tomar mejores decisiones, en menos de 5 minutos.",
         "meta": "Martes / Jueves",
-        "url": "/archivo?source=industry-shots",
+        "url": "/industry-shots",
         "image": "/assets/img/industry-shots-banner.webp",
         "imageAlt": "Noticias by Playbook"
       },
@@ -65,7 +65,7 @@
         "wordmark": "",
         "description": "El dinero, el poder y las decisiones que mueven al deporte fuera de la cancha.",
         "meta": "Viernes",
-        "url": "/archivo?source=la-lana",
+        "url": "/la-lana",
         "image": "/assets/img/lana-banner.jpg",
         "imageAlt": "La Lana del Deporte"
       },
@@ -75,7 +75,7 @@
         "wordmark": "",
         "description": "El fútbol en el mercado hispano de US es un gigante en aceleración. Acá lo analizamos junto con Interticket.",
         "meta": "",
-        "url": "https://playbookmedia.substack.com/",
+        "url": "/futbol-business-review",
         "image": "/assets/img/tfbr-banner.webp",
         "imageAlt": "The Futbol Business Review"
       },
@@ -85,7 +85,7 @@
         "wordmark": "",
         "description": "El negocio del deporte femenil: cifras, patrocinios y quién le está apostando fuerte.",
         "meta": "Semanal",
-        "url": "/archivo?source=infinitas",
+        "url": "/infinitas",
         "image": "/assets/img/infinitas-banner.webp",
         "imageAlt": "Infinitas"
       }

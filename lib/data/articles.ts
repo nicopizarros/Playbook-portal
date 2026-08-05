@@ -203,6 +203,19 @@ export async function getArchiveArticles(filters: ArchiveFilters): Promise<Artic
   });
 }
 
+// Product hubs (Roadmap Agosto 2026, Fase 1 — carpetas internas por
+// producto): a hub is the product's OWN archive, so unlike
+// getArchiveArticles it does NOT subtract what the homepage currently
+// shows — a reader on /la-lana should see every Expediente, including one
+// that happens to be today's homepage hero. Plain reverse-chronological
+// order on purpose: these are editions/cases of a publication, not a
+// ranked news feed, and e.g. El Expediente's case numbering depends on
+// publication order staying stable.
+export async function getArticlesBySource(source: string): Promise<Article[]> {
+  const all = await getAllArticles();
+  return all.filter(a => a.source === source);
+}
+
 // Admin-only: includes drafts (archived articles), unlike getAllArticles()
 // above which the public site uses and which filters to status='published'.
 // Not cache()-wrapped — the admin dashboard is the only caller, once per

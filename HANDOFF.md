@@ -4,7 +4,7 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-08-04.
+2026-08-05.
 
 **Estado: auditoría pre-lanzamiento hecha.** La rama
 `claude/playbook-pre-launch-audit-fu1bzg` contiene una revisión completa
@@ -77,9 +77,14 @@ desplegado.
       en el código ni en ningún prototipo** (grep sin resultados) — no se
       tocó nada por ese nombre; preguntar al usuario a qué se refiere antes
       de la siguiente sesión.
-- [ ] Crear carpetas internas para los productos editoriales (en vez de
+- [x] Crear carpetas internas para los productos editoriales (en vez de
       redirigir a Substack), con diseño propio por producto, no la vista
-      clásica de "ver más" — **nota de la sesión de planeación**: separar
+      clásica de "ver más" — **hecho el 2026-08-05** sobre los briefs de
+      diseño del usuario (ver la entrada del registro de progreso):
+      /industry-shots, /la-lana, /futbol-business-review, /infinitas,
+      cada uno con identidad propia. Pendiente solo el script de
+      producción y la revisión del usuario. Nota original de la sesión de
+      planeación, para contexto: separar
       este último ítem del resto de la fase, es un mini-proyecto de diseño
       (hay que definir primero "los temas centrales" de cada producto),
       no un cambio de navegación simple como los otros cuatro. Además, 3 de
@@ -4958,6 +4963,97 @@ los titulares se parten en pocas palabras por línea. Ahora al menos se ve
 contenido (antes eran cajas en blanco, ver punto 8); arreglarlo bien es
 una tarea de diseño del CMS, no un fix de una línea.
 
+### 2026-08-05 — Fase 1 ítem 5: hubs de producto ("carpetas internas") + módulo "Lo que sigue importando"
+
+Sesión sobre los briefs de diseño recibidos del usuario (2026-08-05): un
+módulo de curaduría en la portada y cuatro sub-sitios de producto, cada
+uno construido desde la identidad visual real de su tarjeta de "Productos
+editoriales", no una plantilla re-pintada. Rama
+`claude/playbook-portal-design-o0vts1`.
+
+**Lo que se construyó:**
+
+- **Portada — "Lo que sigue importando"**
+  (`components/home/StillMattersSection.tsx`): hasta 4 historias con
+  estrellas altas (★≥4) o `featured` dentro de una ventana rodante de 12
+  días (el brief propone 10–14 — **confirmar con editorial**), excluyendo
+  lo que la rotación 1+5 ya muestra en su vista default (misma derivación
+  de pool que NewsGrid, comentado en el componente). Kicker editorial
+  "Sigue siendo noticia", tarjetas de regla superior fina (no ficha
+  completa), directamente debajo del paquete de noticias. Colapsa a nada
+  en semanas sin candidatos.
+- **`/la-lana` — "El Expediente"**: superficie oscura fija con grano CSS,
+  masthead stencil con marca naranja, investigaciones numeradas por caso
+  (001, 002… cronológico, calculado, sin cambio de schema), sello de
+  estado (Caso abierto ≤45 días o `featured` / Archivado), héroe con la
+  cifra más grande de la historia extraída del copy
+  (`extractPullFigure`), archivo como fila de expedientes, foto con borde
+  de papel rasgado. El motivo de la pizarra de salidas es un componente
+  interactivo real (`components/products/MoneyTrail.tsx`): una ruta SVG
+  que se dibuja al hacer scroll (GSAP ScrollTrigger, ya vendoreado).
+  **Convención de autoría**: un párrafo "Ruta del dinero: México → Zúrich
+  → Riad" en el cuerpo (TipTap o texto plano) se convierte en la ruta
+  animada dibujada con el scroll del lector; los blockquotes de artículos
+  la-lana llevan el tratamiento de recorte de papel.
+- **`/industry-shots` — "El Trago"**: lista vertical densa (velocidad de
+  escaneo, no grid de revista), acento azul sobre grunge oscuro, badge de
+  cadencia con el día real de cada edición (Martes/Jueves resaltados),
+  lectura medida en shots (1 shot ≈ 3 min, `lib/product-hubs.ts`). En el
+  artículo: indicador de progreso de lectura como caballito que se llena
+  (`ShotProgress.tsx`, medido contra `.article-body`), y la convención
+  "La opinión de Playbook: …" convierte ese párrafo en un callout
+  cercado con tapita de botella — la línea hecho/opinión explícita.
+  `splitAfterParagraph` ahora trackea `<aside>` para que el ad split no
+  corte el callout.
+- **`/futbol-business-review` — "La Sala de Juntas"**: negro fijo, tira
+  de partner sticky (Interticket × Playbook) que viaja con el scroll,
+  flecha roja como indicador direccional en todo el hub, banda de números
+  desde `statsSection` del CMS (datos reales ya mantenidos, no
+  indicadores inventados). No existe `source` propio todavía (decisión
+  previa, ver Fase 1): el hub consulta `futbol-business-review` y
+  mientras tanto muestra la "minuta" con CTA a Substack — el día que
+  editorial cree el source, las ediciones aparecen sin tocar código. El
+  toggle ES/EN del brief NO se construyó a propósito: es una decisión
+  estructural para discutir con el equipo antes de construir.
+- **`/infinitas` — "El Marcador"**: violeta plano, cero grunge (el único
+  de los cuatro, a propósito), masthead de bloque plano con el wordmark
+  en minúsculas, y el marcador de métricas de negocio reales que cuentan
+  hacia arriba al entrar en vista (`Scoreboard.tsx`; cifras públicas
+  atribuidas — Deloitte/FIFA/FC Barcelona — congeladas al 2026-08-05,
+  **refrescar con el equipo de Infinitas cada temporada** o cablear al
+  CMS). Fotos con duotono violeta puro CSS (`.inf-duotone`).
+- **Navegación**: las 4 tarjetas de Productos editoriales apuntan a los
+  hubs (content.json para el seed; producción vía
+  `scripts/point-products-at-hubs.ts`, mismo patrón dry-run que
+  update-la-lana-description). El chip de publicación del artículo ahora
+  enlaza al hub de su producto. Hubs en el sitemap. Registro central en
+  `lib/product-hubs.ts`; CSS todo en `styles/product-hubs.css`
+  (superficies de color fijo, mismo criterio --ink-fixed del footer).
+
+**Cómo se verificó** (app corriendo, no solo compilando): Postgres local
+seedeado, fechas locales desplazadas +19 días para ejercitar la ventana
+del módulo de portada, párrafos de prueba inyectados para las dos
+convenciones de autoría. Playwright a 1366px y 390px sobre portada, los 4
+hubs y 2 artículos (uno la-lana con ruta, uno industry-shots con
+opinión): 0 anchors anidados, 0 overflow horizontal, 0 errores de consola
+nuevos, capturas revisadas a ojo. Dos defectos reales encontrados y
+corregidos así: (1) `<footer class="hub-foot">` heredaba el estilo global
+`footer{}` de sections.css — banda negra en medio del hub de Infinitas;
+ahora son `<div>`; (2) en 390px las filas de expedientes partían el
+título en una palabra por línea — ahora grid con el título a ancho
+completo. `tsc`, `eslint` y `next build` limpios (con y sin `.env.local`).
+
+**Pendiente:**
+- Correr `scripts/point-products-at-hubs.ts` contra producción (con
+  `--dry-run` primero) — hasta entonces las tarjetas de producción siguen
+  apuntando a `/archivo?source=…`/Substack.
+- Editorial: confirmar ventana (10–14 días) del módulo de portada,
+  refrescar las cifras del Marcador cada temporada, y decidir el toggle
+  ES/EN de TFBR antes de construirlo.
+- Las convenciones "Ruta del dinero:" y "La opinión de Playbook:" están
+  documentadas en `lib/product-hubs.ts` — vale agregarlas al skill
+  publish-newsletter para que los artículos nuevos las traigan puestas.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
@@ -5042,7 +5138,11 @@ anotado en su propia sección — no es lo que sigue ahora.
 **Resumen de lo que falta, en una lista (a 2026-08-02, revisado el
 2026-08-04 — el ítem 4 es el único que bloquea el lanzamiento):**
 1. Fase 1 ítem 5 — redactar y aprobar el posicionamiento de cada producto
-   editorial, después construir las 4 páginas custom.
+   editorial, después construir las 4 páginas custom. **Actualización
+   2026-08-05: construido** (los 4 hubs + módulo de portada, ver esa
+   entrada del registro) — queda correr
+   `scripts/point-products-at-hubs.ts` contra producción y la revisión
+   del usuario sobre el deploy.
 2. Fase 5 — decidir manual vs. automatizado para subir emails de lectores
    a Substack como suscriptores, y construirlo.
 3. Fase 5 — verificar en navegador real (después de deploy) el flujo de

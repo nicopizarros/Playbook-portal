@@ -9,7 +9,11 @@
 // Returns null when there's no valid split point with real content left
 // after it — an ad trailing the final paragraph is worse than no ad, so
 // short articles simply don't get one.
-const TRACKED = ['blockquote', 'ul', 'ol', 'li'] as const;
+// 'aside' joined the list with the product templates (2026-08-05): the
+// Industry Shots opinion callout (lib/product-hubs.ts's markOpinionCallout)
+// wraps a top-level <p> in an <aside> BEFORE this runs, and splitting after
+// that inner </p> would cut the aside open.
+const TRACKED = ['blockquote', 'ul', 'ol', 'li', 'aside'] as const;
 
 export function splitAfterParagraph(html: string, count: number): [string, string] | null {
   const tagRe = /<\/?([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g;
