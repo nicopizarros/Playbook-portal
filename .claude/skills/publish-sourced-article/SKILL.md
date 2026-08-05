@@ -131,12 +131,16 @@ money-trail/board conventions if a run ever publishes into those
 sources). That skill's "Dynamic-elements checklist" applies here too —
 for this skill's industry-shots output that means: honest `priority`
 (it decides whether /noticias renders the story as a feature band, a
-card, or a compact row), the story's biggest figure verbatim in
-title/excerpt when it's a numbers story, a real cover image, and — when
+card, or a compact row), the story's OWN biggest figure verbatim and
+symbol-prefixed ("US$250 millones", never "250 millones de dólares") in
+title/excerpt when it's a numbers story — a context figure (what someone
+ELSE once spent) must not be the only number there, or the homepage's
+"La cifra del día" scrapes the wrong one — a real cover image, and — when
 the story is number-driven — an optional `Cifra clave: <figure> — <caption>`
 paragraph (that skill's pull-figure convention, 2026-08-05: renders as a
-full-bleed counting figure on the article page; value ≤24 chars with a
-digit, at most one per article in practice). When the story is instead a
+full-bleed counting figure on the article page AND is preferred by "La
+cifra del día" over any scrape; value ≤24 chars with a digit, rumored
+figures attributed in the caption, at most one per article in practice). When the story is instead a
 two-party relationship (a deal, partnership, acquisition), the
 `Jugada: A ↔ B` convention applies (split-flap connection strip; `→` for
 one-way flows, sides ≤32 chars, one max, only pairings the piece

@@ -5480,6 +5480,61 @@ con y sin .env.local.
   los 14 tienen bodyHtml real) — algunos podrían ganar además highlights
   de cifras; nada que hacer, es el comportamiento deseado.
 
+### 2026-08-05 — La Lectura, tercera pasada: calibración con feedback real del preview
+
+El usuario revisó el preview con datos de producción y reportó dos cosas:
+"La cifra del día" mostraba la cifra EQUIVOCADA para la nota de LIV Golf
+(el 6,000 millones histórico del PIF — contexto — en vez de los US$250M
+rumorados que SÍ son la historia), y el titular del hero del 1+5 se
+quedaba congelado al cambiar de tab. Además pidió correr el retro-fit
+contra las noticias viejas de una vez.
+
+- **Bug real del hero (SplitHeadline)**: SplitText reemplaza los hijos
+  del h1 con sus spans de palabra, así que cuando el filtro de fuente
+  re-renderizaba el LeadStory (sin key), el diff de texto de React caía
+  en DOM que ya no era suyo y el revert() del cleanup restauraba el
+  título VIEJO. Fix: `key={text}` en el h1 — remonta por título, el
+  cleanup revierte sobre el nodo saliente y el nuevo trae el texto
+  correcto. Verificado con Playwright: Todo → La Lana → Infinitas →
+  Todo, el titular cambia y regresa correcto en los cuatro estados.
+- **Calibración de La cifra del día**: nuevo
+  `extractCifraFromBody(bodyHtml, teaser)` en lib/product-hubs.ts (mismo
+  patrón de acceso que extractTrailStops); el módulo ahora hace UN fetch
+  por id del artículo elegido y una "Cifra clave:" declarada en el cuerpo
+  SIEMPRE le gana al scrape de título/excerpt — el scrape puede aterrizar
+  en una cifra de contexto, la declarada es la de la historia. Verificado
+  local con réplica del artículo de LIV: el chip pasó de "6,000 millones"
+  a "US$250 millones".
+- **Retro-fit corrido contra producción** (instrucción explícita del
+  usuario): las 14 jugadas del backfill escritas (dry-run + real, 14/14,
+  12 a bodyHtml y 2 a teaser), y la nota de LIV ganó su
+  `Cifra clave: US$250 millones — La inversión que reporta el New York
+  Post; LIV no la confirma` insertada entre "Lo que hay detrás" y "Cómo
+  se ve 2027" (dry-run con anchor verificado, luego real, releído para
+  confirmar). OJO: el sitio VIVO sigue corriendo el código viejo hasta
+  que esta rama despliegue — ahí esas líneas se leen como párrafos de
+  texto normales (inertes, legibles); el preview de la rama ya las
+  renderiza como dispositivos.
+- **Barrido de sanidad** sobre el catálogo de producción (scraped vs
+  declared por artículo): LIV era el único caso engañoso; el resto de los
+  scrapes son la cifra propia de cada historia (Netflix USD 200M, Real
+  Madrid 1,200 millones, Diablos -34.6%…).
+- **Skills calibrados** (publish-newsletter + publish-sourced-article):
+  la Cifra clave debe ser la cifra PROPIA de la historia, nunca la de
+  contexto ("si el lector recuerda un solo número de esta nota, ¿cuál
+  es?"); una cifra rumorada califica cuando ES la historia — atribución
+  en el caption, nunca en el value; "La cifra del día" prefiere la
+  declarada sobre cualquier scrape (declararla es controlar qué número
+  representa la nota en todo el sitio); y las cifras SIEMPRE con símbolo
+  de moneda en las formas de casa ("US$250 millones", jamás "250
+  millones de dólares" — los extractores rankean dinero-con-símbolo por
+  encima de conteos pelones). Checklist actualizado en ambos.
+
+**Verificación**: réplica local de LIV (módulo con override confirmado
+por HTML servido), Playwright para el fix del hero (4 estados de tab),
+dry-runs de ambos writes de producción antes del real con verificación
+posterior, tsc/eslint/next build limpios.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

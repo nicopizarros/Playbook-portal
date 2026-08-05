@@ -10,6 +10,15 @@ import { gsap, SplitText } from '@/lib/gsap';
 // (SEO / no-JS / LCP all see the real heading painted immediately);
 // SplitText re-wraps it only after hydration, as pure enhancement, and
 // reverts on unmount. No CLS: words animate opacity/transform only.
+//
+// key={text} on the <h1> is load-bearing (user bug report, 2026-08-05):
+// SplitText replaces the h1's children with its own word <span>s, so when
+// the 5+1 source filter re-renders the (unkeyed) LeadStory with a new
+// article, React's text-node diff lands in DOM it no longer owns and the
+// cleanup's revert() restores the OLD title — the hero headline visibly
+// never changed. Keying by text remounts the h1 per title: cleanup
+// reverts on the outgoing node, the fresh node carries the new text, and
+// the effect re-splits it.
 export function SplitHeadline({ text, className }: { text: string; className?: string }) {
   const ref = useRef<HTMLHeadingElement>(null);
 
@@ -33,7 +42,7 @@ export function SplitHeadline({ text, className }: { text: string; className?: s
   }, [text]);
 
   return (
-    <h1 ref={ref} className={className}>
+    <h1 key={text} ref={ref} className={className}>
       {text}
     </h1>
   );

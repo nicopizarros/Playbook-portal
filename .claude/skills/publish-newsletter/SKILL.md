@@ -220,6 +220,25 @@ them right at drafting time:
   figure ("US$9,612 millones", "22%") counts up inline automatically —
   no syntax needed, just keep bolding key figures as the standard
   structure already asks.
+  - **The Cifra clave must be the STORY'S OWN figure, never a context
+    figure** (calibrated on real output, 2026-08-05: the LIV Golf piece
+    led its excerpt with the PIF's historical "6,000 millones" — context
+    — while the story's actual figure, the rumored US$250M investment,
+    sat unmarked mid-body; the homepage surfaced the wrong number). Ask:
+    "if the reader remembers one number from this story, which is it?"
+    That's the Cifra clave. A rumored or unconfirmed figure still
+    qualifies when it IS the story — declare it with the attribution in
+    the caption ("La inversión que reporta el New York Post; LIV no la
+    confirma"), never in the value.
+  - **The homepage reads this beat.** "La cifra del día" (sidebar) picks
+    the top ranked story with a figure and PREFERS its declared Cifra
+    clave over anything scraped from title/excerpt — declaring the beat
+    is how you control what number represents the story site-wide.
+  - **Write figures with their currency symbol** in the house shapes
+    ("US$250 millones", "MX$42.8 millones", "€3M") — never spelled out
+    ("250 millones de dólares"): every extractor ranks symbol-prefixed
+    money above bare counts, so the spelled-out form loses to any bare
+    number that appears earlier.
 - **All products: the "Jugada:" connection strip (2026-08-05, round 2).**
   A plain paragraph `Jugada: Volkswagen ↔ Bayern` renders as a split-flap
   connection strip — the story's central two-party relationship in the
@@ -275,8 +294,10 @@ every item maps to a visible element):
   so an inflated 5 hogs a band and a lazy 2 buries a real story;
   `imageUrl` present (feature bands and cards on /noticias show it;
   text-only there is a visible hole at priority ≥4); "Cifra clave:"
-  beat considered when the story is number-driven (step above), value
-  ≤24 chars with a digit, caption after ` — `; "Jugada:" strip
+  beat considered when the story is number-driven (step above) — the
+  story's OWN figure, not a context figure, symbol-prefixed, rumored
+  figures attributed in the caption; value ≤24 chars with a digit,
+  caption after ` — `; "Jugada:" strip
   considered when the story is a two-party relationship (step above,
   sides ≤32 chars, one max); every paragraph's bold lead-in specific
   and colon-terminated (they render as scan marks now); key figures in

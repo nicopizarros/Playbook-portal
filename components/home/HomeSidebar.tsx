@@ -2,9 +2,9 @@ import { MostReadSection } from './MostReadSection';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
 import { DailyFigure } from './DailyFigure';
 import { AdSlot } from '@/components/ads/AdSlot';
-import { getAllArticles } from '@/lib/data/articles';
+import { getAllArticles, getArticleById } from '@/lib/data/articles';
 import { rankArticles, selectHero } from '@/lib/rank';
-import { extractPullFigure } from '@/lib/product-hubs';
+import { extractPullFigure, extractCifraFromBody } from '@/lib/product-hubs';
 
 // Right rail of the homepage news package (Fase 7 UX). Server component:
 // MostReadSection needs GA4 data access. Rendered by
@@ -41,6 +41,17 @@ export async function HomeSidebar() {
       cifra = { figure, id: article.id, title: article.title };
       break;
     }
+  }
+  // A declared "Cifra clave:" in the chosen story's body always beats the
+  // scraped title/excerpt figure — the scrape can land on a CONTEXT number
+  // (calibration, 2026-08-05: the LIV Golf story led its excerpt with the
+  // PIF's historical 6,000 millones while the story's actual figure, the
+  // rumored US$250M, was the declared beat). One bounded by-id fetch for
+  // the single chosen article, React-cached like every other lookup.
+  if (cifra) {
+    const full = await getArticleById(cifra.id);
+    const declared = full && extractCifraFromBody(full.bodyHtml, full.teaser);
+    if (declared) cifra.figure = declared.value;
   }
 
   return (

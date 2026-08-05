@@ -210,6 +210,36 @@ export function parseCifra(raw: string): CifraFigure | null {
   return { value, caption: captionParts.join(' — ').trim() };
 }
 
+// The declared beat, read OUT of an article's body (native HTML, HTML
+// teaser or plain-text teaser alike) — same access pattern as
+// extractTrailStops. Used by the homepage's "La cifra del día": an
+// editor-declared Cifra clave is the story's OWN number and always beats
+// anything scraped from title/excerpt (calibration from user feedback,
+// 2026-08-05: the LIV Golf story surfaced the PIF's historical 6,000
+// millones from the excerpt while the story's actual figure — the
+// rumored US$250M — sat declared in the body).
+export function extractCifraFromBody(bodyHtml: string | null, teaser: string | null): CifraFigure | null {
+  for (const html of [bodyHtml, teaser]) {
+    if (html && /<[a-z][\s\S]*>/i.test(html)) {
+      CIFRA_HTML_RE.lastIndex = 0;
+      const match = CIFRA_HTML_RE.exec(html);
+      if (match) {
+        const parsed = parseCifra(match[1]);
+        if (parsed) return parsed;
+      }
+    }
+  }
+  if (teaser && !/<[a-z][\s\S]*>/i.test(teaser)) {
+    for (const paragraph of teaser.split(/\n{2,}/)) {
+      if (CIFRA_TEXT_PREFIX.test(paragraph.trim())) {
+        const parsed = parseCifra(paragraph.trim().replace(CIFRA_TEXT_PREFIX, ''));
+        if (parsed) return parsed;
+      }
+    }
+  }
+  return null;
+}
+
 // HTML bodies: string-level transform on already-sanitized editor HTML
 // (same trust boundary as markOpinionCallout below). Runs BEFORE the ad
 // split — splitAfterParagraph only counts top-level </p>, and the figure
