@@ -55,7 +55,7 @@
         "wordmark": "",
         "description": "Lo que debes saber de sports business para tomar mejores decisiones, en menos de 5 minutos.",
         "meta": "Martes / Jueves",
-        "url": "/archivo?source=industry-shots",
+        "url": "/noticias",
         "image": "/assets/img/industry-shots-banner.webp",
         "imageAlt": "Noticias by Playbook"
       },
@@ -65,7 +65,7 @@
         "wordmark": "",
         "description": "El dinero, el poder y las decisiones que mueven al deporte fuera de la cancha.",
         "meta": "Viernes",
-        "url": "/archivo?source=la-lana",
+        "url": "/la-lana",
         "image": "/assets/img/lana-banner.jpg",
         "imageAlt": "La Lana del Deporte"
       },
@@ -75,7 +75,7 @@
         "wordmark": "",
         "description": "El fútbol en el mercado hispano de US es un gigante en aceleración. Acá lo analizamos junto con Interticket.",
         "meta": "",
-        "url": "https://playbookmedia.substack.com/",
+        "url": "/futbol-business-review",
         "image": "/assets/img/tfbr-banner.webp",
         "imageAlt": "The Futbol Business Review"
       },
@@ -85,7 +85,7 @@
         "wordmark": "",
         "description": "El negocio del deporte femenil: cifras, patrocinios y quién le está apostando fuerte.",
         "meta": "Semanal",
-        "url": "/archivo?source=infinitas",
+        "url": "/infinitas",
         "image": "/assets/img/infinitas-banner.webp",
         "imageAlt": "Infinitas"
       }
@@ -229,5 +229,55 @@
     "infinitasLinkLabel": "Infinitas",
     "infinitasLinkUrl": "https://soninfinitas.substack.com/",
     "copyrightText": "© 2026 Playbook Media · playbook.la"
+  },
+  "productHubs": {
+    "lana": {
+      "eyebrow": "Una investigación de Playbook",
+      "sub": "El dinero, el poder y las decisiones que mueven al deporte fuera de la cancha. Un expediente a la vez.",
+      "boardLabel": "Tablero de conexiones",
+      "boardNote": "Las conexiones que los expedientes han destapado, en salidas.",
+      "boardRows": [
+        { "fecha": "", "conexion": "Infantino ↔ Trump", "expediente": "", "estado": "Abierto", "url": "" },
+        { "fecha": "", "conexion": "AR Monex ↔ Europa", "expediente": "", "estado": "Abierto", "url": "" },
+        { "fecha": "", "conexion": "Isaac del Toro ↔ UAE", "expediente": "", "estado": "Abierto", "url": "" }
+      ]
+    },
+    "noticias": {
+      "sub": "Lo que debes saber de sports business para tomar mejores decisiones, en menos de 5 minutos.",
+      "cadenceNote": "Nuevas ediciones martes y jueves"
+    },
+    "tfbr": {
+      "taglineEm": "The insights",
+      "taglineRest": "behind the game.",
+      "sub": "El fútbol en el mercado hispano de US es un gigante en aceleración. Acá lo leemos como negocio, junto con Interticket.",
+      "substackUrl": "https://playbookmedia.substack.com/"
+    },
+    "infinitas": {
+      "sub": "La nueva era del deporte, leída como industria.",
+      "marcadorSub": "El deporte femenil como fuerza de negocio, en cifras que no dejan de subir.",
+      "metrics": [
+        {
+          "value": "2.35",
+          "prefix": "US$",
+          "suffix": "B",
+          "label": "Ingresos globales del deporte femenil de élite proyectados para 2025",
+          "source": "Deloitte"
+        },
+        {
+          "value": "91,553",
+          "prefix": "",
+          "suffix": "",
+          "label": "Récord mundial de asistencia a un partido de fútbol femenil (Camp Nou, 2022)",
+          "source": "FC Barcelona"
+        },
+        {
+          "value": "1.98",
+          "prefix": "",
+          "suffix": "M",
+          "label": "Asistentes al Mundial Femenil 2023, récord histórico del torneo",
+          "source": "FIFA"
+        }
+      ]
+    }
   }
 }

@@ -2,6 +2,10 @@ import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { db } from '../db/client';
 import { siteContent } from '../db/schema';
+// Product-hub copy types live in lib/product-hubs-content.ts (client-safe,
+// no db import — the admin dashboard needs them at runtime); the section
+// itself is stored inside this blob, see `productHubs` below.
+import type { ProductHubsContent } from '../product-hubs-content';
 
 export const SITE_CONTENT_CACHE_TAG = 'site-content';
 
@@ -78,6 +82,9 @@ export type SiteContentData = {
     brandBlurb: string; socialLinks: SocialLink[]; infinitasLinkLabel: string;
     infinitasLinkUrl: string; copyrightText: string;
   };
+  /** Optional: rows saved before 2026-08-05 don't carry it — read via
+      productHubsContent(), never directly. */
+  productHubs?: ProductHubsContent;
 };
 
 // Also cached across requests for 60s (unstable_cache, tagged so the admin

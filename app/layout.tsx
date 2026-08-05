@@ -17,6 +17,7 @@ import '../styles/article.css';
 import '../styles/cookie-notice.css';
 import '../styles/ads.css';
 import '../styles/legal.css';
+import '../styles/product-hubs.css';
 import '../styles/responsive.css';
 
 const anton = Anton({

@@ -20,6 +20,8 @@ import { OpinionTab } from './tabs/OpinionTab';
 import { VideoTab } from './tabs/VideoTab';
 import { InfinitasTab } from './tabs/InfinitasTab';
 import { ProductsTab } from './tabs/ProductsTab';
+import { HubsTab } from './tabs/HubsTab';
+import { productHubsContent } from '@/lib/product-hubs-content';
 import { StatsTab } from './tabs/StatsTab';
 import { TestimonialsTab } from './tabs/TestimonialsTab';
 import { AboutTab } from './tabs/AboutTab';
@@ -42,6 +44,7 @@ const TAB_DEFS = [
   { key: 'opinion', label: 'Opinión', group: 'Contenido editorial' },
   { key: 'video', label: 'Video', group: 'Contenido editorial' },
   { key: 'infinitas', label: 'Infinitas', group: 'Contenido editorial' },
+  { key: 'hubs', label: 'Hubs de producto', group: 'Contenido editorial' },
   { key: 'products', label: 'Productos', group: 'Secciones de portada' },
   { key: 'stats', label: 'Números', group: 'Secciones de portada' },
   { key: 'testimonials', label: 'Testimonios', group: 'Secciones de portada' },
@@ -345,6 +348,12 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
             {activeTab === 'opinion' && <OpinionTab data={content.opinionSection} onChange={updateSection('opinionSection')} />}
             {activeTab === 'video' && <VideoTab data={content.videoSection} onChange={updateSection('videoSection')} />}
             {activeTab === 'infinitas' && <InfinitasTab data={content.infinitasSection} onChange={updateSection('infinitasSection')} />}
+            {/* HubsTab edits the merged view (stored ?? code defaults) so
+                a site_content row that predates the productHubs section is
+                editable as-is; the first save simply writes the section in. */}
+            {activeTab === 'hubs' && (
+              <HubsTab data={productHubsContent(content.productHubs)} onChange={updateSection('productHubs')} />
+            )}
             {activeTab === 'products' && <ProductsTab data={content.productsSection} onChange={updateSection('productsSection')} />}
             {activeTab === 'stats' && <StatsTab data={content.statsSection} onChange={updateSection('statsSection')} />}
             {activeTab === 'testimonials' && (

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getAllArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
+import { StillMattersSection } from '@/components/home/StillMattersSection';
 import { HomeSidebar } from '@/components/home/HomeSidebar';
 import { TopicDirectory } from '@/components/home/TopicDirectory';
 import { OpinionSection } from '@/components/sections/OpinionSection';
@@ -21,7 +22,10 @@ import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 //      three-column band (inline-feed ad after the sixth story, rail ad
 //      + Más leídas + newsletter module in the sidebar). Kept
 //      deliberately short — the 1+5 count is a compromise with the
-//      sales side; don't grow it.
+//      sales side; don't grow it. Below it, "Lo que sigue importando"
+//      (2026-08-05 design brief): up to 4 starred stories the rotation
+//      no longer shows — a second window for still-relevant news, NOT a
+//      growth of the 1+5 (different query, collapses when empty).
 //   — leaderboard-home ad between the news package and Análisis —
 //   2. Análisis/Opinión (v24 grid treatment)
 //   3. Newsletter band — MidCta only (the CMS-editable one)
@@ -54,6 +58,12 @@ export default async function HomePage() {
     <>
       <main className="container news-section" id="noticias">
         <NewsGrid articles={articles} sidebar={<HomeSidebar />} />
+        {/* "Lo que sigue importando" — directly below the main news grid
+            (design brief, 2026-08-05): starred/featured stories from the
+            last ~12 days that the rotation above no longer shows. Same
+            React-cached articles array, no extra query; renders nothing on
+            weeks with no qualifying stories. */}
+        <StillMattersSection articles={articles} />
       </main>
 
       <AdSlot slot="leaderboard-home" />

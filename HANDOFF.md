@@ -4,7 +4,7 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-08-04.
+2026-08-05.
 
 **Estado: auditoría pre-lanzamiento hecha.** La rama
 `claude/playbook-pre-launch-audit-fu1bzg` contiene una revisión completa
@@ -77,9 +77,14 @@ desplegado.
       en el código ni en ningún prototipo** (grep sin resultados) — no se
       tocó nada por ese nombre; preguntar al usuario a qué se refiere antes
       de la siguiente sesión.
-- [ ] Crear carpetas internas para los productos editoriales (en vez de
+- [x] Crear carpetas internas para los productos editoriales (en vez de
       redirigir a Substack), con diseño propio por producto, no la vista
-      clásica de "ver más" — **nota de la sesión de planeación**: separar
+      clásica de "ver más" — **hecho el 2026-08-05** sobre los briefs de
+      diseño del usuario (ver la entrada del registro de progreso):
+      /industry-shots, /la-lana, /futbol-business-review, /infinitas,
+      cada uno con identidad propia. Pendiente solo el script de
+      producción y la revisión del usuario. Nota original de la sesión de
+      planeación, para contexto: separar
       este último ítem del resto de la fase, es un mini-proyecto de diseño
       (hay que definir primero "los temas centrales" de cada producto),
       no un cambio de navegación simple como los otros cuatro. Además, 3 de
@@ -4958,6 +4963,306 @@ los titulares se parten en pocas palabras por línea. Ahora al menos se ve
 contenido (antes eran cajas en blanco, ver punto 8); arreglarlo bien es
 una tarea de diseño del CMS, no un fix de una línea.
 
+### 2026-08-05 — Fase 1 ítem 5: hubs de producto ("carpetas internas") + módulo "Lo que sigue importando"
+
+Sesión sobre los briefs de diseño recibidos del usuario (2026-08-05): un
+módulo de curaduría en la portada y cuatro sub-sitios de producto, cada
+uno construido desde la identidad visual real de su tarjeta de "Productos
+editoriales", no una plantilla re-pintada. Rama
+`claude/playbook-portal-design-o0vts1`.
+
+**Lo que se construyó:**
+
+- **Portada — "Lo que sigue importando"**
+  (`components/home/StillMattersSection.tsx`): hasta 4 historias con
+  estrellas altas (★≥4) o `featured` dentro de una ventana rodante de 12
+  días (el brief propone 10–14 — **confirmar con editorial**), excluyendo
+  lo que la rotación 1+5 ya muestra en su vista default (misma derivación
+  de pool que NewsGrid, comentado en el componente). Kicker editorial
+  "Sigue siendo noticia", tarjetas de regla superior fina (no ficha
+  completa), directamente debajo del paquete de noticias. Colapsa a nada
+  en semanas sin candidatos.
+- **`/la-lana` — "El Expediente"**: superficie oscura fija con grano CSS,
+  masthead stencil con marca naranja, investigaciones numeradas por caso
+  (001, 002… cronológico, calculado, sin cambio de schema), sello de
+  estado (Caso abierto ≤45 días o `featured` / Archivado), héroe con la
+  cifra más grande de la historia extraída del copy
+  (`extractPullFigure`), archivo como fila de expedientes, foto con borde
+  de papel rasgado. El motivo de la pizarra de salidas es un componente
+  interactivo real (`components/products/MoneyTrail.tsx`): una ruta SVG
+  que se dibuja al hacer scroll (GSAP ScrollTrigger, ya vendoreado).
+  **Convención de autoría**: un párrafo "Ruta del dinero: México → Zúrich
+  → Riad" en el cuerpo (TipTap o texto plano) se convierte en la ruta
+  animada dibujada con el scroll del lector; los blockquotes de artículos
+  la-lana llevan el tratamiento de recorte de papel.
+- **`/industry-shots` — "El Trago"**: lista vertical densa (velocidad de
+  escaneo, no grid de revista), acento azul sobre grunge oscuro, badge de
+  cadencia con el día real de cada edición (Martes/Jueves resaltados),
+  lectura medida en shots (1 shot ≈ 3 min, `lib/product-hubs.ts`). En el
+  artículo: indicador de progreso de lectura como caballito que se llena
+  (`ShotProgress.tsx`, medido contra `.article-body`), y la convención
+  "La opinión de Playbook: …" convierte ese párrafo en un callout
+  cercado con tapita de botella — la línea hecho/opinión explícita.
+  `splitAfterParagraph` ahora trackea `<aside>` para que el ad split no
+  corte el callout.
+- **`/futbol-business-review` — "La Sala de Juntas"**: negro fijo, tira
+  de partner sticky (Interticket × Playbook) que viaja con el scroll,
+  flecha roja como indicador direccional en todo el hub, banda de números
+  desde `statsSection` del CMS (datos reales ya mantenidos, no
+  indicadores inventados). No existe `source` propio todavía (decisión
+  previa, ver Fase 1): el hub consulta `futbol-business-review` y
+  mientras tanto muestra la "minuta" con CTA a Substack — el día que
+  editorial cree el source, las ediciones aparecen sin tocar código. El
+  toggle ES/EN del brief NO se construyó a propósito: es una decisión
+  estructural para discutir con el equipo antes de construir.
+- **`/infinitas` — "El Marcador"**: violeta plano, cero grunge (el único
+  de los cuatro, a propósito), masthead de bloque plano con el wordmark
+  en minúsculas, y el marcador de métricas de negocio reales que cuentan
+  hacia arriba al entrar en vista (`Scoreboard.tsx`; cifras públicas
+  atribuidas — Deloitte/FIFA/FC Barcelona — congeladas al 2026-08-05,
+  **refrescar con el equipo de Infinitas cada temporada** o cablear al
+  CMS). Fotos con duotono violeta puro CSS (`.inf-duotone`).
+- **Navegación**: las 4 tarjetas de Productos editoriales apuntan a los
+  hubs (content.json para el seed; producción vía
+  `scripts/point-products-at-hubs.ts`, mismo patrón dry-run que
+  update-la-lana-description). El chip de publicación del artículo ahora
+  enlaza al hub de su producto. Hubs en el sitemap. Registro central en
+  `lib/product-hubs.ts`; CSS todo en `styles/product-hubs.css`
+  (superficies de color fijo, mismo criterio --ink-fixed del footer).
+
+**Cómo se verificó** (app corriendo, no solo compilando): Postgres local
+seedeado, fechas locales desplazadas +19 días para ejercitar la ventana
+del módulo de portada, párrafos de prueba inyectados para las dos
+convenciones de autoría. Playwright a 1366px y 390px sobre portada, los 4
+hubs y 2 artículos (uno la-lana con ruta, uno industry-shots con
+opinión): 0 anchors anidados, 0 overflow horizontal, 0 errores de consola
+nuevos, capturas revisadas a ojo. Dos defectos reales encontrados y
+corregidos así: (1) `<footer class="hub-foot">` heredaba el estilo global
+`footer{}` de sections.css — banda negra en medio del hub de Infinitas;
+ahora son `<div>`; (2) en 390px las filas de expedientes partían el
+título en una palabra por línea — ahora grid con el título a ancho
+completo. `tsc`, `eslint` y `next build` limpios (con y sin `.env.local`).
+
+**Pendiente:**
+- Correr `scripts/point-products-at-hubs.ts` contra producción (con
+  `--dry-run` primero) — hasta entonces las tarjetas de producción siguen
+  apuntando a `/archivo?source=…`/Substack.
+- Editorial: confirmar ventana (10–14 días) del módulo de portada,
+  refrescar las cifras del Marcador cada temporada, y decidir el toggle
+  ES/EN de TFBR antes de construirlo.
+- Las convenciones "Ruta del dinero:" y "La opinión de Playbook:" están
+  documentadas en `lib/product-hubs.ts` — vale agregarlas al skill
+  publish-newsletter para que los artículos nuevos las traigan puestas.
+
+### 2026-08-05 — Hubs, segunda pasada: feedback del usuario sobre el preview real
+
+El usuario revisó el preview de Vercel (capturas de iPad, tema oscuro) y
+pidió cambios producto por producto. Todo en la misma rama
+`claude/playbook-portal-design-o0vts1`.
+
+- **Noticias (antes /industry-shots)**: la página ya NO se llama Industry
+  Shots — masthead, metadata y registro dicen "Noticias", la ruta es
+  `/noticias` y `/industry-shots` hace 301 (next.config.ts). El acento
+  azul se reemplazó por el verde Playbook ("¿por qué hay colores
+  distintos?" — el azul era ajeno a la marca; el arte de la tarjeta usa
+  verde). Los badges de día perdieron el tratamiento de dos colores (con
+  el calendario real de publicación, los días fuera de cadencia se veían
+  como colores aleatorios) — ahora un solo estilo neutro. Más dinamismo y
+  jerarquía: la última edición abre en grande (bloque destacado con
+  excerpt) y el tamaño del titular de cada fila escala con el `priority`
+  editorial (★5 → Anton grande, ★4 → bold intermedio, resto compacto).
+- **La Lana del Deporte**: mismo concepto (expedientes, sellos, ruta del
+  dinero), formato y paleta nuevos — fuera el grunge oscuro/naranja, ahora
+  es un dossier literal sobre los colores de la casa: papel, tinta, verde
+  Playbook (marcador en el título, subrayado de la cifra, sello "caso
+  abierto") y el dorado la-lana para lo secundario. Fólders manila con
+  pestaña (número de caso + fecha), anexo fotográfico tipo impresión
+  matte, archivero en grid de fólders. Superficie clara FIJA (un fólder es
+  papel en cualquier tema). El fallback "Nº 00X" del pull-figure se
+  eliminó (duplicaba la pestaña); sin cifra, abre el título.
+- **Infinitas — legibilidad**: bug real encontrado gracias a la captura
+  del usuario: las clases `.inf-grid`/`.inf-card` del hub COLISIONABAN con
+  las del bloque Infinitas de la portada (sections.css, tarjetas oscuras
+  #111) — títulos tinta-oscura sobre caja oscura, ilegible. Todas las
+  clases del hub ahora son `infhub-*` (no reutilizar el prefijo `inf-`).
+  Además: texto secundario más oscuro (.78), tarjetas blancas con borde
+  sobre el papel pálido, tipografías un punto más grandes.
+- **Links de Productos editoriales**: `scripts/point-products-at-hubs.ts`
+  corrido contra la Neon de producción (dry-run primero) — las 4 tarjetas
+  de la portada real ya apuntan a /noticias, /la-lana,
+  /futbol-business-review e /infinitas.
+
+**Verificación**: Playwright contra la app corriendo (Postgres local), a
+1366px y 390px, tema claro y OSCURO (el usuario navega en oscuro — la
+colisión de Infinitas solo se veía así): 0 anchors anidados, 0 overflow,
+0 errores de consola; capturas revisadas a ojo. `tsc`/`eslint`/`next
+build` limpios. El 301 de /industry-shots verificado con curl (308 en
+dev es el equivalente de Next).
+
+### 2026-08-05 — Hubs, tercera pasada: el pipeline de publicación mantiene los hubs solo
+
+Pregunta del usuario: "si subo un artículo nuevo de La Lana ahora, ¿cómo
+se integra?" Respuesta corta: los hubs YA se actualizan solos (consultan
+la DB por `source` en cada request, caché de 60s) — un artículo publicado
+con `source: 'la-lana'` se vuelve el Expediente N+1 con sello "caso
+abierto", cifra destacada y todo, sin pasos manuales. Lo que NO era
+automático eran los dispositivos del cuerpo, y ahí había un bug real:
+
+- **El callout de opinión nunca disparaba con contenido real.** El
+  detector buscaba "La opinión de Playbook:" pero el pipeline escribe
+  `**Opinión de Playbook:**` (sin "La" — verificado contra el corpus: 10
+  artículos vivos, todos esa forma exacta). Regex corregida
+  (`lib/product-hubs.ts`), tolera ambas variantes, y el callout ahora
+  aplica a TODOS los sources de producto (Noticias/La Lana/Infinitas/TFBR
+  comparten el estándar de 4 párrafos), tinteado por producto (verde
+  default, violeta Infinitas, rojo TFBR). Resultado: todo el catálogo
+  existente gana el callout retroactivamente, sin re-editar nada —
+  verificado con Playwright sobre dos artículos reales del seed.
+- **El skill `publish-newsletter` ahora conoce los hubs** (sección nueva
+  "The product hub pages read the body"): el lead-in `**Opinión de
+  Playbook:**` es contrato de UI (no reformular); la convención "Ruta del
+  dinero: A → B → C" para La Lana (cuándo sí, cuándo no, máximo una);
+  la cifra más grande del caso debe ir textual en title/excerpt para el
+  héroe del hub; y si una nota de Infinitas supera una cifra de El
+  Marcador, se reporta en una línea (no se edita código en un run).
+- **Dos mapeos rancios corregidos en el skill**: publicaba
+  `publication: "La Lana del Mundial"` (el rebrand de Fase 0 lo habría
+  regresado a producción) → ahora "La Lana del Deporte"; el fallback
+  `"playbook"` (source borrado en Fase 1, artículos inalcanzables) →
+  industry-shots. Y se agregó el mapeo de The Futbol Business Review
+  (`"The Futbol Business Review"` / `"futbol-business-review"`): el día
+  que se publique contenido TFBR con ese par, el hub deja solo su estado
+  vacío. `publish-sourced-article` recibió la nota del contrato del
+  lead-in también.
+
+**Verificación**: transforms probados con tsx contra las formas reales
+del corpus (bold/colon/variantes, ruta del dinero con before/after);
+Playwright sobre artículos reales confirmó 1 callout en cada uno;
+tsc/eslint/build limpios. Nota backlog: al subir contenido histórico, la
+numeración de expedientes se recorre (es cronológica calculada, "dated by
+case") — si algún día se quiere numeración congelada, haría falta campo
+en DB.
+
+### 2026-08-05 — Hubs, cuarta pasada: ruta con significado, panel de CMS y río en Noticias
+
+Feedback del usuario sobre el preview (captura del masthead de La Lana):
+la gráfica de ruta gustaba como elemento pero "no es autoexplicativa"
+(ciudades arbitrarias sin etiqueta), pidió un panel para editar todo esto
+en el CMS, y Noticias seguía siendo "una lista aburrida".
+
+- **La ruta ahora se explica sola y es real.** El masthead de /la-lana
+  intenta primero la "Ruta del dinero" declarada en el CUERPO del último
+  expediente (extractTrailStops en lib/product-hubs.ts — el hub pide la
+  fila completa vía getArticleById porque las queries de lista quitan el
+  cuerpo) y la rotula "La ruta del dinero · Expediente NNN" + "Así se
+  movió el dinero del último caso: <título>". Si el caso no declara ruta,
+  cae a la ruta y nota configuradas en el CMS. MoneyTrail ganó props
+  label/note (figcaption).
+- **Panel "Hubs de producto" en el admin** (grupo Contenido editorial,
+  components/admin/tabs/HubsTab.tsx): edita mastheads de los 4 hubs, la
+  ruta por defecto de La Lana, la nota de cadencia de Noticias, el
+  tagline/URL de TFBR y — clave — las cifras de El Marcador de Infinitas
+  (cifra/prefijo/sufijo/descripción/fuente), que dejaron de estar
+  hardcodeadas en la página. **Arquitectura**: la sección `productHubs` es
+  OPCIONAL en site_content; todo se lee vía `productHubsContent()` en
+  `lib/product-hubs-content.ts` (módulo aparte y client-safe a propósito:
+  el dashboard es client component y lib/data/site-content.ts importa el
+  cliente de DB server-only — no mover esto de vuelta). Defaults en
+  código; una fila vieja se edita igual y el primer guardado escribe la
+  sección. No hace falta tocar datos de producción.
+- **Noticias es un río, no una lista**: la última edición abre grande;
+  después bloques alternados por prioridad — banda destacada full-width
+  (★5: foto si hay, y la cifra más grande de la nota como chip verde
+  rotado), tarjetas a dos columnas (★4, thumbnail si hay; una tarjeta
+  sola se estira a todo el ancho), y clusters "Shots rápidos" (el resto,
+  filas densas detrás de una regla verde para que la densidad lea como
+  registro deliberado). Agrupación por corridas consecutivas del mismo
+  tier, orden de publicación intacto (mismo principio que el río del
+  archivo).
+
+**Verificación** (app corriendo, Postgres local): Playwright — /noticias
+(0 anchors anidados, 0 overflow, capturas revisadas: bandas, pares,
+clusters y chips "MX$42.8 millones"/"60 millones" reales), /la-lana con
+ruta auto-derivada del cuerpo del caso 003 (rótulo confirmado por texto),
+y login real al admin (reset-editor-password local) con el tab nuevo
+renderizando todos los campos junto al preview. tsc/eslint/build limpios.
+
+### 2026-08-05 — Hubs, quinta pasada: el tablero de salidas en La Lana
+
+Tercera ronda de feedback sobre la gráfica del masthead de La Lana: la
+línea de ruta (aun rotulada) seguía sin gustar — el usuario pidió el
+tablero de aeropuerto del arte de la tarjeta, con las CONEXIONES que los
+expedientes destaparon como vuelos ("Infantino ↔ Trump", "AR Monex ↔
+Europa", "Isaac del Toro ↔ UAE").
+
+- **`components/products/DeparturesBoard.tsx`**: panel oscuro tipo
+  split-flap (mono, verde sobre negro), columnas SALIDA / CONEXIÓN /
+  VUELO / ESTADO. Las conexiones entran con efecto de flaps
+  (ScrambleTextPlugin del bundle GSAP vendoreado, registrado LOCAL en el
+  componente, no en lib/gsap — ver la nota de ese archivo sobre por qué);
+  estados "Abierto"/"En curso" parpadean como llamada de abordaje;
+  reduced-motion muestra todo estático. Filas con URL son clickeables.
+- **Dos fuentes de filas**: automáticas — los expedientes recientes (hasta
+  3, fetch por id acotado) que declaran "Ruta del dinero:" en el cuerpo
+  se vuelven una salida con su ruta, su número de caso como vuelo y su
+  estado real, enlazada al artículo — y curadas: filas del CMS (Hubs tab,
+  `boardRows`: conexión/fecha/vuelo/estado/url). El modelo `lana` en
+  productHubs cambió de routeLabel/routeNote/routeStops a
+  boardLabel/boardNote/boardRows (sección aún nueva; el merge de defaults
+  absorbe cualquier fila vieja).
+- La línea de ruta animada (MoneyTrail) sigue viva DENTRO de los
+  artículos — el reemplazo es solo del masthead del hub.
+
+**Verificación**: Playwright a 1366px y 390px — 5 filas reales (2 auto de
+los casos seedeados con ruta + 3 curadas), texto final del scramble
+verificado ("Zúrich → Miami → CDMX"), 0 overflow, 0 errores de consola;
+en móvil el tablero colapsa a conexión + estado. tsc/eslint/build
+limpios. Pendiente editorial: las 3 conexiones default del tablero las
+nombró el usuario — confirmarlas/curarlas en el tab de Hubs.
+
+### 2026-08-05 — Hubs, sexta pasada: el pipeline alimenta el tablero y todos los elementos dinámicos
+
+Cierre del ciclo de hubs: el usuario pidió que el skill de publicación
+extraiga solo la información que los elementos dinámicos necesitan
+(varias conexiones por artículo si aplica, con tope para que el tablero
+no se infle) y que siempre recorra los elementos dinámicos de cada
+página.
+
+- **`scripts/update-lana-board.ts`**: el skill lo corre después de
+  publicar artículos la-lana. Entrada mínima
+  `[{conexion, articleId}]` — todo lo demás (nº de expediente, fecha,
+  estado abierto/archivado, link) se DERIVA de la fila real del artículo
+  para que el caller no pueda desalinearse. Merge: filas nuevas arriba,
+  una conexión repetida se REEMPLAZA (normalizado sin acentos/case), tope
+  de 6 filas curadas (MAX_CURATED_ROWS); articleId inexistente se salta
+  con warning. `--dry-run` soportado; `mergeBoardRows` exportada y
+  probada con tsx (el driver neon-http no llega al Postgres local). La
+  página además dedupea auto+curadas por conexión y corta el tablero a 8
+  filas visibles.
+- **Corrido contra producción** (dry-run y real): el tablero vivo quedó
+  con conexiones verificadas contra los artículos reales — "AR Monex ↔
+  Europa" y "Isaac del Toro ↔ UAE" (EXP. 006, la nota del Torito, que
+  confirma la inversión de €3M de A.R. Monex) e "Infantino ↔ UEFA y
+  Concacaf" (EXP. 005, el deal de FIFA Forward). "Infantino ↔ Trump"
+  quedó como fila curada SIN link: el expediente 005 no menciona a Trump
+  y no se inventan vínculos — **el usuario debe confirmar/linkear esa
+  fila en el tab de Hubs**.
+- **Skill entrenado** (`publish-newsletter`): paso obligatorio de
+  extracción de conexiones (qué califica — relación documentada central
+  al caso, no cualquier entidad nombrada; 0-2 por artículo; ↔ vs →;
+  lados cortos) + "Dynamic-elements checklist" que cada run recorre por
+  artículo antes de reportar: lead-in de opinión exacto, priority
+  honesto (en /noticias es el LAYOUT), cover image, cifra textual en
+  title/excerpt, Ruta del dinero cuando aplica, tablero actualizado,
+  flag del Marcador, par publication/source de TFBR, y nunca escribir
+  números de expediente en el copy (se renumeran con backlogs).
+  `publish-sourced-article` apunta al checklist para su salida
+  industry-shots.
+
+**Verificación**: mergeBoardRows probado (reemplazo de duplicados, tope,
+orden); script dry-run + real contra Neon de producción con salida
+inspeccionada; tsc/eslint/build limpios.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
@@ -5042,7 +5347,11 @@ anotado en su propia sección — no es lo que sigue ahora.
 **Resumen de lo que falta, en una lista (a 2026-08-02, revisado el
 2026-08-04 — el ítem 4 es el único que bloquea el lanzamiento):**
 1. Fase 1 ítem 5 — redactar y aprobar el posicionamiento de cada producto
-   editorial, después construir las 4 páginas custom.
+   editorial, después construir las 4 páginas custom. **Actualización
+   2026-08-05: construido** (los 4 hubs + módulo de portada, ver esa
+   entrada del registro) — queda correr
+   `scripts/point-products-at-hubs.ts` contra producción y la revisión
+   del usuario sobre el deploy.
 2. Fase 5 — decidir manual vs. automatizado para subir emails de lectores
    a Substack como suscriptores, y construirlo.
 3. Fase 5 — verificar en navegador real (después de deploy) el flujo de

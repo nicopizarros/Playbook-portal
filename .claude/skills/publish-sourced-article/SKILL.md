@@ -122,7 +122,17 @@ Opinión one, opens with a short bold lead-in (2-5 words, ending in a
 colon, specific to what that paragraph covers, not a generic repeated
 label across articles), same readability rule as `publish-newsletter`'s
 Step 3, four paragraphs of unbroken prose read as one dense block on the
-article page otherwise. Word-count range: roughly 300-500 words across the
+article page otherwise. The Opinión paragraph's lead-in must be exactly
+`**Opinión de Playbook:**` — as of 2026-08-05 it is a UI contract, not
+just house style: the article page detects it and renders that paragraph
+as the fenced opinion callout (see `publish-newsletter`'s "The product
+hub pages read the body" section, which also covers the La Lana
+money-trail/board conventions if a run ever publishes into those
+sources). That skill's "Dynamic-elements checklist" applies here too —
+for this skill's industry-shots output that means: honest `priority`
+(it decides whether /noticias renders the story as a feature band, a
+card, or a compact row), the story's biggest figure verbatim in
+title/excerpt when it's a numbers story, and a real cover image. Word-count range: roughly 300-500 words across the
 four. Write every paragraph in Playbook's own words, this is a rewrite
 grounded in multiple sources, never a close paraphrase or translation of
 any single outlet's article.

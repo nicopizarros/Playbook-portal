@@ -144,6 +144,111 @@ lens where relevant), not filler stretched to hit a length. If there isn't
 a genuine second point, leave the single Opinión paragraph as before rather
 than padding it.
 
+### The product hub pages read the body (2026-08-05)
+
+Each product now has its own front page (`/noticias`, `/la-lana`,
+`/infinitas`, `/futbol-business-review` — see `lib/product-hubs.ts`) that
+updates itself from the DB within ~60 seconds of an insert: nothing in
+this skill needs to "add the article to the hub". But the hubs and the
+article template read three things out of what this skill writes, so get
+them right at drafting time:
+
+- **The `**Opinión de Playbook:**` lead-in is load-bearing.** On every
+  product article, the article page detects that exact lead-in and renders
+  the paragraph as a visually fenced opinion callout (the explicit
+  fact/opinion separation). Keep the wording exactly `Opinión de
+  Playbook:` — don't ever restyle it to "Nuestra opinión", "El análisis
+  de Playbook", or similar, and don't fold the opinion into another
+  paragraph. This already matched the standard structure above; it is now
+  also a UI contract.
+- **La Lana: the money trail.** When (and only when) a La Lana story
+  genuinely traces money moving between named places — a fee flowing from
+  a country to a federation's HQ, a sale crossing borders, an investor
+  entering from abroad — add one plain paragraph on its own line in
+  `bodyMarkdown`, at the point in the story where that flow is described:
+  `Ruta del dinero: México → Zúrich → Riad` (2 to 5 stops, `→` between
+  them, short place names). The article page replaces that paragraph with
+  an animated route line that draws itself as the reader scrolls. Never
+  invent a route the story doesn't state, and never add more than one per
+  article. Stories with no geographic flow simply don't get one.
+- **La Lana: the hero figure.** The hub's case-file hero pulls the
+  story's single biggest number out of `title` + `excerpt` (e.g.
+  "€3M/año", "US$9,612m", "MX$42.8 millones") and displays it huge. When
+  the story has a defining figure, make sure it appears verbatim in the
+  title or the excerpt — not only buried in a middle paragraph — or the
+  hero renders without its hook.
+- **La Lana: the departures board (mandatory step after publishing).**
+  /la-lana's masthead is a departures board whose rows are the
+  CONNECTIONS the investigations uncovered, set as flights ("Isaac del
+  Toro ↔ UAE · EXP. 006 · Abierto"). After inserting la-lana articles,
+  extract each piece's connections and push them to the board:
+    1. A connection is a two-party relationship the piece actually
+       DOCUMENTS as central to the case — a person/org/company/place
+       pair whose link is the story ("AR Monex ↔ Europa", "Infantino ↔
+       UEFA y Concacaf"). Not every named entity qualifies: if the piece
+       doesn't establish the relationship, it's not a row. Zero
+       connections is a valid answer for a piece that's about one actor.
+    2. Per article: as many as genuinely qualify, capped at 2 (pick the
+       two most central — one article CAN yield several, e.g. the AR
+       Monex piece supports both its sponsor-pipeline route and its star
+       rider). Board-wide, `scripts/update-lana-board.ts` keeps only the
+       6 most recent curated rows, so the marquee stays relevant instead
+       of bulky — don't try to preserve old rows manually.
+    3. Write `[{ "conexion": "A ↔ B", "articleId": "<the id the insert
+       returned>" }, …]` to a scratch JSON and run
+       `npx tsx scripts/update-lana-board.ts <file> --dry-run`, check the
+       printed board, then run without `--dry-run`. The script derives
+       everything else (EXP. number, date, open/archived status, link)
+       from the article row itself and replaces a repeated connection
+       instead of duplicating it; an unknown articleId is skipped with a
+       warning, never invented around.
+    4. Use "↔" for two-way relationships and "→" only when the piece
+       describes a one-way flow. Keep each side short (1-3 words) — the
+       board is a flap panel, not a sentence.
+- **Infinitas: El Marcador.** The hub shows a scoreboard of sourced
+  women's-sports business metrics, editable in the admin CMS ("Hubs de
+  producto" tab — no deploy needed; defaults live in
+  `lib/product-hubs-content.ts`). If an Infinitas item being published
+  contains a headline metric that supersedes one on the board (a new
+  attendance record, a new revenue projection from a named source), don't
+  edit anything as part of the publish run — flag it in one line of the
+  run report ("El Marcador: la cifra X quedó superada por Y (fuente Z)")
+  so editorial updates it in the CMS deliberately.
+
+### Dynamic-elements checklist — walk it per article, every run
+
+Each hub page renders itself from what a run inserts, so a field written
+carelessly is a hub rendering worse for weeks. Before reporting back,
+walk this list for every article in the batch (it takes a minute and
+every item maps to a visible element):
+
+- **All products** — `**Opinión de Playbook:**` lead-in exact (fenced
+  opinion callout on the article page); `priority` set honestly on the
+  1-5 rubric — on /noticias it is also the LAYOUT: 5 renders as a
+  full-width feature band, 4 as a two-up card, the rest as compact rows,
+  so an inflated 5 hogs a band and a lazy 2 buries a real story;
+  `imageUrl` present (feature bands and cards on /noticias show it;
+  text-only there is a visible hole at priority ≥4).
+- **Noticias** — if the story is number-driven, its biggest figure
+  verbatim in `title` or `excerpt` (the feature band pulls it out as the
+  green chip); `date` correct (the weekday badge derives from it).
+- **La Lana** — biggest figure verbatim in title/excerpt (hub hero);
+  "Ruta del dinero: A → B → C" paragraph when the story genuinely traces
+  a geographic flow (article route + auto board row); connections
+  extracted and pushed via `scripts/update-lana-board.ts` (board rows —
+  step above). Remember the numbering is computed: never write "EXP."
+  numbers into article copy, they'd go stale when a backlog upload
+  renumbers the catalog.
+- **Infinitas** — Marcador supersession flagged in the report when a
+  published metric beats the board (step above).
+- **TFBR** — the `"The Futbol Business Review"` /
+  `"futbol-business-review"` pair (Step 4) is what lists an edition on
+  /futbol-business-review at all.
+
+If a run can't satisfy an item (no findable cover photo, no figure in a
+figure-less story), say so in the report in one line rather than
+silently shipping the gap — same standard as Step 5a's image rule.
+
 Tone (both sections above): direct, analytical, authoritative. No filler,
 no sensationalism. Playbook reads closer to a business brief than to a
 news alert, calm and analytical even when the underlying story is
@@ -203,9 +308,20 @@ document, see Step 6), never HTML tags.
 - **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
-    - La Lana del Mundial: `"La Lana del Mundial"` / `"la-lana"`
+    - La Lana del Mundial: `"La Lana del Deporte"` / `"la-lana"` — the
+      Substack may still say "La Lana del Mundial", but the site brand is
+      "La Lana del Deporte" (Fase 0 rebrand, 2026-08-01; production
+      articles were all rewritten to it by `fix:lana-rebrand`). Never
+      write "La Lana del Mundial" into `publication`.
     - Infinitas: `"Infinitas"` / `"infinitas"`
-    - Anything else: `"Playbook"` / `"playbook"`
+    - The Futbol Business Review: `"The Futbol Business Review"` /
+      `"futbol-business-review"` — the hub at /futbol-business-review
+      lists this source automatically; TFBR content published with this
+      pair is what turns that page from its "las ediciones viven en
+      Substack" state into a live list. `readingTime: 3`.
+    - Anything else: `"Noticias"` / `"industry-shots"` (the old
+      `"playbook"` source was deleted in Fase 1, 2026-08-01 — inserting
+      it would create articles no filter or hub can reach).
 
   "Industry Shots" is only this skill's internal name for that Substack
   newsletter, used to pick the fields above. It is never a label readers
