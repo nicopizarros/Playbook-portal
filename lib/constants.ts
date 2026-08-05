@@ -15,7 +15,7 @@ export type Source = (typeof KNOWN_SOURCES)[number];
 
 export const SOURCE_LABELS: Record<Source, string> = {
   'industry-shots': 'Noticias',
-  'la-lana': 'La Lana del Mundial',
+  'la-lana': 'La Lana del Deporte',
   infinitas: 'Infinitas',
   playbook: 'Playbook',
   opinion: 'Opinión',
