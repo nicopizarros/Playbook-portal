@@ -1,5 +1,6 @@
 import type { Article } from '@/lib/data/articles';
 import { TagPillRow } from './TagPillRow';
+import { SplitHeadline } from '@/components/home/SplitHeadline';
 
 // Ported from legacy/js/articles.js's leadTemplate(). `.lead-story` is a
 // <div>, NOT an <a> — `.card-link` wraps just the navigable content and is
@@ -39,11 +40,14 @@ export function LeadStory({ article }: { article: Article }) {
           </div>
         ) : (
           <div className="lead-photo lead-visual visual-grid">
-            <h1 className="visual-label">{article.title}</h1>
+            {/* SplitText word-cascade arrival (La Portada, 2026-08-05) in
+                both shapes — same server-text-first enhancement as the
+                article page's ArticleHeadline, so no CLS and no LCP cost. */}
+            <SplitHeadline className="visual-label" text={article.title} />
           </div>
         )}
         <span className="tag">{article.publication}</span>
-        {article.imageUrl && <h1>{article.title}</h1>}
+        {article.imageUrl && <SplitHeadline text={article.title} />}
         <p className="desc">{article.excerpt}</p>
         <div className="byline">
           {article.dateFormatted} · {article.readingTime || 1} min

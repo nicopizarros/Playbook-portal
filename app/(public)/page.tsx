@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getAllArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
+import { HomeChoreography } from '@/components/home/HomeChoreography';
 import { StillMattersSection } from '@/components/home/StillMattersSection';
 import { HomeSidebar } from '@/components/home/HomeSidebar';
 import { TopicDirectory } from '@/components/home/TopicDirectory';
@@ -83,6 +84,10 @@ export default async function HomePage() {
         <TestimonialsSection data={content.testimonialsSection} />
       </div>
       <AboutSection data={content.aboutSection} />
+      {/* Homepage-only motion (La Portada, 2026-08-05): green accents that
+          sweep along the section rules on scroll, then fade back out.
+          Mounted here, not in the layout, so no other route ships it. */}
+      <HomeChoreography />
     </>
   );
 }

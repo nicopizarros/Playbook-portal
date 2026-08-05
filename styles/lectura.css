@@ -1,0 +1,287 @@
+/* ============================================================
+   La Lectura — the article experience (design brief 2026-08-05).
+   One shared skeleton, four fully-inhabited product skins, riding the
+   .article-product-<source> class articulo/page.tsx already sets:
+
+     la-lana                  a case file: folder tab + stamp + expediente
+                              number above the headline, exhibit-framed
+                              cover, mono byline, dossier foot handoff.
+     industry-shots           a shot being poured: weekday + shot measure,
+                              green-ruled headline, numbered reporting
+                              beats, the filling glass (ShotProgress).
+     infinitas                El Marcador carried in: flat violet, Inter
+                              800 headline, duotone cover, violet beats.
+     futbol-business-review   born boardroom: partner strip, red trend
+                              arrows on subheads, red-fenced callouts.
+
+   Everything here is layered ON TOP of styles/article.css (imported
+   earlier in app/layout.tsx, so equal-specificity rules below win) and
+   the article-template rules already in styles/product-hubs.css. The
+   article page is a THEMED surface — colors ride the adaptive tokens
+   (--ink/--paper/--src-*) except where a physical object is genuinely
+   one color (a photographic print's white matte). Motion lives in
+   components/article/ArticleMotion.tsx; every device below has a
+   complete static state without it.
+   ============================================================ */
+
+/* ————— Shared skeleton upgrades ————— */
+
+/* The reading page earns a display-scale headline — it was the plainest
+   surface on the site while the hubs shouted. */
+.article-detail h1{font-size:clamp(30px,5.2vw,46px);line-height:1.06;}
+
+/* Scroll-drawn rule between the reading column and the foot apparatus
+   (ArticleMotion draws it in; static full-width without JS). */
+.lect-rule{height:2px;background:var(--ink);margin:44px 0 0;}
+/* The topics disclosure carries its own hairline — drop it when the drawn
+   rule immediately precedes it, or the foot double-rules. */
+.lect-rule-foot + .article-topics{border-top:none;}
+
+/* ——— Pull-figure beat ("Cifra clave:" authoring convention). The number
+   is a full visual stop between rules; ArticleMotion counts it up. ——— */
+.lect-pullfig{margin:36px 0;padding:22px 0 18px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);}
+.lect-pullfig-value{display:inline-block;font-family:var(--serif-display);font-weight:400;font-size:clamp(44px,8vw,76px);line-height:1;color:var(--ink);letter-spacing:.01em;font-variant-numeric:tabular-nums;}
+.lect-pullfig-caption{display:block;margin-top:12px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
+
+/* ——— "Sigue leyendo": product-identity preview cards. Each card wears
+   its product's accent at rest and flips to the product's own surface on
+   hover — a one-card preview of the hub it leads to. ——— */
+.lect-related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.lect-related-card{
+  position:relative;display:flex;flex-direction:column;gap:8px;
+  padding:14px 16px 12px;border:1px solid var(--rule);border-top:3px solid var(--rule);
+  color:inherit;background:var(--paper);
+  transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out),color var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
+}
+.lect-related-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-related-figure{font-family:var(--serif-display);font-size:26px;line-height:1;color:var(--ink);}
+.lect-related-card h3{font-family:var(--sans);font-weight:600;font-size:14px;line-height:1.35;margin:0;flex:1;}
+.lect-related-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--gray-txt);}
+.lect-related-arrow{opacity:0;transform:translateX(-6px);transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
+.lect-related-card:hover{transform:translateY(-3px);box-shadow:0 14px 26px rgba(0,0,0,.1);}
+.lect-related-card:hover .lect-related-arrow{opacity:1;transform:none;}
+/* Rest accents: hub identity colors (green/gold/violet/red), not the
+   sitewide --src-industry navy — the card previews the HUB. */
+.lect-related-card[data-source="industry-shots"]{border-top-color:var(--green);}
+.lect-related-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
+.lect-related-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
+.lect-related-card[data-source="futbol-business-review"]{border-top-color:var(--tfbr-red);}
+.lect-related-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
+/* Hover skins — the product surface itself (fixed literals, same criterion
+   as the hubs: a bottle label is dark whatever the theme says). */
+.lect-related-card[data-source="industry-shots"]:hover{background:var(--shots-bg);color:var(--shots-white);border-color:var(--shots-bg);border-top-color:var(--pb-green);}
+.lect-related-card[data-source="industry-shots"]:hover .lect-related-eyebrow{color:var(--pb-green);}
+.lect-related-card[data-source="industry-shots"]:hover .lect-related-figure,
+.lect-related-card[data-source="industry-shots"]:hover .lect-related-meta{color:var(--shots-white);}
+.lect-related-card[data-source="la-lana"]:hover{background:var(--pb-paper-soft);color:var(--pb-ink);border-color:var(--pb-rule);border-top-color:var(--lana-gold);}
+.lect-related-card[data-source="la-lana"]:hover .lect-related-eyebrow{color:var(--lana-gold);}
+.lect-related-card[data-source="la-lana"]:hover .lect-related-figure,
+.lect-related-card[data-source="la-lana"]:hover .lect-related-meta{color:var(--pb-ink);}
+.lect-related-card[data-source="infinitas"]:hover{background:var(--inf-violet);color:var(--inf-white);border-color:var(--inf-violet);}
+.lect-related-card[data-source="infinitas"]:hover .lect-related-eyebrow,
+.lect-related-card[data-source="infinitas"]:hover .lect-related-figure,
+.lect-related-card[data-source="infinitas"]:hover .lect-related-meta{color:var(--inf-white);}
+.lect-related-card[data-source="futbol-business-review"]:hover{background:var(--tfbr-bg);color:var(--tfbr-white);border-color:var(--tfbr-bg);border-top-color:var(--tfbr-red);}
+.lect-related-card[data-source="futbol-business-review"]:hover .lect-related-eyebrow{color:var(--tfbr-red);}
+.lect-related-card[data-source="futbol-business-review"]:hover .lect-related-figure,
+.lect-related-card[data-source="futbol-business-review"]:hover .lect-related-meta{color:var(--tfbr-white);}
+.lect-related-card[data-source="opinion"]:hover{background:var(--paper-soft);}
+
+/* ============================================================
+   1. La Lana — the case file
+   ============================================================ */
+.article-product-la-lana h1{text-transform:uppercase;line-height:1.04;}
+
+/* Folder tab above the header sequence: expediente number + case date +
+   the rubber stamp (reused from the hub's .lana-stamp). */
+.lect-case-tab{
+  display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-bottom:16px;padding:8px 16px 7px;
+  background:var(--paper-soft);border:1px solid var(--rule);
+  border-radius:8px 8px 0 0;border-bottom:2px solid var(--src-lana);
+}
+.lect-case-number,.lect-case-date{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+}
+.lect-case-number{color:var(--ink);}
+.lect-case-date{color:var(--gray-txt);}
+/* The hub stamps assume the fixed paper surface; re-ink them for the
+   themed article page (--src-lana/--ink adapt, the green stays). */
+.article-detail .lana-stamp-abierto{color:var(--ink);}
+.article-detail .lana-stamp-archivado{color:var(--src-lana);}
+
+/* Mono byline: the dossier's file line. */
+.article-product-la-lana .article-byline{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+}
+
+/* Cover as photographic exhibit: white matte print, slightly askew,
+   captioned like evidence. The matte is a BORDER, not padding — the
+   parallax-scaled img clips at the padding box, so a border matte can
+   never be covered by the drifting photo. The print stays white on both
+   themes (a print is white). */
+.lect-exhibit .article-photo{
+  border:10px solid #fff;outline:1px solid var(--pb-rule);
+  box-shadow:0 12px 26px rgba(10,10,10,.14);transform:rotate(.6deg);
+}
+.lect-exhibit .photo-credit{margin-top:12px;}
+.lect-exhibit-label{
+  display:inline-block;margin-right:14px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--src-lana);
+}
+
+/* Evidence line instead of the generic centered hr. */
+.article-product-la-lana .article-body hr{width:100%;border-top:2px dashed var(--rule);margin:36px 0;}
+
+/* Pull figure: the green highlighter swipe the hub hero uses. */
+.article-product-la-lana .lect-pullfig-value{padding:0 8px;box-shadow:inset 0 -0.2em 0 0 var(--green);}
+
+/* Dossier foot: "siguiente expediente" folder handoff. */
+.lect-next-case{margin-top:48px;}
+.lect-next-link{display:block;color:inherit;}
+.lect-next-tab{
+  position:relative;z-index:1;display:inline-flex;align-items:baseline;gap:12px;
+  padding:7px 16px 6px;background:var(--paper-soft);border:1px solid var(--rule);border-bottom:none;
+  border-radius:8px 8px 0 0;margin-bottom:-1px;
+  transition:background var(--duration-base) var(--ease-out);
+}
+.lect-next-kicker{font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--src-lana);}
+.lect-next-number{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-next-body{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px 20px;background:var(--paper-soft);border:1px solid var(--rule);
+  border-radius:0 10px 10px 10px;
+  transition:box-shadow var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.lect-next-title{font-family:var(--serif-display);font-size:clamp(17px,2.4vw,21px);line-height:1.2;text-transform:uppercase;}
+.lect-next-open{
+  flex-shrink:0;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  opacity:0;transform:translateX(-6px);
+  transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.lect-next-link:hover .lect-next-tab{background:var(--green);}
+.lect-next-link:hover .lect-next-tab .lect-next-kicker,
+.lect-next-link:hover .lect-next-tab .lect-next-number{color:var(--ink-fixed);}
+.lect-next-link:hover .lect-next-body{transform:translateY(-2px);box-shadow:0 12px 24px rgba(10,10,10,.1);}
+.lect-next-link:hover .lect-next-open{opacity:1;transform:none;}
+
+/* ============================================================
+   2. Noticias — the shot
+   ============================================================ */
+.article-product-industry-shots h1{
+  text-transform:uppercase;line-height:1.04;
+  border-bottom:5px solid var(--green);padding-bottom:12px;
+}
+/* The green rule under the headline replaces the byline's hairline —
+   one rule per header, not two. */
+.article-product-industry-shots .article-byline{border-bottom:none;padding-bottom:6px;}
+
+.lect-shot-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px;}
+.lect-day-badge{
+  display:inline-block;padding:3px 10px;border:1.5px solid var(--rule);border-radius:2px;
+  font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-shot-measure{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-shot-measure::before{content:"";width:8px;height:8px;background:var(--green);flex-shrink:0;}
+
+/* The reporting beats, numbered like pours — 01, 02, 03 — so the scan
+   rhythm the hub promises carries into the read. The counter lives on
+   .article-body and only counts TOP-LEVEL paragraphs (direct, or direct
+   inside the ad-split <div> halves): the opinion callout (<aside><p>),
+   blockquote paragraphs and figure captions never take a number.
+   #3f7d0a is the site's existing darker legible-green (see
+   .share-btn.is-copied) with the same dark-theme counterpart cascade. */
+.article-product-industry-shots{--lect-beat:#3f7d0a;}
+[data-theme="dark"] .article-product-industry-shots{--lect-beat:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-product-industry-shots{--lect-beat:var(--green);}
+}
+.article-product-industry-shots .article-body{counter-reset:lect-beat;}
+.article-product-industry-shots .article-body > p::before,
+.article-product-industry-shots .article-body > div > p::before{
+  counter-increment:lect-beat;
+  content:counter(lect-beat,decimal-leading-zero);
+  display:inline-block;margin-right:10px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--lect-beat);
+  transform:translateY(-1px);
+}
+
+/* Pull figure: the hub's rotated green chip. */
+.article-product-industry-shots .lect-pullfig-value{
+  background:var(--green);color:var(--ink-fixed);padding:2px 14px;transform:rotate(-1.2deg);
+}
+
+/* ============================================================
+   3. Infinitas — El Marcador, clean and violet
+   ============================================================ */
+.article-product-infinitas h1{font-family:var(--sans);font-weight:800;letter-spacing:-.02em;line-height:1.08;}
+.article-product-infinitas .article-byline{border-bottom-color:var(--src-infinitas);}
+
+/* Violet duotone cover — same recipe as the hub's .infhub-duotone, on its
+   own class so the two systems never couple (the "inf-" / "infhub-" prefix
+   collision taught that lesson — and never write a literal asterisk-slash
+   inside this comment: an earlier draft did, ended the comment early and
+   the parser silently ate this whole rule). Fixed violet literals: the
+   duotone is the artwork. isolation:isolate is load-bearing: without it
+   the img's mix-blend-mode:luminosity blends against the ROOT group and
+   tints the entire themed page lavender (seen in Playwright, 2026-08-05).
+   position:relative is what keeps the ::after overlay inside the frame. */
+.lect-duotone{position:relative;background:var(--inf-violet-deep);isolation:isolate;}
+.lect-duotone img{filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.92;}
+.lect-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.28),rgba(84,36,156,.16));pointer-events:none;}
+
+.article-product-infinitas .lect-pullfig{border-color:var(--src-infinitas);}
+.article-product-infinitas .lect-pullfig-value{color:var(--src-infinitas);font-family:var(--sans);font-weight:800;letter-spacing:-.02em;}
+
+/* ============================================================
+   4. TFBR — the boardroom
+   ============================================================ */
+.article-product-futbol-business-review h1{text-transform:uppercase;line-height:1.04;}
+.article-product-futbol-business-review .tag{background:var(--tfbr-red);color:#fff;}
+.article-product-futbol-business-review .article-byline{border-bottom-color:var(--tfbr-red);}
+.article-product-futbol-business-review .article-body blockquote{border-left-color:var(--tfbr-red);}
+/* Red trend arrow on every subhead — the hub's directional language. */
+.article-product-futbol-business-review .article-body h2::before,
+.article-product-futbol-business-review .article-body h3::before{
+  content:"↗";margin-right:8px;color:var(--tfbr-red);font-weight:800;
+}
+.article-product-futbol-business-review .lect-pullfig{border-color:var(--tfbr-red);}
+.article-product-futbol-business-review .lect-pullfig-value::before{content:"↗ ";color:var(--tfbr-red);}
+
+/* The co-brand strip on the article: static (the site header owns the
+   sticky top edge here), full-bleed above <main>. */
+.lect-partner-strip{position:static;}
+
+/* ============================================================
+   Walled state wears the product accent too
+   ============================================================ */
+.article-product-la-lana .article-walled{border-color:var(--src-lana);}
+.article-product-industry-shots .article-walled{border-color:var(--green);}
+.article-product-infinitas .article-walled{border-color:var(--src-infinitas);}
+.article-product-futbol-business-review .article-walled{border-color:var(--tfbr-red);}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media(max-width:760px){
+  .lect-related-grid{grid-template-columns:1fr;}
+  .lect-next-body{flex-direction:column;align-items:flex-start;gap:10px;}
+  .lect-next-open{opacity:1;transform:none;}
+}
+@media(max-width:640px){
+  .lect-case-tab{gap:10px;padding:7px 12px 6px;}
+  .lect-pullfig-value{font-size:clamp(36px,11vw,56px);}
+  .lect-exhibit .article-photo{border-width:8px;}
+}

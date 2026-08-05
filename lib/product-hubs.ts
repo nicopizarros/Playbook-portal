@@ -184,6 +184,47 @@ export function weekdayFor(date: string): string {
   return day.charAt(0).toUpperCase() + day.slice(1);
 }
 
+// ------------------------------------------------- Shared: pull-figure beat
+// Authoring convention for La Lectura (article redesign, 2026-08-05): a
+// paragraph that reads "Cifra clave: US$2.4B — lo que repartió la FIFA"
+// becomes a full-bleed pull-figure — the number set huge between rules,
+// counting up as it enters view (see components/article/ArticleMotion.tsx),
+// with the text after the dash as its caption. Same contract as the other
+// two conventions: plain text an editor can type in TipTap, detected
+// server-side, gracefully inert when absent or malformed (a value with no
+// digits, or too long to be a visual hook, leaves the paragraph untouched).
+// Applies to every product source; the caption is optional.
+const CIFRA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*Cifra clave:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
+export const CIFRA_TEXT_PREFIX = /^\s*(?:\*\*)?\s*Cifra clave:?\s*(?:\*\*)?:?\s*/i;
+
+export type CifraFigure = { value: string; caption: string };
+
+// The value has to work as a display number: it needs a digit, and past
+// ~24 characters it stops being a hook and becomes a sentence — same
+// length rationale as extractPullFigure above.
+export function parseCifra(raw: string): CifraFigure | null {
+  const text = raw.replace(/<[^>]+>/g, '').trim();
+  const [valuePart, ...captionParts] = text.split(/\s+[—–-]\s+/);
+  const value = valuePart.trim();
+  if (!value || value.length > 24 || !/\d/.test(value)) return null;
+  return { value, caption: captionParts.join(' — ').trim() };
+}
+
+// HTML bodies: string-level transform on already-sanitized editor HTML
+// (same trust boundary as markOpinionCallout below). Runs BEFORE the ad
+// split — splitAfterParagraph only counts top-level </p>, and the figure
+// contains none, so the split can never cut a beat open.
+export function markCifraFigures(html: string): string {
+  return html.replace(CIFRA_HTML_RE, (match, inner: string) => {
+    const parsed = parseCifra(inner);
+    if (!parsed) return match;
+    const caption = parsed.caption
+      ? `<figcaption class="lect-pullfig-caption">${parsed.caption}</figcaption>`
+      : '';
+    return `<figure class="lect-pullfig"><span class="lect-pullfig-value" data-lect-countup>${parsed.value}</span>${caption}</figure>`;
+  });
+}
+
 // The Playbook-opinion paragraph gets its own visually distinct callout,
 // separated clearly from reporting (a credibility move: the fact/opinion
 // line becomes explicit). This is NOT a new authoring convention — it

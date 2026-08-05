@@ -205,6 +205,21 @@ them right at drafting time:
     4. Use "↔" for two-way relationships and "→" only when the piece
        describes a one-way flow. Keep each side short (1-3 words) — the
        board is a flap panel, not a sentence.
+- **All products: the "Cifra clave:" pull-figure beat (2026-08-05).** A
+  plain paragraph on its own line in `bodyMarkdown` of the form
+  `Cifra clave: US$720 millones — el valor del nuevo espacio comercial`
+  renders as a full-bleed pull-figure on the article page: the number set
+  huge between rules, counting up as the reader reaches it, with the text
+  after the ` — ` (dash with spaces; optional) as its caption. Rules:
+  the value must contain a digit and stay short (≤24 characters — longer
+  values are left as ordinary text); use it when a story has ONE defining
+  number that deserves a full visual stop, typically 0-1 per article
+  (more is legal but dilutes the beat); never restate the figure in the
+  neighboring paragraph — the beat replaces the sentence, not decorates
+  it. Separately, any `**bold**` span in body text that is purely a
+  figure ("US$9,612 millones", "22%") counts up inline automatically —
+  no syntax needed, just keep bolding key figures as the standard
+  structure already asks.
 - **Infinitas: El Marcador.** The hub shows a scoreboard of sourced
   women's-sports business metrics, editable in the admin CMS ("Hubs de
   producto" tab — no deploy needed; defaults live in
@@ -228,7 +243,9 @@ every item maps to a visible element):
   full-width feature band, 4 as a two-up card, the rest as compact rows,
   so an inflated 5 hogs a band and a lazy 2 buries a real story;
   `imageUrl` present (feature bands and cards on /noticias show it;
-  text-only there is a visible hole at priority ≥4).
+  text-only there is a visible hole at priority ≥4); "Cifra clave:"
+  beat considered when the story is number-driven (step above), value
+  ≤24 chars with a digit, caption after ` — `.
 - **Noticias** — if the story is number-driven, its biggest figure
   verbatim in `title` or `excerpt` (the feature band pulls it out as the
   green chip); `date` correct (the weekday badge derives from it).

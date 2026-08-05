@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAllArticles, getArticleById, getArticleMetaById } from '@/lib/data/articles';
+import { getAllArticles, getArticleById, getArticleMetaById, getArticlesBySource, type Article } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { relatedArticles, shouldShowAuthor } from '@/lib/related-articles';
 import { resolveEntitlement } from '@/lib/metering';
 import { ArticleTopics } from '@/components/article/ArticleTopics';
 import { ArticleHeadline } from '@/components/article/ArticleHeadline';
 import { ArticleEndMark } from '@/components/article/ArticleEndMark';
-import { NewsRow } from '@/components/article/NewsRow';
+import { ArticleMotion } from '@/components/article/ArticleMotion';
+import { RelatedCard } from '@/components/article/RelatedCard';
 import { ShareRow } from '@/components/article/ShareRow';
+// NewsRow is gone from this page (La Lectura, 2026-08-05): "Sigue leyendo"
+// renders RelatedCard — product-identity preview cards — instead of the
+// homepage's plain list rows.
 import { EmailWall } from '@/components/article/EmailWall';
 import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
 import { AdSlot } from '@/components/ads/AdSlot';
@@ -19,7 +23,14 @@ import {
   extractMoneyTrailFromHtml,
   extractMoneyTrailFromParagraphs,
   markOpinionCallout,
+  markCifraFigures,
+  parseCifra,
+  caseNumber,
+  caseStatus,
+  shotLabel,
+  weekdayFor,
   OPINION_TEXT_PREFIX,
+  CIFRA_TEXT_PREFIX,
 } from '@/lib/product-hubs';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { ShotProgress } from '@/components/products/ShotProgress';
@@ -133,7 +144,9 @@ function paragraphsFrom(text: string) {
 // HTML bodies: the money-trail paragraph is lifted out and replaced by the
 // component. Runs on each ad-split half independently — the trail <p> is
 // always intact inside exactly one half because the ad split only cuts at
-// top-level paragraph boundaries.
+// top-level paragraph boundaries. The trail now carries its own label
+// (La Lectura, 2026-08-05): inside a dossier-skinned article it reads as a
+// chapter divider, and a labeled divider explains itself.
 function ProductHtml({ html, source }: { html: string; source: string }) {
   if (source === 'la-lana') {
     const trail = extractMoneyTrailFromHtml(html);
@@ -141,7 +154,7 @@ function ProductHtml({ html, source }: { html: string; source: string }) {
       return (
         <>
           {trail.before.trim() !== '' && <div dangerouslySetInnerHTML={{ __html: trail.before }} />}
-          <MoneyTrail stops={trail.stops} scrub />
+          <MoneyTrail stops={trail.stops} scrub label="Ruta del dinero" />
           {trail.after.trim() !== '' && <div dangerouslySetInnerHTML={{ __html: trail.after }} />}
         </>
       );
@@ -155,18 +168,26 @@ function ProductHtml({ html, source }: { html: string; source: string }) {
 type PlainBlock =
   | { kind: 'text'; text: string }
   | { kind: 'opinion'; text: string }
+  | { kind: 'cifra'; value: string; caption: string }
   | { kind: 'trail'; stops: string[] };
 
 function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
   // Every product source gets the opinion callout — the four-paragraph
   // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
-  // alike (see lib/product-hubs.ts's regex comment).
+  // alike (see lib/product-hubs.ts's regex comment) — and the "Cifra
+  // clave:" pull-figure beat (same detection, mirrored from
+  // markCifraFigures for the plain-text body shape).
   const isProduct = hubForSource(source) !== null;
-  const blocks: PlainBlock[] = paragraphs.map(p =>
-    isProduct && OPINION_TEXT_PREFIX.test(p)
-      ? { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') }
-      : { kind: 'text', text: p },
-  );
+  const blocks: PlainBlock[] = paragraphs.map((p): PlainBlock => {
+    if (isProduct && OPINION_TEXT_PREFIX.test(p)) {
+      return { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') };
+    }
+    if (isProduct && CIFRA_TEXT_PREFIX.test(p)) {
+      const parsed = parseCifra(p.replace(CIFRA_TEXT_PREFIX, ''));
+      if (parsed) return { kind: 'cifra', value: parsed.value, caption: parsed.caption };
+    }
+    return { kind: 'text', text: p };
+  });
   if (source === 'la-lana') {
     const trail = extractMoneyTrailFromParagraphs(paragraphs);
     if (trail) blocks.splice(trail.index, 1, { kind: 'trail', stops: trail.stops });
@@ -175,13 +196,23 @@ function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
 }
 
 function PlainBlockView({ block }: { block: PlainBlock }) {
-  if (block.kind === 'trail') return <MoneyTrail stops={block.stops} scrub />;
+  if (block.kind === 'trail') return <MoneyTrail stops={block.stops} scrub label="Ruta del dinero" />;
   if (block.kind === 'opinion') {
     return (
       <aside className="shot-opinion">
         <span className="shot-opinion-kicker">Opinión de Playbook</span>
         <p>{block.text}</p>
       </aside>
+    );
+  }
+  if (block.kind === 'cifra') {
+    return (
+      <figure className="lect-pullfig">
+        <span className="lect-pullfig-value" data-lect-countup>
+          {block.value}
+        </span>
+        {block.caption && <figcaption className="lect-pullfig-caption">{block.caption}</figcaption>}
+      </figure>
     );
   }
   return <p>{block.text}</p>;
@@ -238,6 +269,55 @@ export default async function ArticuloPage({ searchParams }: Props) {
   const hub = hubForSource(meta.source);
   const articleClass = `article-detail${hub ? ` article-product-${hub.source}` : ''}`;
 
+  // ——— Per-product article shells (La Lectura, 2026-08-05): each product's
+  // article opens inside its hub's world, on one shared skeleton. The shell
+  // data comes from the same cheap list queries the hubs use (LIST_COLUMNS
+  // only, no body) so it's safe to compute for the walled branch too — the
+  // metering rule is about the BODY, and the shell is identity metadata.
+  //
+  // La Lana opens like a case file: folder tab with the computed expediente
+  // number, "fecha del caso", and the open/archived stamp — plus the
+  // "siguiente expediente" handoff at the foot (the next OLDER case, the
+  // direction a dossier reads; the newest one when the reader is already at
+  // the oldest).
+  let lanaShell: {
+    number: string;
+    status: 'abierto' | 'archivado';
+    next: { article: Article; number: string } | null;
+  } | null = null;
+  if (meta.source === 'la-lana') {
+    const cases = await getArticlesBySource('la-lana');
+    const self = cases.find(a => a.id === meta.id);
+    if (self) {
+      const idx = cases.indexOf(self);
+      const nextCase = cases[idx + 1] ?? cases[idx - 1] ?? null;
+      lanaShell = {
+        number: caseNumber(self, cases),
+        status: caseStatus(self),
+        next: nextCase ? { article: nextCase, number: caseNumber(nextCase, cases) } : null,
+      };
+    }
+  }
+
+  // Noticias opens like a shot being poured: real weekday + the shot
+  // measure ("2 shots ≈ 6 min") — the same units the hub list uses.
+  const shotStrip = meta.source === 'industry-shots' && (
+    <div className="lect-shot-meta">
+      <span className="lect-day-badge">{weekdayFor(meta.date)}</span>
+      <span className="lect-shot-measure">{shotLabel(meta.readingTime)}</span>
+    </div>
+  );
+
+  // TFBR is born boardroom: the Interticket co-brand strip travels onto the
+  // article itself (static here, not sticky — the site header already owns
+  // the sticky top edge on article pages).
+  const partnerStrip = meta.source === 'futbol-business-review' && (
+    <div className="tfbr-partner-strip lect-partner-strip">
+      <span className="tfbr-partner-brand">The Futbol Business Review</span>
+      <span className="tfbr-partner-note">Engineered by Interticket × Powered by Playbook</span>
+    </div>
+  );
+
   // Header order (UI/UX audit 2026-07-23): publication chip → headline →
   // byline → photo. Deliberately NO taxonomy anywhere in the header (user
   // feedback: readers should never be greeted by tags) — the full
@@ -247,6 +327,18 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // brand-level navigation the chip always implied.
   const header = (
     <>
+      {/* La Lana's case-file tab sits ABOVE the audited kicker→headline→
+          byline→photo sequence — the four keep their order; the shell adds
+          product identity around them, which is the redesign's whole point. */}
+      {lanaShell && (
+        <div className="lect-case-tab">
+          <span className="lect-case-number">Expediente {lanaShell.number}</span>
+          <span className="lect-case-date">Fecha del caso: {meta.dateFormatted}</span>
+          <span className={`lana-stamp lana-stamp-${lanaShell.status}`}>
+            {lanaShell.status === 'abierto' ? 'Caso abierto' : 'Archivado'}
+          </span>
+        </div>
+      )}
       <div className="article-kicker">
         {hub ? (
           <Link className="tag tag-hub-link" href={hub.path}>{meta.publication}</Link>
@@ -254,6 +346,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
           <span className="tag">{meta.publication}</span>
         )}
       </div>
+      {shotStrip}
       <ArticleHeadline title={meta.title} />
       <div className="byline article-byline">
         {showAuthor && meta.author && (
@@ -267,8 +360,11 @@ export default async function ArticuloPage({ searchParams }: Props) {
         {meta.dateFormatted} · {meta.readingTime || 1} min de lectura
       </div>
       {meta.imageUrl && (
-        <figure className="article-photo-wrap">
-          <div className="lead-photo article-photo">
+        <figure className={`article-photo-wrap${lanaShell ? ' lect-exhibit' : ''}`}>
+          {/* Infinitas covers wear the hub's violet duotone (CSS-only, same
+              recipe as .infhub-duotone) so the photo reads as El Marcador's
+              even inside the themed article page. */}
+          <div className={`lead-photo article-photo${meta.source === 'infinitas' ? ' lect-duotone' : ''}`}>
             {/* Editor-supplied URL, arbitrary host -- see
                 components/sections/AboutSection.tsx's comment. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -281,7 +377,16 @@ export default async function ArticuloPage({ searchParams }: Props) {
               decoding="async"
             />
           </div>
-          {meta.imageCredit && <figcaption className="photo-credit">{meta.imageCredit}</figcaption>}
+          {(meta.imageCredit || lanaShell) && (
+            <figcaption className="photo-credit">
+              {/* Evidence-styled figure: a La Lana cover is an exhibit, and
+                  an exhibit is labeled. */}
+              {lanaShell && (
+                <span className="lect-exhibit-label">Anexo fotográfico · Exp. {lanaShell.number}</span>
+              )}
+              {meta.imageCredit}
+            </figcaption>
+          )}
         </figure>
       )}
     </>
@@ -290,6 +395,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
   if (entitlement.kind === 'walled') {
     return (
       <>
+        {partnerStrip}
         <main className="container article-page" id="articulo">
           <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
           <article className={articleClass}>
@@ -309,6 +415,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
                 blocked on is the entire point of the sign-up. */}
             <EmailWall articleUrl={pathFor(meta.id)} teaser={meta.wallTeaser} />
           </article>
+          {/* Shell-only devices (kicker scramble, cover parallax) — the
+              walled branch has no body, so the body-level devices simply
+              find nothing to animate. */}
+          <ArticleMotion />
         </main>
         <script
           type="application/ld+json"
@@ -348,15 +458,25 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // splitAfterParagraph tracks <aside> so it can't cut the callout open.
   // All product sources get it (see plainBlocksFor's comment).
   const rawHtmlBody = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
-  const htmlBody = rawHtmlBody && hub ? markOpinionCallout(rawHtmlBody) : rawHtmlBody;
+  // "Cifra clave:" beats are marked before the opinion callout (both are
+  // string transforms on the same trust boundary; order between the two is
+  // irrelevant since they can't match the same paragraph) and before the
+  // ad split, which only counts top-level </p> and therefore never cuts a
+  // <figure> open.
+  const htmlBody = rawHtmlBody && hub ? markOpinionCallout(markCifraFigures(rawHtmlBody)) : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
   const blocks = plainBlocksFor(paragraphs, article.source);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
+
+  // The "siguiente expediente" handoff already shows the next case — keep
+  // it out of "Sigue leyendo" so the foot never repeats a link.
+  const relatedShown = related.filter(a => a.id !== lanaShell?.next?.article.id);
 
   return (
     <>
       <ArticleAnalyticsBeacon articleId={article.id} />
 
+      {partnerStrip}
       <main className="container article-page" id="articulo">
         <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
 
@@ -397,6 +517,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
             )}
           </div>
           <ArticleEndMark />
+          {/* Scroll-drawn divider between the reading column and the foot
+              apparatus; the topics disclosure drops its own hairline when
+              this rule precedes it (styles/lectura.css). */}
+          <div className="lect-rule lect-rule-foot" aria-hidden="true" />
           <ArticleTopics article={article} />
           <ShareRow url={canonicalUrl} title={article.title} />
           {article.substackUrl && (
@@ -406,16 +530,38 @@ export default async function ArticuloPage({ searchParams }: Props) {
           )}
         </article>
 
-        {related.length > 0 && (
-          <section className="article-related">
+        {/* La Lana closes like a dossier: the next expediente handed to the
+            reader as a folder, before the general related row. */}
+        {article.source === 'la-lana' && lanaShell?.next && (
+          <section className="lect-next-case" aria-label="Siguiente expediente">
+            <Link
+              className="lect-next-link reveal"
+              href={`/articulo?id=${encodeURIComponent(lanaShell.next.article.id)}`}
+            >
+              <span className="lect-next-tab">
+                <span className="lect-next-kicker">Siguiente expediente</span>
+                <span className="lect-next-number">Exp. {lanaShell.next.number}</span>
+              </span>
+              <span className="lect-next-body">
+                <span className="lect-next-title">{lanaShell.next.article.title}</span>
+                <span className="lect-next-open" aria-hidden="true">Abrir →</span>
+              </span>
+            </Link>
+          </section>
+        )}
+
+        {relatedShown.length > 0 && (
+          <section className="article-related lect-related">
             <h2>Sigue leyendo</h2>
-            <div className="news-list">
-              {related.map(a => (
-                <NewsRow key={a.id} article={a} heading="h3" />
+            <div className="lect-related-grid">
+              {relatedShown.map(a => (
+                <RelatedCard key={a.id} article={a} />
               ))}
             </div>
           </section>
         )}
+
+        <ArticleMotion />
       </main>
 
       <script

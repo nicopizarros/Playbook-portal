@@ -132,7 +132,11 @@ sources). That skill's "Dynamic-elements checklist" applies here too —
 for this skill's industry-shots output that means: honest `priority`
 (it decides whether /noticias renders the story as a feature band, a
 card, or a compact row), the story's biggest figure verbatim in
-title/excerpt when it's a numbers story, and a real cover image. Word-count range: roughly 300-500 words across the
+title/excerpt when it's a numbers story, a real cover image, and — when
+the story is number-driven — an optional `Cifra clave: <figure> — <caption>`
+paragraph (that skill's pull-figure convention, 2026-08-05: renders as a
+full-bleed counting figure on the article page; value ≤24 chars with a
+digit, at most one per article in practice). Word-count range: roughly 300-500 words across the
 four. Write every paragraph in Playbook's own words, this is a rewrite
 grounded in multiple sources, never a close paraphrase or translation of
 any single outlet's article.

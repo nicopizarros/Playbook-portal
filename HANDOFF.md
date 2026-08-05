@@ -5263,6 +5263,131 @@ página.
 orden); script dry-run + real contra Neon de producción con salida
 inspeccionada; tsc/eslint/build limpios.
 
+### 2026-08-05 — La Lectura / La Portada / La Hemeroteca: el upgrade de diseño de artículos, portada y archivo
+
+Brief del usuario: llevar las cuatro identidades de los hubs (El
+Expediente, El Trago, La Sala de Juntas, El Marcador) a la página de
+artículo — "donde los lectores realmente viven" — con libertad creativa
+casi total; darle a la portada la misma energía dentro de sus límites
+pactados; y traer el archivo al mismo nivel. Rama
+`claude/playbook-portal-design-1c6s7c`.
+
+**La Lectura (artículo) — un esqueleto compartido, cuatro pieles:**
+
+- **Cascarones por producto** en `articulo/page.tsx`, activados por el
+  `article-product-<source>` que ya existía. La Lana abre como
+  expediente: pestaña de fólder (nº de caso calculado con el mismo
+  `caseNumber` del hub + "Fecha del caso" + sello abierto/archivado),
+  byline en mono, foto como "Anexo fotográfico · Exp. NNN" (marco matte
+  blanco FIJO — una impresión es blanca en cualquier tema — con la
+  passe-partout como BORDER, no padding, para que el parallax nunca la
+  tape), y cierra con la pestaña "Siguiente expediente" (el caso
+  siguiente más viejo; el más nuevo si ya estás en el más viejo),
+  excluido de "Sigue leyendo" para no duplicar. Noticias abre como shot:
+  badge del día real + "N shots ≈ X min" (`shotLabel`), titular con
+  regla verde, y los párrafos top-level numerados 01/02/03 vía counter
+  CSS (el aside de opinión, blockquotes y figures quedan fuera del
+  conteo por construcción del selector). Infinitas: titular Inter 800,
+  portada con duotono violeta (`.lect-duotone`, receta del hub en clase
+  propia) y acentos violeta. TFBR: tira de partner Interticket sobre el
+  artículo (estática — el header del sitio ya es el sticky), flechas
+  rojas en H2/H3, blockquote y callout en rojo.
+- **Kit compartido**: kicker con scramble de split-flap, parallax sutil
+  de la portada (transform-only, img pre-escalada 1.12), reglas que se
+  dibujan al scroll (`.lect-rule` + los `hr` del cuerpo), y count-up
+  inline de cualquier `<strong>` cuyo texto completo sea una cifra
+  (ancho bloqueado al tamaño final antes de animar — cero reflow). Todo
+  en UN client component (`components/article/ArticleMotion.tsx`), que
+  registra ScrambleTextPlugin LOCAL (regla de lib/gsap respetada) y
+  consulta el DOM en vez de recibir props para cubrir las tres formas de
+  cuerpo por igual. Sin JS o con reduced-motion: el markup servido ya es
+  el estado final.
+- **Convención de autoría NUEVA — "Cifra clave:"** (lib/product-hubs.ts:
+  `markCifraFigures`/`parseCifra`/`CIFRA_TEXT_PREFIX`): un párrafo
+  `Cifra clave: US$720 millones — caption` se vuelve un pull-figure de
+  sangría completa entre reglas que cuenta hacia arriba al entrar en
+  vista; caption opcional tras ` — `; valor sin dígitos o >24 chars =
+  párrafo intacto (inerte). Corre ANTES del ad split, que no puede
+  cortarla (solo corta tras `</p>` top-level). **Sincronizado en la
+  misma sesión** en publish-newsletter ("hub pages read the body" +
+  checklist) y publish-sourced-article.
+- **"Sigue leyendo" con identidad**: `RelatedCard` reemplaza los NewsRow
+  — eyebrow con el concepto del hub ("El Expediente · La Lana del
+  Deporte"), la cifra grande de la nota si la tiene, y hover que voltea
+  la tarjeta a la superficie de SU producto (fondo shots/manila/violeta/
+  negro-rojo). El muro también se tiñe por producto (solo el borde).
+- **MoneyTrail en el cuerpo ahora lleva label** ("Ruta del dinero") —
+  como divisor de capítulo se explica solo.
+
+**La Portada — dentro de las bardas** (1+5 intacto, orden de secciones y
+ads intactos): SplitText en el titular del hero (`SplitHeadline`, ambos
+shapes de LeadStory, texto servido primero — sin CLS ni costo LCP);
+"toque split-flap" en el label del ticker (`TickerScramble`, ancho
+bloqueado durante el flap); barridos verdes sobre las reglas de sección
+al entrar en vista, que luego se desvanecen y dejan la regla de tinta
+original (`HomeChoreography` — las clases pt-sweep-* solo las agrega JS,
+así que no-JS/reduced-motion quedan byte-idéntico al diseño previo;
+montado SOLO en la portada); las tarjetas de producto ganan preview de
+identidad en hover (data-hub derivado de la URL del CMS — reordenar
+tarjetas no rompe nada — con el nombre del concepto deslizándose en el
+color del hub); y press-states en todo lo tappable (solo CSS :active,
+dentro de prefers-reduced-motion:no-preference).
+
+**La Hemeroteca** (lógica de agrupación INTACTA): marcadores de mes como
+reglas discretas — como el archivo ordena por rank (no cronológico), un
+marcador solo dispara al cruzar a un mes MÁS VIEJO que todo lo marcado
+("mes más profundo", monótono, sin tartamudeo Ago/Jul/Ago); toolbar de
+filtros como consola (labels mono numerados 01-04, panel con borde verde,
+filtros activos ENCENDIDOS en verde — scoped al panel, el resto del sitio
+mantiene el active de tinta), toggle de vista segmentado; estado vacío
+con voz propia (sello "SIN RESULTADOS" + copy + limpiar filtros). El
+stagger de entrada ya lo daba .reveal en cada fila/tarjeta.
+
+**CSS**: tres archivos nuevos (`styles/lectura.css`, `styles/portada.css`,
+`styles/hemeroteca.css`), importados después de product-hubs.css a
+propósito (pisan a especificidad igual). Prefijos nuevos verificados sin
+colisión (`lect-`, `pt-sweep-`, `arch-`).
+
+**Tres bugs reales encontrados y corregidos verificando:**
+1. **El form de contraseña del muro desbordaba 29px en 390px** (y el hint
+   se encimaba al borde en desktop): `.pill-form` es flex row nowrap y
+   `.password-auth-form` solo apilaba `.nl-fields`, dejando el `<p>` del
+   hint EN FILA. Invisible en producción porque con Google configurado el
+   form vive plegado. Fix en article.css (columna en el form + radio 24px).
+2. **El duotono teñía TODA la página de lavanda**: `mix-blend-mode:
+   luminosity` sin `isolation:isolate` en el wrapper blendea contra el
+   grupo raíz. El hub nunca lo mostró porque su superficie ya es violeta.
+3. **Un comentario CSS con `*/` literal adentro** ("inf-*/") cerraba el
+   comentario antes de tiempo y el parser se comía la regla siguiente
+   completa (`.lect-duotone` quedaba position:static y el overlay violeta
+   cubría el viewport). Medido con getComputedStyle, no a ojo.
+
+**Cómo se verificó** (app corriendo, Postgres local seedeado, fechas
++19 días, párrafos de prueba para las 3 convenciones + un artículo TFBR
+con body_html insertado localmente para ejercitar su template): Playwright
+a 1366px y 390px, tema claro Y oscuro, scroll lento en dos pasadas antes
+de capturar — portada, archivo (cuadrícula/lista/vacío con filtros), los
+4 templates de producto y el estado walled (contexts con UA de bot para
+la pasada general — full access por metering — y contexts reales
+quemando la cuota para el muro). 0 anchors anidados, 0 overflow
+horizontal, 0 .reveal atorados, 0 errores de consola propios (solo el
+CORS de doubleclick del embed de YouTube proxiado — tercero, no nuestro).
+El muro en modo PRODUCCIÓN (`next build` + `next start`) confirmado SIN
+texto del cuerpo en la respuesta (en dev el flight debug de RSC incluye
+props de Ticker con teasers — solo dev, pre-existente, no es fuga real).
+Admin: login real, tabs Artículos/Hubs/Portada sin errores de consola
+(LivePreview reusa LeadStory, que ahora monta SplitHeadline). tsc,
+eslint y next build limpios con y sin .env.local.
+
+**Pendiente:**
+- Revisión del usuario sobre el deploy real (los sweeps, scrambles y
+  count-ups se aprecian en vivo, no en capturas).
+- La numeración de expedientes en el ARTÍCULO usa el mismo cálculo
+  cronológico del hub — la nota de backlog del 2026-08-05 (subir
+  histórico renumera) ahora aplica también a la página de artículo.
+- `dateFormatted` de los datos de prueba locales quedó desfasado del
+  shift de +19 días (cosmético, solo sandbox).
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
