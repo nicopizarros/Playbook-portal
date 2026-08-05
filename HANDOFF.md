@@ -5535,6 +5535,78 @@ por HTML servido), Playwright para el fix del hero (4 estados de tab),
 dry-runs de ambos writes de producción antes del real con verificación
 posterior, tsc/eslint/next build limpios.
 
+### 2026-08-05 — La Lectura, cuarta pasada: la colección de dispositivos
+
+Pedido del usuario: además de la Jugada, una colección de 5-10 elementos
+dinámicos que el skill elija según el contexto — timeline, número
+diseñado, recibo, ecuación, "floor plan", stock card, con libertad
+creativa. Misma rama.
+
+**Siete dispositivos nuevos** (`lib/article-devices.ts`, módulo propio
+para que product-hubs.ts no siga creciendo), todos con el contrato de
+siempre — párrafo plano en TipTap, detección server-side, inerte si no
+parsea, a prueba del ad split — y con sintaxis compartida: items con
+` · `, clave—valor con ` — `:
+
+1. `Cronología:` — timeline con espina dibujada al scroll y milestones
+   en stagger (2-6 hitos fechados). Para sagas.
+2. `Recibo:` — ticket térmico (papel blanco FIJO, mono, bordes de sierra
+   por gradientes) con leaders punteados y un Total que cuenta. Para
+   desgloses de costos.
+3. `Ecuación:` — matemática display con operandos y resultado contando
+   (operadores ×+−/ y un =). Para "la cuenta detrás del deal".
+4. `Salto:` — antes → después con dirección calculada de los números
+   (flecha verde arriba / roja abajo, pares de contraste ya verificados
+   del sitio). Para historias de crecimiento/recorte.
+5. `Reparto:` — barra de proporciones en tonos del acento del producto
+   con leyenda de swatches (el "floor plan" del dinero); segmentos crecen
+   en secuencia. Para repartos de ingresos/derechos.
+6. `Alineación:` — chips numerados tipo dorsal cuyos nombres entran en
+   flap (mismo ScrambleText de la Jugada). Para enumeraciones de actores.
+7. `Cotización:` — tile de mercado (panel oscuro; Infinitas en su
+   superficie plana violeta) con nombre mono, valor grande contando y
+   delta ▲/▼ coloreado por signo. Para resultados de empresas públicas.
+
+**Arquitectura**: ambos body shapes pasan por los MISMOS builders
+(markDevices para HTML, deviceFromParagraph para texto plano → el plain
+path renderiza el markup del builder, que escapa TODA interpolación en
+un solo lugar). Acentos vía `--lect-accent`/`--lect-ink-accent` en
+.article-detail (cascada de 3 capas para el par verde legible), así cada
+dispositivo se pinta por producto sin 4 copias de reglas. Movimiento en
+ArticleMotion con primitivas genéricas: `[data-lect-stagger]` (hijos en
+secuencia), `[data-lect-seg]` (segmentos del reparto), `.lect-draw`
+(espina del timeline, mismo trazo que las reglas), flap compartido
+Jugada/Alineación, y `[data-lect-countup]` que ya existía. El
+highlighter inline excluye `.lect-device` para no marcar dentro de un
+dispositivo.
+
+**La colección completa que el skill elige** (11): Opinión (estándar),
+Ruta del dinero, Cifra clave, Jugada + los 7 nuevos. **Skills
+entrenados** (publish-newsletter con la sección completa de sintaxis y
+cuándo-cada-uno; publish-sourced-article apunta a ella): máximo 1-2
+dispositivos diseñados por artículo (la opinión y los automáticos no
+cuentan), elegir por la FORMA de la historia (saga→Cronología,
+desglose→Recibo, reparto→Reparto, pareja→Jugada, un número→Cifra), y
+ningún dato inventado para llenar un dispositivo. Checklist actualizado.
+
+**Verificación**: dos artículos sampler locales (uno Noticias con los 7,
+uno Infinitas para la piel violeta — que además cachó dos bugs: la nota
+de la Cotización era invisible sobre el tile claro de Infinitas, y el
+ellipsis de los leaders del Recibo metía un "…" antes de cada valor;
+ambos corregidos), Playwright 1366/390: 0 overflow, 0 anchors anidados,
+0 errores de página; capturas claro y oscuro revisadas a ojo (el recibo
+se queda blanco en oscuro a propósito — es papel). OJO verificación: en
+ESTA corrida del dev server el script de tema beforeInteractive no
+aplicó data-theme (localStorage sí quedó 'dark' — flakiness de dev, en
+build de producción el script va inline en el head y en corridas
+anteriores sí aplicó); las capturas oscuras se tomaron forzando el
+atributo, que es exactamente lo que el script haría. tsc/eslint/next
+build limpios con y sin .env.local.
+
+**Pendiente**: nada nuevo — los dispositivos son forward-looking (los
+usa el skill al publicar); el catálogo viejo ya quedó cubierto por
+jugadas/highlights/count-ups en las pasadas 2-3.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

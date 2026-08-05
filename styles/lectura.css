@@ -43,6 +43,191 @@
 .lect-pullfig-value{display:inline-block;font-family:var(--serif-display);font-weight:400;font-size:clamp(44px,8vw,76px);line-height:1;color:var(--ink);letter-spacing:.01em;font-variant-numeric:tabular-nums;}
 .lect-pullfig-caption{display:block;margin-top:12px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
 
+/* ——— Device-collection accents. Every round-3 device reads these two
+   custom properties instead of hardcoding per-product rules four times:
+   --lect-accent is the product's graphic color (fills, bars, glyphs);
+   --lect-ink-accent is its LEGIBLE text counterpart (the brand green is
+   too light for text on paper, so light theme uses the same darker green
+   .share-btn.is-copied established, flipping to --green on dark). The
+   gold/violet tokens already adapt per theme; the TFBR red passes on
+   both. Existing devices keep their original rules untouched. ——— */
+.article-detail{--lect-accent:var(--green);--lect-ink-accent:#3f7d0a;}
+[data-theme="dark"] .article-detail{--lect-ink-accent:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-detail{--lect-ink-accent:var(--green);}
+}
+.article-product-la-lana.article-detail{--lect-accent:var(--src-lana);--lect-ink-accent:var(--src-lana);}
+.article-product-infinitas.article-detail{--lect-accent:var(--src-infinitas);--lect-ink-accent:var(--src-infinitas);}
+.article-product-futbol-business-review.article-detail{--lect-accent:var(--tfbr-red);--lect-ink-accent:var(--tfbr-red);}
+
+/* ——— The device collection (round 3): seven story-shaped elements the
+   publish skills choose from — see lib/article-devices.ts for syntax.
+   Shared scaffolding first, then one strong design per device. ——— */
+.lect-device{margin:32px 0;}
+.lect-device-label{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-device-label::before{content:"";width:8px;height:8px;background:var(--lect-accent);flex-shrink:0;}
+
+/* Cronología — a saga on a drawn spine. */
+.lect-timeline{position:relative;}
+.lect-tl-line{position:absolute;left:0;right:0;top:44px;height:2px;background:var(--lect-accent);}
+.lect-tl-list{display:flex;gap:18px;list-style:none;margin:0;padding:14px 0 0;counter-reset:none;}
+.lect-tl-item{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding-top:18px;position:relative;}
+.lect-tl-item::before{
+  content:"";position:absolute;top:-5px;left:0;width:12px;height:12px;border-radius:50%;
+  background:var(--paper);border:3px solid var(--lect-accent);
+}
+.lect-tl-when{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--lect-ink-accent);
+}
+.lect-tl-what{font-size:13px;line-height:1.45;color:var(--gray-dark);}
+
+/* Recibo — thermal paper, torn edges, a total that counts. A receipt is
+   white paper whatever the theme says (same fixed-surface criterion as
+   the exhibit matte). */
+.lect-receipt{
+  position:relative;max-width:340px;margin-left:auto;margin-right:auto;padding:18px 20px 14px;
+  background:#fdfdfb;color:#191919;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  box-shadow:0 10px 24px rgba(10,10,10,.16);transform:rotate(.4deg);
+}
+/* Sawtooth tear at both ends — the thermal-roll edge, pure gradients. */
+.lect-receipt::before,.lect-receipt::after{
+  content:"";position:absolute;left:0;right:0;height:7px;
+  background:
+    linear-gradient(45deg,#fdfdfb 3.5px,transparent 0),
+    linear-gradient(-45deg,#fdfdfb 3.5px,transparent 0);
+  background-size:11px 7px;background-repeat:repeat-x;
+}
+.lect-receipt::before{top:-7px;transform:scaleY(-1);}
+.lect-receipt::after{bottom:-7px;}
+.lect-receipt-head{
+  display:block;text-align:center;font-size:11px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;border-bottom:1px dashed #b9b6ad;padding-bottom:10px;margin-bottom:10px;
+}
+.lect-receipt-row{
+  display:flex;align-items:baseline;gap:8px;justify-content:space-between;
+  font-size:12.5px;padding:4px 0;
+}
+/* text-overflow:clip, not ellipsis — the leader dots are MEANT to clip at
+   the row edge; an ellipsis glyph reads as a typo before every value. */
+.lect-receipt-row > span:first-child{overflow:hidden;white-space:nowrap;text-overflow:clip;}
+.lect-receipt-row > span:first-child::after{content:" ................................................";letter-spacing:2px;color:#b9b6ad;}
+.lect-receipt-value{flex-shrink:0;font-weight:700;font-variant-numeric:tabular-nums;}
+.lect-receipt-total{border-top:2px solid #191919;margin-top:8px;padding-top:9px;font-weight:800;text-transform:uppercase;font-size:13px;}
+.lect-receipt-foot{
+  display:block;text-align:center;margin-top:12px;padding-top:10px;border-top:1px dashed #b9b6ad;
+  font-size:10px;letter-spacing:.14em;color:#8b877d;text-transform:uppercase;
+}
+
+/* Ecuación — display math, the business read as arithmetic. */
+.lect-eq-row{display:flex;align-items:center;justify-content:center;gap:16px 22px;flex-wrap:wrap;text-align:center;}
+.lect-eq-term{display:flex;flex-direction:column;gap:4px;align-items:center;}
+.lect-eq-num{font-family:var(--serif-display);font-size:clamp(24px,3.6vw,38px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-eq-unit{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-txt);max-width:14ch;}
+.lect-eq-op{font-family:var(--serif-display);font-size:clamp(20px,2.6vw,28px);color:var(--lect-ink-accent);}
+.lect-eq-result .lect-eq-num{color:var(--lect-ink-accent);box-shadow:inset 0 -0.18em 0 0 color-mix(in srgb,var(--lect-accent) 40%,transparent);padding:0 4px;}
+
+/* Salto — before → after, colored by direction (finance semantics:
+   green up, red down — theme-checked pairs used elsewhere on site). */
+.lect-salto{text-align:left;}
+.lect-salto-row{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;}
+.lect-salto-from{
+  font-family:var(--serif-display);font-size:clamp(20px,3vw,30px);line-height:1;color:var(--gray-txt);
+  text-decoration:line-through;text-decoration-thickness:3px;
+  text-decoration-color:color-mix(in srgb,var(--gray-txt) 55%,transparent);
+}
+.lect-salto-arrow{font-size:clamp(22px,3vw,32px);line-height:1;font-weight:800;color:var(--lect-ink-accent);}
+.lect-salto-to{font-family:var(--serif-display);font-size:clamp(34px,5.4vw,54px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-salto[data-dir="up"] .lect-salto-arrow{color:#3f7d0a;}
+.lect-salto[data-dir="down"] .lect-salto-arrow{color:#c0392b;}
+[data-theme="dark"] .lect-salto[data-dir="up"] .lect-salto-arrow{color:var(--green);}
+[data-theme="dark"] .lect-salto[data-dir="down"] .lect-salto-arrow{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-salto[data-dir="up"] .lect-salto-arrow{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-salto[data-dir="down"] .lect-salto-arrow{color:#e0616b;}
+}
+.lect-salto-caption{display:block;margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
+
+/* Reparto — the floor plan of the money: one bar, shaded in steps of the
+   product accent, with a swatch legend. */
+.lect-rep-bar{display:flex;height:34px;border:1px solid var(--rule);background:var(--paper-soft);overflow:hidden;}
+.lect-rep-seg{height:100%;}
+.lect-rep-seg[data-shade="0"],.lect-rep-swatch[data-shade="0"]{background:var(--lect-accent);}
+.lect-rep-seg[data-shade="1"],.lect-rep-swatch[data-shade="1"]{background:color-mix(in srgb,var(--lect-accent) 65%,var(--paper));}
+.lect-rep-seg[data-shade="2"],.lect-rep-swatch[data-shade="2"]{background:color-mix(in srgb,var(--lect-accent) 38%,var(--paper));}
+.lect-rep-seg[data-shade="3"],.lect-rep-swatch[data-shade="3"]{background:color-mix(in srgb,var(--lect-accent) 18%,var(--paper));}
+.lect-rep-legend{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:12px;}
+.lect-rep-key{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--gray-dark);}
+.lect-rep-swatch{width:11px;height:11px;flex-shrink:0;border:1px solid var(--rule);}
+.lect-rep-pct{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+
+/* Alineación — the lineup as numbered kit chips, names flapping in. */
+.lect-lineup-row{display:flex;gap:10px;flex-wrap:wrap;}
+.lect-lineup-chip{
+  display:inline-flex;align-items:center;gap:9px;padding:7px 14px 7px 9px;
+  border:1.5px solid var(--rule);border-left:4px solid var(--lect-accent);background:var(--paper-soft);
+}
+.lect-lineup-num{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:800;color:var(--lect-ink-accent);
+}
+.lect-lineup-name{
+  font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);
+  min-height:1em;
+}
+
+/* Cotización — a market tile: name, price, delta with direction. */
+.lect-quote-row{
+  display:flex;align-items:baseline;gap:14px 18px;flex-wrap:wrap;
+  padding:16px 18px;background:#101210;border-radius:8px;
+  border:1px solid color-mix(in srgb,var(--lect-accent) 30%,transparent);
+  font-variant-numeric:tabular-nums;
+}
+.lect-quote-name{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,233,220,.85);
+}
+.lect-quote-value{font-family:var(--serif-display);font-size:clamp(24px,3.4vw,34px);line-height:1;color:#fff;}
+.lect-quote-delta{
+  display:inline-flex;align-items:baseline;gap:5px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:14px;font-weight:800;
+}
+.lect-quote[data-dir="up"] .lect-quote-delta{color:var(--green);}
+.lect-quote[data-dir="down"] .lect-quote-delta{color:#ff6b6b;}
+.lect-quote-note{width:100%;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(240,233,220,.5);}
+/* Infinitas swaps the dark tile for its flat surface, same as the jugada. */
+.article-product-infinitas .lect-quote-row{background:var(--paper);border:1px solid var(--src-infinitas);}
+.article-product-infinitas .lect-quote-name{color:var(--gray-txt);}
+.article-product-infinitas .lect-quote-value{color:var(--ink);}
+/* The note's faint-on-dark color is invisible on Infinitas' light tile. */
+.article-product-infinitas .lect-quote-note{color:var(--gray-txt);}
+.article-product-infinitas .lect-quote[data-dir="up"] .lect-quote-delta{color:#3f7d0a;}
+[data-theme="dark"] .article-product-infinitas .lect-quote[data-dir="up"] .lect-quote-delta{color:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-product-infinitas .lect-quote[data-dir="up"] .lect-quote-delta{color:var(--green);}
+}
+.article-product-infinitas .lect-quote[data-dir="down"] .lect-quote-delta{color:#c0392b;}
+[data-theme="dark"] .article-product-infinitas .lect-quote[data-dir="down"] .lect-quote-delta{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-product-infinitas .lect-quote[data-dir="down"] .lect-quote-delta{color:#e0616b;}
+}
+
+/* Device responsive: the timeline stacks vertical on phones (spine moves
+   to the left edge), everything else already wraps. */
+@media(max-width:640px){
+  .lect-tl-line{top:14px;bottom:6px;left:5px;right:auto;width:2px;height:auto;}
+  .lect-tl-list{flex-direction:column;gap:16px;padding:0 0 0 24px;}
+  .lect-tl-item{padding-top:0;}
+  .lect-tl-item::before{top:2px;left:-24px;}
+  .lect-receipt{max-width:100%;}
+  .lect-eq-row{gap:12px 14px;}
+}
+
 /* ——— The Jugada strip ("Jugada:" authoring convention, round 2): the
    story's central two-party connection set as a split-flap pairing — the
    departures-board language carried into every product's articles. Dark

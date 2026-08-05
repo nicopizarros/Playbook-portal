@@ -94,8 +94,9 @@ export function ArticleMotion() {
       });
     }
 
-    // 3 — Drawn rules.
-    document.querySelectorAll<HTMLElement>('.lect-rule, .article-body hr').forEach(rule => {
+    // 3 — Drawn rules (plus any device baseline carrying .lect-draw,
+    // e.g. the timeline's spine).
+    document.querySelectorAll<HTMLElement>('.lect-rule, .article-body hr, .lect-draw').forEach(rule => {
       gsap.set(rule, { scaleX: 0, transformOrigin: 'left center' });
       tweens.push(
         gsap.to(rule, {
@@ -108,10 +109,53 @@ export function ArticleMotion() {
       cleanups.push(() => rule.style.removeProperty('transform'));
     });
 
-    // 4 — Jugada flap-in: the connection strip's two sides scramble into
-    // place like the departures board's cells, once, on first view.
-    document.querySelectorAll<HTMLElement>('.lect-jugada').forEach(strip => {
-      const sides = Array.from(strip.querySelectorAll<HTMLElement>('.lect-jugada-side'));
+    // 3b — Device choreography (round-3 collection): children of any
+    // [data-lect-stagger] group rise in sequence, and the Reparto bar's
+    // segments grow left-to-right. Both once, on first view.
+    document.querySelectorAll<HTMLElement>('[data-lect-stagger]').forEach(group => {
+      const children = Array.from(group.children) as HTMLElement[];
+      if (!children.length) return;
+      gsap.set(children, { opacity: 0, y: 8 });
+      tweens.push(
+        gsap.to(children, {
+          opacity: 1,
+          y: 0,
+          duration: 0.45,
+          stagger: 0.12,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: group, start: 'top 88%', once: true },
+        }),
+      );
+      cleanups.push(() => {
+        children.forEach(child => {
+          child.style.removeProperty('opacity');
+          child.style.removeProperty('transform');
+        });
+      });
+    });
+    document.querySelectorAll<HTMLElement>('.lect-rep-bar').forEach(bar => {
+      const segments = Array.from(bar.querySelectorAll<HTMLElement>('[data-lect-seg]'));
+      if (!segments.length) return;
+      gsap.set(segments, { scaleX: 0, transformOrigin: 'left center' });
+      tweens.push(
+        gsap.to(segments, {
+          scaleX: 1,
+          duration: 0.6,
+          stagger: 0.15,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: bar, start: 'top 88%', once: true },
+        }),
+      );
+      cleanups.push(() => segments.forEach(seg => seg.style.removeProperty('transform')));
+    });
+
+    // 4 — Flap-ins: the Jugada strip's sides and the Alineación chips
+    // scramble into place like the departures board's cells, once, on
+    // first view.
+    document.querySelectorAll<HTMLElement>('.lect-jugada, .lect-lineup').forEach(strip => {
+      const sides = Array.from(
+        strip.querySelectorAll<HTMLElement>('.lect-jugada-side, .lect-lineup-name'),
+      );
       if (!sides.length) return;
       const finals = sides.map(s => s.textContent || '');
       sides.forEach(side => {
@@ -164,7 +208,7 @@ export function ArticleMotion() {
         acceptNode(node) {
           const el = node.parentElement;
           if (!el) return NodeFilter.FILTER_REJECT;
-          if (el.closest('strong, a, aside, figure, mark, .lect-jugada, .money-trail, h2, h3, figcaption')) {
+          if (el.closest('strong, a, aside, figure, mark, .lect-jugada, .lect-device, .money-trail, h2, h3, figcaption')) {
             return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;

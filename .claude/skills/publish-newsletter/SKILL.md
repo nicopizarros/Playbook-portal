@@ -255,6 +255,43 @@ them right at drafting time:
   defining pairing. For la-lana articles the jugada usually matches a
   connection you're also pushing to the departures board — same wording
   in both places.
+- **All products: the device collection (2026-08-05, round 3) — pick by
+  story shape.** Beyond Cifra clave and Jugada, seven more one-paragraph
+  conventions render as designed, animated elements (see
+  `lib/article-devices.ts`; all product-tinted, all inert if malformed).
+  Syntax rules shared by all: items separated by ` · ` (spaced middle
+  dot), key—value separated by ` — ` (spaced dash), plain paragraph on
+  its own line:
+    - `Cronología: 2022 — PIF entra · 2024 — recorte · 2026 — salida` →
+      a drawn timeline. For sagas: a deal, feud or decline that unfolds
+      over dated milestones (2-6, dates ≤14 chars, events ≤70).
+    - `Recibo: Torneos — 10 · Bolsa por evento — US$10M · Total — US$107M`
+      → a thermal receipt whose Total counts up. For cost breakdowns and
+      who-paid-what (2-8 lines; a line whose label starts with "Total"
+      gets the total treatment — include one when the sum is the point).
+    - `Ecuación: 104 partidos × US$6M por partido = US$624M` → display
+      math with counting operands. For "the math behind the deal" — every
+      term must start with a real number; operators ×, +, −, / and one =.
+    - `Salto: 14 torneos → 10 torneos — el calendario 2027` → before/after
+      delta, direction-colored (green up, red down, computed from the
+      numbers). For growth/shrink stories; optional caption after ` — `.
+    - `Reparto: FIFA — 70% · Federaciones — 20% · Clubes — 10%` → a
+      proportion bar with legend. For how money/rights split (2-5 shares,
+      percentages; they're normalized, so they should roughly sum to 100).
+    - `Alineación: Madonna · Shakira · Justin Bieber · BTS` → numbered
+      lineup chips that flap in. For enumerations of actors — artists,
+      investors, host cities (2-8 names, each ≤28 chars).
+    - `Cotización: Ollamani — MX$14.50 · -34.6% · en el año` → a market
+      tile with ▲/▼ delta. For public-company/valuation results: name,
+      value, signed percent delta, optional note.
+  Rules of use: pick AT MOST 1-2 designed devices per article (the
+  Opinión callout doesn't count; the auto highlights don't count) and
+  only when the story genuinely has that shape — a forced device is
+  worse than none. Prefer the single device that carries the story's
+  spine: a saga → Cronología, a breakdown → Recibo, a split → Reparto, a
+  pairing → Jugada, one number → Cifra clave. Every number inside a
+  device must appear in (or be directly computable from) the newsletter
+  being published — never invent data to fill a device.
 - **All products: lead-ins are now UI (2026-08-05, round 2).** The
   standard bold lead-in every paragraph already opens with
   (`**La sanción:** …`) renders as a product-colored scan mark — readers
@@ -299,7 +336,10 @@ every item maps to a visible element):
   figures attributed in the caption; value ≤24 chars with a digit,
   caption after ` — `; "Jugada:" strip
   considered when the story is a two-party relationship (step above,
-  sides ≤32 chars, one max); every paragraph's bold lead-in specific
+  sides ≤32 chars, one max); the device collection consulted — does the
+  story's SHAPE match a Cronología, Recibo, Ecuación, Salto, Reparto,
+  Alineación or Cotización? (1-2 designed devices max, data only from
+  the piece itself); every paragraph's bold lead-in specific
   and colon-terminated (they render as scan marks now); key figures in
   house shapes, the single most important one bold.
 - **Noticias** — if the story is number-driven, its biggest figure

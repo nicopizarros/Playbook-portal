@@ -37,6 +37,7 @@ import {
   JUGADA_TEXT_PREFIX,
   type Jugada,
 } from '@/lib/product-hubs';
+import { markDevices, deviceFromParagraph } from '@/lib/article-devices';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { ShotProgress } from '@/components/products/ShotProgress';
 import { jsonLdScript } from '@/lib/json-ld';
@@ -176,6 +177,7 @@ type PlainBlock =
   | { kind: 'opinion'; text: string }
   | { kind: 'cifra'; value: string; caption: string }
   | { kind: 'jugada'; jugada: Jugada }
+  | { kind: 'device'; html: string }
   | { kind: 'trail'; stops: string[] };
 
 // The "**Label:** rest" house style in a plain-text body — mirror of
@@ -200,6 +202,13 @@ function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
     if (isProduct && JUGADA_TEXT_PREFIX.test(p)) {
       const parsed = parseJugada(p.replace(JUGADA_TEXT_PREFIX, ''));
       if (parsed) return { kind: 'jugada', jugada: parsed };
+    }
+    if (isProduct) {
+      // The round-3 device collection (timeline, receipt, equation, delta,
+      // split bar, lineup, stock card) — same builders as the HTML path,
+      // so the markup can't drift between body shapes.
+      const device = deviceFromParagraph(p);
+      if (device) return { kind: 'device', html: device };
     }
     if (isProduct) {
       const leadin = p.match(PLAIN_LEADIN_RE);
@@ -248,6 +257,13 @@ function PlainBlockView({ block }: { block: PlainBlock }) {
         </span>
       </div>
     );
+  }
+  if (block.kind === 'device') {
+    // Markup assembled by lib/article-devices.ts's builders from the
+    // editor's own plain text, with every interpolation entity-escaped
+    // there — same trust boundary as the HTML-body dangerouslySetInnerHTML
+    // call sites above.
+    return <div dangerouslySetInnerHTML={{ __html: block.html }} />;
   }
   if (block.kind === 'leadin') {
     return (
@@ -507,7 +523,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // label can never double as a scan mark.
   const htmlBody =
     rawHtmlBody && hub
-      ? markLeadIns(markOpinionCallout(markJugada(markCifraFigures(rawHtmlBody))))
+      ? markLeadIns(markOpinionCallout(markDevices(markJugada(markCifraFigures(rawHtmlBody)))))
       : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
   const blocks = plainBlocksFor(paragraphs, article.source);

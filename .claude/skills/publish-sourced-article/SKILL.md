@@ -146,7 +146,12 @@ two-party relationship (a deal, partnership, acquisition), the
 one-way flows, sides ≤32 chars, one max, only pairings the piece
 documents). Lead-ins render as scan marks, so keep each one specific to
 its paragraph; figures in house shapes highlight automatically, and the
-single most important one should be bold (bold counts up). Word-count range: roughly 300-500 words across the
+single most important one should be bold (bold counts up). The full
+device collection (Cronología / Recibo / Ecuación / Salto / Reparto /
+Alineación / Cotización — syntax and when-to-use in
+`publish-newsletter`'s "device collection" section) applies to this
+skill's output too: at most 1-2 designed devices per article, chosen by
+story shape, every number sourced from the verified reporting. Word-count range: roughly 300-500 words across the
 four. Write every paragraph in Playbook's own words, this is a rewrite
 grounded in multiple sources, never a close paraphrase or translation of
 any single outlet's article.
