@@ -234,13 +234,12 @@
     "lana": {
       "eyebrow": "Una investigación de Playbook",
       "sub": "El dinero, el poder y las decisiones que mueven al deporte fuera de la cancha. Un expediente a la vez.",
-      "routeLabel": "La ruta del dinero",
-      "routeNote": "Así se mueve el dinero del deporte: de la cancha a los centros de capital.",
-      "routeStops": [
-        "CDMX",
-        "Miami",
-        "Madrid",
-        "Riyadh"
+      "boardLabel": "Tablero de conexiones",
+      "boardNote": "Las conexiones que los expedientes han destapado, en salidas.",
+      "boardRows": [
+        { "fecha": "", "conexion": "Infantino ↔ Trump", "expediente": "", "estado": "Abierto", "url": "" },
+        { "fecha": "", "conexion": "AR Monex ↔ Europa", "expediente": "", "estado": "Abierto", "url": "" },
+        { "fecha": "", "conexion": "Isaac del Toro ↔ UAE", "expediente": "", "estado": "Abierto", "url": "" }
       ]
     },
     "noticias": {

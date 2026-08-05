@@ -1,6 +1,6 @@
 'use client';
 
-import type { ProductHubsContent, HubMetric } from '@/lib/product-hubs-content';
+import type { ProductHubsContent, HubMetric, LanaBoardRow } from '@/lib/product-hubs-content';
 import { TextField } from '../fields/TextField';
 import { ArrayEditor } from '../fields/ArrayEditor';
 
@@ -56,28 +56,59 @@ export function HubsTab({ data, onChange }: Props) {
         onChange={v => onChange({ ...data, lana: { ...data.lana, sub: v } })}
       />
       <TextField
-        label="Etiqueta de la ruta"
-        help='Encabezado de la gráfica de ruta, ej. "La ruta del dinero".'
-        value={data.lana.routeLabel}
-        onChange={v => onChange({ ...data, lana: { ...data.lana, routeLabel: v } })}
+        label="Etiqueta del tablero"
+        help='Encabezado del tablero de salidas, ej. "Tablero de conexiones".'
+        value={data.lana.boardLabel}
+        onChange={v => onChange({ ...data, lana: { ...data.lana, boardLabel: v } })}
       />
       <TextField
-        label="Nota de la ruta"
-        help="La línea que explica la ruta cuando se usa la ruta por defecto (abajo)."
-        value={data.lana.routeNote}
-        onChange={v => onChange({ ...data, lana: { ...data.lana, routeNote: v } })}
+        label="Nota del tablero"
+        help="La línea que explica qué es el tablero."
+        value={data.lana.boardNote}
+        onChange={v => onChange({ ...data, lana: { ...data.lana, boardNote: v } })}
       />
-      <TextField
-        label="Ruta por defecto"
-        help='Paradas separadas por "→", ej. "CDMX → Miami → Madrid". Se usa solo cuando el último expediente no declara su propia "Ruta del dinero:" en el cuerpo; si la declara, la página muestra esa ruta real con el número del caso.'
-        value={data.lana.routeStops.join(' → ')}
-        onChange={v =>
-          onChange({
-            ...data,
-            lana: { ...data.lana, routeStops: v.split(/→|->/).map(s => s.trim()).filter(Boolean) },
-          })
-        }
+      <ArrayEditor<LanaBoardRow>
+        items={data.lana.boardRows}
+        onChange={boardRows => onChange({ ...data, lana: { ...data.lana, boardRows } })}
+        addLabel="+ Agregar conexión al tablero"
+        itemTitle={item => item.conexion || 'Conexión'}
+        newItem={() => ({ fecha: '', conexion: '', expediente: '', estado: 'Abierto', url: '' })}
+        renderItem={(item, i) => {
+          const update = (patch: Partial<LanaBoardRow>) => {
+            const boardRows = data.lana.boardRows.slice();
+            boardRows[i] = { ...boardRows[i], ...patch };
+            onChange({ ...data, lana: { ...data.lana, boardRows } });
+          };
+          return (
+            <>
+              <TextField
+                label="Conexión"
+                help='La conexión destapada, ej. "Infantino ↔ Trump".'
+                value={item.conexion}
+                onChange={v => update({ conexion: v })}
+              />
+              <TextField label="Salida (fecha)" help='Ej. "5 ago 2026". Puede quedar vacío.' value={item.fecha} onChange={v => update({ fecha: v })} />
+              <TextField label="Vuelo" help='Ej. "EXP. 004". Puede quedar vacío.' value={item.expediente} onChange={v => update({ expediente: v })} />
+              <TextField
+                label="Estado"
+                help='Ej. "Abierto", "En curso", "Archivado". Abierto/En curso parpadean como llamada de abordaje.'
+                value={item.estado}
+                onChange={v => update({ estado: v })}
+              />
+              <TextField
+                label="Enlace (opcional)"
+                help="URL del expediente (/articulo?id=…) para que la fila sea clickeable."
+                value={item.url}
+                onChange={v => update({ url: v })}
+              />
+            </>
+          );
+        }}
       />
+      <p className="admin-section-desc">
+        Además de estas filas, el tablero agrega solo una salida por cada expediente reciente que
+        declare su &quot;Ruta del dinero:&quot; en el cuerpo, con su número de caso y su estado.
+      </p>
 
       <h3 className="admin-section-title">The Futbol Business Review — /futbol-business-review</h3>
       <TextField

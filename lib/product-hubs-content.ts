@@ -21,15 +21,34 @@ export type HubMetric = {
   source: string;
 };
 
+// One row of La Lana's masthead departures board (2026-08-05, third round
+// of user feedback on this graphic: a labeled route line still read as
+// abstract — the board is the card art's own motif, and its rows are the
+// CONNECTIONS the investigations uncovered, set as flights). CMS-curated
+// rows live here; the page prepends auto rows derived from recent
+// expedientes that declare a "Ruta del dinero" in their body.
+export type LanaBoardRow = {
+  /** Short date/time cell, e.g. "5 AGO". Free text, can be empty. */
+  fecha: string;
+  /** The connection itself, e.g. "Infantino ↔ Trump". */
+  conexion: string;
+  /** Flight-number cell, e.g. "EXP. 004". Free text, can be empty. */
+  expediente: string;
+  /** Status cell, e.g. "Abierto" / "En curso" / "Archivado" — anything
+      containing "abierto"/"curso" blinks like a boarding call. */
+  estado: string;
+  /** Optional link (an /articulo?id=… URL) — the row becomes clickable. */
+  url: string;
+};
+
 export type ProductHubsContent = {
   lana: {
     eyebrow: string;
     sub: string;
-    /** Caption + stops for the masthead money-route when the latest
-        expediente's own body doesn't declare a "Ruta del dinero". */
-    routeLabel: string;
-    routeNote: string;
-    routeStops: string[];
+    /** Board caption, e.g. "Conexiones en los expedientes". */
+    boardLabel: string;
+    boardNote: string;
+    boardRows: LanaBoardRow[];
   };
   noticias: { sub: string; cadenceNote: string };
   tfbr: { taglineEm: string; taglineRest: string; sub: string; substackUrl: string };
@@ -40,9 +59,16 @@ export const PRODUCT_HUBS_DEFAULTS: ProductHubsContent = {
   lana: {
     eyebrow: 'Una investigación de Playbook',
     sub: 'El dinero, el poder y las decisiones que mueven al deporte fuera de la cancha. Un expediente a la vez.',
-    routeLabel: 'La ruta del dinero',
-    routeNote: 'Así se mueve el dinero del deporte: de la cancha a los centros de capital.',
-    routeStops: ['CDMX', 'Miami', 'Madrid', 'Riyadh'],
+    boardLabel: 'Tablero de conexiones',
+    boardNote: 'Las conexiones que los expedientes han destapado, en salidas.',
+    // Seeded from connections the user named from the real published
+    // catalog (2026-08-05); editorial curates the live list in the Hubs
+    // tab — replace these freely.
+    boardRows: [
+      { fecha: '', conexion: 'Infantino ↔ Trump', expediente: '', estado: 'Abierto', url: '' },
+      { fecha: '', conexion: 'AR Monex ↔ Europa', expediente: '', estado: 'Abierto', url: '' },
+      { fecha: '', conexion: 'Isaac del Toro ↔ UAE', expediente: '', estado: 'Abierto', url: '' },
+    ],
   },
   noticias: {
     sub: 'Lo que debes saber de sports business para tomar mejores decisiones, en menos de 5 minutos.',

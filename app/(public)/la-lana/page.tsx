@@ -4,7 +4,7 @@ import { getArticlesBySource, getArticleById } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { productHubsContent } from '@/lib/product-hubs-content';
 import { caseNumber, caseStatus, extractPullFigure, extractTrailStops } from '@/lib/product-hubs';
-import { MoneyTrail } from '@/components/products/MoneyTrail';
+import { DeparturesBoard, type BoardRow } from '@/components/products/DeparturesBoard';
 import { SITE_URL } from '@/lib/site-url';
 
 // La Lana del Deporte — "El Expediente" (design brief 2026-08-05, format
@@ -32,27 +32,44 @@ function Stamp({ status }: { status: 'abierto' | 'archivado' }) {
   );
 }
 
+// How many recent expedientes get their full body fetched to look for a
+// declared "Ruta del dinero" to turn into an auto board row. Bounded so
+// the hub stays a handful of cheap by-id lookups, not a table scan.
+const AUTO_ROW_CANDIDATES = 3;
+
 export default async function LaLanaHubPage() {
   const [articles, content] = await Promise.all([getArticlesBySource('la-lana'), getSiteContent()]);
   const hubs = productHubsContent(content.productHubs);
   const now = new Date();
   const [lead, ...rest] = articles;
 
-  // The masthead route explains itself or it doesn't run (user feedback
-  // 2026-08-05: unlabeled cities read as decoration). First choice: the
-  // latest expediente's own declared "Ruta del dinero" (needs the full
-  // row — list queries strip bodies), captioned with that case's number.
-  // Fallback: the CMS-configured route and caption (Hubs tab in the
-  // admin), which editorial owns.
-  const leadFull = lead ? await getArticleById(lead.id) : null;
-  const leadTrail = leadFull ? extractTrailStops(leadFull.bodyHtml, leadFull.teaser) : null;
-  const trailStops = leadTrail ?? hubs.lana.routeStops;
-  const trailLabel = leadTrail
-    ? `${hubs.lana.routeLabel} · Expediente ${caseNumber(lead, articles)}`
-    : hubs.lana.routeLabel;
-  const trailNote = leadTrail
-    ? `Así se movió el dinero del último caso: ${lead.title}`
-    : hubs.lana.routeNote;
+  // The masthead departures board (user feedback 2026-08-05, third round
+  // on this graphic: the labeled route line still read as abstract — the
+  // board is the card art's own motif, and its rows should be the
+  // CONNECTIONS the files uncovered, set as flights). Two sources, auto
+  // rows first:
+  //   - auto: recent expedientes whose body declares a "Ruta del dinero"
+  //     become a departure (route as the connection, EXP. number as the
+  //     flight, case status as the flight status, linked to the case);
+  //   - curated: the CMS rows (Hubs tab), where editorial names the
+  //     connections themselves — Infantino ↔ Trump, AR Monex ↔ Europa…
+  const recentFull = await Promise.all(
+    articles.slice(0, AUTO_ROW_CANDIDATES).map(a => getArticleById(a.id)),
+  );
+  const autoRows: BoardRow[] = [];
+  for (const full of recentFull) {
+    if (!full) continue;
+    const stops = extractTrailStops(full.bodyHtml, full.teaser);
+    if (!stops) continue;
+    autoRows.push({
+      fecha: full.dateFormatted,
+      conexion: stops.join(' → '),
+      expediente: `EXP. ${caseNumber(full, articles)}`,
+      estado: caseStatus(full, now) === 'abierto' ? 'Abierto' : 'Archivado',
+      url: `/articulo?id=${encodeURIComponent(full.id)}`,
+    });
+  }
+  const boardRows: BoardRow[] = [...autoRows, ...hubs.lana.boardRows];
 
   return (
     <main className="hub hub-lana" id="la-lana">
@@ -65,9 +82,7 @@ export default async function LaLanaHubPage() {
             La Lana <span className="hub-lana-title-accent">del Deporte</span>
           </h1>
           <p className="hub-lana-sub">{hubs.lana.sub}</p>
-          {trailStops.length >= 2 && (
-            <MoneyTrail stops={trailStops} label={trailLabel} note={trailNote} />
-          )}
+          <DeparturesBoard label={hubs.lana.boardLabel} note={hubs.lana.boardNote} rows={boardRows} />
         </header>
 
         {lead ? (

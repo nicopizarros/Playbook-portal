@@ -105,10 +105,11 @@
    labels ride currentColor so the same component works on the paper hub
    and inside a theme-adaptive article body; the stops are the brand
    green in both. */
+/* The route line now lives ONLY inside article bodies (the scroll-drawn
+   "Ruta del dinero"); the hub masthead uses the departures board below
+   (2026-08-05, third round of feedback on this graphic). */
 .money-trail{margin:30px 0 0;}
 .article-body .money-trail{margin:36px 0;}
-/* Caption that makes the route self-explanatory (user feedback 2026-08-05:
-   an unlabeled route reads as decoration): what it is + whose case. */
 .money-trail-caption{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
 .money-trail-caption-label{
   display:inline-flex;align-items:center;gap:8px;
@@ -117,6 +118,49 @@
 .money-trail-caption-label::before{content:"";width:8px;height:8px;background:var(--pb-green);flex-shrink:0;}
 .money-trail-caption-note{font-size:12.5px;color:var(--pb-gray);max-width:64ch;}
 .money-trail svg{display:block;width:100%;height:auto;}
+
+/* ——— The departures board: the card art's DEPARTURES panel as an
+   editorial device. Fixed dark panel on the paper hub (a flap board is
+   black wherever it hangs), mono type, green flap text, blinking status
+   for open cases. */
+.lana-board{
+  margin:32px 0 0;background:#101210;border-radius:10px;padding:20px 22px 14px;
+  box-shadow:0 14px 34px rgba(10,10,10,.18);
+  border:1px solid rgba(154,234,57,.18);
+}
+.lana-board-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+.lana-board-label{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--pb-green);
+}
+.lana-board-label::before{content:"";width:8px;height:8px;background:var(--pb-green);flex-shrink:0;}
+.lana-board-note{font-size:12px;color:rgba(240,233,220,.55);}
+.lana-board-table{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  text-transform:uppercase;
+}
+.lana-board-row{
+  display:grid;grid-template-columns:110px minmax(0,1fr) 110px 120px;gap:16px;align-items:baseline;
+  padding:9px 6px;border-top:1px dashed rgba(240,233,220,.14);color:rgba(240,233,220,.85);
+  font-size:13px;letter-spacing:.08em;
+}
+.lana-board-row-head{
+  border-top:none;padding-top:0;
+  font-size:10px;font-weight:700;letter-spacing:.22em;color:rgba(240,233,220,.45);
+}
+a.lana-board-row{transition:background var(--duration-fast) ease;}
+a.lana-board-row:hover{background:rgba(154,234,57,.08);}
+a.lana-board-row:hover .lana-board-conexion{color:#fff;}
+.lana-board-fecha{font-size:11.5px;color:rgba(240,233,220,.55);white-space:nowrap;}
+.lana-board-conexion,.lana-board-conexion-col{color:var(--pb-green);font-weight:700;letter-spacing:.1em;min-height:1em;}
+.lana-board-conexion-col{color:rgba(240,233,220,.45);font-weight:700;}
+.lana-board-exp{white-space:nowrap;font-size:12px;}
+.lana-board-estado,.lana-board-estado-col{white-space:nowrap;font-size:12px;justify-self:end;text-align:right;}
+.lana-board-estado.is-blinking{color:var(--pb-green);animation:boardBlink 1.4s steps(1) infinite;}
+@keyframes boardBlink{0%,100%{opacity:1;}50%{opacity:.25;}}
+@media(prefers-reduced-motion:reduce){
+  .lana-board-estado.is-blinking{animation:none;}
+}
 .money-trail-ghost{stroke:currentColor;opacity:.16;stroke-width:2;stroke-dasharray:3 7;}
 .money-trail-line{stroke:currentColor;stroke-width:2.5;stroke-dasharray:3 7;stroke-linecap:round;}
 .money-trail-dot{fill:var(--pb-green);stroke:currentColor;stroke-width:1.5;}
@@ -564,6 +608,11 @@
   .lana-archive-grid{grid-template-columns:1fr;}
   .lana-folder-lead .lana-folder-body{padding:22px 20px 20px;}
   .lana-folder-tab{gap:10px;padding:7px 14px 6px;}
+  /* Board on phones: drop the date/flight columns, keep connection +
+     status — the two cells that carry the meaning. */
+  .lana-board{padding:16px 14px 10px;}
+  .lana-board-row{grid-template-columns:minmax(0,1fr) auto;gap:10px;}
+  .lana-board-fecha,.lana-board-exp{display:none;}
   .infhub-grid{grid-template-columns:1fr;}
   .still-matters-grid{grid-template-columns:1fr;}
   .money-trail-label{font-size:19px;letter-spacing:.1em;}

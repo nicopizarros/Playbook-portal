@@ -5187,6 +5187,39 @@ ruta auto-derivada del cuerpo del caso 003 (rótulo confirmado por texto),
 y login real al admin (reset-editor-password local) con el tab nuevo
 renderizando todos los campos junto al preview. tsc/eslint/build limpios.
 
+### 2026-08-05 — Hubs, quinta pasada: el tablero de salidas en La Lana
+
+Tercera ronda de feedback sobre la gráfica del masthead de La Lana: la
+línea de ruta (aun rotulada) seguía sin gustar — el usuario pidió el
+tablero de aeropuerto del arte de la tarjeta, con las CONEXIONES que los
+expedientes destaparon como vuelos ("Infantino ↔ Trump", "AR Monex ↔
+Europa", "Isaac del Toro ↔ UAE").
+
+- **`components/products/DeparturesBoard.tsx`**: panel oscuro tipo
+  split-flap (mono, verde sobre negro), columnas SALIDA / CONEXIÓN /
+  VUELO / ESTADO. Las conexiones entran con efecto de flaps
+  (ScrambleTextPlugin del bundle GSAP vendoreado, registrado LOCAL en el
+  componente, no en lib/gsap — ver la nota de ese archivo sobre por qué);
+  estados "Abierto"/"En curso" parpadean como llamada de abordaje;
+  reduced-motion muestra todo estático. Filas con URL son clickeables.
+- **Dos fuentes de filas**: automáticas — los expedientes recientes (hasta
+  3, fetch por id acotado) que declaran "Ruta del dinero:" en el cuerpo
+  se vuelven una salida con su ruta, su número de caso como vuelo y su
+  estado real, enlazada al artículo — y curadas: filas del CMS (Hubs tab,
+  `boardRows`: conexión/fecha/vuelo/estado/url). El modelo `lana` en
+  productHubs cambió de routeLabel/routeNote/routeStops a
+  boardLabel/boardNote/boardRows (sección aún nueva; el merge de defaults
+  absorbe cualquier fila vieja).
+- La línea de ruta animada (MoneyTrail) sigue viva DENTRO de los
+  artículos — el reemplazo es solo del masthead del hub.
+
+**Verificación**: Playwright a 1366px y 390px — 5 filas reales (2 auto de
+los casos seedeados con ruta + 3 curadas), texto final del scramble
+verificado ("Zúrich → Miami → CDMX"), 0 overflow, 0 errores de consola;
+en móvil el tablero colapsa a conexión + estado. tsc/eslint/build
+limpios. Pendiente editorial: las 3 conexiones default del tablero las
+nombró el usuario — confirmarlas/curarlas en el tab de Hubs.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
