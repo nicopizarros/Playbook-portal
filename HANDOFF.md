@@ -5099,6 +5099,50 @@ colisión de Infinitas solo se veía así): 0 anchors anidados, 0 overflow,
 build` limpios. El 301 de /industry-shots verificado con curl (308 en
 dev es el equivalente de Next).
 
+### 2026-08-05 — Hubs, tercera pasada: el pipeline de publicación mantiene los hubs solo
+
+Pregunta del usuario: "si subo un artículo nuevo de La Lana ahora, ¿cómo
+se integra?" Respuesta corta: los hubs YA se actualizan solos (consultan
+la DB por `source` en cada request, caché de 60s) — un artículo publicado
+con `source: 'la-lana'` se vuelve el Expediente N+1 con sello "caso
+abierto", cifra destacada y todo, sin pasos manuales. Lo que NO era
+automático eran los dispositivos del cuerpo, y ahí había un bug real:
+
+- **El callout de opinión nunca disparaba con contenido real.** El
+  detector buscaba "La opinión de Playbook:" pero el pipeline escribe
+  `**Opinión de Playbook:**` (sin "La" — verificado contra el corpus: 10
+  artículos vivos, todos esa forma exacta). Regex corregida
+  (`lib/product-hubs.ts`), tolera ambas variantes, y el callout ahora
+  aplica a TODOS los sources de producto (Noticias/La Lana/Infinitas/TFBR
+  comparten el estándar de 4 párrafos), tinteado por producto (verde
+  default, violeta Infinitas, rojo TFBR). Resultado: todo el catálogo
+  existente gana el callout retroactivamente, sin re-editar nada —
+  verificado con Playwright sobre dos artículos reales del seed.
+- **El skill `publish-newsletter` ahora conoce los hubs** (sección nueva
+  "The product hub pages read the body"): el lead-in `**Opinión de
+  Playbook:**` es contrato de UI (no reformular); la convención "Ruta del
+  dinero: A → B → C" para La Lana (cuándo sí, cuándo no, máximo una);
+  la cifra más grande del caso debe ir textual en title/excerpt para el
+  héroe del hub; y si una nota de Infinitas supera una cifra de El
+  Marcador, se reporta en una línea (no se edita código en un run).
+- **Dos mapeos rancios corregidos en el skill**: publicaba
+  `publication: "La Lana del Mundial"` (el rebrand de Fase 0 lo habría
+  regresado a producción) → ahora "La Lana del Deporte"; el fallback
+  `"playbook"` (source borrado en Fase 1, artículos inalcanzables) →
+  industry-shots. Y se agregó el mapeo de The Futbol Business Review
+  (`"The Futbol Business Review"` / `"futbol-business-review"`): el día
+  que se publique contenido TFBR con ese par, el hub deja solo su estado
+  vacío. `publish-sourced-article` recibió la nota del contrato del
+  lead-in también.
+
+**Verificación**: transforms probados con tsx contra las formas reales
+del corpus (bold/colon/variantes, ruta del dinero con before/after);
+Playwright sobre artículos reales confirmó 1 callout en cada uno;
+tsc/eslint/build limpios. Nota backlog: al subir contenido histórico, la
+numeración de expedientes se recorre (es cronológica calculada, "dated by
+case") — si algún día se quiere numeración congelada, haría falta campo
+en DB.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

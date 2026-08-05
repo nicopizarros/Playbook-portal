@@ -164,19 +164,24 @@ export function weekdayFor(date: string): string {
 
 // The Playbook-opinion paragraph gets its own visually distinct callout,
 // separated clearly from reporting (a credibility move: the fact/opinion
-// line becomes explicit). Authoring convention, same spirit as the money
-// trail: a paragraph starting with "La opinión de Playbook:" is wrapped in
-// an <aside> the CSS styles as the bottle-cap callout. String-level
-// transform on already-sanitized editor HTML (same trust boundary as the
-// dangerouslySetInnerHTML call sites in articulo/page.tsx) — the wrapper
-// adds only our own static markup.
-const OPINION_HTML_RE = /<p([^>]*)>(\s*(?:<strong>)?\s*La opini[oó]n de Playbook:?\s*(?:<\/strong>)?:?\s*)([\s\S]*?)<\/p>/i;
-export const OPINION_TEXT_PREFIX = /^\s*La opini[oó]n de Playbook:?\s*/i;
+// line becomes explicit). This is NOT a new authoring convention — it
+// matches what the publish-newsletter pipeline has always written: every
+// product article ends with a "**Opinión de Playbook:**" paragraph (bold
+// lead-in, no leading "La" — checked against the real corpus, 10 live
+// articles all use that exact shape), so the whole existing catalog gets
+// the callout with zero re-editing. The regex tolerates the "La opinión…"
+// variant too. Applies to every product source (Noticias, La Lana,
+// Infinitas, TFBR all share the four-paragraph standard); per-product CSS
+// tints the fence. String-level transform on already-sanitized editor
+// HTML (same trust boundary as the dangerouslySetInnerHTML call sites in
+// articulo/page.tsx) — the wrapper adds only our own static markup.
+const OPINION_HTML_RE = /<p([^>]*)>(\s*(?:<strong>)?\s*(?:La\s+)?[Oo]pini[oó]n de Playbook:?\s*(?:<\/strong>)?:?\s*)([\s\S]*?)<\/p>/;
+export const OPINION_TEXT_PREFIX = /^\s*(?:\*\*)?\s*(?:La\s+)?[Oo]pini[oó]n de Playbook:?\s*(?:\*\*)?:?\s*/;
 
 export function markOpinionCallout(html: string): string {
   return html.replace(
     OPINION_HTML_RE,
     (_m, attrs: string, _label: string, rest: string) =>
-      `<aside class="shot-opinion"><span class="shot-opinion-kicker">La opinión de Playbook</span><p${attrs}>${rest}</p></aside>`,
+      `<aside class="shot-opinion"><span class="shot-opinion-kicker">Opinión de Playbook</span><p${attrs}>${rest}</p></aside>`,
   );
 }

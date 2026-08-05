@@ -322,6 +322,13 @@
 }
 .shot-opinion p{margin:0;}
 .shot-opinion p:not(:last-child){margin-bottom:12px;}
+/* Per-product tint: the callout ships on every product article (the
+   four-paragraph Opinión standard is shared), fenced in each product's
+   own accent. Green is the default above. */
+.article-product-infinitas .shot-opinion{border-color:var(--src-infinitas);background:color-mix(in srgb,var(--src-infinitas) 8%,var(--paper));}
+.article-product-infinitas .shot-opinion-kicker::before{background:repeating-conic-gradient(var(--src-infinitas) 0 14deg,transparent 14deg 30deg);border-color:var(--src-infinitas);}
+.article-product-futbol-business-review .shot-opinion{border-color:var(--tfbr-red);background:color-mix(in srgb,var(--tfbr-red) 7%,var(--paper));}
+.article-product-futbol-business-review .shot-opinion-kicker::before{background:repeating-conic-gradient(var(--tfbr-red) 0 14deg,transparent 14deg 30deg);border-color:var(--tfbr-red);}
 
 /* ============================================================
    3. The Futbol Business Review — "La Sala de Juntas"

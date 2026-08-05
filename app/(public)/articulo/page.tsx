@@ -158,8 +158,12 @@ type PlainBlock =
   | { kind: 'trail'; stops: string[] };
 
 function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
+  // Every product source gets the opinion callout — the four-paragraph
+  // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
+  // alike (see lib/product-hubs.ts's regex comment).
+  const isProduct = hubForSource(source) !== null;
   const blocks: PlainBlock[] = paragraphs.map(p =>
-    source === 'industry-shots' && OPINION_TEXT_PREFIX.test(p)
+    isProduct && OPINION_TEXT_PREFIX.test(p)
       ? { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') }
       : { kind: 'text', text: p },
   );
@@ -175,7 +179,7 @@ function PlainBlockView({ block }: { block: PlainBlock }) {
   if (block.kind === 'opinion') {
     return (
       <aside className="shot-opinion">
-        <span className="shot-opinion-kicker">La opinión de Playbook</span>
+        <span className="shot-opinion-kicker">Opinión de Playbook</span>
         <p>{block.text}</p>
       </aside>
     );
@@ -340,11 +344,11 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // the paragraph array. Either way the ad never trails the final
   // paragraph, and the walled branch above never reaches this code.
   //
-  // The Industry Shots opinion callout is applied BEFORE the ad split —
+  // The opinion callout is applied BEFORE the ad split —
   // splitAfterParagraph tracks <aside> so it can't cut the callout open.
+  // All product sources get it (see plainBlocksFor's comment).
   const rawHtmlBody = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
-  const htmlBody =
-    rawHtmlBody && article.source === 'industry-shots' ? markOpinionCallout(rawHtmlBody) : rawHtmlBody;
+  const htmlBody = rawHtmlBody && hub ? markOpinionCallout(rawHtmlBody) : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
   const blocks = plainBlocksFor(paragraphs, article.source);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;

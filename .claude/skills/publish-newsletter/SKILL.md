@@ -144,6 +144,48 @@ lens where relevant), not filler stretched to hit a length. If there isn't
 a genuine second point, leave the single Opinión paragraph as before rather
 than padding it.
 
+### The product hub pages read the body (2026-08-05)
+
+Each product now has its own front page (`/noticias`, `/la-lana`,
+`/infinitas`, `/futbol-business-review` — see `lib/product-hubs.ts`) that
+updates itself from the DB within ~60 seconds of an insert: nothing in
+this skill needs to "add the article to the hub". But the hubs and the
+article template read three things out of what this skill writes, so get
+them right at drafting time:
+
+- **The `**Opinión de Playbook:**` lead-in is load-bearing.** On every
+  product article, the article page detects that exact lead-in and renders
+  the paragraph as a visually fenced opinion callout (the explicit
+  fact/opinion separation). Keep the wording exactly `Opinión de
+  Playbook:` — don't ever restyle it to "Nuestra opinión", "El análisis
+  de Playbook", or similar, and don't fold the opinion into another
+  paragraph. This already matched the standard structure above; it is now
+  also a UI contract.
+- **La Lana: the money trail.** When (and only when) a La Lana story
+  genuinely traces money moving between named places — a fee flowing from
+  a country to a federation's HQ, a sale crossing borders, an investor
+  entering from abroad — add one plain paragraph on its own line in
+  `bodyMarkdown`, at the point in the story where that flow is described:
+  `Ruta del dinero: México → Zúrich → Riad` (2 to 5 stops, `→` between
+  them, short place names). The article page replaces that paragraph with
+  an animated route line that draws itself as the reader scrolls. Never
+  invent a route the story doesn't state, and never add more than one per
+  article. Stories with no geographic flow simply don't get one.
+- **La Lana: the hero figure.** The hub's case-file hero pulls the
+  story's single biggest number out of `title` + `excerpt` (e.g.
+  "€3M/año", "US$9,612m", "MX$42.8 millones") and displays it huge. When
+  the story has a defining figure, make sure it appears verbatim in the
+  title or the excerpt — not only buried in a middle paragraph — or the
+  hero renders without its hook.
+- **Infinitas: El Marcador.** The hub shows a scoreboard of sourced
+  women's-sports business metrics, hardcoded in
+  `app/(public)/infinitas/page.tsx` (`SCOREBOARD`). If an Infinitas item
+  being published contains a headline metric that supersedes one on that
+  board (a new attendance record, a new revenue projection from a named
+  source), don't edit page code as part of the publish run — flag it in
+  one line of the run report ("El Marcador: la cifra X quedó superada por
+  Y (fuente Z)") so it gets refreshed deliberately.
+
 Tone (both sections above): direct, analytical, authoritative. No filler,
 no sensationalism. Playbook reads closer to a business brief than to a
 news alert, calm and analytical even when the underlying story is
@@ -203,9 +245,20 @@ document, see Step 6), never HTML tags.
 - **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
-    - La Lana del Mundial: `"La Lana del Mundial"` / `"la-lana"`
+    - La Lana del Mundial: `"La Lana del Deporte"` / `"la-lana"` — the
+      Substack may still say "La Lana del Mundial", but the site brand is
+      "La Lana del Deporte" (Fase 0 rebrand, 2026-08-01; production
+      articles were all rewritten to it by `fix:lana-rebrand`). Never
+      write "La Lana del Mundial" into `publication`.
     - Infinitas: `"Infinitas"` / `"infinitas"`
-    - Anything else: `"Playbook"` / `"playbook"`
+    - The Futbol Business Review: `"The Futbol Business Review"` /
+      `"futbol-business-review"` — the hub at /futbol-business-review
+      lists this source automatically; TFBR content published with this
+      pair is what turns that page from its "las ediciones viven en
+      Substack" state into a live list. `readingTime: 3`.
+    - Anything else: `"Noticias"` / `"industry-shots"` (the old
+      `"playbook"` source was deleted in Fase 1, 2026-08-01 — inserting
+      it would create articles no filter or hub can reach).
 
   "Industry Shots" is only this skill's internal name for that Substack
   newsletter, used to pick the fields above. It is never a label readers
