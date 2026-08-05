@@ -10,8 +10,17 @@ import { signUpOrSignInWithPasswordAction, type PasswordAuthState } from '@/lib/
 // isn't sure whether they already have an account just enters
 // email+password once, same friction either way, no separate "create
 // account" step or confirmation email.
-export function PasswordAuthForm({ redirectTo }: { redirectTo: string }) {
-  const [expanded, setExpanded] = useState(false);
+// `defaultExpanded` is set by callers when Google sign-in isn't available
+// in this environment: with no other option on screen, hiding the only one
+// behind a toggle would read as "you can't sign in".
+export function PasswordAuthForm({
+  redirectTo,
+  defaultExpanded = false,
+}: {
+  redirectTo: string;
+  defaultExpanded?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const action = signUpOrSignInWithPasswordAction.bind(null, redirectTo) as (
     prev: PasswordAuthState,
     formData: FormData,

@@ -10,6 +10,12 @@
    section-header relationship and closes the void without moving the link
    off the right edge, where the layout still wants it. */
 .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:40px 0 20px;border-bottom:2px solid var(--ink);margin-bottom:28px;flex-wrap:wrap;}
+/* h1 alongside h2: on the listing pages (/archivo, /tema, /autor) this
+   block IS the page title, so it carries the document's single <h1> — see
+   the .page-head rule below. Everywhere else it's a section heading and
+   stays an <h2>. Same typography either way; the tag differs only because
+   the outline does. */
+.section-head h1,
 .section-head h2{font-family:var(--serif-display);font-weight:400;font-size:25px;letter-spacing:.01em;margin:0;text-transform:uppercase;}
 .section-head .sub{font-size:13px;color:var(--gray-txt);margin-top:4px;font-weight:400;max-width:480px;}
 /* Cabecera de páginas de listado (/archivo, /tema, /autor): mismo bloque

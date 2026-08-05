@@ -196,6 +196,20 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .preview-section.is-changed .preview-section-tag { display: inline-flex; }
 .admin-preview-page header.topbar { position: static; }
 
+/* The preview reuses the real homepage section components, and those carry
+   `.reveal` — which styles/layout.css starts at opacity:0, to be animated
+   in by <ScrollReveal>. That component is mounted by app/(public)/layout.tsx
+   and deliberately never by the admin layout, so nothing in here would ever
+   reveal them: the hero, all five news rows, and every opinion/product/
+   stat/testimonial card rendered as blank space (measured: computed
+   opacity 0 on all of them). LivePreview.tsx used to paper over this by
+   adding `.is-visible`, which worked only while that class carried
+   `opacity:1` in CSS; once ScrollReveal moved to GSAP inline styles the
+   class became a bare marker and the workaround quietly became a no-op.
+   Doing it in CSS instead means the preview can't decouple from the
+   animation implementation again. */
+.admin-preview-page .reveal { opacity: 1; transform: none; }
+
 /* ---------- Form building blocks ---------- */
 
 .admin-section-title { font-size: 16px; font-weight: 800; margin: 24px 0 4px; letter-spacing: -.005em; }

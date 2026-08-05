@@ -3,6 +3,7 @@ import { Anton, Inter } from 'next/font/google';
 import Script from 'next/script';
 import { AnalyticsClient } from '@/components/analytics/AnalyticsClient';
 import { getFundingChoicesPublisherId } from '@/lib/adsense';
+import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
 
 import '../styles/reset.css';
@@ -32,6 +33,15 @@ const inter = Inter({
   display: 'swap',
 });
 
+// `twitter.card` below is summary_large_image, which without an image
+// renders as a bare text link on X/WhatsApp/LinkedIn/Facebook — and every
+// route except /articulo was shipping exactly that, including the
+// homepage, i.e. the URL people actually paste when a site launches.
+// Article pages override this with their own cover photo
+// (app/(public)/articulo/page.tsx); everything else inherits this one.
+// Static asset rather than a generated ImageResponse: nothing about it
+// varies per request, so there's no reason to pay for og runtime on every
+// crawl. See lib/og-image.ts for why it isn't inlined here.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -54,12 +64,13 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
+    ...OG_DEFAULTS,
     type: 'website',
-    siteName: 'Playbook',
-    locale: 'es_MX',
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
+    images: [DEFAULT_OG_IMAGE.url],
   },
 };
 

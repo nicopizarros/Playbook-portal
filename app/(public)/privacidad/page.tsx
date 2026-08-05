@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { SITE_URL } from '@/lib/site-url';
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export default function PrivacidadPage() {
   return (
     <main className="container legal-page" id="privacidad-main">
       <h1>Aviso de Privacidad</h1>
-      <p className="legal-updated">Última actualización: 21 de julio de 2026.</p>
+      <p className="legal-updated">Última actualización: 4 de agosto de 2026.</p>
 
       <p>
         Este Aviso de Privacidad describe cómo <strong>Playbook SAPI de C.V.</strong>{' '}
@@ -44,6 +45,13 @@ export default function PrivacidadPage() {
           abajo.
         </li>
         <li>
+          <strong>Correo electrónico para el newsletter</strong>, si lo escribes en alguno de los
+          formularios de suscripción del sitio. Ese formulario te lleva a Substack, donde completas
+          la suscripción: el newsletter lo edita Playbook, pero lo opera Substack, y tu correo queda
+          registrado ahí como suscriptor. Es independiente de la cuenta de lector del punto
+          anterior — puedes tener una sin la otra.
+        </li>
+        <li>
           <strong>Credenciales de acceso del equipo editorial</strong>, si trabajas como editor de
           Playbook — estas cuentas son internas, no de lectores públicos.
         </li>
@@ -59,7 +67,7 @@ export default function PrivacidadPage() {
       <p>No vendemos tus datos personales a terceros.</p>
 
       <h2>Cookies</h2>
-      <p>Este sitio usa tres tipos de cookies:</p>
+      <p>Este sitio usa cuatro tipos de cookies:</p>
       <ul>
         <li>
           <strong>Necesaria</strong> (<code>pb_anon</code>): cuenta tus lecturas del mes. Sin ella, el
@@ -99,6 +107,17 @@ export default function PrivacidadPage() {
         <li><strong>Vercel</strong> — hospedaje del sitio, almacenamiento de imágenes, analítica de uso.</li>
         <li><strong>Google Analytics 4</strong> — analítica de uso.</li>
         <li>
+          <strong>Substack</strong> — plataforma del newsletter. Si te suscribes desde alguno de los
+          formularios del sitio, tu correo se registra en Substack y la suscripción se rige además
+          por las políticas de esa plataforma.
+        </li>
+        <li>
+          <strong>Google Sheets</strong> — el correo, el nombre (si lo tenemos), el método con el que
+          te registraste y el número de artículos que llevas leídos se copian a una hoja de cálculo
+          privada de Google, de acceso restringido al equipo de Playbook, que usamos como registro
+          interno de lectores. No se comparte con nadie más ni se usa para publicidad.
+        </li>
+        <li>
           <strong>Google AdSense</strong> — publicidad, solo con consentimiento. Puedes revisar o
           ajustar tus preferencias de anuncios directamente con Google en{' '}
           <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer">
@@ -114,7 +133,7 @@ export default function PrivacidadPage() {
         Como titular de tus datos, tienes derecho a Acceder, Rectificar, Cancelar u Oponerte (ARCO) al
         tratamiento de tus datos personales. Si eres lector registrado, puedes exportar o eliminar tu
         cuenta y tu historial de lectura tú mismo, sin escribirnos, desde{' '}
-        <a href="/cuenta">Mi cuenta</a>. Para cualquier otro pedido relacionado con tus datos,
+        <Link href="/cuenta">Mi cuenta</Link>. Para cualquier otro pedido relacionado con tus datos,
         escríbenos a <strong>hola@playbook.la</strong>.
       </p>
 

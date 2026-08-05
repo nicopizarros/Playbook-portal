@@ -32,17 +32,57 @@ function constantTimeEqual(a: string, b: string) {
   return timingSafeEqual(bufA, bufB);
 }
 
-function stripHtml(str: string) {
-  return (str || '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/&amp;/g, '&')
+function decodeEntities(str: string) {
+  return str
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .trim()
-    .slice(0, 300);
+    .replace(/&amp;/g, '&');
+}
+
+// Legacy's version (legacy/api/update-articles.js, ported literally in
+// Fase 4) stripped tags FIRST and decoded entities AFTERWARDS — which
+// means the decode step reconstructs exactly the markup the strip step
+// just removed. Demonstrated with the real function before changing it:
+//
+//   "&lt;script&gt;alert(document.cookie)&lt;/script&gt;"
+//     -> "<script>alert(document.cookie)</script>"
+//   "&lt;img src=x onerror=alert(1)&gt;"
+//     -> "<img src=x onerror=alert(1)>"
+//
+// That output is stored in articles.teaser, and app/(public)/articulo's
+// looksLikeHtml() branch renders teaser through dangerouslySetInnerHTML —
+// so an entity-encoded payload in a webhook item became stored HTML on a
+// public page. Reaching it needs a valid PLAYBOOK_SECRET, so this was
+// integration-trusted rather than anonymous input, but a function whose
+// only job is "make this plain text" should not be able to emit markup at
+// all, whoever calls it.
+//
+// Decode first, then strip, and repeat until the string stops changing:
+// one pass alone still lets double-encoded input ("&amp;lt;script&amp;gt;")
+// through, which the same demonstration confirmed.
+//
+// TAG_PATTERN requires a letter (or "/") right after the "<" rather than
+// matching `<[^>]*>` like legacy did. That greedier form ate everything
+// between any two angle brackets, so ordinary copy — "Precio &lt; 100 y
+// algo &gt; 50" — came out as "Precio 50". Only real tag shapes are
+// removed now, and a bare comparison operator survives as text.
+//
+// Once this loop settles, nothing matching `<letter…>` remains, which is
+// also exactly the pattern app/(public)/articulo's looksLikeHtml() tests
+// before choosing dangerouslySetInnerHTML — so a teaser produced here can
+// only ever take the escaped-text path.
+const TAG_PATTERN = /<\/?[a-zA-Z][^>]*>|<!--[\s\S]*?-->/g;
+
+function stripHtml(str: string) {
+  let out = str || '';
+  for (let i = 0; i < 3; i++) {
+    const next = decodeEntities(out).replace(TAG_PATTERN, ' ');
+    if (next === out) break;
+    out = next;
+  }
+  return out.replace(/\s+/g, ' ').trim().slice(0, 300);
 }
 
 function detectPublication(title: string) {

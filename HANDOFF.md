@@ -4,13 +4,19 @@ Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
 historial de commits/PRs. **Este archivo se actualiza en cada sesión de
 trabajo relevante** — ver la convención al final. Última actualización:
-2026-08-01.
+2026-08-04.
+
+**Estado: auditoría pre-lanzamiento hecha.** La rama
+`claude/playbook-pre-launch-audit-fu1bzg` contiene una revisión completa
+del sitio antes de abrirlo al público, con 15 defectos reales encontrados
+ejercitando la app corriendo (no leyendo código) y corregidos — ver la
+entrada del 2026-08-04 al final del registro de progreso, que es lo
+primero que hay que leer. **Dos cosas siguen bloqueando un lanzamiento
+100% limpio y ninguna se puede resolver desde código**: los placeholders
+`[DOMICILIO FISCAL]` (`/privacidad`) y `[JURISDICCIÓN]` (`/terminos`).
 
 **PR abierto**: ninguno. Los PR #28/#29/#30/#31 ya mergearon a `main`; la
-Fase 6 (migración completa) también mergeó. La sesión activa trabaja en
-`claude/playbook-portal-roadmap-05yooe` sobre el "Roadmap Agosto 2026"
-(ver sección siguiente) — arrancó por su Fase 0, ver la última entrada del
-registro de progreso para el estado exacto. El plan anterior (Fases 7, 8 y
+Fase 6 (migración completa) también mergeó. El plan anterior (Fases 7, 8 y
 9, más abajo) ya está completo salvo lo anotado en "Próximos pasos". El PR
 #22 original de la migración (rama `claude/playbook-nextjs-migration-9zn6nh`)
 sigue superado por el flujo de Fases 1-6 ya mergeado — no seguir trabajando
@@ -4699,7 +4705,297 @@ bloqueadas por eso, no se tocaron).
   roadmap activo son Fase 1 ítem 5 y Fase 5 completa, ambas bloqueadas en
   una decisión de producto, no en código.
 
+### 2026-08-04 — Auditoría pre-lanzamiento completa: 15 defectos reales encontrados y corregidos
+
+Sesión en `claude/playbook-pre-launch-audit-fu1bzg`. Último checkpoint
+antes de abrir el sitio al público. A diferencia de la pasada de regresión
+de la Fase 6 (2026-07-22), que cerró con "cero bugs nuevos", esta sesión
+encontró **15 defectos reales**, casi todos por *ejercitar la app corriendo*
+en vez de leer código: navegador real con Playwright, Postgres real,
+`next build` + `next start` reales, y medición de estilos computados en vez
+de confiar en la cascada CSS.
+
+**Infraestructura de verificación (releer antes de asumir límites):**
+Postgres local + `next dev`/`next start` como siempre, más un hallazgo
+nuevo que cambia bastante lo que se puede verificar acá: **Chromium no
+puede salir por el proxy del sandbox (CONNECT resetea), pero el `fetch` de
+Node sí con `NODE_USE_ENV_PROXY=1`**. Interceptando las requests externas
+de Playwright y resolviéndolas con Node, las fotos editoriales reales, los
+embeds de YouTube y los links a Substack cargan de verdad — es decir, las
+capturas de pantalla por fin muestran el sitio como lo ve un lector. Todas
+las entradas anteriores que dicen "no se pudo verificar por la política de
+red" quedan parcialmente superadas. Documentado en
+`.claude/skills/verify/SKILL.md`, que además se reescribió completo: seguía
+describiendo el sitio estático pre-migración (`api/*.js`, `articulo.html`,
+"no hay package.json"), gap que el propio HANDOFF venía anotando desde el
+2026-08-01.
+
+**Trampa de verificación encontrada y documentada** (costó tiempo real
+antes de identificarla): una captura `fullPage` tomada después de un scroll
+programático rápido que le gana a la hidratación muestra secciones enteras
+en blanco, porque el `IntersectionObserver` de `ScrollReveal` todavía no
+existe cuando el scroll pasa por esos elementos. **No es un bug del sitio**
+— se comprobó que con scroll a velocidad humana los 34 elementos `.reveal`
+se revelan correctamente en 390/1024/1440px, y también después de un salto
+pre-hidratación. Pero produce capturas que parecen mostrar un bug grave.
+
+#### Defectos corregidos
+
+**1. Cualquier URL que no matcheaba ninguna ruta caía en el 404 nativo de
+Next** — texto en inglés sobre fondo blanco, sin header, sin footer, sin
+buscador, sin ninguna salida. Confirmado con `curl` antes de tocar nada:
+solo los `notFound()` disparados *desde adentro* del grupo `(public)`
+llegaban a la página con marca. Corregido con
+`app/(public)/[...slug]/page.tsx`, que arrastra las URLs no matcheadas
+hacia adentro de ese grupo (así heredan Header/Footer reales), más
+`app/not-found.tsx` como respaldo. Misma clase de bug que los `error.tsx`
+del 2026-07-21: el código correcto existía, simplemente no era alcanzable
+desde donde caía la falla.
+
+**2. Sin imagen social en ninguna ruta salvo `/articulo`.** `twitter:card`
+es `summary_large_image`, así que la portada — la URL que la gente pega
+cuando un sitio lanza — se compartía como un link de texto pelado. Se
+agregó `public/assets/img/og-default.png` (1200×630, generado con el
+Anton/Inter reales del sitio) como default de todo el sitio, y también como
+fallback de artículos sin foto de portada, donde antes se usaba el wordmark
+de 180×44 que las redes rechazan por tamaño mínimo. **Además**: la portada
+no tenía `canonical` en absoluto (y hay tres hostnames sirviéndola:
+playbook.la, www.playbook.la y el `*.vercel.app` del proyecto), y se
+confirmó que Next **no** hace merge profundo de `openGraph` entre segmentos
+— una página que declara `openGraph` pisa el objeto entero del layout, así
+que `/articulo` venía perdiendo `og:site_name` y `og:locale`. `lib/og-image.ts`
+centraliza los campos compartidos.
+
+**3. El header no entraba a 320px de ancho.** Medido: la fila necesitaba
+346px de contenido en una caja de 305px (320 menos los 15px que reserva
+`scrollbar-gutter:stable`), con el botón de hamburguesa — el único acceso a
+la navegación en un teléfono — en x=278-322, o sea recortado, y sin poder
+scrollearlo a la vista porque `html{overflow-x:clip}`. Nueva capa
+`@media(max-width:400px)` en `responsive.css`.
+
+**4. `/archivo`, `/tema` y `/autor` no tenían `<h1>`**: su título de página
+era un `<h2>` sin nada arriba. Promovidos a `<h1>` (con
+`.section-head h1` en `components.css` para conservar la tipografía).
+
+**5. El formulario de newsletter nunca suscribió a nadie.** Los forms
+mandan el correo por GET a la raíz de la publicación de Substack, que
+ignora el `?email=`. Verificado contra la publicación real, no asumido:
+`/?email=…` renderiza la caja de suscripción **vacía**, `/subscribe?email=…`
+la renderiza **con el correo puesto**. O sea: el lector escribía su correo,
+leía "¡Listo! Revisa tu correo.", aterrizaba en un formulario vacío, y no
+quedaba suscrito ni recibía nada. `lib/newsletter-url.ts` normaliza el
+destino para todos los forms de una sola vez, y la copy dice lo que
+realmente pasa (te llevamos a Substack a confirmar) tanto en código como en
+el campo del CMS — `scripts/fix-newsletter-success-copy.ts`, **corrido
+contra la Neon de producción**, con `--dry-run` antes y después.
+
+**6. Registrarse desde el muro dejaba al lector en la portada**, no en el
+artículo que estaba tratando de leer. `EmailWall` pasaba la URL canónica
+absoluta como `redirectTo` de Auth.js, y Auth.js descarta cualquier
+redirect cuyo origen no coincida con el de la request. Producción hoy
+coincide por casualidad; todo preview deploy, el `*.vercel.app` del
+proyecto (que sirve el sitio y es alcanzable) y el dev local, no. Ahora es
+una ruta relativa.
+
+**7. Con `AUTH_GOOGLE_ID` sin configurar, "Continuar con Google" mandaba al
+lector a Google con `client_id=undefined`** y una pantalla de error en
+inglés ("Access blocked … Error 401: invalid_client"), fuera del sitio y
+sin vuelta. Este proyecto ya mandó a producción tres variables de entorno
+con el nombre mal escrito (ver 2026-07-21), así que el botón ahora solo se
+renderiza si Google está realmente configurado, y correo+contraseña se
+despliega expandido como único camino cuando no lo está
+(`lib/auth-providers.ts`).
+
+**8. Todas las tarjetas `.reveal` del preview en vivo del admin computaban
+`opacity: 0`** — el hero y las 5 filas de noticias de la pestaña Artículos
+eran cajas en blanco. `LivePreview` las revelaba agregando `.is-visible`,
+lo cual dejó de hacer algo cuando `ScrollReveal` pasó a GSAP y esa clase
+quedó como puro marcador de bookkeeping. Resuelto en CSS
+(`.admin-preview-page .reveal`), donde no se puede volver a desacoplar de
+una implementación de animación.
+
+**9 y 10. Dos bugs de especificidad CSS, vivos en TODO viewport menor a
+1180px — o sea todo teléfono y todo iPad**, encontrados midiendo estilos
+computados:
+- El CTA "Suscríbete gratis" del drawer se veía como una pastilla negra en
+  blanco: `.nav-links a` (`header.css`) fija `color:var(--ink)` con
+  especificidad (0,1,1), que le gana a `.btn` (0,1,0), así que el botón
+  conservaba el fondo `--ink-fixed` de `.btn` pero tomaba el color de texto
+  del nav. Medido: color y fondo ambos `rgb(10,10,10)`, contraste 1:1.
+- **No existía el toggle de tema en absoluto por debajo de 1180px.** La
+  regla base que oculta la copia del drawer se escribe
+  `.theme-toggle.theme-toggle-drawer` (0,2,0) a propósito, para ganarle a
+  `.theme-toggle{display:flex}`; pero la media query que lo vuelve a
+  encender usaba la clase sola (0,1,0) y perdía. Como la copia de
+  escritorio también está oculta ahí, **el modo oscuro era inalcanzable en
+  móvil y tablet**. Verificado después del fix clickeando el control real a
+  390 y 1024px, en ambos sentidos, sobreviviendo un reload.
+
+**11. El foco de teclado se escapaba del drawer abierto.** Con el drawer
+abierto, `.nav-overlay` cubre la página con `pointer-events:auto`, así que
+un mouse no llega a nada de atrás — pero tabular después del último ítem
+del drawer caía en el buscador del header y en los filtros de la portada,
+atenuados y no clickeables. Ahora el Tab cicla dentro del panel.
+
+**12. XSS almacenado en el sanitizador del webhook.** `stripHtml` de
+`app/api/update-articles` quitaba tags y *después* decodificaba entidades,
+o sea que el paso de decode reconstruía exactamente el markup que el paso
+de strip acababa de sacar. Demostrado contra la función real antes de
+tocarla: `"&lt;script&gt;alert(document.cookie)&lt;/script&gt;"` salía como
+`"<script>alert(document.cookie)</script>"`. Ese valor se guarda en
+`articles.teaser`, y la página de artículo renderiza `teaser` con
+`dangerouslySetInnerHTML` cuando "parece HTML" — o sea que un ítem del
+webhook se convertía en HTML almacenado en una página pública. Ahora
+decodifica primero, strippea después, y repite hasta estabilizar (una sola
+pasada dejaba pasar entrada doble-codificada). De paso se arregló una
+pérdida de datos del patrón viejo: `<[^>]*>` era tan goloso que
+`"Precio &lt; 100 y algo &gt; 50"` salía como `"Precio 50"`; el patrón
+nuevo solo matchea formas de tag reales.
+**Alcance honesto**: llegar a esto requiere un `PLAYBOOK_SECRET` válido, así
+que era superficie de integración autenticada, no anónima. Igual es un bug:
+una función cuyo único trabajo es "dejá esto en texto plano" no debería
+poder emitir markup, la llame quien la llame.
+
+**13. Inyección en el bloque JSON-LD.** Se emitía con `JSON.stringify`
+pelado, que no escapa nada que le importe a un parser de HTML: un título
+con `</script>` cierra el bloque antes de tiempo y todo lo que sigue se
+parsea como markup. `lib/json-ld.ts` escapa `<`, `>` y U+2028/9. Probado
+insertando un artículo hostil real: el payload no ejecuta, el JSON sigue
+parseando y el headline queda intacto. Fila de prueba borrada.
+
+**14. Errores factuales en las páginas legales** (todo verificable contra
+el código, nada inventado):
+- `/terminos` decía que el lector se registra "con tu correo electrónico
+  usando un enlace de acceso" — el magic link de Resend, retirado hace
+  meses. Ahora dice Google o correo+contraseña, que es lo que hace el
+  código y lo que la sección de abajo ya decía (el documento se
+  contradecía a sí mismo).
+- `/privacidad` decía "tres tipos de cookies" arriba de una lista de
+  cuatro.
+- Las dos fechas de "última actualización" eran anteriores a cambios
+  reales del texto — algo que el propio aviso de privacidad promete
+  mantener al día.
+- **Dos terceros sin declarar**: Substack (los formularios de newsletter le
+  entregan el correo del lector) y Google Sheets (`lib/google-sheets.ts`
+  copia correo, nombre, método de alta y conteo de lecturas de cada lector
+  a una hoja). El HANDOFF ya anticipaba lo primero como pendiente; lo
+  segundo se construyó el 2026-08-02 sin actualizar el aviso.
+
+**15. Peso de imágenes**: 3.2 MB de portadas committeadas bajaron a 0.9 MB.
+Una portada de artículo era un **PNG de 1.8 MB** (1920×1080, servido tal
+cual: las imágenes editoriales usan `<img>` plano a propósito, ver
+2026-07-21), re-encodeada a 477 KB; tres JPEG sobredimensionados (uno de
+2559px de ancho para una columna de 760px) redimensionados a su tamaño real
+de display; y un huérfano borrado tras confirmar cero referencias en
+código, docs, `site_content`, `content_revisions` y `articles` de cualquier
+status. **No se cambió ninguna extensión de archivo a propósito**: pasar el
+PNG a JPEG bajaría a 177 KB pero obliga a reescribir el `image_url` en
+producción, y entre esa escritura y el deploy la portada quedaría rota.
+Queda anotado como mejora futura, a hacer después de un deploy.
+
+#### Verificado (y qué no)
+
+- **Suite final: 32/32 checks contra `next build` + `next start` reales**
+  (no `next dev`), Postgres real, cero violaciones de CSP: las 10 rutas
+  públicas en 200, 404 con marca en una URL inexistente, muro en la 4ª
+  lectura sin filtrar el cuerpo al DOM, alta con contraseña devolviendo al
+  artículo correcto, búsqueda sin acentos, filtros de archivo, form de
+  newsletter apuntando a `/subscribe`, drawer móvil (contraste del CTA,
+  toggle de tema funcionando), 320px sin scroll horizontal con la
+  hamburguesa completa en pantalla, canonical + og:image en la portada,
+  sitemap/feed/robots en 200, y las rutas de API devolviendo 401 sin sesión.
+- **Flujo de lector completo contra Postgres real**: 3 gratis → muro en la
+  4ª → alta con correo+contraseña → releer no gasta cupo → `/cuenta` con
+  los datos correctos → export con `Content-Disposition` real → salir →
+  volver a entrar con la misma contraseña → contraseña incorrecta
+  rechazada → cuenta Google-only rechazada con el mensaje esperado.
+- **Admin completo**: guard de `/admin/dashboard`, `/admin/analytics` y
+  `/admin/guia` redirigiendo a `/admin` sin sesión; login fallido y
+  exitoso; **las 14 pestañas cargan sin un solo error de consola**; panel de
+  analítica degradando correctamente sin credenciales; **flujo de
+  invitación de editor de punta a punta con Resend sin configurar**
+  (invitación creada, enlace copiable, activación, enlace de un solo uso
+  rechazado al reusarlo, login real de la editora nueva).
+- **Barrido responsive**: capturas de página completa de portada, artículo
+  y archivo a 390/768/1024/1194/1440px en claro y oscuro — cero scroll
+  horizontal, cero imágenes rotas, cero errores de consola propios de la
+  app (los que aparecen son telemetría interna de YouTube y hosts que la
+  política de red del sandbox bloquea).
+- **Enlaces e imágenes reales**: crawl de 120 links internos (todos
+  resuelven) y 24 externos; los 2 "rotos" eran 429 de YouTube por
+  rate-limit del proxy compartido — confirmados vivos vía oEmbed. Y contra
+  la **base de producción real**: las 72 portadas de artículos publicados y
+  las 14 URLs de imagen de `site_content` resuelven todas como imágenes.
+- **Accesibilidad**: cada página pública tiene exactamente un `<h1>`, cero
+  imágenes sin `alt`, cero botones/links/inputs sin nombre accesible,
+  `lang="es"`, un solo `<main>`, skip-link primero en el orden de tabulación
+  con foco visible, drawer con Escape que devuelve el foco al botón.
+- **Degradación agraciada**: toda la auditoría corrió con **GA4, AdSense,
+  Vercel Blob, Resend, Google Sheets y Vercel Analytics sin configurar** —
+  esa es la evidencia más fuerte de que ninguna de las seis puede romper
+  una página ni un flujo. Confirmado además que `ads.txt` responde 200
+  vacío, y que no se inyecta gtag, adsbygoogle ni Funding Choices.
+- `tsc --noEmit`, `npx eslint .` y `next build`: limpios los tres.
+
+**No verificable desde acá, sin cambio de código pendiente**: el
+round-trip real de Google OAuth (hace falta un client id real), envío real
+por Resend, subida real a Vercel Blob, datos reales de GA4/Vercel
+Analytics, render real de AdSense, y la escritura real a Google Sheets.
+Mismo criterio que el resto de este archivo: se dice, no se insinúa que se
+probó.
+
+**Gap conocido, no corregido a propósito**: en `/archivo`, `/tema` y
+`/autor` el orden de encabezados salta de `h1` a `h3` (las filas de
+artículo son `h3`). Saltar un nivel es una recomendación de buenas
+prácticas, no un incumplimiento de WCAG, y cerrarlo obliga a renombrar tags
+en cuatro componentes compartidos y sus selectores CSS — no es un cambio
+que valga la pena la víspera del lanzamiento. Queda anotado, no escondido.
+
+**Otro gap conocido**: el panel de preview del admin renderiza el layout
+del sitio dentro de una columna de ~660px, y como las media queries del
+sitio son por viewport (no por contenedor), no colapsa a su versión móvil —
+los titulares se parten en pocas palabras por línea. Ahora al menos se ve
+contenido (antes eran cajas en blanco, ver punto 8); arreglarlo bien es
+una tarea de diseño del CMS, no un fix de una línea.
+
 ## Próximos pasos
+
+### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
+
+1. **`[DOMICILIO FISCAL]` en `/privacidad`.** La LFPDPPP exige el domicilio
+   real del responsable en el aviso de privacidad. Hoy el placeholder
+   literal está visible para cualquier visitante. **No se inventó un
+   domicilio a propósito** — hace falta el dato fiscal real de Playbook
+   SAPI de C.V.
+2. **`[JURISDICCIÓN]` en `/terminos`.** Mismo caso, en la cláusula de ley
+   aplicable. Los dos son ediciones de una línea en cuanto lleguen los
+   datos: `app/(public)/privacidad/page.tsx` y
+   `app/(public)/terminos/page.tsx`.
+
+Todo lo demás que la auditoría pre-lanzamiento encontró está corregido y
+verificado — ver la entrada del 2026-08-04 en el registro de progreso.
+
+### Recomendado antes o justo después de abrir al público
+
+- **Confirmar en Vercel que `AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET` existen
+  con ese nombre exacto.** Desde el 2026-08-04 el botón de Google no se
+  renderiza si faltan (antes mandaba al lector a una pantalla de error de
+  Google), así que un nombre mal escrito ya no rompe nada — pero deja el
+  camino de alta más usado invisible sin ningún aviso. Este proyecto ya
+  mandó tres variables con el nombre mal escrito a producción.
+- **`playbook-portal-phi.vercel.app` sirve el sitio completo y es
+  indexable.** Los canonical apuntan a `www.playbook.la`, así que Google
+  debería consolidar, pero lo más limpio es redirigir ese dominio a
+  playbook.la desde Vercel.
+- **Probar el alta con correo+contraseña en producción real.** Se verificó
+  de punta a punta contra Postgres local (alta, login, logout, re-login,
+  contraseña incorrecta, cuenta Google-only rechazada), pero nunca contra
+  la base real.
+- **Mejora de imagen pendiente de un deploy**: la portada
+  `la-lana-del-deporte-deal-infantino.png` quedó en 477 KB; pasarla a JPEG
+  la deja en 177 KB, pero hay que reescribir el `image_url` de ese artículo
+  en producción *después* de que el archivo nuevo esté desplegado, o la
+  portada queda rota en el medio.
 
 **Plan activo: "Roadmap Agosto 2026" (Fases 0-6), sección propia arriba.**
 El plan anterior (Fases 7, 8 y 9, más abajo) está completo salvo lo
@@ -4743,15 +5039,21 @@ anotado en su propia sección — no es lo que sigue ahora.
   `/terminos` son placeholders literales, necesitan un dato de negocio
   real del usuario, no se pueden completar desde código.
 
-**Resumen de lo que falta, en una lista (a 2026-08-02):**
+**Resumen de lo que falta, en una lista (a 2026-08-02, revisado el
+2026-08-04 — el ítem 4 es el único que bloquea el lanzamiento):**
 1. Fase 1 ítem 5 — redactar y aprobar el posicionamiento de cada producto
    editorial, después construir las 4 páginas custom.
 2. Fase 5 — decidir manual vs. automatizado para subir emails de lectores
    a Substack como suscriptores, y construirlo.
 3. Fase 5 — verificar en navegador real (después de deploy) el flujo de
-   registro/login con correo y contraseña.
+   registro/login con correo y contraseña. **Actualización 2026-08-04**:
+   ya está verificado de punta a punta contra un Postgres real y un
+   navegador real (alta, login, logout, re-login, contraseña incorrecta,
+   rechazo de cuenta Google-only), pero contra la base *local*, no la de
+   producción — queda solo esa confirmación.
 4. Fase 6 — el usuario provee domicilio fiscal real y jurisdicción para
-   cerrar los dos placeholders.
+   cerrar los dos placeholders. **Es lo único que bloquea el lanzamiento**
+   (ver "Bloqueantes de lanzamiento" arriba).
 5. Verificaciones manuales sin cambio de código, solo necesitan deploy
    con credenciales reales: subida de imágenes a Vercel Blob (gap desde
    Fase 4), panel de analítica con credenciales reales de Vercel

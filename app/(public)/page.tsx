@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getAllArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
@@ -12,6 +13,7 @@ import { StatsSection } from '@/components/sections/StatsSection';
 import { TestimonialsSection } from '@/components/sections/TestimonialsSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { AdSlot } from '@/components/ads/AdSlot';
+import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 
 // Fase 7 homepage order (decided in the homepage/ads brief, then tuned
 // with user feedback — see HANDOFF.md's session entries):
@@ -31,6 +33,20 @@ import { AdSlot } from '@/components/ads/AdSlot';
 //   7. Infinitas three-column grid (vertical-sponsor ad inside the section)
 //   8. Playbook en números + testimonios, compressed into one proof band
 //   9. Acerca de Playbook
+// The homepage was the only public route with no canonical at all — every
+// other one declares `alternates.canonical` (/archivo, /articulo, /tema,
+// /autor, /terminos, /privacidad). It matters most here: three hostnames
+// serve this exact page today (playbook.la, www.playbook.la and the
+// project's playbook-portal-phi.vercel.app deployment URL), and with no
+// canonical it's the search engine, not us, that picks which one gets
+// indexed. `openGraph.url` is set for the same reason on the social side.
+// Both are relative — metadataBase in app/layout.tsx resolves them against
+// the real production origin (lib/site-url.ts).
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  openGraph: { ...OG_DEFAULTS, type: 'website', url: '/', images: [DEFAULT_OG_IMAGE] },
+};
+
 export default async function HomePage() {
   const [articles, content] = await Promise.all([getAllArticles(), getSiteContent()]);
 
