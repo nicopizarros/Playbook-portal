@@ -23,7 +23,10 @@ export type ProductHub = {
 // the day editorial mints a `futbol-business-review` source the page simply
 // starts listing articles with zero further code changes.
 export const PRODUCT_HUBS: ProductHub[] = [
-  { source: 'industry-shots', path: '/industry-shots', name: 'Industry Shots', concept: 'El Trago' },
+  // Named "Noticias" everywhere the reader looks (user feedback 2026-08-05
+  // — the SOURCE_LABELS name, not the newsletter's internal brand);
+  // /industry-shots 301s to /noticias in next.config.ts.
+  { source: 'industry-shots', path: '/noticias', name: 'Noticias', concept: 'El Trago' },
   { source: 'la-lana', path: '/la-lana', name: 'La Lana del Deporte', concept: 'El Expediente' },
   { source: 'futbol-business-review', path: '/futbol-business-review', name: 'The Futbol Business Review', concept: 'La Sala de Juntas' },
   { source: 'infinitas', path: '/infinitas', name: 'Infinitas', concept: 'El Marcador' },

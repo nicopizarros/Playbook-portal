@@ -10,8 +10,14 @@ import { SITE_URL } from '@/lib/site-url';
 // business force to be reckoned with — is structural: a scoreboard of real
 // business growth metrics ticks upward as the reader arrives, so the
 // thesis is something they watch happen. Photography is treated with a
-// violet duotone overlay (CSS, see .inf-duotone) to stay inside the flat
-// system rather than importing grit.
+// violet duotone overlay (CSS, see .infhub-duotone) to stay inside the
+// flat system rather than importing grit.
+//
+// Class names are all infhub-* — NOT inf-* — because the homepage's
+// Infinitas section already owns .inf-grid/.inf-card (dark overlay cards
+// in styles/sections.css) and the first pass of this page collided with
+// them: dark-ink titles rendered on those dark card boxes, the exact
+// unreadability the user reported (2026-08-05). Keep the prefixes apart.
 
 export const metadata: Metadata = {
   title: 'Infinitas — El Marcador',
@@ -63,27 +69,27 @@ export default async function InfinitasHubPage() {
           <p className="hub-inf-sub">La nueva era del deporte, leída como industria.</p>
         </header>
 
-        <section className="inf-marcador" aria-label="El Marcador">
-          <h2 className="inf-marcador-head">El Marcador</h2>
-          <p className="inf-marcador-sub">
+        <section className="infhub-marcador" aria-label="El Marcador">
+          <h2 className="infhub-marcador-head">El Marcador</h2>
+          <p className="infhub-marcador-sub">
             El deporte femenil como fuerza de negocio, en cifras que no dejan de subir.
           </p>
           <Scoreboard metrics={SCOREBOARD} />
         </section>
 
         {lead ? (
-          <section className="inf-lead" aria-label="Historia principal">
-            <Link className="inf-lead-card" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
+          <section className="infhub-lead" aria-label="Historia principal">
+            <Link className="infhub-lead-card" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
               {lead.imageUrl && (
-                <span className="inf-duotone">
+                <span className="infhub-duotone">
                   {/* Editor-supplied URL, arbitrary host — see
                       components/sections/AboutSection.tsx's comment. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={lead.imageUrl} alt={lead.title} width={1200} height={750} decoding="async" />
                 </span>
               )}
-              <span className="inf-lead-copy">
-                <span className="inf-kicker">Historia principal</span>
+              <span className="infhub-lead-copy">
+                <span className="infhub-kicker">Historia principal</span>
                 <h3>{lead.title}</h3>
                 <p>{lead.excerpt}</p>
                 <span className="byline">
@@ -97,15 +103,15 @@ export default async function InfinitasHubPage() {
         )}
 
         {rest.length > 0 && (
-          <section className="inf-grid" aria-label="Más de Infinitas">
+          <section className="infhub-grid" aria-label="Más de Infinitas">
             {rest.map(article => (
               <Link
-                className="inf-card"
+                className="infhub-card"
                 href={`/articulo?id=${encodeURIComponent(article.id)}`}
                 key={article.id}
               >
                 {article.imageUrl && (
-                  <span className="inf-duotone">
+                  <span className="infhub-duotone">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={article.imageUrl} alt="" width={600} height={400} loading="lazy" decoding="async" />
                   </span>

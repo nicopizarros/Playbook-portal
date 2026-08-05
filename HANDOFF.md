@@ -5054,6 +5054,51 @@ completo. `tsc`, `eslint` y `next build` limpios (con y sin `.env.local`).
   documentadas en `lib/product-hubs.ts` — vale agregarlas al skill
   publish-newsletter para que los artículos nuevos las traigan puestas.
 
+### 2026-08-05 — Hubs, segunda pasada: feedback del usuario sobre el preview real
+
+El usuario revisó el preview de Vercel (capturas de iPad, tema oscuro) y
+pidió cambios producto por producto. Todo en la misma rama
+`claude/playbook-portal-design-o0vts1`.
+
+- **Noticias (antes /industry-shots)**: la página ya NO se llama Industry
+  Shots — masthead, metadata y registro dicen "Noticias", la ruta es
+  `/noticias` y `/industry-shots` hace 301 (next.config.ts). El acento
+  azul se reemplazó por el verde Playbook ("¿por qué hay colores
+  distintos?" — el azul era ajeno a la marca; el arte de la tarjeta usa
+  verde). Los badges de día perdieron el tratamiento de dos colores (con
+  el calendario real de publicación, los días fuera de cadencia se veían
+  como colores aleatorios) — ahora un solo estilo neutro. Más dinamismo y
+  jerarquía: la última edición abre en grande (bloque destacado con
+  excerpt) y el tamaño del titular de cada fila escala con el `priority`
+  editorial (★5 → Anton grande, ★4 → bold intermedio, resto compacto).
+- **La Lana del Deporte**: mismo concepto (expedientes, sellos, ruta del
+  dinero), formato y paleta nuevos — fuera el grunge oscuro/naranja, ahora
+  es un dossier literal sobre los colores de la casa: papel, tinta, verde
+  Playbook (marcador en el título, subrayado de la cifra, sello "caso
+  abierto") y el dorado la-lana para lo secundario. Fólders manila con
+  pestaña (número de caso + fecha), anexo fotográfico tipo impresión
+  matte, archivero en grid de fólders. Superficie clara FIJA (un fólder es
+  papel en cualquier tema). El fallback "Nº 00X" del pull-figure se
+  eliminó (duplicaba la pestaña); sin cifra, abre el título.
+- **Infinitas — legibilidad**: bug real encontrado gracias a la captura
+  del usuario: las clases `.inf-grid`/`.inf-card` del hub COLISIONABAN con
+  las del bloque Infinitas de la portada (sections.css, tarjetas oscuras
+  #111) — títulos tinta-oscura sobre caja oscura, ilegible. Todas las
+  clases del hub ahora son `infhub-*` (no reutilizar el prefijo `inf-`).
+  Además: texto secundario más oscuro (.78), tarjetas blancas con borde
+  sobre el papel pálido, tipografías un punto más grandes.
+- **Links de Productos editoriales**: `scripts/point-products-at-hubs.ts`
+  corrido contra la Neon de producción (dry-run primero) — las 4 tarjetas
+  de la portada real ya apuntan a /noticias, /la-lana,
+  /futbol-business-review e /infinitas.
+
+**Verificación**: Playwright contra la app corriendo (Postgres local), a
+1366px y 390px, tema claro y OSCURO (el usuario navega en oscuro — la
+colisión de Infinitas solo se veía así): 0 anchors anidados, 0 overflow,
+0 errores de consola; capturas revisadas a ojo. `tsc`/`eslint`/`next
+build` limpios. El 301 de /industry-shots verificado con curl (308 en
+dev es el equivalente de Next).
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

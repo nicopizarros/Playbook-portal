@@ -5,14 +5,15 @@ import { caseNumber, caseStatus, extractPullFigure } from '@/lib/product-hubs';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { SITE_URL } from '@/lib/site-url';
 
-// La Lana del Deporte — "El Expediente" (design brief, 2026-08-05).
-// The flagship: premium, investigative, one deep story at a time. Each
-// piece is presented like a case file being unsealed — investigations are
-// "Expedientes" numbered by case (001, 002…), dated by case, with the
-// departures-board motif from the card art as a recurring device rather
-// than a one-off header image. The hub surface is fixed-dark on purpose
-// (same --ink-fixed reasoning as the footer): the torn-paper/stencil
-// identity IS dark, it doesn't invert with the reader's theme.
+// La Lana del Deporte — "El Expediente" (design brief 2026-08-05, format
+// reworked same day on user feedback: the case-file idea and its devices
+// stay — numbering, stamps, the scroll-drawn money trail — but the dark
+// grunge/orange skin is gone. This is Playbook's flagship product, so it
+// wears the house palette: paper, ink, the brand green, and the la-lana
+// gold the rest of the site already uses for this source. The format is
+// now a literal dossier: manila folder cards with tabs, on a fixed light
+// paper surface that does not invert with the theme — a folder is paper
+// whatever the reader's theme says.)
 
 export const metadata: Metadata = {
   title: 'La Lana del Deporte — El Expediente',
@@ -21,11 +22,19 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/la-lana` },
 };
 
-// Masthead route: the board motif itself (México y LATAM hacia los centros
+// Masthead route: the money-moves motif (México y LATAM hacia los centros
 // de dinero del deporte) — decorative in the same way the card art's
-// departures board is, and marked as such; real per-story routes render
-// inside articles via the "Ruta del dinero:" convention.
+// departures board is; real per-story routes render inside articles via
+// the "Ruta del dinero:" convention.
 const MASTHEAD_ROUTE = ['CDMX', 'MIAMI', 'MADRID', 'RIYADH'];
+
+function Stamp({ status }: { status: 'abierto' | 'archivado' }) {
+  return (
+    <span className={`lana-stamp lana-stamp-${status}`}>
+      {status === 'abierto' ? 'Caso abierto' : 'Archivado'}
+    </span>
+  );
+}
 
 export default async function LaLanaHubPage() {
   const articles = await getArticlesBySource('la-lana');
@@ -50,40 +59,42 @@ export default async function LaLanaHubPage() {
         </header>
 
         {lead ? (
-          <section className="lana-case-hero" aria-label="Último expediente">
-            <div className="lana-case-hero-meta">
+          <section className="lana-folder lana-folder-lead reveal" aria-label="Último expediente">
+            <div className="lana-folder-tab">
               <span className="lana-case-number">Expediente {caseNumber(lead, articles)}</span>
-              <span className={`lana-stamp lana-stamp-${caseStatus(lead, now)}`}>
-                {caseStatus(lead, now) === 'abierto' ? 'Caso abierto' : 'Archivado'}
-              </span>
+              <span className="lana-case-date">{lead.dateFormatted}</span>
             </div>
-            <div className="lana-case-hero-body">
-              <div className="lana-case-hero-copy">
+            <div className="lana-folder-body">
+              <div className="lana-folder-copy">
+                <Stamp status={caseStatus(lead, now)} />
                 {/* The story's single biggest number, pulled out large as
-                    the visual hook instead of buried in body text; falls
-                    back to the case number when the copy has no figure. */}
-                <p className="lana-pull-figure">
-                  {extractPullFigure(lead.title, lead.excerpt, lead.teaser) ?? `Nº ${caseNumber(lead, articles)}`}
-                </p>
+                    the visual hook instead of buried in body text. No
+                    fallback: the folder tab already carries the case
+                    number, so a figure-less story just leads with its
+                    title instead of saying "003" twice. */}
+                {(() => {
+                  const figure = extractPullFigure(lead.title, lead.excerpt, lead.teaser);
+                  return figure ? <p className="lana-pull-figure">{figure}</p> : null;
+                })()}
                 <h2>
                   <Link href={`/articulo?id=${encodeURIComponent(lead.id)}`}>{lead.title}</Link>
                 </h2>
                 <p className="lana-case-excerpt">{lead.excerpt}</p>
                 <div className="lana-case-fileline">
-                  <span>Fecha del caso: {lead.dateFormatted}</span>
                   <span>Lectura: {lead.readingTime || 1} min</span>
                 </div>
-                <Link className="btn light on-dark lana-open-btn" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
+                <Link className="btn lana-open-btn" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
                   Abrir el expediente
                 </Link>
               </div>
               {lead.imageUrl && (
-                <div className="lana-case-hero-photo">
+                <figure className="lana-folder-photo">
                   {/* Editor-supplied URL, arbitrary host — see
                       components/sections/AboutSection.tsx's comment. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={lead.imageUrl} alt={lead.title} width={900} height={560} decoding="async" />
-                </div>
+                  <figcaption>Anexo fotográfico · Exp. {caseNumber(lead, articles)}</figcaption>
+                </figure>
               )}
             </div>
           </section>
@@ -93,27 +104,27 @@ export default async function LaLanaHubPage() {
 
         {rest.length > 0 && (
           <section className="lana-archive" aria-label="Expedientes anteriores">
-            <h2 className="lana-archive-head">Expedientes anteriores</h2>
-            <div className="lana-archive-list">
-              {rest.map(article => {
-                const status = caseStatus(article, now);
-                return (
-                  <Link
-                    className="lana-case-row"
-                    href={`/articulo?id=${encodeURIComponent(article.id)}`}
-                    key={article.id}
-                  >
+            <h2 className="lana-archive-head">Archivero</h2>
+            <div className="lana-archive-grid">
+              {rest.map(article => (
+                <Link
+                  className="lana-folder lana-folder-card reveal"
+                  href={`/articulo?id=${encodeURIComponent(article.id)}`}
+                  key={article.id}
+                >
+                  <span className="lana-folder-tab">
                     <span className="lana-case-number">Exp. {caseNumber(article, articles)}</span>
-                    <span className="lana-case-row-main">
-                      <h3>{article.title}</h3>
-                      <span className="lana-case-row-date">{article.dateFormatted}</span>
+                    <span className="lana-case-date">{article.dateFormatted}</span>
+                  </span>
+                  <span className="lana-folder-body">
+                    <h3>{article.title}</h3>
+                    <span className="lana-folder-card-foot">
+                      <Stamp status={caseStatus(article, now)} />
+                      <span className="lana-folder-open" aria-hidden="true">Abrir →</span>
                     </span>
-                    <span className={`lana-stamp lana-stamp-${status}`}>
-                      {status === 'abierto' ? 'Caso abierto' : 'Archivado'}
-                    </span>
-                  </Link>
-                );
-              })}
+                  </span>
+                </Link>
+              ))}
             </div>
           </section>
         )}

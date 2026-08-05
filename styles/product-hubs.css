@@ -1,39 +1,49 @@
 /* ============================================================
    Product hubs + homepage "Lo que sigue importando" module
-   (design briefs, 2026-08-05).
+   (design briefs 2026-08-05; reworked same day on user feedback —
+   see each hub's page.tsx header for what changed and why).
 
-   Four editorial products, four identities pushed from the card art on the
-   homepage into full experiences — NOT one template re-skinned four times:
+   Four editorial products, four front pages — kept close to the Playbook
+   palette (paper / ink / green) unless the product's own brand demands
+   otherwise:
 
-     .hub-lana      La Lana del Deporte — "El Expediente". Torn paper,
-                    stencil type, orange ink, departures-board motif.
-     .hub-shots     Industry Shots — "El Trago". Dark grunge, condensed
-                    caps, blue accent, built for scanning speed.
+     .hub-lana      La Lana del Deporte — "El Expediente". The flagship.
+                    A literal dossier: manila folder cards with tabs on a
+                    fixed paper surface, ink + brand green + the la-lana
+                    gold the site already uses for this source.
+     .hub-shots     Noticias — "El Trago". Dark scan-first list, Playbook
+                    GREEN accent (the imported blue read as an alien
+                    color), importance shown through type size.
      .hub-tfbr      The Futbol Business Review — "La Sala de Juntas".
-                    Black (not navy), red trend arrows, data-forward.
-     .hub-infinitas Infinitas — "El Marcador". Flat violet, clean, zero
-                    grunge — deliberately opposite the other three.
+                    Black + red: the co-brand's own identity (card art),
+                    kept as-is on purpose.
+     .hub-infinitas Infinitas — "El Marcador". Flat violet, clean. Class
+                    names are infhub-* because the homepage's Infinitas
+                    section owns .inf-grid/.inf-card (dark overlay cards
+                    in sections.css) and colliding with them made titles
+                    unreadable — never reuse the inf-* prefix here.
 
    Every hub surface is a FIXED-color environment (same reasoning as the
-   footer's --ink-fixed): each product's identity does not invert with the
-   reader's theme toggle, so all colors below are literals scoped to the
-   hub, never the theme-adaptive tokens. Page chrome (header/footer)
-   around the hubs keeps theming normally.
+   footer's --ink-fixed): a manila folder is paper and a bottle-label is
+   dark whatever the reader's theme toggle says, so colors below are
+   literals scoped to the hub, never the theme-adaptive tokens. Page
+   chrome (header/footer) around the hubs keeps theming normally.
    ============================================================ */
 
 :root{
-  --lana-bg:#191410;
-  --lana-bg-soft:#211a14;
-  --lana-bone:#f0e9dc;
-  --lana-faint:rgba(240,233,220,.55);
-  --lana-rule:rgba(240,233,220,.16);
-  --lana-orange:#f26b1d;
-  --shots-bg:#101318;
-  --shots-bg-soft:#161b23;
-  --shots-white:#eef1f5;
-  --shots-faint:rgba(238,241,245,.55);
-  --shots-rule:rgba(238,241,245,.13);
-  --shots-blue:#4f8ff7;
+  /* Playbook light-palette literals, frozen for fixed surfaces. */
+  --pb-paper:#FAF8F5;
+  --pb-paper-soft:#F1ECE4;
+  --pb-rule:#E6DFD3;
+  --pb-ink:#0a0a0a;
+  --pb-gray:#6b6459;
+  --pb-green:#9aea39;
+  --lana-gold:#94690a;
+  --shots-bg:#101310;
+  --shots-bg-soft:#171b16;
+  --shots-white:#eef2ea;
+  --shots-faint:rgba(238,242,234,.6);
+  --shots-rule:rgba(238,242,234,.14);
   --tfbr-bg:#0a0a0a;
   --tfbr-white:#f4f4f4;
   --tfbr-faint:rgba(244,244,244,.55);
@@ -44,7 +54,7 @@
   --inf-white:#ffffff;
   --inf-paper:#faf7ff;
   --inf-ink:#241832;
-  --inf-faint:rgba(36,24,50,.6);
+  --inf-faint:rgba(36,24,50,.78);
   --inf-rule:rgba(107,47,191,.18);
 }
 
@@ -54,125 +64,146 @@
 .hub-empty{padding:48px 0;}
 .hub-foot{margin-top:56px;}
 
-/* Dark hubs: the shared chrome classes (.section-link, .empty-state) are
-   ink-on-paper by default; on a fixed-dark surface they need the surface's
-   own foreground. */
-.hub-lana,.hub-shots,.hub-tfbr{color:inherit;}
-.hub-lana .section-link{color:var(--lana-bone);border-bottom-color:var(--lana-bone);}
-.hub-lana .section-link:hover{color:var(--lana-orange);}
+/* Shared chrome (.section-link, .empty-state) re-inked per fixed surface. */
+.hub-lana .section-link{color:var(--pb-ink);border-bottom-color:var(--pb-ink);}
+.hub-lana .section-link:hover{color:var(--pb-gray);}
 .hub-shots .section-link{color:var(--shots-white);border-bottom-color:var(--shots-white);}
-.hub-shots .section-link:hover{color:var(--shots-blue);}
+.hub-shots .section-link:hover{color:var(--pb-green);}
 .hub-tfbr .section-link{color:var(--tfbr-white);border-bottom-color:var(--tfbr-white);}
 .hub-tfbr .section-link:hover{color:var(--tfbr-red);}
-.hub-lana .empty-state,.hub-shots .empty-state,.hub-tfbr .empty-state{color:inherit;opacity:.7;}
+.hub-shots .empty-state,.hub-tfbr .empty-state{color:inherit;opacity:.7;}
+.hub-lana .empty-state{color:var(--pb-gray);}
 
 /* ============================================================
-   1. La Lana del Deporte — "El Expediente"
+   1. La Lana del Deporte — "El Expediente" (dossier on paper)
    ============================================================ */
-/* Grain without image assets: two crossed repeating gradients over the
-   base — reads as the card's paper-and-ink texture at a fraction of the
-   cost of a texture file. */
+/* Fixed paper surface with a faint dot grid — an evidence board, not
+   grunge. */
 .hub-lana{
-  background:
-    repeating-linear-gradient(115deg,transparent 0 3px,rgba(255,255,255,.012) 3px 4px),
-    repeating-linear-gradient(25deg,transparent 0 2px,rgba(0,0,0,.22) 2px 3px),
-    var(--lana-bg);
-  color:var(--lana-bone);
+  background:radial-gradient(rgba(10,10,10,.055) 1px,transparent 1px) 0 0/22px 22px,var(--pb-paper);
+  color:var(--pb-ink);
 }
 
-.hub-lana-masthead{padding:16px 0 40px;border-bottom:1px solid var(--lana-rule);}
-.hub-lana-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--lana-orange);margin:0 0 14px;}
+.hub-lana-masthead{padding:12px 0 38px;border-bottom:2px solid var(--pb-ink);}
+.hub-lana-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;
+  font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--pb-gray);
+}
+.hub-lana-eyebrow::before{content:"";width:8px;height:8px;background:var(--pb-green);flex-shrink:0;}
 .hub-lana-title{
   font-family:var(--serif-display);font-weight:400;text-transform:uppercase;
-  font-size:clamp(44px,7.5vw,84px);line-height:.95;letter-spacing:.01em;margin:0;
-  color:var(--lana-bone);
+  font-size:clamp(44px,7.5vw,84px);line-height:.95;letter-spacing:.01em;margin:0;color:var(--pb-ink);
 }
-/* The stencil-highlight stroke from the card: a skewed ink mark behind the
-   second line, orange as the ink accent. */
+/* Marker swipe in the brand green — the Playbook highlight, not orange ink. */
 .hub-lana-title-accent{
-  display:inline-block;position:relative;padding:0 10px;color:var(--lana-bg);
-  background:var(--lana-orange);transform:rotate(-1.2deg);
+  display:inline-block;padding:0 10px;background:var(--pb-green);color:var(--pb-ink);
+  transform:rotate(-1.2deg);
 }
-.hub-lana-sub{max-width:520px;font-size:15px;line-height:1.55;color:var(--lana-faint);margin:18px 0 0;}
+.hub-lana-sub{max-width:520px;font-size:15px;line-height:1.55;color:var(--pb-gray);margin:16px 0 0;}
 
-/* Departures-board route line (also used inside article bodies). */
-.money-trail{margin:34px 0 0;}
+/* Departures-board route line (masthead + article bodies). Line and
+   labels ride currentColor so the same component works on the paper hub
+   and inside a theme-adaptive article body; the stops are the brand
+   green in both. */
+.money-trail{margin:30px 0 0;}
 .article-body .money-trail{margin:36px 0;}
 .money-trail svg{display:block;width:100%;height:auto;}
-.money-trail-ghost{stroke:currentColor;opacity:.14;stroke-width:2;stroke-dasharray:3 7;}
-.money-trail-line{stroke:var(--lana-orange);stroke-width:2.5;stroke-dasharray:3 7;stroke-linecap:round;}
-.money-trail-dot{fill:var(--lana-orange);}
-.money-trail-label{
-  font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:.18em;
-  fill:currentColor;
+.money-trail-ghost{stroke:currentColor;opacity:.16;stroke-width:2;stroke-dasharray:3 7;}
+.money-trail-line{stroke:currentColor;stroke-width:2.5;stroke-dasharray:3 7;stroke-linecap:round;}
+.money-trail-dot{fill:var(--pb-green);stroke:currentColor;stroke-width:1.5;}
+.money-trail-label{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:.18em;fill:currentColor;}
+
+/* Manila folder: tab + body. The tab overlaps the body's border by 1px so
+   they read as one die-cut folder. */
+.lana-folder{display:block;color:inherit;}
+.lana-folder-tab{
+  position:relative;z-index:1;display:inline-flex;align-items:baseline;gap:14px;
+  background:var(--pb-paper-soft);border:1px solid var(--pb-rule);border-bottom:none;
+  border-radius:8px 8px 0 0;padding:8px 18px 7px;margin-bottom:-1px;
+  transition:background var(--duration-base) var(--ease-out);
 }
-/* Hero: the latest case, one deep story at a time. */
-.lana-case-hero{padding:44px 0 0;}
-.lana-case-hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;}
+.lana-folder-body{
+  display:block;background:var(--pb-paper-soft);border:1px solid var(--pb-rule);
+  border-radius:0 10px 10px 10px;padding:26px 26px 24px;
+  box-shadow:0 1px 0 rgba(10,10,10,.04);
+}
 .lana-case-number{
-  font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--lana-faint);
+  font-size:11.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--pb-ink);
 }
-/* Case stamp: rotated, inked, slightly imperfect — a rubber stamp, not a
-   pill. */
+.lana-case-date{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--pb-gray);}
+
+/* Rubber stamp, kept from v1 (the resource the user liked) — now inked in
+   the house colors: open cases in ink, archived in the la-lana gold. */
 .lana-stamp{
   display:inline-block;padding:4px 12px;border:2px solid currentColor;
-  font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
   transform:rotate(-3deg);border-radius:2px;
   mask-image:radial-gradient(circle at 30% 60%,#000 92%,transparent 100%);
 }
-.lana-stamp-abierto{color:var(--lana-orange);}
-.lana-stamp-archivado{color:var(--lana-faint);}
+.lana-stamp-abierto{color:var(--pb-ink);background:rgba(154,234,57,.28);}
+.lana-stamp-archivado{color:var(--lana-gold);}
 
-.lana-case-hero-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:44px;align-items:start;}
-/* The story's single biggest number as the visual hook. */
+/* Lead folder: copy + photographic annex. */
+.lana-folder-lead{margin-top:44px;}
+.lana-folder-lead .lana-folder-body{
+  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;align-items:start;
+  padding:30px 30px 28px;
+}
+.lana-folder-copy .lana-stamp{margin-bottom:18px;}
+/* The story's biggest number as the hook, on a green highlighter swipe. */
 .lana-pull-figure{
-  font-family:var(--serif-display);font-size:clamp(48px,6.5vw,76px);line-height:1;
-  color:var(--lana-orange);margin:0 0 18px;letter-spacing:.01em;
+  display:inline-block;font-family:var(--serif-display);font-size:clamp(44px,6vw,72px);
+  line-height:1;letter-spacing:.01em;color:var(--pb-ink);margin:0 0 16px;padding:0 6px;
+  box-shadow:inset 0 -0.24em 0 0 var(--pb-green);
 }
-.lana-case-hero-copy h2{font-family:var(--serif-display);font-weight:400;font-size:clamp(26px,3.2vw,38px);line-height:1.12;text-transform:uppercase;margin:0 0 16px;}
-.lana-case-hero-copy h2 a{color:inherit;}
-.lana-case-hero-copy h2 a:hover{color:var(--lana-orange);}
-.lana-case-excerpt{font-size:15px;line-height:1.6;color:var(--lana-faint);margin:0 0 20px;max-width:56ch;}
+.lana-folder-copy h2{
+  font-family:var(--serif-display);font-weight:400;font-size:clamp(24px,3vw,34px);
+  line-height:1.12;text-transform:uppercase;margin:0 0 14px;
+}
+.lana-folder-copy h2 a{color:inherit;}
+.lana-folder-copy h2 a:hover{box-shadow:inset 0 -0.18em 0 0 var(--pb-green);}
+.lana-case-excerpt{font-size:15px;line-height:1.6;color:var(--pb-gray);margin:0 0 16px;max-width:56ch;}
 .lana-case-fileline{
-  display:flex;gap:22px;flex-wrap:wrap;margin-bottom:26px;
-  font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--lana-faint);
+  display:flex;gap:22px;flex-wrap:wrap;margin-bottom:22px;
+  font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--pb-gray);
 }
-.lana-open-btn{align-self:flex-start;}
-
-/* Torn-paper photo: jagged clip edges, like a clipping pinned to the
-   file. */
-.lana-case-hero-photo{
-  transform:rotate(1.1deg);
-  clip-path:polygon(1.5% 3%,10% 0,32% 2%,55% 0,79% 2.5%,97% 0,100% 12%,98.5% 38%,100% 62%,98% 86%,100% 97%,88% 100%,64% 98%,38% 100%,14% 97.5%,0 100%,1% 74%,0 46%,2% 22%);
-  background:var(--lana-bone);padding:10px;
+/* Photographic annex: white matte print, slightly askew, captioned like
+   an exhibit. */
+.lana-folder-photo{margin:0;background:#fff;border:1px solid var(--pb-rule);padding:10px 10px 8px;transform:rotate(1.1deg);box-shadow:0 10px 24px rgba(10,10,10,.1);}
+.lana-folder-photo img{display:block;width:100%;height:auto;}
+.lana-folder-photo figcaption{
+  padding:8px 2px 2px;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lana-gold);
 }
-.lana-case-hero-photo img{display:block;width:100%;height:auto;filter:saturate(.82) contrast(1.05);}
 
-/* Archive as a row of case files, not a thumbnail grid. */
-.lana-archive{margin-top:64px;}
+/* Archivero: a cabinet of folders, not a list. */
+.lana-archive{margin-top:56px;}
 .lana-archive-head{
   font-family:var(--serif-display);font-weight:400;font-size:21px;text-transform:uppercase;
-  letter-spacing:.03em;margin:0 0 6px;padding-bottom:14px;border-bottom:2px solid var(--lana-bone);
+  letter-spacing:.03em;margin:0 0 20px;padding-bottom:12px;border-bottom:2px solid var(--pb-ink);
 }
-.lana-case-row{
-  display:flex;align-items:center;gap:24px;padding:20px 14px;
-  border-bottom:1px dashed var(--lana-rule);color:inherit;
-  transition:background var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+.lana-archive-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 22px;}
+.lana-folder-card{transition:transform var(--duration-base) var(--ease-out);}
+.lana-folder-card:hover{transform:translateY(-4px);}
+.lana-folder-card:hover .lana-folder-tab{background:var(--pb-green);}
+.lana-folder-card:hover .lana-folder-body{box-shadow:0 14px 26px rgba(10,10,10,.1);}
+.lana-folder-card .lana-folder-body{display:flex;flex-direction:column;gap:16px;min-height:150px;padding:20px 20px 18px;}
+.lana-folder-card h3{
+  font-family:var(--serif-display);font-weight:400;font-size:18px;line-height:1.22;
+  text-transform:uppercase;margin:0;flex:1;
 }
-/* The folder-tab: a small orange notch on hover, like pulling the file. */
-.lana-case-row:hover{background:var(--lana-bg-soft);transform:translateX(6px);}
-.lana-case-row .lana-case-number{flex-shrink:0;min-width:86px;}
-.lana-case-row-main{flex:1;min-width:0;}
-.lana-case-row-main h3{font-family:var(--serif-display);font-weight:400;font-size:19px;line-height:1.2;text-transform:uppercase;margin:0 0 4px;}
-.lana-case-row:hover h3{color:var(--lana-orange);}
-.lana-case-row-date{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--lana-faint);}
-.lana-case-row .lana-stamp{flex-shrink:0;font-size:9.5px;padding:3px 9px;}
-
+.lana-folder-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.lana-folder-card .lana-stamp{font-size:9.5px;padding:3px 9px;}
+.lana-folder-open{
+  font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pb-ink);
+  opacity:0;transform:translateX(-6px);
+  transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.lana-folder-card:hover .lana-folder-open{opacity:1;transform:none;}
 .hub-lana .hub-foot-link{font-size:12.5px;}
 
-/* ——— La Lana article template: the case file carried into the story.
-   Torn-paper pull quotes, consistent with the card's collage language. */
+/* ——— La Lana article template: the dossier carried into the story.
+   Pull quotes as paper clippings — the torn edge stays, the palette is
+   the house one (theme-adaptive tokens: fine on light AND dark). */
 .article-product-la-lana .article-body blockquote{
   border-left:none;padding:22px 26px;margin:32px -8px;position:relative;
   background:var(--paper-soft);transform:rotate(-.6deg);
@@ -180,40 +211,59 @@
   font-family:var(--serif-display);font-size:19px;line-height:1.35;text-transform:uppercase;letter-spacing:.02em;
 }
 .article-product-la-lana .article-body blockquote::before{
-  content:"";position:absolute;left:26px;top:0;width:44px;height:5px;background:var(--lana-orange);
+  content:"";position:absolute;left:26px;top:0;width:44px;height:5px;background:var(--green);
 }
-.article-product-la-lana .tag{background:var(--lana-orange);color:#fff;}
+/* Kicker chip in the same gold the site already uses for this source. */
+.article-product-la-lana .tag{background:var(--src-lana);color:#fff;}
 
 /* ============================================================
-   2. Industry Shots — "El Trago"
+   2. Noticias — "El Trago" (green, tiered by importance)
    ============================================================ */
 .hub-shots{
   background:
-    radial-gradient(1100px 500px at 85% -10%,rgba(79,143,247,.14),transparent 60%),
+    radial-gradient(1100px 500px at 85% -10%,rgba(154,234,57,.10),transparent 60%),
     repeating-linear-gradient(155deg,transparent 0 5px,rgba(255,255,255,.014) 5px 6px),
     var(--shots-bg);
   color:var(--shots-white);
 }
 
-.hub-shots-masthead{padding:12px 0 34px;border-bottom:1px solid var(--shots-rule);}
-.hub-shots-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--shots-blue);margin:0 0 12px;}
+.hub-shots-masthead{padding:12px 0 30px;border-bottom:1px solid var(--shots-rule);}
+.hub-shots-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--pb-green);margin:0 0 12px;}
 .hub-shots-title{
   font-family:var(--serif-display);font-weight:400;text-transform:uppercase;
   font-size:clamp(40px,6.5vw,72px);line-height:.96;letter-spacing:.02em;margin:0 0 14px;
-  border-bottom:6px solid var(--shots-blue);display:inline-block;padding-bottom:6px;
+  border-bottom:6px solid var(--pb-green);display:inline-block;padding-bottom:6px;
 }
-.hub-shots-sub{max-width:520px;font-size:14.5px;line-height:1.55;color:var(--shots-faint);margin:0 0 18px;}
-.hub-shots-cadence{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0;}
-.hub-shots-measure{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--shots-faint);}
+.hub-shots-sub{max-width:520px;font-size:14.5px;line-height:1.55;color:var(--shots-faint);margin:0 0 14px;}
+.hub-shots-cadence{margin:0;font-size:12.5px;letter-spacing:.04em;color:var(--shots-faint);}
+.hub-shots-cadence strong{color:var(--shots-white);font-weight:700;}
+.hub-shots-measure{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--shots-faint);margin-left:6px;}
 
+/* One badge style — the two-tone cadence treatment read as random colors
+   against real publish days (user feedback). */
 .shots-badge{
-  display:inline-block;padding:3px 10px;border:1.5px solid var(--shots-blue);color:var(--shots-blue);
+  display:inline-block;padding:3px 10px;border:1.5px solid rgba(238,242,234,.35);color:var(--shots-faint);
   font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border-radius:2px;
 }
-.shots-badge-off{border-color:var(--shots-faint);color:var(--shots-faint);}
 
-/* Dense vertical list — scanning speed is the product. */
-.shots-list{margin-top:8px;}
+/* Latest edition leads big. */
+.shots-lead{margin-top:26px;}
+.shots-lead-link{
+  display:block;color:inherit;background:var(--shots-bg-soft);
+  border:1px solid var(--shots-rule);border-top:4px solid var(--pb-green);
+  padding:26px 26px 22px;transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);
+}
+.shots-lead-link:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(0,0,0,.35);}
+.shots-lead-when{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.shots-lead-title{
+  font-family:var(--serif-display);font-weight:400;font-size:clamp(26px,3.4vw,40px);
+  line-height:1.08;text-transform:uppercase;letter-spacing:.01em;margin:0 0 10px;
+}
+.shots-lead-link:hover .shots-lead-title{color:var(--pb-green);}
+.shots-lead-excerpt{font-size:14.5px;line-height:1.55;color:var(--shots-faint);margin:0 0 14px;max-width:70ch;}
+
+/* Dense list, headline size scaled by editorial priority. */
+.shots-list{margin-top:10px;}
 .shots-row{
   display:grid;grid-template-columns:190px minmax(0,1fr) auto;align-items:center;gap:20px;
   padding:15px 10px;border-bottom:1px solid var(--shots-rule);color:inherit;
@@ -222,50 +272,53 @@
 .shots-row:hover{background:var(--shots-bg-soft);}
 .shots-row-when{display:flex;flex-direction:column;gap:5px;align-items:flex-start;}
 .shots-row-date{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--shots-faint);}
-.shots-row-title{font-size:16.5px;font-weight:700;line-height:1.3;margin:0;}
-.shots-row:hover .shots-row-title{color:var(--shots-blue);}
+.shots-row-title{font-size:15.5px;font-weight:600;line-height:1.32;margin:0;}
+.shots-row[data-tier="md"]{padding:18px 10px;}
+.shots-row[data-tier="md"] .shots-row-title{font-size:19px;font-weight:800;line-height:1.25;}
+.shots-row[data-tier="lg"]{padding:22px 10px;}
+.shots-row[data-tier="lg"] .shots-row-title{
+  font-family:var(--serif-display);font-weight:400;font-size:25px;line-height:1.12;
+  text-transform:uppercase;letter-spacing:.01em;
+}
+.shots-row:hover .shots-row-title{color:var(--pb-green);}
 .shots-row-measure{
-  display:flex;align-items:center;gap:8px;flex-shrink:0;
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
   font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--shots-faint);
 }
-.shots-glyphs{display:inline-flex;gap:2px;}
-.shots-glyph-fill{fill:var(--shots-blue);}
+.shots-glyph-fill{fill:var(--pb-green);}
 .shots-glyph-outline{stroke:var(--shots-faint);stroke-width:2;}
 .hub-shots .hub-foot-link{font-size:12.5px;}
 
-/* ——— El Trago article template. */
-.article-product-industry-shots .tag{background:var(--shots-blue);color:#fff;}
+/* ——— Noticias article template. */
+.article-product-industry-shots .tag{background:var(--green);color:var(--ink-fixed);}
 
-/* Shot-glass reading progress: fixed to the corner, filling as the reader
-   scrolls the body. Fixed colors — it floats over the themed page, and its
-   glass/fill pairing must survive both themes. */
+/* Shot-glass reading progress: fixed corner chip over the themed page. */
 .shot-progress{
   position:fixed;right:18px;bottom:18px;z-index:60;
   display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:8px 9px 6px;background:rgba(16,19,24,.86);border:1px solid rgba(238,241,245,.2);
+  padding:8px 9px 6px;background:rgba(16,19,16,.86);border:1px solid rgba(238,242,234,.22);
   border-radius:8px;backdrop-filter:blur(4px);
 }
-.shot-progress-glass{stroke:rgba(238,241,245,.85);stroke-width:2;}
-.shot-progress-fill{fill:var(--shots-blue);transition:y var(--duration-fast) linear,height var(--duration-fast) linear;}
-.shot-progress[data-full] .shot-progress-fill{fill:var(--green);}
-.shot-progress-pct{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:rgba(238,241,245,.85);}
+.shot-progress-glass{stroke:rgba(238,242,234,.85);stroke-width:2;}
+.shot-progress-fill{fill:var(--pb-green);transition:y var(--duration-fast) linear,height var(--duration-fast) linear;}
+.shot-progress-pct{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:rgba(238,242,234,.85);}
 
-/* The Playbook-opinion callout: opinion visually fenced off from
-   reporting (credibility device — the fact/opinion line made explicit).
-   Bottle-cap dot + hard blue fence, unmistakably not a quote. */
+/* Opinion callout: opinion visually fenced off from reporting, in the
+   brand green. Theme-adaptive surface (tokens) so it reads on light and
+   dark article pages alike. */
 .shot-opinion{
-  margin:30px 0;padding:18px 20px 16px;border:2px solid var(--shots-blue);border-radius:4px;
-  position:relative;background:color-mix(in srgb,var(--shots-blue) 7%,var(--paper));
+  margin:30px 0;padding:18px 20px 16px;border:2px solid var(--green);border-radius:4px;
+  position:relative;background:color-mix(in srgb,var(--green) 10%,var(--paper));
 }
 .shot-opinion-kicker{
   display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;
-  font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--shots-blue);
+  font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
 }
 /* Bottle cap: a fluted circle, pure CSS. */
 .shot-opinion-kicker::before{
   content:"";width:14px;height:14px;border-radius:50%;flex-shrink:0;
-  background:repeating-conic-gradient(var(--shots-blue) 0 14deg,transparent 14deg 30deg);
-  border:2px solid var(--shots-blue);
+  background:repeating-conic-gradient(var(--green) 0 14deg,transparent 14deg 30deg);
+  border:2px solid var(--green);
 }
 .shot-opinion p{margin:0;}
 .shot-opinion p:not(:last-child){margin-bottom:12px;}
@@ -336,9 +389,8 @@
 .tfbr-cta{background:var(--tfbr-red);border-color:var(--tfbr-red);}
 
 /* ============================================================
-   4. Infinitas — "El Marcador"
+   4. Infinitas — "El Marcador" (infhub-* prefix, see header note)
    ============================================================ */
-/* Light, flat, clean — no texture, no collage, generous space. */
 .hub-infinitas{background:var(--inf-paper);color:var(--inf-ink);}
 .hub-infinitas .section-link{color:var(--inf-ink);border-bottom-color:var(--inf-violet);}
 .hub-infinitas .section-link:hover{color:var(--inf-violet);}
@@ -346,48 +398,54 @@
 
 /* Masthead: one flat violet block, the wordmark's rounded lowercase voice. */
 .hub-inf-masthead{background:var(--inf-violet);color:var(--inf-white);padding:52px 48px 56px;margin-top:4px;}
-.hub-inf-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;opacity:.85;margin:0 0 10px;}
+.hub-inf-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px;}
 .hub-inf-title{
   font-family:var(--sans);font-weight:800;font-size:clamp(48px,7vw,84px);line-height:.95;
   letter-spacing:-.03em;text-transform:lowercase;margin:0 0 12px;
 }
-.hub-inf-sub{font-size:16px;font-weight:500;letter-spacing:.04em;margin:0;opacity:.92;}
+.hub-inf-sub{font-size:16.5px;font-weight:600;letter-spacing:.03em;margin:0;}
 
 /* El Marcador: the scoreboard module. */
-.inf-marcador{margin-top:56px;}
-.inf-marcador-head{
-  font-family:var(--sans);font-weight:800;font-size:24px;letter-spacing:-.01em;margin:0 0 6px;
+.infhub-marcador{margin-top:56px;}
+.infhub-marcador-head{
+  font-family:var(--sans);font-weight:800;font-size:26px;letter-spacing:-.01em;margin:0 0 6px;
   color:var(--inf-violet);
 }
-.inf-marcador-sub{font-size:14px;color:var(--inf-faint);margin:0 0 26px;max-width:52ch;}
+.infhub-marcador-sub{font-size:14.5px;color:var(--inf-faint);margin:0 0 26px;max-width:52ch;}
 .scoreboard{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:0;}
-.scoreboard-item{background:var(--inf-white);border:1px solid var(--inf-rule);border-top:5px solid var(--inf-violet);padding:24px 24px 20px;}
-.scoreboard-label{font-size:12.5px;line-height:1.5;color:var(--inf-faint);margin-bottom:16px;min-height:56px;}
+.scoreboard-item{background:var(--inf-white);border:1px solid var(--inf-rule);border-top:5px solid var(--inf-violet);padding:24px 24px 20px;box-shadow:0 1px 3px rgba(36,24,50,.05);}
+.scoreboard-label{font-size:13.5px;line-height:1.5;color:var(--inf-faint);margin-bottom:16px;min-height:60px;}
 .scoreboard-figure{margin:0;display:flex;align-items:baseline;gap:3px;flex-wrap:wrap;}
 .scoreboard-value,.scoreboard-affix{
   font-family:var(--sans);font-weight:800;font-size:clamp(30px,3.4vw,42px);line-height:1;
   color:var(--inf-violet);letter-spacing:-.02em;font-variant-numeric:tabular-nums;
 }
-.scoreboard-source{display:block;width:100%;margin-top:10px;font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--inf-faint);}
+.scoreboard-source{display:block;width:100%;margin-top:10px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--inf-faint);}
 
 /* Lead story + violet duotone photography. */
-.inf-lead{margin-top:56px;}
-.inf-lead-card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:36px;align-items:center;color:inherit;}
-.inf-duotone{display:block;position:relative;overflow:hidden;background:var(--inf-violet-deep);}
-.inf-duotone img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.92;}
-.inf-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.28),rgba(84,36,156,.16));pointer-events:none;}
-.inf-kicker{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--inf-violet);margin-bottom:10px;}
-.inf-lead-copy h3{font-family:var(--sans);font-weight:800;font-size:clamp(24px,3vw,34px);line-height:1.15;letter-spacing:-.015em;margin:0 0 12px;}
-.inf-lead-card:hover h3{color:var(--inf-violet);}
-.inf-lead-copy p{font-size:14.5px;line-height:1.6;color:var(--inf-faint);margin:0 0 12px;}
-.hub-infinitas .byline{color:var(--inf-faint);}
+.infhub-lead{margin-top:56px;}
+.infhub-lead-card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:36px;align-items:center;color:inherit;}
+.infhub-duotone{display:block;position:relative;overflow:hidden;background:var(--inf-violet-deep);}
+.infhub-duotone img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.92;}
+.infhub-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.28),rgba(84,36,156,.16));pointer-events:none;}
+.infhub-kicker{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--inf-violet);margin-bottom:10px;}
+.infhub-lead-copy h3{font-family:var(--sans);font-weight:800;font-size:clamp(24px,3vw,34px);line-height:1.15;letter-spacing:-.015em;margin:0 0 12px;color:var(--inf-ink);}
+.infhub-lead-card:hover h3{color:var(--inf-violet);}
+.infhub-lead-copy p{font-size:15px;line-height:1.6;color:var(--inf-faint);margin:0 0 12px;}
+.hub-infinitas .byline{color:var(--inf-faint);font-size:12.5px;}
 
-/* Clean grid below — the most premium, least busy of the four. */
-.inf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:48px;}
-.inf-card{display:flex;flex-direction:column;gap:10px;color:inherit;}
-.inf-card .inf-duotone{aspect-ratio:3/2;}
-.inf-card h3{font-family:var(--sans);font-weight:700;font-size:16.5px;line-height:1.3;margin:0;}
-.inf-card:hover h3{color:var(--inf-violet);}
+/* Clean grid below — white cards on the pale surface, ink titles. */
+.infhub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:48px;}
+.infhub-card{
+  display:flex;flex-direction:column;gap:10px;color:inherit;background:var(--inf-white);
+  border:1px solid var(--inf-rule);padding-bottom:16px;box-shadow:0 1px 3px rgba(36,24,50,.05);
+  transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);
+}
+.infhub-card:hover{transform:translateY(-4px);box-shadow:0 14px 26px rgba(36,24,50,.12);}
+.infhub-card .infhub-duotone{aspect-ratio:3/2;}
+.infhub-card h3{font-family:var(--sans);font-weight:800;font-size:17px;line-height:1.32;margin:0;padding:4px 16px 0;color:var(--inf-ink);}
+.infhub-card:hover h3{color:var(--inf-violet);}
+.infhub-card .byline{padding:0 16px;}
 .hub-infinitas .hub-foot-link{font-size:12.5px;}
 
 /* ——— Infinitas article template: flat violet accents, no grunge. */
@@ -403,9 +461,6 @@
 /* ============================================================
    Homepage module — "Lo que sigue importando"
    ============================================================ */
-/* Visually distinct from the main list: thin top-rule cards, no full card
-   border — quieter than the 1+5 above it, so it never competes with the
-   lead story. */
 .still-matters{margin-top:44px;padding-top:26px;border-top:2px solid var(--ink);}
 .still-matters-head{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:20px;}
 .still-matters-head h2{font-family:var(--serif-display);font-weight:400;font-size:20px;letter-spacing:.02em;text-transform:uppercase;margin:0;}
@@ -413,9 +468,6 @@
 .still-matters-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
 .still-matters-card{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--rule);color:inherit;transition:border-color var(--duration-base) var(--ease-out);}
 .still-matters-card:hover{border-top-color:var(--ink);}
-/* Kicker reads as editorial judgment ("Sigue siendo noticia"), not a
-   generic featured label — amber dot, distinct from .tag-mini's source
-   dots and .eyebrow's green. */
 .still-matters-kicker{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-txt);}
 .still-matters-kicker::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--src-lana);flex-shrink:0;}
 .still-matters-card h3{font-size:15px;font-weight:700;line-height:1.32;margin:0;}
@@ -426,14 +478,15 @@
    Responsive
    ============================================================ */
 @media(max-width:980px){
-  .lana-case-hero-body{grid-template-columns:1fr;gap:30px;}
-  .lana-case-hero-photo{max-width:560px;}
+  .lana-folder-lead .lana-folder-body{grid-template-columns:1fr;gap:28px;}
+  .lana-folder-photo{max-width:520px;}
+  .lana-archive-grid{grid-template-columns:repeat(2,1fr);gap:22px 18px;}
   .hub-tfbr-masthead{grid-template-columns:1fr;gap:24px;align-items:start;}
   .tfbr-board-grid{grid-template-columns:1fr;}
   .scoreboard{grid-template-columns:1fr;}
   .scoreboard-label{min-height:0;}
-  .inf-lead-card{grid-template-columns:1fr;gap:20px;}
-  .inf-grid{grid-template-columns:repeat(2,1fr);gap:22px;}
+  .infhub-lead-card{grid-template-columns:1fr;gap:20px;}
+  .infhub-grid{grid-template-columns:repeat(2,1fr);gap:22px;}
   .still-matters-grid{grid-template-columns:repeat(2,1fr);gap:20px;}
 }
 @media(max-width:640px){
@@ -442,14 +495,11 @@
   .shots-row{grid-template-columns:1fr;gap:8px;padding:16px 6px;}
   .shots-row-when{flex-direction:row;align-items:center;gap:10px;}
   .shots-row-measure{justify-content:flex-start;}
-  /* Number + stamp share the top line; the title gets the full row width
-     below them (a 390px viewport left the flex title column ~110px wide,
-     wrapping one word per line). */
-  .lana-case-row{display:grid;grid-template-columns:1fr auto;gap:8px 14px;}
-  .lana-case-row .lana-case-number{min-width:0;}
-  .lana-case-row .lana-stamp{grid-row:1;grid-column:2;justify-self:end;}
-  .lana-case-row-main{grid-column:1 / -1;}
-  .inf-grid{grid-template-columns:1fr;}
+  .shots-lead-link{padding:20px 18px 18px;}
+  .lana-archive-grid{grid-template-columns:1fr;}
+  .lana-folder-lead .lana-folder-body{padding:22px 20px 20px;}
+  .lana-folder-tab{gap:10px;padding:7px 14px 6px;}
+  .infhub-grid{grid-template-columns:1fr;}
   .still-matters-grid{grid-template-columns:1fr;}
   .money-trail-label{font-size:19px;letter-spacing:.1em;}
   .tfbr-partner-strip{justify-content:center;text-align:center;}

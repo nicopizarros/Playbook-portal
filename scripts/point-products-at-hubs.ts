@@ -28,7 +28,7 @@ const DRY_RUN = process.argv.includes('--dry-run');
 // imageAlt → hub path. Kept in sync with lib/product-hubs.ts by hand — the
 // alt texts are card data, not source values, so there's nothing to join on.
 const HUB_URLS: Record<string, string> = {
-  'Noticias by Playbook': '/industry-shots',
+  'Noticias by Playbook': '/noticias',
   'La Lana del Deporte': '/la-lana',
   'The Futbol Business Review': '/futbol-business-review',
   Infinitas: '/infinitas',
