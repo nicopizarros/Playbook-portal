@@ -36,6 +36,14 @@ function Stamp({ status }: { status: 'abierto' | 'archivado' }) {
 // declared "Ruta del dinero" to turn into an auto board row. Bounded so
 // the hub stays a handful of cheap by-id lookups, not a table scan.
 const AUTO_ROW_CANDIDATES = 3;
+// Display ceiling for the whole board (auto + curated). The curated list
+// is already capped at 6 by scripts/update-lana-board.ts; this keeps the
+// board a marquee even if both sources are full.
+const MAX_BOARD_ROWS_SHOWN = 8;
+
+function boardKey(conexion: string): string {
+  return conexion.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+}
 
 export default async function LaLanaHubPage() {
   const [articles, content] = await Promise.all([getArticlesBySource('la-lana'), getSiteContent()]);
@@ -69,7 +77,18 @@ export default async function LaLanaHubPage() {
       url: `/articulo?id=${encodeURIComponent(full.id)}`,
     });
   }
-  const boardRows: BoardRow[] = [...autoRows, ...hubs.lana.boardRows];
+  // Auto rows first, then curated, deduped on the connection text (an
+  // editor pasting a route a case already declares shouldn't double it)
+  // and capped so the board stays a marquee, not an archive.
+  const seenConexiones = new Set<string>();
+  const boardRows: BoardRow[] = [...autoRows, ...hubs.lana.boardRows]
+    .filter(row => {
+      const key = boardKey(row.conexion);
+      if (!key || seenConexiones.has(key)) return false;
+      seenConexiones.add(key);
+      return true;
+    })
+    .slice(0, MAX_BOARD_ROWS_SHOWN);
 
   return (
     <main className="hub hub-lana" id="la-lana">

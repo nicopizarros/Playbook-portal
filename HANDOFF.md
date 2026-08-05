@@ -5220,6 +5220,49 @@ en móvil el tablero colapsa a conexión + estado. tsc/eslint/build
 limpios. Pendiente editorial: las 3 conexiones default del tablero las
 nombró el usuario — confirmarlas/curarlas en el tab de Hubs.
 
+### 2026-08-05 — Hubs, sexta pasada: el pipeline alimenta el tablero y todos los elementos dinámicos
+
+Cierre del ciclo de hubs: el usuario pidió que el skill de publicación
+extraiga solo la información que los elementos dinámicos necesitan
+(varias conexiones por artículo si aplica, con tope para que el tablero
+no se infle) y que siempre recorra los elementos dinámicos de cada
+página.
+
+- **`scripts/update-lana-board.ts`**: el skill lo corre después de
+  publicar artículos la-lana. Entrada mínima
+  `[{conexion, articleId}]` — todo lo demás (nº de expediente, fecha,
+  estado abierto/archivado, link) se DERIVA de la fila real del artículo
+  para que el caller no pueda desalinearse. Merge: filas nuevas arriba,
+  una conexión repetida se REEMPLAZA (normalizado sin acentos/case), tope
+  de 6 filas curadas (MAX_CURATED_ROWS); articleId inexistente se salta
+  con warning. `--dry-run` soportado; `mergeBoardRows` exportada y
+  probada con tsx (el driver neon-http no llega al Postgres local). La
+  página además dedupea auto+curadas por conexión y corta el tablero a 8
+  filas visibles.
+- **Corrido contra producción** (dry-run y real): el tablero vivo quedó
+  con conexiones verificadas contra los artículos reales — "AR Monex ↔
+  Europa" y "Isaac del Toro ↔ UAE" (EXP. 006, la nota del Torito, que
+  confirma la inversión de €3M de A.R. Monex) e "Infantino ↔ UEFA y
+  Concacaf" (EXP. 005, el deal de FIFA Forward). "Infantino ↔ Trump"
+  quedó como fila curada SIN link: el expediente 005 no menciona a Trump
+  y no se inventan vínculos — **el usuario debe confirmar/linkear esa
+  fila en el tab de Hubs**.
+- **Skill entrenado** (`publish-newsletter`): paso obligatorio de
+  extracción de conexiones (qué califica — relación documentada central
+  al caso, no cualquier entidad nombrada; 0-2 por artículo; ↔ vs →;
+  lados cortos) + "Dynamic-elements checklist" que cada run recorre por
+  artículo antes de reportar: lead-in de opinión exacto, priority
+  honesto (en /noticias es el LAYOUT), cover image, cifra textual en
+  title/excerpt, Ruta del dinero cuando aplica, tablero actualizado,
+  flag del Marcador, par publication/source de TFBR, y nunca escribir
+  números de expediente en el copy (se renumeran con backlogs).
+  `publish-sourced-article` apunta al checklist para su salida
+  industry-shots.
+
+**Verificación**: mergeBoardRows probado (reemplazo de duplicados, tope,
+orden); script dry-run + real contra Neon de producción con salida
+inspeccionada; tsc/eslint/build limpios.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
