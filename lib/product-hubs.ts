@@ -225,6 +225,76 @@ export function markCifraFigures(html: string): string {
   });
 }
 
+// ------------------------------------------------ Shared: the Jugada strip
+// Authoring convention (La Lectura round 2, 2026-08-05): a paragraph that
+// reads "Jugada: Volkswagen ↔ Bayern" becomes the connection strip — the
+// two-party relationship at the heart of the story set as a split-flap
+// pairing, the same board language La Lana's masthead already speaks.
+// Corpus-driven: mining the catalog showed the stories with no figure to
+// pull are almost all two-party deal stories (Chelsea ↔ Strava, ATP ↔ WTA,
+// COI ↔ Rusia…) — the connection IS their headline asset. "↔" for two-way
+// relationships, "→" for a one-way flow, one per article. Same contract as
+// every convention here: plain TipTap text, detected server-side, inert
+// when absent or malformed.
+const JUGADA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*(?:La\s+)?Jugada:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
+export const JUGADA_TEXT_PREFIX = /^\s*(?:\*\*)?\s*(?:La\s+)?Jugada:?\s*(?:\*\*)?:?\s*/i;
+
+export type Jugada = { left: string; right: string; arrow: '↔' | '→' };
+
+// Each side has to work as a flap cell: non-empty and short. Longer sides
+// (or no arrow at all) leave the paragraph untouched.
+export function parseJugada(raw: string): Jugada | null {
+  const text = raw.replace(/<[^>]+>/g, '').trim();
+  const match = text.match(/^(.{1,32}?)\s*(↔|<->|→|->|⇒)\s*(.{1,32})$/);
+  if (!match) return null;
+  const left = match[1].trim();
+  const right = match[3].trim();
+  if (!left || !right) return null;
+  return { left, right, arrow: match[2] === '↔' || match[2] === '<->' ? '↔' : '→' };
+}
+
+export function jugadaMarkup(jugada: Jugada): string {
+  const conn = `${jugada.left} ${jugada.arrow} ${jugada.right}`;
+  return (
+    `<div class="lect-jugada" role="note" aria-label="La jugada: ${conn}">` +
+    `<span class="lect-jugada-label">La jugada</span>` +
+    `<span class="lect-jugada-conn" aria-hidden="true">` +
+    `<span class="lect-jugada-side">${jugada.left}</span>` +
+    `<span class="lect-jugada-arrow">${jugada.arrow}</span>` +
+    `<span class="lect-jugada-side">${jugada.right}</span>` +
+    `</span></div>`
+  );
+}
+
+// HTML bodies: same trust boundary and same ad-split safety as
+// markCifraFigures (the strip contains no top-level </p>).
+export function markJugada(html: string): string {
+  return html.replace(JUGADA_HTML_RE, (match, inner: string) => {
+    const parsed = parseJugada(inner);
+    return parsed ? jugadaMarkup(parsed) : match;
+  });
+}
+
+// --------------------------------------------- Shared: lead-in scan marks
+// Both publish skills already mandate that every paragraph opens with a
+// short bold lead-in ending in a colon ("**La sanción:** …") — house
+// style with zero styling until now. This tags those lead-ins so the CSS
+// can set them as product-accented scan marks: the reader skims the
+// lead-ins like a briefing's margin notes. Colon-anchored and
+// figure-excluded (a paragraph that OPENS with a bold figure is the
+// count-up device's territory, not a label). Runs LAST in the transform
+// chain: the opinion/cifra/jugada paragraphs are already consumed by
+// their own devices by then.
+const LEADIN_HTML_RE = /<p([^>]*)><strong>\s*([^<]{2,42}?):\s*<\/strong>/g;
+
+export function markLeadIns(html: string): string {
+  return html.replace(LEADIN_HTML_RE, (match, attrs: string, label: string) => {
+    // A label that is itself just a figure stays a plain strong.
+    if (/^[\d\s.,%€$]+$/.test(label) || /^(?:US\$|MX\$|USD)/i.test(label)) return match;
+    return `<p${attrs}><strong class="lect-leadin">${label}:</strong>`;
+  });
+}
+
 // The Playbook-opinion paragraph gets its own visually distinct callout,
 // separated clearly from reporting (a credibility move: the fact/opinion
 // line becomes explicit). This is NOT a new authoring convention — it

@@ -64,6 +64,25 @@
 }
 .product[data-hub="infinitas"] .product-concept{color:var(--src-infinitas);}
 
+/* ——— "La cifra del día" (sidebar module, round 2): the day's biggest
+   figure as a counting green chip — Scoreboard mechanics in the rail,
+   derived from the ranked pool with zero CMS work. ——— */
+.side-cifra-card{display:flex;flex-direction:column;gap:8px;padding-top:12px;color:inherit;}
+.side-cifra-value{
+  align-self:flex-start;font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(26px,2.2vw,32px);line-height:1.15;color:var(--ink-fixed);
+  background:var(--green);padding:1px 10px;transform:rotate(-1.2deg);
+  font-variant-numeric:tabular-nums;
+}
+.side-cifra-story{font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;color:var(--ink);transition:color var(--duration-fast) ease;}
+.side-cifra-card:hover .side-cifra-story,.side-cifra-card:focus-visible .side-cifra-story{color:var(--green);}
+.side-cifra-cta{
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-txt);
+  opacity:0;transform:translateX(-6px);
+  transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.side-cifra-card:hover .side-cifra-cta,.side-cifra-card:focus-visible .side-cifra-cta{opacity:1;transform:none;}
+
 /* ——— "Lo que sigue importando": the kicker dot breathes on hover and the
    card presses like everything else tappable. Entrance stagger comes from
    the existing .reveal system (per-parent 60ms cadence). ——— */

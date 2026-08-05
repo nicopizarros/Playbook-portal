@@ -220,6 +220,37 @@ them right at drafting time:
   figure ("US$9,612 millones", "22%") counts up inline automatically —
   no syntax needed, just keep bolding key figures as the standard
   structure already asks.
+- **All products: the "Jugada:" connection strip (2026-08-05, round 2).**
+  A plain paragraph `Jugada: Volkswagen ↔ Bayern` renders as a split-flap
+  connection strip — the story's central two-party relationship in the
+  departures-board language. Use it when the story IS a relationship
+  (a deal, a partnership, an investigation pairing, an acquisition):
+  `↔` for two-way relationships, `→` for a one-way flow (an expansion, a
+  sale, a rights move). Each side 1-4 words, ≤32 characters (longer
+  leaves the paragraph as plain text). At most ONE per article, and only
+  when the pairing is documented by the piece itself — same "never invent
+  links" standard as the La Lana board. Placement: right after the
+  paragraph that establishes the relationship, usually the first. A
+  figure-driven story should prefer "Cifra clave:" — don't stack both
+  unless the story genuinely carries both a defining number AND a
+  defining pairing. For la-lana articles the jugada usually matches a
+  connection you're also pushing to the departures board — same wording
+  in both places.
+- **All products: lead-ins are now UI (2026-08-05, round 2).** The
+  standard bold lead-in every paragraph already opens with
+  (`**La sanción:** …`) renders as a product-colored scan mark — readers
+  skim the article by lead-ins alone. This raises the bar on writing
+  them: each must be specific to its paragraph (a generic label repeated
+  across paragraphs now VISIBLY repeats), 2-5 words, always ending in a
+  colon inside the bold. No formatting change — just know they're
+  load-bearing UI now.
+- **All products: figures highlight themselves.** Money amounts and
+  percentages in plain prose get an automatic marker-swipe highlight on
+  the article page (capped at 6 per article, applied client-side). No
+  action needed at drafting time beyond what the standards already say:
+  write figures in the house shapes ("US$3,400 millones", "MX$42.8
+  millones", "22%") and keep the SINGLE most important one bold — bold
+  figures count up, plain ones highlight.
 - **Infinitas: El Marcador.** The hub shows a scoreboard of sourced
   women's-sports business metrics, editable in the admin CMS ("Hubs de
   producto" tab — no deploy needed; defaults live in
@@ -245,7 +276,11 @@ every item maps to a visible element):
   `imageUrl` present (feature bands and cards on /noticias show it;
   text-only there is a visible hole at priority ≥4); "Cifra clave:"
   beat considered when the story is number-driven (step above), value
-  ≤24 chars with a digit, caption after ` — `.
+  ≤24 chars with a digit, caption after ` — `; "Jugada:" strip
+  considered when the story is a two-party relationship (step above,
+  sides ≤32 chars, one max); every paragraph's bold lead-in specific
+  and colon-terminated (they render as scan marks now); key figures in
+  house shapes, the single most important one bold.
 - **Noticias** — if the story is number-driven, its biggest figure
   verbatim in `title` or `excerpt` (the feature band pulls it out as the
   green chip); `date` correct (the weekday badge derives from it).

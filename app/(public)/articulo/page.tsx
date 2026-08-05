@@ -24,13 +24,18 @@ import {
   extractMoneyTrailFromParagraphs,
   markOpinionCallout,
   markCifraFigures,
+  markJugada,
+  markLeadIns,
   parseCifra,
+  parseJugada,
   caseNumber,
   caseStatus,
   shotLabel,
   weekdayFor,
   OPINION_TEXT_PREFIX,
   CIFRA_TEXT_PREFIX,
+  JUGADA_TEXT_PREFIX,
+  type Jugada,
 } from '@/lib/product-hubs';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { ShotProgress } from '@/components/products/ShotProgress';
@@ -167,16 +172,22 @@ function ProductHtml({ html, source }: { html: string; source: string }) {
 // per paragraph instead of via string transforms.
 type PlainBlock =
   | { kind: 'text'; text: string }
+  | { kind: 'leadin'; label: string; text: string }
   | { kind: 'opinion'; text: string }
   | { kind: 'cifra'; value: string; caption: string }
+  | { kind: 'jugada'; jugada: Jugada }
   | { kind: 'trail'; stops: string[] };
 
+// The "**Label:** rest" house style in a plain-text body — mirror of
+// markLeadIns for this body shape.
+const PLAIN_LEADIN_RE = /^\*\*([^*]{2,42}?):\*\*\s*([\s\S]*)$/;
+
 function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
-  // Every product source gets the opinion callout — the four-paragraph
+  // Every product source gets the full device set — the four-paragraph
   // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
-  // alike (see lib/product-hubs.ts's regex comment) — and the "Cifra
-  // clave:" pull-figure beat (same detection, mirrored from
-  // markCifraFigures for the plain-text body shape).
+  // alike (see lib/product-hubs.ts's regex comment), and the "Cifra
+  // clave:" / "Jugada:" beats and lead-in scan marks are mirrored from
+  // their HTML transforms for the plain-text body shape.
   const isProduct = hubForSource(source) !== null;
   const blocks: PlainBlock[] = paragraphs.map((p): PlainBlock => {
     if (isProduct && OPINION_TEXT_PREFIX.test(p)) {
@@ -185,6 +196,16 @@ function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
     if (isProduct && CIFRA_TEXT_PREFIX.test(p)) {
       const parsed = parseCifra(p.replace(CIFRA_TEXT_PREFIX, ''));
       if (parsed) return { kind: 'cifra', value: parsed.value, caption: parsed.caption };
+    }
+    if (isProduct && JUGADA_TEXT_PREFIX.test(p)) {
+      const parsed = parseJugada(p.replace(JUGADA_TEXT_PREFIX, ''));
+      if (parsed) return { kind: 'jugada', jugada: parsed };
+    }
+    if (isProduct) {
+      const leadin = p.match(PLAIN_LEADIN_RE);
+      if (leadin && !/^[\d\s.,%€$]+$/.test(leadin[1])) {
+        return { kind: 'leadin', label: leadin[1], text: leadin[2] };
+      }
     }
     return { kind: 'text', text: p };
   });
@@ -213,6 +234,26 @@ function PlainBlockView({ block }: { block: PlainBlock }) {
         </span>
         {block.caption && <figcaption className="lect-pullfig-caption">{block.caption}</figcaption>}
       </figure>
+    );
+  }
+  if (block.kind === 'jugada') {
+    const conn = `${block.jugada.left} ${block.jugada.arrow} ${block.jugada.right}`;
+    return (
+      <div className="lect-jugada" role="note" aria-label={`La jugada: ${conn}`}>
+        <span className="lect-jugada-label">La jugada</span>
+        <span className="lect-jugada-conn" aria-hidden="true">
+          <span className="lect-jugada-side">{block.jugada.left}</span>
+          <span className="lect-jugada-arrow">{block.jugada.arrow}</span>
+          <span className="lect-jugada-side">{block.jugada.right}</span>
+        </span>
+      </div>
+    );
+  }
+  if (block.kind === 'leadin') {
+    return (
+      <p>
+        <strong className="lect-leadin">{block.label}:</strong> {block.text}
+      </p>
     );
   }
   return <p>{block.text}</p>;
@@ -458,12 +499,16 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // splitAfterParagraph tracks <aside> so it can't cut the callout open.
   // All product sources get it (see plainBlocksFor's comment).
   const rawHtmlBody = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
-  // "Cifra clave:" beats are marked before the opinion callout (both are
-  // string transforms on the same trust boundary; order between the two is
-  // irrelevant since they can't match the same paragraph) and before the
-  // ad split, which only counts top-level </p> and therefore never cuts a
-  // <figure> open.
-  const htmlBody = rawHtmlBody && hub ? markOpinionCallout(markCifraFigures(rawHtmlBody)) : rawHtmlBody;
+  // Device transform chain (all string transforms on the same trust
+  // boundary, all before the ad split, which only counts top-level </p>
+  // and therefore never cuts any of them open). Order matters only for
+  // markLeadIns: it must run LAST, after the cifra/jugada/opinion
+  // paragraphs have been consumed by their own devices, so a device
+  // label can never double as a scan mark.
+  const htmlBody =
+    rawHtmlBody && hub
+      ? markLeadIns(markOpinionCallout(markJugada(markCifraFigures(rawHtmlBody))))
+      : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
   const blocks = plainBlocksFor(paragraphs, article.source);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;

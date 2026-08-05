@@ -6,13 +6,15 @@ import { gsap } from '@/lib/gsap';
 // file's guidance (same as DeparturesBoard): only article pages use the
 // scramble here, so the plugin shouldn't ship to every GSAP route.
 import { ScrambleTextPlugin } from '@/vendor/gsap/esm/ScrambleTextPlugin.js';
+import { splitFigure, parseNumeric, formatNumeric, FIGURE_TEXT_RE, FIGURE_INLINE_RE } from '@/lib/figures';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrambleTextPlugin);
 }
 
-// La Lectura's shared motion kit (article redesign, 2026-08-05). One
-// mount, four devices, all progressive enhancement over server-rendered
+// La Lectura's shared motion kit (article redesign, 2026-08-05; round 2
+// same day added the jugada flap and the inline figure highlight). One
+// mount, six devices, all progressive enhancement over server-rendered
 // final states — no-JS and prefers-reduced-motion readers get the complete
 // article with nothing missing:
 //   1. Kicker scramble: the publication chip flaps into place like the
@@ -22,7 +24,11 @@ if (typeof window !== 'undefined') {
 //      edge ever shows — zero layout impact).
 //   3. Drawn rules: .lect-rule dividers and in-body <hr>s draw themselves
 //      in as the reader reaches them.
-//   4. Inline count-ups: any <strong> in the body whose entire text is a
+//   4. Jugada flap-in: the connection strip's sides scramble into place
+//      like departures-board cells.
+//   5. Inline figure highlight: unbolded money/percent figures in prose
+//      get a marker swipe drawn on scroll (capped, DOM-side, reversible).
+//   6. Inline count-ups: any <strong> in the body whose entire text is a
 //      figure ("US$9,612 millones", "22%"), plus the pull-figure beats
 //      ([data-lect-countup]), tick up from 0 on first view. The element's
 //      width is locked to its server-rendered (final) size first, so the
@@ -35,40 +41,9 @@ if (typeof window !== 'undefined') {
 
 const FLAP_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·';
 
-// Full-match check that a <strong>'s entire text is a standalone figure —
-// mirrors lib/product-hubs.ts's FIGURE_PATTERNS, anchored, so a bolded
-// sentence that merely contains a number never animates.
-const FIGURE_TEXT_RE =
-  /^\s*(?:€|US\$|USD\s?|MX\$|\$)?\s?\d[\d.,]*\s?(?:%|mil\s+millones|millones|billones|mdd|mdp|[MBK])?(?:\s?\/\s?a[nñ]o)?\s*$/i;
-
-// "US$9,612 millones" → prefix "US$", numeric "9,612", suffix " millones".
-function splitFigure(text: string): { pre: string; num: string; post: string } | null {
-  const match = text.match(/^([\s\S]*?)(\d[\d.,]*)([\s\S]*)$/);
-  if (!match) return null;
-  return { pre: match[1], num: match[2], post: match[3] };
-}
-
-// es-MX numbers: a trailing [.,] + 1-2 digits is a decimal part ("42.8",
-// "2.35"); every other separator is a thousands group ("9,612", "91,553").
-function parseNumeric(num: string): { value: number; decimals: number } | null {
-  let intPart = num;
-  let decPart = '';
-  const dec = num.match(/^(.+)[.,](\d{1,2})$/);
-  if (dec) {
-    intPart = dec[1];
-    decPart = dec[2];
-  }
-  const value = Number(decPart ? `${intPart.replace(/[.,]/g, '')}.${decPart}` : intPart.replace(/[.,]/g, ''));
-  if (Number.isNaN(value)) return null;
-  return { value, decimals: decPart.length };
-}
-
-function formatNumeric(value: number, decimals: number): string {
-  return value.toLocaleString('es-MX', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-}
+// Inline figure highlight cap: enough for a data-dense story to read as
+// annotated, few enough that a page never becomes a highlighter accident.
+const MAX_INLINE_FIGS = 6;
 
 export function ArticleMotion() {
   useEffect(() => {
@@ -133,7 +108,104 @@ export function ArticleMotion() {
       cleanups.push(() => rule.style.removeProperty('transform'));
     });
 
-    // 4 — Inline count-ups.
+    // 4 — Jugada flap-in: the connection strip's two sides scramble into
+    // place like the departures board's cells, once, on first view.
+    document.querySelectorAll<HTMLElement>('.lect-jugada').forEach(strip => {
+      const sides = Array.from(strip.querySelectorAll<HTMLElement>('.lect-jugada-side'));
+      if (!sides.length) return;
+      const finals = sides.map(s => s.textContent || '');
+      sides.forEach(side => {
+        // Width-locked so the strip never jitters while flapping.
+        side.style.minWidth = `${side.offsetWidth}px`;
+        side.textContent = '';
+      });
+      const played = { done: false };
+      const observer = new IntersectionObserver(
+        entries => {
+          if (!entries.some(e => e.isIntersecting) || played.done) return;
+          played.done = true;
+          sides.forEach((side, i) => {
+            tweens.push(
+              gsap.to(side, {
+                duration: 1,
+                delay: i * 0.2,
+                scrambleText: { text: finals[i], chars: FLAP_CHARS, speed: 0.4 },
+              }),
+            );
+          });
+          observer.disconnect();
+        },
+        { threshold: 0.4 },
+      );
+      observer.observe(strip);
+      cleanups.push(() => {
+        observer.disconnect();
+        sides.forEach((side, i) => {
+          side.textContent = finals[i];
+          side.style.removeProperty('min-width');
+        });
+      });
+    });
+
+    // 5 — Inline figure highlight: money/percent figures sitting in plain
+    // prose get a marker swipe that draws in as the reader reaches them —
+    // the whole back catalog is full of unbolded figures (measured against
+    // the corpus, 2026-08-05) and this makes them scannable with zero
+    // re-editing. DOM-side on purpose: a string transform over editor HTML
+    // would have to reason about attributes/entities, while a TreeWalker
+    // only ever sees real text nodes. Skips text inside <strong> (the
+    // count-up's territory), the opinion callout, links, captions and
+    // existing devices. Reduced-motion never reaches this code, so the
+    // page stays byte-identical to the server render there.
+    const marks: HTMLElement[] = [];
+    const body = document.querySelector<HTMLElement>('.article-body');
+    if (body) {
+      const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const el = node.parentElement;
+          if (!el) return NodeFilter.FILTER_REJECT;
+          if (el.closest('strong, a, aside, figure, mark, .lect-jugada, .money-trail, h2, h3, figcaption')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      const textNodes: Text[] = [];
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) textNodes.push(n as Text);
+      for (const node of textNodes) {
+        if (marks.length >= MAX_INLINE_FIGS) break;
+        const text = node.textContent || '';
+        FIGURE_INLINE_RE.lastIndex = 0;
+        const match = FIGURE_INLINE_RE.exec(text);
+        if (!match) continue;
+        const mark = document.createElement('mark');
+        mark.className = 'lect-fig';
+        const rest = node.splitText(match.index);
+        rest.splitText(match[0].length);
+        mark.textContent = rest.textContent;
+        rest.parentNode?.replaceChild(mark, rest);
+        marks.push(mark);
+      }
+      marks.forEach(mark => {
+        mark.style.setProperty('--lect-fx', '0');
+        tweens.push(
+          gsap.to(mark, {
+            '--lect-fx': 1,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: mark, start: 'top 85%', once: true },
+          }),
+        );
+      });
+      cleanups.push(() => {
+        marks.forEach(mark => {
+          const textNode = document.createTextNode(mark.textContent || '');
+          mark.parentNode?.replaceChild(textNode, mark);
+        });
+      });
+    }
+
+    // 6 — Inline count-ups.
     const numberEls = new Set<HTMLElement>();
     document.querySelectorAll<HTMLElement>('[data-lect-countup]').forEach(el => numberEls.add(el));
     document.querySelectorAll<HTMLElement>('.article-body strong').forEach(el => {

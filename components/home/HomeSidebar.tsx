@@ -1,6 +1,10 @@
 import { MostReadSection } from './MostReadSection';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
+import { DailyFigure } from './DailyFigure';
 import { AdSlot } from '@/components/ads/AdSlot';
+import { getAllArticles } from '@/lib/data/articles';
+import { rankArticles, selectHero } from '@/lib/rank';
+import { extractPullFigure } from '@/lib/product-hubs';
 
 // Right rail of the homepage news package (Fase 7 UX). Server component:
 // MostReadSection needs GA4 data access. Rendered by
@@ -8,20 +12,37 @@ import { AdSlot } from '@/components/ads/AdSlot';
 // ReactNode prop — the sidebar never re-renders when the reader changes
 // source filters, only the stories do.
 //
-// Three modules, top to bottom:
+// Modules, top to bottom:
 // - compact newsletter module (from the Fase 9 plan's sidebar spec) —
 //   a conversion point the sales side asked to keep close to the top of
 //   the page. Moved above Más leídas 2026-08-01 (Roadmap Agosto 2026,
 //   Fase 1, item 4: "reubicar Más leídas debajo del bloque de
 //   suscripción") -- was the first module in the rail before that.
+//   Stays FIRST — the sales position is negotiated; new modules go below.
+// - La cifra del día (La Portada round 2, 2026-08-05): the biggest figure
+//   among today's ranked stories, counting up, linking to its story. Zero
+//   CMS work — derived from the same ranked pool the news package uses
+//   (React-cached, no extra query) with the same extractPullFigure the
+//   hub heroes use. Skips the hero story so the rail adds information
+//   instead of repeating the headline sitting next to it; collapses to
+//   nothing on days when no ranked story carries a figure.
 // - Más leídas (GA4-backed; renders nothing until credentials exist —
 //   available:false degradation, see lib/most-read.ts)
-// - rail-home ad, directly below Más leídas (the Fase 7 spec position;
-//   now that the slot shows a visible placeholder it sits here rather
-//   than at the bottom) — kept paired with Más leídas rather than left
-//   behind at the old top-of-rail spot, since nothing in the Fase 1
-//   request said to move the ad specifically.
-export function HomeSidebar() {
+// - rail-home ad, directly below Más leídas (the Fase 7 spec position).
+export async function HomeSidebar() {
+  const articles = await getAllArticles();
+  const ranked = rankArticles(articles.filter(a => a.source !== 'opinion' || a.featured));
+  const hero = selectHero(ranked);
+  let cifra: { figure: string; id: string; title: string } | null = null;
+  for (const article of ranked) {
+    if (article === hero) continue;
+    const figure = extractPullFigure(article.title, article.excerpt);
+    if (figure) {
+      cifra = { figure, id: article.id, title: article.title };
+      break;
+    }
+  }
+
   return (
     <div className="sidebar-sticky">
       <section className="side-module side-newsletter" aria-labelledby="side-nl-title">
@@ -38,6 +59,16 @@ export function HomeSidebar() {
           successMessage="Te abrimos Substack para confirmar."
         />
       </section>
+      {cifra && (
+        <section className="side-module side-cifra" aria-labelledby="side-cifra-title">
+          <h2 className="side-title" id="side-cifra-title">La cifra del día</h2>
+          <a className="side-cifra-card" href={`/articulo?id=${encodeURIComponent(cifra.id)}`}>
+            <DailyFigure figure={cifra.figure} />
+            <span className="side-cifra-story">{cifra.title}</span>
+            <span className="side-cifra-cta" aria-hidden="true">Leer la historia →</span>
+          </a>
+        </section>
+      )}
       <MostReadSection />
       <AdSlot slot="rail-home" />
     </div>

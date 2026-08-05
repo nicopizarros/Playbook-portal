@@ -43,6 +43,69 @@
 .lect-pullfig-value{display:inline-block;font-family:var(--serif-display);font-weight:400;font-size:clamp(44px,8vw,76px);line-height:1;color:var(--ink);letter-spacing:.01em;font-variant-numeric:tabular-nums;}
 .lect-pullfig-caption{display:block;margin-top:12px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
 
+/* ——— The Jugada strip ("Jugada:" authoring convention, round 2): the
+   story's central two-party connection set as a split-flap pairing — the
+   departures-board language carried into every product's articles. Dark
+   panel like the board (a flap panel is dark wherever it hangs), accent
+   re-inked per product below; Infinitas swaps the dark panel for its own
+   flat surface (the one product that never borrows grunge). ——— */
+.lect-jugada{
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  margin:32px 0;padding:14px 18px;background:#101210;border-radius:8px;
+  border:1px solid rgba(154,234,57,.22);
+}
+.lect-jugada-label{
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(240,233,220,.55);
+}
+.lect-jugada-conn{
+  display:inline-flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+}
+.lect-jugada-side{color:var(--green);min-height:1em;}
+.lect-jugada-arrow{color:rgba(240,233,220,.55);}
+.article-product-la-lana .lect-jugada{border-color:rgba(181,133,10,.45);}
+.article-product-la-lana .lect-jugada-side{color:#d9a53a;}
+.article-product-futbol-business-review .lect-jugada{border-color:rgba(224,31,38,.5);}
+.article-product-futbol-business-review .lect-jugada-side{color:var(--tfbr-red);}
+.article-product-infinitas .lect-jugada{
+  background:var(--paper);border:1px solid var(--src-infinitas);
+}
+.article-product-infinitas .lect-jugada-label{color:var(--gray-txt);}
+.article-product-infinitas .lect-jugada-side{color:var(--src-infinitas);}
+.article-product-infinitas .lect-jugada-arrow{color:var(--gray-txt);}
+
+/* ——— Lead-in scan marks: the "**Label:** …" house style both publish
+   skills mandate, set as product-accented margin notes — small caps,
+   tracked, the product's color. The reader skims the lead-ins like a
+   briefing. Ink default; per-product accents below. ——— */
+.lect-leadin{
+  font-size:.82em;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink);
+}
+.article-product-la-lana .lect-leadin{color:var(--src-lana);}
+.article-product-infinitas .lect-leadin{color:var(--src-infinitas);}
+.article-product-futbol-business-review .lect-leadin{color:var(--tfbr-red);}
+/* Noticias keeps ink lead-ins — the beat numbers already carry the green. */
+
+/* ——— Inline figure highlight (auto, JS-applied — see ArticleMotion):
+   a marker swipe under money/percent figures in plain prose, drawn on
+   scroll via --lect-fx. Green by default, product-tinted. mark's UA
+   background is cleared; the swipe is a background-image so it wraps
+   correctly across lines. ——— */
+mark.lect-fig{
+  background:none;color:inherit;
+  background-image:linear-gradient(color-mix(in srgb,var(--green) 55%,transparent),color-mix(in srgb,var(--green) 55%,transparent));
+  background-repeat:no-repeat;
+  background-position:0 78%;
+  background-size:calc(var(--lect-fx,1)*100%) .3em;
+  padding:0 1px;
+}
+.article-product-la-lana mark.lect-fig{background-image:linear-gradient(color-mix(in srgb,var(--src-lana) 38%,transparent),color-mix(in srgb,var(--src-lana) 38%,transparent));}
+.article-product-infinitas mark.lect-fig{background-image:linear-gradient(color-mix(in srgb,var(--src-infinitas) 32%,transparent),color-mix(in srgb,var(--src-infinitas) 32%,transparent));}
+.article-product-futbol-business-review mark.lect-fig{background-image:linear-gradient(color-mix(in srgb,var(--tfbr-red) 30%,transparent),color-mix(in srgb,var(--tfbr-red) 30%,transparent));}
+
 /* ——— "Sigue leyendo": product-identity preview cards. Each card wears
    its product's accent at rest and flips to the product's own surface on
    hover — a one-card preview of the hub it leads to. ——— */

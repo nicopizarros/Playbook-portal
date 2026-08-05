@@ -5388,6 +5388,98 @@ eslint y next build limpios con y sin .env.local.
 - `dateFormatted` de los datos de prueba locales quedó desfasado del
   shift de +19 días (cosmético, solo sandbox).
 
+### 2026-08-05 — La Lectura, segunda pasada: activos dinámicos desde lo que los artículos YA contienen
+
+Pedido del usuario: encontrar lo que se repite en el corpus real, volver
+cada patrón un activo dinámico por artículo, entrenar los skills para que
+detecten y formateen esas señales, y — con libertad — aprovechar la
+portada. Misma rama `claude/playbook-portal-design-1c6s7c`.
+
+**Lo que dijo el corpus** (minado con script contra los 31 artículos,
+título+excerpt+cuerpo): 10 artículos traen cifras de dinero/porcentaje
+SIN bold (inertes hasta hoy); los 14 sin ningún activo posible eran casi
+todos historias de RELACIÓN entre dos partes (Volkswagen ↔ Bayern,
+Chelsea ↔ Strava, ATP ↔ WTA, COI ↔ Rusia…) — la conexión es el patrón
+común, que es exactamente el lenguaje del tablero de salidas; y el estilo
+de casa de lead-ins en bold (`**La sanción:** …`) que ambos skills ya
+exigen aparece en cero artículos viejos pero estará en todos los futuros
+— señal gratis que nadie estilizaba.
+
+**Construido:**
+- **Convención nueva "Jugada:"** (`markJugada`/`parseJugada`/
+  `JUGADA_TEXT_PREFIX` en lib/product-hubs.ts): `Jugada: A ↔ B` (o `→`)
+  se vuelve la tira de conexión split-flap — panel oscuro tipo tablero,
+  lados en flap (ArticleMotion, ScrambleText local), acento por producto
+  (verde/dorado/rojo; Infinitas en su superficie plana violeta, sin
+  grunge). Lados ≤32 chars, inerte si no parsea. El ad split no puede
+  cortarla.
+- **Marcas de lead-in** (`markLeadIns` + espejo plain-text): el
+  `<p><strong>Etiqueta:</strong>` de casa se etiqueta `lect-leadin` y se
+  estiliza como nota de margen (small-caps tracked, color del producto;
+  Noticias queda en tinta — los números de beat ya llevan el verde).
+  Corre AL FINAL de la cadena de transforms para no tocar los párrafos ya
+  consumidos por opinión/cifra/jugada; etiquetas-cifra excluidas.
+- **Highlight automático de cifras inline** (ArticleMotion, dispositivo
+  5): las cifras de dinero/porcentaje SIN bold en prosa ganan un swipe de
+  marcador que se dibuja al scroll (tope 6, tinte por producto). Del lado
+  del DOM a propósito (TreeWalker sobre nodos de texto, saltando
+  strong/a/aside/figure/mark/dispositivos) — un transform de string sobre
+  HTML de editor tendría que razonar sobre atributos; reversible en
+  cleanup; con reduced-motion ni se crean los marks (página idéntica al
+  server render). Números sueltos sin marcador de moneda/escala NO
+  matchean a propósito (años, dorsales).
+- **Portada — "La cifra del día"** (libertad usada): módulo del rail
+  (HomeSidebar, debajo del newsletter — esa posición es pactada con
+  ventas y no se mueve) con la cifra más grande de las historias
+  rankeadas del día como chip verde rotado que cuenta hacia arriba
+  (components/home/DailyFigure.tsx, mecánica del Scoreboard sobre
+  lib/figures compartido), enlazando a su historia. Salta al hero a
+  propósito (el rail debe AGREGAR información, no repetir el titular de
+  al lado); colapsa si ningún artículo rankeado trae cifra. Cero CMS:
+  deriva del mismo pool cacheado + extractPullFigure de los héroes de
+  hub.
+- **lib/figures.ts** nuevo: parsing/formato de cifras compartido
+  (ArticleMotion + DailyFigure) para que la semántica numérica no
+  divergiera entre superficies.
+- **Backfill curado** (`scripts/seed-jugadas.ts` +
+  `scripts/data/jugadas-backfill-2026-08-05.json`): las 14 conexiones de
+  los artículos sin activo, cada una derivada de su PROPIO título (nunca
+  inventada), append como párrafo de convención al campo que el artículo
+  realmente renderiza (bodyHtml nativo o teaser, forma HTML o plana).
+  Idempotente (skip si ya hay Jugada), --dry-run soportado, mismo
+  temperamento que update-lana-board.ts. **Corrido contra producción en
+  dry-run** (14/14 validan, 12 a bodyHtml + 2 a teaser, cero skips) —
+  **el run real queda pendiente para DESPUÉS del deploy de esta rama**:
+  con el código viejo en producción las líneas se verían como texto plano
+  "Jugada: …" (inertes pero visibles); tras el deploy, el mismo comando
+  sin --dry-run las enciende.
+- **Skills entrenados en la misma sesión** (publish-newsletter +
+  publish-sourced-article): cuándo Jugada sí/no (relación documentada,
+  ↔ vs →, lados ≤32, una por artículo, preferir Cifra clave en historias
+  de números, misma redacción que la fila del tablero en la-lana), los
+  lead-ins ahora son UI (específicos por párrafo — un label genérico
+  repetido ahora SE VE repetido), y las cifras se resaltan solas (regla:
+  formas de casa, la MÁS importante en bold — bold cuenta, plano se
+  resalta). Checklist de elementos dinámicos actualizado.
+
+**Verificación** (app corriendo, Postgres local): los 14 stubs seedeados
+localmente vía SQL equivalente + lead-ins de prueba en Infinitas/TFBR +
+jugada en el artículo FMF; Playwright 1366/390, claro y oscuro, sobre
+portada, archivo, los 4 templates, el stub Chelsea ↔ Strava, el la-lana
+de hidratación y el estado walled: 0 anchors anidados, 0 overflow, 0
+reveals atorados, 0 errores de consola propios. Capturas revisadas a ojo
+(tira de jugada en piel Noticias y La Lana, highlights dibujados en los
+párrafos del FMF, chip del rail contando). tsc/eslint/next build limpios
+con y sin .env.local.
+
+**Pendiente:**
+- **Post-deploy**: `POSTGRES_URL=<prod> npx tsx scripts/seed-jugadas.ts
+  scripts/data/jugadas-backfill-2026-08-05.json` (dry-run primero) para
+  encender las 14 jugadas del catálogo viejo.
+- Los cuerpos de producción son más completos que el seed local (12 de
+  los 14 tienen bodyHtml real) — algunos podrían ganar además highlights
+  de cifras; nada que hacer, es el comportamiento deseado.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

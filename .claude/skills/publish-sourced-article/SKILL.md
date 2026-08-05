@@ -136,7 +136,13 @@ title/excerpt when it's a numbers story, a real cover image, and — when
 the story is number-driven — an optional `Cifra clave: <figure> — <caption>`
 paragraph (that skill's pull-figure convention, 2026-08-05: renders as a
 full-bleed counting figure on the article page; value ≤24 chars with a
-digit, at most one per article in practice). Word-count range: roughly 300-500 words across the
+digit, at most one per article in practice). When the story is instead a
+two-party relationship (a deal, partnership, acquisition), the
+`Jugada: A ↔ B` convention applies (split-flap connection strip; `→` for
+one-way flows, sides ≤32 chars, one max, only pairings the piece
+documents). Lead-ins render as scan marks, so keep each one specific to
+its paragraph; figures in house shapes highlight automatically, and the
+single most important one should be bold (bold counts up). Word-count range: roughly 300-500 words across the
 four. Write every paragraph in Playbook's own words, this is a rewrite
 grounded in multiple sources, never a close paraphrase or translation of
 any single outlet's article.
