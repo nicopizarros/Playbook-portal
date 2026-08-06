@@ -5660,6 +5660,47 @@ corriendo — un `next-server` zombie retuvo el puerto; documentado para
 la próxima: matar el server ANTES de buildear). tsc/eslint/next build
 limpios con y sin .env.local.
 
+### 2026-08-06 — Más leídas: el top 5 por fin funciona, y mejor
+
+Pedido del usuario: "setup the top 5" y de paso mejorarlo. Diagnóstico:
+el módulo era 100% GA4 y las credenciales de GA4 nunca se configuraron
+en Vercel (gap documentado desde Fase 4/5) — "Más leídas" llevaba desde
+el lanzamiento sin renderizar NADA.
+
+- **Fuente de datos en dos niveles** (lib/most-read.ts): GA4 sigue
+  siendo la fuente preferida cuando esté configurada (ve TODO el
+  tráfico); si no está — o si un property joven regresa vacío — el
+  módulo se alimenta del PROPIO log de metering del sitio
+  (article_reads, ventana de 7 días vía read_at): first-party, cero
+  setup externo, funciona desde hoy. Es un poco más estricto que
+  pageviews (bots y editores no loggean; los índices únicos hacen ~1
+  fila por identidad/artículo/mes) — mide lectores, no hits, y el UI
+  dice "lecturas" en ambos casos sin sobre-prometer unicidad. GROUP BY
+  cacheado 5 min (unstable_cache) para no pegarle a la tabla en cada
+  vista de portada (layout force-dynamic). El módulo solo se oculta si
+  NINGUNA fuente tiene datos.
+- **Upgrade visual** (MostReadSection.tsx + clases mr-* en portada.css;
+  el patrón .rank-list de hero.css queda sin uso — se dejó en su lugar
+  para no tocar más superficie): numerales Anton con el líder en el chip
+  verde (el tratamiento "la cifra" de la casa), punto de color de fuente
+  por fila, barra de calor escalada al conteo del líder que SE DIBUJA
+  cuando ScrollReveal marca la fila .is-visible (CSS puro sobre el
+  sistema existente, cero JS nuevo; llena y estática con
+  prefers-reduced-motion), y el conteo real en mono ("54 lecturas").
+  Sub "Últimos 7 días" para que la ventana sea explícita.
+
+**Verificación**: 93 lecturas sintéticas seedeadas en el Postgres local
+(60 anon readers, distribución con líder claro, repartidas en la
+semana) + las ~96 reales de las corridas de Playwright; portada
+capturada en claro y oscuro — 5 filas, chip verde en el 01, barras
+escaladas (54/27/22/15/14), dots por fuente, 0 errores de página;
+transform de la barra confirmado en scaleX(1) tras el reveal.
+tsc/eslint/next build limpios con y sin .env.local.
+
+**Nota**: cuando el usuario configure GA4 en Vercel, el módulo cambia
+solo a pageviews sin tocar código (y el conteo pasa a incluir tráfico
+no-metered). Hasta entonces, first-party.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
