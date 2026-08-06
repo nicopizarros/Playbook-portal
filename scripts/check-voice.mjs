@@ -1,10 +1,16 @@
 // Measures a newsletter draft against Playbook's actual published rhythm
 // before it goes live. The targets are not invented: they come from a
-// 2026-08-06 pass over the whole Substack archive (La Lana, The Futbol
-// Business Review and Infinitas, ~48k words), which found Playbook writes in
-// short beats — median 24-25 words per paragraph, 13-18 per sentence, and
-// roughly a third of every piece a standalone paragraph of ≤14 words. Drafts
-// produced before that measurement were running 90-97 word paragraphs.
+// 2026-08-06 pass over the BODY PROSE of the editorial-viewpoint pieces —
+// La Lana, The Futbol Business Review, the weekly essays and the Infinitas
+// deep dive — with headings, bullet lists and pull quotes excluded, and with
+// Industry Shots left out entirely (it is a digest format and says nothing
+// about how Playbook writes an argument; counting it, as a first pass did,
+// makes Playbook look far choppier than it is).
+//
+// What that archive looks like: paragraphs of p25 16-19 / median 28-32 / p75
+// 37-44 words, sentences of 13-21, about one paragraph in five standing alone
+// at ≤14 words, and only 3-7% reaching 60. Drafts produced before this
+// measurement were running 95-word paragraphs, 75-92% of them over 60.
 //
 // Usage: node scripts/check-voice.mjs <path-to-draft.json> [--strict]
 // Input: the same JSON array scripts/publish-newsletter.ts takes.
@@ -14,18 +20,20 @@
 // it ever gets wired into a check).
 //
 // Calibrated against the source itself: run over three real La Lana editions
-// converted to draft shape, one passes clean and the other two trip a single
-// soft flag each (a 34-word median, one 67-word paragraph). That is the
-// intended sensitivity — tight enough to catch the 90-word blocks this skill
-// was producing, loose enough that Playbook's own writing clears it.
+// converted to draft shape, two pass clean and the third trips only on an em
+// dash the source uses and the house style bans. That is the intended
+// sensitivity — tight enough to catch the 95-word blocks this skill was
+// producing, loose enough that Playbook's own writing clears it.
 
 import { readFileSync } from 'node:fs';
 
 const TARGETS = {
-  medianParagraphWords: 30, // archive: 24-25
-  medianSentenceWords: 18, // archive: 13-18
-  minHammerParagraphs: 2, // archive: 31-37% of all paragraphs are ≤14 words
-  maxParagraphWords: 60, // archive: only 2-5% of paragraphs reach this
+  medianParagraphWords: 35, // archive median 28-32; flag only past the top of the band
+  p75ParagraphWords: 45, // archive p75 37-44
+  medianSentenceWords: 20, // archive 13-21
+  minHammerParagraphs: 1, // archive: ~1 paragraph in 5 is ≤14 words
+  longParagraphWords: 60, // archive: only 3-7% of paragraphs reach this
+  maxLongShare: 0.1, // so at most one in ten, not zero
   maxNegativeParallelism: 1, // archive: ~1 per piece, spent at the thesis
 };
 
@@ -42,6 +50,11 @@ const median = a => {
   if (!a.length) return 0;
   const s = a.slice().sort((x, y) => x - y);
   return s[Math.floor(s.length / 2)];
+};
+const pct = (a, p) => {
+  if (!a.length) return 0;
+  const s = a.slice().sort((x, y) => x - y);
+  return s[Math.floor((s.length * p) / 100)];
 };
 
 function analyse(article) {
@@ -65,7 +78,8 @@ function analyse(article) {
     medianSentence: median(sentences.map(words)),
     hammers: pWords.filter(n => n >= 4 && n <= 14).length,
     hammerShare: prose.length ? Math.round((100 * pWords.filter(n => n <= 14).length) / prose.length) : 0,
-    blocks: prose.map((p, i) => ({ i, n: pWords[i], p })).filter(x => x.n > TARGETS.maxParagraphWords),
+    p75Paragraph: pct(pWords, 75),
+    blocks: prose.map((p, i) => ({ i, n: pWords[i], p })).filter(x => x.n > TARGETS.longParagraphWords),
     negatives: (md.match(NEGATIVE_PARALLELISM) || []).length,
     emDashes: prose.filter(p => p.includes('—')).length,
   };
@@ -85,15 +99,23 @@ function main() {
     const m = analyse(a);
     const flags = [];
     if (m.medianParagraph > TARGETS.medianParagraphWords)
-      flags.push(`párrafo mediano ${m.medianParagraph}p (objetivo ≤${TARGETS.medianParagraphWords}, archivo 24-25)`);
+      flags.push(`párrafo mediano ${m.medianParagraph}p (objetivo ≤${TARGETS.medianParagraphWords}, archivo 28-32)`);
+    if (m.p75Paragraph > TARGETS.p75ParagraphWords)
+      flags.push(`p75 de párrafo ${m.p75Paragraph}p (objetivo ≤${TARGETS.p75ParagraphWords}, archivo 37-44)`);
     if (m.medianSentence > TARGETS.medianSentenceWords)
-      flags.push(`oración mediana ${m.medianSentence}p (objetivo ≤${TARGETS.medianSentenceWords}, archivo 13-18)`);
+      flags.push(`oración mediana ${m.medianSentence}p (objetivo ≤${TARGETS.medianSentenceWords}, archivo 13-21)`);
     if (m.hammers < TARGETS.minHammerParagraphs)
-      flags.push(`solo ${m.hammers} línea(s) martillo de ≤14p (objetivo ≥${TARGETS.minHammerParagraphs})`);
+      flags.push(`sin línea martillo de ≤14p (archivo: ~1 de cada 5 párrafos)`);
     if (m.negatives > TARGETS.maxNegativeParallelism)
       flags.push(`${m.negatives} construcciones "no es X, es Y" (objetivo ≤${TARGETS.maxNegativeParallelism})`);
     if (m.emDashes) flags.push(`${m.emDashes} párrafo(s) de prosa con guion largo`);
-    for (const b of m.blocks) flags.push(`párrafo ${b.i + 1} de ${b.n}p: "${b.p.slice(0, 58)}…"`);
+    // A long paragraph is normal in the archive; a page made of them is not.
+    if (m.paragraphs && m.blocks.length / m.paragraphs > TARGETS.maxLongShare) {
+      flags.push(
+        `${m.blocks.length}/${m.paragraphs} párrafos pasan de ${TARGETS.longParagraphWords}p (archivo 3-7%)`,
+      );
+      for (const b of m.blocks) flags.push(`  párrafo ${b.i + 1} de ${b.n}p: "${b.p.slice(0, 52)}…"`);
+    }
 
     console.log(`\n${flags.length ? '⚑' : '✓'} ${(a.title || '(sin título)').slice(0, 70)}`);
     console.log(

@@ -93,37 +93,48 @@ Rules:
 
 Everything below about structure is downstream of one thing, and it is the
 single biggest gap between what this skill has been producing and what
-Playbook actually publishes. The whole Substack archive was measured against
-the articles this skill had inserted:
+Playbook actually publishes.
 
-| | Playbook (La Lana / TFBR / Infinitas) | What this skill was producing |
-|---|---|---|
-| median words per paragraph | **24-25** | 90-97 |
-| median words per sentence | **13-18** | 24-28 |
-| paragraphs of ≤14 words | **31-37%** | 0-18% |
-| paragraphs of ≥60 words | **2-5%** | 65-92% |
+**Measure it on the opinion pieces, not on the digests.** A first pass at
+this counted headings, bullet lists and Industry Shots' news briefs as if
+they were prose paragraphs, which made Playbook look far choppier than it
+is. Industry Shots is a digest format and says nothing about how Playbook
+writes an argument. The numbers below come only from **body prose in the
+editorial-viewpoint pieces** — La Lana, The Futbol Business Review, the
+weekly essays, and the Infinitas deep dive — with headings, bullets and
+pull quotes excluded:
 
-Playbook writes in short beats. Roughly a third of every piece is a
-paragraph of one short sentence standing alone. Almost nothing is a block.
-The four-paragraph structure below was being read as "four dense blocks,"
-and that is what made drafts read as competent but not like Playbook.
+| | La Lana | TFBR | Ensayos | Bloques de Opinión | This skill was writing |
+|---|---|---|---|---|---|
+| words per paragraph (p25 / median / p75) | 16 / **28** / 37 | 19 / **32** / 44 | 16 / **30** / 41 | 30 / **33** / 37 | 64 / **95** / 108 |
+| median words per sentence | 15 | 13 | 21 | 18 | 23-28 |
+| paragraphs of ≤14 words | 21% | 17% | 23% | 0% | 5% |
+| paragraphs of ≥60 words | 3% | 7% | 4% | 0% | 75-92% |
+
+A Playbook paragraph is about **30 words — one or two sentences.** Drafts
+were running three times that, which is why they read as competent but not
+as Playbook: the four-paragraph structure was being written as four dense
+blocks.
 
 **The fix: a paragraph is a beat, not a container.** Each movement of the
 structure (fact, research, detail, opinión) is written as **two or three
-short paragraphs**, not one long one. The bold lead-in opens the movement's
-first paragraph; the rest of the movement continues underneath it without
-its own lead-in. Nothing about the UI contract changes: the lead-ins still
-render as scan marks, the Opinión callout still keys off its exact lead-in,
-the device budget still counts only declared devices.
+paragraphs**, not one long one. The bold lead-in opens the movement's first
+paragraph; the rest of the movement continues underneath it without its own
+lead-in. Nothing about the UI contract changes: the lead-ins still render as
+scan marks, the Opinión callout still keys off its exact lead-in, the device
+budget still counts only declared devices.
 
-Target every draft at: **median paragraph ≤30 words, median sentence ≤18
-words, at least two paragraphs of ≤14 words, no paragraph over 60 words.**
-If a paragraph runs past 60 words, it is carrying two ideas — split it at
-the joint.
+Target every draft at: **median paragraph 25-35 words, three-quarters of
+them under 45, median sentence 13-20 words, and at most one paragraph in ten
+over 60.** A 60-word paragraph is usually two ideas — split it at the joint.
+There is no need to chase brevity past that: the archive's own p75 sits at
+37-44 words, so a substantial paragraph is normal, a 95-word one is not.
 
-**The hammer line.** The move that produces that 31-37% is a standalone
-paragraph of four to thirteen words that lands the conclusion the previous
-paragraph earned. Real ones from the archive:
+**The hammer line.** About one paragraph in five (17-23% in La Lana, TFBR
+and the essays) is a standalone line of four to thirteen words that lands
+the conclusion the previous paragraph earned. On a four-to-six-paragraph
+article that means roughly **one**; on a La Lana of thirty-odd paragraphs,
+five or six. Real ones from the archive:
 
 - *Las sedes reciben la vitrina. FIFA vende la vitrina.*
 - *No todo lo que se puede vender conviene venderlo.*
@@ -221,11 +232,20 @@ article that doesn't wear this shape isn't one:
    Where the piece does arithmetic, do it out loud and invite the reader in
    — *"Analicemos esto: En 104 partidos, dos pausas de tres minutos por
    juego significan 624 minutos nuevos de inventario potencial."*
-4. **`## La Opinión de Playbook`, exactly three paragraphs.** Not two, not
-   four. One paragraph per point, each standing on its own: what the story
-   established, who read it best or worst, and what has to hold for the
-   thing to keep working. `**Opinión de Playbook:**` as an inline lead-in is
-   for the short products; La Lana uses the heading form.
+4. **`## La Opinión de Playbook`, exactly three bullets.** Not two, not
+   four, and written as a markdown list, not as loose paragraphs. One point
+   per bullet: what the story established, who read it best or worst, and
+   what has to hold for the thing to keep working. `**Opinión de
+   Playbook:**` as an inline lead-in is for the short products; La Lana uses
+   the heading form.
+
+   The Opinión is the most metrically uniform thing Playbook writes, and it
+   is worth matching exactly: across the 2026 editions its bullets run
+   **p25 30, median 33, p75 37 words — zero under 15, zero over 60.** No
+   hammer lines here and no blocks either. The register is even and
+   declarative, three verdicts of the same weight; a one-line zinger in this
+   position reads as a tweet, and a 70-word bullet reads as a fourth section
+   that lost its heading.
 
 `Por eso` is La Lana's closing connector (the densest in the archive,
 0.84 per 1,000 words) — it earns a conclusion off the preceding section.
@@ -462,9 +482,10 @@ every item maps to a visible element):
 
 - **Rhythm, every article** — run
   `node scripts/check-voice.mjs <draft.json>` before Step 6 and read what it
-  prints. It measures each draft against the archive: median paragraph ≤30
-  words, median sentence ≤18, at least two hammer paragraphs of ≤14 words,
-  nothing over 60 words, at most one negative-parallelism construction. It
+  prints. It measures each draft against the editorial-prose archive: median
+  paragraph 25-35 words, p75 under 45, median sentence ≤20, at most one
+  paragraph in ten over 60 words, at least one hammer line, and at most one
+  negative-parallelism construction. It
   is a mirror, not a gate — a flagged long paragraph that genuinely carries
   one idea can ship, but the default answer to a flag is to split the
   paragraph, not to argue with it.
