@@ -51,8 +51,20 @@ export type ProductHubsContent = {
     boardRows: LanaBoardRow[];
   };
   noticias: { sub: string; cadenceNote: string };
-  tfbr: { taglineEm: string; taglineRest: string; sub: string; substackUrl: string };
-  infinitas: { sub: string; marcadorSub: string; metrics: HubMetric[] };
+  // headlinerId: the edition that opens the hub as its cover report. Kept
+  // separate from the site-wide `featured` flag on purpose — headlining the
+  // Interticket space shouldn't bump whatever is featured on the homepage.
+  // Empty (or an id that no longer resolves) falls back to the most recent.
+  tfbr: {
+    taglineEm: string;
+    taglineRest: string;
+    sub: string;
+    substackUrl: string;
+    headlinerId: string;
+  };
+  // leadId: same contract as tfbr.headlinerId above — the story that leads
+  // the hub, pinned by editorial instead of just taking the newest one.
+  infinitas: { sub: string; marcadorSub: string; metrics: HubMetric[]; leadId: string };
 };
 
 export const PRODUCT_HUBS_DEFAULTS: ProductHubsContent = {
@@ -79,8 +91,10 @@ export const PRODUCT_HUBS_DEFAULTS: ProductHubsContent = {
     taglineRest: 'behind the game.',
     sub: 'El fútbol en el mercado hispano de US es un gigante en aceleración. Acá lo leemos como negocio, junto con Interticket.',
     substackUrl: 'https://playbookmedia.substack.com/',
+    headlinerId: 'el-matador-inc-como-se-construye-una-leyenda-con-valor-comercial-vigente',
   },
   infinitas: {
+    leadId: 'que-esta-construyendo-la-liga-femenil-bbva-rumbo-al-apertura-2026',
     sub: 'La nueva era del deporte, leída como industria.',
     marcadorSub: 'El deporte femenil como fuerza de negocio, en cifras que no dejan de subir.',
     metrics: [

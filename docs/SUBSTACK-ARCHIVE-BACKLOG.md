@@ -1,0 +1,2274 @@
+# Backlog del archivo Substack → playbook.la
+
+_Generado el 2026-08-06 por `scripts/build-substack-backlog.mjs`._
+
+Inventario completo de todo lo publicado en las dos newsletters de Substack
+(`playbookmedia.substack.com` y `soninfinitas.substack.com`) contrastado contra
+lo que ya está vivo en la base de datos del portal. Todo lo que aparece abajo
+**está en Substack y no está en el sitio**.
+
+## Resumen
+
+| | |
+|---|---|
+| Ediciones en Substack | **467** (395 Playbook Media, 72 Son Infinitas) |
+| Rango del archivo | 2022-11-28 → 2026-08-05 |
+| Artículos vivos hoy en playbook.la | 92 (2025-11-26 → 2026-08-05) |
+| Ediciones ya procesadas | 39 |
+| Avisos / lanzamientos / podcast (sin artículo) | 12 |
+| **Ediciones pendientes** | **416** |
+| **Artículos estimados por publicar** | **~1620** |
+
+### Dónde están los huecos
+
+**Archivo previo al portal (antes del 2025-11-26).** 334 ediciones,
+~1123 artículos. Más de tres años y medio de newsletter que no existe
+en el sitio: es el grueso del backlog.
+
+**Huecos dentro de la ventana ya cubierta (desde el 2025-11-26).** De las
+121 ediciones publicadas desde entonces, 39 ya se procesaron y
+**82 siguen sin procesar** (~497 artículos). Estas son las más
+urgentes: son noticia todavía vigente y rompen la continuidad del sitio.
+
+- 2026-07-19 — Infinitas — [♾️ El legado de Alexia llega a México](https://soninfinitas.substack.com/p/que-busca-alexia-con-su-fundacion) — ~5 art.
+- 2026-07-03 — La Lana — [La lana del Mundial | La Vipización del fútbol](https://playbookmedia.substack.com/p/la-lana-del-mundial-la-vipizacion) — ~1 art.
+- 2026-07-02 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-405) — ~9 art.
+- 2026-06-26 — La Lana — [La lana del Mundial | ¿Por qué FIFA nunca pierde con el Mundial?](https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa) — ~1 art.
+- 2026-06-25 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-f51) — ~9 art.
+- 2026-06-18 — Industry Shots — [☕Industry Shots | EA Sports va por el dinero de los sponsors deportivos](https://playbookmedia.substack.com/p/industry-shots-ea-sports-va-por-el) — ~9 art.
+- 2026-06-11 — Industry Shots — [☕Industry Shots | México abre el Mundial más grande y más incómodo](https://playbookmedia.substack.com/p/industry-shots-mexico-abre-el-mundial) — ~9 art.
+- 2026-06-09 — Industry Shots — [☕Industry Shots | ¿Liga MX está lista para salir a Bolsa?](https://playbookmedia.substack.com/p/industry-shots-liga-mx-esta-lista) — ~9 art.
+- 2026-06-07 — Infinitas — [♾️ Airbnb y WSL: cuando patrocinar también es resolver](https://soninfinitas.substack.com/p/airbnb-y-wsl-cuando-patrocinar-tambien) — ~5 art.
+- 2026-06-04 — Industry Shots — [☕Industry Shots | Protestas tensan la previa a la inauguración del Mundial](https://playbookmedia.substack.com/p/industry-shots-protestas-tensan-la) — ~9 art.
+- 2026-06-02 — Industry Shots — [☕Industry Shots | Los palcos del Banorte siguen complicando a FIFA](https://playbookmedia.substack.com/p/industry-shots-los-palcos-del-banorte) — ~9 art.
+- 2026-05-31 — Infinitas — [♾️ Alexia se va del Barça, la grandeza de su legado](https://soninfinitas.substack.com/p/alexia-se-va-del-barca-la-grandeza) — ~5 art.
+- 2026-05-28 — Industry Shots — [☕Industry Shots | FIFA bajo investigación por boletos del Mundial](https://playbookmedia.substack.com/p/industry-shots-fifa-bajo-investigacion) — ~8 art.
+- 2026-05-27 — Ensayo / one-off — [La década que cambió el sports business en LATAM](https://playbookmedia.substack.com/p/la-decada-que-cambio-el-sports-business) — ~1 art.
+- 2026-05-26 — Industry Shots — [☕Industry Shots | FIFA, Sheinbaum y el lío del Mundial en TV](https://playbookmedia.substack.com/p/industry-shots-fifa-sheinbaum-y-el) — ~9 art.
+- 2026-05-24 — Infinitas — [♾️Dos finales de Champions que avanzan a distinta velocidad](https://soninfinitas.substack.com/p/dos-finales-de-champions-que-avanzan) — ~5 art.
+- 2026-05-19 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-375) — ~9 art.
+- 2026-05-17 — Infinitas — [♾️ El fútbol femenil empieza a dejar los espacios prestados](https://soninfinitas.substack.com/p/el-futbol-femenil-empieza-a-dejar) — ~5 art.
+- 2026-05-15 — Ensayo / one-off — [El Matador Inc.](https://playbookmedia.substack.com/p/el-matador-inc) — ~1 art.
+- 2026-05-14 — Industry Shots — [☕Industry Shots | ¿Por qué se frenó la inversión en la Liga MX?](https://playbookmedia.substack.com/p/industry-shots-por-que-se-freno-la) — ~9 art.
+- 2026-05-13 — Ensayo / one-off — [¿Quién convierte el talento en valor?](https://playbookmedia.substack.com/p/quien-convierte-el-talento-en-valor) — ~1 art.
+- 2026-05-12 — Industry Shots — [☕Industry Shots | México quiere el Mundial de Clubes 2029](https://playbookmedia.substack.com/p/industry-shots-mexico-quiere-el-mundial) — ~9 art.
+- 2026-05-07 — Industry Shots — [☕Industry Shots | Liga brasileña vuelve a partirse por media rights](https://playbookmedia.substack.com/p/industry-shots-liga-brasilena-vuelve) — ~9 art.
+- 2026-05-05 — Industry Shots — [☕Industry Shots | Millonario pago del Banorte a FIFA por sus palcos](https://playbookmedia.substack.com/p/industry-shots-millonario-pago-del) — ~9 art.
+- 2026-04-30 — Ensayo / one-off — [El deporte mexicano necesita más emprendedores](https://playbookmedia.substack.com/p/el-deporte-mexicano-necesita-mas) — ~1 art.
+- 2026-04-29 — Ensayo / one-off — [¿Quién controla la relación con el fan?](https://playbookmedia.substack.com/p/quien-esta-controlando-la-relacion) — ~1 art.
+- 2026-04-28 — Industry Shots — [☕Industry Shots | Liga MX se separa de la FMF: lo que realmente cambia](https://playbookmedia.substack.com/p/industry-shots-liga-mx-se-separa) — ~9 art.
+- 2026-04-23 — Industry Shots — [☕Industry Shots | La Asamblea que puede reordenar la Liga MX](https://playbookmedia.substack.com/p/industry-shots-la-asamblea-que-puede) — ~9 art.
+- 2026-04-21 — Industry Shots — [☕Industry Shots | La estrategia de LMB para monetizar el Mundial 2026](https://playbookmedia.substack.com/p/industry-shots-la-estrategia-de-lmb) — ~9 art.
+- 2026-04-19 — Infinitas — [♾️ La marca que entendió primero el negocio del deporte femenil](https://soninfinitas.substack.com/p/la-marca-que-entendio-primero-el) — ~5 art.
+- 2026-04-16 — Industry Shots — [☕Industry Shots | Netflix entra al fútbol en México](https://playbookmedia.substack.com/p/industry-shots-netflix-entra-al-futbol) — ~9 art.
+- 2026-04-15 — Ensayo / one-off — [Rumbo a WFS Mexico City 2026: El nuevo mapa de poder del fútbol en México y LATAM](https://playbookmedia.substack.com/p/rumbo-a-wfs-mexico-city-2026-el-nuevo) — ~1 art.
+- 2026-04-14 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-a97) — ~10 art.
+- 2026-04-09 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-695) — ~9 art.
+- 2026-04-07 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-397) — ~9 art.
+- 2026-04-02 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-d1d) — ~9 art.
+- 2026-03-31 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-9e5) — ~9 art.
+- 2026-03-29 — Infinitas — [♾️ FIFA abre la puerta a más entrenadoras: ¿También facilita el camino?](https://soninfinitas.substack.com/p/fifa-abre-la-puerta-a-mas-entrenadoras) — ~5 art.
+- 2026-03-26 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-c1e) — ~9 art.
+- 2026-03-24 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-be8) — ~9 art.
+- 2026-03-22 — Infinitas — [♾️ ¿Qué cambia realmente con el nuevo acuerdo de la WNBA?](https://soninfinitas.substack.com/p/que-cambia-realmente-con-el-nuevo) — ~5 art.
+- 2026-03-19 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-9ff) — ~9 art.
+- 2026-03-17 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-7b1) — ~9 art.
+- 2026-03-15 — Infinitas — [♾️Más que un triunfo: lo que México–Brasil cambia para la selección](https://soninfinitas.substack.com/p/mas-que-un-triunfo-lo-que-mexicobrasil) — ~5 art.
+- 2026-03-12 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-053) — ~9 art.
+- 2026-03-10 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-8d5) — ~9 art.
+- 2026-03-08 — Infinitas — [♾️¿Por qué el ranking de la NWSL importa más de lo que parece?](https://soninfinitas.substack.com/p/por-que-el-ranking-de-la-nwsl-importa) — ~5 art.
+- 2026-03-05 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-84a) — ~9 art.
+- 2026-03-03 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-1d4) — ~9 art.
+- 2026-03-01 — Infinitas — [♾️El patrocinio récord para un equipo sin debutar](https://soninfinitas.substack.com/p/el-patrocinio-record-para-un-equipo) — ~5 art.
+- 2026-02-26 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-a0b) — ~9 art.
+- 2026-02-24 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-453) — ~9 art.
+- 2026-02-22 — Infinitas — [♾️¿ESPN cambió el prime time… o solo la parrilla?](https://soninfinitas.substack.com/p/espn-cambio-el-prime-time-o-solo) — ~5 art.
+- 2026-02-19 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-f66) — ~9 art.
+- 2026-02-17 — Industry Shots — [☕Industry Shots / Anuncios](https://playbookmedia.substack.com/p/industry-shots-anuncios) — ~14 art.
+- 2026-02-15 — Infinitas — [♾️¿Despegó por fin el mercado del fútbol femenil?](https://soninfinitas.substack.com/p/despego-por-fin-el-mercado-del-futbol) — ~5 art.
+- 2026-02-12 — Weekly Playbook / Semanal — [Playbook Semanal: El club que regaló partidos para conquistar mercado global](https://playbookmedia.substack.com/p/playbook-semanal-el-club-que-regalo) — ~1 art.
+- 2026-02-08 — Infinitas — [♾️El foro global que quiere ordenar el crecimiento del fútbol femenil](https://soninfinitas.substack.com/p/el-foro-global-que-quiere-ordenar) — ~5 art.
+- 2026-02-05 — Weekly Playbook / Semanal — [Playbook Semanal: ¿Cómo convertir un estadio histórico en venue global de entretenimiento?](https://playbookmedia.substack.com/p/playbook-semanal-como-convertir-un) — ~1 art.
+- 2026-02-01 — Infinitas — [♾️El contrato que expuso los límites del modelo NWSL](https://soninfinitas.substack.com/p/el-contrato-que-expuso-los-limites) — ~5 art.
+- 2026-01-29 — Weekly Playbook / Semanal — [Playbook Semanal: ¿Por qué TikTok se convirtió en plataforma clave del Mundial?](https://playbookmedia.substack.com/p/playbook-semanal-por-que-tiktok-se) — ~1 art.
+- 2026-01-27 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-38f) — ~9 art.
+- 2026-01-25 — Infinitas — [♾️El mapa incompleto del crecimiento del fútbol femenil](https://soninfinitas.substack.com/p/el-mapa-incompleto-del-crecimiento) — ~5 art.
+- 2026-01-22 — Weekly Playbook / Semanal — [Playbook Semanal: Cómo vender experiencias premium en un mercado sensible al precio](https://playbookmedia.substack.com/p/playbook-semanal-como-vender-experiencias) — ~1 art.
+- 2026-01-20 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-504) — ~9 art.
+- 2026-01-18 — Infinitas — [♾️El fútbol femenil de clubes entra en su fase global](https://soninfinitas.substack.com/p/el-futbol-femenil-de-clubes-entra) — ~5 art.
+- 2026-01-15 — Weekly Playbook / Semanal — [Playbook Semanal: El modelo que explica por qué el Mundial ahora se gana en distribución](https://playbookmedia.substack.com/p/playbook-semanal-el-modelo-que-explica) — ~1 art.
+- 2026-01-13 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-3f4) — ~9 art.
+- 2026-01-08 — Weekly Playbook / Semanal — [Playbook Semanal: Azcárraga reordenó su imperio antes del ciclo 2026](https://playbookmedia.substack.com/p/playbook-semanal-azcarraga-reordeno) — ~1 art.
+- 2026-01-06 — Industry Shots — [☕Industry Shots / Memorias del Mundial en México](https://playbookmedia.substack.com/p/industry-shots-memorias-del-mundial) — ~9 art.
+- 2025-12-25 — Ensayo / one-off — [¿Qué movió a la industria del deporte en 2025?](https://playbookmedia.substack.com/p/que-movio-a-la-industria-del-deporte) — ~1 art.
+- 2025-12-21 — Infinitas — [♾️El acuerdo WTA–Mercedes, un breaking point en el deporte femenil](https://soninfinitas.substack.com/p/el-acuerdo-wtamercedes-un-breaking) — ~5 art.
+- 2025-12-18 — Weekly Playbook / Semanal — [Playbook Semanal: Guadalajara 2026, la sede que convirtió el Mundial en un activo urbano](https://playbookmedia.substack.com/p/playbook-semanal-guadalajara-2026) — ~1 art.
+- 2025-12-16 — Industry Shots — [☕Industry Shots / La verdad del caso Fanki: su CEO rompe el silencio](https://playbookmedia.substack.com/p/industry-shots-la-verdad-del-caso) — ~12 art.
+- 2025-12-14 — Infinitas — [♾️¿Por qué el Kang Women’s Institute puede transformar el fútbol femenil?](https://soninfinitas.substack.com/p/por-que-el-kang-womens-institute) — ~5 art.
+- 2025-12-11 — Weekly Playbook / Semanal — [Playbook Semanal: El torneo femenil que entendió cómo crecer desde el primer día](https://playbookmedia.substack.com/p/playbook-semanal-el-torneo-femenil) — ~1 art.
+- 2025-12-09 — Industry Shots | Players — [☕Industry Shots / Players: Elisa Ceñal](https://playbookmedia.substack.com/p/industry-shots-players-elisa-cenal) — ~2 art.
+- 2025-12-07 — Infinitas — [♾️Alemania 2029, la Euro donde UEFA probará su modelo](https://soninfinitas.substack.com/p/alemania-2029-la-euro-donde-uefa) — ~5 art.
+- 2025-12-04 — Weekly Playbook / Semanal — [Playbook Semanal: El fondo guatemalteco que entró al fútbol mundial](https://playbookmedia.substack.com/p/playbook-semanal-el-fondo-guatemalteco) — ~1 art.
+- 2025-12-02 — Industry Shots | Players — [☕Industry Shots / Players: Daniel Benchimol, DAZN](https://playbookmedia.substack.com/p/industry-shots-players-daniel-benchimol) — ~3 art.
+- 2025-11-30 — Infinitas — [♾️Finales de Liga MX Femenil y NWSL consolidan alcance del FutFem](https://soninfinitas.substack.com/p/finales-de-liga-mx-femenil-y-nwsl) — ~5 art.
+- 2025-11-27 — Weekly Playbook / Semanal — [Playbook Semanal: Cómo convertir una mascota en un activo comercial](https://playbookmedia.substack.com/p/playbook-semanal-como-convertir-una) — ~1 art.
+
+> Nota sobre la detección: una edición se marca como procesada cuando alguna
+> fila de `articles` guarda su URL de Substack, o cuando todos los enlaces
+> "(Acá más info)" de la edición apuntan a artículos que ya existen. Los ítems
+> de Industry Shots suelen guardar la fuente original (ESPN, Reuters) en vez del
+> Substack, así que alguna edición reciente podría estar más completa de lo que
+> indica este conteo. Para el archivo previo al portal no hay ambigüedad: no hay
+> ningún artículo vivo con fecha anterior al 2025-11-26.
+
+### Por serie
+
+| Serie | Prio | Ediciones | Artículos est. | Rango |
+|---|---|---:|---:|---|
+| Industry Shots | P1 | 80 | ~721 | 2024-08-22 → 2026-07-02 |
+| Infinitas | P1 | 75 | ~410 | 2024-11-03 → 2026-07-19 |
+| Industry Shots \| Players | P1 | 32 | ~260 | 2024-10-08 → 2025-12-09 |
+| Ensayo / one-off | P2 | 156 | ~156 | 2023-01-10 → 2026-05-27 |
+| Weekly Playbook / Semanal | P2 | 32 | ~32 | 2023-02-03 → 2026-02-12 |
+| Off the Field | P2 | 10 | ~10 | 2023-12-11 → 2024-04-28 |
+| Player de la Semana | P2 | 9 | ~9 | 2024-02-20 → 2024-07-29 |
+| Voces Infinitas | P1 | 7 | ~7 | 2025-02-26 → 2025-08-27 |
+| Beyond Bounds Arena | P2 | 4 | ~4 | 2024-03-10 → 2024-06-17 |
+| Playbook News | P2 | 4 | ~4 | 2023-11-13 → 2023-12-04 |
+| Los Apellidos del Deporte | P2 | 3 | ~3 | 2025-06-13 → 2025-08-22 |
+| La Lana | P2 | 2 | ~2 | 2026-06-26 → 2026-07-03 |
+| Sin Máscaras | P2 | 2 | ~2 | 2025-04-13 → 2025-06-01 |
+
+**P1** = las tres series que pediste priorizar (Futbol Business Review,
+Infinitas, Industry Shots). **P2** = el resto del archivo, valioso pero
+fuera del foco inmediato.
+
+### Cómo leer las estimaciones
+
+Industry Shots e Infinitas son **digests**: cada edición contiene varias
+noticias que en el portal se publican como artículos separados. La estimación
+cuenta, por edición:
+
+- Industry Shots → notas de "Para iniciar conversación" + "¿Qué más debes saber?" + el Deep Dive cuando existe.
+- Industry Shots | Players → lo anterior + la entrevista de la sección Players.
+- Infinitas → las notas breves de apertura + el análisis de fondo.
+- Todo lo demás (ensayos, La Lana, Futbol Business Review, Voces Infinitas) → 1 artículo por edición.
+
+El desglose por edición viene con los titulares reales de cada nota, así que
+no hay que abrir Substack para saber qué contiene cada una.
+
+### Contenido perecedero vs. permanente
+
+131 ediciones de digest son anteriores a 2026 (~950 artículos).
+Sus notas breves eran noticia de la semana y hoy sólo tienen valor de archivo;
+los Deep Dives, entrevistas y análisis de esas mismas ediciones sí siguen
+vigentes. Recomendación: de 2024–2025 recuperar el análisis y saltarse las
+notas de coyuntura, salvo que se quiera el archivo completo por SEO.
+
+### Orden sugerido de ataque
+
+| # | Lote | Ediciones | Artículos est. | Por qué |
+|---|---|---:|---:|---|
+| 1 | Futbol Business Review completo | 0 | ~0 | Serie corta, en inglés, análisis puro: cero contenido perecedero y hoy no hay una sola pieza de ella en el sitio. |
+| 2 | Infinitas 2026 | 17 | ~85 | El vertical femenil tiene 12 artículos vivos frente a un archivo de casi 90 ediciones. |
+| 3 | Industry Shots 2026 | 39 | ~356 | Cierra el hueco entre enero y el arranque del portal el 2025-11-26. |
+| 4 | Resto de 2026 | 14 | ~14 | La Lana y ensayos del año en curso: deja 2026 completo antes de bajar al archivo histórico. |
+| 5 | Ensayos y análisis 2023–2025 | 215 | ~215 | Evergreen: siguen vigentes como contenido de fondo y como base de SEO. |
+| 6 | Digests 2024–2025 | 131 | ~950 | Sólo si se quiere el archivo literal; la mayoría es noticia de coyuntura ya vencida. |
+
+Los lotes 1 a 4 son disjuntos: 70 ediciones, ~455 artículos, y dejan el sitio al día con todo 2026 más la serie en inglés.
+
+### Lo que se puede ignorar
+
+Estas ediciones no llevan artículo (avisos de lanzamiento, invitaciones a
+eventos, episodios de podcast):
+
+- 2026-04-20 — ¿Cómo llegó Playbook al Estadio Banorte? (te queremos invitar) — [Substack](https://playbookmedia.substack.com/p/como-llego-playbook-al-estadio-banorte)
+- 2025-11-19 — Welcome to The Futbol Business Review — [Substack](https://playbookmedia.substack.com/p/welcome-to-the-futbol-business-review)
+- 2025-10-10 — Playbook PRO: Tienes un asiento en la mesa de líderes del Deporte 🎟️ — [Substack](https://playbookmedia.substack.com/p/playbook-pro-tienes-un-asiento-en)
+- 2023-11-07 — Evolucionamos. Nace Playbook — [Substack](https://playbookmedia.substack.com/p/evolucionamos-nace-playbook)
+- 2023-10-24 — Jaime Lomelín | Garra #6 - Vencer el miedo, riesgos de nados maratónicos, y la logística de una competencia. — [Substack](https://playbookmedia.substack.com/p/jaime-lomelin-garra-6-vencer-el-miedo)
+- 2023-10-10 — Juan Pablo Robert | Garra #5 - Creación de nuevos fans deportivos y la evolución en su consumo — [Substack](https://playbookmedia.substack.com/p/juan-pablo-robert-garra-5-creacion)
+- 2023-09-27 — Fer Corral | Garra #4 - Ya no es suficiente ser el mejor atleta, cómo convertirte en agente — [Substack](https://playbookmedia.substack.com/p/fer-corral-garra-4-ya-no-es-suficiente)
+- 2023-09-12 — Garra #3 | Raúl Zurutuza - El negocio detrás del Abierto Mexicano de Tenis, y por qué el tenis debe evolucionar — [Substack](https://playbookmedia.substack.com/p/garra-3-raul-zurutuza-el-negocio)
+- 2023-08-23 — Garra #2 | Jorge León "Abogado Pateador" - Convertirte en profesional a los 40, perseguir tus sueños y ser amigo de tu ídolo. — [Substack](https://playbookmedia.substack.com/p/garra-2-jorge-leon-abogado-pateador)
+- 2023-08-09 — Garra — [Substack](https://playbookmedia.substack.com/p/garra-nuevo-programa)
+- 2023-06-14 — Desde Vestidores evoluciona — [Substack](https://playbookmedia.substack.com/p/desde-vestidores-evoluciona)
+- 2022-11-28 — Coming soon — [Substack](https://playbookmedia.substack.com/p/coming-soon)
+
+---
+
+## Detalle por serie
+
+### Industry Shots
+
+80 ediciones pendientes · ~721 artículos · 2024-08-22 → 2026-07-02
+
+- **2026-07-02** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-405) — ~9 art.
+  - NBCU quiere más Mundial; NFL sonríe con reacomodo de Comcast; Sony invierte en deporte inmersivo; Real Madrid rechaza acuerdo Gasol-Liga F; AC Milan trae CEO desde el tenis; WTA Finals a Indian Wells.
+  - ▸ NBCU quiere más Mundial tras el boom de Telemundo
+  - ▸ Comcast reacomoda la casa y la NFL sonríe
+  - ▸ Sony le mete US$100m al deporte inmersivo
+  - ▸ Real Madrid se baja del acuerdo Gasol-Liga F
+  - ▸ AC Milan trae CEO desde el tenis
+  - ▸ WTA deja Arabia y se va a Indian Wells
+  - · El heredero de Walmart entra a Chicago Bulls
+  - · La ITF se vuelve World Tennis para vender mejor
+  - · NBA Europa ya tiene ofertas de peso
+- **2026-06-25** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-f51) — ~9 art.
+  - Apple abre gratis la F1 para jalar audiencia; PGA Tour inventa segunda división; NBPA quiere máquina comercial; Kansas City usa Mundial como vitrina de ciudad; El Maratón de Londres no cabe en un día.
+  - ▸ Apple abre gratis la F1 para jalar audiencia
+  - ▸ El PGA Tour se inventa su segunda división
+  - ▸ Los jugadores NBA quieren su propia máquina comercial
+  - ▸ Kansas City usa el Mundial como vitrina de ciudad
+  - ▸ El Maratón de Londres ya no cabe en un día
+  - ▸ El COI empieza a pagarle al atleta olímpico
+  - · Real Madrid le dice no a la NBA Europa
+  - · Bill Foley quiere repetir la fórmula Vegas en NBA
+  - · El Mundial no alcanza para sostener a Globant
+- **2026-06-18** — [☕Industry Shots | EA Sports va por el dinero de los sponsors deportivos](https://playbookmedia.substack.com/p/industry-shots-ea-sports-va-por-el) — ~9 art.
+  - Gasol quiere entrarle al negocio de Liga F; F1 le entrega su ticketing global a Fever; Ligue 1 quiere llevar su streaming a bares; Man Utd abre sus puertas a Amazon; Barça y su negocio en YouTube
+  - ▸ EA Sports va por el dinero de los sponsors deportivos
+  - ▸ Gasol quiere entrarle al negocio de Liga F
+  - ▸ F1 le entrega su ticketing global a Fever
+  - ▸ Ligue 1 quiere llevar su streaming a los bares
+  - ▸ Manchester United abre sus puertas a Amazon
+  - ▸ Barça ya hace negocio propio en YouTube
+  - · Las NBA Finals más vistas desde 1998
+  - · WNBA expande su calendario a 50 juegos
+  - · Google y LaLiga refuerzan alianza contra piratería
+- **2026-06-11** — [☕Industry Shots | México abre el Mundial más grande y más incómodo](https://playbookmedia.substack.com/p/industry-shots-mexico-abre-el-mundial) — ~9 art.
+  - Real Madrid ya tiene dos patrocinios de €100m al año; Electrolit entra al US Open; Telemundo y Fox esperan Mundial récord; El anuncio de FIFPRO y FIFA; Irán reclama que le quitaron boletos para fans
+  - ▸ México abre el Mundial más grande y más incómodo
+  - ▸ Real Madrid ya tiene dos patrocinios de €100m al año
+  - ▸ Electrolit entra al US Open
+  - ▸ Telemundo y Fox esperan un Mundial récord
+  - ▸ FIFPRO y FIFA cambian reglas del mercado de pases
+  - ▸ Irán reclama que le quitaron boletos para sus fans
+  - · Daniel Levy vende un 25% del Tottenham Hotspur
+  - · El COM busca más respaldo del IOC en visita a Suiza
+  - · ATP y TikTok seguirán trabajando juntos
+- **2026-06-09** — [☕Industry Shots | ¿Liga MX está lista para salir a Bolsa?](https://playbookmedia.substack.com/p/industry-shots-liga-mx-esta-lista) — ~9 art.
+  - LMB amplía cobertura nacional con Grupo Imagen; LaLiga rompe marca con ESPN en EE.UU; Telemundo no venderá hydration breaks en Mundial; Concacaf arma su cancha gamer; Amenaza de huelga en SoFi Stadium
+  - ▸ Liga MX quiere salir a Bolsa
+  - ▸ LMB amplía cobertura nacional con Imagen.
+  - ▸ LaLiga rompe marca con ESPN en EE.UU.
+  - ▸ Telemundo no venderá hydration breaks en Mundial
+  - ▸ Concacaf arma su cancha gamer
+  - ▸ Amenaza de huelga en SoFi Stadium
+  - · FIFA se echa para atrás en su prohibición de botellas en estadios
+  - · Casey Wasserman dice que no va a renunciar a LA28
+  - · Los Glazer estudian vender su participación en Manchester United
+- **2026-06-04** — [☕Industry Shots | Protestas tensan la previa a la inauguración del Mundial](https://playbookmedia.substack.com/p/industry-shots-protestas-tensan-la) — ~9 art.
+  - FIFA también cierra el agua; La alianza de Airbnb con la WSL; Dybala invierte en IA para fichajes; Polymarket va por el fan global del fútbol; El regulador aprieta a la Premier por cripto.
+  - ▸ Protestas tensan la previa a la inauguración del Mundial
+  - ▸ FIFA también cierra el agua
+  - ▸ La alianza de Airbnb con la WSL
+  - ▸ Dybala invierte en IA para fichajes
+  - ▸ Polymarket va por el fan global del fútbol
+  - ▸ El regulador aprieta a la Premier por cripto
+  - · El Bernabéu será campo de golf
+  - · EQT se convierte en sponsor de la ATP
+  - · Nationwide compra equity en Columbus Crew
+- **2026-06-02** — [☕Industry Shots | Los palcos del Banorte siguen complicando a FIFA](https://playbookmedia.substack.com/p/industry-shots-los-palcos-del-banorte) — ~9 art.
+  - Blue Crow logra venta récord del Leganés; MLB se mete en terreno peligroso; Curry firma con Li-Ning; El paywall de la Champions empujó la piratería; Dončić quiere una franquicia en Roma
+  - ▸ Los palcos del Banorte siguen complicando a FIFA
+  - ▸ Blue Crow logra venta récord del Leganés
+  - ▸ MLB se mete en terreno peligroso
+  - ▸ Curry firma con Li-Ning
+  - ▸ El paywall de la Champions empujó la piratería
+  - ▸ Dončić quiere una franquicia en Roma
+  - · Presidenta del COI reabre el debate del pago a atletas olímpicos
+  - · Miami Marlins levantan capital pese a su crisis
+  - · El pago de la WNBA a jugadoras retiradas
+- **2026-05-28** — [☕Industry Shots | FIFA bajo investigación por boletos del Mundial](https://playbookmedia.substack.com/p/industry-shots-fifa-bajo-investigacion) — ~8 art.
+  - DAZN mira a LATAM para crecer; MLS quiere capitalizar el Mundial; La BBC se baja del halftime show de FIFA; Capital estadounidense va por Napoli; Travis Kelce entra al negocio de MLB.
+  - ▸ DAZN mira a LATAM para crecer
+  - ▸ MLS quiere capitalizar el Mundial
+  - ▸ La BBC se baja del halftime show de FIFA
+  - ▸ Capital estadounidense va por Napoli
+  - ▸ Travis Kelce entra al negocio de MLB
+  - · FIFA quiere su propio Fan ID
+  - · Decomiso histórico de stickers falsos de Panini en Brasil
+  - · Palmeiras convierte su estadio en venue global
+- **2026-05-26** — [☕Industry Shots | FIFA, Sheinbaum y el lío del Mundial en TV](https://playbookmedia.substack.com/p/industry-shots-fifa-sheinbaum-y-el) — ~9 art.
+  - Tijuana será base mundialista de Irán; Fanatics quiere monetizar más al fan; Liga MX vuelve a EA Sports; Apple usa a la MLS como laboratorio; Gobierno de UK presiona a TNT por final de Champions
+  - ▸ FIFA, Sheinbaum y el lío del Mundial en TV
+  - ▸ Tijuana será base mundialista de Irán
+  - ▸ Fanatics quiere monetizar más al fan
+  - ▸ Liga MX vuelve a EA Sports
+  - ▸ Apple usa MLS como laboratorio
+  - ▸ Gobierno de UK presiona a TNT por final de Champions
+  - · NFL da a Nashville su primer Super Bowl
+  - · US Open busca $400m usd para renovar el Arthur Ashe
+  - · Directora ejecutiva de Wimbledon dejará su cargo
+- **2026-05-19** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-375) — ~9 art.
+  - TelevisaUnivision le manda mensaje a Netflix; Los Raiders y el verdadero negocio en el deporte; Gucci a la F1; Netflix y su oferta de deporte en vivo; Campeón de la Libertadores no puede pagar nómina
+  - ▸ TelevisaUnivision le manda mensaje a Netflix
+  - ▸ Los Raiders comprueban dónde está el negocio en el deporte
+  - ▸ Gucci podría entrar a la F1
+  - ▸ Netflix crece su oferta de deporte en vivo
+  - ▸ El campeón de la Libertadores no puede pagar nómina
+  - ▸ FIFA cierra acuerdo para transmitir mundial en China
+  - · Arabia Saudita se suma como sponsor de este mundial
+  - · Los media rights ya no son el motor de crecimiento en el deporte
+  - · Polymarket sigue creciendo huella de mercados de predicción en el deporte
+- **2026-05-14** — [☕Industry Shots | ¿Por qué se frenó la inversión en la Liga MX?](https://playbookmedia.substack.com/p/industry-shots-por-que-se-freno-la) — ~9 art.
+  - Sergio Ramos cerca de comprar al Sevilla; McDonald’s quiere algo más que naming; NBA House vuelve a tomar CDMX; La WNBA ya negocia como liga grande; Cosm lleva el Mundial al domo.
+  - ▸ ¿Por qué se frenó la inversión en la Liga MX?
+  - ▸ Sergio Ramos cerca de comprar al Sevilla
+  - ▸ McDonald’s quiere algo más que naming
+  - ▸ NBA House vuelve a tomar CDMX
+  - ▸ La WNBA ya negocia como liga grande
+  - ▸ Cosm lleva el Mundial al domo
+  - · Manchester City Women invierte fuerte en instalaciones
+  - · Horario inédito en final de Liga MX Femenil
+  - · Las nuevas oficinas de la MLS en NYCompartir
+- **2026-05-12** — [☕Industry Shots | México quiere el Mundial de Clubes 2029](https://playbookmedia.substack.com/p/industry-shots-mexico-quiere-el-mundial) — ~9 art.
+  - Grupo Pachuca desciende en España; Panini pierde el álbum del Mundial; Boletos del Mundial generan presión política; U.S. Soccer inaugura casa de $250m usd; FIFA arma triple apertura mundialista.
+  - ▸ México quiere el Mundial de Clubes 2029
+  - ▸ Grupo Pachuca desciende en España
+  - ▸ Panini pierde el álbum del Mundial
+  - ▸ Boletos del Mundial generan presión política
+  - ▸ U.S. Soccer inaugura su casa de $250m usd
+  - ▸ FIFA arma triple apertura mundialista.
+  - · Golpe de DFL y DAZN contra la piratería
+  - · La alianza de Kings League con UNICEF
+  - · Duracell patrocinará el tiempo añadido de LaLiga
+- **2026-05-07** — [☕Industry Shots | Liga brasileña vuelve a partirse por media rights](https://playbookmedia.substack.com/p/industry-shots-liga-brasilena-vuelve) — ~9 art.
+  - Liga MX mete IA a su producto; Mundial 2026 no llena hoteles como esperaba; Telemundo triplica apuesta por US Soccer; FIFA aún no cierra dos mercados gigantes; MLS quiere escalar su liga formativa.
+  - ▸ Liga brasileña vuelve a partirse por media rights
+  - ▸ Liga MX mete IA a su producto
+  - ▸ Mundial 2026 no llena hoteles como se esperaba
+  - ▸ Telemundo triplica su apuesta por US Soccer
+  - ▸ FIFA aún no cierra dos mercados gigantes
+  - ▸ MLS quiere escalar su liga formativa
+  - · DAZN compra acceso al deporte local en EE.UU.
+  - · Amenaza de boicot a Roland Garros por revenue share
+  - · CBF elevará sus ingresos un 33.3% en 2026Compartir
+- **2026-05-05** — [☕Industry Shots | Millonario pago del Banorte a FIFA por sus palcos](https://playbookmedia.substack.com/p/industry-shots-millonario-pago-del) — ~9 art.
+  - LaLiga apaga su OTT; La Champions mueve el streaming en México; adidas invierte en desarrollo de Bundesliga; Los cambios en LIV Golf; Apollo quiere escalar el pickleball.
+  - ▸ El pago millonario del Banorte a FIFA por sus palcos
+  - ▸ LaLiga apaga su OTT
+  - ▸ La Champions mueve el streaming en México
+  - ▸ adidas invierte en desarrollo de Bundesliga
+  - ▸ Los cambios en LIV Golf
+  - ▸ Apollo quiere escalar el pickleball
+  - · Brighton construirá primer estadio para FutFem en Europa
+  - · Se fortalece colaboración UEFA y CONCACAF
+  - · FIFA busca implementar regla sub 21
+- **2026-04-28** — [☕Industry Shots | Liga MX se separa de la FMF: lo que realmente cambia](https://playbookmedia.substack.com/p/industry-shots-liga-mx-se-separa) — ~9 art.
+  - FIFA intenta regular partidos globales; MLS presiona a Vancouver con mudanza; Importante salida en América; MLB reafirma a México en plan de largo plazo; Se va la CEO de la WTA.
+  - ▸ Liga MX se separa de la FMF
+  - ▸ FIFA intenta regular partidos globales
+  - ▸ MLS presiona a Vancouver con mudanza
+  - ▸ Importante salida en América
+  - ▸ MLB reafirma a México en plan de largo plazo
+  - ▸ Se va la CEO de la WTA
+  - · FIFA aumentará Prize Money en Mundial 2026
+  - · Ex presidente de la Juventus lanza fondo
+  - · La alianza de Peloton y Spotify
+- **2026-04-23** — [☕Industry Shots | La Asamblea que puede reordenar la Liga MX](https://playbookmedia.substack.com/p/industry-shots-la-asamblea-que-puede) — ~9 art.
+  - Atlas cambia de manos; MLB ya ve a México como mercado prioritario; Atlético expande su negocio alrededor del estadio; NWSL vende franquicia en más de $200m usd; Gobierno de EE.UU. investiga a MLB.
+  - ▸ La Asamblea que puede reordenar la Liga MX
+  - ▸ Atlas cambia de manos
+  - ▸ MLB ya ve a México como mercado prioritario
+  - ▸ Atlético expande su negocio alrededor del estadio
+  - ▸ NWSL vende franquicia en más de $200m usd
+  - ▸ Gobierno de EE.UU. investiga a MLB
+  - · Polymarket entra al futbol europeo como patrocinador
+  - · Chelsea Women jugará en Stamford Bridge
+  - · Francia será sede del Mundial Varonil FIBA 2031
+- **2026-04-21** — [☕Industry Shots | La estrategia de LMB para monetizar el Mundial 2026](https://playbookmedia.substack.com/p/industry-shots-la-estrategia-de-lmb) — ~9 art.
+  - Venta récord de Padres de San Diego; New Jersey se queja del Modelo FIFA; LIV Golf se queda en México; Barça entra al mercado de reventa de merch; Messi compra al Cornellà, y más.
+  - ▸ La LMB transmitirá el Mundial
+  - ▸ Venta récord de Padres de San Diego
+  - ▸ New Jersey se queja del Modelo FIFA
+  - ▸ LIV Golf se queda en México
+  - ▸ Barça entra al mercado de reventa
+  - ▸ Messi compra al Cornellà
+  - · Muchos interesados en comprar The Team (ex Wasserman)
+  - · LaLiga insiste en jugar en el extranjero, China nuevo objetivo
+  - · WSL lanzará su fantasy
+- **2026-04-16** — [☕Industry Shots | Netflix entra al fútbol en México](https://playbookmedia.substack.com/p/industry-shots-netflix-entra-al-futbol) — ~9 art.
+  - NFL bajo la mira del gobierno por precios de sus partidos; IDC Network lanza fondo en deporte; La DFB anuncia su OTT; Pieza clave de US Soccer se va a Arabia; La petición de Infantino a Trump, y más.
+  - ▸ Netflix entra al fútbol en México
+  - ▸ NFL bajo la mira del gobierno por precios de sus partidos
+  - ▸ IDC Network lanza fondo en deporte
+  - ▸ La DFB anuncia su OTT
+  - ▸ Pieza clave de US Soccer se va a Arabia
+  - ▸ La petición de Infantino a Trump
+  - · La alianza de LFA con Finsus que incluye naming rights
+  - · Amazon entra al fútbol brasileño de la mano de la CBF
+  - · WNBA busca su primer juego internacional
+- **2026-04-14** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-a97) — ~10 art.
+  - FOX amplía su influencia; Nu y un nuevo estadio; NBA abusiva en Europa; Banorte y la LMB; Serie A busca inversionista; Nueva inversión en AI deportiva; Arsenal y Meta, y más.
+  - ▸ FOX amplía su influencia
+  - ▸ Nu sigue poniendo su nombre a estadios
+  - ▸ ¿NBA “abusiva” en Europa?
+  - ▸ Banorte pone nombre a la LMB
+  - ▸ Serie A busca lograr lo que el futbol mexicano no pudo
+  - ▸ DeChambeau invierte en AI deportiva
+  - ▸ Arsenal se alía con Meta
+  - · Nuevo fondo de inversión enfocado en apuestas deportivas en E.U.A.
+  - · $12m usd para nueva startup de memorabilia de deporte femenil
+  - · JP Morgan podría patrocinar a los Juegos Olímpicos
+- **2026-04-09** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-695) — ~9 art.
+  - Brasil va por liga independiente; Deporte femenil cruza otra barrera; La Premier pone límite a la IA; NFL relaja derechos digitales; Fanatics ya monetiza la lealtad; DAZN quiere crecer con creadores
+  - ▸ Brasil va por liga independiente
+  - ▸ El deporte femenil cruza otra barrera
+  - ▸ La Premier pone límite a la IA
+  - ▸ NFL relaja derechos digitales
+  - ▸ Fanatics ya monetiza la lealtad
+  - ▸ DAZN quiere crecer con creadores
+  - · Más críticas a FIFA por boletos del Mundial
+  - · Fox amarra la CONCACAF en México
+  - · Bay Collective compra Sunderland Women
+- **2026-04-07** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-397) — ~9 art.
+  - Inter Miami estrena centro de negocios; Prediction markets entran al fútbol; Kansas City quiere cambiar con el Mundial; Europa ya puja por la NBA; Publicis compra 160over90; WTA Finals dejaría Arabia.
+  - ▸ Inter Miami estrena su centro de negocios
+  - ▸ Prediction markets entran al fútbol
+  - ▸ Kansas City quiere que el Mundial la cambie
+  - ▸ Europa ya puja por la NBA
+  - ▸ Publicis compra 160over90
+  - ▸ WTA Finals dejaría Arabia
+  - · Italia entra al mapa NFL
+  - · Shaq arma su propia liga
+  - · Topps vuelve a la NFL
+- **2026-04-02** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-d1d) — ~9 art.
+  - Temporada histórica de Capitanes; NWSL quiere monetizar mejor; Whoop atrae capital de élite; La ATP busca enganchar con fantasy; Chelsea tiene pérdidas récord; Netflix va por más NFL.
+  - ▸ Temporada histórica de Capitanes
+  - ▸ La NWSL quiere monetizar mejor
+  - ▸ Whoop atrae capital de élite
+  - ▸ La ATP busca enganchar con fantasy
+  - ▸ Chelsea tiene pérdidas récord
+  - ▸ Netflix va por más NFL
+  - · América regresa al Banorte
+  - · Millonaria mudanza en la WNBA
+  - · Raiders valuados en $11bn usd
+- **2026-03-31** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-9e5) — ~9 art.
+  - La gira de Infantino en México; Dodgers vende activo intocable; El éxito del repechaje FIFA en México; NFL convierte el flag en liga; Barça se suma al boom de Miami; FIFA agota inventario global.
+  - ▸ La gira de Infantino en México
+  - ▸ Dodgers vende activo intocable
+  - ▸ El éxito del repechaje FIFA en México
+  - ▸ La NFL convierte el flag en liga
+  - ▸ El Barça se suma al boom de Miami
+  - ▸ FIFA ya agotó sus sponsors globales
+  - · La justicia aprieta a la AFA
+  - · DAZN se sube a aviones y barcos
+  - · La crisis Textor pone a Lyon y Botafogo en venta
+- **2026-03-26** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-c1e) — ~9 art.
+  - América estrena Director General; Canelo va por el contenido; Tigres tiene cambios importantes; La NBA deja fuera a México; La piratería ahoga a la Ligue 1; Blackstone debuta en deporte.
+  - ▸ América estrena Director General
+  - ▸ Canelo va por el contenido
+  - ▸ Tigres tiene cambios importantes
+  - ▸ La NBA deja fuera a México
+  - ▸ La piratería ahoga a la Ligue 1
+  - ▸ Blackstone debuta en deporte
+  - · Fans demandan a la FIFA
+  - · Juventus refuerza su real estate
+  - · Wimbledon gana batalla legal para expandirse
+- **2026-03-24** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-be8) — ~9 art.
+  - Estadio Banorte inicia ensayo final; el futuro del Abierto Mexicano; Champions League D2C; Crecimiento del Surf; River y su estadio; Mercados de predicción entre el bien y el mal
+  - ▸ Estadio Banorte inicia ensayo final
+  - ▸ Árabes quieren licencia del Abierto Mexicano de Tenis
+  - ▸ La Champions D2C
+  - ▸ El Surf está imparable
+  - ▸ River quiere explotar su estadio
+  - ▸ Mercados de predicción, con un pie en el bien y otro en el mal
+  - · FIFA va por $14bn usd en siguiente ciclo
+  - · Laliga sanciona a más de 2 mil bares y hoteles
+  - · Beyond se lleva negocio VIP de la Euro 2028
+- **2026-03-19** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-9ff) — ~9 art.
+  - El Mundial por YouTube; Por fin hay acuerdo en WNBA; Venezuela se lleva histórico WBC; Escándalo en Copa Africana; WBC dispara viajes de negocio en Miami; Ariel quiere escalar en deporte femenil.
+  - ▸ FIFA abre el Mundial a YouTube
+  - ▸ Por fin hay acuerdo en WNBA
+  - ▸ Venezuela se lleva histórico WBC
+  - ▸ Escándalo en Copa Africana
+  - ▸ WBC dispara viajes de negocio en Miami
+  - ▸ Ariel quiere escalar en deporte femenil
+  - · WWE firma acuerdo con FOS
+  - · La Premier League sanciona al Chelsea
+  - · ISU centraliza su IP por más ingresos
+- **2026-03-17** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-7b1) — ~9 art.
+  - M&A en la Liga MX; Derechos de la NFL; Transformación de la PGA; Nuevas franquicias NBA; NFL y Thanksgiving; Irán siempre si va al mundial, y más.
+  - ▸ M&A en la Liga MX
+  - ▸ La NFL se encarece (aún más)
+  - ▸ La PGA decide transformarse
+  - ▸ Nuevas franquicias de la NBA
+  - ▸ NFL busca extender el Thanksgiving
+  - ▸ Que siempre si va Irán
+  - · Barcelona FC elige presidente
+  - · Adidas podría perder el balón de la Champions
+  - · Fórmula 1 cancela carreras por conflicto en Medio Oriente
+- **2026-03-12** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-053) — ~9 art.
+  - Irán pone en jaque a FIFA; BYD quiere entrar a la F1; Recortan presupuesto del Mundial; Wasserman cambia de nombre; F1 abre la puerta a apuestas; Mercury13 entra a España.
+  - ▸ Irán pone en jaque a FIFA
+  - ▸ BYD quiere entrar a la F1
+  - ▸ FIFA aprieta el presupuesto del Mundial
+  - ▸ Wasserman cambia de nombre
+  - ▸ F1 abre la puerta a apuestas
+  - ▸ Mercury13 entra a España
+  - · Kraft Sports rescata sede del Mundial
+  - · Smart Fit rompe récords de ingresos
+  - · Acuerdo antimonopolio con Live Nation
+- **2026-03-10** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-8d5) — ~9 art.
+  - El negocio del Inter Miami; selección iraní en riesgo; Vela ya es dueño; futbol femenil en USA explotando; fin de la crisis en WNBA; Irak y su repechaje, y más.
+  - ▸ El negocio (por ahora) del Inter Miami
+  - ▸ Selección femenil Iraní en riesgo de muerte
+  - ▸ Carlos Vela se convierte en dueño
+  - ▸ Futbol femenil en Estados Unidos sigue explotando
+  - ▸ Fin de la disputa entre WNBA y sus jugadoras
+  - ▸ Irak pide posponer repechaje
+  - · Eight Sleep levanta $50m usd y ya vale $1,500m usd
+  - · Torneo de Flag Football de Fanatics se muda por conflicto bélico
+  - · Televisa Univisión se suma a Apple en cobertura de F1
+- **2026-03-05** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-84a) — ~9 art.
+  - El deal de Nu e Inter Miami; FIFA y los hoteles en CDMX; Arranca Mundial de Béisbol; Valuación récord de Dolphins; Euroliga busca nuevo capital; El caos logístico de la F1.
+  - ▸ El deal de Nu e Inter Miami
+  - ▸ FIFA y los hoteles en CDMX
+  - ▸ Arranca Mundial de Béisbol
+  - ▸ Valuación récord de Dolphins
+  - ▸ Euroliga busca nuevo capital
+  - ▸ El caos logístico de la F1
+  - · McLaren entra al golf
+  - · Empresa mexicana patrocinará al Real Valladolid
+  - · Nueva liga de lucha libre en México: LM 52
+- **2026-03-03** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-1d4) — ~9 art.
+  - Premier League prueba el DTC; Más problemas a 100 días del Mundial; Cristiano debuta como dueño; Crisis en Irán afecta al deporte; Trofeo del Mundial en México; MLS venderá otro patrocinio.
+  - ▸ Premier League prueba el DTC
+  - ▸ Más problemas para FIFA a 100 días del Mundial
+  - ▸ Cristiano debuta como dueño
+  - ▸ Crisis en Irán afecta al deporte
+  - ▸ Trofeo del Mundial de gira en México
+  - ▸ MLS abre otro patrocinio al jersey
+  - · Boston (Foxborough) lanza ultimátum a FIFA
+  - · Apple y Netflix comparten la F1 en Estados Unidos
+  - · Sportfive venderá derechos globales de los Panamericanos
+- **2026-02-26** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-a0b) — ~9 art.
+  - YouTube quiere más NFL; Valor de Ligue 1 se desploma; Patrocinios en la Premier bajo la lupa; Savannah Bananas sigue creciendo; Histórico deal en la NWSL; MLS ya piensa en su siguiente comisionado
+  - ▸ YouTube quiere más NFL
+  - ▸ El valor de Ligue 1 se desploma
+  - ▸ Patrocinios en la Premier bajo la lupa
+  - ▸ Savannah Bananas sigue creciendo
+  - ▸ Histórico deal en la NWSL
+  - ▸ La MLS ya piensa en su siguiente comisionado
+  - · Isaac del Toro ya es #2 del mundo
+  - · F1 renueva a ESPN en LATAM
+  - · Atlético de Madrid busca equipo en Segunda de EcuadorCompartir
+- **2026-02-24** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-453) — ~9 art.
+  - Rentabilidad de los Diablos Rojos; Nuevo fondo de Ares; Valor de Selección Mexicana; Audiencia de Olímpicos Invernales; FIFA invierte en Gaza; Crecimiento de New Balance, y más
+  - ▸ Diablos Rojos son una máquina de rentabilidad
+  - ▸ Ares va por nuevo fondo de inversión en deporte
+  - ▸ Selección Mexicana, de las más valiosas
+  - ▸ Juegos Olímpicos de Invierno crecen su audiencia
+  - ▸ FIFA invertirá en futbol para Gaza
+  - ▸ New Balance está imparable
+  - · Pau Gasol ahora representará a los atletas olímpicos
+  - · Agassi lanza mundial de Pickleball
+  - · Comité Olímpico Internacional investigará a Infantino
+- **2026-02-19** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-f66) — ~9 art.
+  - Diablos Rojos y el Mundial; La Serie A compra Fantasy; Las fintech aumentan presencia; LaLiga contra las VPN; La estrategia de MSG Sports; Atlético de Madrid y HPE.
+  - ▸ Diablos Rojos quiere capitalizar el Mundial
+  - ▸ La Serie A compra el Fantasy más popular de Italia
+  - ▸ Las fintech están dejando de solo patrocinar
+  - ▸ LaLiga ahora va contra las VPN
+  - ▸ Knicks y Rangers podrían separarse
+  - ▸ Atlético de Madrid moderniza el Metropolitano.
+  - · Alcaldesa de LA pide la renuncia de Wasserman para LA28.
+  - · Netflix transmitirá su primer evento de MMA.
+  - · SportsPro se alía con Greenfly para impulsar el short-form. Compartir
+- **2026-02-17** — [☕Industry Shots / Anuncios](https://playbookmedia.substack.com/p/industry-shots-anuncios) — ~14 art.
+  - América subvaluado; MLB es ya productora de contenido; UFC impulsa derechos; Liga de Flag Football; Paramount contraataca; PSG va por conciertos; Premier League le echa ojo a las vallas en cancha
+  - ▸ El Club América está subvaluado
+  - ▸ MLB es ya la productora de contenido de la liga
+  - ▸ UFC empuja a la NFL a renegociar sus derechos
+  - ▸ Ya hay operador de liga de Flag Football
+  - ▸ Paramount contraataca por Warner Bros
+  - ▸ PSG quiere entrar al negocio de los conciertos
+  - ▸ Premier League le echa ojo a las vallas en cancha
+  - · Wasserman es puesta a la venta tras escándalo de Epstein
+  - · La nueva ciudad árabe dedicada el entretenimiento, deporte y cultura
+  - · $6bn usd para que Apollo invierta en deporte
+  - · Las marcas aman a las madres atletas
+  - · Se derrumba la Super Liga
+  - · Nueva Temporada de Players
+  - · Más Industry Shots
+- **2026-01-27** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-38f) — ~9 art.
+  - Durante el Super Bowl LX también habrá futbol americano; Tenistas buscan $1,000m usd para adueñarse del tenis; Premier League, esclava de la TV; El deporte colegial en EUA ya es profesional
+  - ▸ Durante el Super Bowl LX también habrá futbol americano
+  - ▸ Tenistas buscan $1,000m usd para adueñarse del tenis
+  - ▸ Premier League esclava de la TV
+  - ▸ El deporte colegial en EUA ya es profesional
+  - · Estas son las empresas que estaría haciendo IPO en 2026
+  - · Sergio Ramos, a un paso de ser el nuevo dueño del Sevilla FC
+  - · Real Madrid y Barca toman caminos opuestos en basquetbol
+  - · Australian Open prohibe el uso de Whoop
+  - · Kings League rompe récords con su mundial
+- **2026-01-20** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-504) — ~9 art.
+  - Crece el lodazal de corrupción en la AFA; La UEFA no es negocio; NBA Europa no será rentable por años; Australian Open crece en medio de problemas;
+  - ▸ Crece el lodazal de corrupción en la AFA
+  - ▸ La UEFA no es negocio
+  - ▸ NBA Europa no será rentable por años
+  - ▸ Australian Open crece en medio de problemas
+  - · Fanatics lanza su propia productora de contenido deportivo
+  - · Alex Morgan crece su portafolio de inversiones
+  - · WNBA quiere re-comprar participación que vendió
+  - · Los 100 atletas mejor pagados del mundo
+  - · El futuro de la industria del deporte y su gran reto
+- **2026-01-13** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-3f4) — ~9 art.
+  - TikTok será la casa digital del Mundial 2026; Mil millones para proveedores del deporte; Escala el pleito Warner vs. Paramount; KKR compra Arctos para entrar al deporte, y más.
+  - ▸ TikTok será la casa digital del Mundial 2026
+  - ▸ Mil millones para proveedores del deporte
+  - ▸ Escala el pleito Warner vs. Paramount
+  - ▸ KKR compra Arctos para entrar al deporte
+  - · Nike se despide del Blockchain
+  - · Cowboys siguen siendo los más rentables del mundo
+  - · La ATP alcanza pico histórico de ingresos y pagos a jugadores
+  - · Ex-piloto de F1 levanta $100m usd para invertir
+  - · On quiere replicar éxito de Tenis en Padel
+- **2026-01-06** — [☕Industry Shots / Memorias del Mundial en México](https://playbookmedia.substack.com/p/industry-shots-memorias-del-mundial) — ~9 art.
+  - Detención de Maduro beneficia al beisbol mexicano; El deporte, el cliente ideal para un crédito; Los árabes empiezan a vender; A Polymarket le están comiendo el mercado
+  - ▸ Detención de Maduro beneficia al beisbol mexicano
+  - ▸ El deporte, el cliente ideal para un crédito
+  - ▸ Los árabes empiezan a vender
+  - ▸ A Polymarket le están comiendo el mercado
+  - · Novak Djokovic abandona el sindicato de tenistas que fundó
+  - · Everton vende su filial femenil para evitar problemas
+  - · Global Sports Group va por más ligas
+  - · FIFA inventa nueva ceremonia de premios
+  - · Sergio Ramos quiere comprar el Sevilla
+- **2025-12-16** — [☕Industry Shots / La verdad del caso Fanki: su CEO rompe el silencio](https://playbookmedia.substack.com/p/industry-shots-la-verdad-del-caso) — ~12 art. _(perecedero)_
+  - Ya hay sospechoso de hackeo a Fanki; La nueva gran apuesta de la NFL; La estocada final de YouTube para captar a los fans deportivos; ¿Qué fue lo que pasó tras bambalinas en la crisis de FANKI?
+  - ▸ Ya hay sospechoso de hackeo a Fanki
+  - ▸ La nueva gran apuesta de la NFL
+  - ▸ La estocada final de YouTube para captar a los fans deportivos
+  - · Príncipe Saudí quiere comprar al FC Barcelona
+  - · Pepe Riestra tiene nueva misión en el futbol español
+  - · Sainz y Norris lanzan nuevo fondo de inversión en deportes
+  - · Telemundo casi en sold out para el Mundial
+  - · El problemático patrocinio de Uber al Barca
+  - · Qué pasó la mañana del 10 de diciembre
+  - · Si vio la muerte de FANKI como una posibilidad
+  - · Qué responde a quienes la acusan de fraude
+  - · Qué (o quiénes) la lograron mantener en control
+- **2025-11-18** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-b8b) — ~1 art. _(perecedero)_
+  - Los que más ganaron con la NFL en Madrid; Prediction Markets, un nuevo gigante en el deporte; La MLS tiene la sartén por el mango
+  - ▸ Los que más ganaron con la NFL en Madrid
+- **2025-09-16** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-e4d) — ~9 art. _(perecedero)_
+  - ¿Manuel Arroyo concretó ya la venta de Lauman?; La NBA está preocupada; Nacen nuevos fondos enfocados en deporte; La rentable extensión de los estadios en el Mundial
+  - ▸ ¿Manuel Arroyo concretó ya la venta de Lauman?
+  - ▸ La NBA está preocupada
+  - ▸ Nacen nuevos fondos enfocados en deporte
+  - ▸ La rentable extensión de los estadios en el Mundial
+  - · IndyCar se echa para atrás con carrera en MX
+  - · LaLiga Studios cierra definitivamente
+  - · TKO recompra $1bn usd de sus acciones
+  - · La UEFA "necesita tiempo" para aprobar partidos oficiales internacionales
+  - · La inversión de Cadillac en F1
+- **2025-07-29** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-274) — ~9 art. _(perecedero)_
+  - La (esperada) caída de Ollamani; La explosiva rentabilidad de los Diablos Rojos; Lo que se cocina entre ESPN y la NFL; Lo que debe aprender CONMEBOL de UEFA, y más.
+  - ▸ La (esperada) caída de Ollamani
+  - ▸ La explosiva rentabilidad de los Diablos Rojos
+  - ▸ Lo que se cocina entre ESPN y la NFL
+  - ▸ Lo que debe aprender CONMEBOL de UEFA
+  - · World Aquatics boicotea nacimiento de nueva liga de natación
+  - · La Superliga estaría haciendo las paces con la UEFA
+  - · Organización de Triatletas Profesionales levanta ronda de Saudís
+  - · Argentina se prepara para el regreso de la F1
+  - · NFL reparte revenue record a equipos
+- **2025-07-22** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-d54) — ~9 art. _(perecedero)_
+  - Valuación de la Liga MX; La amenaza de Trump a dos equipos; Crecen los holdings deportivos; La pelea de la WNBA con sus jugadoras, y más
+  - ▸ Valuación de la Liga MX
+  - ▸ La amenaza de Trump a dos equipos
+  - ▸ Crecen los holdings deportivos
+  - ▸ La pelea de la WNBA con sus jugadoras
+  - · Premier League prohibe patrocinios principales de apuestas
+  - · Miguel Ángel Gil rechaza inversión de Apollo
+  - · DAZN quiere cambiar los economics del boxeo
+  - · SailGP invertirá fuerte en innovación
+  - · Saudi Pro League se abrirá a capital extranjero
+- **2025-07-15** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-756) — ~9 art. _(perecedero)_
+  - El Querétaro se vende a valor de LaLiga; Mundial 2026 irá por YouTube; El regreso de Checo a la F1; Calendario ATP merma negocio de torneos
+  - ▸ El Querétaro se vende a valor de LaLiga
+  - ▸ Mundial 2026 irá por YouTube
+  - ▸ El regreso de Checo a la F1
+  - ▸ Calendario ATP merma negocio de torneos
+  - · FIFA y jugadores llegan a acuerdo de descanso
+  - · Christian Horner compraría la escudería Alpine
+  - · Apple quiere ser la casa de la F1
+  - · Venta de Celtics y Lakers sin aprobación aún
+  - · FanDuel es valuada en $31bn usd
+- **2025-07-08** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-f41) — ~9 art. _(perecedero)_
+  - El futbol no encuentra afición estadounidense; Mundial de Clubes, un torneo para el streaming; Ley de Trump podría destruir la industria legal de apuestas; Estamos regresando a la TV Abierta
+  - ▸ El futbol no encuentra afición estadounidense
+  - ▸ Mundial de Clubes, un torneo para el streaming
+  - ▸ Ley de Trump podría destruir la industria legal de apuestas
+  - ▸ Estamos regresando a la TV Abierta
+  - · EURO Femenil crece 32x en 20 años
+  - · Olympique de Lyon a $200m de euros de descender
+  - · Trump abre chequera para seguridad en Mundial y Juegos Olímpicos
+  - · Grand Slam Track debe $13m usd a sus atletas
+  - · Keanu Reeves prepara documental sobre la escudería Cadillac
+- **2025-06-24** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-c60) — ~9 art. _(perecedero)_
+  - Nuevo director general de TUBI en México; UFC y su nuevo deal de derechos; El negocio de las historias en el deporte; Streaming vence a la TV
+  - ▸ Nuevo director general de TUBI en México
+  - ▸ UFC y su nuevo deal de derechos
+  - ▸ El negocio de las historias en el deporte
+  - ▸ Streaming vence a la TV
+  - · Private Equity entra al deporte colegial en E.U.A
+  - · España y Brasil quieren el siguiente Mundial de Clubes
+  - · ATP y Emirates renuevan relación
+  - · Jugadoras de la WNBA se mantienen firmes en protesta
+  - · Tebas quiere el fin del Mundial de Clubes
+- **2025-05-27** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-0c4) — ~10 art. _(perecedero)_
+  - Asamblea de la FMF "libre de riesgos"; Atlante desiste de demanda a la FMF; Trump podría desmotivar compra de equipos; Mundial de Clubes, clave para DAZN
+  - ▸ Asamblea de la FMF "libre de riesgos"
+  - ▸ Atlante desiste de demanda a la FMF
+  - ▸ Trump podría desmotivar compra de equipos
+  - ▸ Mundial de Clubes, clave para DAZN
+  - · Ronaldo vende al Valladolid y hay mexicanos del lado comprador
+  - · El NY Liberty de la WNBA vale más que el Chelsea
+  - · Arctos invierte en su 2da franquicia en la NFL
+  - · Disney demanda a YouTube por contratación de ejecutivo
+  - · FIFA quiere replicar precios dinámicos de Super Bowl para el Mundial
+  - · La FIA por fin es rentable
+- **2025-05-13** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-239) — ~11 art. _(perecedero)_
+  - Concentración de riqueza en la industria global; ¿Resuelto el problema de palcos en el Banorte?; TelevisaUnivisión quiere popularizar Nascar en México; El respaldo de Franco Colapinto
+  - ▸ Concentración de riqueza en la industria global
+  - ▸ ¿Resuelto el problema de palcos en el Banorte?
+  - ▸ TelevisaUnivisión quiere popularizar Nascar en México
+  - ▸ El respaldo de Franco Colapinto
+  - ▸ Reinauguración del Banorte
+  - · Agente es multado por fraude
+  - · Fórmula 1 pierde $28m usd en Q1
+  - · Inter logra el partido con más ingresos en la historia del futbol italiano
+  - · NBC aprovechará a la NBA para impulsar su streaming
+  - · NFL pondrá a prueba su modelo con partido en YouTube
+  - · Futbol francés podría arriesgarse a ir DTC
+- **2025-04-29** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-08b) — ~9 art. _(perecedero)_
+  - Venta del Querétaro refleja valor de Liga MX; El playbook del Wrexham; Dueño de Liga MX prófugo de la justicia; Apuesta exitosa de CONCACAF
+  - ▸ Venta del Querétaro refleja valor de Liga MX
+  - ▸ El playbook del Wrexham
+  - ▸ Dueño de Liga MX prófugo de la justicia
+  - ▸ Apuesta exitosa de CONCACAF
+  - · Sobornos en futbol argentino
+  - · Audiencia histórica en Draft de la NFL
+  - · Así se ve el negocio de la CONMEBOL este año
+  - · DAZN lanza nuevo motor de estadísticas personalizado
+  - · Apagón suspende Masters de Madrid
+- **2025-04-15** — [☕Industry Shots / ¿Quieres ser parte de un producto pionero en LATAM?](https://playbookmedia.substack.com/p/industry-shots-quieres-ser-parte) — ~12 art. _(perecedero)_
+  - Baseball Champions League; La máquina de dinero de la NFL; Hasta dónde llegará el mundial; La WNBA está obligada a cambiar
+  - ▸ Baseball Champions League
+  - ▸ La máquina de dinero de la NFL
+  - ▸ Hasta dónde llegará el mundial
+  - ▸ La WNBA está obligada a cambiar
+  - · Inter Miami cerca de extender contrato de Messi
+  - · Árabes financian mundial de esports
+  - · "Top Golf" de billar levanta $34m usd
+  - · Tenista es amenazado por la ATP
+  - · Mbappé logra embargo a cuentas de PSG
+  - · Visibilizar el valor económico del deporte femenil en Latinoamérica
+  - · Conocer cuáles son los equipos mejor manejados
+  - · Identificar dónde se encuentran las mejores oportunidades de inversión
+- **2025-04-08** — [♾️Industry Shots](https://playbookmedia.substack.com/p/industry-shots-678) — ~9 art. _(perecedero)_
+  - ¿Qué pasa en Capitanes?; Se destapa inversión en Flag Football; Atletas empresari@s; Togethxr duplica su valor
+  - ▸ ¿Qué pasa en Capitanes?
+  - ▸ Se destapa inversión en Flag Football
+  - ▸ Atletas empresari@s
+  - ▸ Togethxr duplica su valor
+  - · PGA rechaza inversión de árabes
+  - · La ATP se queda sin CEO
+  - · Chelsea se vende su equipo femenil a sí mismo
+  - · Histórica derrama económica en mundiales
+  - · Unrivaled "casi" logra rentabilidad en su primer año
+- **2025-03-25** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-b56) — ~10 art. _(perecedero)_
+  - Sale cara la multipropiedad; Japón al rescate de la MLB; Consolidación del tenis mundial; Negocio de los estadios; Atletas se convierten en medios
+  - ▸ Sale cara la multipropiedad
+  - ▸ Japón al rescate de la MLB
+  - ▸ Consolidación del tenis mundial
+  - ▸ Negocio de los estadios
+  - ▸ Atletas se convierten en medios
+  - · Se concreta la compra total de Endeavor
+  - · Lanzan torneo de Fut 7 femenil con derechos vendidos
+  - · La NCAA rompe record de facturación
+  - · F1 evalúa un nuevo GP urbano
+  - · Ex-basquetbolista lanza productora enfocada en deporte femenil
+- **2025-03-11** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-60e) — ~9 art. _(perecedero)_
+  - Negocio de FIFA se diversifica; Sulaimán abierto ante nueva liga de box; Resultados de experimento de LMP con YouTube; LATAM, clave para Adidas
+  - ▸ Negocio de FIFA se diversifica
+  - ▸ Sulaimán abierto ante nueva liga de box
+  - ▸ Resultados de experimento de LMP con YouTube
+  - ▸ LATAM, clave para Adidas
+  - · Grupo Pachuca desobedece a juez
+  - · Posible huelga en la WNBA
+  - · Real Madrid triplica el negocio del Bernabéu
+  - · Árabes quieren entrar al negocio del atletismo
+  - · FIFA repartirá $1,000 millones usd entre clubes
+- **2025-03-04** — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-b12) — ~9 art. _(perecedero)_
+  - Oferta por los masters de Miami y Madrid; Abierto Mexicano en recuperación; Premier League empaquetaría sus derechos; La Bundesliga busca inversionista (otra vez)
+  - ▸ Oferta por los masters de Miami y Madrid
+  - ▸ Abierto Mexicano en recuperación
+  - ▸ Premier League empaquetaría sus derechos
+  - ▸ La Bundesliga busca inversionista (otra vez)
+  - · Nueva liga de atletismo tipo F1
+  - · Se cierra la nueva adquisición de TKO
+  - · El Valencia CF va por el mercado de Norteamérica
+  - · La UFC podría entrenar a agentes del FBI
+  - · Huelga en la MLB
+- **2025-02-18** — [☕️Industry Shots](https://playbookmedia.substack.com/p/industry-shots-b7e) — ~9 art. _(perecedero)_
+  - Televisa y el mundial de clubes; Final de Champions en E.U.A.; Se prepara competencia de la MLS; GS Sports Management se expande
+  - ▸ Televisa y el mundial de clubes
+  - ▸ Final de Champions en E.U.A.
+  - ▸ Se prepara competencia de la MLS
+  - ▸ GS Sports Management se expande
+  - · Suspenden a futbolistas en México por amaño de partidos
+  - · Una crypto compra pedazo de Juventus
+  - · ESPN puede perder a la F1
+  - · Los árabes si invirtieron en DAZN
+  - · Trump Jr. invierte en Enhanced Games
+- **2025-02-04** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-9cf) — ~10 art. _(perecedero)_
+  - Extorsionan a la FMF; ¿Posible equipo mexicano en la NFL?; MLS y Apple preocupados; Renuncia presidente de liga colombiana; Nuevo fondo de inversión en deporte femenil
+  - ▸ Extorsionan a la FMF
+  - ▸ ¿Posible equipo mexicano en la NFL?
+  - ▸ MLS y Apple preocupados
+  - ▸ Renuncia presidente de liga colombiana
+  - ▸ Nuevo fondo de inversión en deporte femenil
+  - · Aseguradoras se retiran del Super Bowl por incendios en LA
+  - · Equipos de MLS crecen su valor
+  - · Deporte colegial en E.U.A. se abre al capital privado
+  - · Precios de boletos de Super Bowl se desploman
+  - · Marco Verde vende sus derechos de TV
+- **2025-01-28** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-db2) — ~10 art. _(perecedero)_
+  - Estrellas de la NBA y NFL invierten en equipo mexicano; Liga MX Femenil dispara su audiencia; El WBC se "refresca"; Posible IPO en el futbol; NBA quiere liga en Europa
+  - ▸ Estrellas de la NBA y NFL invierten en equipo mexicano
+  - ▸ Liga MX Femenil dispara su audiencia
+  - ▸ El WBC se "refresca"
+  - ▸ Posible IPO en el futbol
+  - ▸ NBA quiere liga en Europa
+  - · LeBron James invierte en E1 Series
+  - · DAZN pierde miles de millones y dueño inyecta más dinero
+  - · Yao Ming busca inversionista para nueva liga "tipo Kings League"
+  - · Startup de Rafa Nadal prevé triplicar ventas en 2025
+  - · Mayores equipos de futbol europeos crecen ingresos 6%
+- **2025-01-21** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-1e7) — ~10 art. _(perecedero)_
+  - Se reúnen dueños de Liga MX; Diablos Rojos anuncian un split de sus acciones; Grupos multi-club de futbol femenil en auge; Miami detiene construcción de nuevo estadio del Inter; Florentino se reelige
+  - ▸ Se reúnen dueños de la Liga MX
+  - ▸ Diablos Rojos anuncian un split de sus acciones
+  - ▸ Grupos multi-club de futbol femenil en auge
+  - ▸ Miami detiene construcción de nuevo estadio del Inter
+  - ▸ Florentino Pérez se reelige
+  - · Liga de $5bn usd pretende desbancar a la NBA y WNBA
+  - · Roger Goodell quiere crecer el negocio aumentando partidos
+  - · Crisis financiera en el futbol francés
+  - · LIV Golf firma con FOX Sports acuerdo multianual
+  - · Apretada elección del próximo presidente del COI
+- **2025-01-14** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-a01) — ~9 art. _(perecedero)_
+  - Televisa comparte derechos del América; Junta extraordinaria de dueños en FMF; Inesperada cancelación de Venu Sports; Nueva liga de boxeo
+  - ▸ Televisa comparte derechos del América
+  - ▸ Junta extraordinaria de dueños en FMF
+  - ▸ Inesperada cancelación de Venu Sports
+  - ▸ Nueva liga de boxeo
+  - · Juegos Olímpicos de Salt Lake City podrían estar en riesgo
+  - · Estreno de TGL logra audiencia de 1 millón
+  - · Fórmula 1 firma a patrocinadores más jóvenes
+  - · Firma de inversión quiere patrocinar tenistas de bajo perfil
+  - · UFC quiere duplicar el valor de sus derechos
+- **2025-01-07** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-890) — ~9 art. _(perecedero)_
+  - FOX Sports México pierde a la Liga MX; Liga MX Femenil prueba el streaming; Diablos Rojos arrancan en la BMV; Reebok planea regreso al futbol mexicano
+  - ▸ FOX Sports México pierde a la Liga MX
+  - ▸ Liga MX Femenil prueba el streaming
+  - ▸ Diablos Rojos arrancan en la BMV
+  - ▸ Reebok planea regreso al futbol mexicano
+  - · Messi saca a bolsa su portafolio inmobiliario
+  - · Disney compra a Fubo para formar mega plataforma deportiva
+  - · La MLB lanza bonos por $182m usd
+  - · Acciones de empresas deportivas tienen su mejor año
+  - · Real Madrid arranca proceso de elecciones presidenciales
+- **2024-12-17** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-473) — ~9 art. _(perecedero)_
+  - Bajo amenazas el Comisionado de la FMF; Mikel Arriola sería ratificado; FOX Sports México a la deriva; La ATP prioriza torneos sobre tenistas
+  - ▸ Bajo amenazas el Comisionado de la FMF
+  - ▸ Mikel Arriola sería ratificado
+  - ▸ FOX Sports México a la deriva
+  - ▸ La ATP prioriza torneos sobre tenistas
+  - · Finales de la MLS pierden a la mitad de su audiencia en TV lineal
+  - · Acción de Warner Bros se dispara tras reestructura
+  - · Ya hay fecha para la re-inauguración del Azteca
+  - · Competencia de la Kings League levanta $25m usd
+  - · Giannis Antetokounmpo levanta fondo enfocado en personas como él
+- **2024-12-10** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-d6d) — ~9 art. _(perecedero)_
+  - DAZN amenaza a televisoras; Fondo apuesta por atletas como creadores de contenido; Juegos Olímpicos en franco crecimiento; Mascota de Cruz Azul supera al equipo
+  - ▸ DAZN amenaza a televisoras
+  - ▸ Fondo apuesta por atletas como creadores de contenido
+  - ▸ Juegos Olímpicos en franco crecimiento
+  - ▸ Mascota de Cruz Azul supera al equipo
+  - · AFA firma acuerdo para entrar al metaverso
+  - · Brasil y Nike renuevan por $100m usd anuales
+  - · La NBA regresa a China (en otra capital de casinos)
+  - · Don Garber asegura su lugar por 4 temporadas más
+  - · LPGA pierde $2m usd por invertir en exposure
+- **2024-12-03** — [Industry Shots / Nuño Pérez Pla](https://playbookmedia.substack.com/p/industry-shots-nuno-perez-pla) — ~9 art. _(perecedero)_
+  - Listo el acuerdo entre Apollo y la FMF; Diablos Rojos a la bolsa de valores; FIFA quiere mundial en Arabia; Checo Pérez fuera de Red Bull
+  - ▸ Listo el acuerdo entre Apollo y la FMF
+  - ▸ Diablos Rojos a la bolsa de valores
+  - ▸ FIFA quiere mundial en Arabia
+  - ▸ Checo Pérez fuera de Red Bull
+  - · Fondos extranjeros van por equipos árabes
+  - · Catar invierte en escudería Sauber
+  - · Valor de derechos audiovisuales rompe récord
+  - · Fitch espera que la industria deportiva crezca en 2025
+  - · LaLiga en números rojos
+- **2024-11-26** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-c0e) — ~9 art. _(perecedero)_
+  - En riesgo el modelo de negocios del futbol; Regresa la LPGA a México; Premier League se independiza distribuyendo su contenido; Faltan atletas latinos invirtiendo
+  - ▸ En riesgo el modelo de negocios del futbol
+  - ▸ Regresa la LPGA a México
+  - ▸ Premier League se independiza distribuyendo su contenido
+  - ▸ Faltan atletas latinos invirtiendo
+  - · Adidas renueva por 10 años con la FMF
+  - · Real Madrid blinda su estructura convirtiéndose en decacorn
+  - · Cristiano Ronaldo invierte en Padel
+  - · Los Raiders buscan inversionista
+  - · Fórmula 1 quiere más dinero de ESPN
+- **2024-11-19** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-1fa) — ~9 art. _(perecedero)_
+  - Despidos en la FMF; Termina pleito de Warner Brothers con la NBA; Real Madrid inaugura parque temático; Estadio Azteca incluirá realidad virtual
+  - ▸ Despidos en la FMF
+  - ▸ Termina pleito de Warner Brothers con la NBA
+  - ▸ Real Madrid inaugura parque temático
+  - ▸ Estadio Azteca incluirá realidad virtual
+  - · Lanzan liga de flag football basada en Bitcoin
+  - · Team y Relevent, finalistas por derechos de UEFA
+  - · Liberty Media crea empresa de entretenimiento
+  - · Pelea de Tyson preocupa a la NFL
+  - · Italia renueva con las ATP Finals hasta 2030
+- **2024-11-12** — [Industry Shots / Bárbara González Briseño](https://playbookmedia.substack.com/p/industry-shots-barbara-gonzalez-briseno) — ~9 art. _(perecedero)_
+  - NBA cierra academias en México; El nuevo estadio de beisbol sin beisbol; NFL contempla a México en 2025; Barça y Nike firman contrato billonario
+  - ▸ NBA cierra academias en México
+  - ▸ El nuevo estadio de beisbol sin beisbol
+  - ▸ NFL contempla a México en 2025
+  - ▸ Barça y Nike firman contrato billonario
+  - · Equipos de Premier League quieren vender más boletos
+  - · El Padel lanza su versión de Laver Cup
+  - · Liga MX sigue sumando patrocinadores, pero no fans
+  - · Endeavor crece pero sigue perdiendo casi $1mil m usd
+  - · Ferrari firma nuevo socio con foco en fan experience
+- **2024-11-07** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-062) — ~10 art. _(perecedero)_
+  - Fracaso de las WTA Finals en Riyad; Fondos de inversión buscan deportes de nicho; La NFL apuesta por venta de experiencias; WTA de Mérida impulsa turismo deportivo; Sold out en el Super Bowl
+  - ▸ Fracaso de las WTA Finals en Riyad
+  - ▸ Fondos de inversión buscan deportes de nicho
+  - ▸ La NFL apuesta por la venta de experiencias
+  - ▸ WTA de Mérida impulsa el turismo deportivo en la región
+  - ▸ Sold out en el Super Bowl
+  - · Catean oficinas de Ligue 1 y CVC por malversación de fondos
+  - · Acon Investments invierte en Commando para acelerar expansión
+  - · La elección de Trump podría resolver la guerra entre PGA y LIV Golf
+  - · Se pospone partido de LaLiga en Miami para 2025
+  - · India va por los Juegos Olímpicos de 2036
+- **2024-10-31** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-818) — ~9 art. _(perecedero)_
+  - Mediapro lanza fondo enfocado en IP del deporte; UEFA anuncia inversión récord en futbol femenil; NBA MX Game busca crecer este año; Cruz Azul busca replicar estrategia comercial del Inter Miami
+  - ▸ Mediapro lanza fondo enfocado en IP del deporte
+  - ▸ UEFA anuncia inversión récord en futbol femenil
+  - ▸ NBA Mexico City Game pretende crecer ingresos este año
+  - ▸ Cruz Azul busca replicar estrategia comercial del Inter Miami
+  - · La FIFA por fin vende un patrocinio para el Mundial de Clubes
+  - · Arctos Partners va por equipo de la NFL
+  - · Serie de Netflix pudiera ayudar al atletismo a superar a Usain Bolt
+  - · Valor de equipos de hockey se dispara en los últimos años
+  - · Serie Mundial resuena con audiencia joven
+- **2024-10-24** — [Industry Shots / Próximamente...](https://playbookmedia.substack.com/p/industry-shots-proximamente) — ~9 art. _(perecedero)_
+  - Futuro del GP de México y de Checo Pérez por confirmarse; La Serie Mundial que necesitaba la MLB; El riesgo de la MLS con Messi; El Barcelona vuelve a invertir en startups
+  - ▸ La Serie Mundial que necesitaba la MLB
+  - ▸ Futuro del GP de México y de Checo Pérez por confirmarse
+  - ▸ El Barcelona vuelve a invertir en startups
+  - ▸ El riesgo de la MLS con Messi
+  - · American Express renueva patrocinio con la F1
+  - · Los árabes ya no van por DAZN, ahora es otra plataforma
+  - · La AFA ha creado un negocio de $100m usd
+  - · La Bundesliga se pelea con DAZN y busca nuevo socio de medios
+  - · Millonario partido entre Atlético de Madrid y Barcelona en Miami
+- **2024-10-17** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-49b) — ~9 art. _(perecedero)_
+  - Super Bowl va por audiencia en español; Endeavor crecerá 70%; la campaña árabe por un Masters 1000; no sólo los futbolistas están hartos de la sobrecarga
+  - ▸ El Super Bowl va por la audiencia en español
+  - ▸ Endeavor crecerá un 70% hacia 2028
+  - ▸ La campaña árabe por su Masters 1000
+  - ▸ No sólo los futbolistas están hartos de la sobrecarga
+  - · Adidas pasa por un gran momento
+  - · Audiencia de Grandes Ligas crece vs 2023
+  - · Kings League contrata como CEO al ex jefe de la NBA en Europa
+  - · Tom Brady ya fue aprobado para tener su equipo de NFL
+  - · FIFA firma nuevo patrocinador para el mundial varonil y femenil
+- **2024-10-10** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots-448) — ~9 art. _(perecedero)_
+  - Se cae negociación con fondo interesado en FMF; Árabes quieren el 10% de DAZN; América rompe con Nike; FIFA sufre con Mundial de Clubes
+  - ▸ ¿Se cae fondo interesado en derechos de la FMF?
+  - ▸ Los árabes quieren comprar el 10% de DAZN
+  - ▸ Club América termina con Nike y se va con Adidas
+  - ▸ FIFA sufre con el Mundial de Clubes
+  - · Fondo 777 Partners se desmorona y planea vender sus equipos
+  - · PGA y LIV Golf crean nuevo producto en conjunto
+  - · Riyadh Air ya firmó con el Atlético de Madrid
+  - · Arabia Saudita se convierte ahora en patrocinador de LaLiga
+  - · Juez rechaza liquidar contrato de la NBA con Warner Bros Discovery
+- **2024-10-04** — [Industry Shots / Nuevo lanzamiento](https://playbookmedia.substack.com/p/industry-shots-nuevo-lanzamiento) — ~10 art. _(perecedero)_
+  - Inversión en la Liga MX; Los Dolphins le abren la puerta al Private Equity; Gobierno MX cambia enfoque en deportes; MLS firma acuerdo con OneFootball; Liga Mexicana del Pacífico sin Media Partner
+  - ▸ Inversión en la Liga MX
+  - ▸ Los Miami Dolphins le abren la puerta al private equity
+  - ▸ Nuevo gobierno mexicano cambia enfoque en deportes
+  - ▸ MLS firma acuerdo para llegar a audiencia mobile first
+  - ▸ Liga Mexicana del Pacífico busca Media Partner
+  - · River Plate emite deuda para financiar plan de infraestructura
+  - · Barcelona pierde 91m por fallida salida a bolsa
+  - · Bajan sueldo de presidente de Ligue 1 por mal contrato de derechos
+  - · Nueva liga de atletismo de Alexis Ohanian en controversia con leyenda olímpica
+  - · Se le cae otro gran patrocinador al COI
+- **2024-09-30** — [Industry Shots](https://playbookmedia.substack.com/p/industry-shots) — ~9 art. _(perecedero)_
+  - Kings League a la TV; Equipos de NWSl, gran inversión; Arabia Saudita va por el Atlético de Madrid; Messi prepara etapa post-retiro
+  - ▸ Equipos de la NWSL, una gran inversión
+  - ▸ La Kings League salta a la TV
+  - ▸ Arabia Saudita va por el Atlético de Madrid
+  - ▸ Messi se diversifica
+  - · Wimbledon obtiene polémico "si" para triplicar su tamaño
+  - · El futbol femenino no necesita más dinero público
+  - · UFC paga $375m usd por demanda antimonopolio
+  - · Está cambiando el perfil de fans de futbol en Estados Unidos
+  - · El GP de Madrid de la F1 busca inversionistas
+- **2024-09-24** — [Industry Shots / "Derechos de TV: Lo que LATAM puede aprender del fiasco francés"](https://playbookmedia.substack.com/p/industry-shots-derechos-de-tv-lo) — ~23 art. _(perecedero, Deep Dive)_
+  - Árabes quieren su propia "NBA"; la Bundesliga quiere conquistar América; el futbol femenil seguirá creciendo; la Copa Davis se pudiera ir a China; los 5 retos del nuevo CEO de Nike
+  - ▸ Los árabes quieren su propia “NBA”
+  - ▸ La Bundesliga quiere conquistar América
+  - ▸ El futbol femenil seguirá creciendo
+  - ▸ Las finales de la Copa Davis se pueden ir a China
+  - ▸ Los 5 retos que tiene el nuevo CEO de Nike
+  - · Marcelo Claure compra el 10% del NYFC
+  - · Liberty Media refinancia deuda tras la compra de MotoGP
+  - · ESPN compra derechos de la WSL para LATAM, E.U.A. y el Caribe
+  - · Laver Cup extiende contrato con la ATP por 5 años más
+  - · La WNBA anuncia su 15ta franquicia
+  - · ¿Qué factores impidieron a la Ligue 1 encontrar un acuerdo favorable?
+  - · ¿A qué retos se enfrenta con el acuerdo firmado?
+  - · ¿Qué pueden aprender las ligas en LATAM de este caso?Suscríbete ahora
+  - · DAZN: $400 millones de euros a cambio de 8 partidos por jornada
+  - · BeIN: $100 millones de euros a cambio de 1 partido por jornada (el mejor).
+  - · A favor: John Textor (Olympique Lyonnais), creía que era una gran oportunidad de crear una plataforma dirigida a los aficionados más jóvenes.
+  - · En contra: Jean-Michel Roussier (Le Havre), pensaba que la idea de conseguir dos millones de suscriptores para obtener al menos $520 millones de euros era “totalmente ilusoria”.
+  - · €54.99 al mes sin compromiso (€39.99 para DAZN + €15 para beIN Sports)
+  - · €44.99 al mes con un compromiso de 12 meses con DAZN (€29.99 por DAZN + €15 por beIN Sports).
+  - · 65 % de los aficionados cree que los precios de DAZN justifican el recurso a la piratería para ver la primera división francesa.
+  - · Alrededor del 5% de los espectadores franceses (unos 2.5 millones) ya ven el fútbol ilegalmente, lo que supera con creces el objetivo de DAZN de 1.5 millones de suscriptores.
+  - · 37% declararon que habían empezado a seguir otras ligas o deportes.
+- **2024-09-17** — [Industry Shots/"¿Es la UFC la peor amenaza del Box?"](https://playbookmedia.substack.com/p/industry-shotses-la-ufc-la-peor-amenaza) — ~6 art. _(perecedero, Deep Dive)_
+  - UFC y Sphere abren la caja de Pandora; La Fórmula E por alcanzar a la F1; Mexicanos en el consejo de Kings League; Nace nueva categoría de Sportainment; LVMH apuesta por el deporte
+  - ▸ UFC y Sphere abren la caja de Pandora
+  - ▸ La Fórmula E por alcanzar a la F1
+  - ▸ Mexicanos en el consejo de la Kings League
+  - ▸ Nace una nueva categoría de sportainment
+  - ▸ LVMH apuesta por el deporte
+- **2024-09-10** — [Industry Shots / "El plan de la LMB para crecer en Asia"](https://playbookmedia.substack.com/p/industry-shots-el-plan-de-la-lmb) — ~6 art. _(perecedero, Deep Dive)_
+  - ▸ ATP y WTA por fusionarse
+  - ▸ El deporte y la Gen Z
+  - ▸ TelevisaUnivisión extiende relación con NFL
+  - ▸ Santander abandona a Ferrari en su mejor momento
+  - ▸ Bob Iger y Willow Bay ya son dueños del Angel City FC
+- **2024-09-03** — [Industry Shots/ "Es el Mundial Femenil Sub-20 la apuesta de Colombia para rescatar su liga?"](https://playbookmedia.substack.com/p/industry-shots-es-el-mundial-femenil) — ~6 art. _(perecedero, Deep Dive)_
+  - Inversión mexicana en Básquetbol; la apuesta de OCESA en Nascar; Liberty Media compra MotoGP; Agosto, buen mes para el Tenis; Sports Analytics en México
+  - ▸ México apuesta fuerte por el básquetbol
+  - ▸ Nascar en México
+  - ▸ La "otra" Fórmula 1 de Liberty Media
+  - ▸ Buen mes para el Tenis
+  - ▸ Sports Analytics en el ITAM
+- **2024-08-27** — [Industry Shots/"El (polémico) potencial de negocio de los atletas paralímpicos"](https://playbookmedia.substack.com/p/industry-shotsel-polemico-potencial) — ~1 art. _(perecedero, Deep Dive)_
+  - Riesgosa inversión de Cristiano Ronaldo en MX, Nike y Lego apuestan por los niños, la Champions League se asocia con bet365, el nuevo contrato colectivo de la NWSL que fija un nuevo estándar global
+- **2024-08-22** — [Industry Shots / "La iniciativa que hará del deporte femenil una nueva industria"](https://playbookmedia.substack.com/p/industry-shots-la-iniciativa-que) — ~1 art. _(perecedero, Deep Dive)_
+
+### Infinitas
+
+75 ediciones pendientes · ~410 artículos · 2024-11-03 → 2026-07-19
+
+- **2026-07-19** — [♾️ El legado de Alexia llega a México](https://soninfinitas.substack.com/p/que-busca-alexia-con-su-fundacion) — ~5 art.
+  - Además: Nuevas reglas para filmar a las atletas; Apex invierte en la liga de Canadá; Gotham rompe récord en Citi Field; Angel City busca nuevos patrocinadores.
+  - ▸ Nuevas reglas para filmar a las atletas
+  - ▸ Apex invierte en la liga de Canadá
+  - ▸ Gotham rompe récord en Citi Field
+  - ▸ Angel City busca nuevos patrocinadores
+- **2026-06-07** — [♾️ Airbnb y WSL: cuando patrocinar también es resolver](https://soninfinitas.substack.com/p/airbnb-y-wsl-cuando-patrocinar-tambien) — ~5 art.
+  - Además: WNBA pagará a jugadoras retiradas; CBS recupera la WSL en EE.UU; Liga F y Moeve crean torneo base; Alex Morgan suma atletas al WTGL.
+  - ▸ WNBA pagará a jugadoras retiradas
+  - ▸ CBS recupera la WSL en EE.UU.
+  - ▸ Liga F y Moeve crean torneo base
+  - ▸ Alex Morgan suma atletas al WTGL
+- **2026-05-31** — [♾️ Alexia se va del Barça, la grandeza de su legado](https://soninfinitas.substack.com/p/alexia-se-va-del-barca-la-grandeza) — ~5 art.
+  - Además: Serena Williams podría regresar en Queen’s; Athlos llega a Londres; Súper contrato a Bunny Shaw; Michele Kang invierte en calzado deportivo.
+  - ▸ Serena Williams podría regresar en Queen’s
+  - ▸ Athlos llega a Londres
+  - ▸ Súper contrato a Bunny Shaw
+  - ▸ Michele Kang invierte en calzado deportivo
+- **2026-05-24** — [♾️Dos finales de Champions que avanzan a distinta velocidad](https://soninfinitas.substack.com/p/dos-finales-de-champions-que-avanzan) — ~5 art.
+  - Además: América ganó la Concacaf W Champions Cup y se lleva doblete; Barcelona gana su cuarta Champions; Homenaje a las pioneras del 71 en final de LMXF; Pachuca tercer lugar en la Concacaf.
+  - ▸ América ganó la Concacaf W Champions Cup y se lleva doblete
+  - ▸ Barcelona gana su cuarta Women’s Champions League
+  - ▸ Homenaje a las pioneras del 71 en final de Liga MX Femenil
+  - ▸ Pachuca tercer lugar en la Concacaf W Champions Cup
+- **2026-05-17** — [♾️ El fútbol femenil empieza a dejar los espacios prestados](https://soninfinitas.substack.com/p/el-futbol-femenil-empieza-a-dejar) — ~5 art.
+  - Además: Horario inédito en final de Liga MX Femenil; Los beneficios que generan las deportistas; La WNBA ya negocia como liga grande; La PWHL se sigue expandiendo.
+  - ▸ Horario inédito en final de Liga MX Femenil
+  - ▸ Los beneficios que generan las deportistas
+  - ▸ La WNBA ya negocia como liga grande
+  - ▸ La PWHL se sigue expandiendo
+- **2026-04-19** — [♾️ La marca que entendió primero el negocio del deporte femenil](https://soninfinitas.substack.com/p/la-marca-que-entendio-primero-el) — ~5 art.
+  - Además: Gabriela Jaquez hace historia; Súper contrato para A’ja Wilson; W7F llega a Londres; WNBA busca su primer juego internacional
+  - ▸ Gabriela Jaquez hace historia
+  - ▸ Súper contrato para A’ja Wilson
+  - ▸ W7F llega a Londres
+  - ▸ WNBA busca su primer juego internacional
+- **2026-03-29** — [♾️ FIFA abre la puerta a más entrenadoras: ¿También facilita el camino?](https://soninfinitas.substack.com/p/fifa-abre-la-puerta-a-mas-entrenadoras) — ~5 art.
+  - Además: Monarch Collective invierte en WNBA; Novedoso balón en la WSL; Entrada récord en un juego de NWSL; Ohanian compra franquicia de la WTGL
+  - ▸ Monarch Collective invierte en WNBA
+  - ▸ Novedoso balón en la WSL
+  - ▸ Entrada récord en un juego de NWSL
+  - ▸ Ohanian compra franquicia de la WTGL
+- **2026-03-22** — [♾️ ¿Qué cambia realmente con el nuevo acuerdo de la WNBA?](https://soninfinitas.substack.com/p/que-cambia-realmente-con-el-nuevo) — ~5 art.
+  - Además: FIFA impulsa entrenadoras; La fuerte inversión de Ariel; El máximo contrato para una futbolista; Asistencia récord en NWSL
+  - ▸ FIFA impulsa entrenadoras
+  - ▸ La fuerte inversión de Ariel
+  - ▸ El máximo contrato para una futbolista
+  - ▸ Asistencia récord en NWSL
+- **2026-03-15** — [♾️Más que un triunfo: lo que México–Brasil cambia para la selección](https://soninfinitas.substack.com/p/mas-que-un-triunfo-lo-que-mexicobrasil) — ~5 art.
+  - Además: Mercury13 llega a España; Arrancó la NWSL; F1 Academy estrena patrocinador; Audiencia récord en EE.UU.
+  - ▸ Mercury13 llega a España
+  - ▸ Arrancó la NWSL
+  - ▸ F1 Academy estrena patrocinador
+  - ▸ Audiencia récord en EE.UU.
+- **2026-03-08** — [♾️¿Por qué el ranking de la NWSL importa más de lo que parece?](https://soninfinitas.substack.com/p/por-que-el-ranking-de-la-nwsl-importa) — ~5 art.
+  - Además: México derrota a Brasil; Homenaje en F1 a ingenieras; Posponen Copa Africana; Invierten $40M USD en equipo de NWSL
+  - ▸ México derrota a Brasil
+  - ▸ Homenaje en F1 a ingenieras
+  - ▸ Posponen Copa Africana
+  - ▸ Invierten $40M USD en equipo de NWSL
+- **2026-03-01** — [♾️El patrocinio récord para un equipo sin debutar](https://soninfinitas.substack.com/p/el-patrocinio-record-para-un-equipo) — ~5 art.
+  - Además: Renuncia co fundadora de Mercury13; ESPN y NWSL lanzan serie; Nuevo canal de deporte femenil; Récord de audiencia en Frauen-Bundesliga
+  - ▸ Renuncia co fundadora de Mercury13
+  - ▸ ESPN y NWSL lanzan serie
+  - ▸ Nuevo canal de deporte femenil
+  - ▸ Récord de audiencia en Frauen-Bundesliga
+- **2026-02-22** — [♾️¿ESPN cambió el prime time… o solo la parrilla?](https://soninfinitas.substack.com/p/espn-cambio-el-prime-time-o-solo) — ~5 art.
+  - Además: WNBPA quiere +25% de los ingresos; Nueva VP en Liga F; Listos los 4tos de la Champions; Bayern Munich estrena patrocinador
+  - ▸ WNBPA quiere +25% de los ingresos
+  - ▸ Nueva VP en Liga F
+  - ▸ Listos los 4tos de la Champions
+  - ▸ Bayern Munich estrena patrocinador
+- **2026-02-15** — [♾️¿Despegó por fin el mercado del fútbol femenil?](https://soninfinitas.substack.com/p/despego-por-fin-el-mercado-del-futbol) — ~5 art.
+  - Además: Historia en JJ.OO. de Invierno; Sin acuerdo en el fútbol alemán; Récord de audiencia en Champions; Nuevo inversionista en Chelsea
+  - ▸ Historia en JJ.OO. de Invierno
+  - ▸ Sin acuerdo en el fútbol alemán
+  - ▸ Récord de audiencia en Champions
+  - ▸ Nuevo inversionista en Chelsea
+- **2026-02-08** — [♾️El foro global que quiere ordenar el crecimiento del fútbol femenil](https://soninfinitas.substack.com/p/el-foro-global-que-quiere-ordenar) — ~5 art.
+  - Además: México vs Brasil en marzo; Nuevo fondo para el deporte femenil; Arsenal gana la Women's Champions Cup; Gran inversión en Flag Football
+  - ▸ México vs Brasil en marzo
+  - ▸ Nuevo fondo para el deporte femenil
+  - ▸ Arsenal gana la Women’s Champions Cup
+  - ▸ Gran inversión en Flag Football
+- **2026-02-01** — [♾️El contrato que expuso los límites del modelo NWSL](https://soninfinitas.substack.com/p/el-contrato-que-expuso-los-limites) — ~5 art.
+  - Además: Gasto récord en el FutFem; Aumentan ingresos de WSL; Lista la final de Women's Champions Cup; Ted Lasso debutará en FutFem
+  - ▸ Gasto récord en el FutFem
+  - ▸ Aumentan ingresos de WSL
+  - ▸ Lista la final de Women’s Champions Cup
+  - ▸ Ted Lasso debutará en FutFem
+- **2026-01-25** — [♾️El mapa incompleto del crecimiento del fútbol femenil](https://soninfinitas.substack.com/p/el-mapa-incompleto-del-crecimiento) — ~5 art.
+  - Además: Contrato histórico en NWSL; Aún sin acuerdo WNBA anuncia calendario; Liga F busca broadcaster; London City suma otra estrella
+  - ▸ Contrato histórico en NWSL
+  - ▸ Aún sin acuerdo WNBA anuncia calendario
+  - ▸ Liga F busca broadcaster
+  - ▸ London City suma otra estrella
+- **2026-01-18** — [♾️El fútbol femenil de clubes entra en su fase global](https://soninfinitas.substack.com/p/el-futbol-femenil-de-clubes-entra) — ~5 art.
+  - Además: Anuncian Women’s TGL; Crux Football aumenta su holding; Alianza WSL – Mercedes Benz; Nueva inversión de Alex Morgan
+  - ▸ Anuncian Women’s TGL
+  - ▸ Crux Football aumenta su holding
+  - ▸ Alianza WSL – Mercedes Benz
+  - ▸ Nueva inversión de Alex Morgan
+- **2025-12-21** — [♾️El acuerdo WTA–Mercedes, un breaking point en el deporte femenil](https://soninfinitas.substack.com/p/el-acuerdo-wtamercedes-un-breaking) — ~5 art. _(perecedero)_
+  - Además: La Maga Ovalle gana el premio Marta; Aitana hace historia; Tensión máxima en WNBA; Liberty el equipo más valioso
+  - ▸ La Maga Ovalle gana el premio Marta
+  - ▸ Aitana hace historia
+  - ▸ Tensión máxima en WNBA
+  - ▸ Liberty el equipo más valioso
+- **2025-12-14** — [♾️¿Por qué el Kang Women’s Institute puede transformar el fútbol femenil?](https://soninfinitas.substack.com/p/por-que-el-kang-womens-institute) — ~5 art. _(perecedero)_
+  - Además: Primera CEO en Bundesliga; WTA firma su mayor patrocinio; Unrivaled y Sephora fortalecen alianza; San Diego gana el W7F
+  - ▸ Primera CEO en Bundesliga
+  - ▸ WTA firma su mayor patrocinio
+  - ▸ Unrivaled y Sephora fortalecen alianza
+  - ▸ San Diego gana el W7F
+- **2025-12-07** — [♾️Alemania 2029, la Euro donde UEFA probará su modelo](https://soninfinitas.substack.com/p/alemania-2029-la-euro-donde-uefa) — ~5 art. _(perecedero)_
+  - Además: Mexicanas van por premios del W7F; Tensión salarial en NWSL; España bicampeona de Nations League; Otra extensión en el acuerdo WNBA.
+  - ▸ Mexicanas van por premios del W7F
+  - ▸ Tensión salarial en NWSL
+  - ▸ España bicampeona de Nations League
+  - ▸ Otra extensión en el acuerdo WNBA
+- **2025-11-30** — [♾️Finales de Liga MX Femenil y NWSL consolidan alcance del FutFem](https://soninfinitas.substack.com/p/finales-de-liga-mx-femenil-y-nwsl) — ~5 art. _(perecedero)_
+  - Además: México lidera ranking de Flag Football; UK va por el Mundial 2035; Liga F beca a futbolistas; Debuta ChatGPT en WPL
+  - ▸ México lidera ranking de Flag Football
+  - ▸ UK va por el Mundial 2035
+  - ▸ Liga F beca a futbolistas
+  - ▸ Debuta ChatGPT en WPL
+- **2025-11-23** — [♾️LEGO Racing entra a F1 Academy y redefine su valor](https://soninfinitas.substack.com/p/lego-racing-entra-a-f1-academy-y) — ~5 art. _(perecedero)_
+  - Además: Vibrante final en Liga MX Femenil; Gotham FC campeonas de NWSL; LPGA aumenta premios; Histórico acuerdo de Panini y WNBPA
+  - ▸ Vibrante final en Liga MX Femenil
+  - ▸ Gotham FC campeonas de NWSL
+  - ▸ LPGA aumenta premios
+  - ▸ Histórico acuerdo de Panini y WNBPA
+- **2025-11-16** — [♾️WSL lanza guía histórica para estadios de fútbol femenil](https://soninfinitas.substack.com/p/wsl-lanza-guia-historica-para-estadios) — ~5 art. _(perecedero)_
+  - Además: Franquicia NWSL por $165mdd; Bolsa récord en WTA Finals; Atleta NCAA invierte fuerte; F1 Academy asegura apoyo.
+  - ▸ Franquicia NWSL por $165mdd
+  - ▸ Bolsa récord en WTA Finals
+  - ▸ Atleta NCAA invierte fuerte
+  - ▸ F1 Academy asegura apoyo
+- **2025-11-09** — [♾️Cómo Ilona Maher redefine el deporte femenino](https://soninfinitas.substack.com/p/como-ilona-maher-redefine-el-deporte) — ~5 art. _(perecedero)_
+  - Además: La Queens League a más pantallas; “Battle of the Sexes” 2.0; Monarch Collective entra a Europa; NWSL anuncia advisory board
+  - ▸ La Queens League a más pantallas
+  - ▸ “Battle of the Sexes” 2.0
+  - ▸ Monarch Collective entra a Europa
+  - ▸ NWSL anuncia advisory board
+- **2025-11-02** — [♾️Alemania invierte €100 millones para transformar su fútbol femenil](https://soninfinitas.substack.com/p/alemania-invierte-100-millones-para) — ~5 art. _(perecedero)_
+  - Además: LMS tendrá Juego de Estrellas; Alargan negociaciones en WNBA; Paige Bueckers al cine; W7F suma equipos
+  - ▸ LMS tendrá Juego de Estrellas
+  - ▸ Alargan negociaciones en WNBA
+  - ▸ Paige Bueckers al cine
+  - ▸ W7F suma equipos
+- **2025-10-26** — [♾️CONCACAF va por el Mundial más grande de la historia](https://soninfinitas.substack.com/p/concacaf-va-por-el-mundial-mas-grande) — ~5 art. _(perecedero)_
+  - Además: Esteno en CONMEBOL; Debut en Football Manager; El documental de Becky Hammon; Lidl profundiza alianza con UEFA
+  - ▸ Estreno en CONMEBOL
+  - ▸ Debut en Football Manager
+  - ▸ El documental de Becky Hammon
+  - ▸ Lidl profundiza alianza con UEFA
+- **2025-10-19** — [♾️Apple entra al fútbol femenil con la WSL como aliada](https://soninfinitas.substack.com/p/apple-entra-al-futbol-femenil-con) — ~5 art. _(perecedero)_
+  - Además: Alex Morgan y Mia Hamm hacen equipo; Athlos subió audiencia 25%; NWSL extiende a Comisionada; Alianza LPGA y Hello Kitty
+  - ▸ Alex Morgan y Mia Hamm hacen equipo
+  - ▸ Athlos subió audiencia 25%
+  - ▸ NWSL extiende a Comisionada
+  - ▸ Alianza LPGA y Hello Kitty
+- **2025-10-12** — [♾️ ¿Qué es Athlos y por qué está cambiando el atletismo?](https://soninfinitas.substack.com/p/que-es-athlos-y-por-que-esta-cambiando) — ~5 art. _(perecedero)_
+  - Además: Las Vegas campeón de la WNBA; El Barça consolida rentabilidad; Copa Africana crece; La Serie A estrena patrocinador principal.
+  - ▸ Las Vegas campeón de la WNBA
+  - ▸ El Barça consolida rentabilidad
+  - ▸ Copa Africana crece
+  - ▸ La Serie A estrena patrocinador principal
+- **2025-10-05** — [♾️ WNBA en crisis: el liderazgo bajo presión](https://soninfinitas.substack.com/p/wnba-en-crisis-el-liderazgo-bajo) — ~5 art. _(perecedero)_
+  - Además: NFL anuncia liga de Flag Football; UWCL lanza su primer Fantasy; Arranca la Copa Libertadores; Nuevo holding compra equipo
+  - ▸ NFL anuncia liga de Flag Football
+  - ▸ UWCL lanza su primer Fantasy
+  - ▸ Arranca la Copa Libertadores
+  - ▸ Nuevo holding compra equipo
+- **2025-09-28** — [F1 Academy y Hello Kitty: impulso a nuevas fans](https://soninfinitas.substack.com/p/f1-academy-y-hello-kitty-impulso) — ~5 art. _(perecedero)_
+  - Además: Aitana Bonmatí hace historia; Inglaterra gana Mundial de Rugby; Debut de refugiadas afganas; LCL estrenará instalaciones
+  - ▸ Aitana Bonmatí hace historia
+  - ▸ Inglaterra gana Mundial de Rugby
+  - ▸ Debut del equipo de refugiadas afganas
+  - ▸ LCL estrenará instalaciones
+- **2025-09-21** — [♾️ ¿Será LATAM el siguiente objetivo de Mercury13?](https://soninfinitas.substack.com/p/sera-latam-el-siguiente-objetivo) — ~5 art. _(perecedero)_
+  - Además: NWSL modifica proceso de expansión; WNBA se abre a los fondos; NWSL modifica proceso de expansión y W7F tiene nueva CEO
+  - ▸ El impacto económico de EURO 2025
+  - ▸ WNBA se abre a los fondos
+  - ▸ NWSL modifica proceso de expansión
+  - ▸ W7F tiene nueva CEO
+- **2025-09-14** — [♾️ ¿Puede un club independiente transformar el fútbol femenil?](https://soninfinitas.substack.com/p/puede-un-club-independiente-transformar) — ~5 art. _(perecedero)_
+  - Además: Retiran la 13 de Alex Morgan; Impresionante récord en WNBA; Unrivaled se expande; Nuevo socio para UEFA Women’s Football
+  - ▸ Retiran la 13 de Alex Morgan
+  - ▸ Impresionante récord en WNBA
+  - ▸ Unrivaled se expande
+  - ▸ Nuevo socio para UEFA Women’s Football
+- **2025-09-07** — [♾️ Salarios mínimos en WSL: paso clave para las jugadoras](https://soninfinitas.substack.com/p/salarios-minimos-en-wsl-paso-clave) — ~5 art. _(perecedero)_
+  - Además: TOGETHXR llega al fútbol inglés; Nuevo fichaje récord; Novedosa alianza en F1 Academy; Anuncian sede de la Libertadores 2025
+  - ▸ TOGETHXR llega al fútbol inglés
+  - ▸ Nuevo fichaje récord
+  - ▸ Novedosa alianza en F1 Academy
+  - ▸ Anuncian sede de la Libertadores 2025
+- **2025-08-31** — [♾️ La primera liga profesional de voleibol en México](https://soninfinitas.substack.com/p/la-primera-liga-profesional-de-voleibol) — ~5 art. _(perecedero)_
+  - Además: Nace congreso de fútbol en España; Caitlin Clark atleta insignia de Nike; Monarch Collective cerca del West Ham; Segundo W7F será en Florida
+  - ▸ Nace congreso de fútbol en España
+  - ▸ Caitlin Clark atleta insignia de Nike
+  - ▸ Monarch Collective cerca del West Ham
+  - ▸ Segundo W7F será en Florida
+- **2025-08-24** — [♾️ “La Maga” Ovalle rompe récord: ¿Qué significa para el FutFem mexicano?](https://soninfinitas.substack.com/p/la-maga-ovalle-rompe-record-que-significa) — ~5 art. _(perecedero)_
+  - Además: Primer Duelo de Estrellas Liga MX Femenil; Arranca Mundial de Voleibol; Récord de asistencia en WNBA; Sold out en final del Mundial de Rugby
+  - ▸ Primer Duelo de Estrellas Liga MX Femenil
+  - ▸ Arranca Mundial de Voleibol
+  - ▸ Récord de asistencia en WNBA
+  - ▸ Sold out en final del Mundial de Rugby
+- **2025-08-17** — [♾️ La mujer que hizo historia en MLB](https://soninfinitas.substack.com/p/la-mujer-que-hizo-historia-en-mlb) — ~5 art. _(perecedero)_
+  - Además: México bicampeonas en Flag Football; CONMEBOL y UEFA siguen colaborando; Ex jugadora busca comprar clubes; WNL lanza estrategia de crecimiento.
+  - ▸ México bicampeonas en Flag Football
+  - ▸ CONMEBOL y UEFA siguen colaborando
+  - ▸ Ex jugadora busca comprar clubes
+  - ▸ WNL lanza estrategia de crecimiento
+- **2025-08-10** — [♾️ 325 millones de razones para creer en el voleibol femenil](https://soninfinitas.substack.com/p/325-millones-de-razones-para-creer) — ~5 art. _(perecedero)_
+  - Además: ¿Nueva estrella en la WTA?; Patrocinios en NWSL alcanzan $75M USD; Incrementarán salarios en Unrivaled; Nuevo patrocinador en Liga F.
+  - ▸ ¿Nueva estrella en la WTA?
+  - ▸ Patrocinios en NWSL alcanzan $75M USD
+  - ▸ Incrementarán salarios en Unrivaled
+  - ▸ Nuevo patrocinador en Liga F
+- **2025-08-03** — [♾️ Tras 50 años de veto, Inglaterra crea un modelo a seguir](https://soninfinitas.substack.com/p/tras-50-anos-de-veto-inglaterra-crea) — ~5 art. _(perecedero)_
+  - Final histórica en Copa América; Posible venta récord en WNBA; Euro 2029 seguirá con 16 selecciones; Regresa icónica película.
+  - ▸ Final histórica en Copa América
+  - ▸ Posible venta récord en WNBA
+  - ▸ Euro 2029 seguirá con 16 selecciones
+  - ▸ Regresa icónica película
+- **2025-07-27** — [♾️ Duelo de Estrellas redefine alcance de Liga MX Femenil](https://soninfinitas.substack.com/p/duelo-de-estrellas-impulsa-globalizacion) — ~5 art. _(perecedero)_
+  - EURO 2025 impulsa salud menstrual; Crecen acuerdos comerciales en WNBA; Nace la Women’s European Leagues; Amazon renueva con UEFA.
+  - ▸ EURO 2025 impulsa salud menstrual
+  - ▸ Crecen acuerdos comerciales en WNBA
+  - ▸ Nace la Women’s European Leagues
+  - ▸ Amazon renueva con UEFA
+- **2025-07-20** — [♾️Las marcas que apuestan por lo que otros ignoran](https://soninfinitas.substack.com/p/las-marcas-que-apuestan-por-lo-que) — ~5 art. _(perecedero)_
+  - Además: Reunión clave en la WNBA; CONMEBOL lanza la Liga de Naciones; Alianza Snapchat & TOGETHXR; Listas semis en EURO 2025.
+  - ▸ Reunión clave en la WNBA
+  - ▸ CONMEBOL lanza la Liga de Naciones
+  - ▸ Alianza Snapchat & TOGETHXR
+  - ▸ Listas semis en EURO 2025
+- **2025-07-13** — [♾️Copa América 2025: una vitrina sin modelo de negocio](https://soninfinitas.substack.com/p/copa-america-2025-una-vitrina-sin) — ~5 art. _(perecedero)_
+  - Además: Nuevo fichaje récord; Pumas estrena documental; Noche histórica en el boxeo; Millonario acuerdo con Nike.
+  - ▸ Nuevo fichaje récord
+  - ▸ Pumas estrena documental
+  - ▸ Noche histórica en el boxeo
+  - ▸ Millonario acuerdo con Nike
+- **2025-07-06** — [♾️Liga MX Femenil ya compite como gran producto](https://soninfinitas.substack.com/p/liga-mx-femenil-ya-compite-como-gran) — ~5 art. _(perecedero)_
+  - Además: WNBA sigue su expansión; EURO 2025 rompe récord; Arranca la Copa Africana; Primera vez en la WNBA.
+  - ▸ WNBA sigue su expansión
+  - ▸ EURO 2025 rompe récord
+  - ▸ Arranca la Copa Africana
+  - ▸ Primera vez en la WNBA
+- **2025-06-29** — [♾️EURO 2025 y su imparable evolución](https://soninfinitas.substack.com/p/euro-2025-y-su-imparable-evolucion) — ~5 art. _(perecedero)_
+  - Además: ESPN lanza Vibe Check; Kirsty Coventry asume presidencia del COI; Nace Copa en Argentina; Vestidor exclusivo para Barcelona Femení
+  - ▸ ESPN lanza Vibe Check
+  - ▸ Kirsty Coventry asume presidencia del COI
+  - ▸ Nace Copa en Argentina
+  - ▸ Vestidor exclusivo para Barcelona Femení
+- **2025-06-22** — [♾️La tienda que está cambiando la narrativa del deporte femenil](https://soninfinitas.substack.com/p/la-tienda-que-esta-cambiando-la-narrativa) — ~5 art. _(perecedero)_
+  - Además: FutFem será top 5 global en 2030; Angel City apoya a migrantes; Alex Morgan se asocia con JPMorganChase; La Women’s Super League se expande
+  - ▸ FutFem será top 5 global en 2030
+  - ▸ Angel City apoya a migrantes
+  - ▸ Alex Morgan se asocia con JPMorganChase
+  - ▸ La Women’s Super League se expande
+- **2025-06-15** — [♾️Maternidad en el fútbol: derechos, avances y lo que falta](https://soninfinitas.substack.com/p/maternidad-en-el-futbol-derechos) — ~5 art. _(perecedero)_
+  - Además: Gatorade firma con F1 Academy; WTA protegerá fertilidad de jugadoras; WSL rompe récord en ingresos; Canal de Whoopi Goldberg en Pluto TV
+  - ▸ Gatorade firma con F1 Academy
+  - ▸ WTA protegerá fertilidad de jugadoras
+  - ▸ WSL rompe récord en ingresos
+  - ▸ Canal de Whoopi Goldberg en Pluto TV
+- **2025-06-08** — [♾️TikTok amplifica la voz del deporte femenil](https://soninfinitas.substack.com/p/tiktok-amplifica-la-voz-del-deporte) — ~5 art. _(perecedero)_
+  - Además: Seattle Storm vale $325m usd; Volkswagen firme en EURO 2025; Tigres refuerza compromiso social; Peyton Manning entra a la NWSL
+  - ▸ Seattle Storm vale $325m usd
+  - ▸ Volkswagen firme en EURO 2025
+  - ▸ Tigres refuerza compromiso social
+  - ▸ Peyton Manning entra a la NWSL
+- **2025-06-01** — [♾️¿Podrán Netflix y F1: The Academy atraer nuevas audiencias?](https://soninfinitas.substack.com/p/podran-netflix-y-f1-the-academy-atraer) — ~5 art. _(perecedero)_
+  - Además: FMF oficializa Mundial 2031; Nielsen medirá la WNBA; Pinterest entra al deporte; MLB invierte fuerte en Softball
+  - ▸ FMF oficializa Mundial 2031
+  - ▸ Nielsen medirá la WNBA
+  - ▸ Pinterest entra al deporte
+  - ▸ MLB invierte fuerte en Softball
+- **2025-05-25** — [♾️Infraestructura: clave del nuevo modelo femenil](https://soninfinitas.substack.com/p/infraestructura-clave-del-nuevo-modelo) — ~5 art. _(perecedero)_
+  - Además, El equipo más valioso del mundo; LPGA regresó a México; Nueva identidad del OL Lyonnes; Disney+ se queda con la Champions
+  - ▸ El equipo más valioso del mundo
+  - ▸ LPGA regresó a México
+  - ▸ Nueva identidad del OL Lyonnes
+  - ▸ Disney+ se queda con la Champions
+- **2025-05-18** — [♾️El gran reto de la WNBA](https://soninfinitas.substack.com/p/el-gran-reto-de-la-wnba) — ~5 art. _(perecedero)_
+  - Además: Alex Morgan invierte en su equipo; Ohanian amplía su portafolio; Cambios en WTA; Liga F tiene nuevo nombre
+  - ▸ Alex Morgan invierte en su equipo
+  - ▸ Ohanian amplía su portafolio
+  - ▸ Cambios en WTA
+  - ▸ Liga F tiene nuevo nombre
+- **2025-05-11** — [♾️FIFA al fin actúa contra lesiones del ACL](https://soninfinitas.substack.com/p/fifa-al-fin-actua-contra-lesiones) — ~5 art. _(perecedero)_
+  - Además: Mundialote a partir del 2031; Sigue creciendo Liga MX Femenil; Rihanna entra a la WNBA; London City Lionesses asciende
+  - ▸ Mundialote a partir del 2031
+  - ▸ Sigue creciendo Liga MX Femenil
+  - ▸ Rihanna entra a la WNBA
+  - ▸ London City Lionesses asciende
+- **2025-05-04** — [♾️MLB invierte en softball y LATAM se prepara](https://soninfinitas.substack.com/p/mlb-invierte-en-softball-y-latam) — ~5 art. _(perecedero)_
+  - “Si queremos que más personas se enamoren del béisbol, debemos asegurarnos de que más niñas jueguen softball.”
+  - ▸ Convenio para FutFem en España
+  - ▸ Nuevo equipo en Cancún
+  - ▸ NWSL invierte en las bases
+  - ▸ Michele Kang por expansión mundial
+- **2025-04-27** — [♾️MCO, ¿el futuro del Futbol Femenil?](https://soninfinitas.substack.com/p/mco-el-futuro-del-futbol-femenil) — ~5 art. _(perecedero)_
+  - Aparte: TGL planea liga femenil; W7F anuncia primeros clubes; Bay FC busca hacer historia; La PWHL se expande a Canadá
+  - ▸ TGL planea liga femenil
+  - ▸ W7F anuncia primeros clubes
+  - ▸ Bay FC busca hacer historia
+  - ▸ La PWHL se expande a Canadá
+- **2025-04-13** — [♾️Infinitas](https://soninfinitas.substack.com/p/infinitas-2bc) — ~9 art. _(perecedero)_
+  - ¿Qué significa que haya más mujeres en LA28?
+  - ▸ Clásico mexicano cruza fronteras
+  - ▸ Unrivaled roza la rentabilidad
+  - ▸ Sephora impulsa a las Valkyries
+  - ▸ La millonaria apuesta de Denver
+  - ▸ ¿Qué significa que haya más mujeres en LA28?
+  - ▸ ¿Qué anunció el COI?
+  - ▸ ¿Por qué se dio este cambio?
+  - ▸ ¿Qué relevancia tiene este anuncio?
+- **2025-04-06** — [♾️Infinitas](https://soninfinitas.substack.com/p/infinitas-277) — ~6 art. _(perecedero)_
+  - W7F: el Grand Slam del fútbol femenil
+  - ▸ Mundiales para E.U.A. y Reino Unido
+  - ▸ Michele Kang sigue invirtiendo
+  - ▸ Coco Gauff lanza su propia empresa
+  - ▸ A la NWSL le sobra inventario
+  - ▸ W7F: el Grand Slam del fútbol femenil
+- **2025-03-30** — [♾️Infinitas](https://soninfinitas.substack.com/p/infinitas-9c2) — ~5 art. _(perecedero)_
+  - Primera ingeniera en F1: ¿Avance o rezago?
+  - ▸ Corte de caja en Unrivaled
+  - ▸ Crece la infraestructura en WNBA
+  - ▸ Las Valkyries hacen historia
+  - ▸ Históricas alianzas del Man City
+- **2025-03-23** — [♾️Infinitas](https://soninfinitas.substack.com/p/infinitas-9d0) — ~5 art. _(perecedero)_
+  - Los retos de la primera presidenta del COI
+  - ▸ FIFA expande su informe de fútbol femenino
+  - ▸ El 2025 superará los $2,350 mdd en ingresos
+  - ▸ El World Sevens Football ya es una realidad.
+  - ▸ Denver anuncia su propio estadio
+- **2025-03-16** — [♾️Infinitas](https://soninfinitas.substack.com/p/infinitas-637) — ~5 art. _(perecedero)_
+  - El calzado que pone en peligro a las atletas
+  - ▸ Ted Lasso dirigirá un equipo femenil
+  - ▸ Nuevo formato de fútbol femenil
+  - ▸ Nuevo máximo en anuncios de TV
+  - ▸ Monarch Collective levanta más capital
+- **2025-03-09** — [♾️Infinitas](https://soninfinitas.substack.com/p/infinitas-b62) — ~6 art. _(perecedero)_
+  - La estrategia detrás del rebranding de la WTA
+  - ▸ WTA lanza Maternity Fund
+  - ▸ Serena Williams nueva dueña en la WNBA
+  - ▸ FIFA anuncia 2 nuevas copas
+  - ▸ Amazon abre tienda UEFA femenina
+  - ▸ La estrategia detrás del rebranding de la WTA
+- **2025-03-02** — [♾️Infinitas](https://soninfinitas.substack.com/p/infinitas) — ~6 art. _(perecedero)_
+  - ¿Es la independencia la clave del crecimiento del fútbol femenil?
+  - ▸ La WTA se da un uplift
+  - ▸ Diana Taurasi se retira
+  - ▸ La FA lanza potente campaña
+  - ▸ ¿Adios descensos en la WSL?
+  - ▸ ¿Es la independencia la clave del crecimiento del fútbol femenil?
+- **2025-02-23** — [♾️Infinitas](https://playbookmedia.substack.com/p/infinitas-fbf) — ~9 art. _(perecedero)_
+  - Deporte femenil: la (gran) oportunidad del streaming
+  - ▸ Nike y Kim Kardashian lanzan marca de fitness
+  - ▸ La NWSL aumenta el límite salarial
+  - ▸ Caitlin Clark impulsa la economía de Indianapolis
+  - ▸ Nueva franquicia WNBA por $250 mdd
+  - ▸ Deporte femenil: la (gran) oportunidad del streaming
+  - ▸ Evolución y motivaciones
+  - ▸ El siguiente paso para las compañías de streaming
+  - ▸ Proyecciones para el futuro
+- **2025-02-16** — [♾️Infinitas](https://playbookmedia.substack.com/p/infinitas-419) — ~9 art. _(perecedero)_
+  - ¿Qué le falta a LATAM para invertir en deporte femenil?
+  - ▸ WTA logra audiencia récord
+  - ▸ Arabia Saudita va por el golf femenil
+  - ▸ Siguen patrocinios récord
+  - ▸ España lanza Observatorio del Deporte Femenino
+  - ▸ Invertir en deporte femenil: una tarea pendiente para LATAM
+  - ▸ El interés de los fondos en el deporte femenil
+  - ▸ La participación de los fondos
+  - ▸ ¿Y LATAM?
+- **2025-02-09** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-3a4) — ~6 art. _(perecedero)_
+  - Flag Footbal: ¿El deporte del futuro en México?
+  - ▸ Roku lanza programa sobre deporte femenil
+  - ▸ Mercado de enero bate récords en fútbol
+  - ▸ NWSL anuncia acuerdo histórico
+  - ▸ Nuevo patrocinador global para la EURO 2025
+  - ▸ Flag Football: ¿El deporte del futuro en México?
+- **2025-02-07** — [Infinitas / ¡Nuevo Lanzamiento!](https://playbookmedia.substack.com/p/infinitas-nuevo-lanzamiento) — ~1 art. _(perecedero)_
+  - Es turno de conocer más de quienes construyen esta industria
+- **2025-02-02** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-e5e) — ~8 art. _(perecedero)_
+  - Se dispara (por fin) el valor de las futbolistas
+  - ▸ Éxodo que preocupa a la NWSL
+  - ▸ Caitlin Clark le dice no al NBA All-Star Weekend
+  - ▸ Intensa lucha por franquicia de la WNBA
+  - ▸ Abren la chequera por mejor infraestructura
+  - ▸ Se dispara (por fin) el valor de las futbolistas
+  - ▸ El crecimiento de la inversión en traspasos
+  - ▸ Impacto en México y Latinoamérica
+- **2025-01-26** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-be7) — ~6 art. _(perecedero)_
+  - ¿Cual es el potencial de la Liga Mexicana de Softbol?
+  - ▸ Sixth Street lanza holding multiclub femenil
+  - ▸ Monarch Collective va por el Chelsea Women
+  - ▸ Nueva liga de voleibol para 2026
+  - ▸ La primera Ingeniera de Carrera de la F1
+  - ▸ Angel City inaugura centro de entrenamiento único
+- **2025-01-19** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-2b7) — ~9 art. _(perecedero)_
+  - Pronto será demasiado tarde para invertir en deporte femenil
+  - ▸ Transferencia histórica de la Liga MX Femenil
+  - ▸ Equipos europeos superan los €100m en ingresos
+  - ▸ Diseñan centro de entrenamiento específico para mujeres
+  - ▸ Revolut incursiona en el fútbol femenil
+  - ▸ ¿Invertir en deporte femenil? pronto será demasiado tarde
+  - ▸ ¿Qué significa esto para la NWSL y para el deporte femenil?
+  - ▸ Mucha competencia e interés en aumento
+  - ▸ ¿Es sólo el futbol?
+- **2025-01-12** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-d80) — ~5 art. _(perecedero)_
+  - Liga MX Femenil se avienta a construir su propio modelo
+  - ▸ Gauff invierte en Unrivaled
+  - ▸ Arranca nueva liga profesional femenil
+  - ▸ Marta no se quiere retirar del Orlando Pride
+  - ▸ Mexicano crea el “City Football Group” femenino
+- **2024-12-22** — [Infinitas / Te tenemos una gran noticia](https://playbookmedia.substack.com/p/infinitas-te-tenemos-una-gran-noticia) — ~6 art. _(perecedero)_
+  - ▸ Netflix transmitirá los Mundiales FIFA 2027 y 2031
+  - ▸ Historia en el fútbol femenil neerlandés
+  - ▸ Unrivaled cierra una ronda de $28m usd
+  - ▸ NWSL se decide por Denver
+  - ▸ UEFA está respaldando sus palabras con dinero
+- **2024-12-15** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-beb) — ~8 art. _(perecedero)_
+  - El potencial del Fantasy en el deporte femenil
+  - ▸ Patrocinios en deporte femenil superan ROI
+  - ▸ WNBA es la marca de más rápido crecimiento de 2024
+  - ▸ Unrivaled firma acuerdo con Under Armour
+  - ▸ Time nombra a Caitlin Clark atleta del año
+  - ▸ La FIFA anuncia las fechas del Mundial 2027
+  - ▸ El potencial del Fantasy en el deporte femenil
+  - ▸ El éxito del Fantasy
+- **2024-12-08** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-f2c) — ~8 art. _(perecedero)_
+  - ¿Son fans del deporte femenil mejor negocio?
+  - ▸ Jill Ellis se incorpora a la FIFA
+  - ▸ WTA Ventures aumenta sus ingresos
+  - ▸ Presentan al primer equipo WNBA de Canadá
+  - ▸ F1 Academy se expande
+  - ▸ ¿Son fans del deporte femenil mejor negocio?
+  - ▸ ¿Y cómo es él/ella?
+  - ▸ Una enorme oportunidad para las marcas
+- **2024-12-01** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-7b3) — ~6 art. _(perecedero)_
+  - Cuando las jugadoras toman el control
+  - ▸ DAZN alcanza el millón en fútbol femenil
+  - ▸ Final de la NWSL rompió récord
+  - ▸ Atletas olímpicas generaron el 53% de la interacción en redes.
+  - ▸ Liga MX Femenil con más de 80k asistentes en finales
+  - ▸ Cuando las jugadoras toman el control
+- **2024-11-24** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-18c) — ~8 art. _(perecedero)_
+  - El donativo que cimentará al futbol estadounidense
+  - ▸ League One Volleyball obtiene inversión por 100m
+  - ▸ AWSN adquiere los derechos de la WNBL
+  - ▸ DAZN entra en basquetbol femenil
+  - ▸ Presentan la Women´s Lacrosse League
+  - ▸ EA Sports incluye jugadoras en NHL 25
+  - ▸ El donativo que cimentará al futbol estadounidense
+  - ▸ Educación y desarrollo del liderazgo
+- **2024-11-17** — [Infinitas](https://playbookmedia.substack.com/p/infinitas-a84) — ~6 art. _(perecedero)_
+  - Las inestables asistencias en el fútbol femenil
+  - ▸ Nueva liga de béisbol profesional femenil en 2026
+  - ▸ Golden State Valkyries superan los 20,000 abonos
+  - ▸ Chelsea y Nike lanzan iniciativa para niñas “Inspire Her”
+  - ▸ Whoopi Goldberg lanza canal 24/7 sobre deporte femenil
+  - ▸ Angel City anuncia inmenso centro de rendimiento
+- **2024-11-10** — [Infinitas](https://playbookmedia.substack.com/p/infinitas) — ~5 art. _(perecedero)_
+  - "Faltan mujeres tomando decisiones en el deporte"
+  - ▸ La FA quiere que las niñas tengan igual acceso al fútbol
+  - ▸ La NWSL logra más de 2 millones de asistentes
+  - ▸ WSL y Women’s Championship en estadios principales
+  - ▸ Derechos del Mundial Femenil se venderán por separado
+- **2024-11-03** — [Hoy nace Infinitas, la nueva era del deporte.](https://playbookmedia.substack.com/p/hoy-nace-infinitas-la-nueva-era-del) — ~8 art. _(perecedero)_
+  - Es el turno de LATAM, sus mujeres y sus historias.
+  - ▸ La WSL vende sus derechos de TV por una cifra récord
+  - ▸ La WNBA generó un récord de 136 mdd en valor a sponsors
+  - ▸ Final de la UWCL genera millonario impacto económico en Bilbao
+  - ▸ Inversión récord de la UEFA en futbol femenil
+  - ▸ ¿Dónde está el deporte femenil hoy?
+  - ▸ El estado actual del deporte femenil en el mundo
+  - ▸ Desarrollo Comercial y Económico
+
+### Industry Shots | Players
+
+32 ediciones pendientes · ~260 artículos · 2024-10-08 → 2025-12-09
+
+- **2025-12-09** — [☕Industry Shots / Players: Elisa Ceñal](https://playbookmedia.substack.com/p/industry-shots-players-elisa-cenal) — ~2 art. _(perecedero)_
+  - A México le fue mal en el sorteo del Mundial; Los prediction markets van en serio; Gen Z prefiere ejercicio que citas románticas; Se fortalece la independencia del futbol femenil
+  - ▸ A México le fue mal en el sorteo del Mundial
+- **2025-12-02** — [☕Industry Shots / Players: Daniel Benchimol, DAZN](https://playbookmedia.substack.com/p/industry-shots-players-daniel-benchimol) — ~3 art. _(perecedero)_
+  - Sorteo del Mundial arranca con el pie izquierdo; Se “cerró la llave” del efectivo árabe; ¿Nuevo Nu Stadium en Miami?; El gol de Tebas contra la piratería
+  - ▸ Sorteo del Mundial arranca con el pie izquierdo
+  - ▸ Se “cerró la llave” del efectivo árabe
+- **2025-11-25** — [☕Industry Shots / Players: Salvador Escobar, Liga Mexicana del Pacífico](https://playbookmedia.substack.com/p/industry-shots-players-salvador-escobar) — ~2 art. _(perecedero)_
+  - Pleito por palcos, lejos de terminar; Futbol femenil en México al alza; Streamers, los nuevos broadcasters; La jugada de Florentino con el Real Madrid
+  - ▸ Pleito por palcos, lejos de terminar
+- **2025-11-11** — [☕Industry Shots / Players: Juan Diego García, GG Tech Entertainment](https://playbookmedia.substack.com/p/industry-shots-players-juan-diego) — ~2 art. _(perecedero)_
+  - ¿Qué está haciendo Trump con el deporte?; El riesgo del básquetbol femenil; El nuevo dueño del Atlético de Madrid
+  - ▸ ¿Qué está haciendo Trump con el deporte?
+- **2025-11-04** — [☕Industry Shots / Players: Jorge Del Valle, Diablos Rojos del México](https://playbookmedia.substack.com/p/industry-shots-players-jorge-del) — ~2 art. _(perecedero)_
+  - La posible inversión en el futbol americano mexicano; La bomba que está preparando DAZN; Histórico patrocinador es desplazado; La Serie Mundial que necesitaba Rob Manfred
+  - ▸ La posible inversión en el futbol americano mexicano
+- **2025-10-28** — [☕Industry Shots / Players: Raúl Zárraga, NBA](https://playbookmedia.substack.com/p/industry-shots-players-raul-zarraga) — ~2 art. _(perecedero)_
+  - ¿Qué pasará con ESPN México?; El impacto del “bet gate” de la NBA en el deporte mexicano; La nueva inversión estratégica en el deporte
+  - ▸ ¿Qué pasará con ESPN México?
+- **2025-10-21** — [☕Industry Shots / Players: Pepe Escamilla, Querétaro FC](https://playbookmedia.substack.com/p/industry-shots-players-pepe-escamilla) — ~2 art. _(perecedero)_
+  - ¿Vienen los mejores años para la F1 en México?; Hispanos en EE.UU.: EL mercado a atender; El negocio del Barca que si es rentable; ¿Regresa la centralización del contenido en el deporte?
+  - ▸ ¿Vienen los mejores años para la F1 en México?
+- **2025-10-14** — [☕Industry Shots / Players: Pepe Riestra, Orlegi](https://playbookmedia.substack.com/p/industry-shots-players-pepe-riestra) — ~3 art. _(perecedero)_
+  - Ya hay gestor de los derechos de la Selección Mexicana; NBA podría estar compitiendo con sus propios socios; Nuevo gran fondo interesado en deportes; El posible impacto de Google en Los Angeles 2028
+  - ▸ Ya hay gestor de los derechos de la Selección Mexicana
+  - ▸ NBA podría estar compitiendo con sus propios socios
+- **2025-10-07** — [☕Industry Shots / Players: Michel Bauer, Copa Mundial FIFA 2026](https://playbookmedia.substack.com/p/industry-shots-players-michel-bauer) — ~12 art. _(perecedero)_
+  - Othón Díaz deja la presidencia de los Diablos Rojos; Se intensifica la competencia por el futbol en Estados Unidos; La fuga de dinero en LIV Golf; Arctos lanza “marketplace” de dueños; Athlos y GST
+  - ▸ Othón Díaz deja la presidencia de los Diablos Rojos
+  - ▸ Se intensifica la competencia por el futbol en Estados Unidos
+  - ▸ La fuga de dinero en LIV Golf
+  - ▸ Arctos lanza “marketplace” de dueños
+  - ▸ El impacto de los emprendedores “externos” al deporte
+  - · Así se reparte el dinero en la F1
+  - · El reto de acomodar los horarios de partidos en el mundial
+  - · La fusión entre ATP y WTA pudiera cerrarse este año
+  - · La NBA profundiza su relación con Amazon
+  - · Regresa la NFL a México
+  - · Regresa la ITAM Sports Analytics Conference (más info abajo)
+- **2025-09-30** — [☕Industry Shots / Players: Emilio Escalante, Atlante FC](https://playbookmedia.substack.com/p/industry-shots-players-emilio-escalante) — ~10 art. _(perecedero)_
+  - El deal de Apollo en Liga MX no está muerto; Inaudita privatización de Electronic Arts; Dana White y Paramount firman contrato transformacional; El deporte está ignorando a un gran cliente
+  - ▸ El deal de Apollo en Liga MX no está muerto
+  - ▸ Inaudita privatización de Electronic Arts
+  - ▸ Dana White y Paramount firman contrato transformacional
+  - ▸ El deporte está ignorando a un gran cliente
+  - · Los Patriots venden un pedazo y se valúan en $9bn usd
+  - · Nace nuevo fondo de inversión en deporte
+  - · Excluyen a equipo israelí de vuelta ciclista
+  - · Serie A recurre a JP Morgan para mejorar su negocio
+  - · Industria de ropa deportiva en México espera un CAGR de 5.9%
+- **2025-09-23** — [☕Industry Shots / Players: Jordi Camps, Spodeal](https://playbookmedia.substack.com/p/industry-shots-players-jordi-camps) — ~10 art. _(perecedero)_
+  - Mexicanos invierten en basquetbol español; Roger Federer apenas va iniciando; La decisión de Estados Unidos en Flag Football; De dirigir una marca de champán a liderar un club de futbol
+  - ▸ Mexicanos invierten en basquetbol español
+  - ▸ Roger Federer apenas va iniciando
+  - ▸ La decisión de Estados Unidos en Flag Football
+  - ▸ De dirigir una marca de champán a liderar un club de futbol
+  - · Así se reparte el ingreso por TV en la Premier
+  - · Apollo pudiera comprar mayoría en el Atlético de Madrid
+  - · Los estadios han estado históricamente desaprovechados
+  - · España pide al COI la exclusión de Isarel
+  - · Venus y Serena Williams lanzan podcast
+- **2025-09-09** — [☕Industry Shots / Players: Luis Rodrigo Gómez, FOX](https://playbookmedia.substack.com/p/industry-shots-players-luis-rodrigo) — ~10 art. _(perecedero)_
+  - ¿Y si ya no fueran obligatorios los equipos femeniles en la Liga MX?; ESPN podría asociarse con otras ligas; $5bn usd para invertir en deporte; Lo importante del nuevo fondo AO Ventures
+  - ▸ ¿Y si ya no fueran obligatorios los equipos femeniles en la Liga MX?
+  - ▸ ESPN podría asociarse con otras ligas
+  - ▸ $5bn usd para invertir en deporte
+  - ▸ Lo importante del nuevo fondo AO Ventures
+  - · Resuelto el tema de palcos en el Azteca
+  - · Netflix gana terreno en live sports
+  - · Unrivaled crece 10x
+  - · El por qué detrás de la visita de Trump al US Open
+  - · La relevancia de Brasil para la NFL
+- **2025-09-02** — [☕Industry Shots / Players: Marissa Solis, NFL](https://playbookmedia.substack.com/p/industry-shots-players-marissa-solis) — ~10 art. _(perecedero)_
+  - FOX y el golpe (¿definitivo?) para Grupo Lauman; Peligrosa tendencia de inversión en derechos; FOX le quita la MLB a Lauman; El reto para mejorar el negocio del deporte femenil
+  - ▸ FOX y el golpe (¿definitivo?) para Grupo Lauman
+  - ▸ Peligrosa tendencia de inversión en derechos
+  - ▸ FOX le quita la MLB a Lauman
+  - ▸ El reto para mejorar el negocio del deporte femenil
+  - · Orlegi inyecta más dinero al Sporting
+  - · Valuación de franquicias NFL en récord histórico
+  - · Nace primer congreso de futbol femenil
+  - · MLS rompe récord de gasto en fichajes
+  - · UEFA adelanta final de Champions
+- **2025-08-26** — [☕Industry Shots / Players: Miguel Gurwitz](https://playbookmedia.substack.com/p/industry-shots-players-miguel-gurwitz) — ~10 art. _(perecedero)_
+  - No funciona el private equity en el deporte colegial; La prohibición de casas de apuestas en la Premier; La apuesta de la ATP por TikTok; Bundesliga va por experimento multiplataforma
+  - ▸ No funciona el private equity en el deporte colegial
+  - ▸ La prohibición de casas de apuestas en la Premier
+  - ▸ La apuesta de la ATP por TikTok
+  - ▸ Bundesliga va por experimento multiplataforma
+  - · LaLiga y Mercado Libre se unen contra la piratería
+  - · Djokovic invierte nuevamente
+  - · NFL y Crocs firman acuerdo de licensing
+  - · China quiere ser potencia deportiva
+  - · Warner prepara película sobre Kobe Bryant
+- **2025-08-19** — [☕ Industry Shots / Players: Fernanda Sainz](https://playbookmedia.substack.com/p/industry-shots-players-fernanda-sainz) — ~10 art. _(perecedero)_
+  - Disputa legal por marca Fox Sports México; LA28 abre la puerta a los naming rights; FIFA quiere más Mundiales de Clubes; El éxito y los récords de TripleMania.
+  - ▸ Disputa legal por marca Fox Sports México
+  - ▸ LA28 abre la puerta a los naming rights
+  - ▸ El éxito y los récords de TripleManía
+  - ▸ FIFA quiere más Mundiales de Clubes
+  - · Flamengo firma patrocinio histórico
+  - · Dazn y LaLiga lanzan canal gratuito de highlights
+  - · ¿Posible expansión en MLB?
+  - · FC Juárez pierde demanda ante el TAS
+  - · La startup de Alex Rodriguez levanta $23M USD
+- **2025-08-12** — [☕ Industry Shots / Players: México FC](https://playbookmedia.substack.com/p/industry-shots-players-mexico-fc) — ~10 art. _(perecedero)_
+  - Necaxa busca exposure mundial; Paso clave para juego de LaLiga en Miami; Volkswagen firma con LaLiga y Serie A; UFC y Paramount desaparecen el PPV
+  - ▸ Necaxa busca exposure mundial
+  - ▸ Paso clave para juego de LaLiga en Miami
+  - ▸ Volkswagen firma con LaLiga y la Serie A
+  - ▸ UFC y Paramount desaparecen el PPV
+  - · Ingresos de F1 alcanzan $1.2BN USD en Q2
+  - · Netflix transmitirá FIFA WWC 2027 y 2031 en Canadá
+  - · Salarios crecerían 4x en nuevo CBA de la WNBA
+  - · Manchester United invierte £50M en ciudad deportiva
+  - · Saudi Pro League vende derechos a un ‘streamer’ francés
+- **2025-08-05** — [☕Industry Shots / Nueva Temporada de Players](https://playbookmedia.substack.com/p/industry-shots-nueva-temporada-de) — ~10 art. _(perecedero)_
+  - Las implicaciones de la sociedad ESPN-NFL; El gran proyecto del Atlético de Madrid; En disputa el futuro del básquetbol profesional; FIFA y COI podrían ser desafiadas legalmente
+  - ▸ Las implicaciones de la sociedad ESPN-NFL
+  - ▸ El gran proyecto del Atlético de Madrid
+  - ▸ En disputa el futuro del básquetbol profesional
+  - ▸ FIFA y COI podrían ser desafiadas legalmente
+  - · FOX regresa al deporte mexicano
+  - · Novak Djokovic invierte en futbol
+  - · CAA, la agencia más valiosa en el deporte
+  - · FOX compra el 33% de la IndyCar
+  - · Washington Commanders logran el fondeo para su estadio
+- **2025-07-01** — [♾️Industry Shots / Players: Hussein Forzan](https://playbookmedia.substack.com/p/industry-shots-players-hussein-forzan) — ~10 art. _(perecedero)_
+  - Clubes de Liga Expansión denuncian represión de FMF; Los Knicks están atrapados; Wimbledon arranca negociando con jugadores; Miami Open ya tendría comprador
+  - ▸ Clubes de Liga Expansión denuncian represión de FMF
+  - ▸ Los Knicks están atrapados
+  - ▸ Wimbledon arranca negociando con jugadores
+  - ▸ Miami Open ya tendría comprador
+  - · Nike pierde una fortuna por aranceles
+  - · Un nuevo club de padel cada 2.5 días
+  - · El negocio de las camisetas del Real Oviedo
+  - · Lo que gana la FIFA por tarjetas amarillas y rojas
+  - · Draft de la NBA pierde audiencia
+- **2025-06-17** — [♾️Industry Shots / Players: Nuria Diosdado](https://playbookmedia.substack.com/p/industry-shots-players-nuria-diosdado) — ~10 art. _(perecedero)_
+  - Futuro incierto de Nascar en México; El Super Bowl no es el evento más popular; DAZN quiere adueñarse del futbol; ¿Socialismo en el futbol italiano?
+  - ▸ Futuro incierto de Nascar en México
+  - ▸ El Super Bowl no es el evento más popular
+  - ▸ DAZN quiere adueñarse del futbol
+  - ▸ ¿Socialismo en el futbol italiano?
+  - · Sucesor de Goodell en la NFL se va a la PGA
+  - · Agassi invierte en el Top Golf de la raqueta
+  - · Inter de Milán refinancia su deuda
+  - · Se reelige presidente de Conmebol
+  - · FIFA sanciona a equipo ecuatoriano por deuda
+- **2025-06-03** — [♾️Industry Shots / Players: Alejandro Rodríguez, el equipo que descubrió a Isaac del Toro](https://playbookmedia.substack.com/p/industry-shots-players-alejandro-621) — ~10 art. _(perecedero)_
+  - Mundial femenil en México; La burbuja de los equipos deportivos; River Plate, el que más boletos vende; El negocio de los Underdogs
+  - ▸ Mundial femenil en México
+  - ▸ La burbuja de los equipos deportivos
+  - ▸ River Plate, el que más boletos vende
+  - ▸ El negocio de los Underdogs
+  - · El Real Madrid rompe la barrera de los $6,000m usd
+  - · Venta de merch del PSG rommpe récord
+  - · NBA le genera a sponsors más de $2.3bn en media value
+  - · Fans de las 500 millas de Indianapolis usan volúmen récord de datos
+  - · Lo que significa el título de Champions League para el PSG
+- **2025-05-20** — [☕Industry Shots / Players: Dorian Roldán, Lucha Libre AAA](https://playbookmedia.substack.com/p/industry-shots-players-dorian-roldan) — ~10 art. _(perecedero)_
+  - Inversión en el Puebla; Mundial femenil crece exponencialmente; Familias de Silicon Valley invierten en los 49ers; Deporte domina en Upfronts
+  - ▸ Inversión en el Puebla
+  - ▸ Mundial femenil crece exponencialmente
+  - ▸ Familias de Silicon Valley invierten en los 49ers
+  - ▸ Deporte domina en Upfronts
+  - · El foco de la remodelación de sede de US Open
+  - · Nuevo presidente del futbol brasileño
+  - · FC Barcelona quiere crecer su negocio de licencias
+  - · Mundial de Arabia Saudita igual a 104 Super Bowls
+  - · Mediapro gestionará derechos de CONMEBOL
+- **2025-05-06** — [☕Industry Shots / Players: Javier Arnaiz](https://playbookmedia.substack.com/p/industry-shots-players-javier-arnaiz) — ~10 art. _(perecedero)_
+  - Creadores de "Drive to Survive" y Fillip van por LATAM; Persiste problema de palcos en el Azteca; La confianza de la F1 en México (y Miami); ¿F1 en venta?
+  - ▸ Creadores de "Drive to Survive" y Fillip van por LATAM
+  - ▸ Persiste problema de palcos en el Azteca
+  - ▸ La confianza de la F1 en México (y Miami)
+  - ▸ ¿F1 en venta?
+  - · Cómo invierte Ares en deporte
+  - · ¿Por qué Warren Buffet no quiere invertir en deporte?
+  - · La NBA tiene que re-formular su All Star Weekend
+  - · Rory McIlroy lanza fondo de inversión con TPG
+  - · Patrocinios en MLS crecen a doble dígito
+- **2025-04-22** — [♾️Industry Shots / Players: Alejandro Jaimes](https://playbookmedia.substack.com/p/industry-shots-players-alejandro) — ~10 art. _(perecedero)_
+  - Detalles de la compra de la AAA; Verstappen saldría de Red Bull a billetazos; El deporte VIP no para de crecer; Nuevo fondo de inversión en el deporte
+  - ▸ Detalles de la compra de la AAA
+  - ▸ Verstappen saldría de Red Bull a billetazos
+  - ▸ El deporte VIP no para de crecer
+  - ▸ Nuevo fondo de inversión en el deporte
+  - · El valor de los picks en el Draft de la NFL
+  - · Muerte del Papa suspende partidos
+  - · El mexicano en Nascar que "toma la estafeta" de Checo Pérez
+  - · Innovasport compra a Marathon
+  - · Nike apuesta por contenido para China
+- **2025-04-01** — [♾️Industry Shots / Players: Alex Ponseti](https://playbookmedia.substack.com/p/industry-shots-players-alex-ponseti) — ~10 art. _(perecedero)_
+  - Película de la UFC; Tamaño de March Madness; NBA Europa; Renacimiento de la MLB
+  - ▸ Película de la UFC
+  - ▸ Tamaño de March Madness
+  - ▸ NBA Europa
+  - ▸ Renacimiento de la MLB
+  - · Piqué hace las pases con la ITF
+  - · América jugará un partido de $9m usd
+  - · Aston Martin se sale de su equipo de F1
+  - · La acción de Nike cae y ya vale menos de $100bn usd
+  - · NBA y MLB invierten en el "twitch" del deporte
+- **2025-03-18** — [☕Industry Shots / Players: Alberto Lati](https://playbookmedia.substack.com/p/industry-shots-fd0) — ~10 art. _(perecedero)_
+  - "Americanización" del COI; Estadio Banorte; Mikel Arriola elegido en CONCACAF; $100m usd más para deporte femenil
+  - ▸ "Americanización" del COI
+  - ▸ Estadio Banorte
+  - ▸ Mikel Arriola elegido en CONCACAF
+  - ▸ $100m usd más para deporte femenil
+  - · Saudís invertirán $500m usd en Cricket
+  - · En pleito el dinero por la venta del Chelsea FC varonil
+  - · Patrocinios en F1 podrían llegar a $3bn usd
+  - · Relevent firma derechos globales de UEFA y ECA
+  - · Puma pierde en bolsa pero firma a la Premier League
+- **2025-02-25** — [☕️Industry Shots / Players: Mariana Gutiérrez, Liga BBVA MX Femenil](https://playbookmedia.substack.com/p/industry-shots-934) — ~10 art. _(perecedero)_
+  - Nuevo Checo Pérez en Argentina; Costo de remodelación del Azteca; Abierto Mexicano de Tenis más caro; ESPN y MLB se divorcian
+  - ▸ Nuevo Checo Pérez en Argentina
+  - ▸ Costo de remodelación del Azteca
+  - ▸ Abierto Mexicano de Tenis más caro
+  - ▸ ESPN y MLB se divorcian
+  - · FOX Sports México pierda ahora a la Premier League
+  - · Lewis Hamilton se casa con lululemon
+  - · 49ers levantan capital para comprar equipo de futbol
+  - · La NWSL se avienta con Overtime
+  - · La MLS diseña plan para duplicar su audiencia
+- **2025-02-11** — [Industry Shots / Players: Juan Pablo Robert, YouTube](https://playbookmedia.substack.com/p/industry-shots-players-juan-pablo) — ~10 art. _(perecedero)_
+  - Corte de caja tras Super Bowl; México clave para Nascar; Se fortalece "la F1" del básquetbol; IPO de DAZN; Nadal vende pedazo de su academia
+  - ▸ México clave para Nascar
+  - ▸ Se fortalece "la F1" del basquetbol
+  - ▸ IPO de DAZN
+  - ▸ Nadal vende pedazo de su academia
+  - · Kings League suma nuevo inversionista en Alemania
+  - · LaLiga destruye otra plataforma de contenido pirata
+  - · Nascar evalúa levantar capital
+  - · Fútbol femenil mundial logra casi $6m usd en fichajes
+  - · Netflix va por los derechos de la F1
+- **2024-11-05** — [Industry Shots / Players: Sebastián Patrón](https://playbookmedia.substack.com/p/industry-shots-players-sebastian) — ~10 art. _(perecedero)_
+  - Franquicia de la NBA en México; Nayarit va por fans de los Lakers; CEO de la WTA defiende torneos en Arabia Saudita; Los árabes empiezan a cerrar la llave del efectivo
+  - ▸ Franquicia de la NBA en México
+  - ▸ Nayarit va por fans de los Lakers
+  - ▸ CEO de la WTA defiende torneos en Arabia Saudita
+  - ▸ Los árabes empiezan a cerrar la llave del efectivo
+  - · Plataforma de predicción política entra a apuestas deportivas
+  - · Ya son 4 los equipos de la NFL en pláticas con fondos de inversión
+  - · La PGA se hará más exclusiva
+  - · ¿La F1 desplazará a Nascar en Estados Unidos?
+  - · NWSL logra nuevo récord de audiencia
+- **2024-10-29** — [Industry Shots / Players: Othón Díaz](https://playbookmedia.substack.com/p/industry-shots-players-othon-diaz) — ~10 art. _(perecedero)_
+  - En venta Masters 1000 de Madrid y Miami; GP de México seguro sólo hasta 2025; Comisionado de MLB se adjudica números de Serie Mundial; NFL cambia de opinión en cuanto a contenido
+  - ▸ En venta los Masters 1000 de Madrid y Miami
+  - ▸ GP de México seguro sólo hasta 2025
+  - ▸ Comisionado de MLB se adjudica números de Serie Mundial
+  - ▸ NFL cambia de opinión en cuanto a contenido
+  - · Se desploman precios de boletos de Serie Mundial en NY
+  - · TKO compra a IMG y a On Location en programa de recompra de acciones
+  - · LeBron James e hijo son demandados
+  - · Federación Internacional de Padel reelige a su presidente
+  - · La MLB crece sus ingresos por patrocinio
+- **2024-10-22** — [Industry Shots / Players: Santiago Fernández del Castillo y Pablo López Landeros](https://playbookmedia.substack.com/p/industry-shots-players-santiago-fernandez) — ~10 art. _(perecedero)_
+  - Patrocinio pone en riesgo mundial femenil; Otro hijo presidente en el futbol mexicano; Liga Mexicana de Softbol se expande; Infantino está desesperado
+  - ▸ Patrocinio pone en riesgo mundial femenil
+  - ▸ Otro hijo presidente en el futbol mexicano
+  - ▸ Liga Mexicana de Softbol se expande
+  - ▸ Infantino está desesperado
+  - · Multan al Barcelona con $500k+ usd
+  - · El WTA Mérida Open asegura sede por 5 años
+  - · Don Garber se suma a Tebas en declaraciones sobre Mundial de Clubes
+  - · La WNBA crece pero pierde dinero
+  - · La Premier League abre oficina en China
+- **2024-10-15** — [Industry Shots / Players](https://playbookmedia.substack.com/p/industry-shots-players) — ~10 art. _(perecedero)_
+  - Super Bowl fuera de Estados Unidos; LMP se va a YouTube; Startups deportivas levantan mayoría de capital privado; Industria deportiva valuada como industria de lujo
+  - ▸ Liga Mexicana del Pacífico se va a YouTube
+  - ▸ Startups deportivas levantan mayoría de capital privado (pero no en LATAM)
+  - ▸ El Super Bowl pudiera salir de Estados Unidos
+  - ▸ Inversiones en deporte valúan a la industria como sector de lujo
+  - · Jordan entra al Top 100 de marcas más valiosas
+  - · U.S. Soccer despide empleados a pesar de mayores ingresos
+  - · La NBA podría regresar a China
+  - · Ligas y sindicato de jugadores denuncian a la FIFA
+  - · Fórmula 1 firma contrato con Hot Wheels
+- **2024-10-08** — [Industry Shots / Players](https://playbookmedia.substack.com/p/industry-shots-18f) — ~10 art. _(perecedero)_
+  - LPGA regresa a México; FMF y SUM, futuro incierto; Fanáticas del deporte son mejor negocio; La marca que no esperábamos como patrocinador
+  - ▸ La LPGA regresa a México
+  - ▸ Las fanáticas del deporte son mejor negocio para los patrocinadores
+  - ▸ Futuro incierto el de la FMF con SUM
+  - ▸ La marca que no esperábamos como patrocinador
+  - · España en riesgo de perder la sede del mundial 2030
+  - · Multan al Angel City por pagos "bajo el agua"
+  - · El futbol italiano no es rentable
+  - · La NFL podría vender su brazo de contenido
+  - · La Billie Jean King Cup imitará el formato de Copa Davis
+
+### Ensayo / one-off
+
+156 ediciones pendientes · ~156 artículos · 2023-01-10 → 2026-05-27
+
+- **2026-05-27** — [La década que cambió el sports business en LATAM](https://playbookmedia.substack.com/p/la-decada-que-cambio-el-sports-business) — ~1 art.
+  - En diez años, la conversación pasó de vender potencial a discutir cómo convertir audiencia, marcas y activos deportivos en negocio real.
+- **2026-05-15** — [El Matador Inc.](https://playbookmedia.substack.com/p/el-matador-inc) — ~1 art.
+  - Cómo Interticket convirtió a Luis Hernández en una leyenda con valor comercial vigente.
+- **2026-05-13** — [¿Quién convierte el talento en valor?](https://playbookmedia.substack.com/p/quien-convierte-el-talento-en-valor) — ~1 art.
+  - La región produce talento; el reto está en crear las condiciones para que ese talento dure, crezca y genere más valor.
+- **2026-04-30** — [El deporte mexicano necesita más emprendedores](https://playbookmedia.substack.com/p/el-deporte-mexicano-necesita-mas) — ~1 art.
+  - El futuro del sports business en México no va a llegar sólo desde los actores de siempre. También necesita emprendedores, inversionistas y miradas externas.
+- **2026-04-29** — [¿Quién controla la relación con el fan?](https://playbookmedia.substack.com/p/quien-esta-controlando-la-relacion) — ~1 art.
+  - La audiencia ya no vale solo por alcance: cada vez vale más por la capacidad de convertirla en relación directa, datos y negocio
+- **2026-04-15** — [Rumbo a WFS Mexico City 2026: El nuevo mapa de poder del fútbol en México y LATAM](https://playbookmedia.substack.com/p/rumbo-a-wfs-mexico-city-2026-el-nuevo) — ~1 art.
+  - México y LATAM no parten de cero, pero la siguiente etapa del negocio exige algo más que mercado, historia y pasión.
+- **2025-12-25** — [¿Qué movió a la industria del deporte en 2025?](https://playbookmedia.substack.com/p/que-movio-a-la-industria-del-deporte) — ~1 art.
+  - Las historias que explican cómo se movió la industria este año
+- **2025-09-25** — [Trump, el reto más difícil de la FIFA / Anuncio: Este es el último artículo](https://playbookmedia.substack.com/p/trump-el-reto-mas-dificil-de-la-fifa) — ~1 art.
+  - Sus decisiones ponen en jaque la autonomía de la FIFA, la asistencia de aficionados y el impacto económico del Mundial 2026 en EE.UU.
+- **2025-09-18** — [¿Puede México soñar con un WrestleMania?](https://playbookmedia.substack.com/p/puede-mexico-sonar-con-un-wrestlemania) — ~1 art.
+  - La propuesta de valor que ofrece México: pasión, fandom, tradición y socios
+- **2025-09-11** — [El Azteca se reinventa: del futbol al venue 360](https://playbookmedia.substack.com/p/el-azteca-se-reinventa-del-futbol) — ~1 art.
+  - El histórico estadio busca ser un hub de entretenimiento 360, diversificar ingresos y ser fan first.
+- **2025-09-04** — [¿Podrá Checo Pérez sostener la estrategia de GM y Cadillac?](https://playbookmedia.substack.com/p/podra-checo-perez-sostener-la-estrategia) — ~1 art.
+  - Checo es la llave de acceso inmediato a un mercado clave, el mexicano.
+- **2025-08-28** — [¿Cómo internacionalizarse sin millones? El caso Osasuna](https://playbookmedia.substack.com/p/como-internacionalizarse-sin-millones) — ~1 art.
+  - Osasuna encontró la respuesta que pueden aprovechar clubes y marcas en LATAM.
+- **2025-08-21** — [¿Por qué el COI rompió 100 años de tradición olímpica?](https://playbookmedia.substack.com/p/la28-y-los-naming-rights-el-nuevo) — ~1 art.
+  - Para LA28, el COI romperá su regla de “sedes limpias”. ¿Seguirá FIFA el mismo camino?
+- **2025-08-14** — [El poder (y costo) de la voz de un deportista](https://playbookmedia.substack.com/p/el-poder-y-costo-de-la-voz-de-un) — ~1 art.
+  - Un post o declaración pública puede destruir la reputación de un deportista en segundos.
+- **2025-08-07** — [Necaxa: la serie y la apuesta por relevancia global](https://playbookmedia.substack.com/p/necaxa-la-serie-y-la-apuesta-por) — ~1 art.
+  - Con el estreno de la serie “Necaxa” el club vuelve al centro de la conversación.
+- **2025-07-31** — [El éxito del Modelo Diablos Rojos](https://playbookmedia.substack.com/p/el-exito-del-modelo-diablos-rojos) — ~1 art.
+  - Están ejecutando un modelo digno de estudio: eficiente, rentable y con proyección bursátil.
+- **2025-07-24** — [¿Cómo se debe valuar la Liga MX?](https://playbookmedia.substack.com/p/como-se-debe-valuar-la-liga-mx) — ~1 art.
+  - Más allá del número que soltó Mikel Arriola, lo relevante es saber qué sustenta —o no— esa valuación.
+- **2025-07-17** — [La venta de Querétaro redefine la Liga MX](https://playbookmedia.substack.com/p/la-venta-de-queretaro-redefine-la) — ~1 art.
+  - ¿Por qué un fondo extranjero pagó $120m usd por un club con bajo perfil?
+- **2025-07-10** — [La decisión impopular que vuelve atractiva a la Liga MX](https://playbookmedia.substack.com/p/la-decision-impopular-que-vuelve) — ~1 art.
+  - La falta de descenso ha reforzado el valor de la Liga MX como activo de inversión.
+- **2025-07-03** — [¿Será Real Oviedo la puerta de entrada de México a Europa?](https://playbookmedia.substack.com/p/puede-el-real-oviedo-ser-la-puerta) — ~1 art.
+  - Se ha hablado mucho de este nuevo éxito de Grupo Pachuca, pero el camino no fue sencillo: ¿cómo lo consiguió?, y ¿será la puerta de entrada al fútbol europeo para otros inversionistas mexicanos.
+- **2025-07-01** — [La batalla por el ascenso llega al Congreso](https://playbookmedia.substack.com/p/la-batalla-por-el-ascenso-llega-al) — ~1 art.
+  - El cierre del sistema se presentó como una medida transitoria para consolidar la nueva Liga de Expansión, un proyecto que prometía fortalecer a los equipos desde lo financiero y lo institucional.
+- **2025-06-26** — [¿Amenaza Trump el modelo comercial del fútbol en EE.UU.?](https://playbookmedia.substack.com/p/amenaza-trump-el-modelo-comercial) — ~1 art.
+  - En 2025, el fútbol internacional debía ser una fiesta en Estados Unidos con el Mundial de Clubes y la Copa Oro. Sin embargo, la realidad en las gradas apunta a lo contrario.
+- **2025-06-19** — [El impacto de la Kings League Americas en el crecimiento de Openbank](https://playbookmedia.substack.com/p/el-impacto-de-la-kings-league-americas) — ~1 art.
+  - Buscan conectar con millones de jóvenes y les está funcionando.
+- **2025-06-19** — [BREAKING NEWS: Inminente reestructura en la TV deportiva mexicana](https://playbookmedia.substack.com/p/breaking-news-inminente-reestructura) — ~1 art.
+  - Caliente TV, Tubi, FOX Corp y FOX Sports México, los protagonistas de la historia.
+- **2025-06-12** — [La oportunidad que México no ve](https://playbookmedia.substack.com/p/la-oportunidad-que-mexico-no-ve) — ~1 art.
+  - En México, el deporte y la comunidad LGBTQ+ no han tenido la relación más estrecha
+- **2025-06-05** — [El título que costó 125 millones de dólares](https://playbookmedia.substack.com/p/el-titulo-que-costo-125-millones) — ~1 art.
+  - En 2022, Toluca tocó fondo. ¿Cómo logró ese cambio radical en tan poco tiempo?
+- **2025-05-29** — [¿Qué salió mal con Canelo Álvarez y sus gasolineras?](https://playbookmedia.substack.com/p/que-salio-mal-con-canelo-alvarez) — ~1 art.
+  - Todo apuntaba a que su incursión en el sector energético sería exitosa, pero cuatro años después, los números demuestran que el proyecto está lejos de levantarse.
+- **2025-05-22** — [¿Por qué apoya Mercado Libre a Colapinto?](https://playbookmedia.substack.com/p/por-que-apoya-mercado-libre-a-colapinto) — ~1 art.
+  - El patrocinio a Colapinto no solo implica una jugada de branding emocional por compartir nacionalidad
+- **2025-05-15** — [Fillip, el nuevo gran jugador del deporte en LATAM](https://playbookmedia.substack.com/p/fillip-el-nuevo-gran-jugador-del) — ~1 art.
+  - Se ha convertido en una de las firmas más interesantes del ecosistema latinoamericano, y sigue volando "bajo el radar".
+- **2025-05-08** — [Box To Box apuesta por LATAM](https://playbookmedia.substack.com/p/box-to-box-apuesta-por-latam) — ~1 art.
+  - Junto con Fillip, busca hacer de LATAM un nuevo epicentro del sports entertainment
+- **2025-04-30** — [¿Cómo impulsa Banorte la acción de Ollamani?](https://playbookmedia.substack.com/p/como-impulsa-banorte-la-accion-de) — ~1 art.
+  - Buscan transformar el estadio en un generador constante de valor, experiencias e ingresos
+- **2025-04-27** — [Columnista invitado: Sebastián Lateulade](https://playbookmedia.substack.com/p/columnista-invitado-sebastian-lateulade) — ~1 art.
+  - "Conexiones que transforman: el nuevo juego en la industria del deporte"
+- **2025-04-24** — [La verdadera apuesta de Sports Illustrated](https://playbookmedia.substack.com/p/la-verdadera-apuesta-de-sports-illustrated) — ~1 art.
+  - ¿Tendrá lo suficiente para atraer a otros seguidores a sus páginas y a partir de ahí generar un cambio en la forma de consumir los deportes?
+- **2025-04-16** — [El cambio de cultura que busca la FMF](https://playbookmedia.substack.com/p/el-cambio-de-cultura-que-busca-la) — ~1 art.
+  - El cierre del 2024 no fue el mejor para la institución que rige nuestro fútbol
+- **2025-04-03** — [Capitanes, una franquicia atípica](https://playbookmedia.substack.com/p/capitanes-una-franquicia-atipica) — ~1 art.
+  - Se han convertido en una de las propiedades deportivas más atractivas para los patrocinadores y aficionados en México.
+- **2025-03-27** — [¿Quién manda en el tenis mundial?](https://playbookmedia.substack.com/p/quien-manda-en-el-tenis-mundial) — ~1 art.
+  - Los tenistas demandan a los circuitos y éstos no logran convencer de una necesaria reforma a quien parece tener el control
+- **2025-03-20** — [¿Cómo cambiará el boxeo con la llegada de la liga árabe?](https://playbookmedia.substack.com/p/como-cambiara-el-boxeo-con-la-llegada) — ~1 art.
+  - Turki Alalshikh llegó para avivar el fuego en el dividido mundo del boxeo profesional.
+- **2025-03-13** — [¿Puede México seguir dominando el automovilismo en LATAM?](https://playbookmedia.substack.com/p/puede-mexico-seguir-dominando-el) — ~1 art.
+  - Pérez fuera, incertidumbre ante renovación de México GP, y apuesta de Mercado Libre por Franco Colapinto invitan a la reflexión
+- **2025-03-06** — [La mascota deportiva que quiere superar al "Dr. Simi"](https://playbookmedia.substack.com/p/la-mascota-deportiva-que-quiere-superar) — ~1 art.
+  - Históricamente, las mascotas de los equipos deportivos en LATAM se han limitado a ocupar el puesto de animador dentro de los partidos
+- **2025-02-27** — [La gran amenaza del Abierto Mexicano de Tenis](https://playbookmedia.substack.com/p/la-gran-amenaza-del-abierto-mexicano) — ~1 art.
+  - Los recientes huracanes han golpeado seriamente el margen de utilidad de Mextenis, y esto aún no termina.
+- **2025-02-20** — [El futuro del Mexico Open está en juego](https://playbookmedia.substack.com/p/el-futuro-del-mexico-open-esta-en) — ~1 art.
+  - El evento ha ganado visibilidad internacional. Sin embargo, 2025 será un año decisivo para determinar su futuro
+- **2025-02-13** — [El poder de la marca Santiago Giménez](https://playbookmedia.substack.com/p/el-poder-de-la-marca-santiago-gimenez) — ~1 art.
+  - Cómo su llegada al AC Milan puede potenciar los ingresos de la Serie A
+- **2025-02-06** — [México y la NFL: ¿romance en crisis?](https://playbookmedia.substack.com/p/mexico-y-la-nfl-romance-en-crisis) — ~1 art.
+  - Es momento de preguntarse si el país sigue siendo una prioridad para la liga o si está perdiendo su relevancia en la estrategia global.
+- **2025-01-30** — [El proyecto que cambiará los acuerdos de TV](https://playbookmedia.substack.com/p/el-proyecto-que-cambiara-los-acuerdos) — ~1 art.
+  - Tennis Australia le está dando la vuelta a sus acuerdos de derechos con AO Animated
+- **2025-01-23** — [Reebok y su plan para reconquistar México](https://playbookmedia.substack.com/p/reebok-y-su-plan-para-reconquistar) — ~1 art.
+  - Platicamos con su director general, Mario Jesús Olvera, y para el 2026 se planea la "coronación" del proyecto
+- **2025-01-16** — [¿Debiera la Liga MX "partirse" para lograr la inversión?](https://playbookmedia.substack.com/p/debiera-la-liga-mx-partirse-para) — ~1 art.
+  - Intentar convencer a todos los equipos pudiera no ser la mejor idea
+- **2025-01-09** — [¿Por qué los Diablos Rojos van a la BMV?](https://playbookmedia.substack.com/p/por-que-los-diablos-rojos-van-a-la) — ~1 art.
+  - No es necesariamente por dinero
+- **2024-12-19** — [¿Quién pierde más con la salida de Checo Pérez?](https://playbookmedia.substack.com/p/quien-pierde-mas-con-la-salida-de) — ~1 art.
+  - Pareciera que el piloto mexicano es el único afectado, pero puede también tratarse de una oportunidad
+- **2024-12-18** — [¿Qué está en juego con la crisis de FOX Sports México?](https://playbookmedia.substack.com/p/que-esta-en-juego-con-la-crisis-de) — ~1 art.
+  - La reciente suspensión de los partidos de la NFL en su programación parece ser solo un reflejo de problemas estructurales más profund
+- **2024-12-11** — [La guerra del deporte por la atención](https://playbookmedia.substack.com/p/la-guerra-del-deporte-por-la-atencion) — ~1 art.
+  - La idea clásica de la TV como “primera pantalla” y el celular como “segunda pantalla” está desapareciendo.
+- **2024-12-04** — [¿Inversión en Liga MX es una misión imposible?](https://playbookmedia.substack.com/p/inversion-en-liga-mx-es-una-mision) — ~1 art.
+  - Mucho tiene que ver con la manera en que se votan las decisiones en el fútbol mexicano.
+- **2024-11-27** — [¿Sobrevivirá el tenis varonil al fin de una era?](https://playbookmedia.substack.com/p/sobrevivira-el-tenis-varonil-al-fin) — ~1 art.
+  - Con el retiro del Big 3, la ATP enfrenta el desafío de mantener a los aficionados comprometidos y encontrar nuevas estrellas capaces de llenar el vacío.
+- **2024-11-20** — [¿Son los eSports una nueva apuesta para equipos?](https://playbookmedia.substack.com/p/son-los-esports-una-nueva-apuesta) — ~1 art.
+  - Conoce el modelo multipropósito de Chivas con la Arena Yeyian
+- **2024-11-14** — [El deporte: de goles, a historias](https://playbookmedia.substack.com/p/el-deporte-de-goles-a-historias) — ~1 art.
+  - Las organizaciones deportivas ya no solo compiten con otras ligas o eventos similares, sino también con plataformas de streaming, videojuegos, redes sociales, y hasta con restaurantes y teatros.
+- **2024-11-06** — [¿Es viable una franquicia NBA en México?](https://playbookmedia.substack.com/p/es-viable-una-franquicia-nba-en-mexico) — ~1 art.
+  - México representa un mercado clave para la NBA, y el MX City Game sigue creciendo pero ¿es económicamente viable tener una franquicia en el país?
+- **2024-11-04** — [La estrategia de la NBA México en la era Amazon](https://playbookmedia.substack.com/p/la-estrategia-de-la-nba-mexico-en) — ~1 art.
+  - Una conversación con Raúl Zárraga, VP & Managing Director NBA México
+- **2024-10-30** — [La oportunidad de innovación que está perdiendo LATAM](https://playbookmedia.substack.com/p/la-oportunidad-de-innovacion-que) — ~1 art.
+  - En el deporte actual, la innovación se convierte en una ventaja competitiva esencial y un jugador que parece desconocido en LATAM está cobrando mayor relevancia en otras regiones
+- **2024-10-23** — [¿Cómo la MLB rejuveneció su afición (y extendió su vida)?](https://playbookmedia.substack.com/p/como-la-mlb-rejuvenecio-su-aficion) — ~1 art.
+  - Ante una alarmante caída en la asistencia y un público cada vez más viejo, la MLB decidió transformar su producto.
+- **2024-10-16** — [Liga Mexicana del Pacífico, un gigante que estaba atrapado](https://playbookmedia.substack.com/p/liga-mexicana-del-pacifico-un-gigante) — ~1 art.
+  - Durante los últimos 4 años, la Liga Mexicana del Pacífico no pudo llevar su béisbol al lugar que quisiera. ¿La razón? su producto estaba detrás de una pared.
+- **2024-10-09** — [¿Debería la FMF romper con SUM?](https://playbookmedia.substack.com/p/deberia-la-fmf-romper-con-sum) — ~1 art.
+  - La FMF tiene que tomar una decisión: seguir con un modelo probado pero desgastado o buscar nuevas formas de monetizar su popularidad.
+- **2024-10-02** — [Aerolíneas en el deporte; ¿cómo figura LATAM?](https://playbookmedia.substack.com/p/aerolineas-en-el-deporte-como-figura) — ~1 art.
+  - ¿Por qué si estos patrocinios son tan comunes internacionalmente, no sucede lo mismo en LATAM?
+- **2024-09-26** — [¿Por qué el Chelsea femenil contrató a una CEO sin experiencia?](https://playbookmedia.substack.com/p/por-que-el-chelsea-femenil-contrato) — ~1 art.
+  - El Chelsea FC anunció en mayo la separación de las entidades femenil y varonil. No es la primera vez que esto ocurre en el fútbol europeo, sin embargo, el plan del club londinense no termina ahí.
+- **2024-09-19** — [Dynamic Pricing en el futbol, ¿oportunidad o amenaza?](https://playbookmedia.substack.com/p/dynamic-pricing-en-el-futbol-oportunidad) — ~1 art.
+- **2024-09-12** — [WTA Guadalajara Open, y su confusa consolidación](https://playbookmedia.substack.com/p/wta-guadalajara-open-y-su-confusa) — ~1 art.
+- **2024-09-05** — [¿Cómo el Azteca lastima la influencia de México en la NFL?](https://playbookmedia.substack.com/p/como-el-azteca-lastima-la-influencia) — ~1 art.
+- **2024-08-29** — [Con el SI de la NFL al capital privado, ¿Es el turno de LATAM?](https://playbookmedia.substack.com/p/con-el-si-de-la-nfl-al-capital-privado) — ~1 art.
+- **2024-08-21** — [La liga de futbol femenil de los mil millones](https://playbookmedia.substack.com/p/la-liga-de-futbol-femenil-de-los) — ~1 art.
+- **2024-08-15** — [¿Por qué Paris 2024 fue exactamente lo que el COI necesitaba?](https://playbookmedia.substack.com/p/por-que-paris-2024-fue-exactamente) — ~1 art.
+- **2024-08-13** — [Nueva sección / ¿Quién es el verdadero beneficiado por la Leagues Cup?](https://playbookmedia.substack.com/p/nueva-seccion-quien-es-el-verdadero) — ~1 art. _(Deep Dive)_
+- **2024-08-08** — [Esta es la solución del COI para salvar los Juegos Olímpicos](https://playbookmedia.substack.com/p/esta-es-la-solucion-del-coi-para) — ~1 art.
+- **2024-08-06** — [¿Llegó la inversión más importante en deporte femenil?](https://playbookmedia.substack.com/p/llego-la-inversion-mas-importante) — ~1 art.
+- **2024-08-01** — [¿Por qué ya nadie quiere ser sede de los Juegos Olímpicos?](https://playbookmedia.substack.com/p/por-que-ya-nadie-quiere-ser-sede) — ~1 art.
+- **2024-07-30** — [La verdadera razón por la que la NBA rompió con TNT](https://playbookmedia.substack.com/p/la-verdadera-razon-por-la-que-la-251) — ~1 art.
+- **2024-07-25** — [La motivación detrás de las sedes emblemáticas de Paris 2024](https://playbookmedia.substack.com/p/la-motivacion-detras-de-las-sedes) — ~1 art.
+- **2024-07-23** — [¿Malbarató la WNBA sus derechos de transmisión?](https://playbookmedia.substack.com/p/malbarato-la-wnba-sus-derechos-de) — ~1 art.
+- **2024-07-18** — [Crónica del caos: ¿Perderá Miami el mundial 2026?](https://playbookmedia.substack.com/p/cronica-del-caos-perdera-miami-el) — ~1 art.
+- **2024-07-16** — [La (arriesgada) inauguración con la que Paris 2024 quiere hacer historia](https://playbookmedia.substack.com/p/la-arriesgada-inauguracion-con-la) — ~1 art.
+- **2024-07-12** — [La fórmula detrás del salario de un entrenador en la Euro y Copa América](https://playbookmedia.substack.com/p/la-formula-detras-del-salario-de) — ~1 art.
+- **2024-07-10** — [¿Por qué el COI está perdiendo patrocinadores TOP?](https://playbookmedia.substack.com/p/por-que-el-coi-esta-perdiendo-patrocinadores) — ~1 art.
+- **2024-07-02** — [La (diplomática) estrategia de UEFA para preservar su poder](https://playbookmedia.substack.com/p/la-diplomatica-estrategia-de-uefa) — ~1 art.
+- **2024-06-25** — [¿Por qué la ambición pudiera dejar al futbol sin estrellas?](https://playbookmedia.substack.com/p/por-que-la-ambicion-pudiera-dejar) — ~1 art.
+- **2024-06-19** — [Los verdaderos beneficiados por el Fair Play Financiero en el futbol](https://playbookmedia.substack.com/p/los-verdaderos-beneficiados-por-el) — ~1 art.
+- **2024-06-11** — [Kings World Cup: un negocio para TODOS](https://playbookmedia.substack.com/p/kings-world-cup-un-negocio-para-todos) — ~1 art.
+- **2024-06-06** — [El verdadero costo del fichaje de Mbappé](https://playbookmedia.substack.com/p/el-verdadero-costo-del-fichaje-de) — ~1 art.
+- **2024-05-30** — [El plan de Paris 2024 para ser los Juegos Olímpicos más sostenibles de la historia](https://playbookmedia.substack.com/p/el-plan-de-paris-2024-para-ser-los) — ~1 art.
+- **2024-05-29** — [¿Cuánto le costó al América el título de la Liga MX?](https://playbookmedia.substack.com/p/cuanto-le-costo-al-america-el-titulo) — ~1 art.
+- **2024-05-24** — [La herramienta que permite a equipos multiplicar sus ingresos](https://playbookmedia.substack.com/p/la-herramienta-que-permite-a-equipos) — ~1 art.
+- **2024-05-22** — [¿Cuánto vale cada posición en la tabla de la Premier League?](https://playbookmedia.substack.com/p/cuanto-vale-cada-posicion-en-la-tabla) — ~1 art.
+- **2024-05-16** — [Los 4 hallazgos detrás del ranking de equipos más valiosos de futbol](https://playbookmedia.substack.com/p/las-4-verdades-detras-del-ranking) — ~1 art.
+- **2024-05-10** — [¿Por qué México es la mejor apuesta de inversión en futbol femenino?](https://playbookmedia.substack.com/p/por-que-mexico-es-la-mejor-apuesta) — ~1 art.
+- **2024-05-08** — [El polémico tope salarial que arriesgaría el negocio de la Premier League](https://playbookmedia.substack.com/p/el-polemico-tope-salarial-que-arriesgaria) — ~1 art.
+- **2024-05-02** — [¿Por qué la WWE debería pronto televisar un evento en México?](https://playbookmedia.substack.com/p/por-que-la-wwe-deberia-pronto-televisar) — ~1 art.
+- **2024-04-30** — [¿Por qué los bancos son la pieza clave en el negocio del deporte?](https://playbookmedia.substack.com/p/por-que-los-bancos-son-la-pieza-clave) — ~1 art.
+- **2024-04-24** — [El pleito legal que le permitiría a la Liga MX expandirse a Estados Unidos](https://playbookmedia.substack.com/p/el-pleito-legal-que-le-permitiria) — ~1 art.
+- **2024-04-18** — [Paris 2024: un arriesgado negocio que no puede fallar](https://playbookmedia.substack.com/p/paris-2024-un-arriesgado-negocio) — ~1 art.
+- **2024-04-16** — [¿Por qué los futbolistas hoy son más caros que nunca?](https://playbookmedia.substack.com/p/por-que-los-futbolistas-hoy-son-mas) — ~1 art.
+- **2024-04-10** — [La verdadera razón por la que la Selección Alemana firmó con Nike](https://playbookmedia.substack.com/p/la-verdadera-razon-por-la-que-la) — ~1 art.
+- **2024-04-02** — [Los 3 culpables del boom del béisbol mexicano](https://playbookmedia.substack.com/p/los-3-culpables-del-boom-del-beisbol) — ~1 art.
+- **2024-03-20** — [Los árabes y su plan para adueñarse (ahora) del tenis mundial](https://playbookmedia.substack.com/p/los-arabes-y-su-plan-para-aduenarse) — ~1 art.
+- **2024-03-13** — [¿Cómo el cambio climático ha obligado a Vail Resorts a depender de latinos ricos?](https://playbookmedia.substack.com/p/como-el-cambio-climatico-ha-obligado) — ~1 art.
+- **2024-03-07** — [¿Es la Copa Oro el punto de inflexión del futbol femenil?](https://playbookmedia.substack.com/p/es-la-copa-oro-el-punto-de-inflexion) — ~1 art.
+- **2024-02-29** — [Mextenis y el poder económico de sus torneos (en el año más retador)](https://playbookmedia.substack.com/p/mextenis-y-el-poder-economico-de) — ~1 art.
+- **2024-02-26** — [¿Cómo impactará el "IPO" del América a la industria en Latinoamérica?](https://playbookmedia.substack.com/p/que-impacto-tiene-el-ipo-del-america) — ~1 art.
+- **2024-02-14** — [¿Por qué los 49ers están peleados con su propia ciudad?](https://playbookmedia.substack.com/p/por-que-los-49ers-estan-peleados) — ~1 art.
+- **2024-02-07** — [La billonaria reconciliación de la NFL con Las Vegas](https://playbookmedia.substack.com/p/la-billonaria-reconciliacion-de-la) — ~1 art.
+- **2024-02-05** — [Es hora de irnos conociendo (nueva sección)](https://playbookmedia.substack.com/p/es-hora-de-irnos-conociendo-nueva) — ~1 art.
+- **2024-02-01** — [¿Cómo la NBA ha convertido al uniforme en una rentable plataforma de marketing?](https://playbookmedia.substack.com/p/como-la-nba-ha-convertido-al-uniforme) — ~1 art.
+- **2024-01-30** — [Inter Miami CF y su prometedor matrimonio con otra potencia local](https://playbookmedia.substack.com/p/inter-miami-cf-y-su-prometedor-matrimonio) — ~1 art.
+- **2024-01-24** — [La (inesperada) liga que pudiera impulsar el deporte femenil](https://playbookmedia.substack.com/p/la-inesperada-liga-que-pudiera-impulsar) — ~1 art.
+- **2024-01-18** — [El plan de Estados Unidos para conquistar el fútbol](https://playbookmedia.substack.com/p/el-plan-de-estados-unidos-para-conquistar) — ~1 art.
+- **2024-01-11** — [¿La Inteligencia Artificial beneficia o afecta al deporte?](https://playbookmedia.substack.com/p/la-inteligencia-artificial-beneficia) — ~1 art.
+- **2024-01-09** — [¿Por qué el 2024 será un año que transformará al deporte?](https://playbookmedia.substack.com/p/por-que-el-2024-sera-un-ano-que-transformara) — ~1 art.
+- **2023-12-22** — [Indian Premier League: ¿Cómo logró su explosivo crecimiento?](https://playbookmedia.substack.com/p/indian-premier-league-como-logro) — ~1 art.
+- **2023-12-19** — [La (brillante) estrategia detrás del contrato de Shohei Ohtani](https://playbookmedia.substack.com/p/la-brillante-estrategia-detras-del) — ~1 art.
+- **2023-12-13** — [¿Cómo planea Netflix conquistar los deportes en vivo (sin competir con los demás)?](https://playbookmedia.substack.com/p/como-planea-netflix-conquistar-los) — ~1 art.
+- **2023-12-07** — [¿Por qué la vida de ESPN depende de la NBA?](https://playbookmedia.substack.com/p/por-que-la-vida-de-espn-depende-de) — ~1 art.
+- **2023-12-05** — [Atletas inversionistas: ¿Cómo impactan al ecosistema emprendedor?](https://playbookmedia.substack.com/p/atletas-inversionistas-como-impactan) — ~1 art.
+- **2023-11-30** — [World Padel Tour: La historia detrás de su desaparición](https://playbookmedia.substack.com/p/la-historia-detras-de-la-desaparicion) — ~1 art.
+- **2023-11-28** — [El nuevo Super Bowl que inventó Amazon para vender más](https://playbookmedia.substack.com/p/el-nuevo-super-bowl-que-invento-amazon) — ~1 art.
+- **2023-11-23** — [¿Cómo una nueva ley podría destruir el deporte femenil en México?](https://playbookmedia.substack.com/p/como-una-nueva-ley-podria-destruir) — ~1 art.
+- **2023-11-21** — [¿Por qué Lewis Hamilton es el verdadero campeón de la Fórmula 1?](https://playbookmedia.substack.com/p/por-que-lewis-hamilton-es-el-verdadero) — ~1 art.
+- **2023-11-16** — [El nuevo negocio que la Fórmula 1 prueba en Las Vegas](https://playbookmedia.substack.com/p/el-nuevo-negocio-que-la-formula-1) — ~1 art.
+- **2023-11-14** — [El deporte de emprendedores](https://playbookmedia.substack.com/p/el-deporte-de-emprendedores) — ~1 art.
+- **2023-11-09** — [El equipo que se maneja como startup (y la está rompiendo)](https://playbookmedia.substack.com/p/el-equipo-que-se-maneja-como-startup) — ~1 art.
+- **2023-11-01** — [¿Cómo el Manchester United puede ser rescatado por un desconocido ingeniero químico?](https://playbookmedia.substack.com/p/como-el-manchester-united-puede-ser) — ~1 art.
+- **2023-10-18** — [¿Cómo la Fórmula 1 en México se convirtió en un fenómeno comercial?](https://playbookmedia.substack.com/p/como-la-formula-1-en-mexico-se-convirtio) — ~1 art.
+- **2023-10-04** — [Padel, el deporte que hizo erupción](https://playbookmedia.substack.com/p/padel-el-deporte-que-hizo-erupcion) — ~1 art.
+- **2023-09-19** — [Saudi Pro League: La liga incómoda](https://playbookmedia.substack.com/p/saudi-pro-league-la-liga-incomoda) — ~1 art.
+- **2023-09-06** — [¿Cómo se convirtió la NFL en el negocio más grande del deporte mundial?](https://playbookmedia.substack.com/p/como-se-convirtio-la-nfl-en-el-negocio) — ~1 art.
+- **2023-08-16** — [Kylian Mbappé, su arriesgada estrategia de negocios y la persona que mueve los hilos](https://playbookmedia.substack.com/p/kylian-mbappe-su-arriesgada-estrategia) — ~1 art.
+- **2023-08-02** — [¿Cómo Gerard Piqué pasó de ser futbolista a sembrar la semilla de transformación del deporte?](https://playbookmedia.substack.com/p/como-gerard-pique-paso-de-ser-futbolista) — ~1 art.
+- **2023-07-26** — [El deporte femenil NO necesita apoyo](https://playbookmedia.substack.com/p/el-deporte-femenil-no-necesita-apoyo) — ~1 art.
+- **2023-07-19** — [Apuestas deportivas: ¿impulsan o destruyen el deporte?](https://playbookmedia.substack.com/p/apuestas-deportivas-impulsan-o-destruyen) — ~1 art.
+- **2023-07-05** — [Wimbledon: el torneo que prefiere no ganar tanto dinero](https://playbookmedia.substack.com/p/wimbledon-el-torneo-que-prefiere) — ~1 art.
+- **2023-06-28** — [Tiger Woods y su nueva liga de golf por equipos](https://playbookmedia.substack.com/p/tiger-woods-y-su-nueva-liga-de-golf) — ~1 art.
+  - Se están retando los principios básicos de entretenimiento del deporte, y parece funcionar.
+- **2023-06-21** — [La "futbolización" de los deportes](https://playbookmedia.substack.com/p/la-futbolizacion-de-los-deportes) — ~1 art.
+  - Se han creado nuevas ligas profesionales de varios deportes, y todas siguen una misma fórmula
+- **2023-06-08** — [UEFA Champions League, un fenómeno mundial que nació por el coraje de un periodista](https://playbookmedia.substack.com/p/uefa-champions-league-un-fenomeno) — ~1 art.
+  - Es el evento deportivo más visto en el mundo y ha sobrevivido a más de un intento por eliminarla
+- **2023-05-24** — [Manchester City FC, de combatir el alcoholismo a ejemplo de gestión deportiva](https://playbookmedia.substack.com/p/manchester-city-fc-de-combatir-el) — ~1 art.
+  - El City Football Group es el más grande propietario de equipos deportivos y hoy vale casi 5 mil millones de dólares
+- **2023-05-18** — [¿Cómo se ha transformado la manera en que consumimos el deporte?](https://playbookmedia.substack.com/p/como-se-ha-transformado-la-manera) — ~1 art.
+  - De escuchar partidos en la radio, a poder convivir con Messi en su casa
+- **2023-05-10** — [Fórmula 1, el deporte que renació por mostrar su lado humano](https://playbookmedia.substack.com/p/formula-1-el-deporte-que-renacio) — ~1 art.
+  - En sólo 6 años, el deporte se ha transformado por completo. Y se trata sólo del inicio.
+- **2023-05-03** — [La empresa que le quiere vender TODO a los fans deportivos](https://playbookmedia.substack.com/p/la-empresa-que-le-quiere-vender-todo) — ~1 art.
+  - Estuvo cerca de quebrar y hoy vale más de $30 mil millones de dólares
+- **2023-04-26** — [¿Cómo 2 actores de Hollywood llevaron a un equipo de fútbol a multiplicar su valor 40x?](https://playbookmedia.substack.com/p/como-2-actores-de-hollywood-llevaron) — ~1 art.
+  - El Wrexham AFC acaba de ascender a la EFL y no pararán hasta llegar a la Premier League
+- **2023-04-19** — [El negocio (de moda) de tener un equipo de futbol](https://playbookmedia.substack.com/p/el-negocio-de-moda-de-tener-un-equipo) — ~1 art.
+  - De passion business a real business
+- **2023-04-12** — [El hombre que quiere poseer la cadena de valor del deporte](https://playbookmedia.substack.com/p/el-hombre-que-quiere-poseer-la-cadena) — ~1 art.
+  - Ari Emanuel es probablemente la persona con el mejor trabajo del mundo
+- **2023-03-29** — [¿Cómo el Clásico Mundial de Béisbol está rompiendo la balanza de poder del deporte?](https://playbookmedia.substack.com/p/como-el-clasico-mundial-de-beisbol) — ~1 art.
+  - La más reciente edición demuestra que las grandes ligas del béisbol ya no son tan grandes
+- **2023-03-22** — [Red Bull Racing: el equipo que dominó la Fórmula 1 sin querer](https://playbookmedia.substack.com/p/red-bull-racing-el-equipo-que-domino) — ~1 art.
+  - De vender bebidas a producir coches y dirigir propiedades deportivas de alto valor
+- **2023-03-15** — [La WTA: de un cuarto de hotel a la cima del deporte (y los negocios)](https://playbookmedia.substack.com/p/la-wta-de-un-cuarto-de-hotel-a-la) — ~1 art.
+  - Fueron 9 valientes mujeres quienes crearon el tenis femenil y, en él, la plataforma de desarrollo para miles de mujeres
+- **2023-03-08** — [¿Cómo pasó LeBron James de ser homeless a transformar el futuro financiero de atletas?](https://playbookmedia.substack.com/p/como-paso-lebron-james-de-ser-homeless) — ~1 art.
+  - LeBron controla la cadena de valor y parece ser el único en haberlo logrado
+- **2023-02-28** — [La NFL ya tiene competencia, ¿o es un catalizador?](https://playbookmedia.substack.com/p/la-nfl-ya-tiene-competencia-o-es) — ~1 art.
+  - La nueva liga de The Rock forma parte de una historia de evolución en la que hasta Donald Trump aparece.
+- **2023-02-21** — [La MLS ya no es más un cementerio de gigantes](https://playbookmedia.substack.com/p/la-mls-ya-no-es-mas-un-cementerio) — ~1 art.
+  - Se proyecta para ser una de las mejores ligas de futbol del mundo
+- **2023-02-14** — [El torneo que puede salvar al golf de morir](https://playbookmedia.substack.com/p/el-torneo-que-puede-salvar-al-golf) — ~1 art.
+  - Es el torneo más visitado de la PGA y puede ser su mejor carta para mantener su audiencia
+- **2023-02-08** — [Tom Brady, de estar frustrado, a ser una de las marcas más valiosas de la historia del deporte](https://playbookmedia.substack.com/p/tom-brady-de-estar-frustrado-a-ser) — ~1 art.
+  - Casi abandona su sueño, y hoy es considerado uno de los mejores atletas de la historia que valdrá aún más fuera de la cancha
+- **2023-01-31** — [Un reto entre atletas que llegó a valer casi mil millones de dólares](https://playbookmedia.substack.com/p/un-reto-entre-atletas-que-llego-a) — ~1 art.
+  - Ironman ha cambiado la vida de miles de personas pero, ¿sigue siendo un deporte para ricos?
+- **2023-01-24** — [Arabia Saudita está comprando el deporte mundial](https://playbookmedia.substack.com/p/arabia-saudita-esta-comprando-el) — ~1 art.
+  - Van por el mundial y las olimpiadas como parte de un plan para transformar la economía (¿y limpiar su imagen?)
+- **2023-01-17** — [Kings League: ¿un circo efímero o la nueva manera de consumir deportes?](https://playbookmedia.substack.com/p/kings-league-un-circo-efimero-o-la) — ~1 art.
+  - El nuevo proyecto de Piqué que ya tiene nervioso al presidente de LaLiga Santander
+- **2023-01-10** — [El (no tan) nuevo deporte que está destronando al Pádel y al Tenis](https://playbookmedia.substack.com/p/el-no-tan-nuevo-deporte-que-esta-0b3) — ~1 art.
+  - En sólo un año se sumaron 32 millones de nuevos jugadores de Pickleball en Estados Unidos, y Lebron James quiere un pedazo de ese pastel.
+
+### Weekly Playbook / Semanal
+
+32 ediciones pendientes · ~32 artículos · 2023-02-03 → 2026-02-12
+
+- **2026-02-12** — [Playbook Semanal: El club que regaló partidos para conquistar mercado global](https://playbookmedia.substack.com/p/playbook-semanal-el-club-que-regalo) — ~1 art.
+  - El partido como acceso a una audiencia internacional con datos propios.
+- **2026-02-05** — [Playbook Semanal: ¿Cómo convertir un estadio histórico en venue global de entretenimiento?](https://playbookmedia.substack.com/p/playbook-semanal-como-convertir-un) — ~1 art.
+  - De sede ocasional a plataforma permanente de shows y calendario lleno como ventaja competitiva regional.
+- **2026-01-29** — [Playbook Semanal: ¿Por qué TikTok se convirtió en plataforma clave del Mundial?](https://playbookmedia.substack.com/p/playbook-semanal-por-que-tiktok-se) — ~1 art.
+  - Las razones por la que FIFA considera que será el Mundial de los creadores
+- **2026-01-22** — [Playbook Semanal: Cómo vender experiencias premium en un mercado sensible al precio](https://playbookmedia.substack.com/p/playbook-semanal-como-vender-experiencias) — ~1 art.
+  - Segmentar con inteligencia para estabilizar ingresos sin erosionar la asistencia.
+- **2026-01-15** — [Playbook Semanal: El modelo que explica por qué el Mundial ahora se gana en distribución](https://playbookmedia.substack.com/p/playbook-semanal-el-modelo-que-explica) — ~1 art.
+  - No todo el valor está en tener todos los partidos, sino en estar todos los días.
+- **2026-01-08** — [Playbook Semanal: Azcárraga reordenó su imperio antes del ciclo 2026](https://playbookmedia.substack.com/p/playbook-semanal-azcarraga-reordeno) — ~1 art.
+  - Ajuste temprano de portafolio para capturar el mayor upside del deporte.
+- **2025-12-18** — [Playbook Semanal: Guadalajara 2026, la sede que convirtió el Mundial en un activo urbano](https://playbookmedia.substack.com/p/playbook-semanal-guadalajara-2026) — ~1 art.
+  - Integrar activos existentes para escalar alcance, monetización y legado.
+- **2025-12-11** — [Playbook Semanal: El torneo femenil que entendió cómo crecer desde el primer día](https://playbookmedia.substack.com/p/playbook-semanal-el-torneo-femenil) — ~1 art.
+  - Una arquitectura comercial sólida y distribución estratégica fortalecen su valor
+- **2025-12-04** — [Playbook Semanal: El fondo guatemalteco que entró al fútbol mundial](https://playbookmedia.substack.com/p/playbook-semanal-el-fondo-guatemalteco) — ~1 art.
+  - Dos adquisiciones que anticipan un proyecto de alcance internacional
+- **2025-11-27** — [Playbook Semanal: Cómo convertir una mascota en un activo comercial](https://playbookmedia.substack.com/p/playbook-semanal-como-convertir-una) — ~1 art.
+  - Cuando tener ídolos es complicado, puedes construir identidad y monetizarla.
+- **2025-11-20** — [Playbook Semanal: Transformar el estadio sin remodelarlo](https://playbookmedia.substack.com/p/playbook-semanal-transformar-el-estadio) — ~1 art.
+  - No siempre una inversión millonaria es necesaria para cambiar un estadio.
+- **2025-11-13** — [Playbook Semanal: El club que convirtió la data y la innovación en negocio](https://playbookmedia.substack.com/p/playbook-semanal-el-club-que-convirtio) — ~1 art.
+  - Pensar fuera de la caja y aplicar (bien) la tecnología tiene sus recompensas
+- **2025-11-06** — [Playbook Semanal: La empresa de los patrocinios rentables](https://playbookmedia.substack.com/p/playbook-semanal-la-empresa-de-los) — ~1 art.
+  - El modelo que demuestra que sí hay ROI para patrocinadores
+- **2025-10-30** — [Playbook Semanal: El negocio de vender identidad](https://playbookmedia.substack.com/p/playbook-semanal-el-negocio-de-vender) — ~1 art.
+  - El equipo que le vende hasta a quienes no son sus fans
+- **2025-10-23** — [Playbook Semanal: El club que reconquistó a su afición (y creció su negocio)](https://playbookmedia.substack.com/p/playbook-semanal-el-club-que-reconquisto) — ~1 art.
+  - La importancia de acercarse al fan, entenderlo y personalizar su experiencia
+- **2025-10-16** — [Playbook Semanal: La empresa que sí supo hacer negocio del fútbol femenil](https://playbookmedia.substack.com/p/playbook-semanal-la-empresa-que-si) — ~1 art.
+  - El futuro pertenece a quienes construyen ecosistemas, no carteras de clientes.
+- **2025-10-09** — [Playbook Semanal: Cómo HYROX construyó un negocio de marca y contenido](https://playbookmedia.substack.com/p/playbook-semanal-como-hyrox-construyo) — ~1 art.
+  - El futuro pertenece a las marcas que generan conversación.
+- **2025-10-02** — [¡Bienvenidos a Playbook Semanal!](https://playbookmedia.substack.com/p/bienvenidos-a-playbook-semanal) — ~1 art.
+  - Ideas, datos y herramientas que te ayudarán a crecer en la industria del deporte
+- **2023-05-12** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-cf4) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos
+- **2023-05-05** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-02d) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos
+- **2023-04-28** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-8e2) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos
+- **2023-04-21** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-34e) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos
+- **2023-04-14** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-e04) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos
+- **2023-03-31** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-0d2) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos
+- **2023-03-24** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-20e) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos
+- **2023-03-17** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-ee4) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos.
+- **2023-03-10** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-0cd) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos.
+- **2023-03-03** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-c1b) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos.
+- **2023-02-24** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-d77) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos.
+- **2023-02-17** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook-bf6) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos.
+- **2023-02-10** — [Weekly Playbook](https://playbookmedia.substack.com/p/weekly-playbook) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos.
+- **2023-02-03** — [Weekly Playbook 1](https://playbookmedia.substack.com/p/weekly-playbook-1) — ~1 art.
+  - Tus herramientas para saber lo importante del deporte, en 3 minutos.
+
+### Off the Field
+
+10 ediciones pendientes · ~10 artículos · 2023-12-11 → 2024-04-28
+
+- **2024-04-28** — ["Off the field, on the record"-La crisis de Prime y Logan Paul / Recomendación de la semana](https://playbookmedia.substack.com/p/off-the-field-on-the-record-la-crisis) — ~1 art.
+- **2024-04-14** — ["Off the field, on the record"-La lucha libre y el storytelling](https://playbookmedia.substack.com/p/off-the-field-on-the-record-la-lucha) — ~1 art.
+- **2024-03-31** — ["Off the field, on the record" / Recomendación de la semana](https://playbookmedia.substack.com/p/off-the-field-on-the-record-recomendacion-8aa) — ~1 art.
+- **2024-03-17** — ["Off the field, on the record" / Recomendación de la semana](https://playbookmedia.substack.com/p/off-the-field-on-the-record-recomendacion-4ee) — ~1 art.
+- **2024-03-03** — [Encuesta comunidad / "Off the field, on the record" / Recomendación de la semana](https://playbookmedia.substack.com/p/encuesta-comunidad-off-the-field) — ~1 art.
+- **2024-02-11** — ["Off the field, on the record" / Recomendación de la semana](https://playbookmedia.substack.com/p/off-the-field-on-the-record-recomendacion-091) — ~1 art.
+- **2024-01-26** — ["Off the field, on the record" / Recomendación de la semana](https://playbookmedia.substack.com/p/off-the-field-on-the-record-recomendacion-e83) — ~1 art.
+- **2024-01-12** — ["Off the field, on the record" / Recomendación de la semana](https://playbookmedia.substack.com/p/off-the-field-on-the-record-recomendacion) — ~1 art.
+- **2023-12-23** — [Cierre de año y reflexión / "Off the field, on the record"](https://playbookmedia.substack.com/p/cierre-de-ano-y-reflexion-off-the) — ~1 art.
+- **2023-12-11** — [News / "Off the field, on the record"](https://playbookmedia.substack.com/p/news-off-the-field-on-the-record) — ~1 art.
+
+### Player de la Semana
+
+9 ediciones pendientes · ~9 artículos · 2024-02-20 → 2024-07-29
+
+- **2024-07-29** — [Player de la Semana / Playbook News /Feedback](https://playbookmedia.substack.com/p/player-de-la-semana-playbook-news-d4d) — ~1 art.
+- **2024-07-21** — [Player de la Semana / Playbook News](https://playbookmedia.substack.com/p/player-de-la-semana-playbook-news-f28) — ~1 art.
+- **2024-07-08** — [Player de la Semana / Playbook News](https://playbookmedia.substack.com/p/player-de-la-semana-playbook-news) — ~1 art.
+- **2024-06-27** — [Player de la Semana: Cory Crespo/Sports Summit](https://playbookmedia.substack.com/p/player-de-la-semana-cory-cresposports) — ~1 art.
+- **2024-05-27** — [Player de la Semana: Jan Alessie, WFS/Playbook de la Semana](https://playbookmedia.substack.com/p/player-de-la-semana-jan-alessie-wfsplaybook) — ~1 art.
+- **2024-05-19** — [(Anuncio Importante)/Player de la semana: Macarena Alexanderson, Nielsen / "Beyond Bounds Arena" / Recomendación de la semana](https://playbookmedia.substack.com/p/anuncio-importanteplayer-de-la-semana) — ~1 art.
+- **2024-04-21** — [Player de la semana: Lucía Olvera, FMF / "Beyond Bounds Arena" / Recomendación de la semana](https://playbookmedia.substack.com/p/player-de-la-semana-lucia-olvera) — ~1 art.
+- **2024-03-22** — [Player de la semana: Alfonso Becerra, FMF / "Beyond Bounds Arena"](https://playbookmedia.substack.com/p/player-de-la-semana-alfonso-becerra) — ~1 art.
+- **2024-02-20** — [Player de la Semana: Adriana Briz, NBA / Recomendación de la semana](https://playbookmedia.substack.com/p/player-de-la-semana-adriana-briz) — ~1 art.
+
+### Voces Infinitas
+
+7 ediciones pendientes · ~7 artículos · 2025-02-26 → 2025-08-27
+
+- **2025-08-27** — [♾️ Voces Infinitas: Paola López Yrigoyen](https://soninfinitas.substack.com/p/voces-infinitas-paola-lopez-yrigoyen-2a2) — ~1 art.
+  - Ovalle: la narrativa
+- **2025-07-23** — [♾️Voces Infinitas: Paola López Yrigoyen](https://soninfinitas.substack.com/p/voces-infinitas-paola-lopez-yrigoyen-b61) — ~1 art.
+  - Creer en grande es estar a la altura.
+- **2025-06-25** — [♾️Voces Infinitas: Paola López Yrigoyen](https://soninfinitas.substack.com/p/voces-infinitas-paola-lopez-yrigoyen-176) — ~1 art.
+  - Lo más difícil es pensar fácil
+- **2025-05-14** — [♾️Voces Infinitas: Paola López Yrigoyen](https://soninfinitas.substack.com/p/voces-infinitas-paola-lopez-yrigoyen) — ~1 art.
+  - De Latinoamérica para el mundo
+- **2025-04-23** — [♾️Voces Infinitas: Natalia Gaitán](https://soninfinitas.substack.com/p/voces-infinitas-natalia-gaitan-b01) — ~1 art.
+  - “Cada mancha debería ser parte del juego”
+- **2025-03-14** — [♾️Voces Infinitas: Natalia Gaitán](https://soninfinitas.substack.com/p/voces-infinitas-natalia-gaitan) — ~1 art.
+  - La WTA cambiando lo que parecía no ser necesario
+- **2025-02-26** — [♾️Voces Infinitas: Natalia Gaitán](https://playbookmedia.substack.com/p/voces-infinitas-natalia-gaitan) — ~1 art.
+  - La polémica de la Supercopa de España en Arabia
+
+### Beyond Bounds Arena
+
+4 ediciones pendientes · ~4 artículos · 2024-03-10 → 2024-06-17
+
+- **2024-06-17** — [Sports Summit 2024/Playbook News/Beyond Bounds Arena](https://playbookmedia.substack.com/p/sports-summit-2024playbook-newsbeyond) — ~1 art.
+- **2024-06-03** — [Boletos para World Football Summit/Playbook News/Beyond Bounds Arena](https://playbookmedia.substack.com/p/boletos-para-world-football-summitplaybook) — ~1 art.
+- **2024-04-07** — ["Beyond Bounds Arena" / Recomendación de la semana](https://playbookmedia.substack.com/p/beyond-bounds-arena-recomendacion-78a) — ~1 art.
+- **2024-03-10** — ["Beyond Bounds Arena"/ Recomendación de la semana](https://playbookmedia.substack.com/p/beyond-bounds-arena-recomendacion) — ~1 art.
+
+### Playbook News
+
+4 ediciones pendientes · ~4 artículos · 2023-11-13 → 2023-12-04
+
+- **2023-12-04** — [Playbook News](https://playbookmedia.substack.com/p/playbook-news) — ~1 art.
+- **2023-11-27** — [Playbook News (y nueva sección sobre reputación)](https://playbookmedia.substack.com/p/playbook-news-y-nueva-seccion-sobre) — ~1 art.
+- **2023-11-20** — [Playbook News- Lo que tienes que saber](https://playbookmedia.substack.com/p/playbook-news-lo-que-tienes-que-saber-6ee) — ~1 art.
+- **2023-11-13** — [Playbook News-Lo que tienes que saber](https://playbookmedia.substack.com/p/playbook-news-lo-que-tienes-que-saber) — ~1 art.
+
+### Los Apellidos del Deporte
+
+3 ediciones pendientes · ~3 artículos · 2025-06-13 → 2025-08-22
+
+- **2025-08-22** — [Los Apellidos del Deporte: Los Martínez](https://playbookmedia.substack.com/p/los-apellidos-del-deporte-los-martinez) — ~1 art.
+  - De Pachuca al mundo: 30 años de estrategia y expansión de Grupo Pachuca
+- **2025-07-18** — [Los Apellidos del Deporte: Los Slim](https://playbookmedia.substack.com/p/los-apellidos-del-deporte-los-slim) — ~1 art.
+  - Presencia estratégica con impacto social
+- **2025-06-13** — [Los Apellidos del Deporte: Los Hank](https://playbookmedia.substack.com/p/los-apellidos-del-deporte-los-hank) — ~1 art.
+  - Del poder político al imperio deportivo
+
+### La Lana
+
+2 ediciones pendientes · ~2 artículos · 2026-06-26 → 2026-07-03
+
+- **2026-07-03** — [La lana del Mundial | La Vipización del fútbol](https://playbookmedia.substack.com/p/la-lana-del-mundial-la-vipizacion) — ~1 art.
+  - El Mundial sigue siendo popular en emoción, vivirlo de cerca cada vez está al alcance de menos.
+- **2026-06-26** — [La lana del Mundial | ¿Por qué FIFA nunca pierde con el Mundial?](https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa) — ~1 art.
+  - El Modelo FIFA explica cómo ellos controlan las ganancias del Mundial mientras que otros cargan con los riesgos operativos del evento.
+
+### Sin Máscaras
+
+2 ediciones pendientes · ~2 artículos · 2025-04-13 → 2025-06-01
+
+- **2025-06-01** — [Sin Máscaras](https://playbookmedia.substack.com/p/sin-mascaras-a19) — ~1 art.
+  - El Torito es un accidente del sistema
+- **2025-04-13** — [Sin Máscaras](https://playbookmedia.substack.com/p/sin-mascaras) — ~1 art.
+  - La oportunidad de crear el nuevo rock del contenido deportivo

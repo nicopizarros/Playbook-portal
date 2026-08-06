@@ -477,17 +477,103 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 .tfbr-board-value .tfbr-arrow{color:var(--tfbr-red);flex-shrink:0;}
 .tfbr-board-label{display:block;margin-top:10px;font-size:12.5px;line-height:1.5;color:var(--tfbr-faint);}
 
-/* Edition rows (once TFBR articles exist in the portal). */
-.tfbr-list{margin-top:48px;}
-.tfbr-row{
-  display:flex;align-items:center;gap:18px;padding:18px 8px;border-bottom:1px solid var(--tfbr-rule);
-  color:inherit;transition:background var(--duration-fast) ease;
+/* ---- Cover report -----------------------------------------------------
+   The edition that opens the sala, set as the front page of a printed
+   market report: a red tab across the top carrying issue number and date,
+   then an asymmetric spread of copy against the anexo photograph. Sized to
+   sit level with /la-lana's lead folder rather than reading as one more
+   row in a list. */
+.tfbr-cover{margin-top:44px;border:1px solid var(--tfbr-rule);background:#101010;}
+.tfbr-cover-tab{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:11px 22px;background:var(--tfbr-red);color:#fff;
 }
-.tfbr-row:hover{background:#141414;}
-.tfbr-row .tfbr-arrow{color:var(--tfbr-red);flex-shrink:0;transition:transform var(--duration-base) var(--ease-out);}
-.tfbr-row:hover .tfbr-arrow{transform:translateX(6px);}
-.tfbr-row-main h3{font-size:17px;font-weight:700;line-height:1.3;margin:0 0 4px;}
-.tfbr-row-meta{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--tfbr-faint);}
+.tfbr-cover-kicker{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;}
+.tfbr-cover-issue{
+  font-family:var(--serif-display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;opacity:.95;
+}
+.tfbr-cover-body{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:0;}
+.tfbr-cover-copy{padding:34px 30px 32px;display:flex;flex-direction:column;align-items:flex-start;}
+.tfbr-cover-title{
+  font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(27px,3.5vw,42px);line-height:1.06;letter-spacing:.01em;margin:0 0 16px;
+}
+.tfbr-cover-title a{color:inherit;background-image:linear-gradient(var(--tfbr-red),var(--tfbr-red));
+  background-size:0 2px;background-position:0 100%;background-repeat:no-repeat;
+  transition:background-size var(--duration-base) var(--ease-out);}
+.tfbr-cover-title a:hover{background-size:100% 2px;}
+.tfbr-cover-excerpt{font-size:15px;line-height:1.62;color:var(--tfbr-faint);margin:0 0 18px;max-width:52ch;}
+.tfbr-cover-meta{
+  font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tfbr-faint);
+  margin:0 0 24px;padding-top:14px;border-top:1px solid var(--tfbr-rule);align-self:stretch;
+}
+.tfbr-cover-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--tfbr-red);border-color:var(--tfbr-red);color:#fff;
+}
+.tfbr-cover-btn .tfbr-arrow{transition:transform var(--duration-base) var(--ease-out);}
+.tfbr-cover-btn:hover .tfbr-arrow{transform:translateX(5px);}
+.tfbr-cover-photo{margin:0;position:relative;border-left:1px solid var(--tfbr-rule);}
+.tfbr-cover-photo img{display:block;width:100%;height:100%;min-height:280px;object-fit:cover;filter:saturate(.9);}
+.tfbr-cover-photo figcaption{
+  position:absolute;left:0;bottom:0;padding:7px 12px;background:rgba(10,10,10,.86);
+  font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--tfbr-faint);
+}
+
+/* ---- Minutes of the session ------------------------------------------
+   The back catalogue as numbered memos. Same dossier logic as La Lana's
+   archivero (a tab carrying the file number, a body carrying the title),
+   in the boardroom's black-and-red rather than manila. */
+.tfbr-minuta{margin-top:52px;}
+.tfbr-minuta-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;}
+.tfbr-minuta-count{
+  font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tfbr-faint);
+}
+.tfbr-minuta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:1px;
+  background:var(--tfbr-rule);border:1px solid var(--tfbr-rule);}
+.tfbr-memo{
+  display:flex;flex-direction:column;background:var(--tfbr-bg);color:inherit;
+  transition:background var(--duration-fast) ease;position:relative;
+}
+/* The red rule that draws itself across the top of a memo on hover: the
+   trend arrow's colour doing the pointing, without moving the card. */
+.tfbr-memo::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tfbr-red);
+  transform:scaleX(0);transform-origin:0 50%;
+  transition:transform var(--duration-base) var(--ease-out);
+}
+.tfbr-memo:hover{background:#151515;}
+.tfbr-memo:hover::before{transform:scaleX(1);}
+.tfbr-memo-tab{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:14px 20px 0;
+}
+.tfbr-memo-no{
+  font-family:var(--serif-display);font-size:20px;line-height:1;color:var(--tfbr-red);letter-spacing:.02em;
+}
+.tfbr-memo-date{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--tfbr-faint);}
+.tfbr-memo-body{display:flex;flex-direction:column;flex:1;padding:12px 20px 18px;}
+.tfbr-memo-body h3{font-size:16.5px;font-weight:700;line-height:1.32;margin:0 0 auto;}
+.tfbr-memo-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-top:20px;padding-top:12px;border-top:1px solid var(--tfbr-rule);
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--tfbr-faint);
+}
+.tfbr-memo-open{display:inline-flex;align-items:center;gap:7px;color:var(--tfbr-white);}
+.tfbr-memo-open .tfbr-arrow{width:14px;height:14px;color:var(--tfbr-red);
+  transition:transform var(--duration-base) var(--ease-out);}
+.tfbr-memo:hover .tfbr-memo-open .tfbr-arrow{transform:translateX(5px);}
+
+@media (max-width:760px){
+  .tfbr-cover-body{grid-template-columns:1fr;}
+  .tfbr-cover-photo{border-left:0;border-top:1px solid var(--tfbr-rule);order:-1;}
+  .tfbr-cover-photo img{min-height:0;aspect-ratio:16/10;height:auto;}
+  .tfbr-cover-copy{padding:26px 20px 24px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .tfbr-memo::before{transition:none;}
+  .tfbr-memo:hover::before{transform:scaleX(1);}
+}
 
 /* Briefing card while the editions still live on Substack. */
 .tfbr-briefing{margin-top:48px;border:1px solid var(--tfbr-rule);border-top:4px solid var(--tfbr-red);padding:30px 28px;max-width:560px;}

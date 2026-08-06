@@ -3,24 +3,22 @@ import Link from 'next/link';
 import { getArticlesBySource } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { productHubsContent } from '@/lib/product-hubs-content';
+import { chronologicalNumber } from '@/lib/product-hubs';
 import { SITE_URL } from '@/lib/site-url';
 
-// The Futbol Business Review — "La Sala de Juntas" (design brief,
-// 2026-08-05). Black, not navy: a market briefing a business reader
-// consults, not a magazine they browse. The red arrow from the card art is
-// a functional trend indicator used throughout, and the Interticket
-// co-brand is a persistent partner strip across the hub (the partnership
-// is core to the product's credibility), not a one-off footer logo.
+// The Futbol Business Review — "La Sala de Juntas". Black, not navy: a
+// market briefing a business reader consults, not a magazine they browse.
+// The red arrow from the card art is a functional trend indicator used
+// throughout, and the Interticket co-brand is a persistent partner strip
+// (the partnership is core to the product's credibility), not a footer logo.
 //
-// Content: TFBR has no `source` of its own yet (HANDOFF: kept pointing at
-// Substack on purpose). The hub queries `futbol-business-review` anyway —
-// the day editorial mints that source, editions list here with no code
-// change; until then the briefing states plainly where the editions live.
-//
-// Brief question deliberately NOT built: an ES/EN toggle for the US
-// Hispanic audience is a real structural differentiator worth deciding
-// with the team before build, not a cosmetic default to sneak in — raised
-// in HANDOFF.md instead.
+// Format (reworked 2026-08-06 on user feedback that a flat list of rows read
+// as plain next to /la-lana's dossier): the hub is now a printed market
+// report. One edition opens it as the COVER REPORT — chosen in the CMS via
+// tfbr.headlinerId rather than the site-wide `featured` flag, so headlining
+// the Interticket space never bumps the homepage's top story — and the rest
+// are numbered minutes of the session, each a tabbed dossier card carrying
+// its issue number the way La Lana's folders carry their expediente.
 
 export const metadata: Metadata = {
   title: 'The Futbol Business Review — La Sala de Juntas',
@@ -50,11 +48,17 @@ export default async function FutbolBusinessReviewHubPage() {
     getSiteContent(),
   ]);
   const stats = content.statsSection.stats;
-  // Masthead copy + the Substack destination are CMS-editable (Hubs tab).
-  // The Substack URL lives here rather than being read from the TFBR
-  // product card: that card now points AT this hub, so reading it back
-  // would be circular.
+  // Masthead copy, the Substack destination and the cover edition are all
+  // CMS-editable (Hubs tab). The Substack URL lives here rather than being
+  // read from the TFBR product card: that card now points AT this hub, so
+  // reading it back would be circular.
   const hub = productHubsContent(content.productHubs).tfbr;
+
+  // Cover report: the CMS-named edition when it still resolves, else the
+  // most recent one, so the hub never opens headless after an id goes stale.
+  const headliner =
+    articles.find(a => a.id === hub.headlinerId) ?? articles[0] ?? null;
+  const rest = articles.filter(a => a.id !== headliner?.id);
 
   return (
     <main className="hub hub-tfbr" id="futbol-business-review">
@@ -81,6 +85,52 @@ export default async function FutbolBusinessReviewHubPage() {
           </div>
         </header>
 
+        {headliner && (
+          <section className="tfbr-cover reveal" aria-label="Reporte de portada">
+            <div className="tfbr-cover-tab">
+              <span className="tfbr-cover-kicker">Reporte de portada</span>
+              <span className="tfbr-cover-issue">
+                No. {chronologicalNumber(headliner, articles, 2)} · {headliner.dateFormatted}
+              </span>
+            </div>
+            <div className="tfbr-cover-body">
+              <div className="tfbr-cover-copy">
+                <h2 className="tfbr-cover-title">
+                  <Link href={`/articulo?id=${encodeURIComponent(headliner.id)}`}>
+                    {headliner.title}
+                  </Link>
+                </h2>
+                <p className="tfbr-cover-excerpt">{headliner.excerpt}</p>
+                <p className="tfbr-cover-meta">
+                  {headliner.author ? `${headliner.author} · ` : ''}
+                  Lectura {headliner.readingTime || 1} min
+                </p>
+                <Link
+                  className="btn tfbr-cover-btn"
+                  href={`/articulo?id=${encodeURIComponent(headliner.id)}`}
+                >
+                  Abrir el reporte <TrendArrow direction="right" />
+                </Link>
+              </div>
+              {headliner.imageUrl && (
+                <figure className="tfbr-cover-photo">
+                  {/* Editor-supplied URL, arbitrary host — see
+                      components/sections/AboutSection.tsx's comment. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={headliner.imageUrl}
+                    alt={headliner.title}
+                    width={900}
+                    height={560}
+                    decoding="async"
+                  />
+                  <figcaption>Anexo · Interticket</figcaption>
+                </figure>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* Data-forward briefing band. These are the site's own CMS-edited
             numbers (statsSection, "Playbook en números") — real, already
             maintained figures — not invented market indicators. */}
@@ -101,26 +151,39 @@ export default async function FutbolBusinessReviewHubPage() {
           </section>
         )}
 
-        {articles.length ? (
-          <section className="tfbr-list" aria-label="Ediciones">
-            <h2 className="tfbr-board-head">Ediciones</h2>
-            {articles.map(article => (
-              <Link
-                className="tfbr-row"
-                href={`/articulo?id=${encodeURIComponent(article.id)}`}
-                key={article.id}
-              >
-                <TrendArrow direction="right" />
-                <span className="tfbr-row-main">
-                  <h3>{article.title}</h3>
-                  <span className="tfbr-row-meta">
-                    {article.dateFormatted} · {article.readingTime || 1} min
+        {rest.length > 0 && (
+          <section className="tfbr-minuta" aria-label="Ediciones">
+            <div className="tfbr-minuta-head">
+              <h2 className="tfbr-board-head">Minuta de la sala</h2>
+              <span className="tfbr-minuta-count">{rest.length} ediciones</span>
+            </div>
+            <div className="tfbr-minuta-grid">
+              {rest.map(article => (
+                <Link
+                  className="tfbr-memo reveal"
+                  href={`/articulo?id=${encodeURIComponent(article.id)}`}
+                  key={article.id}
+                >
+                  <span className="tfbr-memo-tab">
+                    <span className="tfbr-memo-no">No. {chronologicalNumber(article, articles, 2)}</span>
+                    <span className="tfbr-memo-date">{article.dateFormatted}</span>
                   </span>
-                </span>
-              </Link>
-            ))}
+                  <span className="tfbr-memo-body">
+                    <h3>{article.title}</h3>
+                    <span className="tfbr-memo-foot">
+                      <span className="tfbr-memo-read">{article.readingTime || 1} min</span>
+                      <span className="tfbr-memo-open" aria-hidden="true">
+                        Abrir <TrendArrow direction="right" />
+                      </span>
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
           </section>
-        ) : (
+        )}
+
+        {articles.length === 0 && (
           <section className="tfbr-briefing" aria-label="Dónde leer las ediciones">
             <h2 className="tfbr-briefing-head">Minuta de la sala</h2>
             <p>
@@ -136,6 +199,14 @@ export default async function FutbolBusinessReviewHubPage() {
               Leer las ediciones →
             </a>
           </section>
+        )}
+
+        {articles.length > 0 && (
+          <div className="hub-foot">
+            <Link className="section-link hub-foot-link" href="/archivo?source=futbol-business-review">
+              Ver The Futbol Business Review en el archivo general →
+            </Link>
+          </div>
         )}
       </div>
     </main>

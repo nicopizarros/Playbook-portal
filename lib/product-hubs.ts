@@ -42,12 +42,19 @@ export function hubForSource(source: string): ProductHub | null {
 // reshuffles as new ones land. Computed from publication order rather than
 // stored, so it needs no schema change and stays correct for the whole
 // back catalog.
-export function caseNumber(article: Article, all: Article[]): string {
+// Position of an article in its own product's publication order, 1-based.
+// Shared by every hub that numbers its back catalog; `width` is just how
+// many digits the label wears (La Lana files read 001, TFBR issues read 01).
+export function chronologicalNumber(article: Article, all: Article[], width = 3): string {
   const chronological = all
     .slice()
     .sort((a, b) => (a.date || '').localeCompare(b.date || '') || a.id.localeCompare(b.id));
   const index = chronological.findIndex(a => a.id === article.id);
-  return String(index + 1).padStart(3, '0');
+  return String(index + 1).padStart(width, '0');
+}
+
+export function caseNumber(article: Article, all: Article[]): string {
+  return chronologicalNumber(article, all, 3);
 }
 
 // An investigation reads as "open" while it's still fresh news (or an
