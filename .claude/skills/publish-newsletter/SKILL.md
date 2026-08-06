@@ -184,71 +184,56 @@ Rules:
 
 ## Step 3: Editorial voice
 
-### The rhythm, before anything else (measured on the real archive, 2026-08-06)
+### The rhythm (publisher directive, 2026-08-06, round 2 — supersedes the archive measurement)
 
-Everything below about structure is downstream of one thing, and it is the
-single biggest gap between what this skill has been producing and what
-Playbook actually publishes.
+Playbook's portal articles are written as **four substantial blocks**, one
+per movement of the structure below, at roughly **80-100 words each**. That
+is the shape the site has been publishing, and it is the shape to write.
 
-**Measure it on the opinion pieces, not on the digests.** A first pass at
-this counted headings, bullet lists and Industry Shots' news briefs as if
-they were prose paragraphs, which made Playbook look far choppier than it
-is. Industry Shots is a digest format and says nothing about how Playbook
-writes an argument. The numbers below come only from **body prose in the
-editorial-viewpoint pieces** — La Lana, The Futbol Business Review, the
-weekly essays, and the Infinitas deep dive — with headings, bullets and
-pull quotes excluded:
+A short-beat experiment ran earlier the same day and was reversed after a
+single article shipped in it. That version split every movement into two or
+three paragraphs of 25-35 words with standalone hammer lines between them;
+on the article page it read choppy and it undercut the calm analytical
+register the brief format depends on. Don't reach for it again, and don't
+re-derive it from the numbers in the next paragraph.
 
-| | La Lana | TFBR | Ensayos | Bloques de Opinión | This skill was writing |
-|---|---|---|---|---|---|
-| words per paragraph (p25 / median / p75) | 16 / **28** / 37 | 19 / **32** / 44 | 16 / **30** / 41 | 30 / **33** / 37 | 64 / **95** / 108 |
-| median words per sentence | 15 | 13 | 21 | 18 | 23-28 |
-| paragraphs of ≤14 words | 21% | 17% | 23% | 0% | 5% |
-| paragraphs of ≥60 words | 3% | 7% | 4% | 0% | 75-92% |
+Worth stating plainly so the reversal isn't mistaken for an oversight: a
+2026-08-06 measurement of the Substack archive's editorial-viewpoint prose
+(La Lana, TFBR, the weekly essays, headings and bullets excluded) does put
+its median paragraph near 30 words, not 90. That measurement is real and it
+describes **the newsletter**. The portal is a different product with a
+different reading posture, and its four-block brief is a deliberate
+editorial choice rather than drift away from the newsletter's rhythm. If the
+two are ever meant to converge, that is the publisher's call to make
+explicitly, not something to infer from the newsletter numbers.
 
-A Playbook paragraph is about **30 words — one or two sentences.** Drafts
-were running three times that, which is why they read as competent but not
-as Playbook: the four-paragraph structure was being written as four dense
-blocks.
+Two things hold regardless of paragraph length:
 
-**The fix: a paragraph is a beat, not a container.** Each movement of the
-structure (fact, research, detail, opinión) is written as **two or three
-paragraphs**, not one long one. The bold lead-in opens the movement's first
-paragraph; the rest of the movement continues underneath it without its own
-lead-in. Nothing about the UI contract changes: the lead-ins still render as
-scan marks, the Opinión callout still keys off its exact lead-in, the device
-budget still counts only declared devices.
-
-Target every draft at: **median paragraph 25-35 words, three-quarters of
-them under 45, median sentence 13-20 words, and at most one paragraph in ten
-over 60.** A 60-word paragraph is usually two ideas — split it at the joint.
-There is no need to chase brevity past that: the archive's own p75 sits at
-37-44 words, so a substantial paragraph is normal, a 95-word one is not.
-
-**The hammer line.** About one paragraph in five (17-23% in La Lana, TFBR
-and the essays) is a standalone line of four to thirteen words that lands
-the conclusion the previous paragraph earned. On a four-to-six-paragraph
-article that means roughly **one**; on a La Lana of thirty-odd paragraphs,
-five or six. Real ones from the archive:
+**The hammer line.** Land one short, flat sentence that states the
+conclusion the evidence just earned, at the point where the reader has been
+given enough to agree with it. Inside the block, as its last sentence, not
+promoted to a paragraph of its own. Real ones from the archive:
 
 - *Las sedes reciben la vitrina. FIFA vende la vitrina.*
 - *No todo lo que se puede vender conviene venderlo.*
 - *Mover dinero no es quedarse con él.*
-- *Isaac es el caso más famoso, pero no es el único.*
 - *Sin aceptación ciudadana, el discurso de grandes eventos se desgasta rápido.*
-- *El problema está en lo que pasa alrededor.*
 
-They work because they come **after** the evidence, never before. A hammer
-line that opens a section is a slogan; the same line after two paragraphs of
-figures is a verdict. Write at least one per article, at the point where the
-reader has just been given enough to agree with it.
+They work because they come **after** the evidence, never before. The same
+line opening a section is a slogan; after two sentences of figures it is a
+verdict.
 
-**Section and paragraph headings are arguments, not labels.** Every La Lana
-heading in the archive states a position: *"Mover dinero no es quedarse con
-él"*, *"El descanso se volvió inventario"*, *"Sobrevivir no es salir
-limpio"*, *"La cuenta ya no da… al menos en bloque"*. None of them is a
-topic label like "Contexto" or "El acuerdo". The same standard applies to
-the bold lead-ins: prefer *"**El precio real:**"* over *"**El acuerdo:**"*.
+**Headings and lead-ins are arguments, not labels.** Every La Lana heading
+in the archive states a position: *"Mover dinero no es quedarse con él"*,
+*"El descanso se volvió inventario"*, *"Sobrevivir no es salir limpio"*.
+None is a topic label like "Contexto" or "El acuerdo". The same standard
+applies to the bold lead-ins: prefer *"**El precio real:**"* over
+*"**El acuerdo:**"*.
+
+`scripts/check-voice.mjs` is retuned to this format: it now flags only
+runaway blocks (past ~130 words, which are two movements fused) and still
+enforces the em-dash ban and the one-negative-parallelism-per-piece cap. It
+no longer asks for short beats or standalone hammer paragraphs.
 
 ### Industry Shots / Infinitas
 

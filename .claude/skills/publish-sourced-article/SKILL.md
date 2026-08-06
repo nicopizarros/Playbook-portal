@@ -171,27 +171,25 @@ four. Write every paragraph in Playbook's own words, this is a rewrite
 grounded in multiple sources, never a close paraphrase or translation of
 any single outlet's article.
 
-### The rhythm (archive measurement, 2026-08-06 — see publish-newsletter Step 3)
+### The rhythm (publisher directive, 2026-08-06, round 2)
 
-The whole Substack archive was measured against what these skills had been
-inserting, and the gap was rhythm, not vocabulary. Playbook's median
-paragraph is **24-25 words** and its median sentence **13-18**; roughly a
-third of every published piece is a standalone paragraph of ≤14 words.
-Drafts were coming out at 90-97 words per paragraph with almost no short
-beats, which reads as competent but not as Playbook.
+Same as `publish-newsletter`'s Step 3 rhythm section, which supersedes the
+earlier archive-measurement guidance: write each movement as **one
+substantial block of roughly 80-100 words**, not as two or three short
+beats. The short-beat version was tried and reversed the same day for
+reading choppy on the article page. Land the hammer line as the block's
+last sentence rather than promoting it to a paragraph of its own.
 
-Same fix here as in publish-newsletter: **a paragraph is a beat, not a
-container.** Write each movement as two or three short paragraphs rather
-than one block, land at least one hammer line of four to thirteen words
-after the evidence that earns it, and keep any single paragraph under 60
-words. Run `node scripts/check-voice.mjs <draft.json>` before Step 6's
-human review and bring its output into the review — a reviewer reading a
-draft that already sits in the archive's rhythm is reviewing the argument
-instead of the prose.
+Run `node scripts/check-voice.mjs <draft.json>` before Step 6's human
+review and bring its output into the review. It is retuned to this format:
+it flags runaway blocks (past ~130 words, which are two movements fused),
+the em-dash ban and the one-negative-parallelism cap, and no longer asks
+for short paragraphs.
 
-Wire copy makes this harder, not easier: a Reuters paragraph is built to
-be lifted whole, so translating it faithfully imports its shape along with
-its facts. Break it.
+Wire copy needs watching for a different reason now. A Reuters paragraph is
+built to be lifted whole, so translating one faithfully imports its
+breaking-news pacing along with its facts. Rebuild the block in Playbook's
+register instead of carrying the source's shape across.
 
 ### Tone: analytical brief, not breaking-news urgency
 

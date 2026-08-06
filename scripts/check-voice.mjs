@@ -1,16 +1,21 @@
-// Measures a newsletter draft against Playbook's actual published rhythm
-// before it goes live. The targets are not invented: they come from a
-// 2026-08-06 pass over the BODY PROSE of the editorial-viewpoint pieces —
-// La Lana, The Futbol Business Review, the weekly essays and the Infinitas
-// deep dive — with headings, bullet lists and pull quotes excluded, and with
-// Industry Shots left out entirely (it is a digest format and says nothing
-// about how Playbook writes an argument; counting it, as a first pass did,
-// makes Playbook look far choppier than it is).
+// Checks a draft against the house style the portal actually publishes in,
+// before it goes live.
 //
-// What that archive looks like: paragraphs of p25 16-19 / median 28-32 / p75
-// 37-44 words, sentences of 13-21, about one paragraph in five standing alone
-// at ≤14 words, and only 3-7% reaching 60. Drafts produced before this
-// measurement were running 95-word paragraphs, 75-92% of them over 60.
+// Retuned 2026-08-06 (round 2, publisher directive). The first version of
+// this script targeted a measurement of the Substack archive's
+// editorial-viewpoint prose (La Lana, TFBR, the weekly essays: paragraphs of
+// p25 16-19 / median 28-32 / p75 37-44, about one paragraph in five standing
+// alone at ≤14 words). That measurement is real, and it describes the
+// NEWSLETTER. The portal is a different product: its articles are written as
+// four substantial blocks of roughly 80-100 words, one per movement. A draft
+// written in short beats shipped once, read choppy on the article page, and
+// the format was reversed. So the paragraph-length targets below are
+// deliberately loose — they exist to catch a runaway block (two movements
+// fused into one paragraph), not to push prose toward the newsletter's
+// rhythm. See the rhythm section in either publish skill's Step 3.
+//
+// What stayed strict is what is house style regardless of block length: the
+// em-dash ban and the one-negative-parallelism-per-piece cap.
 //
 // Usage: node scripts/check-voice.mjs <path-to-draft.json> [--strict]
 // Input: the same JSON array scripts/publish-newsletter.ts takes.
@@ -18,23 +23,17 @@
 // This is a mirror, not a gate: it exits 0 by default so it can never block a
 // deliberate editorial choice. Pass --strict to exit 1 on any flag (useful if
 // it ever gets wired into a check).
-//
-// Calibrated against the source itself: run over three real La Lana editions
-// converted to draft shape, two pass clean and the third trips only on an em
-// dash the source uses and the house style bans. That is the intended
-// sensitivity — tight enough to catch the 95-word blocks this skill was
-// producing, loose enough that Playbook's own writing clears it.
 
 import { readFileSync } from 'node:fs';
 
 const TARGETS = {
-  medianParagraphWords: 35, // archive median 28-32; flag only past the top of the band
-  p75ParagraphWords: 45, // archive p75 37-44
-  medianSentenceWords: 20, // archive 13-21
-  minHammerParagraphs: 1, // archive: ~1 paragraph in 5 is ≤14 words
-  longParagraphWords: 60, // archive: only 3-7% of paragraphs reach this
-  maxLongShare: 0.1, // so at most one in ten, not zero
-  maxNegativeParallelism: 1, // archive: ~1 per piece, spent at the thesis
+  medianParagraphWords: 110, // four-block format sits at 80-100; flag past the top
+  p75ParagraphWords: 125, // a block longer than this is usually two movements
+  medianSentenceWords: 30, // the format runs longer sentences than the newsletter
+  minHammerParagraphs: 0, // the hammer line lands INSIDE the block now, not as its own paragraph
+  longParagraphWords: 130, // a runaway block, not a substantial one
+  maxLongShare: 0.25, // tolerate one in four; more means the blocks are fusing
+  maxNegativeParallelism: 1, // unchanged: ~1 per piece, spent at the thesis
 };
 
 // Declared devices, image blocks and their captions are structural, not prose —
@@ -99,11 +98,11 @@ function main() {
     const m = analyse(a);
     const flags = [];
     if (m.medianParagraph > TARGETS.medianParagraphWords)
-      flags.push(`párrafo mediano ${m.medianParagraph}p (objetivo ≤${TARGETS.medianParagraphWords}, archivo 28-32)`);
+      flags.push(`párrafo mediano ${m.medianParagraph}p (objetivo ≤${TARGETS.medianParagraphWords}, formato de cuatro bloques 80-100)`);
     if (m.p75Paragraph > TARGETS.p75ParagraphWords)
-      flags.push(`p75 de párrafo ${m.p75Paragraph}p (objetivo ≤${TARGETS.p75ParagraphWords}, archivo 37-44)`);
+      flags.push(`p75 de párrafo ${m.p75Paragraph}p (objetivo ≤${TARGETS.p75ParagraphWords}, un bloque más largo suele ser dos movimientos)`);
     if (m.medianSentence > TARGETS.medianSentenceWords)
-      flags.push(`oración mediana ${m.medianSentence}p (objetivo ≤${TARGETS.medianSentenceWords}, archivo 13-21)`);
+      flags.push(`oración mediana ${m.medianSentence}p (objetivo ≤${TARGETS.medianSentenceWords}, el formato corre oraciones largas)`);
     if (m.hammers < TARGETS.minHammerParagraphs)
       flags.push(`sin línea martillo de ≤14p (archivo: ~1 de cada 5 párrafos)`);
     if (m.negatives > TARGETS.maxNegativeParallelism)
@@ -112,7 +111,7 @@ function main() {
     // A long paragraph is normal in the archive; a page made of them is not.
     if (m.paragraphs && m.blocks.length / m.paragraphs > TARGETS.maxLongShare) {
       flags.push(
-        `${m.blocks.length}/${m.paragraphs} párrafos pasan de ${TARGETS.longParagraphWords}p (archivo 3-7%)`,
+        `${m.blocks.length}/${m.paragraphs} párrafos pasan de ${TARGETS.longParagraphWords}p (bloques desbordados)`,
       );
       for (const b of m.blocks) flags.push(`  párrafo ${b.i + 1} de ${b.n}p: "${b.p.slice(0, 52)}…"`);
     }
