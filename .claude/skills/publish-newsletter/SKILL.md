@@ -23,6 +23,101 @@ supports HTTPS, not raw TCP, so the insert script uses Neon's HTTP driver.
 Don't try to reconnect it to `lib/db/client.ts`'s `pg` Pool (TCP-only, works on
 Vercel, does not work from a sandboxed agent session).
 
+## Step 0: The overlap check (run it before drafting anything)
+
+Playbook ingests through two funnels — this skill for the Substack editions,
+`publish-sourced-article` for third-party links — feeding four products that
+legitimately cover overlapping ground. The same story reaches the newsroom
+twice all the time: a Reuters link and an Industry Shots item, or an
+Infinitas edition and a digest brief two days apart. `articles.sourceUrl`'s
+unique index does not catch any of it; it only stops the *same URL* being run
+twice.
+
+Run this on **every item, not every edition** — a digest with nine briefs is
+nine checks:
+
+```
+node scripts/find-duplicates.mjs "<the item's headline or one-line topic>"
+node scripts/find-duplicates.mjs --draft <path-to-draft.json>   # a whole batch
+```
+
+It scores the candidate against everything published and prints `MISMA
+HISTORIA` (treat as a duplicate until proven otherwise) or `revisar` (open it
+before drafting). No hits means clear.
+
+### The decision, in two questions
+
+For every candidate the script surfaces, open the published article and ask,
+in this order:
+
+1. **Is it the same underlying event?** Not the same topic, the same event. A
+   second story about Liga F is not a duplicate; the same rights deal is.
+2. **Does the incoming source carry a fact the published article doesn't
+   have?**
+
+That gives four outcomes. Three of them mean no second article.
+
+**A. Same event, nothing new → don't publish it.** The story already lives on
+the site. This is what the newsroom already does by hand: the 2026-08-04
+Industry Shots edition carried a Netflix/Mundial Femenil brief and pointed
+its "(Acá más info)" at the Infinitas article from two days earlier instead
+of minting a second one. Skip the item and say so in the run report, with the
+id of the article that covers it.
+
+Which product keeps the story when both could claim it: the one whose
+vertical it belongs to (a women's-sport story is Infinitas' even if a digest
+carried it first), and on a tie, whoever published first.
+
+**B. Same event, the source adds facts → upgrade the existing article.** Still
+no second article. Fold the new facts into the published one where they
+belong, and:
+
+- keep the original `date` — the archive's chronology is a record, not a
+  field to refresh — and let `updated_at` move on its own;
+- update `title` and `excerpt` too if the new fact changes the claim they
+  make, since the hubs and the homepage read them;
+- if a figure in the published piece turns out to be wrong, correct it and
+  state the correction in one plain sentence inside the body rather than
+  silently overwriting it;
+- keep the existing cover image unless the new source genuinely has a better
+  one. Re-running the Step 5a search on an upgrade is wasted work.
+
+Write the update the same way an insert is written (markdown → TipTap →
+`bodyHtml`); `scripts/update-matador-report.ts` is the worked example of
+updating a published row instead of inserting.
+
+**C. A new development on a story already covered → a new article that links
+back.** The test: the new piece must be able to state, in its own headline,
+something that was not true when the earlier one ran. A rights auction
+opening after an investment closed passes. "More reaction to the same deal"
+does not. Then follow the existing back-link rule in Step 3: one inline link
+inside a sentence that is already stating the new fact, never a paragraph
+that narrates Playbook's own prior reporting.
+
+**D. Same event, different product, genuinely different thesis → both may
+run, and each must link the other.** Infinitas asking what the Liga Femenil
+BBVA is building and Noticias reporting its identity launch are two real
+pieces. The tiebreaker against outcome A is strict: **if you cannot write the
+second piece's thesis without restating the first piece's core fact, it is
+not a different angle — it is A.** When both run, neither may repeat the
+other's central figure as if it were news.
+
+### When the sources disagree
+
+Two funnels on one story will sometimes carry different numbers. The more
+specific, better-attributed figure wins (a company filing over a wire
+summary, a wire over a newsletter brief). If the published article has the
+weaker one, that is outcome B and the correction is part of the upgrade.
+
+### If it was already published twice
+
+Found after the fact, the fix depends on how long the duplicate has been
+live. Inside about 48 hours, fold its unique facts into the canonical piece
+and set the duplicate's `status` to `'draft'`, which unpublishes it. Past
+that, leave both up and cross-link them instead: a live URL may already be
+shared, and breaking it costs more than the duplication does. Either way, say
+which one you did in the report.
+
 ## Step 1: Read the sources
 
 Fetch every Substack URL given (use WebFetch; it follows the `open.substack.com`
@@ -817,6 +912,12 @@ content (photos, banners, infographics, charts) gets carried over.
    (`https://playbook-portal-phi.vercel.app/articulo?id=<id>`), not a re-print
    of the full draft. If any came back `duplicate`, say so (it means that
    exact story was already published from a prior run of this same link).
+
+   Report the Step 0 outcomes in the same breath, because an edition where
+   three of nine briefs were already covered looks like a thin run otherwise.
+   One line each: what was skipped and which article covers it, what was
+   folded into an existing piece, and what ran as a cross-linked second angle.
+   A skipped item is work done, not work missing.
 
 Do not ask for approval before step 6. Publishing without a review step is
 the point of this flow. Do flag anything genuinely uncertain (e.g. couldn't

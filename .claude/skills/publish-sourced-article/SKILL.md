@@ -44,15 +44,29 @@ several unrelated links in one run, draft each as its own separate
 article). Confirm the publish date and the core facts (who, what, the key
 numbers) directly from the page, don't guess or carry over stale context.
 
-If the story reads as one step in something already in motion (a vote on a
-proposal, a decision that follows an earlier announcement, an update to a
-running dispute), check whether Playbook already published on the earlier
-step: query the DB for rows whose title plausibly covers the same
-underlying story (a simple `ILIKE` on the obvious names/terms works, see
-`publish-newsletter`'s Requirements section for how to reach
-`POSTGRES_URL`). Finding one changes how Step 3 gets written, this becomes
-a follow-up, not a fresh explainer that re-establishes everything from
-scratch.
+**Then run the overlap check before drafting a word.** This funnel is the
+one most likely to arrive at a story Playbook already published — a wire
+link about something an Industry Shots edition briefed two days ago is the
+normal case, not the edge case:
+
+```
+node scripts/find-duplicates.mjs "<the story's headline>"
+```
+
+The full protocol, including what to do with each outcome, lives in
+`publish-newsletter`'s **Step 0** and applies here unchanged. In short: the
+same event with nothing new means no article at all; the same event with a
+new fact means upgrading the published piece instead of adding a second one;
+a genuine new development means a new article that links back; and the same
+event read through a different product's thesis means both may run, cross-
+linked. Do not draft until that call is made — deciding after a draft exists
+biases the answer toward publishing it.
+
+The check doubles as the follow-up detector this step used to do by hand
+with an `ILIKE`. When it surfaces an earlier piece on the same running
+story, this becomes a follow-up rather than a fresh explainer that
+re-establishes everything from scratch, which changes how Step 3 gets
+written.
 
 ## Step 2: Cross-reference other coverage (mandatory)
 
