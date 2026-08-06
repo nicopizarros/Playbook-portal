@@ -94,6 +94,82 @@ function tierFor(article: Article, now: Date): 1 | 2 | 3 | 4 | 5 {
   return 1;
 }
 
+// ——— Hemeroteca time markers (design brief 2026-08-05): quiet month rules
+// as the reader scrolls deeper. Render-time additions BETWEEN blocks/rows —
+// they never touch the grouping logic above (every rule in groupRiver fixed
+// a reported bug; markers are inserted around its output, not into it).
+// The first month is deliberately unmarked: the reader knows "now"; the
+// marker earns its place when the river crosses into an older month.
+function monthKeyOf(date: string | null): string {
+  return (date || '').slice(0, 7);
+}
+
+function monthLabelOf(date: string | null): string {
+  const parsed = new Date(`${date}T12:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return '';
+  const label = parsed.toLocaleDateString('es-MX', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function MonthRule({ date }: { date: string | null }) {
+  const label = monthLabelOf(date);
+  if (!label) return null;
+  return (
+    <div className="arch-month-rule" aria-label={`Publicado en ${label}`}>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+// The archive is RANK-ordered (priority × recency), so dates are not
+// strictly monotonic — a naive "month changed" check would stutter
+// (Ago, Jul, Ago, Jul…). A marker only fires when the river first crosses
+// into a month OLDER than everything marked so far ("deepest month"),
+// which is exactly the "as you scroll deeper" framing: markers descend
+// monotonically, and a high-priority stray from a newer month never
+// resurfaces one.
+function withMonthRules<T>(
+  items: T[],
+  dateOf: (item: T) => string | null,
+  render: (item: T, index: number) => React.ReactNode,
+): React.ReactNode[] {
+  const nodes: React.ReactNode[] = [];
+  let deepest = items.length ? monthKeyOf(dateOf(items[0])) : '';
+  items.forEach((item, index) => {
+    const key = monthKeyOf(dateOf(item));
+    if (index > 0 && key && deepest && key < deepest) {
+      deepest = key;
+      nodes.push(<MonthRule date={dateOf(item)} key={`month-${key}-${index}`} />);
+    }
+    nodes.push(render(item, index));
+  });
+  return nodes;
+}
+
+// The empty drawer, with the archive's own voice instead of a bare
+// system sentence.
+function EmptyDrawer({ filtered, clearHref }: { filtered: boolean; clearHref: string }) {
+  return (
+    <div className="arch-empty">
+      <span className="arch-empty-stamp">Sin resultados</span>
+      <p>
+        {filtered
+          ? 'Este cajón del archivero está vacío: ninguna pieza publicada cruza todos esos filtros a la vez.'
+          : 'El archivero está vacío por ahora — todo lo publicado sigue en la portada.'}
+      </p>
+      {filtered ? (
+        <Link className="filter-btn" href={clearHref}>
+          Limpiar filtros
+        </Link>
+      ) : (
+        <Link className="filter-btn" href="/">
+          Volver a la portada
+        </Link>
+      )}
+    </div>
+  );
+}
+
 // ——— Lista: featured row (the "ritmo tipo revista" of HANDOFF.md's
 // 2026-07-23 entry). An article gets the rich photo treatment when its
 // recency-decayed tier is the top one (5) — previously this checked raw
@@ -364,35 +440,43 @@ export default async function ArchivoPage({ searchParams }: Props) {
         {grid ? (
           <div className="archive-river fade-swap">
             {river.length
-              ? river.map((block, bi) =>
-                  block.type === 'cluster' ? (
-                    <div className="archive-river-cluster" key={`cluster-${block.items[0].id}`}>
-                      {block.items.map((a, ii) => (
-                        <ArchiveGridCard
-                          key={a.id}
-                          article={a}
-                          size={block.size}
-                          priority={bi === 0 && ii === 0}
-                        />
-                      ))}
-                    </div>
-                  ) : block.tier === 5 ? (
-                    <ArchiveFeatureRow key={block.item.id} article={block.item} priority={bi === 0} />
-                  ) : (
-                    <ArchiveLineRow key={block.item.id} article={block.item} tier={block.tier} />
-                  )
+              ? withMonthRules(
+                  river,
+                  block => (block.type === 'cluster' ? block.items[0].date : block.item.date),
+                  (block, bi) =>
+                    block.type === 'cluster' ? (
+                      <div className="archive-river-cluster" key={`cluster-${block.items[0].id}`}>
+                        {block.items.map((a, ii) => (
+                          <ArchiveGridCard
+                            key={a.id}
+                            article={a}
+                            size={block.size}
+                            priority={bi === 0 && ii === 0}
+                          />
+                        ))}
+                      </div>
+                    ) : block.tier === 5 ? (
+                      <ArchiveFeatureRow key={block.item.id} article={block.item} priority={bi === 0} />
+                    ) : (
+                      <ArchiveLineRow key={block.item.id} article={block.item} tier={block.tier} />
+                    ),
                 )
-              : <p className="empty-state">No hay más artículos con estos filtros.</p>}
+              : <EmptyDrawer filtered={activeFilters.length > 0} clearHref="/archivo" />}
           </div>
         ) : (
           <div className="news-list fade-swap">
             {articles.length
-              ? articles.map((a, i) =>
-                  featuredIds.has(a.id)
-                    ? <ArchiveFeatureRow key={a.id} article={a} priority={i === 0} />
-                    : <NewsRow key={a.id} article={a} heading="h3" withTagPills />
+              ? withMonthRules(
+                  articles,
+                  a => a.date,
+                  (a, i) =>
+                    featuredIds.has(a.id) ? (
+                      <ArchiveFeatureRow key={a.id} article={a} priority={i === 0} />
+                    ) : (
+                      <NewsRow key={a.id} article={a} heading="h3" withTagPills />
+                    ),
                 )
-              : <p className="empty-state">No hay más artículos con estos filtros.</p>}
+              : <EmptyDrawer filtered={activeFilters.length > 0} clearHref="/archivo?view=list" />}
           </div>
         )}
       </main>

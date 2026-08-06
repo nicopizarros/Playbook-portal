@@ -5263,6 +5263,493 @@ página.
 orden); script dry-run + real contra Neon de producción con salida
 inspeccionada; tsc/eslint/build limpios.
 
+### 2026-08-05 — La Lectura / La Portada / La Hemeroteca: el upgrade de diseño de artículos, portada y archivo
+
+Brief del usuario: llevar las cuatro identidades de los hubs (El
+Expediente, El Trago, La Sala de Juntas, El Marcador) a la página de
+artículo — "donde los lectores realmente viven" — con libertad creativa
+casi total; darle a la portada la misma energía dentro de sus límites
+pactados; y traer el archivo al mismo nivel. Rama
+`claude/playbook-portal-design-1c6s7c`.
+
+**La Lectura (artículo) — un esqueleto compartido, cuatro pieles:**
+
+- **Cascarones por producto** en `articulo/page.tsx`, activados por el
+  `article-product-<source>` que ya existía. La Lana abre como
+  expediente: pestaña de fólder (nº de caso calculado con el mismo
+  `caseNumber` del hub + "Fecha del caso" + sello abierto/archivado),
+  byline en mono, foto como "Anexo fotográfico · Exp. NNN" (marco matte
+  blanco FIJO — una impresión es blanca en cualquier tema — con la
+  passe-partout como BORDER, no padding, para que el parallax nunca la
+  tape), y cierra con la pestaña "Siguiente expediente" (el caso
+  siguiente más viejo; el más nuevo si ya estás en el más viejo),
+  excluido de "Sigue leyendo" para no duplicar. Noticias abre como shot:
+  badge del día real + "N shots ≈ X min" (`shotLabel`), titular con
+  regla verde, y los párrafos top-level numerados 01/02/03 vía counter
+  CSS (el aside de opinión, blockquotes y figures quedan fuera del
+  conteo por construcción del selector). Infinitas: titular Inter 800,
+  portada con duotono violeta (`.lect-duotone`, receta del hub en clase
+  propia) y acentos violeta. TFBR: tira de partner Interticket sobre el
+  artículo (estática — el header del sitio ya es el sticky), flechas
+  rojas en H2/H3, blockquote y callout en rojo.
+- **Kit compartido**: kicker con scramble de split-flap, parallax sutil
+  de la portada (transform-only, img pre-escalada 1.12), reglas que se
+  dibujan al scroll (`.lect-rule` + los `hr` del cuerpo), y count-up
+  inline de cualquier `<strong>` cuyo texto completo sea una cifra
+  (ancho bloqueado al tamaño final antes de animar — cero reflow). Todo
+  en UN client component (`components/article/ArticleMotion.tsx`), que
+  registra ScrambleTextPlugin LOCAL (regla de lib/gsap respetada) y
+  consulta el DOM en vez de recibir props para cubrir las tres formas de
+  cuerpo por igual. Sin JS o con reduced-motion: el markup servido ya es
+  el estado final.
+- **Convención de autoría NUEVA — "Cifra clave:"** (lib/product-hubs.ts:
+  `markCifraFigures`/`parseCifra`/`CIFRA_TEXT_PREFIX`): un párrafo
+  `Cifra clave: US$720 millones — caption` se vuelve un pull-figure de
+  sangría completa entre reglas que cuenta hacia arriba al entrar en
+  vista; caption opcional tras ` — `; valor sin dígitos o >24 chars =
+  párrafo intacto (inerte). Corre ANTES del ad split, que no puede
+  cortarla (solo corta tras `</p>` top-level). **Sincronizado en la
+  misma sesión** en publish-newsletter ("hub pages read the body" +
+  checklist) y publish-sourced-article.
+- **"Sigue leyendo" con identidad**: `RelatedCard` reemplaza los NewsRow
+  — eyebrow con el concepto del hub ("El Expediente · La Lana del
+  Deporte"), la cifra grande de la nota si la tiene, y hover que voltea
+  la tarjeta a la superficie de SU producto (fondo shots/manila/violeta/
+  negro-rojo). El muro también se tiñe por producto (solo el borde).
+- **MoneyTrail en el cuerpo ahora lleva label** ("Ruta del dinero") —
+  como divisor de capítulo se explica solo.
+
+**La Portada — dentro de las bardas** (1+5 intacto, orden de secciones y
+ads intactos): SplitText en el titular del hero (`SplitHeadline`, ambos
+shapes de LeadStory, texto servido primero — sin CLS ni costo LCP);
+"toque split-flap" en el label del ticker (`TickerScramble`, ancho
+bloqueado durante el flap); barridos verdes sobre las reglas de sección
+al entrar en vista, que luego se desvanecen y dejan la regla de tinta
+original (`HomeChoreography` — las clases pt-sweep-* solo las agrega JS,
+así que no-JS/reduced-motion quedan byte-idéntico al diseño previo;
+montado SOLO en la portada); las tarjetas de producto ganan preview de
+identidad en hover (data-hub derivado de la URL del CMS — reordenar
+tarjetas no rompe nada — con el nombre del concepto deslizándose en el
+color del hub); y press-states en todo lo tappable (solo CSS :active,
+dentro de prefers-reduced-motion:no-preference).
+
+**La Hemeroteca** (lógica de agrupación INTACTA): marcadores de mes como
+reglas discretas — como el archivo ordena por rank (no cronológico), un
+marcador solo dispara al cruzar a un mes MÁS VIEJO que todo lo marcado
+("mes más profundo", monótono, sin tartamudeo Ago/Jul/Ago); toolbar de
+filtros como consola (labels mono numerados 01-04, panel con borde verde,
+filtros activos ENCENDIDOS en verde — scoped al panel, el resto del sitio
+mantiene el active de tinta), toggle de vista segmentado; estado vacío
+con voz propia (sello "SIN RESULTADOS" + copy + limpiar filtros). El
+stagger de entrada ya lo daba .reveal en cada fila/tarjeta.
+
+**CSS**: tres archivos nuevos (`styles/lectura.css`, `styles/portada.css`,
+`styles/hemeroteca.css`), importados después de product-hubs.css a
+propósito (pisan a especificidad igual). Prefijos nuevos verificados sin
+colisión (`lect-`, `pt-sweep-`, `arch-`).
+
+**Tres bugs reales encontrados y corregidos verificando:**
+1. **El form de contraseña del muro desbordaba 29px en 390px** (y el hint
+   se encimaba al borde en desktop): `.pill-form` es flex row nowrap y
+   `.password-auth-form` solo apilaba `.nl-fields`, dejando el `<p>` del
+   hint EN FILA. Invisible en producción porque con Google configurado el
+   form vive plegado. Fix en article.css (columna en el form + radio 24px).
+2. **El duotono teñía TODA la página de lavanda**: `mix-blend-mode:
+   luminosity` sin `isolation:isolate` en el wrapper blendea contra el
+   grupo raíz. El hub nunca lo mostró porque su superficie ya es violeta.
+3. **Un comentario CSS con `*/` literal adentro** ("inf-*/") cerraba el
+   comentario antes de tiempo y el parser se comía la regla siguiente
+   completa (`.lect-duotone` quedaba position:static y el overlay violeta
+   cubría el viewport). Medido con getComputedStyle, no a ojo.
+
+**Cómo se verificó** (app corriendo, Postgres local seedeado, fechas
++19 días, párrafos de prueba para las 3 convenciones + un artículo TFBR
+con body_html insertado localmente para ejercitar su template): Playwright
+a 1366px y 390px, tema claro Y oscuro, scroll lento en dos pasadas antes
+de capturar — portada, archivo (cuadrícula/lista/vacío con filtros), los
+4 templates de producto y el estado walled (contexts con UA de bot para
+la pasada general — full access por metering — y contexts reales
+quemando la cuota para el muro). 0 anchors anidados, 0 overflow
+horizontal, 0 .reveal atorados, 0 errores de consola propios (solo el
+CORS de doubleclick del embed de YouTube proxiado — tercero, no nuestro).
+El muro en modo PRODUCCIÓN (`next build` + `next start`) confirmado SIN
+texto del cuerpo en la respuesta (en dev el flight debug de RSC incluye
+props de Ticker con teasers — solo dev, pre-existente, no es fuga real).
+Admin: login real, tabs Artículos/Hubs/Portada sin errores de consola
+(LivePreview reusa LeadStory, que ahora monta SplitHeadline). tsc,
+eslint y next build limpios con y sin .env.local.
+
+**Pendiente:**
+- Revisión del usuario sobre el deploy real (los sweeps, scrambles y
+  count-ups se aprecian en vivo, no en capturas).
+- La numeración de expedientes en el ARTÍCULO usa el mismo cálculo
+  cronológico del hub — la nota de backlog del 2026-08-05 (subir
+  histórico renumera) ahora aplica también a la página de artículo.
+- `dateFormatted` de los datos de prueba locales quedó desfasado del
+  shift de +19 días (cosmético, solo sandbox).
+
+### 2026-08-05 — La Lectura, segunda pasada: activos dinámicos desde lo que los artículos YA contienen
+
+Pedido del usuario: encontrar lo que se repite en el corpus real, volver
+cada patrón un activo dinámico por artículo, entrenar los skills para que
+detecten y formateen esas señales, y — con libertad — aprovechar la
+portada. Misma rama `claude/playbook-portal-design-1c6s7c`.
+
+**Lo que dijo el corpus** (minado con script contra los 31 artículos,
+título+excerpt+cuerpo): 10 artículos traen cifras de dinero/porcentaje
+SIN bold (inertes hasta hoy); los 14 sin ningún activo posible eran casi
+todos historias de RELACIÓN entre dos partes (Volkswagen ↔ Bayern,
+Chelsea ↔ Strava, ATP ↔ WTA, COI ↔ Rusia…) — la conexión es el patrón
+común, que es exactamente el lenguaje del tablero de salidas; y el estilo
+de casa de lead-ins en bold (`**La sanción:** …`) que ambos skills ya
+exigen aparece en cero artículos viejos pero estará en todos los futuros
+— señal gratis que nadie estilizaba.
+
+**Construido:**
+- **Convención nueva "Jugada:"** (`markJugada`/`parseJugada`/
+  `JUGADA_TEXT_PREFIX` en lib/product-hubs.ts): `Jugada: A ↔ B` (o `→`)
+  se vuelve la tira de conexión split-flap — panel oscuro tipo tablero,
+  lados en flap (ArticleMotion, ScrambleText local), acento por producto
+  (verde/dorado/rojo; Infinitas en su superficie plana violeta, sin
+  grunge). Lados ≤32 chars, inerte si no parsea. El ad split no puede
+  cortarla.
+- **Marcas de lead-in** (`markLeadIns` + espejo plain-text): el
+  `<p><strong>Etiqueta:</strong>` de casa se etiqueta `lect-leadin` y se
+  estiliza como nota de margen (small-caps tracked, color del producto;
+  Noticias queda en tinta — los números de beat ya llevan el verde).
+  Corre AL FINAL de la cadena de transforms para no tocar los párrafos ya
+  consumidos por opinión/cifra/jugada; etiquetas-cifra excluidas.
+- **Highlight automático de cifras inline** (ArticleMotion, dispositivo
+  5): las cifras de dinero/porcentaje SIN bold en prosa ganan un swipe de
+  marcador que se dibuja al scroll (tope 6, tinte por producto). Del lado
+  del DOM a propósito (TreeWalker sobre nodos de texto, saltando
+  strong/a/aside/figure/mark/dispositivos) — un transform de string sobre
+  HTML de editor tendría que razonar sobre atributos; reversible en
+  cleanup; con reduced-motion ni se crean los marks (página idéntica al
+  server render). Números sueltos sin marcador de moneda/escala NO
+  matchean a propósito (años, dorsales).
+- **Portada — "La cifra del día"** (libertad usada): módulo del rail
+  (HomeSidebar, debajo del newsletter — esa posición es pactada con
+  ventas y no se mueve) con la cifra más grande de las historias
+  rankeadas del día como chip verde rotado que cuenta hacia arriba
+  (components/home/DailyFigure.tsx, mecánica del Scoreboard sobre
+  lib/figures compartido), enlazando a su historia. Salta al hero a
+  propósito (el rail debe AGREGAR información, no repetir el titular de
+  al lado); colapsa si ningún artículo rankeado trae cifra. Cero CMS:
+  deriva del mismo pool cacheado + extractPullFigure de los héroes de
+  hub.
+- **lib/figures.ts** nuevo: parsing/formato de cifras compartido
+  (ArticleMotion + DailyFigure) para que la semántica numérica no
+  divergiera entre superficies.
+- **Backfill curado** (`scripts/seed-jugadas.ts` +
+  `scripts/data/jugadas-backfill-2026-08-05.json`): las 14 conexiones de
+  los artículos sin activo, cada una derivada de su PROPIO título (nunca
+  inventada), append como párrafo de convención al campo que el artículo
+  realmente renderiza (bodyHtml nativo o teaser, forma HTML o plana).
+  Idempotente (skip si ya hay Jugada), --dry-run soportado, mismo
+  temperamento que update-lana-board.ts. **Corrido contra producción en
+  dry-run** (14/14 validan, 12 a bodyHtml + 2 a teaser, cero skips) —
+  **el run real queda pendiente para DESPUÉS del deploy de esta rama**:
+  con el código viejo en producción las líneas se verían como texto plano
+  "Jugada: …" (inertes pero visibles); tras el deploy, el mismo comando
+  sin --dry-run las enciende.
+- **Skills entrenados en la misma sesión** (publish-newsletter +
+  publish-sourced-article): cuándo Jugada sí/no (relación documentada,
+  ↔ vs →, lados ≤32, una por artículo, preferir Cifra clave en historias
+  de números, misma redacción que la fila del tablero en la-lana), los
+  lead-ins ahora son UI (específicos por párrafo — un label genérico
+  repetido ahora SE VE repetido), y las cifras se resaltan solas (regla:
+  formas de casa, la MÁS importante en bold — bold cuenta, plano se
+  resalta). Checklist de elementos dinámicos actualizado.
+
+**Verificación** (app corriendo, Postgres local): los 14 stubs seedeados
+localmente vía SQL equivalente + lead-ins de prueba en Infinitas/TFBR +
+jugada en el artículo FMF; Playwright 1366/390, claro y oscuro, sobre
+portada, archivo, los 4 templates, el stub Chelsea ↔ Strava, el la-lana
+de hidratación y el estado walled: 0 anchors anidados, 0 overflow, 0
+reveals atorados, 0 errores de consola propios. Capturas revisadas a ojo
+(tira de jugada en piel Noticias y La Lana, highlights dibujados en los
+párrafos del FMF, chip del rail contando). tsc/eslint/next build limpios
+con y sin .env.local.
+
+**Pendiente:**
+- **Post-deploy**: `POSTGRES_URL=<prod> npx tsx scripts/seed-jugadas.ts
+  scripts/data/jugadas-backfill-2026-08-05.json` (dry-run primero) para
+  encender las 14 jugadas del catálogo viejo.
+- Los cuerpos de producción son más completos que el seed local (12 de
+  los 14 tienen bodyHtml real) — algunos podrían ganar además highlights
+  de cifras; nada que hacer, es el comportamiento deseado.
+
+### 2026-08-05 — La Lectura, tercera pasada: calibración con feedback real del preview
+
+El usuario revisó el preview con datos de producción y reportó dos cosas:
+"La cifra del día" mostraba la cifra EQUIVOCADA para la nota de LIV Golf
+(el 6,000 millones histórico del PIF — contexto — en vez de los US$250M
+rumorados que SÍ son la historia), y el titular del hero del 1+5 se
+quedaba congelado al cambiar de tab. Además pidió correr el retro-fit
+contra las noticias viejas de una vez.
+
+- **Bug real del hero (SplitHeadline)**: SplitText reemplaza los hijos
+  del h1 con sus spans de palabra, así que cuando el filtro de fuente
+  re-renderizaba el LeadStory (sin key), el diff de texto de React caía
+  en DOM que ya no era suyo y el revert() del cleanup restauraba el
+  título VIEJO. Fix: `key={text}` en el h1 — remonta por título, el
+  cleanup revierte sobre el nodo saliente y el nuevo trae el texto
+  correcto. Verificado con Playwright: Todo → La Lana → Infinitas →
+  Todo, el titular cambia y regresa correcto en los cuatro estados.
+- **Calibración de La cifra del día**: nuevo
+  `extractCifraFromBody(bodyHtml, teaser)` en lib/product-hubs.ts (mismo
+  patrón de acceso que extractTrailStops); el módulo ahora hace UN fetch
+  por id del artículo elegido y una "Cifra clave:" declarada en el cuerpo
+  SIEMPRE le gana al scrape de título/excerpt — el scrape puede aterrizar
+  en una cifra de contexto, la declarada es la de la historia. Verificado
+  local con réplica del artículo de LIV: el chip pasó de "6,000 millones"
+  a "US$250 millones".
+- **Retro-fit corrido contra producción** (instrucción explícita del
+  usuario): las 14 jugadas del backfill escritas (dry-run + real, 14/14,
+  12 a bodyHtml y 2 a teaser), y la nota de LIV ganó su
+  `Cifra clave: US$250 millones — La inversión que reporta el New York
+  Post; LIV no la confirma` insertada entre "Lo que hay detrás" y "Cómo
+  se ve 2027" (dry-run con anchor verificado, luego real, releído para
+  confirmar). OJO: el sitio VIVO sigue corriendo el código viejo hasta
+  que esta rama despliegue — ahí esas líneas se leen como párrafos de
+  texto normales (inertes, legibles); el preview de la rama ya las
+  renderiza como dispositivos.
+- **Barrido de sanidad** sobre el catálogo de producción (scraped vs
+  declared por artículo): LIV era el único caso engañoso; el resto de los
+  scrapes son la cifra propia de cada historia (Netflix USD 200M, Real
+  Madrid 1,200 millones, Diablos -34.6%…).
+- **Skills calibrados** (publish-newsletter + publish-sourced-article):
+  la Cifra clave debe ser la cifra PROPIA de la historia, nunca la de
+  contexto ("si el lector recuerda un solo número de esta nota, ¿cuál
+  es?"); una cifra rumorada califica cuando ES la historia — atribución
+  en el caption, nunca en el value; "La cifra del día" prefiere la
+  declarada sobre cualquier scrape (declararla es controlar qué número
+  representa la nota en todo el sitio); y las cifras SIEMPRE con símbolo
+  de moneda en las formas de casa ("US$250 millones", jamás "250
+  millones de dólares" — los extractores rankean dinero-con-símbolo por
+  encima de conteos pelones). Checklist actualizado en ambos.
+
+**Verificación**: réplica local de LIV (módulo con override confirmado
+por HTML servido), Playwright para el fix del hero (4 estados de tab),
+dry-runs de ambos writes de producción antes del real con verificación
+posterior, tsc/eslint/next build limpios.
+
+### 2026-08-05 — La Lectura, cuarta pasada: la colección de dispositivos
+
+Pedido del usuario: además de la Jugada, una colección de 5-10 elementos
+dinámicos que el skill elija según el contexto — timeline, número
+diseñado, recibo, ecuación, "floor plan", stock card, con libertad
+creativa. Misma rama.
+
+**Siete dispositivos nuevos** (`lib/article-devices.ts`, módulo propio
+para que product-hubs.ts no siga creciendo), todos con el contrato de
+siempre — párrafo plano en TipTap, detección server-side, inerte si no
+parsea, a prueba del ad split — y con sintaxis compartida: items con
+` · `, clave—valor con ` — `:
+
+1. `Cronología:` — timeline con espina dibujada al scroll y milestones
+   en stagger (2-6 hitos fechados). Para sagas.
+2. `Recibo:` — ticket térmico (papel blanco FIJO, mono, bordes de sierra
+   por gradientes) con leaders punteados y un Total que cuenta. Para
+   desgloses de costos.
+3. `Ecuación:` — matemática display con operandos y resultado contando
+   (operadores ×+−/ y un =). Para "la cuenta detrás del deal".
+4. `Salto:` — antes → después con dirección calculada de los números
+   (flecha verde arriba / roja abajo, pares de contraste ya verificados
+   del sitio). Para historias de crecimiento/recorte.
+5. `Reparto:` — barra de proporciones en tonos del acento del producto
+   con leyenda de swatches (el "floor plan" del dinero); segmentos crecen
+   en secuencia. Para repartos de ingresos/derechos.
+6. `Alineación:` — chips numerados tipo dorsal cuyos nombres entran en
+   flap (mismo ScrambleText de la Jugada). Para enumeraciones de actores.
+7. `Cotización:` — tile de mercado (panel oscuro; Infinitas en su
+   superficie plana violeta) con nombre mono, valor grande contando y
+   delta ▲/▼ coloreado por signo. Para resultados de empresas públicas.
+
+**Arquitectura**: ambos body shapes pasan por los MISMOS builders
+(markDevices para HTML, deviceFromParagraph para texto plano → el plain
+path renderiza el markup del builder, que escapa TODA interpolación en
+un solo lugar). Acentos vía `--lect-accent`/`--lect-ink-accent` en
+.article-detail (cascada de 3 capas para el par verde legible), así cada
+dispositivo se pinta por producto sin 4 copias de reglas. Movimiento en
+ArticleMotion con primitivas genéricas: `[data-lect-stagger]` (hijos en
+secuencia), `[data-lect-seg]` (segmentos del reparto), `.lect-draw`
+(espina del timeline, mismo trazo que las reglas), flap compartido
+Jugada/Alineación, y `[data-lect-countup]` que ya existía. El
+highlighter inline excluye `.lect-device` para no marcar dentro de un
+dispositivo.
+
+**La colección completa que el skill elige** (11): Opinión (estándar),
+Ruta del dinero, Cifra clave, Jugada + los 7 nuevos. **Skills
+entrenados** (publish-newsletter con la sección completa de sintaxis y
+cuándo-cada-uno; publish-sourced-article apunta a ella): máximo 1-2
+dispositivos diseñados por artículo (la opinión y los automáticos no
+cuentan), elegir por la FORMA de la historia (saga→Cronología,
+desglose→Recibo, reparto→Reparto, pareja→Jugada, un número→Cifra), y
+ningún dato inventado para llenar un dispositivo. Checklist actualizado.
+
+**Verificación**: dos artículos sampler locales (uno Noticias con los 7,
+uno Infinitas para la piel violeta — que además cachó dos bugs: la nota
+de la Cotización era invisible sobre el tile claro de Infinitas, y el
+ellipsis de los leaders del Recibo metía un "…" antes de cada valor;
+ambos corregidos), Playwright 1366/390: 0 overflow, 0 anchors anidados,
+0 errores de página; capturas claro y oscuro revisadas a ojo (el recibo
+se queda blanco en oscuro a propósito — es papel). OJO verificación: en
+ESTA corrida del dev server el script de tema beforeInteractive no
+aplicó data-theme (localStorage sí quedó 'dark' — flakiness de dev, en
+build de producción el script va inline en el head y en corridas
+anteriores sí aplicó); las capturas oscuras se tomaron forzando el
+atributo, que es exactamente lo que el script haría. tsc/eslint/next
+build limpios con y sin .env.local.
+
+**Pendiente**: nada nuevo — los dispositivos son forward-looking (los
+usa el skill al publicar); el catálogo viejo ya quedó cubierto por
+jugadas/highlights/count-ups en las pasadas 2-3.
+
+### 2026-08-06 — La Lectura, quinta pasada: presupuesto de dispositivos y rediseño del share
+
+Dos pedidos del usuario antes de embarcar: decidir cuántos dispositivos
+por artículo (y si hay límites), y rediseñar los botones de compartir
+("se ven demasiado viejos para nuestra gran página").
+
+- **El presupuesto de dispositivos (decisión final, EN CÓDIGO, no solo
+  en el skill):** los dispositivos diseñados escalan con `readingTime` —
+  ≤2 min → 1, 3-5 min → 2, 6+ min → 3 (`deviceBudgetFor` en
+  lib/article-devices.ts). Exentos: el callout de Opinión (estructura
+  estándar), los automáticos (lead-ins, highlights, count-ups) y la Ruta
+  del dinero (dispositivo identitario de La Lana, ya limitado a uno).
+  Nunca se repite un TIPO en un artículo aunque sobre presupuesto. El
+  orden lo decide el documento: `applyBodyDevices` matchea los NUEVE
+  dispositivos (Cifra y Jugada incluidos — sus regex/builders se
+  exportaron de product-hubs.ts) en UNA pasada ordenada por posición —
+  las pasadas por-tipo de antes gastaban el presupuesto en orden de TIPO,
+  no del editor. Los excedentes quedan como texto plano legible: pasarse
+  de presupuesto es un error VISIBLE, no silencioso. El path de texto
+  plano usa el mismo presupuesto vía deviceFromParagraph (que ahora
+  devuelve {markup, name} para la regla de tipo único). **Bug real
+  cazado verificando**: `match.start <= cursor` en la selección trataba
+  como "overlap" a un dispositivo ADYACENTE al anterior (start == end
+  del previo) y saltaba dispositivo por medio en corridas consecutivas
+  — medido en el sampler (renderizaba timeline+eq+reparto en vez de los
+  tres primeros); ahora `<` estricto y el sampler renderiza exactamente
+  los primeros N declarados.
+- **Share row rediseñado** (ShareRow.tsx + sección en lectura.css que
+  supersede las reglas de article.css): label "Compartir" en la voz de
+  los device-labels (mono, cuadrito de acento), acciones circulares de
+  44px icon-first que se llenan con el color de marca de cada red al
+  hover (WhatsApp #1faa53 — el verde oficial es muy claro para glifo
+  blanco —, Facebook, LinkedIn; X usa la TINTA adaptativa del tema para
+  no ser negro-sobre-negro en oscuro), lift + sombra, pulse de GSAP que
+  ya existía, y el pill de "Copiar enlace" conserva su texto (el label
+  ES su feedback) encendiéndose en verde "¡Copiado!" como los filtros
+  activos del archivo. Redondo a propósito: el lenguaje documentado del
+  sistema es redondo = acción. Botones con .reveal → entran en cascada.
+- **Skills sincronizados** con el presupuesto final (tabla ≤2/3-5/6+ en
+  publish-newsletter y publish-sourced-article + checklist), incluida la
+  regla de que el renderer rechaza tipos repetidos y muestra los
+  excedentes como texto.
+
+**Verificación**: presupuesto confirmado contra la app corriendo (sampler
+Noticias RT7 → exactamente cronología+recibo+ecuación renderizados, los
+demás como texto; sampler Infinitas RT3 → timeline+reparto); share row
+capturado en claro y oscuro, reposo/hover/copiado, 0 errores de página,
+reveals funcionando (0 atorados). En el camino: el dev server quedó
+sirviendo chunks 500 (los `next build` de la sesión pisan .next del dev
+corriendo — un `next-server` zombie retuvo el puerto; documentado para
+la próxima: matar el server ANTES de buildear). tsc/eslint/next build
+limpios con y sin .env.local.
+
+### 2026-08-06 — Más leídas: el top 5 por fin funciona, y mejor
+
+Pedido del usuario: "setup the top 5" y de paso mejorarlo. Diagnóstico:
+el módulo era 100% GA4 y las credenciales de GA4 nunca se configuraron
+en Vercel (gap documentado desde Fase 4/5) — "Más leídas" llevaba desde
+el lanzamiento sin renderizar NADA.
+
+- **Fuente de datos en dos niveles** (lib/most-read.ts): GA4 sigue
+  siendo la fuente preferida cuando esté configurada (ve TODO el
+  tráfico); si no está — o si un property joven regresa vacío — el
+  módulo se alimenta del PROPIO log de metering del sitio
+  (article_reads, ventana de 7 días vía read_at): first-party, cero
+  setup externo, funciona desde hoy. Es un poco más estricto que
+  pageviews (bots y editores no loggean; los índices únicos hacen ~1
+  fila por identidad/artículo/mes) — mide lectores, no hits, y el UI
+  dice "lecturas" en ambos casos sin sobre-prometer unicidad. GROUP BY
+  cacheado 5 min (unstable_cache) para no pegarle a la tabla en cada
+  vista de portada (layout force-dynamic). El módulo solo se oculta si
+  NINGUNA fuente tiene datos.
+- **Upgrade visual** (MostReadSection.tsx + clases mr-* en portada.css;
+  el patrón .rank-list de hero.css queda sin uso — se dejó en su lugar
+  para no tocar más superficie): numerales Anton con el líder en el chip
+  verde (el tratamiento "la cifra" de la casa), punto de color de fuente
+  por fila, barra de calor escalada al conteo del líder que SE DIBUJA
+  cuando ScrollReveal marca la fila .is-visible (CSS puro sobre el
+  sistema existente, cero JS nuevo; llena y estática con
+  prefers-reduced-motion), y el conteo real en mono ("54 lecturas").
+  Sub "Últimos 7 días" para que la ventana sea explícita.
+
+**Verificación**: 93 lecturas sintéticas seedeadas en el Postgres local
+(60 anon readers, distribución con líder claro, repartidas en la
+semana) + las ~96 reales de las corridas de Playwright; portada
+capturada en claro y oscuro — 5 filas, chip verde en el 01, barras
+escaladas (54/27/22/15/14), dots por fuente, 0 errores de página;
+transform de la barra confirmado en scaleX(1) tras el reveal.
+tsc/eslint/next build limpios con y sin .env.local.
+
+**Nota**: cuando el usuario configure GA4 en Vercel, el módulo cambia
+solo a pageviews sin tocar código (y el conteo pasa a incluir tráfico
+no-metered). Hasta entonces, first-party.
+
+### 2026-08-06 — Más leídas, segunda pasada: banda horizontal, sin cifras públicas, y el doble login del iPad
+
+Feedback del usuario sobre el preview real (captura de iPad, 1210px):
+¿los números son reales?, el módulo dejaba un hueco enorme de espacio
+muerto, no publicar nuestros números así, y qué queda manual.
+
+- **Los números son reales**: verificado contra la Neon de producción —
+  140/116/89/68/62 lecturas en 7 días coinciden fila por fila con la
+  captura, y cada lectura es un LECTOR DISTINTO (los índices únicos del
+  metering; bots y editores nunca loggean). 2,167 lecturas totales de
+  ~2,055 lectores anónimos + registrados desde el lanzamiento.
+- **Cifras fuera del UI público** (directiva del usuario): el conteo
+  absoluto ya no se renderiza — las barras de calor son RELATIVAS al
+  líder, así el ranking lee como intensidad sin publicar tráfico
+  interno. Los conteos siguen en la consulta (ordenan y escalan barras).
+- **Reubicado a banda horizontal**: en el rail, el módulo estiraba el
+  sidebar mucho más abajo que las columnas del 1+5 (el hueco de la
+  captura). Ahora es una banda de 5 columnas a ancho completo entre el
+  paquete de noticias y "Lo que sigue importando" (~150px, reglas de
+  columna tipo periódico, numerales Anton, líder en chip verde, dot de
+  fuente, barra relativa; 2 columnas ≤980px, 1 ≤640px). El rail queda
+  newsletter + La cifra + ad y empata con la altura de las columnas
+  (verificado a 1210px). La banda entró al barrido verde de
+  HomeChoreography (TOP_EDGE_SELECTOR).
+- **Bug pre-existente cazado por la misma captura — doble "Iniciar
+  sesión"**: la regla de tap-targets `@media(pointer:coarse)` le ponía
+  `display:flex` (0,2,0) a `.nav-links .nav-drawer-login`, ganándole a
+  CUALQUIER ancho al `display:none` base (0,1,0) — en una tablet táctil
+  MÁS ANCHA que 1180px (drawer inexistente, nav-login-link visible) el
+  login del drawer aparecía inline en el nav: dos "Iniciar sesión"
+  juntos. Un mouse jamás matchea pointer:coarse — por eso sobrevivió
+  las auditorías. Fix: la regla ahora exige también max-width:1180px.
+  Verificado con contexts táctiles: 1210px → exactamente 1 login
+  visible; 390px → 0 (vive en el drawer); desktop → 1.
+
+**Verificación**: Playwright en 1210 (táctil), 1366 y 390, tema oscuro
+(el del usuario), capturas revisadas; tsc/eslint/next build limpios con
+y sin .env.local.
+
+**Manual del lado del usuario (estado 2026-08-06)**: nada para que Más
+leídas funcione (first-party). Opcionales/pendientes de negocio: (1)
+GA4_PROPERTY_ID + service account en Vercel — sube el conteo a pageviews
+completos y enciende el panel de analytics del admin; (2) los dos
+placeholders legales (domicilio fiscal / jurisdicción) siguen siendo el
+único bloqueante de lanzamiento; (3) confirmar/linkear la fila
+"Infantino ↔ Trump" del tablero en el tab de Hubs; (4) mergear esta rama
+cuando el preview convenza — el retro-fit de producción ya está corrido
+y las líneas inertes se encienden con el deploy.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

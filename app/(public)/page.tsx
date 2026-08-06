@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getAllArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
+import { HomeChoreography } from '@/components/home/HomeChoreography';
+import { MostReadSection } from '@/components/home/MostReadSection';
 import { StillMattersSection } from '@/components/home/StillMattersSection';
 import { HomeSidebar } from '@/components/home/HomeSidebar';
 import { TopicDirectory } from '@/components/home/TopicDirectory';
@@ -58,11 +60,16 @@ export default async function HomePage() {
     <>
       <main className="container news-section" id="noticias">
         <NewsGrid articles={articles} sidebar={<HomeSidebar />} />
-        {/* "Lo que sigue importando" — directly below the main news grid
-            (design brief, 2026-08-05): starred/featured stories from the
-            last ~12 days that the rotation above no longer shows. Same
-            React-cached articles array, no extra query; renders nothing on
-            weeks with no qualifying stories. */}
+        {/* "Más leídas" as a full-width band under the news package
+            (2026-08-06 — it lived in the rail and stretched it far past
+            the 1+5 columns on tablets; see MostReadSection's comment).
+            Not a growth of the 1+5: a derived module, like the one below. */}
+        <MostReadSection />
+        {/* "Lo que sigue importando" — directly below (design brief,
+            2026-08-05): starred/featured stories from the last ~12 days
+            that the rotation above no longer shows. Same React-cached
+            articles array, no extra query; renders nothing on weeks with
+            no qualifying stories. */}
         <StillMattersSection articles={articles} />
       </main>
 
@@ -83,6 +90,10 @@ export default async function HomePage() {
         <TestimonialsSection data={content.testimonialsSection} />
       </div>
       <AboutSection data={content.aboutSection} />
+      {/* Homepage-only motion (La Portada, 2026-08-05): green accents that
+          sweep along the section rules on scroll, then fade back out.
+          Mounted here, not in the layout, so no other route ships it. */}
+      <HomeChoreography />
     </>
   );
 }

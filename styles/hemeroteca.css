@@ -1,0 +1,75 @@
+/* ============================================================
+   La Hemeroteca — archive upgrades (design brief 2026-08-05).
+   The tiered river's grouping logic is untouched (every rule in
+   archivo/page.tsx fixed a reported bug); this file restyles the
+   instruments AROUND it: the filter toolbar as a console instead of a
+   form, quiet month rules as the reader scrolls deeper, and an empty
+   state with the archive's own voice. Entrance stagger for the river
+   comes from the existing .reveal system — every row/card/feature
+   already carries the class.
+   ============================================================ */
+
+/* ——— The filter console. Same markup, same round .filter-btn action
+   language — re-instrumented: mono tier labels with an index tick, a
+   bracketed panel that reads as a control surface, and active filters
+   lit in the brand green instead of generic ink (an active filter is an
+   indicator light, not just a pressed button). ——— */
+.archive-filters-panel{
+  counter-reset:tier;
+  background:var(--paper);border:1px solid var(--ink);border-left:3px solid var(--green);
+  padding:18px 20px;gap:12px;
+}
+.tag-filter-label{
+  counter-increment:tier;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:10px;letter-spacing:.16em;color:var(--gray-txt);
+}
+.tag-filter-label::before{
+  content:counter(tier,decimal-leading-zero) " · ";
+  color:var(--green);font-weight:700;
+}
+/* Active filter = lit indicator. Scoped to the panel so the view toggle
+   and the rest of the site keep the ink-pill active state. --green is
+   theme-stable and pairs with --ink-fixed text (same as .btn.accent). */
+.archive-filters-panel .filter-btn.active{
+  background:var(--green);border-color:var(--green);color:var(--ink-fixed);
+}
+.archive-filters-summary{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  letter-spacing:.12em;
+}
+.archive-filters[open] .archive-filters-summary{border-color:var(--green);color:var(--ink);}
+/* The count reads as the lit indicator's readout — the darker legible
+   green on paper (same pair as .share-btn.is-copied). */
+.archive-filters-count{color:#3f7d0a;font-weight:700;}
+[data-theme="dark"] .archive-filters-count{color:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .archive-filters-count{color:var(--green);}
+}
+/* View toggle as one segmented instrument instead of two loose pills. */
+.view-toggle{border:1.5px solid var(--rule);border-radius:999px;padding:3px;gap:0;background:var(--paper);}
+.view-toggle .filter-btn{border:none;min-height:32px;}
+
+/* ——— Month rules: hemeroteca flavor, not clutter. A small caps label on
+   a hairline, markers descend as the river crosses into older months
+   (see archivo/page.tsx's withMonthRules). ——— */
+.arch-month-rule{
+  display:flex;align-items:center;gap:14px;margin:10px 0 -8px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gray-txt);
+}
+.arch-month-rule::before{content:"";width:26px;height:1px;background:var(--gray-txt);flex-shrink:0;}
+.arch-month-rule::after{content:"";flex:1;height:1px;background:var(--rule);}
+/* In the text list the rows carry their own borders — give the rule a bit
+   more room so it reads as a shelf, not another row. */
+.news-list .arch-month-rule{margin:16px 0 6px;}
+
+/* ——— The empty drawer. ——— */
+.arch-empty{grid-column:1/-1;padding:44px 0 36px;display:flex;flex-direction:column;align-items:flex-start;gap:14px;}
+.arch-empty-stamp{
+  display:inline-block;padding:5px 14px;border:2px solid var(--gray-txt);border-radius:2px;
+  font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-txt);
+  transform:rotate(-2deg);
+  mask-image:radial-gradient(circle at 30% 60%,#000 92%,transparent 100%);
+}
+.arch-empty p{font-size:14px;line-height:1.6;color:var(--gray-dark);margin:0;max-width:52ch;}

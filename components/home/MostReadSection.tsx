@@ -1,33 +1,46 @@
 import { getMostReadArticles } from '@/lib/most-read';
 
-// Legacy's "Más leídas" module (legacy/index.html + legacy/js/most-read.js)
-// is the one homepage section with zero editable fields — not even the
-// heading comes from content.json, confirmed by grepping legacy's
-// content.json and the current SiteContentData type for any trace of it
-// (there is none). It's 100% resolved live from GA4 pageview ids, so this
-// renders nothing at all (matching legacy's section.hidden toggle) rather
-// than showing an empty shell when GA4 isn't configured or has no data yet.
+// "Más leídas" — the homepage top 5, fed by GA4 when configured and by
+// the site's own metering log otherwise (see lib/most-read.ts). Renders
+// nothing only when neither source has any reads.
 //
-// Fase 7 UX: moved from a full-width section into the homepage sidebar
-// (components/home/NewsGrid.tsx's two-column layout), restyled to the v24
-// prototype's rank-list pattern — CSS counter numerals in Anton
-// (decimal-leading-zero), reading time on the right, 2px ink border-top
-// header. Markup is a plain <ol>; the numbering is pure CSS (see
-// styles/hero.css).
+// Layout (2026-08-06, second pass on user feedback from an iPad): a
+// full-width five-column band directly under the news package, NOT a rail
+// module — in the rail it stretched the sidebar far past the 1+5 columns
+// and left a page-tall hole of dead space. The rail keeps newsletter +
+// La cifra + ad, which roughly matches the news columns' height.
+//
+// Read counts are deliberately NOT rendered (user directive: "don't open
+// our numbers like that") — the heat bars are RELATIVE to the leader, so
+// the ranking reads as intensity without publishing internal traffic.
+// The bars draw when ScrollReveal marks each item .is-visible (pure CSS,
+// full and static under prefers-reduced-motion — styles/portada.css).
 export async function MostReadSection() {
-  const articles = await getMostReadArticles();
-  if (!articles || !articles.length) return null;
+  const items = await getMostReadArticles();
+  if (!items || !items.length) return null;
+  const max = Math.max(...items.map(item => item.count));
 
   return (
-    <section className="side-module" id="mas-leidas" aria-labelledby="mas-leidas-title">
-      <h2 className="side-title" id="mas-leidas-title">Más leídas</h2>
-      <ol className="rank-list">
-        {articles.map(a => (
-          <li key={a.id} className="rank-item">
-            <a href={`/articulo?id=${encodeURIComponent(a.id)}`}>
-              <h3>{a.title}</h3>
+    <section className="mr-band" id="mas-leidas" aria-labelledby="mas-leidas-title">
+      <div className="mr-head">
+        <h2 id="mas-leidas-title">Más leídas</h2>
+        <span className="mr-sub">Últimos 7 días</span>
+      </div>
+      <ol className="mr-list">
+        {items.map(({ article, count }, i) => (
+          <li key={article.id} className={`mr-item reveal${i === 0 ? ' mr-top' : ''}`}>
+            <a className="mr-link" href={`/articulo?id=${encodeURIComponent(article.id)}`}>
+              <span className="mr-rank" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <span className="mr-body">
+                <h3 className="mr-title">{article.title}</h3>
+                <span className="mr-meta">
+                  <span className="mr-dot" data-source={article.source} aria-hidden="true" />
+                  <span className="mr-heat" aria-hidden="true">
+                    <span className="mr-heat-fill" style={{ width: `${Math.round((count / max) * 100)}%` }} />
+                  </span>
+                </span>
+              </span>
             </a>
-            <span>{a.readingTime || 1} min</span>
           </li>
         ))}
       </ol>

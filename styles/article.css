@@ -146,8 +146,16 @@
    por default, Google sigue siendo el botón principal. ——— */
 .password-auth-toggle{background:none;border:none;padding:8px 0 0;margin:0;font-size:13px;color:var(--gray-dark);text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
 .password-auth-toggle:hover{color:var(--ink);}
-.password-auth-form{margin-top:10px;max-width:380px;}
+/* flex-direction:column en el FORM, no solo en .nl-fields: .pill-form es
+   un flex row con nowrap, así que el hint (<p>) quedaba EN FILA junto a
+   los campos — encimado al borde en desktop y 29px de overflow horizontal
+   en 390px (medido con Playwright, 2026-08-05; invisible en producción
+   porque con Google configurado el form vive plegado tras el toggle).
+   El radio de 999px de .pill-form en una caja ya alta se vuelve una
+   elipse — radio fijo acorde a la caja apilada. */
+.password-auth-form{margin-top:10px;max-width:380px;flex-direction:column;align-items:stretch;border-radius:24px;}
 .password-auth-form .nl-fields{flex-direction:column;align-items:stretch;gap:8px;}
+.password-auth-form .password-auth-hint{padding:0 14px 8px;}
 .password-auth-form input{border:1px solid var(--rule);background:var(--paper);padding:10px 14px;font-size:14px;border-radius:999px;}
 .password-auth-hint{font-size:12px !important;color:var(--gray-dark);margin:8px 0 0 !important;max-width:none !important;}
 .password-auth-error{font-size:13px;color:#c0392b;margin:8px 0 0;}

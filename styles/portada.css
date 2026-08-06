@@ -1,0 +1,176 @@
+/* ============================================================
+   La Portada — homepage flair inside the established fences
+   (design brief 2026-08-05). Same soul — paper/ink/green, Anton +
+   Inter, newspaper rules — more life. Nothing here changes the 1+5
+   package, the section order, or an ad slot; it's motion accents,
+   hover identity and press states layered onto the documented layout.
+   ============================================================ */
+
+/* ——— Section-rule sweeps. The pt-sweep-* classes are added ONLY by
+   components/home/HomeChoreography.tsx (homepage, JS, motion allowed):
+   a green accent draws along the section's existing ink rule as it
+   enters view, then fades out. No-JS and reduced-motion renders never
+   get the class, so the original rules are untouched there. ——— */
+.pt-sweep-bottom{position:relative;}
+.pt-sweep-bottom::after{
+  content:"";position:absolute;left:0;bottom:-2px;width:100%;height:2px;
+  background:var(--green);opacity:var(--sweep-alpha,1);
+  transform:scaleX(var(--sweep,1));transform-origin:left center;
+  pointer-events:none;
+}
+.pt-sweep-top{position:relative;}
+.pt-sweep-top::before{
+  content:"";position:absolute;left:0;top:-1px;width:100%;height:2px;
+  background:var(--green);opacity:var(--sweep-alpha,1);
+  transform:scaleX(var(--sweep,1));transform-origin:left center;
+  pointer-events:none;
+}
+
+/* ——— Product cards preview their hub identity on hover (green / gold /
+   red / violet). data-hub is derived from each card's CMS URL — a card
+   pointing anywhere else keeps the plain hover. ——— */
+.product-foot{display:flex;align-items:center;gap:10px;margin-top:auto;}
+.product-concept{
+  font-family:var(--serif-display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  opacity:0;transform:translateY(4px);
+  transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.product:hover .product-concept,.product:focus-visible .product-concept{opacity:1;transform:none;}
+/* Noticias — El Trago: brand green. --green is theme-stable, and the
+   concept label needs the darker legible green on paper (same pair as
+   .share-btn.is-copied). */
+.product[data-hub="industry-shots"]:hover,.product[data-hub="industry-shots"]:focus-visible{
+  border-color:var(--green);border-left-color:var(--green);box-shadow:0 14px 28px rgba(154,234,57,.22);
+}
+.product[data-hub="industry-shots"] .product-concept{color:#3f7d0a;}
+[data-theme="dark"] .product[data-hub="industry-shots"] .product-concept{color:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .product[data-hub="industry-shots"] .product-concept{color:var(--green);}
+}
+/* La Lana — El Expediente: the source gold (theme-adaptive token). */
+.product[data-hub="la-lana"]:hover,.product[data-hub="la-lana"]:focus-visible{
+  border-color:var(--src-lana);border-left-color:var(--src-lana);box-shadow:0 14px 28px rgba(181,133,10,.2);
+}
+.product[data-hub="la-lana"] .product-concept{color:var(--src-lana);}
+/* TFBR — La Sala de Juntas: the co-brand red (fixed literal, its own
+   brand color on light and dark alike). */
+.product[data-hub="futbol-business-review"]:hover,.product[data-hub="futbol-business-review"]:focus-visible{
+  border-color:var(--tfbr-red);border-left-color:var(--tfbr-red);box-shadow:0 14px 28px rgba(224,31,38,.16);
+}
+.product[data-hub="futbol-business-review"] .product-concept{color:var(--tfbr-red);}
+/* Infinitas — El Marcador: flat violet (adaptive token). */
+.product[data-hub="infinitas"]:hover,.product[data-hub="infinitas"]:focus-visible{
+  border-color:var(--src-infinitas);border-left-color:var(--src-infinitas);box-shadow:0 14px 28px rgba(107,47,191,.2);
+}
+.product[data-hub="infinitas"] .product-concept{color:var(--src-infinitas);}
+
+/* ——— "La cifra del día" (sidebar module, round 2): the day's biggest
+   figure as a counting green chip — Scoreboard mechanics in the rail,
+   derived from the ranked pool with zero CMS work. ——— */
+.side-cifra-card{display:flex;flex-direction:column;gap:8px;padding-top:12px;color:inherit;}
+.side-cifra-value{
+  align-self:flex-start;font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(26px,2.2vw,32px);line-height:1.15;color:var(--ink-fixed);
+  background:var(--green);padding:1px 10px;transform:rotate(-1.2deg);
+  font-variant-numeric:tabular-nums;
+}
+.side-cifra-story{font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;color:var(--ink);transition:color var(--duration-fast) ease;}
+.side-cifra-card:hover .side-cifra-story,.side-cifra-card:focus-visible .side-cifra-story{color:var(--green);}
+.side-cifra-cta{
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-txt);
+  opacity:0;transform:translateX(-6px);
+  transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.side-cifra-card:hover .side-cifra-cta,.side-cifra-card:focus-visible .side-cifra-cta{opacity:1;transform:none;}
+
+/* ——— "Más leídas" (2026-08-06, second pass): a full-width five-column
+   band under the news package — in the rail it stretched the sidebar far
+   past the 1+5 columns (iPad feedback). Anton rank numerals with the
+   leader on the green chip, per-item source dot, and a heat bar RELATIVE
+   to the leader (absolute read counts deliberately not rendered — user
+   directive). Bars draw when ScrollReveal marks the item .is-visible —
+   zero extra JS — and render full under reduced motion. Replaces
+   hero.css's .rank-list pattern (now unused). ——— */
+.mr-band{margin-top:40px;padding-top:24px;border-top:2px solid var(--ink);}
+.mr-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+.mr-head h2{font-family:var(--serif-display);font-weight:400;font-size:20px;letter-spacing:.02em;text-transform:uppercase;margin:0;}
+.mr-sub{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gray-txt);
+}
+.mr-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:0;}
+.mr-item{border-left:1px solid var(--rule);padding:2px 18px 4px;}
+.mr-item:first-child{border-left:none;padding-left:0;}
+.mr-link{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;color:inherit;height:100%;}
+.mr-rank{
+  font-family:var(--serif-display);font-weight:400;font-size:21px;line-height:1;color:var(--gray-txt);
+  padding-top:1px;
+}
+.mr-top .mr-rank{
+  justify-self:start;align-self:start;
+  background:var(--green);color:var(--ink-fixed);padding:1px 5px 0;transform:rotate(-2deg);
+}
+.mr-body{display:flex;flex-direction:column;gap:8px;min-height:100%;}
+.mr-title{
+  font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;margin:0;flex:1;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  transition:color var(--duration-fast) ease;
+}
+.mr-top .mr-title{font-weight:700;}
+.mr-link:hover .mr-title,.mr-link:focus-visible .mr-title{color:var(--green);}
+.mr-meta{display:flex;align-items:center;gap:8px;}
+.mr-dot{width:6px;height:6px;border-radius:50%;background:var(--gray-txt);flex-shrink:0;}
+.mr-dot[data-source="industry-shots"]{background:var(--src-industry);}
+.mr-dot[data-source="la-lana"]{background:var(--src-lana);}
+.mr-dot[data-source="infinitas"]{background:var(--src-infinitas);}
+.mr-dot[data-source="opinion"]{background:var(--src-opinion);}
+.mr-heat{flex:1;min-width:24px;height:3px;background:var(--rule);overflow:hidden;border-radius:2px;}
+.mr-heat-fill{
+  display:block;height:100%;background:var(--green);border-radius:2px;
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .8s var(--ease-out) .15s;
+}
+.mr-item.is-visible .mr-heat-fill{transform:scaleX(1);}
+@media(prefers-reduced-motion:reduce){
+  .mr-heat-fill{transition:none;transform:scaleX(1);}
+}
+@media(max-width:980px){
+  .mr-list{grid-template-columns:repeat(2,1fr);gap:0 24px;}
+  .mr-item{border-left:none;border-top:1px solid var(--rule);padding:12px 0 12px;}
+  .mr-item:first-child{border-top:none;}
+  .mr-item:nth-child(2){border-top:none;}
+}
+@media(max-width:640px){
+  .mr-list{grid-template-columns:1fr;gap:0;}
+  .mr-item:nth-child(2){border-top:1px solid var(--rule);}
+}
+
+/* ——— "Lo que sigue importando": the kicker dot breathes on hover and the
+   card presses like everything else tappable. Entrance stagger comes from
+   the existing .reveal system (per-parent 60ms cadence). ——— */
+.still-matters-card:hover .still-matters-kicker::before{transform:scale(1.5);}
+.still-matters-kicker::before{transition:transform var(--duration-base) var(--ease-out);}
+
+/* ——— Press states: everything tappable acknowledges the tap. Kept out of
+   reduced-motion (it's still motion). :active only — no JS, no delay. ——— */
+@media(prefers-reduced-motion:no-preference){
+  .product:active,
+  .news-row:active,
+  .lead-story:active,
+  .still-matters-card:active,
+  .analysis-card:active,
+  .inf-card:active,
+  .archive-grid-card:active,
+  .archive-feature-row:active,
+  .archive-line-row:active,
+  .lect-related-card:active,
+  .lect-next-link:active,
+  .rank-item:active{transform:translateY(0) scale(.985);}
+  .filter-btn:active,
+  .share-btn:active,
+  .shots-badge:active,
+  .topic-directory a:active{transform:scale(.95);}
+  .section-link:active{transform:translateY(1px);}
+  .topic-directory a{transition:background var(--duration-fast) ease,color var(--duration-fast) ease,transform var(--duration-fast) ease;}
+  .section-link{display:inline-block;}
+}

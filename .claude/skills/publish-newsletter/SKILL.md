@@ -205,6 +205,118 @@ them right at drafting time:
     4. Use "↔" for two-way relationships and "→" only when the piece
        describes a one-way flow. Keep each side short (1-3 words) — the
        board is a flap panel, not a sentence.
+- **All products: the "Cifra clave:" pull-figure beat (2026-08-05).** A
+  plain paragraph on its own line in `bodyMarkdown` of the form
+  `Cifra clave: US$720 millones — el valor del nuevo espacio comercial`
+  renders as a full-bleed pull-figure on the article page: the number set
+  huge between rules, counting up as the reader reaches it, with the text
+  after the ` — ` (dash with spaces; optional) as its caption. Rules:
+  the value must contain a digit and stay short (≤24 characters — longer
+  values are left as ordinary text); use it when a story has ONE defining
+  number that deserves a full visual stop, typically 0-1 per article
+  (more is legal but dilutes the beat); never restate the figure in the
+  neighboring paragraph — the beat replaces the sentence, not decorates
+  it. Separately, any `**bold**` span in body text that is purely a
+  figure ("US$9,612 millones", "22%") counts up inline automatically —
+  no syntax needed, just keep bolding key figures as the standard
+  structure already asks.
+  - **The Cifra clave must be the STORY'S OWN figure, never a context
+    figure** (calibrated on real output, 2026-08-05: the LIV Golf piece
+    led its excerpt with the PIF's historical "6,000 millones" — context
+    — while the story's actual figure, the rumored US$250M investment,
+    sat unmarked mid-body; the homepage surfaced the wrong number). Ask:
+    "if the reader remembers one number from this story, which is it?"
+    That's the Cifra clave. A rumored or unconfirmed figure still
+    qualifies when it IS the story — declare it with the attribution in
+    the caption ("La inversión que reporta el New York Post; LIV no la
+    confirma"), never in the value.
+  - **The homepage reads this beat.** "La cifra del día" (sidebar) picks
+    the top ranked story with a figure and PREFERS its declared Cifra
+    clave over anything scraped from title/excerpt — declaring the beat
+    is how you control what number represents the story site-wide.
+  - **Write figures with their currency symbol** in the house shapes
+    ("US$250 millones", "MX$42.8 millones", "€3M") — never spelled out
+    ("250 millones de dólares"): every extractor ranks symbol-prefixed
+    money above bare counts, so the spelled-out form loses to any bare
+    number that appears earlier.
+- **All products: the "Jugada:" connection strip (2026-08-05, round 2).**
+  A plain paragraph `Jugada: Volkswagen ↔ Bayern` renders as a split-flap
+  connection strip — the story's central two-party relationship in the
+  departures-board language. Use it when the story IS a relationship
+  (a deal, a partnership, an investigation pairing, an acquisition):
+  `↔` for two-way relationships, `→` for a one-way flow (an expansion, a
+  sale, a rights move). Each side 1-4 words, ≤32 characters (longer
+  leaves the paragraph as plain text). At most ONE per article, and only
+  when the pairing is documented by the piece itself — same "never invent
+  links" standard as the La Lana board. Placement: right after the
+  paragraph that establishes the relationship, usually the first. A
+  figure-driven story should prefer "Cifra clave:" — don't stack both
+  unless the story genuinely carries both a defining number AND a
+  defining pairing. For la-lana articles the jugada usually matches a
+  connection you're also pushing to the departures board — same wording
+  in both places.
+- **All products: the device collection (2026-08-05, round 3) — pick by
+  story shape.** Beyond Cifra clave and Jugada, seven more one-paragraph
+  conventions render as designed, animated elements (see
+  `lib/article-devices.ts`; all product-tinted, all inert if malformed).
+  Syntax rules shared by all: items separated by ` · ` (spaced middle
+  dot), key—value separated by ` — ` (spaced dash), plain paragraph on
+  its own line:
+    - `Cronología: 2022 — PIF entra · 2024 — recorte · 2026 — salida` →
+      a drawn timeline. For sagas: a deal, feud or decline that unfolds
+      over dated milestones (2-6, dates ≤14 chars, events ≤70).
+    - `Recibo: Torneos — 10 · Bolsa por evento — US$10M · Total — US$107M`
+      → a thermal receipt whose Total counts up. For cost breakdowns and
+      who-paid-what (2-8 lines; a line whose label starts with "Total"
+      gets the total treatment — include one when the sum is the point).
+    - `Ecuación: 104 partidos × US$6M por partido = US$624M` → display
+      math with counting operands. For "the math behind the deal" — every
+      term must start with a real number; operators ×, +, −, / and one =.
+    - `Salto: 14 torneos → 10 torneos — el calendario 2027` → before/after
+      delta, direction-colored (green up, red down, computed from the
+      numbers). For growth/shrink stories; optional caption after ` — `.
+    - `Reparto: FIFA — 70% · Federaciones — 20% · Clubes — 10%` → a
+      proportion bar with legend. For how money/rights split (2-5 shares,
+      percentages; they're normalized, so they should roughly sum to 100).
+    - `Alineación: Madonna · Shakira · Justin Bieber · BTS` → numbered
+      lineup chips that flap in. For enumerations of actors — artists,
+      investors, host cities (2-8 names, each ≤28 chars).
+    - `Cotización: Ollamani — MX$14.50 · -34.6% · en el año` → a market
+      tile with ▲/▼ delta. For public-company/valuation results: name,
+      value, signed percent delta, optional note.
+  Rules of use — **the device budget (final, 2026-08-06, enforced in
+  code by `applyBodyDevices`, not just here):** designed devices scale
+  with `readingTime` — **≤2 min → 1 device · 3-5 min → 2 · 6+ min → 3.**
+  The Opinión callout, the automatic devices (lead-ins, highlights,
+  count-ups) and La Lana's money trail are EXEMPT and never count.
+  Never repeat a device type in one article (the renderer refuses the
+  second one even under budget). Declarations beyond the budget render
+  as plain text — visible to the reader — so writing over budget is a
+  shipped mistake, not a silent one. Order matters: first declared in
+  the document wins the budget, so place the device that carries the
+  story's spine first. Keep at least two prose paragraphs between
+  devices (renderer doesn't enforce this one — you do). Choose by
+  shape: a saga → Cronología, a breakdown → Recibo, a split → Reparto,
+  a pairing → Jugada, one number → Cifra clave — and only when the
+  story genuinely has that shape; a forced device is worse than none.
+  Every number inside a device must appear in (or be directly
+  computable from) the newsletter being published — never invent data
+  to fill a device.
+- **All products: lead-ins are now UI (2026-08-05, round 2).** The
+  standard bold lead-in every paragraph already opens with
+  (`**La sanción:** …`) renders as a product-colored scan mark — readers
+  skim the article by lead-ins alone. This raises the bar on writing
+  them: each must be specific to its paragraph (a generic label repeated
+  across paragraphs now VISIBLY repeats), 2-5 words, always ending in a
+  colon inside the bold. No formatting change — just know they're
+  load-bearing UI now.
+- **All products: figures highlight themselves.** Money amounts and
+  percentages in plain prose get an automatic marker-swipe highlight on
+  the article page (capped at 6 per article, applied client-side). No
+  action needed at drafting time beyond what the standards already say:
+  write figures in the house shapes ("US$3,400 millones", "MX$42.8
+  millones", "22%") and keep the SINGLE most important one bold — bold
+  figures count up, plain ones highlight.
 - **Infinitas: El Marcador.** The hub shows a scoreboard of sourced
   women's-sports business metrics, editable in the admin CMS ("Hubs de
   producto" tab — no deploy needed; defaults live in
@@ -228,7 +340,19 @@ every item maps to a visible element):
   full-width feature band, 4 as a two-up card, the rest as compact rows,
   so an inflated 5 hogs a band and a lazy 2 buries a real story;
   `imageUrl` present (feature bands and cards on /noticias show it;
-  text-only there is a visible hole at priority ≥4).
+  text-only there is a visible hole at priority ≥4); "Cifra clave:"
+  beat considered when the story is number-driven (step above) — the
+  story's OWN figure, not a context figure, symbol-prefixed, rumored
+  figures attributed in the caption; value ≤24 chars with a digit,
+  caption after ` — `; "Jugada:" strip
+  considered when the story is a two-party relationship (step above,
+  sides ≤32 chars, one max); the device collection consulted — does the
+  story's SHAPE match a Cronología, Recibo, Ecuación, Salto, Reparto,
+  Alineación or Cotización? — and the device BUDGET respected (≤2 min
+  read → 1 designed device, 3-5 min → 2, 6+ → 3; no repeated types;
+  data only from the piece itself); every paragraph's bold lead-in specific
+  and colon-terminated (they render as scan marks now); key figures in
+  house shapes, the single most important one bold.
 - **Noticias** — if the story is number-driven, its biggest figure
   verbatim in `title` or `excerpt` (the feature band pulls it out as the
   green chip); `date` correct (the weekday badge derives from it).

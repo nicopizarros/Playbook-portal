@@ -184,6 +184,155 @@ export function weekdayFor(date: string): string {
   return day.charAt(0).toUpperCase() + day.slice(1);
 }
 
+// ------------------------------------------------- Shared: pull-figure beat
+// Authoring convention for La Lectura (article redesign, 2026-08-05): a
+// paragraph that reads "Cifra clave: US$2.4B — lo que repartió la FIFA"
+// becomes a full-bleed pull-figure — the number set huge between rules,
+// counting up as it enters view (see components/article/ArticleMotion.tsx),
+// with the text after the dash as its caption. Same contract as the other
+// two conventions: plain text an editor can type in TipTap, detected
+// server-side, gracefully inert when absent or malformed (a value with no
+// digits, or too long to be a visual hook, leaves the paragraph untouched).
+// Applies to every product source; the caption is optional.
+// Exported (round 4): lib/article-devices.ts's applyBodyDevices matches
+// every designed device in ONE document-order pass to enforce the
+// per-article device budget — it needs this regex and the markup builder
+// alongside its own seven.
+export const CIFRA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*Cifra clave:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
+export const CIFRA_TEXT_PREFIX = /^\s*(?:\*\*)?\s*Cifra clave:?\s*(?:\*\*)?:?\s*/i;
+
+export type CifraFigure = { value: string; caption: string };
+
+// The value has to work as a display number: it needs a digit, and past
+// ~24 characters it stops being a hook and becomes a sentence — same
+// length rationale as extractPullFigure above.
+export function parseCifra(raw: string): CifraFigure | null {
+  const text = raw.replace(/<[^>]+>/g, '').trim();
+  const [valuePart, ...captionParts] = text.split(/\s+[—–-]\s+/);
+  const value = valuePart.trim();
+  if (!value || value.length > 24 || !/\d/.test(value)) return null;
+  return { value, caption: captionParts.join(' — ').trim() };
+}
+
+// The declared beat, read OUT of an article's body (native HTML, HTML
+// teaser or plain-text teaser alike) — same access pattern as
+// extractTrailStops. Used by the homepage's "La cifra del día": an
+// editor-declared Cifra clave is the story's OWN number and always beats
+// anything scraped from title/excerpt (calibration from user feedback,
+// 2026-08-05: the LIV Golf story surfaced the PIF's historical 6,000
+// millones from the excerpt while the story's actual figure — the
+// rumored US$250M — sat declared in the body).
+export function extractCifraFromBody(bodyHtml: string | null, teaser: string | null): CifraFigure | null {
+  for (const html of [bodyHtml, teaser]) {
+    if (html && /<[a-z][\s\S]*>/i.test(html)) {
+      CIFRA_HTML_RE.lastIndex = 0;
+      const match = CIFRA_HTML_RE.exec(html);
+      if (match) {
+        const parsed = parseCifra(match[1]);
+        if (parsed) return parsed;
+      }
+    }
+  }
+  if (teaser && !/<[a-z][\s\S]*>/i.test(teaser)) {
+    for (const paragraph of teaser.split(/\n{2,}/)) {
+      if (CIFRA_TEXT_PREFIX.test(paragraph.trim())) {
+        const parsed = parseCifra(paragraph.trim().replace(CIFRA_TEXT_PREFIX, ''));
+        if (parsed) return parsed;
+      }
+    }
+  }
+  return null;
+}
+
+// HTML bodies: string-level transform on already-sanitized editor HTML
+// (same trust boundary as markOpinionCallout below). Runs BEFORE the ad
+// split — splitAfterParagraph only counts top-level </p>, and the figure
+// contains none, so the split can never cut a beat open.
+export function cifraMarkup(parsed: CifraFigure): string {
+  const caption = parsed.caption
+    ? `<figcaption class="lect-pullfig-caption">${parsed.caption}</figcaption>`
+    : '';
+  return `<figure class="lect-pullfig"><span class="lect-pullfig-value" data-lect-countup>${parsed.value}</span>${caption}</figure>`;
+}
+
+export function markCifraFigures(html: string): string {
+  return html.replace(CIFRA_HTML_RE, (match, inner: string) => {
+    const parsed = parseCifra(inner);
+    return parsed ? cifraMarkup(parsed) : match;
+  });
+}
+
+// ------------------------------------------------ Shared: the Jugada strip
+// Authoring convention (La Lectura round 2, 2026-08-05): a paragraph that
+// reads "Jugada: Volkswagen ↔ Bayern" becomes the connection strip — the
+// two-party relationship at the heart of the story set as a split-flap
+// pairing, the same board language La Lana's masthead already speaks.
+// Corpus-driven: mining the catalog showed the stories with no figure to
+// pull are almost all two-party deal stories (Chelsea ↔ Strava, ATP ↔ WTA,
+// COI ↔ Rusia…) — the connection IS their headline asset. "↔" for two-way
+// relationships, "→" for a one-way flow, one per article. Same contract as
+// every convention here: plain TipTap text, detected server-side, inert
+// when absent or malformed.
+// Exported for the same single-pass budget matcher as CIFRA_HTML_RE.
+export const JUGADA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*(?:La\s+)?Jugada:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
+export const JUGADA_TEXT_PREFIX = /^\s*(?:\*\*)?\s*(?:La\s+)?Jugada:?\s*(?:\*\*)?:?\s*/i;
+
+export type Jugada = { left: string; right: string; arrow: '↔' | '→' };
+
+// Each side has to work as a flap cell: non-empty and short. Longer sides
+// (or no arrow at all) leave the paragraph untouched.
+export function parseJugada(raw: string): Jugada | null {
+  const text = raw.replace(/<[^>]+>/g, '').trim();
+  const match = text.match(/^(.{1,32}?)\s*(↔|<->|→|->|⇒)\s*(.{1,32})$/);
+  if (!match) return null;
+  const left = match[1].trim();
+  const right = match[3].trim();
+  if (!left || !right) return null;
+  return { left, right, arrow: match[2] === '↔' || match[2] === '<->' ? '↔' : '→' };
+}
+
+export function jugadaMarkup(jugada: Jugada): string {
+  const conn = `${jugada.left} ${jugada.arrow} ${jugada.right}`;
+  return (
+    `<div class="lect-jugada" role="note" aria-label="La jugada: ${conn}">` +
+    `<span class="lect-jugada-label">La jugada</span>` +
+    `<span class="lect-jugada-conn" aria-hidden="true">` +
+    `<span class="lect-jugada-side">${jugada.left}</span>` +
+    `<span class="lect-jugada-arrow">${jugada.arrow}</span>` +
+    `<span class="lect-jugada-side">${jugada.right}</span>` +
+    `</span></div>`
+  );
+}
+
+// HTML bodies: same trust boundary and same ad-split safety as
+// markCifraFigures (the strip contains no top-level </p>).
+export function markJugada(html: string): string {
+  return html.replace(JUGADA_HTML_RE, (match, inner: string) => {
+    const parsed = parseJugada(inner);
+    return parsed ? jugadaMarkup(parsed) : match;
+  });
+}
+
+// --------------------------------------------- Shared: lead-in scan marks
+// Both publish skills already mandate that every paragraph opens with a
+// short bold lead-in ending in a colon ("**La sanción:** …") — house
+// style with zero styling until now. This tags those lead-ins so the CSS
+// can set them as product-accented scan marks: the reader skims the
+// lead-ins like a briefing's margin notes. Colon-anchored and
+// figure-excluded (a paragraph that OPENS with a bold figure is the
+// count-up device's territory, not a label). Runs LAST in the transform
+// chain: the opinion/cifra/jugada paragraphs are already consumed by
+// their own devices by then.
+const LEADIN_HTML_RE = /<p([^>]*)><strong>\s*([^<]{2,42}?):\s*<\/strong>/g;
+
+export function markLeadIns(html: string): string {
+  return html.replace(LEADIN_HTML_RE, (match, attrs: string, label: string) => {
+    // A label that is itself just a figure stays a plain strong.
+    if (/^[\d\s.,%€$]+$/.test(label) || /^(?:US\$|MX\$|USD)/i.test(label)) return match;
+    return `<p${attrs}><strong class="lect-leadin">${label}:</strong>`;
+  });
+}
+
 // The Playbook-opinion paragraph gets its own visually distinct callout,
 // separated clearly from reporting (a credibility move: the fact/opinion
 // line becomes explicit). This is NOT a new authoring convention — it
