@@ -89,6 +89,61 @@ Rules:
 
 ## Step 3: Editorial voice
 
+### The rhythm, before anything else (measured on the real archive, 2026-08-06)
+
+Everything below about structure is downstream of one thing, and it is the
+single biggest gap between what this skill has been producing and what
+Playbook actually publishes. The whole Substack archive was measured against
+the articles this skill had inserted:
+
+| | Playbook (La Lana / TFBR / Infinitas) | What this skill was producing |
+|---|---|---|
+| median words per paragraph | **24-25** | 90-97 |
+| median words per sentence | **13-18** | 24-28 |
+| paragraphs of ≤14 words | **31-37%** | 0-18% |
+| paragraphs of ≥60 words | **2-5%** | 65-92% |
+
+Playbook writes in short beats. Roughly a third of every piece is a
+paragraph of one short sentence standing alone. Almost nothing is a block.
+The four-paragraph structure below was being read as "four dense blocks,"
+and that is what made drafts read as competent but not like Playbook.
+
+**The fix: a paragraph is a beat, not a container.** Each movement of the
+structure (fact, research, detail, opinión) is written as **two or three
+short paragraphs**, not one long one. The bold lead-in opens the movement's
+first paragraph; the rest of the movement continues underneath it without
+its own lead-in. Nothing about the UI contract changes: the lead-ins still
+render as scan marks, the Opinión callout still keys off its exact lead-in,
+the device budget still counts only declared devices.
+
+Target every draft at: **median paragraph ≤30 words, median sentence ≤18
+words, at least two paragraphs of ≤14 words, no paragraph over 60 words.**
+If a paragraph runs past 60 words, it is carrying two ideas — split it at
+the joint.
+
+**The hammer line.** The move that produces that 31-37% is a standalone
+paragraph of four to thirteen words that lands the conclusion the previous
+paragraph earned. Real ones from the archive:
+
+- *Las sedes reciben la vitrina. FIFA vende la vitrina.*
+- *No todo lo que se puede vender conviene venderlo.*
+- *Mover dinero no es quedarse con él.*
+- *Isaac es el caso más famoso, pero no es el único.*
+- *Sin aceptación ciudadana, el discurso de grandes eventos se desgasta rápido.*
+- *El problema está en lo que pasa alrededor.*
+
+They work because they come **after** the evidence, never before. A hammer
+line that opens a section is a slogan; the same line after two paragraphs of
+figures is a verdict. Write at least one per article, at the point where the
+reader has just been given enough to agree with it.
+
+**Section and paragraph headings are arguments, not labels.** Every La Lana
+heading in the archive states a position: *"Mover dinero no es quedarse con
+él"*, *"El descanso se volvió inventario"*, *"Sobrevivir no es salir
+limpio"*, *"La cuenta ya no da… al menos en bloque"*. None of them is a
+topic label like "Contexto" or "El acuerdo". The same standard applies to
+the bold lead-ins: prefer *"**El precio real:**"* over *"**El acuerdo:**"*.
+
 ### Industry Shots / Infinitas
 
 Every article is four paragraphs, always: three paragraphs of information,
@@ -143,6 +198,77 @@ same tone and voice as the first (direct, analytical, same Mexico/LATAM
 lens where relevant), not filler stretched to hit a length. If there isn't
 a genuine second point, leave the single Opinión paragraph as before rather
 than padding it.
+
+**La Lana's architecture is fixed — reproduce it (measured 2026-08-06:
+present in 8 of 8 published editions).** These pieces are not free-form
+long-form. They run the same four movements every time, and a La Lana
+article that doesn't wear this shape isn't one:
+
+1. **The cold open.** Two to four short paragraphs that put the tension on
+   the table in the first line. No scene-setting, no "en los últimos años".
+   *"Las pausas de hidratación llegaron al Mundial con una explicación fácil
+   de comprar: calor, humedad y cuidado de los jugadores."* Then the turn:
+   *"Pero bastaron unos partidos para que la conversación cambiara."*
+2. **The promise block**, verbatim in this wording, followed by exactly
+   three questions the piece will answer:
+   `Si lees este artículo podrás responder las siguientes preguntas:`
+   The questions are the reader's, not the newsroom's: *"¿Por qué FIFA hizo
+   obligatorias las pausas?"*, *"¿Esta medida se queda o es una rareza del
+   Mundial 2026?"*. Write them as a markdown bullet list.
+3. **Six to eight `##` sections**, each heading an argument (see the
+   headings rule above). The sections carry the reporting: named parties,
+   figures against comparable figures, what each actor did differently.
+   Where the piece does arithmetic, do it out loud and invite the reader in
+   — *"Analicemos esto: En 104 partidos, dos pausas de tres minutos por
+   juego significan 624 minutos nuevos de inventario potencial."*
+4. **`## La Opinión de Playbook`, exactly three paragraphs.** Not two, not
+   four. One paragraph per point, each standing on its own: what the story
+   established, who read it best or worst, and what has to hold for the
+   thing to keep working. `**Opinión de Playbook:**` as an inline lead-in is
+   for the short products; La Lana uses the heading form.
+
+`Por eso` is La Lana's closing connector (the densest in the archive,
+0.84 per 1,000 words) — it earns a conclusion off the preceding section.
+Use it where you've actually just proven something.
+
+### The Futbol Business Review
+
+TFBR is ghostwritten by Playbook for Interticket and it is the most
+distilled version of the house mind: no news peg, no figures parade, one
+commercial idea taken apart until it's obvious. Written in Spanish for the
+portal even though the source edition is in English.
+
+The move that defines it is **definitional antithesis**, and it is denser
+here than anywhere else in the archive (1.38 per 1,000 words): name the
+thing the reader assumes it is, reject it in a short sentence, then say
+what it actually is in the next one. From the real editions:
+
+- *"The difference is not who has access to football, it is who can make
+  that access make sense faster."*
+- *"The strongest opportunities are not always the biggest. They are the
+  ones where the brand has a clearer role and a better reason to be there."*
+- *"It comes from understanding that these matches are not just games. They
+  are cultural events."*
+
+In Spanish that is *"La diferencia no está en quién tiene acceso al futbol,
+está en quién puede volverlo útil más rápido."* Place it at the thesis
+beat — the sentence the whole piece exists to earn — and only once (see the
+negative-parallelism cap below; the cap and this move are the same rule seen
+from two sides: used once at the thesis it IS the voice, used four times it
+is a tic).
+
+Other TFBR habits worth keeping: the piece argues from operator experience
+rather than from data it just looked up (*"la experiencia acumulada en
+varias campañas apunta a una realidad consistente"*), and it closes on the
+practical test a reader can run tomorrow (*"Antes de colgar tu activo del
+Mundial, intenta venderlo sin mencionarlo"*).
+
+Attribution matters on this product: the edition's own closing section
+belongs to the partner. Render it under its own `## La visión de
+Interticket` heading and never fold it into a Playbook opinion. Per
+editorial decision 2026-08-06, TFBR articles carry **no** `Opinión de
+Playbook` paragraph at all — the analysis is the author's and it already
+closes with the partner's read.
 
 ### The product hub pages read the body (2026-08-05)
 
@@ -334,8 +460,19 @@ carelessly is a hub rendering worse for weeks. Before reporting back,
 walk this list for every article in the batch (it takes a minute and
 every item maps to a visible element):
 
-- **All products** — `**Opinión de Playbook:**` lead-in exact (fenced
-  opinion callout on the article page); `priority` set honestly on the
+- **Rhythm, every article** — run
+  `node scripts/check-voice.mjs <draft.json>` before Step 6 and read what it
+  prints. It measures each draft against the archive: median paragraph ≤30
+  words, median sentence ≤18, at least two hammer paragraphs of ≤14 words,
+  nothing over 60 words, at most one negative-parallelism construction. It
+  is a mirror, not a gate — a flagged long paragraph that genuinely carries
+  one idea can ship, but the default answer to a flag is to split the
+  paragraph, not to argue with it.
+- **All products except TFBR** — `**Opinión de Playbook:**` lead-in exact
+  (fenced opinion callout on the article page). TFBR carries none by
+  editorial decision (Step 3); La Lana uses the `## La Opinión de Playbook`
+  heading form with three paragraphs instead of the inline lead-in.
+  Then, for every product: `priority` set honestly on the
   1-5 rubric — on /noticias it is also the LAYOUT: 5 renders as a
   full-width feature band, 4 as a two-up card, the rest as compact rows,
   so an inflated 5 hogs a band and a lazy 2 buries a real story;
@@ -387,13 +524,18 @@ text, in any field. Use commas, periods, parentheses, or "y"/"pero" instead.
 Three more style rules, all from a 2026-08-05 review round where the human
 read a draft back as stiff and formulaic:
 
-- **Don't lean on negative parallelism.** The "no es X, es Y" shape (and its
-  variants: "el golpe no vino de A, vino de B", "en un calendario de 14 era
-  una plaza más; en uno de 10, es indispensable", "deja de ser A y se
-  convierte en B") is genuinely useful once in a piece. Used three or four
-  times across four paragraphs it stops reading as analysis and starts
-  reading as a tic, every point arriving in the same rhetorical costume.
-  Cap it at one per article, and prefer just stating the thing directly.
+- **Negative parallelism: exactly one, at the thesis.** The "no es X, es Y"
+  shape (and its variants: "el golpe no vino de A, vino de B", "deja de ser
+  A y se convierte en B") used three or four times across four paragraphs
+  stops reading as analysis and starts reading as a tic, every point
+  arriving in the same rhetorical costume. The 2026-08-06 archive
+  measurement confirms the cap is right and says where the one belongs:
+  Playbook averages **about one per piece** (La Lana 0.21, Ensayo 0.38,
+  Infinitas 0.90 per 1,000 words), and it lands on the sentence the article
+  exists to make. So don't avoid it — spend it. One per article, at the
+  thesis beat, and state every other point directly. The softer "no … sino"
+  (2.15 per 1,000 words in Infinitas) doesn't count against this and can
+  carry the load elsewhere.
 - **No arithmetic showmanship.** Don't compute a ratio or percentage the
   sources didn't publish in order to land a rhetorical punch ("el rescate
   vale menos del 5% de lo que costó llegar hasta aquí", "la aritmética es
@@ -425,7 +567,17 @@ document, see Step 6), never HTML tags.
 
 ## Step 4: Fields per article
 
-- **title**: headline, in Spanish.
+- **title**: headline, in Spanish. Shape it the way the archive does
+  (measured over 91 titles, 2026-08-06): **around 9 words**, and one of
+  three families — a question the piece answers (*"¿Por qué FIFA nunca
+  pierde con el Mundial?"*, 27% of titles), a claim with a colon splitting
+  subject from turn (*"Airbnb y WSL: cuando patrocinar también es
+  resolver"*, 21%), or a flat declarative that names the actor and the
+  consequence (*"El deal que le volteó el tablero a Infantino"*). 20% carry
+  a figure, and when the story has a defining number it belongs here (see
+  the Cifra clave rule). Playbook titles say what happened or what is at
+  stake; they never tease ("Lo que nadie te contó de…") and they never lead
+  with the newsletter's own name.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
 - **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Mundial: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
