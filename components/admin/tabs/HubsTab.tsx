@@ -134,6 +134,12 @@ export function HubsTab({ data, onChange }: Props) {
         value={data.tfbr.substackUrl}
         onChange={v => onChange({ ...data, tfbr: { ...data.tfbr, substackUrl: v } })}
       />
+      <TextField
+        label="Edición de portada (id)"
+        help="El id del artículo que abre la sala como reporte de portada. Vacío o inexistente: se usa la edición más reciente."
+        value={data.tfbr.headlinerId}
+        onChange={v => onChange({ ...data, tfbr: { ...data.tfbr, headlinerId: v } })}
+      />
 
       <h3 className="admin-section-title">Infinitas — /infinitas</h3>
       <TextField

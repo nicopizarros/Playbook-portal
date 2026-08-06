@@ -51,7 +51,17 @@ export type ProductHubsContent = {
     boardRows: LanaBoardRow[];
   };
   noticias: { sub: string; cadenceNote: string };
-  tfbr: { taglineEm: string; taglineRest: string; sub: string; substackUrl: string };
+  // headlinerId: the edition that opens the hub as its cover report. Kept
+  // separate from the site-wide `featured` flag on purpose — headlining the
+  // Interticket space shouldn't bump whatever is featured on the homepage.
+  // Empty (or an id that no longer resolves) falls back to the most recent.
+  tfbr: {
+    taglineEm: string;
+    taglineRest: string;
+    sub: string;
+    substackUrl: string;
+    headlinerId: string;
+  };
   infinitas: { sub: string; marcadorSub: string; metrics: HubMetric[] };
 };
 
@@ -79,6 +89,7 @@ export const PRODUCT_HUBS_DEFAULTS: ProductHubsContent = {
     taglineRest: 'behind the game.',
     sub: 'El fútbol en el mercado hispano de US es un gigante en aceleración. Acá lo leemos como negocio, junto con Interticket.',
     substackUrl: 'https://playbookmedia.substack.com/',
+    headlinerId: 'el-matador-inc-como-se-construye-una-leyenda-con-valor-comercial-vigente',
   },
   infinitas: {
     sub: 'La nueva era del deporte, leída como industria.',
