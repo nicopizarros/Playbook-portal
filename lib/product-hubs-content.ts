@@ -62,7 +62,9 @@ export type ProductHubsContent = {
     substackUrl: string;
     headlinerId: string;
   };
-  infinitas: { sub: string; marcadorSub: string; metrics: HubMetric[] };
+  // leadId: same contract as tfbr.headlinerId above — the story that leads
+  // the hub, pinned by editorial instead of just taking the newest one.
+  infinitas: { sub: string; marcadorSub: string; metrics: HubMetric[]; leadId: string };
 };
 
 export const PRODUCT_HUBS_DEFAULTS: ProductHubsContent = {
@@ -92,6 +94,7 @@ export const PRODUCT_HUBS_DEFAULTS: ProductHubsContent = {
     headlinerId: 'el-matador-inc-como-se-construye-una-leyenda-con-valor-comercial-vigente',
   },
   infinitas: {
+    leadId: 'que-esta-construyendo-la-liga-femenil-bbva-rumbo-al-apertura-2026',
     sub: 'La nueva era del deporte, leída como industria.',
     marcadorSub: 'El deporte femenil como fuerza de negocio, en cifras que no dejan de subir.',
     metrics: [

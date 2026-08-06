@@ -52,7 +52,12 @@ export default async function InfinitasHubPage() {
   const [articles, content] = await Promise.all([getArticlesBySource('infinitas'), getSiteContent()]);
   const hub = productHubsContent(content.productHubs).infinitas;
   const metrics = hub.metrics.map(toScoreboardMetric).filter((m): m is ScoreboardMetric => m !== null);
-  const [lead, ...rest] = articles;
+  // Main story: the edition editorial pins in the CMS (Hubs tab) when it
+  // still resolves, else the most recent one — same contract as TFBR's
+  // cover report, and deliberately not the site-wide `featured` flag, so
+  // leading this hub never moves the homepage's top story.
+  const lead = articles.find(a => a.id === hub.leadId) ?? articles[0] ?? null;
+  const rest = articles.filter(a => a.id !== lead?.id);
 
   return (
     <main className="hub hub-infinitas" id="infinitas-hub">

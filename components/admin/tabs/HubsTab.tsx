@@ -143,6 +143,12 @@ export function HubsTab({ data, onChange }: Props) {
 
       <h3 className="admin-section-title">Infinitas — /infinitas</h3>
       <TextField
+        label="Historia principal (id)"
+        help="El id del artículo que encabeza el hub. Vacío o inexistente: se usa el más reciente."
+        value={data.infinitas.leadId}
+        onChange={v => onChange({ ...data, infinitas: { ...data.infinitas, leadId: v } })}
+      />
+      <TextField
         label="Bajada del masthead"
         value={data.infinitas.sub}
         onChange={v => onChange({ ...data, infinitas: { ...data.infinitas, sub: v } })}
