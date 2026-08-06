@@ -13,31 +13,105 @@ lo que ya está vivo en la base de datos del portal. Todo lo que aparece abajo
 |---|---|
 | Ediciones en Substack | **467** (395 Playbook Media, 72 Son Infinitas) |
 | Rango del archivo | 2022-11-28 → 2026-08-05 |
-| Artículos vivos hoy en playbook.la | 74 (2026-06-16 → 2026-08-05) |
-| Ediciones ya procesadas | 21 |
+| Artículos vivos hoy en playbook.la | 92 (2025-11-26 → 2026-08-05) |
+| Ediciones ya procesadas | 39 |
 | Avisos / lanzamientos / podcast (sin artículo) | 12 |
-| **Ediciones pendientes** | **434** |
-| **Artículos estimados por publicar** | **~1658** |
+| **Ediciones pendientes** | **416** |
+| **Artículos estimados por publicar** | **~1620** |
 
 ### Dónde están los huecos
 
-**Archivo previo al portal (antes del 2026-06-16).** 426 ediciones,
-~1614 artículos. Más de tres años y medio de newsletter que no existe
+**Archivo previo al portal (antes del 2025-11-26).** 334 ediciones,
+~1123 artículos. Más de tres años y medio de newsletter que no existe
 en el sitio: es el grueso del backlog.
 
-**Huecos dentro de la ventana ya cubierta (desde el 2026-06-16).** De las
-29 ediciones publicadas desde entonces, 21 ya se procesaron y
-**8 siguen sin procesar** (~44 artículos). Estas son las más
+**Huecos dentro de la ventana ya cubierta (desde el 2025-11-26).** De las
+121 ediciones publicadas desde entonces, 39 ya se procesaron y
+**82 siguen sin procesar** (~497 artículos). Estas son las más
 urgentes: son noticia todavía vigente y rompen la continuidad del sitio.
 
 - 2026-07-19 — Infinitas — [♾️ El legado de Alexia llega a México](https://soninfinitas.substack.com/p/que-busca-alexia-con-su-fundacion) — ~5 art.
-- 2026-07-05 — Infinitas — [♾️ Pau Gasol entra a la Liga F: ¿Qué está comprando realmente?](https://soninfinitas.substack.com/p/pau-gasol-entra-a-la-liga-f-que-esta) — ~5 art.
 - 2026-07-03 — La Lana — [La lana del Mundial | La Vipización del fútbol](https://playbookmedia.substack.com/p/la-lana-del-mundial-la-vipizacion) — ~1 art.
 - 2026-07-02 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-405) — ~9 art.
 - 2026-06-26 — La Lana — [La lana del Mundial | ¿Por qué FIFA nunca pierde con el Mundial?](https://playbookmedia.substack.com/p/la-lana-del-mundial-por-que-fifa) — ~1 art.
 - 2026-06-25 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-f51) — ~9 art.
-- 2026-06-21 — Infinitas — [♾️ ¿Qué hizo Londres para generar £55M con deporte femenil?](https://soninfinitas.substack.com/p/que-hizo-londres-para-generar-55m) — ~5 art.
 - 2026-06-18 — Industry Shots — [☕Industry Shots | EA Sports va por el dinero de los sponsors deportivos](https://playbookmedia.substack.com/p/industry-shots-ea-sports-va-por-el) — ~9 art.
+- 2026-06-11 — Industry Shots — [☕Industry Shots | México abre el Mundial más grande y más incómodo](https://playbookmedia.substack.com/p/industry-shots-mexico-abre-el-mundial) — ~9 art.
+- 2026-06-09 — Industry Shots — [☕Industry Shots | ¿Liga MX está lista para salir a Bolsa?](https://playbookmedia.substack.com/p/industry-shots-liga-mx-esta-lista) — ~9 art.
+- 2026-06-07 — Infinitas — [♾️ Airbnb y WSL: cuando patrocinar también es resolver](https://soninfinitas.substack.com/p/airbnb-y-wsl-cuando-patrocinar-tambien) — ~5 art.
+- 2026-06-04 — Industry Shots — [☕Industry Shots | Protestas tensan la previa a la inauguración del Mundial](https://playbookmedia.substack.com/p/industry-shots-protestas-tensan-la) — ~9 art.
+- 2026-06-02 — Industry Shots — [☕Industry Shots | Los palcos del Banorte siguen complicando a FIFA](https://playbookmedia.substack.com/p/industry-shots-los-palcos-del-banorte) — ~9 art.
+- 2026-05-31 — Infinitas — [♾️ Alexia se va del Barça, la grandeza de su legado](https://soninfinitas.substack.com/p/alexia-se-va-del-barca-la-grandeza) — ~5 art.
+- 2026-05-28 — Industry Shots — [☕Industry Shots | FIFA bajo investigación por boletos del Mundial](https://playbookmedia.substack.com/p/industry-shots-fifa-bajo-investigacion) — ~8 art.
+- 2026-05-27 — Ensayo / one-off — [La década que cambió el sports business en LATAM](https://playbookmedia.substack.com/p/la-decada-que-cambio-el-sports-business) — ~1 art.
+- 2026-05-26 — Industry Shots — [☕Industry Shots | FIFA, Sheinbaum y el lío del Mundial en TV](https://playbookmedia.substack.com/p/industry-shots-fifa-sheinbaum-y-el) — ~9 art.
+- 2026-05-24 — Infinitas — [♾️Dos finales de Champions que avanzan a distinta velocidad](https://soninfinitas.substack.com/p/dos-finales-de-champions-que-avanzan) — ~5 art.
+- 2026-05-19 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-375) — ~9 art.
+- 2026-05-17 — Infinitas — [♾️ El fútbol femenil empieza a dejar los espacios prestados](https://soninfinitas.substack.com/p/el-futbol-femenil-empieza-a-dejar) — ~5 art.
+- 2026-05-15 — Ensayo / one-off — [El Matador Inc.](https://playbookmedia.substack.com/p/el-matador-inc) — ~1 art.
+- 2026-05-14 — Industry Shots — [☕Industry Shots | ¿Por qué se frenó la inversión en la Liga MX?](https://playbookmedia.substack.com/p/industry-shots-por-que-se-freno-la) — ~9 art.
+- 2026-05-13 — Ensayo / one-off — [¿Quién convierte el talento en valor?](https://playbookmedia.substack.com/p/quien-convierte-el-talento-en-valor) — ~1 art.
+- 2026-05-12 — Industry Shots — [☕Industry Shots | México quiere el Mundial de Clubes 2029](https://playbookmedia.substack.com/p/industry-shots-mexico-quiere-el-mundial) — ~9 art.
+- 2026-05-07 — Industry Shots — [☕Industry Shots | Liga brasileña vuelve a partirse por media rights](https://playbookmedia.substack.com/p/industry-shots-liga-brasilena-vuelve) — ~9 art.
+- 2026-05-05 — Industry Shots — [☕Industry Shots | Millonario pago del Banorte a FIFA por sus palcos](https://playbookmedia.substack.com/p/industry-shots-millonario-pago-del) — ~9 art.
+- 2026-04-30 — Ensayo / one-off — [El deporte mexicano necesita más emprendedores](https://playbookmedia.substack.com/p/el-deporte-mexicano-necesita-mas) — ~1 art.
+- 2026-04-29 — Ensayo / one-off — [¿Quién controla la relación con el fan?](https://playbookmedia.substack.com/p/quien-esta-controlando-la-relacion) — ~1 art.
+- 2026-04-28 — Industry Shots — [☕Industry Shots | Liga MX se separa de la FMF: lo que realmente cambia](https://playbookmedia.substack.com/p/industry-shots-liga-mx-se-separa) — ~9 art.
+- 2026-04-23 — Industry Shots — [☕Industry Shots | La Asamblea que puede reordenar la Liga MX](https://playbookmedia.substack.com/p/industry-shots-la-asamblea-que-puede) — ~9 art.
+- 2026-04-21 — Industry Shots — [☕Industry Shots | La estrategia de LMB para monetizar el Mundial 2026](https://playbookmedia.substack.com/p/industry-shots-la-estrategia-de-lmb) — ~9 art.
+- 2026-04-19 — Infinitas — [♾️ La marca que entendió primero el negocio del deporte femenil](https://soninfinitas.substack.com/p/la-marca-que-entendio-primero-el) — ~5 art.
+- 2026-04-16 — Industry Shots — [☕Industry Shots | Netflix entra al fútbol en México](https://playbookmedia.substack.com/p/industry-shots-netflix-entra-al-futbol) — ~9 art.
+- 2026-04-15 — Ensayo / one-off — [Rumbo a WFS Mexico City 2026: El nuevo mapa de poder del fútbol en México y LATAM](https://playbookmedia.substack.com/p/rumbo-a-wfs-mexico-city-2026-el-nuevo) — ~1 art.
+- 2026-04-14 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-a97) — ~10 art.
+- 2026-04-09 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-695) — ~9 art.
+- 2026-04-07 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-397) — ~9 art.
+- 2026-04-02 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-d1d) — ~9 art.
+- 2026-03-31 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-9e5) — ~9 art.
+- 2026-03-29 — Infinitas — [♾️ FIFA abre la puerta a más entrenadoras: ¿También facilita el camino?](https://soninfinitas.substack.com/p/fifa-abre-la-puerta-a-mas-entrenadoras) — ~5 art.
+- 2026-03-26 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-c1e) — ~9 art.
+- 2026-03-24 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-be8) — ~9 art.
+- 2026-03-22 — Infinitas — [♾️ ¿Qué cambia realmente con el nuevo acuerdo de la WNBA?](https://soninfinitas.substack.com/p/que-cambia-realmente-con-el-nuevo) — ~5 art.
+- 2026-03-19 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-9ff) — ~9 art.
+- 2026-03-17 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-7b1) — ~9 art.
+- 2026-03-15 — Infinitas — [♾️Más que un triunfo: lo que México–Brasil cambia para la selección](https://soninfinitas.substack.com/p/mas-que-un-triunfo-lo-que-mexicobrasil) — ~5 art.
+- 2026-03-12 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-053) — ~9 art.
+- 2026-03-10 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-8d5) — ~9 art.
+- 2026-03-08 — Infinitas — [♾️¿Por qué el ranking de la NWSL importa más de lo que parece?](https://soninfinitas.substack.com/p/por-que-el-ranking-de-la-nwsl-importa) — ~5 art.
+- 2026-03-05 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-84a) — ~9 art.
+- 2026-03-03 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-1d4) — ~9 art.
+- 2026-03-01 — Infinitas — [♾️El patrocinio récord para un equipo sin debutar](https://soninfinitas.substack.com/p/el-patrocinio-record-para-un-equipo) — ~5 art.
+- 2026-02-26 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-a0b) — ~9 art.
+- 2026-02-24 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-453) — ~9 art.
+- 2026-02-22 — Infinitas — [♾️¿ESPN cambió el prime time… o solo la parrilla?](https://soninfinitas.substack.com/p/espn-cambio-el-prime-time-o-solo) — ~5 art.
+- 2026-02-19 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-f66) — ~9 art.
+- 2026-02-17 — Industry Shots — [☕Industry Shots / Anuncios](https://playbookmedia.substack.com/p/industry-shots-anuncios) — ~14 art.
+- 2026-02-15 — Infinitas — [♾️¿Despegó por fin el mercado del fútbol femenil?](https://soninfinitas.substack.com/p/despego-por-fin-el-mercado-del-futbol) — ~5 art.
+- 2026-02-12 — Weekly Playbook / Semanal — [Playbook Semanal: El club que regaló partidos para conquistar mercado global](https://playbookmedia.substack.com/p/playbook-semanal-el-club-que-regalo) — ~1 art.
+- 2026-02-08 — Infinitas — [♾️El foro global que quiere ordenar el crecimiento del fútbol femenil](https://soninfinitas.substack.com/p/el-foro-global-que-quiere-ordenar) — ~5 art.
+- 2026-02-05 — Weekly Playbook / Semanal — [Playbook Semanal: ¿Cómo convertir un estadio histórico en venue global de entretenimiento?](https://playbookmedia.substack.com/p/playbook-semanal-como-convertir-un) — ~1 art.
+- 2026-02-01 — Infinitas — [♾️El contrato que expuso los límites del modelo NWSL](https://soninfinitas.substack.com/p/el-contrato-que-expuso-los-limites) — ~5 art.
+- 2026-01-29 — Weekly Playbook / Semanal — [Playbook Semanal: ¿Por qué TikTok se convirtió en plataforma clave del Mundial?](https://playbookmedia.substack.com/p/playbook-semanal-por-que-tiktok-se) — ~1 art.
+- 2026-01-27 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-38f) — ~9 art.
+- 2026-01-25 — Infinitas — [♾️El mapa incompleto del crecimiento del fútbol femenil](https://soninfinitas.substack.com/p/el-mapa-incompleto-del-crecimiento) — ~5 art.
+- 2026-01-22 — Weekly Playbook / Semanal — [Playbook Semanal: Cómo vender experiencias premium en un mercado sensible al precio](https://playbookmedia.substack.com/p/playbook-semanal-como-vender-experiencias) — ~1 art.
+- 2026-01-20 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-504) — ~9 art.
+- 2026-01-18 — Infinitas — [♾️El fútbol femenil de clubes entra en su fase global](https://soninfinitas.substack.com/p/el-futbol-femenil-de-clubes-entra) — ~5 art.
+- 2026-01-15 — Weekly Playbook / Semanal — [Playbook Semanal: El modelo que explica por qué el Mundial ahora se gana en distribución](https://playbookmedia.substack.com/p/playbook-semanal-el-modelo-que-explica) — ~1 art.
+- 2026-01-13 — Industry Shots — [☕Industry Shots](https://playbookmedia.substack.com/p/industry-shots-3f4) — ~9 art.
+- 2026-01-08 — Weekly Playbook / Semanal — [Playbook Semanal: Azcárraga reordenó su imperio antes del ciclo 2026](https://playbookmedia.substack.com/p/playbook-semanal-azcarraga-reordeno) — ~1 art.
+- 2026-01-06 — Industry Shots — [☕Industry Shots / Memorias del Mundial en México](https://playbookmedia.substack.com/p/industry-shots-memorias-del-mundial) — ~9 art.
+- 2025-12-25 — Ensayo / one-off — [¿Qué movió a la industria del deporte en 2025?](https://playbookmedia.substack.com/p/que-movio-a-la-industria-del-deporte) — ~1 art.
+- 2025-12-21 — Infinitas — [♾️El acuerdo WTA–Mercedes, un breaking point en el deporte femenil](https://soninfinitas.substack.com/p/el-acuerdo-wtamercedes-un-breaking) — ~5 art.
+- 2025-12-18 — Weekly Playbook / Semanal — [Playbook Semanal: Guadalajara 2026, la sede que convirtió el Mundial en un activo urbano](https://playbookmedia.substack.com/p/playbook-semanal-guadalajara-2026) — ~1 art.
+- 2025-12-16 — Industry Shots — [☕Industry Shots / La verdad del caso Fanki: su CEO rompe el silencio](https://playbookmedia.substack.com/p/industry-shots-la-verdad-del-caso) — ~12 art.
+- 2025-12-14 — Infinitas — [♾️¿Por qué el Kang Women’s Institute puede transformar el fútbol femenil?](https://soninfinitas.substack.com/p/por-que-el-kang-womens-institute) — ~5 art.
+- 2025-12-11 — Weekly Playbook / Semanal — [Playbook Semanal: El torneo femenil que entendió cómo crecer desde el primer día](https://playbookmedia.substack.com/p/playbook-semanal-el-torneo-femenil) — ~1 art.
+- 2025-12-09 — Industry Shots | Players — [☕Industry Shots / Players: Elisa Ceñal](https://playbookmedia.substack.com/p/industry-shots-players-elisa-cenal) — ~2 art.
+- 2025-12-07 — Infinitas — [♾️Alemania 2029, la Euro donde UEFA probará su modelo](https://soninfinitas.substack.com/p/alemania-2029-la-euro-donde-uefa) — ~5 art.
+- 2025-12-04 — Weekly Playbook / Semanal — [Playbook Semanal: El fondo guatemalteco que entró al fútbol mundial](https://playbookmedia.substack.com/p/playbook-semanal-el-fondo-guatemalteco) — ~1 art.
+- 2025-12-02 — Industry Shots | Players — [☕Industry Shots / Players: Daniel Benchimol, DAZN](https://playbookmedia.substack.com/p/industry-shots-players-daniel-benchimol) — ~3 art.
+- 2025-11-30 — Infinitas — [♾️Finales de Liga MX Femenil y NWSL consolidan alcance del FutFem](https://soninfinitas.substack.com/p/finales-de-liga-mx-femenil-y-nwsl) — ~5 art.
+- 2025-11-27 — Weekly Playbook / Semanal — [Playbook Semanal: Cómo convertir una mascota en un activo comercial](https://playbookmedia.substack.com/p/playbook-semanal-como-convertir-una) — ~1 art.
 
 > Nota sobre la detección: una edición se marca como procesada cuando alguna
 > fila de `articles` guarda su URL de Substack, o cuando todos los enlaces
@@ -45,18 +119,17 @@ urgentes: son noticia todavía vigente y rompen la continuidad del sitio.
 > de Industry Shots suelen guardar la fuente original (ESPN, Reuters) en vez del
 > Substack, así que alguna edición reciente podría estar más completa de lo que
 > indica este conteo. Para el archivo previo al portal no hay ambigüedad: no hay
-> ningún artículo vivo con fecha anterior al 2026-06-16.
+> ningún artículo vivo con fecha anterior al 2025-11-26.
 
 ### Por serie
 
 | Serie | Prio | Ediciones | Artículos est. | Rango |
 |---|---|---:|---:|---|
 | Industry Shots | P1 | 80 | ~721 | 2024-08-22 → 2026-07-02 |
-| Infinitas | P1 | 80 | ~435 | 2024-11-03 → 2026-07-19 |
+| Infinitas | P1 | 75 | ~410 | 2024-11-03 → 2026-07-19 |
 | Industry Shots \| Players | P1 | 32 | ~260 | 2024-10-08 → 2025-12-09 |
 | Ensayo / one-off | P2 | 156 | ~156 | 2023-01-10 → 2026-05-27 |
 | Weekly Playbook / Semanal | P2 | 32 | ~32 | 2023-02-03 → 2026-02-12 |
-| The Futbol Business Review | P1 | 13 | ~13 | 2025-11-26 → 2026-05-29 |
 | Off the Field | P2 | 10 | ~10 | 2023-12-11 → 2024-04-28 |
 | Player de la Semana | P2 | 9 | ~9 | 2024-02-20 → 2024-07-29 |
 | Voces Infinitas | P1 | 7 | ~7 | 2025-02-26 → 2025-08-27 |
@@ -96,14 +169,14 @@ notas de coyuntura, salvo que se quiera el archivo completo por SEO.
 
 | # | Lote | Ediciones | Artículos est. | Por qué |
 |---|---|---:|---:|---|
-| 1 | Futbol Business Review completo | 13 | ~13 | Serie corta, en inglés, análisis puro: cero contenido perecedero y hoy no hay una sola pieza de ella en el sitio. |
-| 2 | Infinitas 2026 | 22 | ~110 | El vertical femenil tiene 7 artículos vivos frente a un archivo de casi 90 ediciones. |
-| 3 | Industry Shots 2026 | 39 | ~356 | Cierra el hueco entre enero y el arranque del portal el 2026-06-16. |
+| 1 | Futbol Business Review completo | 0 | ~0 | Serie corta, en inglés, análisis puro: cero contenido perecedero y hoy no hay una sola pieza de ella en el sitio. |
+| 2 | Infinitas 2026 | 17 | ~85 | El vertical femenil tiene 12 artículos vivos frente a un archivo de casi 90 ediciones. |
+| 3 | Industry Shots 2026 | 39 | ~356 | Cierra el hueco entre enero y el arranque del portal el 2025-11-26. |
 | 4 | Resto de 2026 | 14 | ~14 | La Lana y ensayos del año en curso: deja 2026 completo antes de bajar al archivo histórico. |
 | 5 | Ensayos y análisis 2023–2025 | 215 | ~215 | Evergreen: siguen vigentes como contenido de fondo y como base de SEO. |
 | 6 | Digests 2024–2025 | 131 | ~950 | Sólo si se quiere el archivo literal; la mayoría es noticia de coyuntura ya vencida. |
 
-Los lotes 1 a 4 son disjuntos: 88 ediciones, ~493 artículos, y dejan el sitio al día con todo 2026 más la serie en inglés.
+Los lotes 1 a 4 son disjuntos: 70 ediciones, ~455 artículos, y dejan el sitio al día con todo 2026 más la serie en inglés.
 
 ### Lo que se puede ignorar
 
@@ -1007,7 +1080,7 @@ eventos, episodios de podcast):
 
 ### Infinitas
 
-80 ediciones pendientes · ~435 artículos · 2024-11-03 → 2026-07-19
+75 ediciones pendientes · ~410 artículos · 2024-11-03 → 2026-07-19
 
 - **2026-07-19** — [♾️ El legado de Alexia llega a México](https://soninfinitas.substack.com/p/que-busca-alexia-con-su-fundacion) — ~5 art.
   - Además: Nuevas reglas para filmar a las atletas; Apex invierte en la liga de Canadá; Gotham rompe récord en Citi Field; Angel City busca nuevos patrocinadores.
@@ -1015,18 +1088,6 @@ eventos, episodios de podcast):
   - ▸ Apex invierte en la liga de Canadá
   - ▸ Gotham rompe récord en Citi Field
   - ▸ Angel City busca nuevos patrocinadores
-- **2026-07-05** — [♾️ Pau Gasol entra a la Liga F: ¿Qué está comprando realmente?](https://soninfinitas.substack.com/p/pau-gasol-entra-a-la-liga-f-que-esta) — ~5 art.
-  - Además: WTA deja Arabia y se va a Indian Wells; Michele Kang toma el control del Lyon masculino; Alexia se va a London City; Nike firma con la Bundesliga Femenil.
-  - ▸ WTA deja Arabia y se va a Indian Wells
-  - ▸ Michele Kang toma el control del Lyon masculino
-  - ▸ Alexia se va a London City
-  - ▸ Nike firma con la Bundesliga Femenil
-- **2026-06-21** — [♾️ ¿Qué hizo Londres para generar £55M con deporte femenil?](https://soninfinitas.substack.com/p/que-hizo-londres-para-generar-55m) — ~5 art.
-  - Además: Gasol quiere entrarle al negocio de Liga F; WNBA expande su calendario; Bale busca invertir en deporte femenil; Gotham FC invierte en alto rendimiento.
-  - ▸ Gasol quiere entrarle al negocio de Liga F
-  - ▸ WNBA expande su calendario a 50 juegos
-  - ▸ Bale busca invertir en deporte femenil
-  - ▸ Gotham FC invierte en alto rendimiento
 - **2026-06-07** — [♾️ Airbnb y WSL: cuando patrocinar también es resolver](https://soninfinitas.substack.com/p/airbnb-y-wsl-cuando-patrocinar-tambien) — ~5 art.
   - Además: WNBA pagará a jugadoras retiradas; CBS recupera la WSL en EE.UU; Liga F y Moeve crean torneo base; Alex Morgan suma atletas al WTGL.
   - ▸ WNBA pagará a jugadoras retiradas
@@ -1051,30 +1112,12 @@ eventos, episodios de podcast):
   - ▸ Los beneficios que generan las deportistas
   - ▸ La WNBA ya negocia como liga grande
   - ▸ La PWHL se sigue expandiendo
-- **2026-05-10** — [♾️ La WNBA arranca su temporada más decisiva](https://soninfinitas.substack.com/p/la-wnba-arranca-su-temporada-mas) — ~5 art.
-  - Además: WTA quiere crecer su ecosistema digital; Man City gana WSL después de 10 años; Golden State Valkyries valuadas en $1bn usd; Champions Cup 2027 a Miami.
-  - ▸ WTA quiere crecer su ecosistema digital
-  - ▸ Man City gana WSL después de 10 años
-  - ▸ Golden State Valkyries valuadas en $1bn usd
-  - ▸ Champions Cup 2027 a Miami
-- **2026-04-26** — [♾️ Entrar a la NWSL ya cuesta más de 200 millones](https://soninfinitas.substack.com/p/entrar-a-la-nwsl-ya-cuesta-mas-de) — ~5 art.
-  - Además: Se va la CEO de la WTA; Project ACL llega a la NWSL; Spotify entra a la WNBA; Chelsea Women jugará en Stamford Bridge
-  - ▸ Se va la CEO de la WTA
-  - ▸ Project ACL llega a la NWSL
-  - ▸ Spotify entra a la WNBA
-  - ▸ Chelsea Women jugará en Stamford Bridge
 - **2026-04-19** — [♾️ La marca que entendió primero el negocio del deporte femenil](https://soninfinitas.substack.com/p/la-marca-que-entendio-primero-el) — ~5 art.
   - Además: Gabriela Jaquez hace historia; Súper contrato para A’ja Wilson; W7F llega a Londres; WNBA busca su primer juego internacional
   - ▸ Gabriela Jaquez hace historia
   - ▸ Súper contrato para A’ja Wilson
   - ▸ W7F llega a Londres
   - ▸ WNBA busca su primer juego internacional
-- **2026-04-12** — [♾️ El deporte femenil cruza otra barrera](https://soninfinitas.substack.com/p/el-deporte-femenil-cruza-otra-barrera) — ~5 art.
-  - Además: Primera mujer que entrena en Bundesliga; WTA Finals dejaría Arabia; WST y YouTube lanzan acelerador de atletas; Bay Collective compra Sunderland Women
-  - ▸ Primera mujer que entrena en Bundesliga
-  - ▸ WTA Finals dejaría Arabia
-  - ▸ WST y YouTube lanzan acelerador de atletas
-  - ▸ Bay Collective compra Sunderland Women
 - **2026-03-29** — [♾️ FIFA abre la puerta a más entrenadoras: ¿También facilita el camino?](https://soninfinitas.substack.com/p/fifa-abre-la-puerta-a-mas-entrenadoras) — ~5 art.
   - Además: Monarch Collective invierte en WNBA; Novedoso balón en la WSL; Entrada récord en un juego de NWSL; Ohanian compra franquicia de la WTGL
   - ▸ Monarch Collective invierte en WNBA
@@ -2134,37 +2177,6 @@ eventos, episodios de podcast):
   - Tus herramientas para saber lo importante del deporte, en 3 minutos.
 - **2023-02-03** — [Weekly Playbook 1](https://playbookmedia.substack.com/p/weekly-playbook-1) — ~1 art.
   - Tus herramientas para saber lo importante del deporte, en 3 minutos.
-
-### The Futbol Business Review
-
-13 ediciones pendientes · ~13 artículos · 2025-11-26 → 2026-05-29
-
-- **2026-05-29** — [The Futbol Business Review: Not every futbol moment should be sold the same way](https://playbookmedia.substack.com/p/the-futbol-business-review-not-every) — ~1 art.
-  - How the right timing changes what futbol can actually deliver for a brand
-- **2026-05-01** — [The Futbol Business Review: Why Netflix’s Gold Cup deal matters beyond Mexico](https://playbookmedia.substack.com/p/the-futbol-business-review-why-netflixs) — ~1 art.
-  - Netflix didn't need the biggest package to matter. It only needed a football market where attention still concentrates fast and at scale.
-- **2026-04-24** — [The Futbol Business Review: The World Cup won’t fix your football strategy. Structure will.](https://playbookmedia.substack.com/p/the-futbol-business-review-the-world) — ~1 art.
-  - The tournament brings attention. Structure is what turns it into value.
-- **2026-03-27** — [The Futbol Business Review: Why Friendlies in the U.S. behave like major events](https://playbookmedia.substack.com/p/the-futbol-business-review-why-some) — ~1 art.
-  - Built around culture, timing, and execution, the strongest friendlies in the U.S. concentrate demand far beyond the 90 minutes.
-- **2026-02-27** — [The Futbol Business Review: Legends as commercial leverage](https://playbookmedia.substack.com/p/the-futbol-business-review-legends) — ~1 art.
-  - Anchored in memory, Legends create commercial continuity, faster alignment, and campaigns built to last.
-- **2026-02-13** — [The Futbol Business Review: When talent changes what a campaign is worth](https://playbookmedia.substack.com/p/the-futbol-business-review-when-talent) — ~1 art.
-  - How timing, cultural fit, and credibility redefine campaign value
-- **2026-01-30** — [The Futbol Business Review: When attention becomes market proof](https://playbookmedia.substack.com/p/the-futbol-business-review-when-attention) — ~1 art.
-  - How consistent behavior turns attention into market proof
-- **2026-01-16** — [The Futbol Business Review: Liga MX’s second home market, the power of cross-border fandom](https://playbookmedia.substack.com/p/the-futbol-business-review-liga-mxs) — ~1 art.
-  - How Mexicans in the U.S. shape Liga MX’s commercial value
-- **2026-01-09** — [The Futbol Business Review: From 1994 to 2026, what has changed?](https://playbookmedia.substack.com/p/the-futbol-business-review-from-1994) — ~1 art.
-  - How Hispanic Fans Became the Center of U.S. World Cup Culture
-- **2025-12-17** — [The Futbol Business Review: Liguilla as a Cultural Engine](https://playbookmedia.substack.com/p/the-futbol-business-review-liguilla) — ~1 art.
-  - How the Liga MX finals drive Hispanic Fandom in the U.S.
-- **2025-12-12** — [The Futbol Business Review: Second generation, new passions](https://playbookmedia.substack.com/p/the-futbol-business-review-second) — ~1 art.
-  - How bicultural youth are redefining futbol identity
-- **2025-12-03** — [The Futbol Business Review: The Spanish-Language advantage](https://playbookmedia.substack.com/p/the-futbol-business-review-the-spanish) — ~1 art.
-  - How Spanish-Led strategies drive Hispanic engagement
-- **2025-11-26** — [The Futbol Business Review: The new futbol prime time](https://playbookmedia.substack.com/p/the-futbol-business-review-the-new) — ~1 art.
-  - Why Spanish-language TV rules with Hispanic fans
 
 ### Off the Field
 
