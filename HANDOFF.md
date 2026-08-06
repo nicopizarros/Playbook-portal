@@ -5701,6 +5701,55 @@ tsc/eslint/next build limpios con y sin .env.local.
 solo a pageviews sin tocar código (y el conteo pasa a incluir tráfico
 no-metered). Hasta entonces, first-party.
 
+### 2026-08-06 — Más leídas, segunda pasada: banda horizontal, sin cifras públicas, y el doble login del iPad
+
+Feedback del usuario sobre el preview real (captura de iPad, 1210px):
+¿los números son reales?, el módulo dejaba un hueco enorme de espacio
+muerto, no publicar nuestros números así, y qué queda manual.
+
+- **Los números son reales**: verificado contra la Neon de producción —
+  140/116/89/68/62 lecturas en 7 días coinciden fila por fila con la
+  captura, y cada lectura es un LECTOR DISTINTO (los índices únicos del
+  metering; bots y editores nunca loggean). 2,167 lecturas totales de
+  ~2,055 lectores anónimos + registrados desde el lanzamiento.
+- **Cifras fuera del UI público** (directiva del usuario): el conteo
+  absoluto ya no se renderiza — las barras de calor son RELATIVAS al
+  líder, así el ranking lee como intensidad sin publicar tráfico
+  interno. Los conteos siguen en la consulta (ordenan y escalan barras).
+- **Reubicado a banda horizontal**: en el rail, el módulo estiraba el
+  sidebar mucho más abajo que las columnas del 1+5 (el hueco de la
+  captura). Ahora es una banda de 5 columnas a ancho completo entre el
+  paquete de noticias y "Lo que sigue importando" (~150px, reglas de
+  columna tipo periódico, numerales Anton, líder en chip verde, dot de
+  fuente, barra relativa; 2 columnas ≤980px, 1 ≤640px). El rail queda
+  newsletter + La cifra + ad y empata con la altura de las columnas
+  (verificado a 1210px). La banda entró al barrido verde de
+  HomeChoreography (TOP_EDGE_SELECTOR).
+- **Bug pre-existente cazado por la misma captura — doble "Iniciar
+  sesión"**: la regla de tap-targets `@media(pointer:coarse)` le ponía
+  `display:flex` (0,2,0) a `.nav-links .nav-drawer-login`, ganándole a
+  CUALQUIER ancho al `display:none` base (0,1,0) — en una tablet táctil
+  MÁS ANCHA que 1180px (drawer inexistente, nav-login-link visible) el
+  login del drawer aparecía inline en el nav: dos "Iniciar sesión"
+  juntos. Un mouse jamás matchea pointer:coarse — por eso sobrevivió
+  las auditorías. Fix: la regla ahora exige también max-width:1180px.
+  Verificado con contexts táctiles: 1210px → exactamente 1 login
+  visible; 390px → 0 (vive en el drawer); desktop → 1.
+
+**Verificación**: Playwright en 1210 (táctil), 1366 y 390, tema oscuro
+(el del usuario), capturas revisadas; tsc/eslint/next build limpios con
+y sin .env.local.
+
+**Manual del lado del usuario (estado 2026-08-06)**: nada para que Más
+leídas funcione (first-party). Opcionales/pendientes de negocio: (1)
+GA4_PROPERTY_ID + service account en Vercel — sube el conteo a pageviews
+completos y enciende el panel de analytics del admin; (2) los dos
+placeholders legales (domicilio fiscal / jurisdicción) siguen siendo el
+único bloqueante de lanzamiento; (3) confirmar/linkear la fila
+"Infantino ↔ Trump" del tablero en el tab de Hubs; (4) mergear esta rama
+cuando el preview convenza — el retro-fit de producción ya está corrido
+y las líneas inertes se encienden con el deploy.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

@@ -202,6 +202,16 @@
 @media(pointer:coarse){
   .tag-topic{display:inline-block;padding:6px 0;}
   .section-link{display:inline-block;padding-top:8px;padding-bottom:8px;}
+}
+/* The drawer-login tap target ALSO needs the drawer breakpoint: at
+   (0,2,0) this outranks header.css's base .nav-drawer-login{display:none}
+   (0,1,0) at every width, so on a touch device WIDER than 1180px — an
+   iPad Pro landscape at 1210px, where the desktop .nav-login-link is
+   visible — the drawer-only "Iniciar sesión" rendered inline in the nav
+   row next to the real one: two login links side by side (user
+   screenshot, 2026-08-06). Mouse desktops never matched pointer:coarse,
+   which is how it survived the audits. */
+@media(pointer:coarse) and (max-width:1180px){
   .nav-links .nav-drawer-login{min-height:44px;display:flex;align-items:center;justify-content:center;}
 }
 

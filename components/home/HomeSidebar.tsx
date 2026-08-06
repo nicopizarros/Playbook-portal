@@ -1,4 +1,3 @@
-import { MostReadSection } from './MostReadSection';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
 import { DailyFigure } from './DailyFigure';
 import { AdSlot } from '@/components/ads/AdSlot';
@@ -26,9 +25,10 @@ import { extractPullFigure, extractCifraFromBody } from '@/lib/product-hubs';
 //   hub heroes use. Skips the hero story so the rail adds information
 //   instead of repeating the headline sitting next to it; collapses to
 //   nothing on days when no ranked story carries a figure.
-// - Más leídas (GA4-backed; renders nothing until credentials exist —
-//   available:false degradation, see lib/most-read.ts)
-// - rail-home ad, directly below Más leídas (the Fase 7 spec position).
+// - rail-home ad. Más leídas moved OUT of the rail (2026-08-06, user
+//   feedback from an iPad: the rail stretched far past the 1+5 columns
+//   and left a page-tall hole) — it's now the full-width band under the
+//   news package (see app/(public)/page.tsx), and the ad closes the rail.
 export async function HomeSidebar() {
   const articles = await getAllArticles();
   const ranked = rankArticles(articles.filter(a => a.source !== 'opinion' || a.featured));
@@ -80,7 +80,6 @@ export async function HomeSidebar() {
           </a>
         </section>
       )}
-      <MostReadSection />
       <AdSlot slot="rail-home" />
     </div>
   );

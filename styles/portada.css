@@ -83,20 +83,25 @@
 }
 .side-cifra-card:hover .side-cifra-cta,.side-cifra-card:focus-visible .side-cifra-cta{opacity:1;transform:none;}
 
-/* ——— "Más leídas" upgraded (2026-08-06): rank numerals in Anton with the
-   leader on the green chip, per-row source dot, a heat bar scaled to the
-   leader's count, and the real read count. Bars draw when ScrollReveal
-   marks the row .is-visible — zero extra JS — and render full under
-   reduced motion. Replaces hero.css's .rank-list pattern (now unused). ——— */
+/* ——— "Más leídas" (2026-08-06, second pass): a full-width five-column
+   band under the news package — in the rail it stretched the sidebar far
+   past the 1+5 columns (iPad feedback). Anton rank numerals with the
+   leader on the green chip, per-item source dot, and a heat bar RELATIVE
+   to the leader (absolute read counts deliberately not rendered — user
+   directive). Bars draw when ScrollReveal marks the item .is-visible —
+   zero extra JS — and render full under reduced motion. Replaces
+   hero.css's .rank-list pattern (now unused). ——— */
+.mr-band{margin-top:40px;padding-top:24px;border-top:2px solid var(--ink);}
+.mr-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+.mr-head h2{font-family:var(--serif-display);font-weight:400;font-size:20px;letter-spacing:.02em;text-transform:uppercase;margin:0;}
 .mr-sub{
-  margin:6px 0 0;
   font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
   font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gray-txt);
 }
-.mr-list{list-style:none;margin:4px 0 0;padding:0;}
-.mr-item{border-bottom:1px solid var(--rule);}
-.mr-item:last-child{border-bottom:none;}
-.mr-link{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;padding:13px 0;color:inherit;}
+.mr-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:0;}
+.mr-item{border-left:1px solid var(--rule);padding:2px 18px 4px;}
+.mr-item:first-child{border-left:none;padding-left:0;}
+.mr-link{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;color:inherit;height:100%;}
 .mr-rank{
   font-family:var(--serif-display);font-weight:400;font-size:21px;line-height:1;color:var(--gray-txt);
   padding-top:1px;
@@ -105,10 +110,15 @@
   justify-self:start;align-self:start;
   background:var(--green);color:var(--ink-fixed);padding:1px 5px 0;transform:rotate(-2deg);
 }
-.mr-title{font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;margin:0;transition:color var(--duration-fast) ease;}
-.mr-top .mr-title{font-size:14.5px;font-weight:700;}
+.mr-body{display:flex;flex-direction:column;gap:8px;min-height:100%;}
+.mr-title{
+  font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;margin:0;flex:1;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  transition:color var(--duration-fast) ease;
+}
+.mr-top .mr-title{font-weight:700;}
 .mr-link:hover .mr-title,.mr-link:focus-visible .mr-title{color:var(--green);}
-.mr-meta{display:flex;align-items:center;gap:8px;margin-top:7px;}
+.mr-meta{display:flex;align-items:center;gap:8px;}
 .mr-dot{width:6px;height:6px;border-radius:50%;background:var(--gray-txt);flex-shrink:0;}
 .mr-dot[data-source="industry-shots"]{background:var(--src-industry);}
 .mr-dot[data-source="la-lana"]{background:var(--src-lana);}
@@ -124,10 +134,15 @@
 @media(prefers-reduced-motion:reduce){
   .mr-heat-fill{transition:none;transform:scaleX(1);}
 }
-.mr-count{
-  flex-shrink:0;
-  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
-  font-size:9.5px;font-weight:700;letter-spacing:.04em;color:var(--gray-txt);white-space:nowrap;
+@media(max-width:980px){
+  .mr-list{grid-template-columns:repeat(2,1fr);gap:0 24px;}
+  .mr-item{border-left:none;border-top:1px solid var(--rule);padding:12px 0 12px;}
+  .mr-item:first-child{border-top:none;}
+  .mr-item:nth-child(2){border-top:none;}
+}
+@media(max-width:640px){
+  .mr-list{grid-template-columns:1fr;gap:0;}
+  .mr-item:nth-child(2){border-top:1px solid var(--rule);}
 }
 
 /* ——— "Lo que sigue importando": the kicker dot breathes on hover and the

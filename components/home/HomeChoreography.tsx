@@ -15,7 +15,7 @@ import { gsap } from '@/lib/gsap';
 // the page is byte-identical to the pre-flourish design — the "static
 // final state, never missing content" rule satisfied by construction.
 const BOTTOM_EDGE_SELECTOR = '.section-head:not(.page-head)';
-const TOP_EDGE_SELECTOR = '.still-matters, .proof-grid, .topic-directory';
+const TOP_EDGE_SELECTOR = '.mr-band, .still-matters, .proof-grid, .topic-directory';
 
 export function HomeChoreography() {
   useEffect(() => {
