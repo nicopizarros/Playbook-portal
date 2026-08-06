@@ -30,6 +30,16 @@
 // assembled, so the escaping can't be forgotten at a call site.
 
 import { splitFigure, parseNumeric } from './figures';
+import {
+  CIFRA_HTML_RE,
+  JUGADA_HTML_RE,
+  CIFRA_TEXT_PREFIX,
+  JUGADA_TEXT_PREFIX,
+  parseCifra,
+  parseJugada,
+  cifraMarkup,
+  jugadaMarkup,
+} from './product-hubs';
 
 function esc(text: string): string {
   return text
@@ -380,24 +390,105 @@ const DEVICES: Device[] = [
   },
 ];
 
-// HTML bodies: one pass per device over the sanitized editor HTML — same
-// trust boundary and same ad-split safety as every transform before it.
-export function markDevices(html: string): string {
-  let out = html;
-  for (const device of DEVICES) {
-    device.html.lastIndex = 0;
-    out = out.replace(device.html, (match, inner: string) => device.render(inner) ?? match);
-  }
-  return out;
+// The Cifra clave and Jugada conventions live in lib/product-hubs.ts (they
+// predate this module) but count against the same budget, so the matcher
+// list here covers all nine designed devices.
+type NamedDevice = { name: string; html: RegExp; prefix: RegExp; render(raw: string): string | null };
+
+const ALL_DEVICES: NamedDevice[] = [
+  {
+    name: 'cifra',
+    html: CIFRA_HTML_RE,
+    prefix: CIFRA_TEXT_PREFIX,
+    render: raw => {
+      const parsed = parseCifra(raw);
+      return parsed ? cifraMarkup(parsed) : null;
+    },
+  },
+  {
+    name: 'jugada',
+    html: JUGADA_HTML_RE,
+    prefix: JUGADA_TEXT_PREFIX,
+    render: raw => {
+      const parsed = parseJugada(raw);
+      return parsed ? jugadaMarkup(parsed) : null;
+    },
+  },
+  ...DEVICES.map((device, i) => ({ name: `device-${i}`, ...device })),
+];
+
+// ————————————————————————————————————————————— The per-article budget
+// Density decision (user request, 2026-08-06): designed devices scale
+// with reading length — a 1-minute shot carries ONE visual stop, a
+// mid-length piece two, a long La Lana read three. More reads as a
+// slideshow, not an article. The Opinión callout (standard structure),
+// the automatic devices (lead-in marks, inline highlights, bold
+// count-ups) and La Lana's money trail (the product's narrative identity
+// device, already limited to one per article) are exempt — the budget
+// governs the OPTIONAL designed beats only.
+export function deviceBudgetFor(readingTime: number | null): number {
+  const minutes = readingTime || 1;
+  if (minutes <= 2) return 1;
+  if (minutes <= 5) return 2;
+  return 3;
 }
 
-// Plain-text bodies: the paragraph either becomes a device's markup (the
-// exact same builders as the HTML path) or stays a plain paragraph.
-export function deviceFromParagraph(paragraph: string): string | null {
-  for (const device of DEVICES) {
+// HTML bodies: ONE document-order pass over all nine device patterns —
+// per-type passes would spend the budget in type order instead of the
+// order the editor placed things. First declared wins; a device TYPE
+// repeats never (the second Recibo stays text even under budget); excess
+// declarations stay as readable plain paragraphs, so an over-budget
+// article degrades visibly-but-gracefully instead of silently. Same
+// trust boundary and ad-split safety as every transform before it.
+export function applyBodyDevices(html: string, readingTime: number | null): string {
+  type Match = { start: number; end: number; markup: string; name: string };
+  const found: Match[] = [];
+  for (const device of ALL_DEVICES) {
+    device.html.lastIndex = 0;
+    for (const match of html.matchAll(device.html)) {
+      const markup = device.render(match[1]);
+      if (markup && match.index !== undefined) {
+        found.push({ start: match.index, end: match.index + match[0].length, markup, name: device.name });
+      }
+    }
+  }
+  found.sort((a, b) => a.start - b.start);
+
+  let budget = deviceBudgetFor(readingTime);
+  const usedTypes = new Set<string>();
+  const selected: Match[] = [];
+  let cursor = -1;
+  for (const match of found) {
+    // Strictly-less-than: a device paragraph that starts EXACTLY where the
+    // previous one ends is adjacent, not overlapping — <= here skipped
+    // every second device in a run of back-to-back declarations (measured
+    // on the sampler article before shipping).
+    if (match.start < cursor) continue; // overlapping match — first wins
+    cursor = match.end;
+    if (budget <= 0 || usedTypes.has(match.name)) continue;
+    usedTypes.add(match.name);
+    budget -= 1;
+    selected.push(match);
+  }
+
+  let out = '';
+  let pos = 0;
+  for (const match of selected) {
+    out += html.slice(pos, match.start) + match.markup;
+    pos = match.end;
+  }
+  return out + html.slice(pos);
+}
+
+// Plain-text bodies: same nine devices, same budget semantics, applied
+// paragraph by paragraph in document order by plainBlocksFor (which owns
+// the iteration). Returns the markup plus the device's type name so the
+// caller can enforce the no-repeated-type rule.
+export function deviceFromParagraph(paragraph: string): { markup: string; name: string } | null {
+  for (const device of ALL_DEVICES) {
     if (device.prefix.test(paragraph)) {
       const markup = device.render(paragraph.replace(device.prefix, ''));
-      if (markup) return markup;
+      if (markup) return { markup, name: device.name };
     }
   }
   return null;

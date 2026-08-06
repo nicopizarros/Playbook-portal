@@ -23,21 +23,14 @@ import {
   extractMoneyTrailFromHtml,
   extractMoneyTrailFromParagraphs,
   markOpinionCallout,
-  markCifraFigures,
-  markJugada,
   markLeadIns,
-  parseCifra,
-  parseJugada,
   caseNumber,
   caseStatus,
   shotLabel,
   weekdayFor,
   OPINION_TEXT_PREFIX,
-  CIFRA_TEXT_PREFIX,
-  JUGADA_TEXT_PREFIX,
-  type Jugada,
 } from '@/lib/product-hubs';
-import { markDevices, deviceFromParagraph } from '@/lib/article-devices';
+import { applyBodyDevices, deviceFromParagraph, deviceBudgetFor } from '@/lib/article-devices';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { ShotProgress } from '@/components/products/ShotProgress';
 import { jsonLdScript } from '@/lib/json-ld';
@@ -175,8 +168,6 @@ type PlainBlock =
   | { kind: 'text'; text: string }
   | { kind: 'leadin'; label: string; text: string }
   | { kind: 'opinion'; text: string }
-  | { kind: 'cifra'; value: string; caption: string }
-  | { kind: 'jugada'; jugada: Jugada }
   | { kind: 'device'; html: string }
   | { kind: 'trail'; stops: string[] };
 
@@ -184,31 +175,31 @@ type PlainBlock =
 // markLeadIns for this body shape.
 const PLAIN_LEADIN_RE = /^\*\*([^*]{2,42}?):\*\*\s*([\s\S]*)$/;
 
-function plainBlocksFor(paragraphs: string[], source: string): PlainBlock[] {
+function plainBlocksFor(paragraphs: string[], source: string, readingTime: number | null): PlainBlock[] {
   // Every product source gets the full device set — the four-paragraph
   // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
-  // alike (see lib/product-hubs.ts's regex comment), and the "Cifra
-  // clave:" / "Jugada:" beats and lead-in scan marks are mirrored from
-  // their HTML transforms for the plain-text body shape.
+  // alike (see lib/product-hubs.ts's regex comment). ALL designed devices
+  // (Cifra clave, Jugada, the round-3 collection) go through
+  // deviceFromParagraph — the same builders as the HTML path, so the
+  // markup can't drift between body shapes — under the same per-article
+  // budget applyBodyDevices enforces there: document order, no repeated
+  // type, excess declarations stay readable text. The Opinión callout and
+  // the money trail are exempt (see deviceBudgetFor's comment).
   const isProduct = hubForSource(source) !== null;
+  let budget = deviceBudgetFor(readingTime);
+  const usedTypes = new Set<string>();
   const blocks: PlainBlock[] = paragraphs.map((p): PlainBlock => {
     if (isProduct && OPINION_TEXT_PREFIX.test(p)) {
       return { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') };
     }
-    if (isProduct && CIFRA_TEXT_PREFIX.test(p)) {
-      const parsed = parseCifra(p.replace(CIFRA_TEXT_PREFIX, ''));
-      if (parsed) return { kind: 'cifra', value: parsed.value, caption: parsed.caption };
-    }
-    if (isProduct && JUGADA_TEXT_PREFIX.test(p)) {
-      const parsed = parseJugada(p.replace(JUGADA_TEXT_PREFIX, ''));
-      if (parsed) return { kind: 'jugada', jugada: parsed };
-    }
     if (isProduct) {
-      // The round-3 device collection (timeline, receipt, equation, delta,
-      // split bar, lineup, stock card) — same builders as the HTML path,
-      // so the markup can't drift between body shapes.
       const device = deviceFromParagraph(p);
-      if (device) return { kind: 'device', html: device };
+      if (device && budget > 0 && !usedTypes.has(device.name)) {
+        usedTypes.add(device.name);
+        budget -= 1;
+        return { kind: 'device', html: device.markup };
+      }
+      if (device) return { kind: 'text', text: p };
     }
     if (isProduct) {
       const leadin = p.match(PLAIN_LEADIN_RE);
@@ -233,29 +224,6 @@ function PlainBlockView({ block }: { block: PlainBlock }) {
         <span className="shot-opinion-kicker">Opinión de Playbook</span>
         <p>{block.text}</p>
       </aside>
-    );
-  }
-  if (block.kind === 'cifra') {
-    return (
-      <figure className="lect-pullfig">
-        <span className="lect-pullfig-value" data-lect-countup>
-          {block.value}
-        </span>
-        {block.caption && <figcaption className="lect-pullfig-caption">{block.caption}</figcaption>}
-      </figure>
-    );
-  }
-  if (block.kind === 'jugada') {
-    const conn = `${block.jugada.left} ${block.jugada.arrow} ${block.jugada.right}`;
-    return (
-      <div className="lect-jugada" role="note" aria-label={`La jugada: ${conn}`}>
-        <span className="lect-jugada-label">La jugada</span>
-        <span className="lect-jugada-conn" aria-hidden="true">
-          <span className="lect-jugada-side">{block.jugada.left}</span>
-          <span className="lect-jugada-arrow">{block.jugada.arrow}</span>
-          <span className="lect-jugada-side">{block.jugada.right}</span>
-        </span>
-      </div>
     );
   }
   if (block.kind === 'device') {
@@ -523,10 +491,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // label can never double as a scan mark.
   const htmlBody =
     rawHtmlBody && hub
-      ? markLeadIns(markOpinionCallout(markDevices(markJugada(markCifraFigures(rawHtmlBody)))))
+      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime)))
       : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
-  const blocks = plainBlocksFor(paragraphs, article.source);
+  const blocks = plainBlocksFor(paragraphs, article.source, meta.readingTime);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
 
   // The "siguiente expediente" handoff already shows the next case — keep

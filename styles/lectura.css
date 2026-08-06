@@ -513,6 +513,52 @@ mark.lect-fig{
 .lect-partner-strip{position:static;}
 
 /* ============================================================
+   Share row, redesigned (2026-08-06 — the outlined text-pills read as
+   dated). Icon-first circular actions that fill with each network's own
+   brand color on hover; the label speaks the device-label voice; the
+   copy pill keeps its text because the label IS its feedback. Base
+   .share-btn rules in article.css are fully superseded here (this file
+   imports later at equal specificity).
+   ============================================================ */
+.share-row{margin-top:34px;padding-top:20px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:16px 18px;flex-wrap:wrap;}
+.share-label{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);
+}
+.share-label::before{content:"";width:8px;height:8px;background:var(--lect-accent);flex-shrink:0;}
+.share-btns{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.share-btn.share-btn-net{
+  width:44px;height:44px;min-height:44px;padding:0;border:none;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--paper-soft);color:var(--ink);cursor:pointer;
+  transition:background var(--duration-base) var(--ease-out),color var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);
+}
+.share-btn.share-btn-net:hover,.share-btn.share-btn-net:focus-visible{
+  color:#fff;transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.16);
+}
+/* Each network fills with its own brand color — instantly recognizable,
+   and both are dark enough for white glyphs on light and dark themes.
+   X has no color: it fills with the theme's ink (paper glyph), so it
+   stays visible on dark instead of black-on-black. */
+.share-btn.share-wa:hover,.share-btn.share-wa:focus-visible{background:#1faa53;}
+.share-btn.share-fb:hover,.share-btn.share-fb:focus-visible{background:#1877F2;}
+.share-btn.share-li:hover,.share-btn.share-li:focus-visible{background:#0A66C2;}
+.share-btn.share-x:hover,.share-btn.share-x:focus-visible{background:var(--ink);color:var(--paper);}
+.share-btn.share-copy{
+  display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;
+  border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;
+  font-family:var(--sans);font-size:12.5px;font-weight:700;
+  transition:border-color var(--duration-base) var(--ease-out),background var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.share-btn.share-copy:hover,.share-btn.share-copy:focus-visible{border-color:var(--ink);transform:translateY(-2px);}
+/* Copied = a lit indicator, same green-fill language as the archive's
+   active filters (--green + --ink-fixed is the site's verified pair). */
+.share-btn.share-copy.is-copied,
+.share-btn.share-copy.is-copied:hover{background:var(--green);border-color:var(--green);color:var(--ink-fixed);transform:none;}
+
+/* ============================================================
    Walled state wears the product accent too
    ============================================================ */
 .article-product-la-lana .article-walled{border-color:var(--src-lana);}

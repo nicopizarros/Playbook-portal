@@ -150,8 +150,9 @@ single most important one should be bold (bold counts up). The full
 device collection (Cronología / Recibo / Ecuación / Salto / Reparto /
 Alineación / Cotización — syntax and when-to-use in
 `publish-newsletter`'s "device collection" section) applies to this
-skill's output too: at most 1-2 designed devices per article, chosen by
-story shape, every number sourced from the verified reporting. Word-count range: roughly 300-500 words across the
+skill's output too, under the same code-enforced budget: ≤2 min read →
+1 designed device, 3-5 min → 2, 6+ min → 3, never a repeated type,
+chosen by story shape, every number sourced from the verified reporting. Word-count range: roughly 300-500 words across the
 four. Write every paragraph in Playbook's own words, this is a rewrite
 grounded in multiple sources, never a close paraphrase or translation of
 any single outlet's article.

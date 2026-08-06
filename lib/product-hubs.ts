@@ -194,7 +194,11 @@ export function weekdayFor(date: string): string {
 // server-side, gracefully inert when absent or malformed (a value with no
 // digits, or too long to be a visual hook, leaves the paragraph untouched).
 // Applies to every product source; the caption is optional.
-const CIFRA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*Cifra clave:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
+// Exported (round 4): lib/article-devices.ts's applyBodyDevices matches
+// every designed device in ONE document-order pass to enforce the
+// per-article device budget — it needs this regex and the markup builder
+// alongside its own seven.
+export const CIFRA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*Cifra clave:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
 export const CIFRA_TEXT_PREFIX = /^\s*(?:\*\*)?\s*Cifra clave:?\s*(?:\*\*)?:?\s*/i;
 
 export type CifraFigure = { value: string; caption: string };
@@ -244,14 +248,17 @@ export function extractCifraFromBody(bodyHtml: string | null, teaser: string | n
 // (same trust boundary as markOpinionCallout below). Runs BEFORE the ad
 // split — splitAfterParagraph only counts top-level </p>, and the figure
 // contains none, so the split can never cut a beat open.
+export function cifraMarkup(parsed: CifraFigure): string {
+  const caption = parsed.caption
+    ? `<figcaption class="lect-pullfig-caption">${parsed.caption}</figcaption>`
+    : '';
+  return `<figure class="lect-pullfig"><span class="lect-pullfig-value" data-lect-countup>${parsed.value}</span>${caption}</figure>`;
+}
+
 export function markCifraFigures(html: string): string {
   return html.replace(CIFRA_HTML_RE, (match, inner: string) => {
     const parsed = parseCifra(inner);
-    if (!parsed) return match;
-    const caption = parsed.caption
-      ? `<figcaption class="lect-pullfig-caption">${parsed.caption}</figcaption>`
-      : '';
-    return `<figure class="lect-pullfig"><span class="lect-pullfig-value" data-lect-countup>${parsed.value}</span>${caption}</figure>`;
+    return parsed ? cifraMarkup(parsed) : match;
   });
 }
 
@@ -266,7 +273,8 @@ export function markCifraFigures(html: string): string {
 // relationships, "→" for a one-way flow, one per article. Same contract as
 // every convention here: plain TipTap text, detected server-side, inert
 // when absent or malformed.
-const JUGADA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*(?:La\s+)?Jugada:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
+// Exported for the same single-pass budget matcher as CIFRA_HTML_RE.
+export const JUGADA_HTML_RE = /<p[^>]*>\s*(?:<strong>)?\s*(?:La\s+)?Jugada:?\s*(?:<\/strong>)?:?\s*([\s\S]*?)<\/p>/gi;
 export const JUGADA_TEXT_PREFIX = /^\s*(?:\*\*)?\s*(?:La\s+)?Jugada:?\s*(?:\*\*)?:?\s*/i;
 
 export type Jugada = { left: string; right: string; arrow: '↔' | '→' };

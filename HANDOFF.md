@@ -5607,6 +5607,59 @@ build limpios con y sin .env.local.
 usa el skill al publicar); el catálogo viejo ya quedó cubierto por
 jugadas/highlights/count-ups en las pasadas 2-3.
 
+### 2026-08-06 — La Lectura, quinta pasada: presupuesto de dispositivos y rediseño del share
+
+Dos pedidos del usuario antes de embarcar: decidir cuántos dispositivos
+por artículo (y si hay límites), y rediseñar los botones de compartir
+("se ven demasiado viejos para nuestra gran página").
+
+- **El presupuesto de dispositivos (decisión final, EN CÓDIGO, no solo
+  en el skill):** los dispositivos diseñados escalan con `readingTime` —
+  ≤2 min → 1, 3-5 min → 2, 6+ min → 3 (`deviceBudgetFor` en
+  lib/article-devices.ts). Exentos: el callout de Opinión (estructura
+  estándar), los automáticos (lead-ins, highlights, count-ups) y la Ruta
+  del dinero (dispositivo identitario de La Lana, ya limitado a uno).
+  Nunca se repite un TIPO en un artículo aunque sobre presupuesto. El
+  orden lo decide el documento: `applyBodyDevices` matchea los NUEVE
+  dispositivos (Cifra y Jugada incluidos — sus regex/builders se
+  exportaron de product-hubs.ts) en UNA pasada ordenada por posición —
+  las pasadas por-tipo de antes gastaban el presupuesto en orden de TIPO,
+  no del editor. Los excedentes quedan como texto plano legible: pasarse
+  de presupuesto es un error VISIBLE, no silencioso. El path de texto
+  plano usa el mismo presupuesto vía deviceFromParagraph (que ahora
+  devuelve {markup, name} para la regla de tipo único). **Bug real
+  cazado verificando**: `match.start <= cursor` en la selección trataba
+  como "overlap" a un dispositivo ADYACENTE al anterior (start == end
+  del previo) y saltaba dispositivo por medio en corridas consecutivas
+  — medido en el sampler (renderizaba timeline+eq+reparto en vez de los
+  tres primeros); ahora `<` estricto y el sampler renderiza exactamente
+  los primeros N declarados.
+- **Share row rediseñado** (ShareRow.tsx + sección en lectura.css que
+  supersede las reglas de article.css): label "Compartir" en la voz de
+  los device-labels (mono, cuadrito de acento), acciones circulares de
+  44px icon-first que se llenan con el color de marca de cada red al
+  hover (WhatsApp #1faa53 — el verde oficial es muy claro para glifo
+  blanco —, Facebook, LinkedIn; X usa la TINTA adaptativa del tema para
+  no ser negro-sobre-negro en oscuro), lift + sombra, pulse de GSAP que
+  ya existía, y el pill de "Copiar enlace" conserva su texto (el label
+  ES su feedback) encendiéndose en verde "¡Copiado!" como los filtros
+  activos del archivo. Redondo a propósito: el lenguaje documentado del
+  sistema es redondo = acción. Botones con .reveal → entran en cascada.
+- **Skills sincronizados** con el presupuesto final (tabla ≤2/3-5/6+ en
+  publish-newsletter y publish-sourced-article + checklist), incluida la
+  regla de que el renderer rechaza tipos repetidos y muestra los
+  excedentes como texto.
+
+**Verificación**: presupuesto confirmado contra la app corriendo (sampler
+Noticias RT7 → exactamente cronología+recibo+ecuación renderizados, los
+demás como texto; sampler Infinitas RT3 → timeline+reparto); share row
+capturado en claro y oscuro, reposo/hover/copiado, 0 errores de página,
+reveals funcionando (0 atorados). En el camino: el dev server quedó
+sirviendo chunks 500 (los `next build` de la sesión pisan .next del dev
+corriendo — un `next-server` zombie retuvo el puerto; documentado para
+la próxima: matar el server ANTES de buildear). tsc/eslint/next build
+limpios con y sin .env.local.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código

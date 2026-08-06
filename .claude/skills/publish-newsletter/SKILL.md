@@ -284,14 +284,24 @@ them right at drafting time:
     - `Cotización: Ollamani — MX$14.50 · -34.6% · en el año` → a market
       tile with ▲/▼ delta. For public-company/valuation results: name,
       value, signed percent delta, optional note.
-  Rules of use: pick AT MOST 1-2 designed devices per article (the
-  Opinión callout doesn't count; the auto highlights don't count) and
-  only when the story genuinely has that shape — a forced device is
-  worse than none. Prefer the single device that carries the story's
-  spine: a saga → Cronología, a breakdown → Recibo, a split → Reparto, a
-  pairing → Jugada, one number → Cifra clave. Every number inside a
-  device must appear in (or be directly computable from) the newsletter
-  being published — never invent data to fill a device.
+  Rules of use — **the device budget (final, 2026-08-06, enforced in
+  code by `applyBodyDevices`, not just here):** designed devices scale
+  with `readingTime` — **≤2 min → 1 device · 3-5 min → 2 · 6+ min → 3.**
+  The Opinión callout, the automatic devices (lead-ins, highlights,
+  count-ups) and La Lana's money trail are EXEMPT and never count.
+  Never repeat a device type in one article (the renderer refuses the
+  second one even under budget). Declarations beyond the budget render
+  as plain text — visible to the reader — so writing over budget is a
+  shipped mistake, not a silent one. Order matters: first declared in
+  the document wins the budget, so place the device that carries the
+  story's spine first. Keep at least two prose paragraphs between
+  devices (renderer doesn't enforce this one — you do). Choose by
+  shape: a saga → Cronología, a breakdown → Recibo, a split → Reparto,
+  a pairing → Jugada, one number → Cifra clave — and only when the
+  story genuinely has that shape; a forced device is worse than none.
+  Every number inside a device must appear in (or be directly
+  computable from) the newsletter being published — never invent data
+  to fill a device.
 - **All products: lead-ins are now UI (2026-08-05, round 2).** The
   standard bold lead-in every paragraph already opens with
   (`**La sanción:** …`) renders as a product-colored scan mark — readers
@@ -338,8 +348,9 @@ every item maps to a visible element):
   considered when the story is a two-party relationship (step above,
   sides ≤32 chars, one max); the device collection consulted — does the
   story's SHAPE match a Cronología, Recibo, Ecuación, Salto, Reparto,
-  Alineación or Cotización? (1-2 designed devices max, data only from
-  the piece itself); every paragraph's bold lead-in specific
+  Alineación or Cotización? — and the device BUDGET respected (≤2 min
+  read → 1 designed device, 3-5 min → 2, 6+ → 3; no repeated types;
+  data only from the piece itself); every paragraph's bold lead-in specific
   and colon-terminated (they render as scan marks now); key figures in
   house shapes, the single most important one bold.
 - **Noticias** — if the story is number-driven, its biggest figure
