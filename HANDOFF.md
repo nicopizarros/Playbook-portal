@@ -5750,6 +5750,53 @@ placeholders legales (domicilio fiscal / jurisdicción) siguen siendo el
 cuando el preview convenza — el retro-fit de producción ya está corrido
 y las líneas inertes se encienden con el deploy.
 
+
+### 2026-08-06 — Se revierte el ritmo de golpes cortos: el portal vuelve a cuatro bloques
+
+**Directiva del publisher, revierte parcialmente `ebd58e3` y `9af5104`.** Esas
+dos entregas midieron el archivo de Substack (La Lana, TFBR, ensayos) y
+concluyeron que el párrafo mediano de Playbook ronda las 30 palabras, no las
+90-95 que venían saliendo, así que reescribieron la guía de ritmo de las dos
+skills de publicación: cada movimiento en dos o tres párrafos cortos, con
+líneas martillo sueltas entre ellos. Se publicó **un** artículo en ese formato
+(el de Beckmann/LAFC, 19 párrafos) y el publisher lo leyó entrecortado en la
+página del artículo. La medición sigue siendo correcta y describe **el
+newsletter**; el portal es otro producto y su brief de cuatro bloques es una
+decisión editorial, no una desviación. Eso quedó escrito en las dos skills para
+que la próxima sesión no vuelva a derivar el formato corto desde los números.
+
+**Qué cambió:**
+
+- `.claude/skills/publish-newsletter/SKILL.md` — la sección de ritmo del Paso 3
+  ahora prescribe **cuatro bloques de 80-100 palabras**, uno por movimiento.
+  Sobrevive lo que no depende del largo: la línea martillo (ahora como última
+  oración del bloque, no como párrafo propio) y "los títulos y lead-ins son
+  argumentos, no etiquetas".
+- `.claude/skills/publish-sourced-article/SKILL.md` — misma reversión, más
+  corta, apuntando a la de arriba. De paso desaparecen los números viejos
+  (decía "24-25 palabras", que era la medición contaminada de `ebd58e3`, nunca
+  actualizada por `9af5104`).
+- `scripts/check-voice.mjs` — recalibrado al formato de cuatro bloques
+  (mediana ≤110, p75 ≤125, oración ≤30, sin exigir martillos sueltos, bloque
+  desbordado a partir de 130). Sigue estricto en lo que es estilo de la casa
+  pase lo que pase: prohibición del guion largo y tope de un paralelismo
+  negativo por pieza. Las etiquetas de los flags ya no citan el archivo del
+  newsletter.
+
+**Cómo se verificó**: el artículo de Beckmann/LAFC se reescribió a cuatro
+bloques (104/100/103/115 palabras, 438 en total) y se corrió `check-voice`
+contra el borrador: pasa limpio. El artículo ya estaba publicado, así que se
+actualizó en producción por `id` (no por el script de publicación, que usa
+`onConflictDoNothing` sobre `sourceUrl` y habría reportado `duplicate`), y se
+confirmó contra la página en vivo que el cuerpo nuevo está servido, que la
+figura de Cifra clave y el callout de Opinión siguen renderizando, y que el
+dispositivo Alineación y el resultado del partido ya no aparecen.
+
+**Pendiente**: ninguno de código. Vale la pena saber que el flujo de las skills
+no tiene forma de editar un artículo ya publicado (el Paso 7 solo inserta); esta
+sesión lo resolvió con un script de un solo uso. Si volver a editar en vivo se
+vuelve costumbre, ahí hay un script que merece existir de verdad.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
