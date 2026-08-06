@@ -175,7 +175,12 @@ type PlainBlock =
 // markLeadIns for this body shape.
 const PLAIN_LEADIN_RE = /^\*\*([^*]{2,42}?):\*\*\s*([\s\S]*)$/;
 
-function plainBlocksFor(paragraphs: string[], source: string, readingTime: number | null): PlainBlock[] {
+function plainBlocksFor(
+  paragraphs: string[],
+  source: string,
+  readingTime: number | null,
+  priority: number | null,
+): PlainBlock[] {
   // Every product source gets the full device set — the four-paragraph
   // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
   // alike (see lib/product-hubs.ts's regex comment). ALL designed devices
@@ -186,7 +191,7 @@ function plainBlocksFor(paragraphs: string[], source: string, readingTime: numbe
   // type, excess declarations stay readable text. The Opinión callout and
   // the money trail are exempt (see deviceBudgetFor's comment).
   const isProduct = hubForSource(source) !== null;
-  let budget = deviceBudgetFor(readingTime);
+  let budget = deviceBudgetFor(readingTime, priority);
   const usedTypes = new Set<string>();
   const blocks: PlainBlock[] = paragraphs.map((p): PlainBlock => {
     if (isProduct && OPINION_TEXT_PREFIX.test(p)) {
@@ -491,10 +496,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // label can never double as a scan mark.
   const htmlBody =
     rawHtmlBody && hub
-      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime)))
+      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority)))
       : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
-  const blocks = plainBlocksFor(paragraphs, article.source, meta.readingTime);
+  const blocks = plainBlocksFor(paragraphs, article.source, meta.readingTime, article.priority);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
 
   // The "siguiente expediente" handoff already shows the next case — keep

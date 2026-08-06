@@ -164,12 +164,20 @@ single most important one should be bold (bold counts up). The full
 device collection (Cronología / Recibo / Ecuación / Salto / Reparto /
 Alineación / Cotización — syntax and when-to-use in
 `publish-newsletter`'s "device collection" section) applies to this
-skill's output too, under the same code-enforced budget: ≤2 min read →
-1 designed device, 3-5 min → 2, 6+ min → 3, never a repeated type,
-chosen by story shape, every number sourced from the verified reporting. Word-count range: roughly 300-500 words across the
-four. Write every paragraph in Playbook's own words, this is a rewrite
-grounded in multiple sources, never a close paraphrase or translation of
-any single outlet's article.
+skill's output too, under the same code-enforced, priority-aware budget
+(2026-08-06, round 2): ≤2 min read → 1 designed device, 3-5 min → 2, 6+
+min → 3, **plus one more at any length when `priority: 5`** — a piece
+this skill rates 5 stars is exactly the one most likely to lead the
+homepage, and it should carry the fullest structure the format allows,
+not be capped at one device just because the standard four-paragraph
+shape keeps `readingTime` at 2. Never a repeated type. Check the story
+against the full device list before concluding none fits — "no device
+fits" should be the rare finding, not the default — but never invent a
+milestone, split, or figure to force one: every number in a device must
+be sourced from the verified reporting. Word-count range: roughly
+300-500 words across the four. Write every paragraph in Playbook's own
+words, this is a rewrite grounded in multiple sources, never a close
+paraphrase or translation of any single outlet's article.
 
 ### The rhythm (publisher directive, 2026-08-06, round 2)
 

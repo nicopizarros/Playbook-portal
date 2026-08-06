@@ -426,11 +426,22 @@ const ALL_DEVICES: NamedDevice[] = [
 // count-ups) and La Lana's money trail (the product's narrative identity
 // device, already limited to one per article) are exempt — the budget
 // governs the OPTIONAL designed beats only.
-export function deviceBudgetFor(readingTime: number | null): number {
+//
+// Priority-aware (round 2, user request, 2026-08-06): length alone
+// under-budgets a `priority: 5` story that happens to be short — the
+// standard four-paragraph Noticias format keeps `readingTime` at 2
+// regardless of how important the story is, so a hero-track piece and a
+// routine one got the same single device. `priority: 5` is the site's own
+// signal for "most likely to lead the homepage" (see lib/rank.ts), so it
+// earns one extra device slot at every length tier instead of relying on
+// length to say so. Featured status isn't part of this: `featured` decays
+// within a day (rank.ts's FEATURED_BOOST_DAYS) and is about today's
+// homepage placement, not the story's lasting importance the way
+// `priority` is meant to be.
+export function deviceBudgetFor(readingTime: number | null, priority?: number | null): number {
   const minutes = readingTime || 1;
-  if (minutes <= 2) return 1;
-  if (minutes <= 5) return 2;
-  return 3;
+  const base = minutes <= 2 ? 1 : minutes <= 5 ? 2 : 3;
+  return priority === 5 ? base + 1 : base;
 }
 
 // HTML bodies: ONE document-order pass over all nine device patterns —
@@ -440,7 +451,7 @@ export function deviceBudgetFor(readingTime: number | null): number {
 // declarations stay as readable plain paragraphs, so an over-budget
 // article degrades visibly-but-gracefully instead of silently. Same
 // trust boundary and ad-split safety as every transform before it.
-export function applyBodyDevices(html: string, readingTime: number | null): string {
+export function applyBodyDevices(html: string, readingTime: number | null, priority?: number | null): string {
   type Match = { start: number; end: number; markup: string; name: string };
   const found: Match[] = [];
   for (const device of ALL_DEVICES) {
@@ -454,7 +465,7 @@ export function applyBodyDevices(html: string, readingTime: number | null): stri
   }
   found.sort((a, b) => a.start - b.start);
 
-  let budget = deviceBudgetFor(readingTime);
+  let budget = deviceBudgetFor(readingTime, priority);
   const usedTypes = new Set<string>();
   const selected: Match[] = [];
   let cursor = -1;

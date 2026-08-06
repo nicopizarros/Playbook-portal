@@ -510,9 +510,20 @@ them right at drafting time:
     - `Cotización: Ollamani — MX$14.50 · -34.6% · en el año` → a market
       tile with ▲/▼ delta. For public-company/valuation results: name,
       value, signed percent delta, optional note.
-  Rules of use — **the device budget (final, 2026-08-06, enforced in
-  code by `applyBodyDevices`, not just here):** designed devices scale
-  with `readingTime` — **≤2 min → 1 device · 3-5 min → 2 · 6+ min → 3.**
+  Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
+  now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
+  here):** designed devices scale with `readingTime` **and** `priority`.
+  Base budget by length — **≤2 min → 1 device · 3-5 min → 2 · 6+ min →
+  3** — then **+1 whenever `priority: 5`**, on top of whatever the length
+  already gives. A `priority: 5` story is the site's own signal for "most
+  likely to lead the homepage" (`lib/rank.ts`'s hero selection), and it's
+  meant to carry the fullest structure the format allows regardless of
+  how short the standard four-paragraph shape keeps `readingTime` — so a
+  `priority: 5` piece at the ordinary `readingTime: 2` gets a budget of
+  2, not 1, and a 6-minute `priority: 5` La Lana piece gets 4. `featured`
+  doesn't add to the budget: it decays within a day
+  (`FEATURED_BOOST_DAYS`) and marks today's placement, not the story's
+  lasting weight the way `priority` does.
   The Opinión callout, the automatic devices (lead-ins, highlights,
   count-ups) and La Lana's money trail are EXEMPT and never count.
   Never repeat a device type in one article (the renderer refuses the
@@ -523,11 +534,29 @@ them right at drafting time:
   story's spine first. Keep at least two prose paragraphs between
   devices (renderer doesn't enforce this one — you do). Choose by
   shape: a saga → Cronología, a breakdown → Recibo, a split → Reparto,
-  a pairing → Jugada, one number → Cifra clave — and only when the
-  story genuinely has that shape; a forced device is worse than none.
+  a pairing → Jugada, one number → Cifra clave.
   Every number inside a device must appear in (or be directly
   computable from) the newsletter being published — never invent data
   to fill a device.
+  - **"No device fits" is the exception, not the default (2026-08-06,
+    publisher directive).** The earlier wording here ("only when the
+    story genuinely has that shape; a forced device is worse than
+    none") read as license to skip the whole collection the moment
+    nothing obvious jumped out, and that quietly made zero devices the
+    normal outcome instead of the rare one. In practice almost every
+    story fits something once you check the full list instead of the
+    first one or two shapes that come to mind: a contract has the
+    career-to-date as a Cronología, a fee has a Reparto of who gets
+    what or a Cifra clave for the headline number, a signing has a
+    Jugada for the two sides, a schedule change has a Salto. Before
+    writing an article off as device-free, walk all nine shapes against
+    it, especially on a `priority: 5` piece, which is exactly the story
+    that should carry the richest structure. What stays strict is
+    fabrication, not effort: never invent a milestone, a split, or a
+    figure the piece doesn't already contain just to manufacture a fit
+    — a story that genuinely has no numbers, no timeline, no pairing
+    and no roster still gets none, that's a real outcome, just one that
+    should be rarer than it was under the old wording.
 - **All products: lead-ins are now UI (2026-08-05, round 2).** The
   standard bold lead-in every paragraph already opens with
   (`**La sanción:** …`) renders as a product-colored scan mark — readers
@@ -578,19 +607,20 @@ every item maps to a visible element):
   full-width feature band, 4 as a two-up card, the rest as compact rows,
   so an inflated 5 hogs a band and a lazy 2 buries a real story;
   `imageUrl` present (feature bands and cards on /noticias show it;
-  text-only there is a visible hole at priority ≥4); "Cifra clave:"
-  beat considered when the story is number-driven (step above) — the
-  story's OWN figure, not a context figure, symbol-prefixed, rumored
-  figures attributed in the caption; value ≤24 chars with a digit,
-  caption after ` — `; "Jugada:" strip
-  considered when the story is a two-party relationship (step above,
-  sides ≤32 chars, one max); the device collection consulted — does the
-  story's SHAPE match a Cronología, Recibo, Ecuación, Salto, Reparto,
-  Alineación or Cotización? — and the device BUDGET respected (≤2 min
-  read → 1 designed device, 3-5 min → 2, 6+ → 3; no repeated types;
-  data only from the piece itself); every paragraph's bold lead-in specific
-  and colon-terminated (they render as scan marks now); key figures in
-  house shapes, the single most important one bold.
+  text-only there is a visible hole at priority ≥4); the full device
+  collection walked against the story BEFORE deciding it gets none — does
+  it fit a Cifra clave (one defining number, the story's OWN figure, not
+  a context one, symbol-prefixed, rumored figures attributed in the
+  caption, value ≤24 chars with a digit, caption after ` — `), a Jugada
+  (a two-party relationship, sides ≤32 chars, one max), or a Cronología /
+  Recibo / Ecuación / Salto / Reparto / Alineación / Cotización — "no
+  device fits" should be the rare finding, not the default one; and the
+  device BUDGET respected (≤2 min read → 1 designed device, 3-5 min → 2,
+  6+ → 3, **+1 more at any length when `priority: 5`**; no repeated
+  types; data only from the piece itself, never invented to force a
+  fit); every paragraph's bold lead-in specific and colon-terminated
+  (they render as scan marks now); key figures in house shapes, the
+  single most important one bold.
 - **Noticias** — if the story is number-driven, its biggest figure
   verbatim in `title` or `excerpt` (the feature band pulls it out as the
   green chip); `date` correct (the weekday badge derives from it).

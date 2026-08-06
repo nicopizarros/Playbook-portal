@@ -5797,6 +5797,59 @@ no tiene forma de editar un artículo ya publicado (el Paso 7 solo inserta); est
 sesión lo resolvió con un script de un solo uso. Si volver a editar en vivo se
 vuelve costumbre, ahí hay un script que merece existir de verdad.
 
+### 2026-08-06 — El presupuesto de dispositivos pasa a depender también de priority, no solo de readingTime
+
+**Pedido del usuario.** Un artículo de Isaac del Toro (priority 5, readingTime
+2, cuatro párrafos estándar) se publicó sin ningún dispositivo diseñado. El
+usuario aceptó que sigan siendo opcionales, pero pidió dos cosas: que "no
+encaja ningún dispositivo" sea la excepción real y no la salida por defecto, y
+que el presupuesto también escale con `priority`, no solo con `readingTime` —
+su razonamiento: una historia de 5 estrellas es justo la que más probablemente
+lidera portada, y merece la estructura más rica que el formato permita, sin
+que el límite del formato estándar (`readingTime: 2`) se lo impida.
+
+**Qué cambió:**
+
+- `lib/article-devices.ts` — `deviceBudgetFor(readingTime, priority)` ahora
+  toma un segundo parámetro: el presupuesto base sigue siendo por
+  `readingTime` (≤2 min → 1, 3-5 → 2, 6+ → 3) pero suma **+1 cuando
+  `priority === 5`**, en cualquier tramo de largo. `featured` deliberadamente
+  no entra en la cuenta: decae en un día (`FEATURED_BOOST_DAYS`) y describe el
+  lugar de HOY en portada, no el peso duradero de la historia, que es lo que
+  `priority` representa. `applyBodyDevices` recibe y propaga el nuevo
+  parámetro.
+- `app/(public)/articulo/page.tsx` — los dos call sites (`applyBodyDevices` y
+  `plainBlocksFor`, esta última con un parámetro `priority` nuevo) ahora pasan
+  `article.priority` (la fila completa ya estaba cargada en ese punto, no hizo
+  falta tocar `getArticleMetaById`).
+- `.claude/skills/publish-newsletter/SKILL.md` y
+  `.claude/skills/publish-sourced-article/SKILL.md` — la sección del
+  presupuesto de dispositivos documenta la regla nueva, y la frase "solo
+  cuando la historia genuinamente tiene esa forma; un dispositivo forzado es
+  peor que ninguno" se reemplaza por una directiva de "revisar las nueve
+  formas antes de concluir que ninguna aplica" — la barra que se mantiene alta
+  es inventar datos, no el esfuerzo de buscar un encaje real.
+
+**Cómo se verificó**: `npx tsc --noEmit` limpio. Prueba directa de
+`deviceBudgetFor` con varias combinaciones de `readingTime`/`priority`
+confirma la tabla nueva (ej. `readingTime: 2, priority: 5` → 2, antes 1). Se
+aprovechó el artículo de Isaac del Toro como caso real: ya tenía un
+Cronología agregado en esta sesión (readingTime 2, budget entonces 1); con el
+presupuesto nuevo (budget 2 por ser priority 5) se le agregó un segundo
+dispositivo, `Jugada: Isaac del Toro ↔ UAE Team Emirates`, actualizado
+directo en producción por `id` (mismo patrón que la entrada anterior, el Paso
+7 de las skills solo inserta). Se confirmó con `applyBodyDevices` corriendo
+contra el HTML real que ambos dispositivos (`lect-jugada` y `lect-timeline`)
+renderizan bajo el presupuesto de 2.
+
+**Bug preexistente encontrado de paso, no corregido**: un apóstrofo dentro del
+texto de un dispositivo se escapa dos veces (`&amp;apos;` en vez de `'`) — el
+texto plano capturado por el regex del dispositivo ya viene con la entidad
+`&apos;` que `generateHTML` puso ahí, y `esc()` en `article-devices.ts` la
+vuelve a escapar. Se evitó en el contenido de Del Toro usando un apóstrofo
+tipográfico (’) en vez del recto ('), que no dispara el escapeo. Sigue
+pendiente arreglarlo en el escapeo mismo si se vuelve un problema recurrente.
+
 ## Próximos pasos
 
 ### Bloqueantes de lanzamiento (2026-08-04) — ninguno se resuelve con código
