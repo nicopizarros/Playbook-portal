@@ -1,6 +1,6 @@
 ---
 name: publish-newsletter
-description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Mundial, Infinitas) into Playbook.
+description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Deporte, Infinitas) into Playbook.
 ---
 
 # Publish Newsletter: Substack link to live article, no human in the loop
@@ -123,7 +123,7 @@ which one you did in the report.
 Fetch every Substack URL given (use WebFetch; it follows the `open.substack.com`
 to `<pub>.substack.com` redirect automatically, re-fetch the redirect URL it
 reports). For each edition, identify individual news items: each story in an
-Industry Shots or La Lana del Mundial edition is a separate article. Also
+Industry Shots or La Lana del Deporte edition is a separate article. Also
 fetch the page a second time asking specifically for the exact publication
 date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
@@ -276,7 +276,7 @@ wording per article rather than reusing the same word in every piece.
 
 Word-count range: roughly 300-500 words across the four paragraphs.
 
-### La Lana del Mundial
+### La Lana del Deporte
 
 Content stays exactly as it would without Step 2: don't run outside
 research on La Lana pieces, and don't otherwise pad or alter what the
@@ -750,15 +750,19 @@ document, see Step 6), never HTML tags.
   with the newsletter's own name.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
-- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Mundial: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
-- **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
+- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
+- **author**: leave `""` unless a byline is genuinely known. Never prepend "Por " yourself, the byline template
+  (`app/(public)/articulo/page.tsx`) already renders "Por " ahead of this field, a stored "Por Jane Doe" renders as
+  the double "Por Por Jane Doe" (a real 2026-08-08 mistake). For a guest collaboration piece where the byline itself
+  should link out (the author's own social profile, their company site), use inline `[text](url)` markdown, e.g.
+  `"[Jane Doe](https://instagram.com/jane), fundadora de [Acme](https://acme.com)"`, the byline renderer detects
+  and turns those into real external links (`target="_blank"`) instead of its normal single internal
+  `/autor?nombre=` link, same `[text](url)` syntax `bodyMarkdown` already uses. `mostrarAutor` stays `false` by
+  default regardless of whether author is known, flip it `true` only when the human explicitly asks the byline to
+  show (a guest collaboration is exactly that case, a normal Substack item usually isn't).
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
-    - La Lana del Mundial: `"La Lana del Deporte"` / `"la-lana"` — the
-      Substack may still say "La Lana del Mundial", but the site brand is
-      "La Lana del Deporte" (Fase 0 rebrand, 2026-08-01; production
-      articles were all rewritten to it by `fix:lana-rebrand`). Never
-      write "La Lana del Mundial" into `publication`.
+    - La Lana del Deporte: `"La Lana del Deporte"` / `"la-lana"`
     - Infinitas: `"Infinitas"` / `"infinitas"`
     - The Futbol Business Review: `"The Futbol Business Review"` /
       `"futbol-business-review"` — the hub at /futbol-business-review
