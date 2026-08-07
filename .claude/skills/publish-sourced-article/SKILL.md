@@ -131,7 +131,21 @@ paraphrase of someone else's piece.
 4. Opinión de Playbook: what it means for the industry, Mexico/LATAM angle
    when relevant. Always present, grounded in what's actually in the piece.
 
-Always four paragraphs, no exceptions. Every paragraph, not only the
+Always four paragraphs, no exceptions — from the skill's own judgment.
+A human reviewer in Step 6 can still explicitly ask for more (2026-08-07:
+"split into two paragraphs on the opinion... it doesn't matter if it is
+too long"), and that instruction overrides this default same as any other
+Step 6 revision request. When it happens, know the technical shape of
+what you're doing: `**Opinión de Playbook:**` is matched against exactly
+one `<p>` (see the callout mechanics two paragraphs down), so only the
+paragraph that opens with that literal lead-in gets the fenced callout
+treatment — a second paragraph split off after it (e.g. a closing
+"**La apuesta:**" beat) renders as ordinary body text immediately below
+the callout, not inside it. That's a fine, expected outcome for a
+deliberate split, not a bug to route around by cramming everything back
+into one paragraph.
+
+Every paragraph, not only the
 Opinión one, opens with a short bold lead-in (2-5 words, ending in a
 colon, specific to what that paragraph covers, not a generic repeated
 label across articles), same readability rule as `publish-newsletter`'s
@@ -299,6 +313,22 @@ here is the primary source article's own lead/hero image:
   Getty Images (including iStock) or AP Images/AP Photo, don't use it,
   same exclusion as `publish-newsletter`, these agencies pursue unlicensed
   use aggressively. Fall back to the search below instead.
+- **A candidate photo can also carry no visible credit at all**, distinct
+  from being excluded or missing (2026-08-07): a source page's HTML/JSON
+  metadata simply has no `credit`/`copyright`/`fuente` field anywhere, so
+  there's nothing to exclude and nothing confirmed safe either. Don't
+  treat that silence as a green light, and don't treat it as an automatic
+  fallback trigger either — first check whether other outlets covering
+  the same photo-op independently agree on a source (an award ceremony,
+  a press conference, a signing): if two or three unrelated outlets all
+  caption the same scene as a federation/league/company handout (e.g.
+  "Cortesía FMF", "@FMF") rather than a wire agency, that convergence is
+  real evidence the photo is a press handout, not a Getty/AP pickup
+  running uncredited. One outlet's silence is inconclusive; independent
+  agreement across several is enough to use it with that credit. If no
+  other coverage of the same scene turns up, that's the genuine "no clear
+  usable image" case below, fall back to the broad search instead of
+  guessing.
 - If the source article has no clear usable image, or its image is
   excluded or genuinely doesn't fit (generic stock photo unrelated to the
   actual story), fall back to the same broad multi-platform search
