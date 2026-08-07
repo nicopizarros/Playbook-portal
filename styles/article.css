@@ -1,5 +1,5 @@
 /* ——— Página de artículo (/articulo) ———
-   Reutiliza clases existentes (.lead-photo, .tag, .btn, .skel) en vez de
+   Reutiliza clases existentes (.lead-photo, .tag, .btn) en vez de
    duplicar estilos — solo se define aquí lo que es genuinamente nuevo: el
    layout y la tipografía de una lectura larga en una sola columna.
 
@@ -126,9 +126,6 @@
 .article-related{margin-top:52px;padding-top:32px;border-top:2px solid var(--ink);}
 .article-related h2{font-family:var(--serif-display);font-weight:400;font-size:20px;text-transform:uppercase;margin:0 0 12px;}
 .article-related .news-list .news-row:first-child{padding-top:16px;}
-
-.article-not-found{padding:60px 0;text-align:center;}
-.article-not-found a{text-decoration:underline;color:var(--ink);}
 
 /* ——— Muro de correo (metered access, Fase 3) — genuinamente nuevo, sin
    equivalente legado. Reutiliza el lenguaje visual de .nl-box (mismo

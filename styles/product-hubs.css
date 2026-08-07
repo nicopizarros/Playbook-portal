@@ -414,11 +414,49 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;
   font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
 }
-/* Bottle cap: a fluted circle, pure CSS. */
+/* Bottle cap: a fluted circle, pure CSS. Noticias' mark — the shot-glass
+   metaphor the product already runs on (.shot-progress, El Trago). */
 .shot-opinion-kicker::before{
   content:"";width:14px;height:14px;border-radius:50%;flex-shrink:0;
   background:repeating-conic-gradient(var(--green) 0 14deg,transparent 14deg 30deg);
   border:2px solid var(--green);
+}
+
+/* Per-product marks (2026-08-07): each product signs its opinion with its
+   own object instead of borrowing Noticias' bottle cap — a stack of coins
+   for La Lana (the money trail it reports), the lemniscate for Infinitas,
+   a forward arrow for TFBR (the commercial move each edition argues for).
+   Drawn as mask-image rather than background-image so the fill is
+   `background-color`, i.e. the product token itself: --src-lana and
+   --src-infinitas both swap value between light and dark (tokens.css), and
+   a baked-in SVG fill would need a second copy per theme to follow them.
+   Inline data: URIs, no network (CSP allows data: under img-src) and no
+   sprite to keep in sync. The reset line clears the cap's border-radius,
+   border and conic background before each mark redraws the box. */
+.article-product-la-lana .shot-opinion-kicker::before,
+.article-product-infinitas .shot-opinion-kicker::before,
+.article-product-futbol-business-review .shot-opinion-kicker::before{
+  border:0;border-radius:0;background:currentColor;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+}
+
+/* La Lana: three stacked coins, read side-on. Ellipses rather than discs
+   because at 14px a circle is a dot and a stack is unmistakably money. */
+.article-product-la-lana .shot-opinion-kicker::before{
+  width:15px;height:14px;background-color:var(--src-lana);
+  -webkit-mask-image:var(--mark-coins);mask-image:var(--mark-coins);
+}
+/* Infinitas: the lemniscate the product is named for. */
+.article-product-infinitas .shot-opinion-kicker::before{
+  width:20px;height:12px;background-color:var(--src-infinitas);
+  -webkit-mask-image:var(--mark-infinity);mask-image:var(--mark-infinity);
+}
+/* TFBR: the forward arrow — every edition ends on the move to make next. */
+.article-product-futbol-business-review .shot-opinion-kicker::before{
+  width:16px;height:13px;background-color:var(--tfbr-red);
+  -webkit-mask-image:var(--mark-arrow);mask-image:var(--mark-arrow);
 }
 .shot-opinion p{margin:0;}
 .shot-opinion p:not(:last-child){margin-bottom:12px;}
@@ -472,7 +510,6 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 .hub-tfbr-sub{font-size:14.5px;line-height:1.55;color:var(--tfbr-faint);max-width:46ch;margin:0;}
 
 .tfbr-arrow{display:inline-block;vertical-align:middle;}
-.tfbr-arrow-up{transform:rotate(-45deg);}
 
 /* Briefing board: dense numbers, no photography. */
 .tfbr-board{margin-top:44px;}

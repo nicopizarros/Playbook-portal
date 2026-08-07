@@ -193,6 +193,45 @@ Rules:
 
 ## Step 3: Editorial voice
 
+### The uniformity contract — read this before drafting a word
+
+Several sessions publish through this skill, and readers see the output as
+one publication. Everything below is what makes four products look like one
+masthead; none of it is a stylistic preference to re-derive per run. The
+failure mode is real and recent: a 2026-08-07 La Lana piece shipped as 50
+standalone beats with no lead-ins, no devices and no promise block, next to
+a Noticias piece carrying all three, and read as a different site.
+
+| | Noticias (`industry-shots`) · Infinitas | La Lana del Deporte | TFBR |
+|---|---|---|---|
+| **Body shape** | 4 paragraphs, fixed | cold open → promise block → 6-8 `##` sections → Opinión | free-form essay, one idea |
+| **Blocks** | 80-100 words each | 80-100 words each, 1-2 per section | 80-100 words each |
+| **Bold lead-in** | every paragraph | every block inside a `##` section | every block |
+| **Closing take** | `**Opinión de Playbook:**` paragraph | `## La Opinión de Playbook` + exactly 3 bullets | none, `## La visión de Interticket` instead |
+| **Devices** | budget by length + priority | same budget | same budget |
+| **Length** | 300-500 words | 400-600 (guest essays run longer) | as the edition runs |
+
+Never carrying a lead-in, in any product: the cold open, device
+declarations, `Foto: Playbook` captions, and the Opinión bullets.
+
+**What the page does with all this, so nobody rebuilds it by hand.** Every
+visual treatment is a RENDER-time transform reading plain authoring
+conventions — write the markdown, get the design:
+
+- `**Label:**` at the start of a block → a product-colored scan mark, and on
+  Noticias and La Lana a numbered beat (`01`, `02`) down the margin.
+- `**70%**` (a bold span that is only a figure) → counts up on scroll.
+  Money and percentages in plain prose → an automatic marker highlight.
+- The closing take, in EITHER shape → the green fenced callout, signed with
+  the product's own mark: a bottle cap for Noticias, a stack of coins for La
+  Lana, the lemniscate for Infinitas, a forward arrow for TFBR (the marks
+  are `--mark-*` tokens in `styles/tokens.css`).
+- `Cifra clave:` / `Jugada:` / the seven other device lines → their designed
+  elements, within budget.
+
+Corollary, learned the hard way: **never post-process the HTML at publish
+time to fake any of this.** See the render-time rule further down this step.
+
 ### The rhythm (publisher directive, 2026-08-06, round 2 — supersedes the archive measurement)
 
 Playbook's portal articles are written as **four substantial blocks**, one
@@ -422,6 +461,13 @@ them right at drafting time:
   Lana. Write whichever shape the product calls for as plain markdown and
   the callout appears; the heading is replaced by the callout's own
   kicker, so don't repeat the label inside the bullets.
+  **Each product signs the box with its own mark**, set in CSS from the
+  `--mark-*` tokens (`styles/tokens.css`) and picked by the article's
+  `source`: bottle cap for Noticias, coins for La Lana, the lemniscate for
+  Infinitas, forward arrow for TFBR. Nothing to write at drafting time —
+  getting `publication`/`source` right (Step 4) is what selects the mark,
+  which is one more reason a wrong source pair is a visible mistake and
+  not just a filing error.
 - **Body presentation is decided at RENDER time, never at publish time
   (2026-08-07).** Everything in this section is a plain authoring
   convention that `app/(public)/articulo/page.tsx`'s transform chain turns

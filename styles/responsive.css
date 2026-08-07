@@ -135,8 +135,6 @@
 @media(max-width:920px){
   .news-grid{grid-template-columns:1fr;}
   .lead-story{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:20px;}
-  .news-strip{grid-template-columns:1fr 1fr;}
-  .news-strip a:nth-child(2){border-right:none;}
   /* Fase 7 UX: la banda de tres columnas colapsa — hero, lista y
      sidebar apilados, sin sticky ni borde de rail (el ad rail-home
      además se oculta, ver ads.css). */
