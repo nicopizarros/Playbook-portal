@@ -356,7 +356,37 @@ export function markLeadIns(html: string): string {
 const OPINION_HTML_RE = /<p([^>]*)>(\s*(?:<strong>)?\s*(?:La\s+)?[Oo]pini[oó]n de Playbook:?\s*(?:<\/strong>)?:?\s*)([\s\S]*?)<\/p>/;
 export const OPINION_TEXT_PREFIX = /^\s*(?:\*\*)?\s*(?:La\s+)?[Oo]pini[oó]n de Playbook:?\s*(?:\*\*)?:?\s*/;
 
+// The SECOND shape the editorial voice produces, and the one this device
+// missed until 2026-08-07: La Lana closes on a `## La Opinión de Playbook`
+// heading followed by three bullets (movement 4 of its fixed architecture,
+// see docs/la-lana-article-spec.md), not on the inline lead-in paragraph
+// the short products use. Both are the same editorial object — the closing
+// take, fenced off from reporting — so both get the same callout, and a
+// reader moving between products sees one recognizable Playbook element
+// instead of a branded box on Noticias and a bare subhead on La Lana.
+const OPINION_HEADING_RE = /<h2[^>]*>\s*(?:La\s+)?[Oo]pini[oó]n de Playbook\s*:?\s*<\/h2>/i;
+
 export function markOpinionCallout(html: string): string {
+  // Heading form first: it consumes the H2 itself, so the paragraph regex
+  // below can never also fire on a body that uses it.
+  const heading = html.match(OPINION_HEADING_RE);
+  if (heading && heading.index !== undefined) {
+    // Everything from the heading to the next `##` (or to the end, which is
+    // where movement 4 actually sits) becomes the callout's contents. The
+    // H2 is replaced by the kicker rather than kept inside it: the kicker
+    // already says "Opinión de Playbook", and leaving both would print the
+    // label twice. <aside> is tracked by splitAfterParagraph, so the inline
+    // ad can't be placed inside the fence.
+    const after = html.slice(heading.index + heading[0].length);
+    const next = after.search(/<h2[\s>]/i);
+    const inner = next === -1 ? after : after.slice(0, next);
+    const tail = next === -1 ? '' : after.slice(next);
+    return (
+      `${html.slice(0, heading.index)}<aside class="shot-opinion">` +
+      `<span class="shot-opinion-kicker">Opinión de Playbook</span>${inner}</aside>${tail}`
+    );
+  }
+
   return html.replace(
     OPINION_HTML_RE,
     (_m, attrs: string, _label: string, rest: string) =>

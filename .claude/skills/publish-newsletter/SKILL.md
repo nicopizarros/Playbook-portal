@@ -83,8 +83,17 @@ belong, and:
   one. Re-running the Step 5a search on an upgrade is wasted work.
 
 Write the update the same way an insert is written (markdown → TipTap →
-`bodyHtml`); `scripts/update-matador-report.ts` is the worked example of
-updating a published row instead of inserting.
+`bodyHtml`) — `scripts/update-article.ts` does exactly that, patching only
+the fields you give it and regenerating `body_json` + `body_html` together
+whenever `bodyMarkdown` is present:
+
+```
+npx tsx --env-file=.env.local scripts/update-article.ts <fix.json> --dry-run
+```
+
+Never hand-edit a stored `body_html` instead: it is a cache of `body_json`,
+and the two drifting apart is invisible until a deploy pulls the CSS out
+from under whatever the HTML picked up (see Step 3's render-time rule).
 
 **C. A new development on a story already covered → a new article that links
 back.** The test: the new piece must be able to state, in its own headline,
@@ -293,7 +302,12 @@ than padding it.
 **La Lana's architecture is fixed — reproduce it (measured 2026-08-06:
 present in 8 of 8 published editions).** These pieces are not free-form
 long-form. They run the same four movements every time, and a La Lana
-article that doesn't wear this shape isn't one:
+article that doesn't wear this shape isn't one.
+`docs/la-lana-article-spec.md` is the same four movements plus the fields,
+the device budget and the post-publish board step as a walkable checklist —
+read it back against the piece once it's live, which is when the misses
+(2026-08-07: promise block skipped, zero devices, no figure in the excerpt,
+board never updated) are still cheap to fix:
 
 1. **The cold open.** Two to four short paragraphs that put the tension on
    the table in the first line. No scene-setting, no "en los últimos años".
@@ -307,7 +321,21 @@ article that doesn't wear this shape isn't one:
    obligatorias las pausas?"*, *"¿Esta medida se queda o es una rareza del
    Mundial 2026?"*. Write them as a markdown bullet list.
 3. **Six to eight `##` sections**, each heading an argument (see the
-   headings rule above). The sections carry the reporting: named parties,
+   headings rule above). **Inside a section: one or two substantial blocks
+   of 80-100 words, each opening with its own bold lead-in** — the same
+   `**El costo de entrar:**` shape the short products use on every
+   paragraph, applied per block rather than per sentence, which is what
+   makes a long piece scan like the rest of the catalog instead of like a
+   different publication. The lead-ins render as product-colored scan marks
+   (`markLeadIns`), so a reader skims the whole argument off them; that
+   also means they have to be specific and never repeat across the piece.
+   Only four kinds of paragraph go without one: the cold open, the device
+   declarations, the `Foto: Playbook` captions and the Opinión bullets.
+   A section written as eight standalone 20-word beats has the same words
+   and none of the structure — that is the short-beat format the publisher
+   reversed (see the rhythm section above), and it is what the 2026-08-07
+   guest piece shipped in before it was reformatted.
+   The sections carry the reporting: named parties,
    figures against comparable figures, what each actor did differently.
    Where the piece does arithmetic, do it out loud and invite the reader in
    — *"Analicemos esto: En 104 partidos, dos pausas de tres minutos por
@@ -387,6 +415,40 @@ them right at drafting time:
   de Playbook", or similar, and don't fold the opinion into another
   paragraph. This already matched the standard structure above; it is now
   also a UI contract.
+  **Both shapes get the same box (2026-08-07).** La Lana's `## La Opinión
+  de Playbook` heading plus its three bullets is detected too, so the
+  closing take is one recognizable green-fenced element across every
+  product instead of a branded box on Noticias and a bare subhead on La
+  Lana. Write whichever shape the product calls for as plain markdown and
+  the callout appears; the heading is replaced by the callout's own
+  kicker, so don't repeat the label inside the bullets.
+- **Body presentation is decided at RENDER time, never at publish time
+  (2026-08-07).** Everything in this section is a plain authoring
+  convention that `app/(public)/articulo/page.tsx`'s transform chain turns
+  into markup as the page renders. `scripts/publish-newsletter.ts` converts
+  markdown to TipTap and renders that TipTap to HTML; it adds nothing of
+  its own. Never reach for a publish-time HTML post-processor to give a
+  body some new visual treatment — a `wrapOpinionBox` that wrapped the
+  closing take in a green `<div>` did exactly that, unaware the article
+  page already had `markOpinionCallout` doing the same job per-product
+  tinted, and shipped nested `<div class="opinion-box"><aside
+  class="shot-opinion">` markup. Two things make render-time the only
+  correct place: the treatment applies to the whole existing catalog with
+  zero re-editing, and it can be changed or reverted without touching a
+  single stored row. A wrapper written into `body_html` outlives the code
+  that wrote it — when that revert landed, the dead `<div>` stayed baked
+  into the live article with no stylesheet behind it. If a body genuinely
+  needs a new element, it becomes a device in `lib/article-devices.ts` or
+  `lib/product-hubs.ts`, driven by a plain paragraph convention.
+- **Fixing a published body: regenerate it, never hand-edit the HTML.**
+  `body_html` is a cache of `body_json`, and the two silently drifting
+  apart is what left that dead wrapper live. Run the corrected
+  `bodyMarkdown` back through the same pipeline the insert uses:
+  `npx tsx --env-file=.env.local scripts/update-article.ts <fix.json>`
+  (`--dry-run` first; it patches only the fields an entry carries, matched
+  on `id` or `sourceUrl`, and rebuilds `body_json` + `body_html` together
+  whenever `bodyMarkdown` is present). This is also the tool for Step 0's
+  outcome B, folding new facts into an already-published article.
 - **La Lana: the money trail.** When (and only when) a La Lana story
   genuinely traces money moving between named places — a fee flowing from
   a country to a federation's HQ, a sale crossing borders, an investor
@@ -460,6 +522,15 @@ them right at drafting time:
     the top ranked story with a figure and PREFERS its declared Cifra
     clave over anything scraped from title/excerpt — declaring the beat
     is how you control what number represents the story site-wide.
+  - **The caption has to work away from the article too (2026-08-07).**
+    The rail prints it under the chip, where it is the only thing telling
+    a reader what the number measures — a figure alone reads as a price
+    with no unit ("US$8,000 a US$20,000" under a headline about talent
+    factories). So write the caption to NAME the thing, not to lean on
+    the sentence it came from: "el costo anual del futbol juvenil de alto
+    nivel en Estados Unidos", not "lo que cuesta". A caption is optional
+    to the parser and mandatory in practice; a Cifra clave declared
+    without one ships a bare number to the homepage.
   - **Write figures with their currency symbol** in the house shapes
     ("US$250 millones", "MX$42.8 millones", "€3M") — never spelled out
     ("250 millones de dólares"): every extractor ranks symbol-prefixed
