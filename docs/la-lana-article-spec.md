@@ -42,6 +42,42 @@ Each heading **states a position**, never labels a topic. *"Mover dinero no es
 quedarse con él"*, not *"El acuerdo"*. The sections carry the reporting: named
 parties, figures against comparable figures, what each actor did differently.
 
+**Inside a section: one or two blocks of 80-100 words, each opening with a bold
+lead-in.**
+
+```
+**El costo de entrar:** Estados Unidos aparece en el otro extremo. Uno de los
+saltos económicos más fuertes llega entre los 10 y los 12 años, justo cuando
+comienza a definirse quién puede seguir dentro del sistema.
+```
+
+This is the same lead-in the short products put on every paragraph, applied
+per *block* rather than per sentence — the piece is longer, the unit is bigger,
+the texture is identical. They render as product-colored scan marks
+(`markLeadIns`), so readers skim the argument off them alone; each must be 2-5
+words, colon-terminated, specific to its block, and **never repeated** in the
+piece (a repeat now visibly repeats on the page). Prefer an argument over a
+label: *"Quién se queda fuera:"* over *"Los datos:"*.
+
+Exactly four kinds of paragraph go without a lead-in: the cold open, device
+declarations, `Foto: Playbook` captions, and the Opinión bullets.
+
+**Not this** — the same words as eight standalone beats:
+
+```
+Estados Unidos aparece en el otro extremo.
+
+Uno de los saltos económicos más fuertes llega entre los 10 y los 12 años.
+
+Cerca del 70% de los niños abandona el deporte alrededor de los 13 años.
+```
+
+That is the short-beat format the publisher reversed on 2026-08-06 — it reads
+choppy on the article page and it undercuts the calm analytical register. It is
+also what the 2026-08-07 guest piece shipped in: 50 paragraphs at a 23-word
+median and not one lead-in, next to an Industry Shots article carrying one on
+every paragraph. Same site, two different publications.
+
 ### Movement 4 — the closing take
 
 ```
@@ -99,6 +135,14 @@ Rules that bite:
 Also: bold the single most important figure in the prose (`**70%**`), because
 a bold span that is purely a figure counts up on the page. Plain ones get the
 inline highlight automatically.
+
+**Write the `Cifra clave` caption so it works in two places.** The article page
+prints it under the pull-figure, and the homepage's "La cifra del día" rail
+prints the same line under the chip — where it is the *only* thing telling a
+reader what the number measures. A caption that reads fine beside the
+paragraph it came from ("lo que cuesta") is useless in the rail; name the
+thing. `US$8,000 a US$20,000 — el costo anual del futbol juvenil de alto nivel
+en Estados Unidos` survives both.
 
 ---
 

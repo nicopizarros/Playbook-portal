@@ -74,6 +74,15 @@
   background:var(--green);padding:1px 10px;transform:rotate(-1.2deg);
   font-variant-numeric:tabular-nums;
 }
+/* What the figure measures (2026-08-07): the caption of the article's
+   declared "Cifra clave:", the same line the article page prints under its
+   pull-figure. Without it the chip is a bare number — "US$8,000 a
+   US$20,000" over a headline about talent factories reads as a price with
+   no unit. Set below the chip and above the headline, in the caption
+   register (gray, regular weight) so the reading order stays figure →
+   what it is → which story, and the headline keeps the only bold voice in
+   the module. Absent for scraped figures, so the rule collapses cleanly. */
+.side-cifra-caption{font-family:var(--sans);font-weight:400;font-size:12px;line-height:1.4;color:var(--gray-txt);margin-top:-2px;}
 .side-cifra-story{font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;color:var(--ink);transition:color var(--duration-fast) ease;}
 .side-cifra-card:hover .side-cifra-story,.side-cifra-card:focus-visible .side-cifra-story{color:var(--green);}
 .side-cifra-cta{

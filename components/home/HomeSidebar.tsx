@@ -33,7 +33,7 @@ export async function HomeSidebar() {
   const articles = await getAllArticles();
   const ranked = rankArticles(articles.filter(a => a.source !== 'opinion' || a.featured));
   const hero = selectHero(ranked);
-  let cifra: { figure: string; id: string; title: string } | null = null;
+  let cifra: { figure: string; caption?: string; id: string; title: string } | null = null;
   for (const article of ranked) {
     if (article === hero) continue;
     const figure = extractPullFigure(article.title, article.excerpt);
@@ -51,7 +51,19 @@ export async function HomeSidebar() {
   if (cifra) {
     const full = await getArticleById(cifra.id);
     const declared = full && extractCifraFromBody(full.bodyHtml, full.teaser);
-    if (declared) cifra.figure = declared.value;
+    if (declared) {
+      cifra.figure = declared.value;
+      // The declared beat's caption is what the figure MEANS, and the rail
+      // used to drop it: "US$8,000 a US$20,000" over a headline about talent
+      // factories left the reader with a number and no unit (user feedback,
+      // 2026-08-07). The article page has always shown it under the
+      // pull-figure; the sidebar now shows the same line, so the two
+      // surfaces explain the number identically. Only a DECLARED Cifra clave
+      // carries one — a figure scraped out of title/excerpt has no caption
+      // to show, and the story headline underneath stays the only context,
+      // same as before.
+      cifra.caption = declared.caption || undefined;
+    }
   }
 
   return (
@@ -75,6 +87,7 @@ export async function HomeSidebar() {
           <h2 className="side-title" id="side-cifra-title">La cifra del día</h2>
           <a className="side-cifra-card" href={`/articulo?id=${encodeURIComponent(cifra.id)}`}>
             <DailyFigure figure={cifra.figure} />
+            {cifra.caption && <span className="side-cifra-caption">{cifra.caption}</span>}
             <span className="side-cifra-story">{cifra.title}</span>
             <span className="side-cifra-cta" aria-hidden="true">Leer la historia →</span>
           </a>

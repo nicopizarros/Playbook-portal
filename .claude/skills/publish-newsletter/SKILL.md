@@ -321,7 +321,21 @@ board never updated) are still cheap to fix:
    obligatorias las pausas?"*, *"¿Esta medida se queda o es una rareza del
    Mundial 2026?"*. Write them as a markdown bullet list.
 3. **Six to eight `##` sections**, each heading an argument (see the
-   headings rule above). The sections carry the reporting: named parties,
+   headings rule above). **Inside a section: one or two substantial blocks
+   of 80-100 words, each opening with its own bold lead-in** — the same
+   `**El costo de entrar:**` shape the short products use on every
+   paragraph, applied per block rather than per sentence, which is what
+   makes a long piece scan like the rest of the catalog instead of like a
+   different publication. The lead-ins render as product-colored scan marks
+   (`markLeadIns`), so a reader skims the whole argument off them; that
+   also means they have to be specific and never repeat across the piece.
+   Only four kinds of paragraph go without one: the cold open, the device
+   declarations, the `Foto: Playbook` captions and the Opinión bullets.
+   A section written as eight standalone 20-word beats has the same words
+   and none of the structure — that is the short-beat format the publisher
+   reversed (see the rhythm section above), and it is what the 2026-08-07
+   guest piece shipped in before it was reformatted.
+   The sections carry the reporting: named parties,
    figures against comparable figures, what each actor did differently.
    Where the piece does arithmetic, do it out loud and invite the reader in
    — *"Analicemos esto: En 104 partidos, dos pausas de tres minutos por
@@ -501,6 +515,15 @@ them right at drafting time:
     the top ranked story with a figure and PREFERS its declared Cifra
     clave over anything scraped from title/excerpt — declaring the beat
     is how you control what number represents the story site-wide.
+  - **The caption has to work away from the article too (2026-08-07).**
+    The rail prints it under the chip, where it is the only thing telling
+    a reader what the number measures — a figure alone reads as a price
+    with no unit ("US$8,000 a US$20,000" under a headline about talent
+    factories). So write the caption to NAME the thing, not to lean on
+    the sentence it came from: "el costo anual del futbol juvenil de alto
+    nivel en Estados Unidos", not "lo que cuesta". A caption is optional
+    to the parser and mandatory in practice; a Cifra clave declared
+    without one ships a bare number to the homepage.
   - **Write figures with their currency symbol** in the house shapes
     ("US$250 millones", "MX$42.8 millones", "€3M") — never spelled out
     ("250 millones de dólares"): every extractor ranks symbol-prefixed
