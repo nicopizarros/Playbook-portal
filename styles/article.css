@@ -91,30 +91,6 @@
 .article-body img{width:100%;height:auto;margin:28px 0;}
 .article-body hr{border:0;border-top:1px solid var(--rule);width:88px;margin:34px auto;}
 
-/* "Opinión de Playbook" callout (2026-08-08, user request: "el sello de
-   branding de Playbook"): the closing take gets its own green box instead
-   of blending into the rest of the body copy. Covers both shapes the
-   editorial voice produces: a full "La Opinión de Playbook" H2 + list (La
-   Lana pieces ported close to their source structure) and the inline
-   "**Opinión de Playbook:**" lead-in paragraph (Industry Shots/Infinitas'
-   four-paragraph shape). --green never changes between themes (tokens.css),
-   so ink-fixed text on it stays legible in both, same reasoning
-   components.css already uses for .btn.accent/.inf-pill. Wrapped
-   server-side in scripts/publish-newsletter.ts's bodyHtml post-processing,
-   not part of the TipTap JSON: purely a rendering treatment, so editing the
-   article later in admin won't fight a custom node type.  */
-.article-body .opinion-box{background:var(--green);color:var(--ink-fixed);padding:22px 26px;margin:32px 0 0;}
-.article-body .opinion-box h2{margin-top:0;color:var(--ink-fixed);}
-.article-body .opinion-box p{color:var(--ink-fixed);}
-.article-body .opinion-box p:last-child{margin-bottom:0;}
-.article-body .opinion-box ul,.article-body .opinion-box ol{margin:0;padding-left:20px;}
-.article-body .opinion-box li{margin-bottom:12px;}
-.article-body .opinion-box li:last-child{margin-bottom:0;}
-.article-body .opinion-box li::marker{color:var(--ink-fixed);}
-.article-body .opinion-box strong{color:var(--ink-fixed);}
-.article-body .opinion-box a{color:var(--ink-fixed);text-decoration-color:var(--ink-fixed);}
-.article-body .opinion-box a:hover,.article-body .opinion-box a:focus-visible{text-decoration-color:var(--ink-fixed);opacity:.75;}
-
 /* ——— Compartir ——— */
 .share-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:30px;}
 .share-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);}
