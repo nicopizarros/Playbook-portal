@@ -422,6 +422,18 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 }
 .shot-opinion p{margin:0;}
 .shot-opinion p:not(:last-child){margin-bottom:12px;}
+/* La Lana's closing take is a bullet list under a heading, not a single
+   paragraph (movement 4 of its architecture), so the fence has to hold a
+   <ul> as comfortably as a <p>. The list's own paragraph wrappers come
+   from TipTap (<li><p>…</p></li>) and are already zeroed by the rule
+   above; spacing lives on the <li> instead. Markers take the fence color
+   so the three verdicts read as one object. */
+.shot-opinion ul,.shot-opinion ol{margin:0;padding-left:20px;}
+.shot-opinion li{margin-bottom:12px;}
+.shot-opinion li:last-child{margin-bottom:0;}
+.shot-opinion li::marker{color:var(--green);}
+.article-product-infinitas .shot-opinion li::marker{color:var(--src-infinitas);}
+.article-product-futbol-business-review .shot-opinion li::marker{color:var(--tfbr-red);}
 /* Per-product tint: the callout ships on every product article (the
    four-paragraph Opinión standard is shared), fenced in each product's
    own accent. Green is the default above. */

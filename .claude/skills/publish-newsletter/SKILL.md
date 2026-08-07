@@ -415,6 +415,13 @@ them right at drafting time:
   de Playbook", or similar, and don't fold the opinion into another
   paragraph. This already matched the standard structure above; it is now
   also a UI contract.
+  **Both shapes get the same box (2026-08-07).** La Lana's `## La Opinión
+  de Playbook` heading plus its three bullets is detected too, so the
+  closing take is one recognizable green-fenced element across every
+  product instead of a branded box on Noticias and a bare subhead on La
+  Lana. Write whichever shape the product calls for as plain markdown and
+  the callout appears; the heading is replaced by the callout's own
+  kicker, so don't repeat the label inside the bullets.
 - **Body presentation is decided at RENDER time, never at publish time
   (2026-08-07).** Everything in this section is a plain authoring
   convention that `app/(public)/articulo/page.tsx`'s transform chain turns

@@ -466,6 +466,27 @@ mark.lect-fig{
   transform:translateY(-1px);
 }
 
+/* La Lana gets the same numbered beats (2026-08-07, publisher: the two
+   products were reading as two different publications side by side). The
+   selector can't be Noticias' — there, every top-level <p> IS a reporting
+   beat, so numbering all of them is correct. A La Lana body also carries
+   its cold open, `Foto: Playbook` captions and device declarations at top
+   level, and numbering those would count four photo credits as arguments.
+   So the counter follows the lead-in itself: a block is a beat when it
+   opens with one, which is exactly the rule the skill states for the
+   sections. Keeps La Lana's own accent (the label is already --src-lana;
+   the numeral matches it rather than importing Noticias' green). */
+.article-product-la-lana .article-body{counter-reset:lect-beat;}
+.article-product-la-lana .article-body > p:has(> .lect-leadin:first-child)::before,
+.article-product-la-lana .article-body > div > p:has(> .lect-leadin:first-child)::before{
+  counter-increment:lect-beat;
+  content:counter(lect-beat,decimal-leading-zero);
+  display:inline-block;margin-right:10px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--src-lana);
+  transform:translateY(-1px);
+}
+
 /* Pull figure: the hub's rotated green chip. */
 .article-product-industry-shots .lect-pullfig-value{
   background:var(--green);color:var(--ink-fixed);padding:2px 14px;transform:rotate(-1.2deg);

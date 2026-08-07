@@ -91,10 +91,12 @@ the story established, who read it best or worst, what has to hold for the
 thing to keep working.
 
 > **La Lana uses the heading form.** The inline `**Opinión de Playbook:**`
-> lead-in belongs to the short products (Noticias, Infinitas). Those get a
-> render-time callout (`markOpinionCallout` → `.shot-opinion`); the heading
-> form deliberately does not, and must never be hand-wrapped to fake one — see
-> §5.
+> lead-in belongs to the short products (Noticias, Infinitas). Both shapes get
+> the same render-time callout — the green fenced box with the bottle-cap
+> kicker (`markOpinionCallout` → `.shot-opinion`), which as of 2026-08-07
+> recognizes the `## La Opinión de Playbook` heading plus its list, not only
+> the inline paragraph. Write either shape as plain markdown and the box
+> appears; never hand-wrap one in HTML to fake it (§5).
 
 ---
 
@@ -200,6 +202,15 @@ box around the closing take, unaware that the article page had since grown
 `markOpinionCallout` (`lib/product-hubs.ts` → `.shot-opinion`), which already
 did exactly that, per-product tinted. Stacking both produced nested
 `<div class="opinion-box"><aside class="shot-opinion">` markup.
+
+It was solving a real gap, though, and the gap outlived the revert: the device
+only recognized the inline `**Opinión de Playbook:**` paragraph, so the two La
+Lana pieces using the `## La Opinión de Playbook` heading form closed on a bare
+subhead while every Noticias piece closed in a branded green box. Fixed at the
+device (2026-08-07), which is what the wrapper should have been in the first
+place: one regex in `markOpinionCallout`, and both existing articles picked the
+box up on the next render with no rows touched and nothing to migrate. That is
+the whole argument for render-time in one line.
 
 > **The rule:** article body presentation is decided at **render** time, in
 > `app/(public)/articulo/page.tsx`'s transform chain, never at publish time.
