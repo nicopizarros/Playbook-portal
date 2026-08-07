@@ -83,8 +83,17 @@ belong, and:
   one. Re-running the Step 5a search on an upgrade is wasted work.
 
 Write the update the same way an insert is written (markdown → TipTap →
-`bodyHtml`); `scripts/update-matador-report.ts` is the worked example of
-updating a published row instead of inserting.
+`bodyHtml`) — `scripts/update-article.ts` does exactly that, patching only
+the fields you give it and regenerating `body_json` + `body_html` together
+whenever `bodyMarkdown` is present:
+
+```
+npx tsx --env-file=.env.local scripts/update-article.ts <fix.json> --dry-run
+```
+
+Never hand-edit a stored `body_html` instead: it is a cache of `body_json`,
+and the two drifting apart is invisible until a deploy pulls the CSS out
+from under whatever the HTML picked up (see Step 3's render-time rule).
 
 **C. A new development on a story already covered → a new article that links
 back.** The test: the new piece must be able to state, in its own headline,
@@ -293,7 +302,12 @@ than padding it.
 **La Lana's architecture is fixed — reproduce it (measured 2026-08-06:
 present in 8 of 8 published editions).** These pieces are not free-form
 long-form. They run the same four movements every time, and a La Lana
-article that doesn't wear this shape isn't one:
+article that doesn't wear this shape isn't one.
+`docs/la-lana-article-spec.md` is the same four movements plus the fields,
+the device budget and the post-publish board step as a walkable checklist —
+read it back against the piece once it's live, which is when the misses
+(2026-08-07: promise block skipped, zero devices, no figure in the excerpt,
+board never updated) are still cheap to fix:
 
 1. **The cold open.** Two to four short paragraphs that put the tension on
    the table in the first line. No scene-setting, no "en los últimos años".
@@ -387,6 +401,33 @@ them right at drafting time:
   de Playbook", or similar, and don't fold the opinion into another
   paragraph. This already matched the standard structure above; it is now
   also a UI contract.
+- **Body presentation is decided at RENDER time, never at publish time
+  (2026-08-07).** Everything in this section is a plain authoring
+  convention that `app/(public)/articulo/page.tsx`'s transform chain turns
+  into markup as the page renders. `scripts/publish-newsletter.ts` converts
+  markdown to TipTap and renders that TipTap to HTML; it adds nothing of
+  its own. Never reach for a publish-time HTML post-processor to give a
+  body some new visual treatment — a `wrapOpinionBox` that wrapped the
+  closing take in a green `<div>` did exactly that, unaware the article
+  page already had `markOpinionCallout` doing the same job per-product
+  tinted, and shipped nested `<div class="opinion-box"><aside
+  class="shot-opinion">` markup. Two things make render-time the only
+  correct place: the treatment applies to the whole existing catalog with
+  zero re-editing, and it can be changed or reverted without touching a
+  single stored row. A wrapper written into `body_html` outlives the code
+  that wrote it — when that revert landed, the dead `<div>` stayed baked
+  into the live article with no stylesheet behind it. If a body genuinely
+  needs a new element, it becomes a device in `lib/article-devices.ts` or
+  `lib/product-hubs.ts`, driven by a plain paragraph convention.
+- **Fixing a published body: regenerate it, never hand-edit the HTML.**
+  `body_html` is a cache of `body_json`, and the two silently drifting
+  apart is what left that dead wrapper live. Run the corrected
+  `bodyMarkdown` back through the same pipeline the insert uses:
+  `npx tsx --env-file=.env.local scripts/update-article.ts <fix.json>`
+  (`--dry-run` first; it patches only the fields an entry carries, matched
+  on `id` or `sourceUrl`, and rebuilds `body_json` + `body_html` together
+  whenever `bodyMarkdown` is present). This is also the tool for Step 0's
+  outcome B, folding new facts into an already-published article.
 - **La Lana: the money trail.** When (and only when) a La Lana story
   genuinely traces money moving between named places — a fee flowing from
   a country to a federation's HQ, a sale crossing borders, an investor
