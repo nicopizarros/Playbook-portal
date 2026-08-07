@@ -22,6 +22,40 @@ function canonicalUrlFor(id: string) {
   return `${SITE_URL}/articulo?id=${encodeURIComponent(id)}`;
 }
 
+// The byline's default behavior wraps the whole author string in one
+// internal `/autor?nombre=` link (a house-staff author archive page).
+// Guest collaborations (2026-08-08, e.g. "Rodrigo Dosal, fundador de DOME
+// Sport") instead need per-name external links (the author's own
+// Instagram, their org's site), which a single internal link can't
+// express. Reuses the same `[text](url)` syntax scripts/publish-
+// newsletter.ts's parseInlineMarks already applies to bodyMarkdown, so an
+// editor can drop markdown links straight into the `author` field. Falls
+// back to the original single internal link whenever the field has no
+// markdown links, so every normal in-house byline renders exactly as
+// before.
+function renderAuthorByline(author: string) {
+  const linkPattern = /\[(.+?)\]\((\S+?)\)/g;
+  if (!linkPattern.test(author)) {
+    return <Link href={`/autor?nombre=${encodeURIComponent(author)}`}>{author}</Link>;
+  }
+  linkPattern.lastIndex = 0;
+  const nodes: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  while ((match = linkPattern.exec(author))) {
+    if (match.index > lastIndex) nodes.push(author.slice(lastIndex, match.index));
+    nodes.push(
+      <a key={key++} href={match[2]} target="_blank" rel="noopener noreferrer">
+        {match[1]}
+      </a>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < author.length) nodes.push(author.slice(lastIndex));
+  return nodes;
+}
+
 // Uses getArticleMetaById exclusively — metadata (og:description etc.)
 // only ever needs excerpt/image, never the body, for every entitlement
 // branch alike, same as legacy behavior.
@@ -148,9 +182,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
       <div className="byline article-byline">
         {showAuthor && meta.author && (
           <>
-            <span className="byline-author">
-              Por <Link href={`/autor?nombre=${encodeURIComponent(meta.author)}`}>{meta.author}</Link>
-            </span>
+            <span className="byline-author">Por {renderAuthorByline(meta.author)}</span>
             {' '}·{' '}
           </>
         )}

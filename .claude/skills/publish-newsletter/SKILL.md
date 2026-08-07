@@ -152,7 +152,15 @@ document, see Step 6), never HTML tags.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
 - **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
-- **author**: leave `""` unless a byline is genuinely known. `mostrarAutor` stays `false` either way.
+- **author**: leave `""` unless a byline is genuinely known. Never prepend "Por " yourself, the byline template
+  (`app/(public)/articulo/page.tsx`) already renders "Por " ahead of this field, a stored "Por Jane Doe" renders as
+  the double "Por Por Jane Doe" (a real 2026-08-08 mistake). For a guest collaboration piece where the byline itself
+  should link out (the author's own social profile, their company site), use inline `[text](url)` markdown, e.g.
+  `"[Jane Doe](https://instagram.com/jane), fundadora de [Acme](https://acme.com)"`, the byline renderer detects
+  and turns those into real external links (`target="_blank"`) instead of its normal single internal
+  `/autor?nombre=` link, same `[text](url)` syntax `bodyMarkdown` already uses. `mostrarAutor` stays `false` by
+  default regardless of whether author is known, flip it `true` only when the human explicitly asks the byline to
+  show (a guest collaboration is exactly that case, a normal Substack item usually isn't).
 - **publication** / **source**: pick the pair matching the source:
     - Industry Shots: `"Noticias"` / `"industry-shots"`
     - La Lana del Deporte: `"La Lana del Deporte"` / `"la-lana"`
