@@ -490,7 +490,28 @@ them right at drafting time:
   its own line:
     - `Cronología: 2022 — PIF entra · 2024 — recorte · 2026 — salida` →
       a drawn timeline. For sagas: a deal, feud or decline that unfolds
-      over dated milestones (2-6, dates ≤14 chars, events ≤70).
+      over dated milestones (2-6, dates ≤14 chars, events ≤70). **The
+      6-item ceiling is a hard code limit, not a stylistic suggestion**
+      (`parseTimeline` in `lib/article-devices.ts` returns null past 6,
+      and the layout it feeds is a single-row flexbox sized for a small
+      count — more items just squeeze narrower, it doesn't wrap or
+      scroll). Two directions follow from that, both from a real case
+      (2026-08-07, a FIFA-governance saga with 13 independently dated
+      events): first, when the story has 6 or more real milestones, USE
+      all 6 slots — a 3-item Cronología on a story that's actually had
+      six-plus dated beats is under-using the device, not being
+      conservative. Second, when a saga genuinely runs past 6 (this one
+      had 13), the device is not the place to fit the rest: pick the 6
+      most load-bearing beats for the Cronología (the ones that carry
+      the spine of the story) and weave the remaining, still-sourced
+      events into the prose paragraphs instead — a paragraph that names
+      three more dated developments in a sentence tells that part of the
+      story fine without needing a tenth timeline slot that doesn't
+      exist. Never respond to "I want a bigger timeline" by writing more
+      than 6 items into the paragraph anyway; past the cap the device
+      silently fails to parse and the whole thing renders as an inert,
+      unstyled paragraph instead of a timeline, which reads worse than a
+      tight 6-item one.
     - `Recibo: Torneos — 10 · Bolsa por evento — US$10M · Total — US$107M`
       → a thermal receipt whose Total counts up. For cost breakdowns and
       who-paid-what (2-8 lines; a line whose label starts with "Total"
@@ -504,6 +525,24 @@ them right at drafting time:
     - `Reparto: FIFA — 70% · Federaciones — 20% · Clubes — 10%` → a
       proportion bar with legend. For how money/rights split (2-5 shares,
       percentages; they're normalized, so they should roughly sum to 100).
+      Not only money: it's the right device any time a story has a
+      countable universe splitting into camps — members of a body who
+      back/oppose/haven't said, votes, seats, market share of competing
+      products. (2026-08-07: a FIFA-governance piece used it as "of
+      FIFA's 211 member federations, X% publicly backed the president,
+      Y% opposed, Z% hadn't taken a position" — computed from actually
+      -confirmed individual/bloc counts, e.g. a confederation that voted
+      unanimously counts as its full membership, a single federation's
+      own statement counts as one, and the remainder is whatever's left
+      of the total universe. Never estimate the remainder bucket from a
+      guess — it should always be `total - everything you can actually
+      source`, and every figure that feeds it needs the same sourcing
+      bar as any other fact in the piece, not a rounder guess because
+      it's going into a chart instead of a sentence.) An Alineación
+      naming the same actors is the weaker choice whenever a real
+      number is available for each side: chips show who, a Reparto also
+      shows how big, which is usually the more informative half of a
+      camps-and-counts story.
     - `Alineación: Madonna · Shakira · Justin Bieber · BTS` → numbered
       lineup chips that flap in. For enumerations of actors — artists,
       investors, host cities (2-8 names, each ≤28 chars).
