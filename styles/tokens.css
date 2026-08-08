@@ -25,14 +25,14 @@
      in both themes. Fill is stated as %23000 only because a mask reads
      alpha, not hue. Keep them theme-agnostic (never encode a palette
      color in the path). */
-  /* Noticias' mark is the isotope bracket — the same shape that closes an
-     article (.article-body's remate editorial, styles/article.css), so the
-     end of the reporting and the opinion that follows it are signed by one
-     symbol. Held as a clip-path polygon rather than an SVG like the other
-     three, because the end-mark already draws it that way and two
-     definitions of the same geometry would drift. Measured off the source
-     isotope: full-width top bar plus a right bar that drops further,
-     628:600 ≈ 1:0.955. */
+  /* The isotope bracket — the end-of-body mark (styles/article.css's
+     remate editorial). Held as a clip-path polygon rather than an SVG like
+     the --mark-* set below, because the end-mark has always drawn it that
+     way and the progress chip reads the same geometry as an SVG path; two
+     definitions would drift. Measured off the source isotope: full-width
+     top bar plus a right bar that drops further, 628:600 ≈ 1:0.955.
+     This is NOT a product mark — it says "the article body ends here" and
+     nothing else. */
   --isotope-bracket:polygon(0 0,100% 0,100% 100%,70.7% 100%,70.7% 30%,0 30%);
   --mark-coins:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 15'%3E%3Cellipse cx='8' cy='3' rx='7' ry='2.4' fill='%23000'/%3E%3Cellipse cx='8' cy='7.5' rx='7' ry='2.4' fill='%23000'/%3E%3Cellipse cx='8' cy='12' rx='7' ry='2.4' fill='%23000'/%3E%3C/svg%3E");
   --mark-infinity:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 14' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M12 7c1.7-2.8 3.1-4.3 5.2-4.3a4.3 4.3 0 0 1 0 8.6c-2.1 0-3.5-1.5-5.2-4.3-1.7-2.8-3.1-4.3-5.2-4.3a4.3 4.3 0 0 0 0 8.6c2.1 0 3.5-1.5 5.2-4.3Z'/%3E%3C/svg%3E");

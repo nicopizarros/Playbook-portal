@@ -27,17 +27,26 @@ import { useEffect, useId, useRef, useState } from 'react';
 // listener + one write per frame is cheaper than a scrubbed tween for a
 // single element.
 
-type Mark = { viewBox: string; body: React.ReactNode };
+// `body` is the mask: whatever is opaque here is where the fill shows.
+// `outline` draws OUTSIDE the mask, for a mark that has a permanent shell
+// the fill rises inside of (only the glass does).
+type Mark = { viewBox: string; body: React.ReactNode; outline?: React.ReactNode };
 
 // Same geometry as the --mark-* tokens, at the scale each viewBox implies.
 // Keep the two in sync: these are the same four objects, and a reader who
 // sees a coin stack fill in the corner should meet the same coin stack on
 // the callout below.
 const MARKS: Record<string, Mark> = {
+  // Noticias keeps the shot glass it has always had, outline and all: the
+  // liquid rises inside a shell that is always drawn. The other three are
+  // solid marks that fill from a faint ghost, which is why this one alone
+  // carries an `outline` and no track. (The isotope bracket briefly stood
+  // in here; it was reverted — that symbol closes the body and does not
+  // stand for a product.)
   'industry-shots': {
-    viewBox: '0 0 28 26',
-    // The isotope bracket: full-width top bar, right bar dropping further.
-    body: <path d="M0 0 H28 V26 H19.8 V7.8 H0 Z" fill="#fff" />,
+    viewBox: '0 0 36 48',
+    body: <path d="M6 10 L30 10 L26 44 L10 44 Z" fill="#fff" />,
+    outline: <path className="shot-progress-glass" d="M5 8 L31 8 L26.5 45 L9.5 45 Z" fill="none" />,
   },
   'la-lana': {
     viewBox: '0 0 32 30',
@@ -138,14 +147,24 @@ export function ShotProgress({
       aria-valuenow={pct}
       data-full={progress >= 0.995 ? 'true' : undefined}
     >
-      <svg viewBox={mark.viewBox} width="30" height="28" aria-hidden="true" focusable="false">
+      <svg
+        viewBox={mark.viewBox}
+        width="30"
+        height={mark.outline ? 40 : 28}
+        aria-hidden="true"
+        focusable="false"
+      >
         <defs>
           <mask id={maskId}>{mark.body}</mask>
         </defs>
         <g mask={`url(#${maskId})`}>
-          {/* The unread part stays visible as a faint ghost, so the mark
-              reads as an object at 0% instead of appearing from nothing. */}
-          <rect className="shot-progress-track" x="0" y="0" width="100%" height="100%" />
+          {/* The unread part stays visible as a faint ghost, so a solid
+              mark reads as an object at 0% instead of appearing from
+              nothing. The glass doesn't need it — its outline does that
+              job, and a ghost inside would read as a half-full glass. */}
+          {!mark.outline && (
+            <rect className="shot-progress-track" x="0" y="0" width="100%" height="100%" />
+          )}
           <rect
             className="shot-progress-fill"
             x="0"
@@ -154,6 +173,7 @@ export function ShotProgress({
             height={fillHeight}
           />
         </g>
+        {mark.outline}
       </svg>
       <span className="shot-progress-pct">{pct}%</span>
     </div>

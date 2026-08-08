@@ -75,7 +75,7 @@ Cerca del 70% de los niños abandona el deporte alrededor de los 13 años.
 That is the short-beat format the publisher reversed on 2026-08-06 — it reads
 choppy on the article page and it undercuts the calm analytical register. It is
 also what the 2026-08-07 guest piece shipped in: 50 paragraphs at a 23-word
-median and not one lead-in, next to an Industry Shots article carrying one on
+median and not one lead-in, next to a Noticias article carrying one on
 every paragraph. Same site, two different publications.
 
 ### Movement 4 — the closing take

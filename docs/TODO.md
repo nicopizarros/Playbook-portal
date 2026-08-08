@@ -45,7 +45,40 @@ navigation, not decoration.
 
 ---
 
-## 2. Stale files and dead weight
+## 2. Retire the `industry-shots` source key
+
+**Status: the name is already gone; the identifier is not.**
+
+The product is called **Noticias**, and "Industry Shots" was retired as a name
+on 2026-08-08 — both publish skills, `docs/ENCYCLOPEDIA.md` and this file now
+say Noticias throughout. Readers never saw the old name anyway
+(`SOURCE_LABELS` has always rendered the source as "Noticias").
+
+What is left is the machine key `source: "industry-shots"`, still the value
+**68 published rows** are filed under. It is not cosmetic — it is the string
+matched by:
+
+- `lib/product-hubs.ts` (`hubForSource`, which is what decides an article gets
+  a product template at all), `lib/constants.ts`, `lib/taxonomy.ts`,
+  `lib/db/schema.ts`, `lib/rank.ts`
+- `app/(public)/noticias/page.tsx`, `app/(public)/articulo/page.tsx`,
+  `app/api/update-articles/route.ts`
+- the `.article-product-industry-shots` CSS class across six stylesheets
+  (`lectura.css` carries the numbered beats and the whole Noticias skin)
+- `components/admin/article-entry.ts` and `studio-prompts.ts`, i.e. the CMS
+  dropdown an editor picks from
+- `components/products/ShotProgress.tsx`'s mark table
+
+Renaming it means a DB migration plus a coordinated rename across all of the
+above, and any row missed stops matching a hub, which silently drops the
+article out of `/noticias` and off its product template. Worth doing for
+consistency, but it is a migration with a rollback plan, not a find-and-
+replace. Until then the key is a legacy identifier that happens to spell an
+old title, and the skills say so explicitly so no future run "fixes" it.
+
+---
+
+## 3. Stale files and dead weight
 
 **Status: verified, deliberately not deleted. Each is a judgment call the team
 should make, not a cleanup an agent should do on its own.**
