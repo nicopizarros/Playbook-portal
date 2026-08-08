@@ -639,7 +639,25 @@ them right at drafting time:
       faking a magnitude. Mixed currencies are allowed and the bars
       compare the raw magnitudes, so only put two currencies in one row
       when the piece has already told the reader why that comparison
-      holds.
+      holds. A value written with a leading minus (`−€46.2M`) bars its
+      magnitude in the loss treatment, red bar and red figure, so a
+      `Resultado del año` row can sit next to the revenue rows without a
+      longer bar reading as a bigger win.
+      **Normalise before you compare.** Two absolute amounts from
+      institutions of different sizes measure size, not behaviour, and
+      the device makes that comparison look authoritative. When the point
+      is behaviour (who redistributes more, who spends more on X), make
+      the row a share of each side's own income and say both numerators
+      in the prose. The 2026-08-08 FIFA/UEFA piece is the worked example:
+      UEFA's €3,861M distribution against FIFA's US$748M development line
+      looked like a five-to-one gap, but FIFA books its Club World Cup
+      prize money (US$1,000M in 2025) under Competitions & Events rather
+      than Development, so the honest row was 77% vs 66% of revenue. The
+      general rule that produced it: before putting two institutions'
+      spending side by side, confirm from each one's OWN statements that
+      the two numerators cover the same activity, because every body
+      classifies its money differently and a category name that matches
+      is not evidence that the contents do.
   Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
   now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
   here):** designed devices scale with `readingTime` **and** `priority`.
