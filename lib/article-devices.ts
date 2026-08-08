@@ -353,11 +353,21 @@ function buildQuote(quote: Quote): string {
 //
 // First item names the two sides; every item after it is one metric row,
 // `etiqueta — valorA vs valorB`. Bars are anchored at the centre line and
-// grow outwards (a butterfly chart), each pair scaled against its own
-// larger side, so a row reads as a ratio and rows never borrow each
-// other's scale. A row whose two values aren't both numeric still renders
-// — as a bare text row, no bars — so a "Sede — Nyon vs Zúrich" line can
-// sit under the money without faking a magnitude for it.
+// grow outwards (a butterfly chart). A row whose two values aren't both
+// numeric still renders — as a bare text row, no bars — so a
+// "Sede — Nyon vs Zúrich" line can sit under the money without faking a
+// magnitude for it.
+//
+// ONE SCALE FOR THE WHOLE DEVICE (2026-08-08, publisher directive, round
+// 2). Every bar is a share of the single largest magnitude in the device,
+// so the rows are readable against each other: a reserve that is a tenth
+// of a year's revenue draws a tenth of the top bar, and an annual deficit
+// draws the sliver it actually is. The first version scaled each row
+// against its own larger side, which made every row peak at 100% and
+// quietly turned four different magnitudes into four identical-looking
+// pair comparisons. Per-row scaling survives only as the fallback for a
+// device that mixes units (a % row next to money rows), where a shared
+// scale would be arithmetic nonsense — see unitOf below.
 //
 // Negative values (a leading -, − or –) bar their MAGNITUDE, like every
 // other row, but in the loss treatment: a longer bar on a "Resultado del
@@ -402,6 +412,21 @@ function magnitudeOf(figure: string): number | null {
   return parsed.value * (scale ? scale[1] : 1);
 }
 
+// Percentages and absolute amounts cannot share a bar scale: 77% next to
+// €5,014M would draw the percentage as a hairline and say nothing true.
+// Currencies deliberately DO share one (€ against US$ is the documented,
+// editor-declared comparison), so the only split that matters here is
+// percentage vs amount.
+function unitOf(figure: string): '%' | 'amount' {
+  const parts = splitFigure(figure);
+  return parts && /%/.test(parts.post) ? '%' : 'amount';
+}
+
+// A bar this short is a sliver rather than a shape, but on one shared scale
+// that sliver is the honest rendering of a value dwarfed by the largest row,
+// so it floors low instead of inflating to a readable minimum.
+const MIN_BAR_PCT = 2;
+
 function parseDuel(raw: string): Duel | null {
   const items = stripTags(raw).split(ITEM_SEP);
   if (items.length < 2 || items.length > 5) return null;
@@ -412,7 +437,11 @@ function parseDuel(raw: string): Duel | null {
   const b = sides[2].trim();
   if (!a || a.length > 26 || !b || b.length > 26) return null;
 
-  const rows: DuelRow[] = [];
+  // Pass 1 — parse and measure. Nothing is scaled until every row is known,
+  // because the scale is a property of the device, not of a row.
+  type Parsed = { label: string; a: string; b: string; magA: number | null; magB: number | null };
+  const parsed: Parsed[] = [];
+  const units = new Set<'%' | 'amount'>();
   for (const item of items.slice(1)) {
     const kv = item.match(KV_RE);
     if (!kv) return null;
@@ -427,19 +456,32 @@ function parseDuel(raw: string): Duel | null {
     const magB = magnitudeOf(valueB);
     // Both sides numeric or neither — one bar alone would read as a
     // comparison against zero, which is not what a missing number means.
-    const max = magA !== null && magB !== null ? Math.max(magA, magB) : 0;
-    const pct = (mag: number | null) =>
-      max > 0 && mag !== null ? Math.max(8, Math.min(100, (mag / max) * 100)) : null;
-    rows.push({
-      label,
-      a: valueA,
-      b: valueB,
-      aPct: pct(magA),
-      bPct: pct(magB),
-      aNeg: NEGATIVE_RE.test(valueA),
-      bNeg: NEGATIVE_RE.test(valueB),
-    });
+    const numeric = magA !== null && magB !== null;
+    if (numeric) {
+      units.add(unitOf(valueA));
+      units.add(unitOf(valueB));
+    }
+    parsed.push({ label, a: valueA, b: valueB, magA: numeric ? magA : null, magB: numeric ? magB : null });
   }
+
+  // Pass 2 — one scale for the device when the units allow it, per-row only
+  // as the mixed-unit fallback.
+  const shared = units.size <= 1;
+  const globalMax = Math.max(0, ...parsed.flatMap(r => [r.magA ?? 0, r.magB ?? 0]));
+  const rows: DuelRow[] = parsed.map(row => {
+    const max = shared ? globalMax : Math.max(row.magA ?? 0, row.magB ?? 0);
+    const pct = (mag: number | null) =>
+      max > 0 && mag !== null ? Math.max(MIN_BAR_PCT, Math.min(100, (mag / max) * 100)) : null;
+    return {
+      label: row.label,
+      a: row.a,
+      b: row.b,
+      aPct: pct(row.magA),
+      bPct: pct(row.magB),
+      aNeg: NEGATIVE_RE.test(row.a),
+      bNeg: NEGATIVE_RE.test(row.b),
+    };
+  });
   return { a, b, rows };
 }
 
