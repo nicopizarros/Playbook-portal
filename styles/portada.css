@@ -98,8 +98,8 @@
    leader on the green chip, per-item source dot, and a heat bar RELATIVE
    to the leader (absolute read counts deliberately not rendered — user
    directive). Bars draw when ScrollReveal marks the item .is-visible —
-   zero extra JS — and render full under reduced motion. Replaces
-   hero.css's .rank-list pattern (now unused). ——— */
+   zero extra JS — and render full under reduced motion. Replaced
+   hero.css's .rank-list pattern, deleted 2026-08-07. ——— */
 .mr-band{margin-top:40px;padding-top:24px;border-top:2px solid var(--ink);}
 .mr-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
 .mr-head h2{font-family:var(--serif-display);font-weight:400;font-size:20px;letter-spacing:.02em;text-transform:uppercase;margin:0;}
@@ -173,8 +173,7 @@
   .archive-feature-row:active,
   .archive-line-row:active,
   .lect-related-card:active,
-  .lect-next-link:active,
-  .rank-item:active{transform:translateY(0) scale(.985);}
+  .lect-next-link:active{transform:translateY(0) scale(.985);}
   .filter-btn:active,
   .share-btn:active,
   .shots-badge:active,

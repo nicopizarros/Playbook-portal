@@ -75,7 +75,7 @@ Cerca del 70% de los niños abandona el deporte alrededor de los 13 años.
 That is the short-beat format the publisher reversed on 2026-08-06 — it reads
 choppy on the article page and it undercuts the calm analytical register. It is
 also what the 2026-08-07 guest piece shipped in: 50 paragraphs at a 23-word
-median and not one lead-in, next to an Industry Shots article carrying one on
+median and not one lead-in, next to a Noticias article carrying one on
 every paragraph. Same site, two different publications.
 
 ### Movement 4 — the closing take
@@ -92,8 +92,10 @@ thing to keep working.
 
 > **La Lana uses the heading form.** The inline `**Opinión de Playbook:**`
 > lead-in belongs to the short products (Noticias, Infinitas). Both shapes get
-> the same render-time callout — the green fenced box with the bottle-cap
-> kicker (`markOpinionCallout` → `.shot-opinion`), which as of 2026-08-07
+> the same render-time callout — the green fenced box, signed with the
+> product's own mark (La Lana's is the stack of coins; Noticias uses the
+> Playbook bracket, the same symbol that closes the body)
+> (`markOpinionCallout` → `.shot-opinion`), which as of 2026-08-07
 > recognizes the `## La Opinión de Playbook` heading plus its list, not only
 > the inline paragraph. Write either shape as plain markdown and the box
 > appears; never hand-wrap one in HTML to fake it (§5).

@@ -1,5 +1,5 @@
 /* ——— Página de artículo (/articulo) ———
-   Reutiliza clases existentes (.lead-photo, .tag, .btn, .skel) en vez de
+   Reutiliza clases existentes (.lead-photo, .tag, .btn) en vez de
    duplicar estilos — solo se define aquí lo que es genuinamente nuevo: el
    layout y la tipografía de una lectura larga en una sola columna.
 
@@ -66,7 +66,18 @@
    medido directamente del isotopo fuente: barra superior de ancho
    completo + barra derecha que baja más, proporciones 628:600 ≈ 1:0.955. */
 .article-body > p:last-child::after,
-.article-body > div:last-child > p:last-child::after{content:"";display:inline-block;width:14px;height:13px;margin-left:9px;vertical-align:-1px;background:var(--green);clip-path:polygon(0 0,100% 0,100% 100%,70.7% 100%,70.7% 30%,0 30%);transform:scale(var(--mark-scale,1));transform-origin:left center;}
+.article-body > div:last-child > p:last-child::after,
+/* …and always on the last line BEFORE the Opinión callout (publisher
+   directive 2026-08-07). This was also a silent bug: the callout is an
+   <aside>, so on the 47 published articles that close on it the last
+   paragraph stopped being :last-child and the article rendered with no
+   end-mark at all. Marking the paragraph the callout follows is both the
+   fix and the intent — the mark closes the reporting, and the opinion
+   reads as the signed coda after it. :has is the only way to say "the
+   paragraph before" in CSS; both forms cover the ad-split <div> halves,
+   same as the two rules above. */
+.article-body > p:has(+ .shot-opinion)::after,
+.article-body > div > p:has(+ .shot-opinion)::after{content:"";display:inline-block;width:14px;height:13px;margin-left:9px;vertical-align:-1px;background:var(--green);clip-path:var(--isotope-bracket);transform:scale(var(--mark-scale,1));transform-origin:left center;}
 
 /* Links del cuerpo: subrayado en verde de marca (el reset global quita el
    subrayado — sin esto un link dentro del texto es indistinguible). */
@@ -126,9 +137,6 @@
 .article-related{margin-top:52px;padding-top:32px;border-top:2px solid var(--ink);}
 .article-related h2{font-family:var(--serif-display);font-weight:400;font-size:20px;text-transform:uppercase;margin:0 0 12px;}
 .article-related .news-list .news-row:first-child{padding-top:16px;}
-
-.article-not-found{padding:60px 0;text-align:center;}
-.article-not-found a{text-decoration:underline;color:var(--ink);}
 
 /* ——— Muro de correo (metered access, Fase 3) — genuinamente nuevo, sin
    equivalente legado. Reutiliza el lenguaje visual de .nl-box (mismo

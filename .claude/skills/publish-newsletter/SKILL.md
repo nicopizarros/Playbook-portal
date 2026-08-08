@@ -1,6 +1,6 @@
 ---
 name: publish-newsletter
-description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Deporte, Infinitas) into Playbook.
+description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Noticias, La Lana del Deporte, Infinitas) into Playbook.
 ---
 
 # Publish Newsletter: Substack link to live article, no human in the loop
@@ -28,7 +28,7 @@ Vercel, does not work from a sandboxed agent session).
 Playbook ingests through two funnels — this skill for the Substack editions,
 `publish-sourced-article` for third-party links — feeding four products that
 legitimately cover overlapping ground. The same story reaches the newsroom
-twice all the time: a Reuters link and an Industry Shots item, or an
+twice all the time: a Reuters link and a Noticias item, or an
 Infinitas edition and a digest brief two days apart. `articles.sourceUrl`'s
 unique index does not catch any of it; it only stops the *same URL* being run
 twice.
@@ -59,7 +59,7 @@ That gives four outcomes. Three of them mean no second article.
 
 **A. Same event, nothing new → don't publish it.** The story already lives on
 the site. This is what the newsroom already does by hand: the 2026-08-04
-Industry Shots edition carried a Netflix/Mundial Femenil brief and pointed
+Noticias edition carried a Netflix/Mundial Femenil brief and pointed
 its "(Acá más info)" at the Infinitas article from two days earlier instead
 of minting a second one. Skip the item and say so in the run report, with the
 id of the article that covers it.
@@ -132,7 +132,7 @@ which one you did in the report.
 Fetch every Substack URL given (use WebFetch; it follows the `open.substack.com`
 to `<pub>.substack.com` redirect automatically, re-fetch the redirect URL it
 reports). For each edition, identify individual news items: each story in an
-Industry Shots or La Lana del Deporte edition is a separate article. Also
+Noticias or La Lana del Deporte edition is a separate article. Also
 fetch the page a second time asking specifically for the exact publication
 date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
@@ -149,11 +149,11 @@ used as the cover image.
 
 ## Step 2: Independent research
 
-Applies to Industry Shots and Infinitas items. Does **not** apply to La Lana
+Applies to Noticias and Infinitas items. Does **not** apply to La Lana
 del Mundial: its fact/analysis content tracks the source as written, never
 supplemented with outside research (see Step 3's La Lana section).
 
-Mandatory, always attempted, for every Industry Shots/Infinitas item: search
+Mandatory, always attempted, for every Noticias/Infinitas item: search
 for at least one concrete fact the Substack brief doesn't fully spell out, a
 number, a comparable deal size, a market/audience figure, relevant history
 (prior similar deals, past precedents), a regulatory detail, or a quote from
@@ -192,6 +192,46 @@ Rules:
   la región" closer into something a reader can't get elsewhere.
 
 ## Step 3: Editorial voice
+
+### The uniformity contract — read this before drafting a word
+
+Several sessions publish through this skill, and readers see the output as
+one publication. Everything below is what makes four products look like one
+masthead; none of it is a stylistic preference to re-derive per run. The
+failure mode is real and recent: a 2026-08-07 La Lana piece shipped as 50
+standalone beats with no lead-ins, no devices and no promise block, next to
+a Noticias piece carrying all three, and read as a different site.
+
+| | Noticias (`industry-shots`) · Infinitas | La Lana del Deporte | TFBR |
+|---|---|---|---|
+| **Body shape** | 4 paragraphs, fixed | cold open → promise block → 6-8 `##` sections → Opinión | free-form essay, one idea |
+| **Blocks** | 80-100 words each | 80-100 words each, 1-2 per section | 80-100 words each |
+| **Bold lead-in** | every paragraph | every block inside a `##` section | every block |
+| **Closing take** | `**Opinión de Playbook:**` paragraph | `## La Opinión de Playbook` + exactly 3 bullets | none, `## La visión de Interticket` instead |
+| **Devices** | budget by length + priority | same budget | same budget |
+| **Length** | 300-500 words | 400-600 (guest essays run longer) | as the edition runs |
+
+Never carrying a lead-in, in any product: the cold open, device
+declarations, `Foto: Playbook` captions, and the Opinión bullets.
+
+**What the page does with all this, so nobody rebuilds it by hand.** Every
+visual treatment is a RENDER-time transform reading plain authoring
+conventions — write the markdown, get the design:
+
+- `**Label:**` at the start of a block → a product-colored scan mark, and on
+  Noticias and La Lana a numbered beat (`01`, `02`) down the margin.
+- `**70%**` (a bold span that is only a figure) → counts up on scroll.
+  Money and percentages in plain prose → an automatic marker highlight.
+- The closing take, in EITHER shape → the green fenced callout, signed with
+  the product's own mark: the Playbook bracket for Noticias (the same
+  symbol that closes the body), a stack of coins for La Lana, the
+  lemniscate for Infinitas, a forward arrow for TFBR (`--isotope-bracket`
+  and the `--mark-*` tokens in `styles/tokens.css`).
+- `Cifra clave:` / `Jugada:` / the seven other device lines → their designed
+  elements, within budget.
+
+Corollary, learned the hard way: **never post-process the HTML at publish
+time to fake any of this.** See the render-time rule further down this step.
 
 ### The rhythm (publisher directive, 2026-08-06, round 2 — supersedes the archive measurement)
 
@@ -244,7 +284,7 @@ runaway blocks (past ~130 words, which are two movements fused) and still
 enforces the em-dash ban and the one-negative-parallelism-per-piece cap. It
 no longer asks for short beats or standalone hammer paragraphs.
 
-### Industry Shots / Infinitas
+### Noticias / Infinitas
 
 Every article is four paragraphs, always: three paragraphs of information,
 then a separate Opinión de Playbook paragraph.
@@ -265,7 +305,7 @@ story still gets all four, it just stays tight and grounded rather than
 padded or invented.
 
 If an item is itself a follow-up to a story Playbook already covered (a
-prior Industry Shots/Infinitas item, findable by querying the DB), don't
+prior Noticias/Infinitas item, findable by querying the DB), don't
 re-explain what that earlier piece established, link back to it inline
 from within a sentence that's stating the new fact (`/articulo?id=<id>`),
 and never open a paragraph narrating that Playbook covered it before
@@ -422,6 +462,13 @@ them right at drafting time:
   Lana. Write whichever shape the product calls for as plain markdown and
   the callout appears; the heading is replaced by the callout's own
   kicker, so don't repeat the label inside the bullets.
+  **Each product signs the box with its own mark**, set in CSS from the
+  `--mark-*` tokens (`styles/tokens.css`) and picked by the article's
+  `source`: the Playbook bracket for Noticias, coins for La Lana, the
+  lemniscate for Infinitas, a forward arrow for TFBR. Nothing to write at drafting time —
+  getting `publication`/`source` right (Step 4) is what selects the mark,
+  which is one more reason a wrong source pair is a visible mistake and
+  not just a filing error.
 - **Body presentation is decided at RENDER time, never at publish time
   (2026-08-07).** Everything in this section is a plain authoring
   convention that `app/(public)/articulo/page.tsx`'s transform chain turns
@@ -841,7 +888,7 @@ document, see Step 6), never HTML tags.
   with the newsletter's own name.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
-- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
+- **bodyMarkdown**: see Step 3. For Noticias/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
 - **author**: leave `""` unless a byline is genuinely known. Never prepend "Por " yourself, the byline template
   (`app/(public)/articulo/page.tsx`) already renders "Por " ahead of this field, a stored "Por Jane Doe" renders as
   the double "Por Por Jane Doe" (a real 2026-08-08 mistake). For a guest collaboration piece where the byline itself
@@ -852,7 +899,7 @@ document, see Step 6), never HTML tags.
   default regardless of whether author is known, flip it `true` only when the human explicitly asks the byline to
   show (a guest collaboration is exactly that case, a normal Substack item usually isn't).
 - **publication** / **source**: pick the pair matching the source:
-    - Industry Shots: `"Noticias"` / `"industry-shots"`
+    - Noticias: `"Noticias"` / `"industry-shots"`
     - La Lana del Deporte: `"La Lana del Deporte"` / `"la-lana"`
     - Infinitas: `"Infinitas"` / `"infinitas"`
     - The Futbol Business Review: `"The Futbol Business Review"` /
@@ -864,12 +911,21 @@ document, see Step 6), never HTML tags.
       `"playbook"` source was deleted in Fase 1, 2026-08-01 — inserting
       it would create articles no filter or hub can reach).
 
-  "Industry Shots" is only this skill's internal name for that Substack
-  newsletter, used to pick the fields above. It is never a label readers
-  see: `SOURCE_LABELS['industry-shots']` in `lib/constants.ts` renders it as
-  "Noticias" everywhere on the site. Never write the literal string
-  "Industry Shots" into any visible field (title, excerpt, teaser, body,
-  author).
+  **The product is called Noticias. "Industry Shots" is retired
+  (publisher, 2026-08-08)** — it was this skill's internal nickname for
+  that Substack newsletter, and it is not one any more, in prose or in
+  conversation. Readers never saw it either way:
+  `SOURCE_LABELS['industry-shots']` in `lib/constants.ts` has always
+  rendered the source as "Noticias" everywhere on the site. Never write
+  the literal string "Industry Shots" into any visible field (title,
+  excerpt, teaser, body, author).
+
+  `"industry-shots"` survives ONLY as the `source` key, because it is the
+  value 68 published rows are filed under and the string every hub filter,
+  CSS product class and rank rule matches on. Keep writing it verbatim in
+  that one field; renaming the key is a migration, tracked in
+  `docs/TODO.md`. Reading it as a product name is the mistake — it is a
+  database identifier that happens to spell an old title.
 - **tagsScope**: any of `Nacional`, `Internacional` (array, can be empty).
 - **tagsSport**: choose only from (case-sensitive, don't invent new ones):
   `Fútbol, Liga MX, NFL, NBA, Béisbol, Tenis, Golf, F1, Olímpico, Multi-deporte / Otros` (see `lib/taxonomy.ts`, `SPORT_OPTIONS`).
@@ -897,7 +953,7 @@ document, see Step 6), never HTML tags.
   `Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`.
 - **date**: `YYYY-MM-DD`, confirmed from the page (Step 1), not guessed.
 - **dateFormatted**: e.g. `"21 jul 2026"` (day, 3-letter lowercase month, year).
-- **readingTime**: `2` for Industry Shots/Infinitas (four-paragraph standard), `3` for La Lana long-form.
+- **readingTime**: `2` for Noticias/Infinitas (four-paragraph standard), `3` for La Lana long-form.
 - **priority** (Importancia): 1-5, objective scale:
     - `5` = Mexico/LATAM-specific regulatory, structural, or major business story.
     - `4` = Major international story with clear LATAM or business implication.

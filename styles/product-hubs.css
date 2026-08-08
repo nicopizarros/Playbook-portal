@@ -399,9 +399,21 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   padding:8px 9px 6px;background:rgba(16,19,16,.86);border:1px solid rgba(238,242,234,.22);
   border-radius:8px;backdrop-filter:blur(4px);
 }
+/* The mark is drawn by an SVG <mask> (see ShotProgress.tsx), so these two
+   rects ARE the graphic: the track is the unread ghost, the fill is the
+   read part rising from the bottom. Both are plain rects, which is why one
+   pair of rules dresses all four product marks. */
 .shot-progress-glass{stroke:rgba(238,242,234,.85);stroke-width:2;}
+.shot-progress-track{fill:rgba(238,242,234,.24);}
 .shot-progress-fill{fill:var(--pb-green);transition:y var(--duration-fast) linear,height var(--duration-fast) linear;}
 .shot-progress-pct{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:rgba(238,242,234,.85);}
+/* Each product fills in its own color, matching the mark on its callout.
+   The chip sits on its own fixed dark panel, so these are the fixed
+   literals (--lana-gold reads better than --src-lana's light-theme value
+   against that panel), never the theme-adaptive tokens. */
+.shot-progress[data-product="la-lana"] .shot-progress-fill{fill:#d9a53a;}
+.shot-progress[data-product="infinitas"] .shot-progress-fill{fill:#a875e8;}
+.shot-progress[data-product="futbol-business-review"] .shot-progress-fill{fill:var(--tfbr-red);}
 
 /* Opinion callout: opinion visually fenced off from reporting, in the
    brand green. Theme-adaptive surface (tokens) so it reads on light and
@@ -414,11 +426,54 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;
   font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
 }
-/* Bottle cap: a fluted circle, pure CSS. */
+/* The isotope bracket, and the default kicker (publisher, 2026-08-08,
+   replacing a fluted bottle cap). The house symbol signs the closing take
+   on Noticias, the one product with no object of its own here — its
+   shot glass stays where it belongs, on the reading-progress chip.
+   The bracket also ends the article body (styles/article.css's remate
+   editorial); both uses are the same gesture, Playbook putting its name
+   to something, so they share --isotope-bracket rather than each holding
+   a copy of the polygon. */
 .shot-opinion-kicker::before{
-  content:"";width:14px;height:14px;border-radius:50%;flex-shrink:0;
-  background:repeating-conic-gradient(var(--green) 0 14deg,transparent 14deg 30deg);
-  border:2px solid var(--green);
+  content:"";width:14px;height:13px;flex-shrink:0;
+  background:var(--green);clip-path:var(--isotope-bracket);
+}
+
+/* Per-product marks (2026-08-07): each product signs its opinion with its
+   own object instead of borrowing the house bracket — a stack of coins
+   for La Lana (the money trail it reports), the lemniscate for Infinitas,
+   a forward arrow for TFBR (the commercial move each edition argues for).
+   Drawn as mask-image rather than background-image so the fill is
+   `background-color`, i.e. the product token itself: --src-lana and
+   --src-infinitas both swap value between light and dark (tokens.css), and
+   a baked-in SVG fill would need a second copy per theme to follow them.
+   Inline data: URIs, no network (CSP allows data: under img-src) and no
+   sprite to keep in sync. The reset line clears the cap's border-radius,
+   border and conic background before each mark redraws the box. */
+.article-product-la-lana .shot-opinion-kicker::before,
+.article-product-infinitas .shot-opinion-kicker::before,
+.article-product-futbol-business-review .shot-opinion-kicker::before{
+  border:0;border-radius:0;clip-path:none;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+}
+
+/* La Lana: three stacked coins, read side-on. Ellipses rather than discs
+   because at 14px a circle is a dot and a stack is unmistakably money. */
+.article-product-la-lana .shot-opinion-kicker::before{
+  width:15px;height:14px;background-color:var(--src-lana);
+  -webkit-mask-image:var(--mark-coins);mask-image:var(--mark-coins);
+}
+/* Infinitas: the lemniscate the product is named for. */
+.article-product-infinitas .shot-opinion-kicker::before{
+  width:20px;height:12px;background-color:var(--src-infinitas);
+  -webkit-mask-image:var(--mark-infinity);mask-image:var(--mark-infinity);
+}
+/* TFBR: the forward arrow — every edition ends on the move to make next. */
+.article-product-futbol-business-review .shot-opinion-kicker::before{
+  width:16px;height:13px;background-color:var(--tfbr-red);
+  -webkit-mask-image:var(--mark-arrow);mask-image:var(--mark-arrow);
 }
 .shot-opinion p{margin:0;}
 .shot-opinion p:not(:last-child){margin-bottom:12px;}
@@ -472,7 +527,6 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 .hub-tfbr-sub{font-size:14.5px;line-height:1.55;color:var(--tfbr-faint);max-width:46ch;margin:0;}
 
 .tfbr-arrow{display:inline-block;vertical-align:middle;}
-.tfbr-arrow-up{transform:rotate(-45deg);}
 
 /* Briefing board: dense numbers, no photography. */
 .tfbr-board{margin-top:44px;}
