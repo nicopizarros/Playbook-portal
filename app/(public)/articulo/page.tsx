@@ -546,10 +546,13 @@ export default async function ArticuloPage({ searchParams }: Props) {
       <main className="container article-page" id="articulo">
         <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
 
-        {/* El Trago: the shot glass fills as the reader advances through
-            .article-body — only where there's a body to advance through
-            (the walled branch never renders it). */}
-        {article.source === 'industry-shots' && <ShotProgress />}
+        {/* Reading progress: the product's own mark fills as the reader
+            advances through .article-body — only where there's a body to
+            advance through (the walled branch never renders it). Was
+            Noticias-only while the mark was a shot glass; now that each
+            product has its own it belongs on all four, so `hub` is the
+            condition rather than the source. */}
+        {hub && <ShotProgress source={article.source} />}
 
         <article className={articleClass}>
           {header}

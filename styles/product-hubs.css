@@ -399,9 +399,20 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   padding:8px 9px 6px;background:rgba(16,19,16,.86);border:1px solid rgba(238,242,234,.22);
   border-radius:8px;backdrop-filter:blur(4px);
 }
-.shot-progress-glass{stroke:rgba(238,242,234,.85);stroke-width:2;}
+/* The mark is drawn by an SVG <mask> (see ShotProgress.tsx), so these two
+   rects ARE the graphic: the track is the unread ghost, the fill is the
+   read part rising from the bottom. Both are plain rects, which is why one
+   pair of rules dresses all four product marks. */
+.shot-progress-track{fill:rgba(238,242,234,.24);}
 .shot-progress-fill{fill:var(--pb-green);transition:y var(--duration-fast) linear,height var(--duration-fast) linear;}
 .shot-progress-pct{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:rgba(238,242,234,.85);}
+/* Each product fills in its own color, matching the mark on its callout.
+   The chip sits on its own fixed dark panel, so these are the fixed
+   literals (--lana-gold reads better than --src-lana's light-theme value
+   against that panel), never the theme-adaptive tokens. */
+.shot-progress[data-product="la-lana"] .shot-progress-fill{fill:#d9a53a;}
+.shot-progress[data-product="infinitas"] .shot-progress-fill{fill:#a875e8;}
+.shot-progress[data-product="futbol-business-review"] .shot-progress-fill{fill:var(--tfbr-red);}
 
 /* Opinion callout: opinion visually fenced off from reporting, in the
    brand green. Theme-adaptive surface (tokens) so it reads on light and
@@ -414,12 +425,15 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;
   font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
 }
-/* Bottle cap: a fluted circle, pure CSS. Noticias' mark — the shot-glass
-   metaphor the product already runs on (.shot-progress, El Trago). */
+/* Noticias' mark, and the default: the isotope bracket — the same symbol
+   that closes an article body (styles/article.css's remate editorial).
+   Publisher directive 2026-08-07, replacing a fluted bottle cap: the
+   closing mark and the opinion that follows it now read as one gesture,
+   the house signature at the end of the reporting. Geometry lives in
+   --isotope-bracket so this and the end-mark can't drift apart. */
 .shot-opinion-kicker::before{
-  content:"";width:14px;height:14px;border-radius:50%;flex-shrink:0;
-  background:repeating-conic-gradient(var(--green) 0 14deg,transparent 14deg 30deg);
-  border:2px solid var(--green);
+  content:"";width:14px;height:13px;flex-shrink:0;
+  background:var(--green);clip-path:var(--isotope-bracket);
 }
 
 /* Per-product marks (2026-08-07): each product signs its opinion with its
@@ -436,7 +450,7 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 .article-product-la-lana .shot-opinion-kicker::before,
 .article-product-infinitas .shot-opinion-kicker::before,
 .article-product-futbol-business-review .shot-opinion-kicker::before{
-  border:0;border-radius:0;background:currentColor;
+  border:0;border-radius:0;clip-path:none;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-position:center;mask-position:center;
   -webkit-mask-size:contain;mask-size:contain;
