@@ -727,6 +727,25 @@ them right at drafting time:
       use different period conventions (a July-June season against a
       calendar year), say so in the prose — the axis can only carry one
       set of labels.
+      **The "every device number must be in the piece" rule bends here,
+      and only here.** For every other device that rule is literal. A
+      Serie prints its own values on the lines, so restating all eight or
+      twelve of them in the paragraph above produces exactly the number
+      dump a chart exists to replace. What the prose owes a Serie
+      instead: name the SOURCE the series comes from, and state the
+      EXTREMES that carry the argument (the peak, the floor, the range
+      each side moved in). Interior points can live on the chart alone.
+      The rule's purpose is that no figure appears without provenance a
+      reader can check, and a named source plus printed values satisfies
+      it; a paragraph reciting the series does not serve the reader.
+      **Pair it with a Duelo rather than repeating one in the other.**
+      When both run in one piece they have to divide the labour: the
+      Serie shows how the money ARRIVES over time, the Duelo what each
+      side DOES with it (distributions, result, reserves). The 2026-08-08
+      piece first shipped a Duelo whose top rows were the series' own
+      minimum and maximum, which drew the same comparison twice; moving
+      the butterfly onto the distribution/result/reserves data made the
+      two devices complementary instead of redundant.
   Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
   now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
   here):** designed devices scale with `readingTime` **and** `priority`.
