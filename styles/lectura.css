@@ -250,6 +250,16 @@
 .lect-duelo-half[data-side="a"] .lect-duelo-lane{justify-content:flex-end;}
 .lect-duelo-bar{height:20px;background:var(--lect-accent);}
 .lect-duelo-bar[data-side="b"]{background:color-mix(in srgb,var(--lect-accent) 32%,var(--paper));border:1px solid var(--rule);}
+/* Loss rows: the bar still measures magnitude, so the colour is what stops
+   "lost more" from reading as "earned more". Same red the Salto and the
+   Cotización already use for a downward move. */
+.lect-duelo-bar[data-neg]{background:#c0392b;border-color:#c0392b;}
+.lect-duelo-bar[data-side="b"][data-neg]{background:color-mix(in srgb,#c0392b 34%,var(--paper));}
+.lect-duelo-val[data-neg]{color:#c0392b;}
+[data-theme="dark"] .lect-duelo-val[data-neg]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-duelo-val[data-neg]{color:#e0616b;}
+}
 .lect-duelo-val{
   flex:0 0 auto;
   font-family:var(--serif-display);font-size:clamp(17px,2.4vw,23px);line-height:1.1;

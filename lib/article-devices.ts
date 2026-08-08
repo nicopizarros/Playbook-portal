@@ -98,9 +98,9 @@ function isCountable(figure: string): boolean {
   return !!(parts && parseNumeric(parts.num));
 }
 
-function countupSpan(figure: string, cls: string): string {
+function countupSpan(figure: string, cls: string, attrs = ''): string {
   const countable = isCountable(figure) ? ' data-lect-countup' : '';
-  return `<span class="${cls}"${countable}>${esc(figure)}</span>`;
+  return `<span class="${cls}"${countable}${attrs}>${esc(figure)}</span>`;
 }
 
 // ————————————————————————————————————————————————————————— Cronología
@@ -358,7 +358,22 @@ function buildQuote(quote: Quote): string {
 // other's scale. A row whose two values aren't both numeric still renders
 // — as a bare text row, no bars — so a "Sede — Nyon vs Zúrich" line can
 // sit under the money without faking a magnitude for it.
-type DuelRow = { label: string; a: string; b: string; aPct: number | null; bPct: number | null };
+//
+// Negative values (a leading -, − or –) bar their MAGNITUDE, like every
+// other row, but in the loss treatment: a longer bar on a "Resultado del
+// año — −€46.2M vs −US$262.8M" row means a bigger loss, and it has to be
+// impossible to read it as a bigger win. Colour is doing that work, so it
+// is not optional decoration here — without it the device would state the
+// opposite of the truth on any row where less is better.
+type DuelRow = {
+  label: string;
+  a: string;
+  b: string;
+  aPct: number | null;
+  bPct: number | null;
+  aNeg: boolean;
+  bNeg: boolean;
+};
 type Duel = { a: string; b: string; rows: DuelRow[] };
 
 const VS_RE = /^([\s\S]+?)\s+(?:vs\.?|versus)\s+([\s\S]+)$/i;
@@ -372,6 +387,11 @@ const SCALES: [RegExp, number][] = [
   [/\b(?:millones|mdd|mdp)\b|M\s*$/i, 1],
   [/K\s*$/i, 0.001],
 ];
+
+// A minus sign before the figure, in any of the three characters an editor
+// might actually type (hyphen, true minus, en dash). The currency symbol is
+// allowed to sit between it and the digits: "−€46.2M".
+const NEGATIVE_RE = /^\s*[-−–]\s*[^\d]{0,4}\d/;
 
 function magnitudeOf(figure: string): number | null {
   const parts = splitFigure(figure);
@@ -410,7 +430,15 @@ function parseDuel(raw: string): Duel | null {
     const max = magA !== null && magB !== null ? Math.max(magA, magB) : 0;
     const pct = (mag: number | null) =>
       max > 0 && mag !== null ? Math.max(8, Math.min(100, (mag / max) * 100)) : null;
-    rows.push({ label, a: valueA, b: valueB, aPct: pct(magA), bPct: pct(magB) });
+    rows.push({
+      label,
+      a: valueA,
+      b: valueB,
+      aPct: pct(magA),
+      bPct: pct(magB),
+      aNeg: NEGATIVE_RE.test(valueA),
+      bNeg: NEGATIVE_RE.test(valueB),
+    });
   }
   return { a, b, rows };
 }
@@ -418,16 +446,17 @@ function parseDuel(raw: string): Duel | null {
 // The bar is sized as a share of its own lane, never of the whole half —
 // a bar measured against the half would overflow it by exactly the width
 // of the figure sitting next to it.
-function duelHalf(side: 'a' | 'b', value: string, pct: number | null): string {
+function duelHalf(side: 'a' | 'b', value: string, pct: number | null, negative: boolean): string {
   // The lane is emitted even for a bar-less text row, so the figure keeps
   // the same edge it has in every other row instead of drifting to the
   // centre (and, on the stacked phone layout, to the wrong side entirely).
+  const neg = negative ? ' data-neg="true"' : '';
   const bar =
     pct === null
       ? ''
-      : `<span class="lect-duelo-bar" data-lect-duelo-bar data-side="${side}" style="width:${pct.toFixed(2)}%"></span>`;
+      : `<span class="lect-duelo-bar" data-lect-duelo-bar data-side="${side}"${neg} style="width:${pct.toFixed(2)}%"></span>`;
   const lane = `<span class="lect-duelo-lane">${bar}</span>`;
-  const figure = countupSpan(value, 'lect-duelo-val');
+  const figure = countupSpan(value, 'lect-duelo-val', neg);
   return `<span class="lect-duelo-half" data-side="${side}">${side === 'a' ? figure + lane : lane + figure}</span>`;
 }
 
@@ -437,7 +466,7 @@ function buildDuel(duel: Duel): string {
       row =>
         `<span class="lect-duelo-row">` +
         `<span class="lect-duelo-label">${esc(row.label)}</span>` +
-        `<span class="lect-duelo-track">${duelHalf('a', row.a, row.aPct)}${duelHalf('b', row.b, row.bPct)}</span>` +
+        `<span class="lect-duelo-track">${duelHalf('a', row.a, row.aPct, row.aNeg)}${duelHalf('b', row.b, row.bPct, row.bNeg)}</span>` +
         `</span>`,
     )
     .join('');
