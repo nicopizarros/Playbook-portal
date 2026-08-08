@@ -92,8 +92,10 @@ thing to keep working.
 
 > **La Lana uses the heading form.** The inline `**Opinión de Playbook:**`
 > lead-in belongs to the short products (Noticias, Infinitas). Both shapes get
-> the same render-time callout — the green fenced box with the bottle-cap
-> kicker (`markOpinionCallout` → `.shot-opinion`), which as of 2026-08-07
+> the same render-time callout — the green fenced box, signed with the
+> product's own mark (La Lana's is the stack of coins; Noticias uses the
+> Playbook bracket, the same symbol that closes the body)
+> (`markOpinionCallout` → `.shot-opinion`), which as of 2026-08-07
 > recognizes the `## La Opinión de Playbook` heading plus its list, not only
 > the inline paragraph. Write either shape as plain markdown and the box
 > appears; never hand-wrap one in HTML to fake it (§5).

@@ -223,9 +223,10 @@ conventions — write the markdown, get the design:
 - `**70%**` (a bold span that is only a figure) → counts up on scroll.
   Money and percentages in plain prose → an automatic marker highlight.
 - The closing take, in EITHER shape → the green fenced callout, signed with
-  the product's own mark: a bottle cap for Noticias, a stack of coins for La
-  Lana, the lemniscate for Infinitas, a forward arrow for TFBR (the marks
-  are `--mark-*` tokens in `styles/tokens.css`).
+  the product's own mark: the Playbook bracket for Noticias (the same
+  symbol that closes the body), a stack of coins for La Lana, the
+  lemniscate for Infinitas, a forward arrow for TFBR (`--isotope-bracket`
+  and the `--mark-*` tokens in `styles/tokens.css`).
 - `Cifra clave:` / `Jugada:` / the seven other device lines → their designed
   elements, within budget.
 
@@ -463,8 +464,8 @@ them right at drafting time:
   kicker, so don't repeat the label inside the bullets.
   **Each product signs the box with its own mark**, set in CSS from the
   `--mark-*` tokens (`styles/tokens.css`) and picked by the article's
-  `source`: bottle cap for Noticias, coins for La Lana, the lemniscate for
-  Infinitas, forward arrow for TFBR. Nothing to write at drafting time —
+  `source`: the Playbook bracket for Noticias, coins for La Lana, the
+  lemniscate for Infinitas, a forward arrow for TFBR. Nothing to write at drafting time —
   getting `publication`/`source` right (Step 4) is what selects the mark,
   which is one more reason a wrong source pair is a visible mistake and
   not just a filing error.

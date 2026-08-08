@@ -426,20 +426,21 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;
   font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
 }
-/* Bottle cap: a fluted circle, pure CSS. Noticias' mark — the shot-glass
-   metaphor the product already runs on (.shot-progress).
-   Deliberately NOT the isotope bracket: that symbol has one job, closing
-   the body (styles/article.css's remate editorial), and briefly doubling
-   it as this kicker was reverted the day it shipped. A mark that means
-   "the article ends here" cannot also mean "an opinion starts here". */
+/* The isotope bracket, and the default kicker (publisher, 2026-08-08,
+   replacing a fluted bottle cap). The house symbol signs the closing take
+   on Noticias, the one product with no object of its own here — its
+   shot glass stays where it belongs, on the reading-progress chip.
+   The bracket also ends the article body (styles/article.css's remate
+   editorial); both uses are the same gesture, Playbook putting its name
+   to something, so they share --isotope-bracket rather than each holding
+   a copy of the polygon. */
 .shot-opinion-kicker::before{
-  content:"";width:14px;height:14px;border-radius:50%;flex-shrink:0;
-  background:repeating-conic-gradient(var(--green) 0 14deg,transparent 14deg 30deg);
-  border:2px solid var(--green);
+  content:"";width:14px;height:13px;flex-shrink:0;
+  background:var(--green);clip-path:var(--isotope-bracket);
 }
 
 /* Per-product marks (2026-08-07): each product signs its opinion with its
-   own object instead of borrowing Noticias' bottle cap — a stack of coins
+   own object instead of borrowing the house bracket — a stack of coins
    for La Lana (the money trail it reports), the lemniscate for Infinitas,
    a forward arrow for TFBR (the commercial move each edition argues for).
    Drawn as mask-image rather than background-image so the fill is
@@ -452,7 +453,7 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 .article-product-la-lana .shot-opinion-kicker::before,
 .article-product-infinitas .shot-opinion-kicker::before,
 .article-product-futbol-business-review .shot-opinion-kicker::before{
-  border:0;border-radius:0;background:currentColor;
+  border:0;border-radius:0;clip-path:none;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-position:center;mask-position:center;
   -webkit-mask-size:contain;mask-size:contain;
