@@ -148,6 +148,32 @@ export function ArticleMotion() {
       );
       cleanups.push(() => segments.forEach(seg => seg.style.removeProperty('transform')));
     });
+    // The Duelo's butterfly bars grow out of the centre line together, so
+    // the eye lands on the ratio before it lands on either number. Below
+    // the 640px breakpoint lectura.css stacks the two sides and both bars
+    // hang off the left edge, so the origin has to follow that layout —
+    // same breakpoint, kept in step deliberately.
+    const duelStacked = window.matchMedia('(max-width:640px)').matches;
+    document.querySelectorAll<HTMLElement>('.lect-duelo-rows').forEach(rows => {
+      const bars = Array.from(rows.querySelectorAll<HTMLElement>('[data-lect-duelo-bar]'));
+      if (!bars.length) return;
+      bars.forEach(bar => {
+        gsap.set(bar, {
+          scaleX: 0,
+          transformOrigin: duelStacked || bar.dataset.side === 'b' ? 'left center' : 'right center',
+        });
+      });
+      tweens.push(
+        gsap.to(bars, {
+          scaleX: 1,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: rows, start: 'top 88%', once: true },
+        }),
+      );
+      cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
+    });
 
     // 4 — Flap-ins: the Jugada strip's sides and the Alineación chips
     // scramble into place like the departures board's cells, once, on

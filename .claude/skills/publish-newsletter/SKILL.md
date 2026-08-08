@@ -620,6 +620,26 @@ them right at drafting time:
     - `Cotización: Ollamani — MX$14.50 · -34.6% · en el año` → a market
       tile with ▲/▼ delta. For public-company/valuation results: name,
       value, signed percent delta, optional note.
+    - `Duelo: UEFA vs FIFA · Ingresos 2022-2025 — €20,163M vs US$10,083M
+      · Reservas — €522M vs US$2,699M` → a butterfly chart: two actors,
+      1-4 metric rows, bars anchored on the centre line and growing
+      outwards. For "X gana más que Y" comparisons — the shape Reparto
+      and Salto can't cover, because Reparto splits ONE whole into
+      slices and Salto moves ONE metric from before to after, while this
+      puts two separate institutions against each other on several
+      measures at once. First item names the sides (`A vs B`, ≤26 chars
+      each), every item after it is `etiqueta — valorA vs valorB`. Each
+      row is scaled against its own larger side, so a row reads as a
+      ratio and rows never borrow each other's scale — which means the
+      device is at its best when the rows DISAGREE (one side wins
+      revenue, the other wins reserves); four rows all leaning the same
+      way is a Reparto or a sentence. A row whose two values aren't both
+      numeric renders as a bare text row with no bars, so a
+      `Sede — Nyon vs Zúrich` line can sit under the money without
+      faking a magnitude. Mixed currencies are allowed and the bars
+      compare the raw magnitudes, so only put two currencies in one row
+      when the piece has already told the reader why that comparison
+      holds.
   Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
   now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
   here):** designed devices scale with `readingTime` **and** `priority`.
