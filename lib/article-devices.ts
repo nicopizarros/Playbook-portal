@@ -24,6 +24,8 @@
 //                → market tile with ▲/▼ delta
 //   Duelo:       UEFA vs FIFA · Ingresos — €20,163M vs US$10,083M
 //                → butterfly bars, both sides anchored at the centre
+//   Serie:       UEFA vs FIFA · 2022 — €4,052M vs US$5,769M · 2023 — …
+//                → two lines on one axis, drawn on scroll (volatility)
 //
 // Both body shapes go through the same builders: the HTML transform
 // (markDevices) rewrites matching <p>s, and the plain-text path asks
@@ -523,6 +525,133 @@ function buildDuel(duel: Duel): string {
   );
 }
 
+// ————————————————————————————————————————————————————————————— Serie
+// Two series tracked across the same points in time, drawn as a line
+// chart. Duelo answers "who is bigger on each measure"; this answers
+// "what has each one's shape been", which is the only way to show
+// volatility — a body whose income collapses and recovers and a body
+// whose income barely moves can post identical totals.
+//
+//   Serie: UEFA vs FIFA · 2022 — €4,052M vs US$5,769M · 2023 — …
+//
+// Same grammar as Duelo on purpose (first item names the sides, every
+// item after it is `punto — valorA vs valorB`), so an editor who knows
+// one knows the other; here the rows are points in time rather than
+// metrics. Both series share one Y axis, which is the whole point, so
+// every value has to be the same KIND of measure — and if two currencies
+// share the axis, the piece has to have earned that the way it does for
+// a Duelo.
+type SeriesPoint = { label: string; a: string; b: string; magA: number; magB: number };
+type Series = { a: string; b: string; points: SeriesPoint[] };
+
+function parseSeries(raw: string): Series | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  // Three points is the minimum that can show a shape rather than a
+  // slope; past eight the labels collide at reading-column widths.
+  if (items.length < 4 || items.length > 9) return null;
+
+  const sides = items[0].match(VS_RE);
+  if (!sides) return null;
+  const a = sides[1].trim();
+  const b = sides[2].trim();
+  if (!a || a.length > 26 || !b || b.length > 26) return null;
+
+  const points: SeriesPoint[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const values = kv[2].match(VS_RE);
+    if (!label || label.length > 12 || !values) return null;
+    const valueA = values[1].trim();
+    const valueB = values[2].trim();
+    const magA = magnitudeOf(valueA);
+    const magB = magnitudeOf(valueB);
+    // A chart cannot carry a missing point the way a Duelo row can carry
+    // a text value — one gap and every x position after it lies.
+    if (magA === null || magB === null || valueA.length > 24 || valueB.length > 24) return null;
+    points.push({ label, a: valueA, b: valueB, magA, magB });
+  }
+  return { a, b, points };
+}
+
+// Geometry of the plot box inside the 640×260 viewBox: room on the left
+// for nothing (the axis is unlabelled — the point values are printed on
+// the line itself) and room at the foot for the period labels.
+const S_X0 = 16;
+const S_X1 = 624;
+const S_Y0 = 30;
+const S_Y1 = 196;
+
+function buildSeries(series: Series): string {
+  const { points } = series;
+  const max = Math.max(...points.flatMap(p => [p.magA, p.magB]));
+  if (max <= 0) return '';
+  const x = (i: number) => S_X0 + (i * (S_X1 - S_X0)) / (points.length - 1);
+  const y = (mag: number) => S_Y1 - (mag / max) * (S_Y1 - S_Y0);
+
+  const line = (pick: (p: SeriesPoint) => number) => points.map((p, i) => `${x(i).toFixed(1)},${y(pick(p)).toFixed(1)}`).join(' ');
+  const area = (pick: (p: SeriesPoint) => number) => `${line(pick)} ${x(points.length - 1).toFixed(1)},${S_Y1} ${x(0).toFixed(1)},${S_Y1}`;
+
+  const grid = [0, 0.5, 1]
+    .map(f => {
+      const gy = (S_Y1 - f * (S_Y1 - S_Y0)).toFixed(1);
+      return `<line class="lect-serie-grid" x1="${S_X0}" y1="${gy}" x2="${S_X1}" y2="${gy}" />`;
+    })
+    .join('');
+
+  const dots = (side: 'a' | 'b', pick: (p: SeriesPoint) => number) =>
+    points
+      .map((p, i) => `<circle class="lect-serie-dot" data-side="${side}" cx="${x(i).toFixed(1)}" cy="${y(pick(p)).toFixed(1)}" r="4" />`)
+      .join('');
+
+  // At every point the HIGHER series is labelled above its dot and the
+  // lower one below, decided per point rather than per series: a fixed
+  // "A above, B below" collides at exactly the points where the lines
+  // cross, which are the points a volatility chart exists to show.
+  const ABOVE = -13;
+  const BELOW = 20;
+  const labels = points
+    .map((p, i) => {
+      const anchor = i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle';
+      const aOnTop = p.magA >= p.magB;
+      const one = (side: 'a' | 'b', mag: number, text: string, dy: number) =>
+        `<text class="lect-serie-val" data-side="${side}" x="${x(i).toFixed(1)}" y="${(y(mag) + dy).toFixed(1)}" text-anchor="${anchor}">${esc(text)}</text>`;
+      return (
+        one('a', p.magA, p.a, aOnTop ? ABOVE : BELOW) + one('b', p.magB, p.b, aOnTop ? BELOW : ABOVE)
+      );
+    })
+    .join('');
+
+  const periods = points
+    .map((p, i) => {
+      const anchor = i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle';
+      return `<text class="lect-serie-period" x="${x(i).toFixed(1)}" y="${S_Y1 + 26}" text-anchor="${anchor}">${esc(p.label)}</text>`;
+    })
+    .join('');
+
+  const described = points.map(p => `${p.label}: ${series.a} ${p.a}, ${series.b} ${p.b}`).join('; ');
+
+  return (
+    `<div class="lect-device lect-serie" role="note" aria-label="Serie de ${esc(series.a)} y ${esc(series.b)}. ${esc(described)}">` +
+    `<span class="lect-device-label">La serie</span>` +
+    `<div class="lect-serie-key" aria-hidden="true">` +
+    `<span class="lect-serie-name" data-side="a">${esc(series.a)}</span>` +
+    `<span class="lect-serie-name" data-side="b">${esc(series.b)}</span></div>` +
+    `<svg class="lect-serie-chart" viewBox="0 0 640 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">` +
+    grid +
+    `<polygon class="lect-serie-area" data-side="a" points="${area(p => p.magA)}" />` +
+    `<polygon class="lect-serie-area" data-side="b" points="${area(p => p.magB)}" />` +
+    `<polyline class="lect-serie-line" data-side="a" pathLength="1" points="${line(p => p.magA)}" />` +
+    `<polyline class="lect-serie-line" data-side="b" pathLength="1" points="${line(p => p.magB)}" />` +
+    dots('a', p => p.magA) +
+    dots('b', p => p.magB) +
+    labels +
+    periods +
+    `</svg></div>`
+  );
+}
+
 // ———————————————————————————————————————————————————— Dispatch tables
 type Device = {
   /** Prefix as the editor types it (accent-tolerant). */
@@ -605,6 +734,14 @@ const DEVICES: Device[] = [
     render: raw => {
       const parsed = parseDuel(raw);
       return parsed ? buildDuel(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Serie'),
+    html: deviceHtmlRe('Serie'),
+    render: raw => {
+      const parsed = parseSeries(raw);
+      return parsed ? buildSeries(parsed) || null : null;
     },
   },
 ];

@@ -175,6 +175,42 @@ export function ArticleMotion() {
       cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
     });
 
+    // 3c — The Serie's lines draw themselves left to right, both at once,
+    // so the reader watches the two shapes diverge rather than comparing a
+    // finished line against one still arriving. pathLength="1" is set in
+    // the markup, so the dash math is the same whatever the geometry is.
+    document.querySelectorAll<HTMLElement>('.lect-serie').forEach(chart => {
+      const lines = Array.from(chart.querySelectorAll<SVGPolylineElement>('.lect-serie-line'));
+      const fades = Array.from(
+        chart.querySelectorAll<SVGElement>('.lect-serie-dot, .lect-serie-val, .lect-serie-area'),
+      );
+      if (!lines.length) return;
+      gsap.set(lines, { strokeDasharray: 1, strokeDashoffset: 1 });
+      gsap.set(fades, { opacity: 0 });
+      tweens.push(
+        gsap.to(lines, {
+          strokeDashoffset: 0,
+          duration: 1.1,
+          ease: 'power2.inOut',
+          scrollTrigger: { trigger: chart, start: 'top 85%', once: true },
+        }),
+        gsap.to(fades, {
+          opacity: 1,
+          duration: 0.4,
+          delay: 0.7,
+          stagger: 0.02,
+          scrollTrigger: { trigger: chart, start: 'top 85%', once: true },
+        }),
+      );
+      cleanups.push(() => {
+        lines.forEach(line => {
+          line.style.removeProperty('stroke-dasharray');
+          line.style.removeProperty('stroke-dashoffset');
+        });
+        fades.forEach(el => el.style.removeProperty('opacity'));
+      });
+    });
+
     // 4 — Flap-ins: the Jugada strip's sides and the Alineación chips
     // scramble into place like the departures board's cells, once, on
     // first view.
