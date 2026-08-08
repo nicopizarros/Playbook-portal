@@ -703,6 +703,49 @@ them right at drafting time:
       World Cup prize money (US$1,000M in 2025) under Competitions &
       Events, so the comparable figure was US$1,748M. Read it off each
       side's OWN statements, never off the label.
+    - `Serie: UEFA vs FIFA · 2022 — €4,052M vs US$5,769M · 2023 — €4,321M
+      vs US$1,170M · 2024 — €6,777M vs US$483M · 2025 — €5,014M vs
+      US$2,661M` → two lines on one axis, drawn left to right on scroll,
+      with each point's value printed on the line. Deliberately the same
+      grammar as `Duelo` (first item names the sides, then
+      `punto — valorA vs valorB`), except the rows are points in TIME and
+      3-8 of them are required. Use it for **volatility**, the one thing
+      no single-moment device can show: two bodies can post the same
+      four-year total while one collects it evenly and the other collects
+      it in a single spike, and only the shape says which. The 2026-08-08
+      FIFA/UEFA piece is the worked example — FIFA swung 12x between its
+      weakest and strongest year while UEFA moved 1.7x, and the lines
+      cross, which is the whole argument in one image. Every point must
+      be numeric on both sides (a chart cannot carry a gap the way a
+      `Duelo` row carries a text value, since one hole makes every later
+      x position lie), and both series share one Y axis, so the values
+      must be the same kind of measure. Series A takes the product
+      accent, series B a blue; **red is deliberately not available here**
+      because it means "a loss" everywhere else in the collection, and a
+      permanently red line would read as a verdict at every point,
+      including the ones where that series is ahead. When the two series
+      use different period conventions (a July-June season against a
+      calendar year), say so in the prose — the axis can only carry one
+      set of labels.
+      **The "every device number must be in the piece" rule bends here,
+      and only here.** For every other device that rule is literal. A
+      Serie prints its own values on the lines, so restating all eight or
+      twelve of them in the paragraph above produces exactly the number
+      dump a chart exists to replace. What the prose owes a Serie
+      instead: name the SOURCE the series comes from, and state the
+      EXTREMES that carry the argument (the peak, the floor, the range
+      each side moved in). Interior points can live on the chart alone.
+      The rule's purpose is that no figure appears without provenance a
+      reader can check, and a named source plus printed values satisfies
+      it; a paragraph reciting the series does not serve the reader.
+      **Pair it with a Duelo rather than repeating one in the other.**
+      When both run in one piece they have to divide the labour: the
+      Serie shows how the money ARRIVES over time, the Duelo what each
+      side DOES with it (distributions, result, reserves). The 2026-08-08
+      piece first shipped a Duelo whose top rows were the series' own
+      minimum and maximum, which drew the same comparison twice; moving
+      the butterfly onto the distribution/result/reserves data made the
+      two devices complementary instead of redundant.
   Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
   now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
   here):** designed devices scale with `readingTime` **and** `priority`.

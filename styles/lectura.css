@@ -266,6 +266,47 @@
   color:var(--ink);font-variant-numeric:tabular-nums;
 }
 
+/* Serie — two lines on one axis, the shape of each institution's money
+   over time. Series A takes the product accent; series B takes a blue
+   that reads as a DIFFERENT SERIES rather than a verdict. Red is
+   deliberately not used here: it already means "a loss" everywhere else
+   in this collection (the Salto arrow, the Cotización delta, a negative
+   Duelo row), and a permanently red line would say "bad" at every point
+   including the ones where that series is winning. */
+.lect-serie{--lect-serie-a:var(--lect-accent);--lect-serie-b:#2f6fed;}
+[data-theme="dark"] .lect-serie{--lect-serie-b:#6ea8ff;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-serie{--lect-serie-b:#6ea8ff;}
+}
+.lect-serie-key{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:6px;}
+.lect-serie-name{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+}
+.lect-serie-name::before{content:"";width:16px;height:3px;flex-shrink:0;}
+.lect-serie-name[data-side="a"]::before{background:var(--lect-serie-a);}
+.lect-serie-name[data-side="b"]::before{background:var(--lect-serie-b);}
+.lect-serie-chart{display:block;width:100%;height:auto;overflow:visible;}
+.lect-serie-grid{stroke:var(--rule);stroke-width:1;}
+.lect-serie-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;}
+.lect-serie-line[data-side="a"]{stroke:var(--lect-serie-a);}
+.lect-serie-line[data-side="b"]{stroke:var(--lect-serie-b);}
+.lect-serie-area{stroke:none;}
+.lect-serie-area[data-side="a"]{fill:color-mix(in srgb,var(--lect-serie-a) 16%,transparent);}
+.lect-serie-area[data-side="b"]{fill:color-mix(in srgb,var(--lect-serie-b) 13%,transparent);}
+.lect-serie-dot{stroke:var(--paper);stroke-width:2;}
+.lect-serie-dot[data-side="a"]{fill:var(--lect-serie-a);}
+.lect-serie-dot[data-side="b"]{fill:var(--lect-serie-b);}
+.lect-serie-val{
+  font-family:var(--sans);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.lect-serie-val[data-side="a"]{fill:var(--lect-ink-accent);}
+.lect-serie-val[data-side="b"]{fill:var(--lect-serie-b);}
+.lect-serie-period{
+  font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;fill:var(--gray-txt);
+}
+
 /* Device responsive: the timeline stacks vertical on phones (spine moves
    to the left edge), everything else already wraps. */
 @media(max-width:640px){
@@ -275,6 +316,16 @@
   .lect-tl-item::before{top:2px;left:-24px;}
   .lect-receipt{max-width:100%;}
   .lect-eq-row{gap:12px 14px;}
+  /* The Serie's SVG scales to the column, so at phone width every user
+     unit shrinks by about half. Text and strokes are re-specified in
+     user units here to land back at the same on-screen size — the chart
+     keeps its shape, the labels stay readable. */
+  .lect-serie-val{font-size:21px;}
+  .lect-serie-period{font-size:19px;}
+  .lect-serie-line{stroke-width:4;}
+  .lect-serie-dot{r:6;stroke-width:3;}
+  .lect-serie-grid{stroke-width:2;}
+
   /* The butterfly needs width to stay legible; on a phone the two sides
      stack and the bars all grow from the left instead. */
   .lect-duelo-head,.lect-duelo-track{grid-template-columns:1fr;gap:6px;}
