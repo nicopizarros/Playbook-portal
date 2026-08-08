@@ -22,6 +22,8 @@
 //                → lineup chips that flap in one by one
 //   Cotización:  Ollamani — MX$14.50 · -34.6% · en el año
 //                → market tile with ▲/▼ delta
+//   Duelo:       UEFA vs FIFA · Ingresos — €20,163M vs US$10,083M
+//                → butterfly bars, both sides anchored at the centre
 //
 // Both body shapes go through the same builders: the HTML transform
 // (markDevices) rewrites matching <p>s, and the plain-text path asks
@@ -340,6 +342,116 @@ function buildQuote(quote: Quote): string {
   );
 }
 
+// ————————————————————————————————————————————————————————————— Duelo
+// Two institutions, the same metrics, side by side. The one shape the
+// round-3 collection was missing: Reparto splits a single whole into
+// slices and Salto moves one metric from A to B, but neither can put two
+// separate actors against each other on several measures at once — the
+// comparison an "X gana más que Y" story is actually made of.
+//
+//   Duelo: UEFA vs FIFA · Ingresos 2022-2025 — €20,163M vs US$10,083M
+//
+// First item names the two sides; every item after it is one metric row,
+// `etiqueta — valorA vs valorB`. Bars are anchored at the centre line and
+// grow outwards (a butterfly chart), each pair scaled against its own
+// larger side, so a row reads as a ratio and rows never borrow each
+// other's scale. A row whose two values aren't both numeric still renders
+// — as a bare text row, no bars — so a "Sede — Nyon vs Zúrich" line can
+// sit under the money without faking a magnitude for it.
+type DuelRow = { label: string; a: string; b: string; aPct: number | null; bPct: number | null };
+type Duel = { a: string; b: string; rows: DuelRow[] };
+
+const VS_RE = /^([\s\S]+?)\s+(?:vs\.?|versus)\s+([\s\S]+)$/i;
+
+// Scale words, relative to "millones". Both sides of a row normally carry
+// the same unit; this only exists so a row mixing "mil millones" with
+// "millones" still scales honestly instead of comparing 20 against 10,083.
+const SCALES: [RegExp, number][] = [
+  [/\bbillones\b/i, 1_000_000],
+  [/\b(?:mil\s+millones|bn)\b/i, 1_000],
+  [/\b(?:millones|mdd|mdp)\b|M\s*$/i, 1],
+  [/K\s*$/i, 0.001],
+];
+
+function magnitudeOf(figure: string): number | null {
+  const parts = splitFigure(figure);
+  if (!parts) return null;
+  const parsed = parseNumeric(parts.num);
+  if (!parsed) return null;
+  const scale = SCALES.find(([re]) => re.test(parts.post));
+  return parsed.value * (scale ? scale[1] : 1);
+}
+
+function parseDuel(raw: string): Duel | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 5) return null;
+
+  const sides = items[0].match(VS_RE);
+  if (!sides) return null;
+  const a = sides[1].trim();
+  const b = sides[2].trim();
+  if (!a || a.length > 26 || !b || b.length > 26) return null;
+
+  const rows: DuelRow[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const values = kv[2].match(VS_RE);
+    if (!label || label.length > 40 || !values) return null;
+    const valueA = values[1].trim();
+    const valueB = values[2].trim();
+    if (!valueA || valueA.length > 24 || !valueB || valueB.length > 24) return null;
+
+    const magA = magnitudeOf(valueA);
+    const magB = magnitudeOf(valueB);
+    // Both sides numeric or neither — one bar alone would read as a
+    // comparison against zero, which is not what a missing number means.
+    const max = magA !== null && magB !== null ? Math.max(magA, magB) : 0;
+    const pct = (mag: number | null) =>
+      max > 0 && mag !== null ? Math.max(8, Math.min(100, (mag / max) * 100)) : null;
+    rows.push({ label, a: valueA, b: valueB, aPct: pct(magA), bPct: pct(magB) });
+  }
+  return { a, b, rows };
+}
+
+// The bar is sized as a share of its own lane, never of the whole half —
+// a bar measured against the half would overflow it by exactly the width
+// of the figure sitting next to it.
+function duelHalf(side: 'a' | 'b', value: string, pct: number | null): string {
+  // The lane is emitted even for a bar-less text row, so the figure keeps
+  // the same edge it has in every other row instead of drifting to the
+  // centre (and, on the stacked phone layout, to the wrong side entirely).
+  const bar =
+    pct === null
+      ? ''
+      : `<span class="lect-duelo-bar" data-lect-duelo-bar data-side="${side}" style="width:${pct.toFixed(2)}%"></span>`;
+  const lane = `<span class="lect-duelo-lane">${bar}</span>`;
+  const figure = countupSpan(value, 'lect-duelo-val');
+  return `<span class="lect-duelo-half" data-side="${side}">${side === 'a' ? figure + lane : lane + figure}</span>`;
+}
+
+function buildDuel(duel: Duel): string {
+  const rows = duel.rows
+    .map(
+      row =>
+        `<span class="lect-duelo-row">` +
+        `<span class="lect-duelo-label">${esc(row.label)}</span>` +
+        `<span class="lect-duelo-track">${duelHalf('a', row.a, row.aPct)}${duelHalf('b', row.b, row.bPct)}</span>` +
+        `</span>`,
+    )
+    .join('');
+  const described = duel.rows.map(row => `${row.label}: ${duel.a} ${row.a}, ${duel.b} ${row.b}`).join('; ');
+  return (
+    `<div class="lect-device lect-duelo" role="note" aria-label="Duelo entre ${esc(duel.a)} y ${esc(duel.b)}. ${esc(described)}">` +
+    `<span class="lect-device-label">El duelo</span>` +
+    `<div class="lect-duelo-head" aria-hidden="true">` +
+    `<span class="lect-duelo-name" data-side="a">${esc(duel.a)}</span>` +
+    `<span class="lect-duelo-name" data-side="b">${esc(duel.b)}</span></div>` +
+    `<div class="lect-duelo-rows" data-lect-stagger aria-hidden="true">${rows}</div></div>`
+  );
+}
+
 // ———————————————————————————————————————————————————— Dispatch tables
 type Device = {
   /** Prefix as the editor types it (accent-tolerant). */
@@ -416,11 +528,19 @@ const DEVICES: Device[] = [
       return parsed ? buildQuote(parsed) : null;
     },
   },
+  {
+    prefix: deviceTextRe('Duelo'),
+    html: deviceHtmlRe('Duelo'),
+    render: raw => {
+      const parsed = parseDuel(raw);
+      return parsed ? buildDuel(parsed) : null;
+    },
+  },
 ];
 
 // The Cifra clave and Jugada conventions live in lib/product-hubs.ts (they
 // predate this module) but count against the same budget, so the matcher
-// list here covers all nine designed devices.
+// list here covers all ten designed devices.
 type NamedDevice = { name: string; html: RegExp; prefix: RegExp; render(raw: string): string | null };
 
 const ALL_DEVICES: NamedDevice[] = [
