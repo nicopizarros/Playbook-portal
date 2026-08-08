@@ -376,7 +376,10 @@ explicit yes in this session, no exceptions, no "seems fine, publishing":
 
 ## Step 7: Publish
 
-Only for the articles approved in Step 6:
+Only for the articles approved in Step 6, and only once any device the
+body uses is actually live in production — see `publish-newsletter`'s
+Step 6 opening for why the deploy has to land before the row is written,
+and how to confirm it rather than assume it.
 
 1. Write a JSON array of the approved article objects (same shape as
    `publish-newsletter`'s `ArticleInput` in `scripts/publish-newsletter.ts`)
