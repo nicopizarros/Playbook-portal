@@ -23,7 +23,9 @@ governance, broadcast rights, M&A, sponsorships, venues, sports finance,
 private equity, sports marketing, talent management, audiences, fan
 experience, naming rights. Content comes from three editorial lines/sources:
 
-- **Industry Shots** (source key `industry-shots`) — general news digest.
+- **Noticias** (source key `industry-shots`, a legacy identifier — the
+  product was renamed 2026-08-08 and "Industry Shots" is retired as a name)
+  — general news digest.
 - **La Lana del Deporte** (source key `la-lana`) — sports business
   coverage.
 - **Infinitas** (source key `infinitas`) — a distinct newsletter product
@@ -34,7 +36,7 @@ experience, naming rights. Content comes from three editorial lines/sources:
 There used to be a fourth, generic **Playbook** (`playbook`) bucket for
 content that didn't fit the three newsletters above. Retired 2026-08-01 at
 the user's request (Roadmap Agosto 2026, Fase 1) — it never had a distinct
-editorial identity from Industry Shots, so it was folded into
+editorial identity from Noticias, so it was folded into
 `industry-shots`/Noticias everywhere: `KNOWN_SOURCES`, the webhook's
 `detectPublication()` fallback, the `articles` table's column defaults, and
 every article that had `source: 'playbook'`.
@@ -178,7 +180,7 @@ verbatim so `/articulo?id=...` URLs never break.
 | `imageUrl`, `status` (`'published'`\|`'draft'`, default `'published'`) | | |
 | `createdAt`, `updatedAt`, `updatedBy` (FK → `editors.id`, `SET NULL`) | | |
 
-**Why `sourceUrl` is separate from `substackUrl`:** for "Industry Shots"
+**Why `sourceUrl` is separate from `substackUrl`:** for Noticias
 digest posts, one Substack post (`substackUrl`) legitimately backs *several*
 distinct articles, each with its own `sourceUrl` (the webhook payload's
 per-item `url`). A unique index on `substackUrl` would have rejected
@@ -680,7 +682,7 @@ error message — it's not a crash, just non-functional).
 ## 13. Claude Code Skills (`.claude/skills/`)
 
 - **`publish-newsletter`** — a fully automated, zero-human-review editorial
-  pipeline: given one or more Playbook Substack URLs (Industry Shots, La
+  pipeline: given one or more Playbook Substack URLs (Noticias, La
   Lana del Deporte, Infinitas), fetches each edition, treats each story as
   a separate article, drafts it in Playbook's editorial voice (Industry
   Shots/Infinitas: fixed four-paragraph shape, fact + mandatory

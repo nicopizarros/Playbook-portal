@@ -38,7 +38,7 @@ TCP, don't try to reconnect it to `lib/db/client.ts`'s `pg` Pool.
 
 ## Step 1: Read the primary source
 
-Fetch every URL given (WebFetch). Unlike an Industry Shots digest, each link
+Fetch every URL given (WebFetch). Unlike a Noticias digest, each link
 here is one standalone story, one link becomes one article (if given
 several unrelated links in one run, draft each as its own separate
 article). Confirm the publish date and the core facts (who, what, the key
@@ -46,7 +46,7 @@ numbers) directly from the page, don't guess or carry over stale context.
 
 **Then run the overlap check before drafting a word.** This funnel is the
 one most likely to arrive at a story Playbook already published — a wire
-link about something an Industry Shots edition briefed two days ago is the
+link about something a Noticias edition briefed two days ago is the
 normal case, not the edge case:
 
 ```
@@ -259,13 +259,13 @@ Importancia scale. Differences from that skill:
 - **author**: leave `""` unless a byline is genuinely known, same as
   `publish-newsletter`.
 - **publication** / **source**: `"Noticias"` / `"industry-shots"`. This
-  reuses Industry Shots' pair rather than `publish-newsletter`'s "anything
+  reuses Noticias' pair rather than `publish-newsletter`'s "anything
   else" fallback (`"Playbook"` / `"playbook"`): a third-party wire pickup
   reads as a news brief, not as a Playbook-branded opinion piece, and the
   `"Playbook"` kicker/tag (`app/(public)/articulo/page.tsx`'s
   `article-kicker`, and the `tag-mini` chip on every card,
   `components/article/NewsRow.tsx` and friends) should say "Noticias" on
-  these the same way it does on an Industry Shots item, both visually
+  these the same way it does on a Noticias item, both visually
   (`styles/components.css`'s `.tag-mini.industry-shots` color) and in the
   taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
   `topicsForSection`). There's no separate "wire story" entry in

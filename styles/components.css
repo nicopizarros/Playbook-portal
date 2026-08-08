@@ -49,9 +49,6 @@
    del hover no se vuelva claro-sobre-claro si el tema cambia. */
 .btn.light.on-dark:hover{color:var(--ink-fixed);}
 
-@keyframes ctaPulse{0%{transform:scale(1);}50%{transform:scale(1.04);}100%{transform:scale(1);}}
-.btn.pulse-once{animation:ctaPulse .5s var(--ease-out) 1;}
-
 .filter-btn{min-height:38px;padding:0 15px;border-radius:999px;border:1.5px solid var(--rule);background:var(--paper);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--gray-txt);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease,background var(--duration-fast) ease,transform var(--duration-base) var(--ease-out);font-family:var(--sans);}
 .filter-btn:hover{border-color:var(--ink);color:var(--ink);}
 /* Ficha fija (--ink-fixed): el estado activo siempre es negro con texto
@@ -99,21 +96,3 @@
    contraste en vez del texto oscuro que usa .inf-pill sobre verde. */
 .inf-pill{background:var(--src-infinitas-fixed);color:#fff;border-color:var(--src-infinitas-fixed);font-weight:700;}
 
-/* Skeleton loading state */
-.skeleton-card{padding:16px 0;border-bottom:1px solid var(--rule);}
-.skel{background:linear-gradient(90deg,var(--rule) 25%,var(--paper-soft) 50%,var(--rule) 75%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:6px;}
-.skel-badge{width:90px;height:11px;margin-bottom:10px;}
-.skel-title{width:100%;height:16px;margin-bottom:8px;}
-.skel-title.skel--short{width:65%;}
-.skel-desc{width:90%;height:12px;margin:10px 0 6px;}
-.skel-desc.skel--short{width:55%;}
-.skel-meta{width:40%;height:11px;margin-top:8px;}
-/* Matches .lead-photo/.article-photo's own aspect-ratio (css/hero.css,
-   css/article.css) so the article-page skeleton reserves the same space
-   the real photo will take, instead of collapsing/expanding when it
-   swaps in — see articulo.html's #article-root skeleton. */
-.skel-photo{aspect-ratio:16/10;border-radius:6px;margin-bottom:16px;}
-@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
-@media(prefers-reduced-motion:reduce){
-  .skel{animation:none;background:var(--paper-soft);}
-}

@@ -71,16 +71,7 @@
 .home-sidebar{border-left:1px solid var(--rule);padding-left:28px;}
 .sidebar-sticky{position:sticky;top:132px;display:flex;flex-direction:column;gap:26px;}
 
-/* Módulo "Más leídas" del sidebar — patrón rank-list del prototipo v24:
-   numeración por contador CSS (decimal-leading-zero) en Anton gris,
-   tiempo de lectura a la derecha, cabecera con border-top de 2px. */
 .side-title{font-family:var(--serif-display);font-weight:400;font-size:20px;text-transform:uppercase;margin:0;padding-top:12px;border-top:2px solid var(--ink);}
-.rank-list{counter-reset:rank;list-style:none;margin:6px 0 0;padding:0;}
-.rank-item{counter-increment:rank;display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--rule);}
-.rank-item::before{content:counter(rank,decimal-leading-zero);font-family:var(--serif-display);font-size:23px;line-height:1;color:var(--gray-txt);}
-.rank-item h3{font-family:var(--sans);font-weight:600;font-size:13.5px;line-height:1.35;margin:0;transition:color var(--duration-fast) ease;}
-.rank-item a:hover h3,.rank-item a:focus-visible h3{color:var(--green);}
-.rank-item>span{font-size:10.5px;color:var(--gray-txt);white-space:nowrap;}
 
 /* Módulo compacto de newsletter del rail (spec de sidebar de la Fase 9).
    El pill-form global asume 380px de ancho; en un rail de ~270px el
@@ -100,13 +91,6 @@
    tag. Sigue el tema sola (tokens --paper/--rule/--ink). */
 .visual-label{font-family:var(--serif-display);font-weight:400;font-size:clamp(22px,2vw,30px);line-height:.98;max-width:92%;text-transform:uppercase;margin:0;}
 .visual-grid{background-color:var(--paper);background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);}
-
-.news-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:30px;border-top:1px solid var(--ink);}
-.news-strip a{display:block;padding:20px 20px 20px 14px;margin-left:20px;border-right:1px solid var(--rule);border-left:3px solid transparent;transition:border-color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
-.news-strip a:last-child{border-right:none;}
-.news-strip a:hover,.news-strip a:focus-visible{transform:translateY(-2px);}
-.news-strip h4{font-family:var(--sans);font-weight:600;font-size:14px;line-height:1.35;margin:0 0 8px;transition:color var(--duration-fast) ease;}
-.news-strip .byline{font-size:11px;}
 
 .empty-state{grid-column:1/-1;padding:20px 0;color:var(--gray-txt);font-size:13px;}
 .empty-state.error-state{color:#a4232f;}
