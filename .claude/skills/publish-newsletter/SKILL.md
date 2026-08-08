@@ -675,18 +675,34 @@ them right at drafting time:
       slices and Salto moves ONE metric from before to after, while this
       puts two separate institutions against each other on several
       measures at once. First item names the sides (`A vs B`, ≤26 chars
-      each), every item after it is `etiqueta — valorA vs valorB`. Each
-      row is scaled against its own larger side, so a row reads as a
-      ratio and rows never borrow each other's scale — which means the
-      device is at its best when the rows DISAGREE (one side wins
-      revenue, the other wins reserves); four rows all leaning the same
-      way is a Reparto or a sentence. A row whose two values aren't both
-      numeric renders as a bare text row with no bars, so a
-      `Sede — Nyon vs Zúrich` line can sit under the money without
-      faking a magnitude. Mixed currencies are allowed and the bars
-      compare the raw magnitudes, so only put two currencies in one row
-      when the piece has already told the reader why that comparison
-      holds.
+      each), every item after it is `etiqueta — valorA vs valorB`. A row
+      whose two values aren't both numeric renders as a bare text row
+      with no bars, so a `Sede — Nyon vs Zúrich` line can sit under the
+      money without faking a magnitude. Mixed currencies are allowed and
+      the bars compare the raw magnitudes, so only put two currencies in
+      one row when the piece has already told the reader why that
+      comparison holds. A value written with a leading minus (`−€46.2M`)
+      bars its magnitude in the loss treatment, red bar and red figure,
+      so a `Resultado del año` row can sit next to the revenue rows
+      without a longer bar reading as a bigger win.
+      **One scale for the whole device** (publisher directive,
+      2026-08-08): every bar is a share of the single largest magnitude
+      in the device, so rows are readable against each other — a reserve
+      that is a tenth of a year's revenue draws a tenth of the top bar,
+      and an annual deficit draws the sliver it actually is. This is the
+      point of the shape, so **write all rows in one unit**; a percentage
+      row next to money rows can't share a scale and silently drops the
+      whole device back to per-row scaling, where every row peaks at 100%
+      and four different magnitudes end up looking identical.
+      **Check that both numerators cover the same activity** before
+      putting two institutions' spending side by side. Each body
+      classifies its money its own way and a matching category name is
+      not evidence that the contents match. Worked example, 2026-08-08:
+      UEFA's €3,861M distribution against FIFA's US$748M "Development &
+      Education" line implied a five-to-one gap, but FIFA books Club
+      World Cup prize money (US$1,000M in 2025) under Competitions &
+      Events, so the comparable figure was US$1,748M. Read it off each
+      side's OWN statements, never off the label.
   Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
   now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
   here):** designed devices scale with `readingTime` **and** `priority`.
