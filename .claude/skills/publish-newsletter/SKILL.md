@@ -284,6 +284,24 @@ runaway blocks (past ~130 words, which are two movements fused) and still
 enforces the em-dash ban and the one-negative-parallelism-per-piece cap. It
 no longer asks for short beats or standalone hammer paragraphs.
 
+**Never take away length, only add (publisher, standing directive).** The
+word-count ranges below are floors that shape a brief, not ceilings that
+license cutting the source down to them. Whatever reporting an edition
+carries survives into the portal: every named party, every figure, every
+piece of context the newsletter spent a sentence on. Research (Step 2),
+the Mexico/LATAM angle and the extra clause that explains a background
+fact are all additive, and a source item that already runs long stays
+long. Concretely, this is what separates the four Infinitas/Noticias
+briefs in an edition from its lead feature: the briefs genuinely are four
+paragraphs at `readingTime: 2`, while the feature keeps its own `##`
+sections, its quotes and its carried-over images and lands nearer 900-1,100
+words at `readingTime: 4` (the live archive does exactly this, e.g. the
+2026-08-02 Tour de France Femmes piece). Compressing a feature into the
+four-paragraph brief shape to satisfy the table above is the mistake, not
+the compliance. The only things that ever get removed are the newsletter's
+own chrome (mastheads, section-divider banners, "(Acá más info)" pointers)
+and material a Step 0 outcome says already lives on the site.
+
 ### Noticias / Infinitas
 
 Every article is four paragraphs, always: three paragraphs of information,
