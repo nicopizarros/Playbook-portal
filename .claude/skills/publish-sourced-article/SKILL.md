@@ -147,6 +147,22 @@ If, after genuinely trying, no other outlet has covered the story (a truly
 exclusive or very fresh item), say so explicitly rather than inventing a
 second source, and draft from the primary article alone.
 
+**A forced Mexico angle is worse than no Mexico angle** (publisher,
+2026-08-11, on a batch of four foreign business stories). Research it
+every time, per the paragraph below, but when the honest answer is that
+the region has no real stake in the story, close the Opinión on a global
+read instead of manufacturing a hook. The failure this prevents is the
+tacked-on last sentence that reaches for Mexico because the format seems
+to demand one, which reads as filler and tells the reader nothing. Worked
+example from that batch: the F1 quarter genuinely bears on the region,
+because a calendar that is shrinking makes the Gran Premio de México's
+confirmed date through 2028 worth more, so it kept the angle; Fox's
+advertising quarter, a naming-rights reversal in Kansas City and a
+prediction market buying ATP streaming had no honest regional stake, and
+all three close on the industry read instead. Both outcomes are correct.
+"Cuando sea relevante" in the structure below means exactly that, and it
+is a real permission not to, not a soft way of saying always.
+
 **The Mexico/LATAM angle is part of this research pass, not something to
 reason out at drafting time.** A foreign outlet's article will almost never
 carry the regional hook Step 3's Opinión paragraph needs, so it has to be

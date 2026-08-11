@@ -313,10 +313,21 @@ then a separate Opinión de Playbook paragraph.
    voice, not a citation dump.
 3. Detail paragraph: more from the source itself, background, mechanics,
    additional named parties, why it happened, whatever rounds the story out.
-4. Opinión de Playbook: what it means for the industry, always with a Mexico
-   or LATAM angle when relevant. Always present, every article, in the same
+4. Opinión de Playbook: what it means for the industry, with a Mexico or
+   LATAM angle when relevant. Always present, every article, in the same
    direct/analytical register as the rest, grounded in what's actually in
    the piece rather than reaching for a take that isn't there.
+
+   **"When relevant" is a real permission not to** (publisher,
+   2026-08-11). Research the regional stake every time, per Step 2, but
+   when the honest answer is that Mexico and LATAM have none, close on a
+   global industry read rather than manufacturing a hook. A tacked-on
+   final sentence that reaches for the region because the format seems to
+   demand one reads as filler and tells the reader nothing. A story about
+   a US broadcaster's quarter or a stadium naming deal in Kansas City can
+   end on what it means for the industry and stop there; a story about a
+   shrinking F1 calendar genuinely bears on the Gran Premio de México and
+   should say so. Both are correct outcomes of the same check.
 
 No exceptions to the four-paragraph structure: a "brief, no real angle"
 story still gets all four, it just stays tight and grounded rather than
