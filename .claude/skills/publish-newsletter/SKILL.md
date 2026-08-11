@@ -92,6 +92,24 @@ then a separate Opinión de Playbook paragraph.
    direct/analytical register as the rest, grounded in what's actually in
    the piece rather than reaching for a take that isn't there.
 
+   "When relevant" is a real condition, not a formality (team directive,
+   2026-08-08, after a Premier League sponsorship-renewal piece got a
+   bolted-on closing line comparing it to LATAM stadium naming rights that
+   had no actual basis in the story). A lot of Industry Shots items are
+   genuinely regional-neutral: a shirt-sponsorship renewal between two
+   European entities, an executive appointment at a league with no LATAM
+   footprint, a stadium-tech vendor deal. Forcing a "for Mexico/LATAM..."
+   sentence onto one of those reads as a template being filled in rather
+   than an actual read on the news, the opposite of what the Opinión
+   paragraph is for. Write the Opinión grounded in what the story itself
+   is actually about (here, that's brand stability as a commercial asset,
+   and the deal resetting the shirt-sponsorship price benchmark) and only
+   reach for the Mexico/LATAM angle when the story has a genuine, specific
+   connection there, a league already active in the region, a brand with
+   real LATAM presence, a mechanic another market could actually learn
+   from. If that connection isn't real, a strong industry-wide close
+   without one beats a forced regional comparison every time.
+
 No exceptions to the four-paragraph structure: a "brief, no real angle"
 story still gets all four, it just stays tight and grounded rather than
 padded or invented.
