@@ -39,7 +39,7 @@ const TARGETS = {
 // Declared devices, image blocks and their captions are structural, not prose —
 // counting them would drag every median toward zero and hide real blocks.
 const STRUCTURAL =
-  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Duelo:|Serie:|Mapa:|Fuentes:|Ruta del dinero:|## )/;
+  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Fuentes:|Ruta del dinero:|## )/;
 
 const NEGATIVE_PARALLELISM =
   /\bno (?:es|son|fue|viene|está|estaba|se trata de)\b[^.;]{2,70}[,;]\s*(?:es|son|sino|viene|está)\b/gi;

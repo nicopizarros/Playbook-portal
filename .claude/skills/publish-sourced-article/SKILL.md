@@ -230,7 +230,7 @@ documents). Lead-ins render as scan marks, so keep each one specific to
 its paragraph; figures in house shapes highlight automatically, and the
 single most important one should be bold (bold counts up). The full
 device collection (Cronología / Recibo / Ecuación / Salto / Reparto /
-Alineación / Cotización / Mapa — syntax and when-to-use in
+Alineación / Cotización / Resultados / Mapa — syntax and when-to-use in
 `publish-newsletter`'s "device collection" section) applies to this
 skill's output too, under the same code-enforced, priority-aware budget
 (2026-08-06, round 2): ≤2 min read → 1 designed device, 3-5 min → 2, 6+
@@ -242,7 +242,21 @@ shape keeps `readingTime` at 2. Never a repeated type. Check the story
 against the full device list before concluding none fits — "no device
 fits" should be the rare finding, not the default — but never invent a
 milestone, split, or figure to force one: every number in a device must
-be sourced from the verified reporting. Word-count range: roughly
+be sourced from the verified reporting.
+
+**When the link is an earnings release or a filing, the device is
+`Resultados:`** (added 2026-08-11, on publisher feedback that a quarterly
+report deserved better than a lone `Cifra clave`). This funnel gets
+company results more than any other — a Liberty Media quarter, a Fox
+10-K, an Ollamani report — and until that device existed there was
+nothing shaped like a statement: `Recibo` has no deltas, `Cotización` is
+one tile, `Salto` is one metric, `Duelo` needs two actors. `Resultados`
+puts four to six of the SAME company's lines in one period, each with its
+own change, which is exactly what makes an earnings story readable. Full
+syntax in `publish-newsletter`'s collection; the rule that bites hardest
+is that the prose must not recite the grid the panel already prints.
+
+Word-count range: roughly
 300-500 words across the four. Write every paragraph in Playbook's own
 words, this is a rewrite grounded in multiple sources, never a close
 paraphrase or translation of any single outlet's article.

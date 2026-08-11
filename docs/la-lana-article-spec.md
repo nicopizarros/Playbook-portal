@@ -114,10 +114,11 @@ Enforced in code by `deviceBudgetFor` / `applyBodyDevices`
 | 6+ min | 3 | +1 |
 
 **Zero devices on a full-length La Lana piece is a bug, not restraint.** Walk
-all eleven shapes against the story before concluding none fits:
+all twelve shapes against the story before concluding none fits:
 
 `Cifra clave:` · `Jugada:` · `Cronología:` · `Recibo:` · `Ecuación:` ·
-`Salto:` · `Reparto:` · `Alineación:` · `Cotización:` · `Duelo:` · `Serie:`
+`Salto:` · `Reparto:` · `Alineación:` · `Cotización:` · `Resultados:` ·
+`Duelo:` · `Serie:`
 
 Rules that bite:
 

@@ -716,6 +716,46 @@ them right at drafting time:
     - `Cotización: Ollamani — MX$14.50 · -34.6% · en el año` → a market
       tile with ▲/▼ delta. For public-company/valuation results: name,
       value, signed percent delta, optional note.
+    - `Resultados: Fox Corporation, Q4 fiscal 2026 · Ingresos — US$4,210M
+      (+28%) · Publicidad — US$1,916M (+78%) · Utilidad neta — US$696M` →
+      a statement panel: one line per metric, value right-aligned on
+      tabular numerals, its change in a fixed gutter after it, so a reader
+      can run down the column of ▲/▼ without reading a single figure.
+      **This is the device for an earnings release or a filing**, the
+      shape the collection was missing until 2026-08-11: Recibo lists
+      labelled amounts but knows nothing about a delta, Cotización carries
+      a value AND a delta but only as a single tile, Salto moves one
+      metric from before to after, and Duelo needs two different actors.
+      A quarterly report is none of those. It is four to six lines
+      belonging to the SAME company over ONE period, each moving by its
+      own amount, and the story is almost always in which lines disagree
+      with each other (Fox's advertising up 78% against total revenue up
+      28% is the whole article in two rows).
+      First item is the subject and period and must NOT contain a ` — `
+      (same way Duelo and Serie spend their first item on framing);
+      every item after it is `etiqueta — valor`, with an OPTIONAL signed
+      percentage in parentheses at the end. Two to six rows, label ≤42
+      chars, value ≤24 and containing a digit.
+      **The delta is optional per row on purpose.** A filing routinely
+      reports a line with no comparable in the prior period (a segment
+      that did not exist, a first reported quarter), and the honest
+      answer is to leave the parenthetical off, which renders as an empty
+      gutter. Never fill it with a number you computed to make the column
+      look complete, and never carry a percentage across from a different
+      line because it is nearby in the release.
+      Direction colour follows Salto (green up, red down) rather than
+      guessing whether "up" is good for that particular line: an expense
+      rising draws green here exactly as a Salto on the same expense
+      would, and the label plus the prose carry the judgement. The arrow
+      already states the sign, so the rendered delta drops it (`▲ 28%`,
+      `▼ 38%`) and the authored `(+28%)` / `(−38%)` is just how you write
+      it.
+      Because the panel prints every value and every delta itself, the
+      prose must NOT recite the grid back — the same rule Serie carries,
+      for the same reason. Name the source, state the one or two lines
+      the argument turns on, and let the rest live in the device. A
+      paragraph that repeats all eight numbers next to a table of the
+      same eight numbers is what a reader calls a crossword.
     - `Duelo: UEFA vs FIFA · Ingresos 2022-2025 — €20,163M vs US$10,083M
       · Reservas — €522M vs US$2,699M` → a butterfly chart: two actors,
       1-4 metric rows, bars anchored on the centre line and growing
@@ -931,7 +971,8 @@ every item maps to a visible element):
   a context one, symbol-prefixed, rumored figures attributed in the
   caption, value ≤24 chars with a digit, caption after ` — `), a Jugada
   (a two-party relationship, sides ≤32 chars, one max), or a Cronología /
-  Recibo / Ecuación / Salto / Reparto / Alineación / Cotización — "no
+  Recibo / Ecuación / Salto / Reparto / Alineación / Cotización /
+                Resultados (the one for an earnings release or filing) — "no
   device fits" should be the rare finding, not the default one; and the
   device BUDGET respected (≤2 min read → 1 designed device, 3-5 min → 2,
   6+ → 3, **+1 more at any length when `priority: 5`**; no repeated

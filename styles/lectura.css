@@ -291,6 +291,57 @@
   :root:not([data-theme="light"]) .article-product-infinitas .lect-quote[data-dir="down"] .lect-quote-delta{color:#e0616b;}
 }
 
+/* Resultados — one company's reporting period as a statement panel: a
+   ruled header, then a line per metric with its value and its own change.
+   Deliberately the quietest numeric device in the collection. A filing is
+   read as a column of figures, so the layout is a real column — labels
+   flush left, values right-aligned on tabular numerals so digits stack,
+   deltas in a fixed-width gutter after them so the eye can run down the
+   signs alone without reading a single value. Direction colour matches
+   Salto (green up, red down); the flat variant reserves the gutter for a
+   row with no comparable, keeping the column from ragging. */
+.lect-res-panel{
+  border:1.5px solid var(--rule);border-top:3px solid var(--lect-accent);
+  background:var(--paper-soft);padding:16px 18px 6px;
+}
+.lect-res-head{
+  display:block;padding-bottom:12px;margin-bottom:4px;border-bottom:1px solid var(--rule);
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--lect-ink-accent);
+}
+.lect-res-row{
+  display:grid;grid-template-columns:1fr auto 74px;align-items:baseline;gap:12px;
+  padding:11px 0;border-bottom:1px solid color-mix(in srgb,var(--rule) 55%,transparent);
+}
+.lect-res-row:last-child{border-bottom:0;}
+.lect-res-label{
+  font-size:13px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-res-value{
+  font-family:var(--serif-display);font-size:clamp(19px,2.4vw,25px);line-height:1;
+  color:var(--ink);font-variant-numeric:tabular-nums;justify-self:end;
+}
+.lect-res-delta{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;
+  display:inline-flex;align-items:baseline;gap:4px;justify-self:end;
+}
+.lect-res-delta[data-dir="up"]{color:#3f7d0a;}
+.lect-res-delta[data-dir="down"]{color:#c0392b;}
+[data-theme="dark"] .lect-res-delta[data-dir="up"]{color:var(--green);}
+[data-theme="dark"] .lect-res-delta[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-res-delta[data-dir="up"]{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-res-delta[data-dir="down"]{color:#e0616b;}
+}
+/* Narrow screens: the delta gutter costs more than it gives, so the row
+   folds to label over value+delta rather than crushing the figure. */
+@media(max-width:480px){
+  .lect-res-row{grid-template-columns:1fr auto;gap:4px 10px;}
+  .lect-res-label{grid-column:1/-1;}
+  .lect-res-value{justify-self:start;}
+}
+
 /* Duelo — two institutions on the same metrics: a butterfly chart with
    both bars anchored on the centre line and growing outwards. Side A
    carries the solid product accent, side B a washed-out step of the same

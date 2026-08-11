@@ -22,6 +22,8 @@
 //                → lineup chips that flap in one by one
 //   Cotización:  Ollamani — MX$14.50 · -34.6% · en el año
 //                → market tile with ▲/▼ delta
+//   Resultados:  Fox, Q4 fiscal 2026 · Ingresos — US$4,210M (+28%) · …
+//                → a filing's lines, each with its own change
 //   Duelo:       UEFA vs FIFA · Ingresos — €20,163M vs US$10,083M
 //                → butterfly bars, both sides anchored at the centre
 //   Serie:       UEFA vs FIFA · 2022 — €4,052M vs US$5,769M · 2023 — …
@@ -347,6 +349,89 @@ function buildQuote(quote: Quote): string {
     `<div class="lect-quote-row"><span class="lect-quote-name">${esc(quote.name)}</span>` +
     `${countupSpan(quote.value, 'lect-quote-value')}` +
     `<span class="lect-quote-delta"><span aria-hidden="true">${quote.down ? '▼' : '▲'}</span> ${esc(quote.delta)}</span>${note}</div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Resultados
+// One institution's reporting period, line by line, each with its own
+// change against the comparable period. The shape a quarterly filing
+// actually has, and the one gap left in the collection: Recibo lists
+// labelled amounts but has no notion of a delta, Cotización carries a
+// value AND a delta but only for a single tile, Salto moves one metric
+// from before to after, and Duelo needs two different actors. An earnings
+// release is none of those — it is four to six lines belonging to the
+// same company, each moving by its own amount, and the story is usually
+// in which lines disagree with each other.
+//
+//   Resultados: Fox Corporation, Q4 fiscal 2026 · Ingresos — US$4,210M (+28%)
+//
+// First item names the subject and period (no ` — ` in it, same way Duelo
+// and Serie spend their first item on the framing). Every item after it is
+// `etiqueta — valor`, with an OPTIONAL signed percentage in parentheses at
+// the end. Two to six rows.
+//
+// The delta is optional per row on purpose: a filing routinely reports a
+// line the prior period has no comparable for (a segment that did not
+// exist, a first reported quarter), and forcing a number there is how a
+// device starts inventing data. A row with no parenthetical simply shows
+// its value.
+//
+// Direction colour follows Salto's convention (green up, red down) rather
+// than trying to be clever about whether "up" is good for that particular
+// line. An expense rising is drawn green here, exactly as a Salto on the
+// same expense would be, and the label plus the surrounding prose carry
+// the judgement. Consistency across the collection beats a per-device
+// guess at sentiment: a reader who learns the ramp once should not have to
+// re-learn it per device.
+type ResultRow = { label: string; value: string; delta: string; down: boolean };
+type Results = { heading: string; rows: ResultRow[] };
+
+const DELTA_TAIL_RE = /^([\s\S]+?)\s*\(\s*([+\-−–][^)]*%)\s*\)$/;
+
+function parseResults(raw: string): Results | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 7) return null;
+  const heading = items[0].trim();
+  if (!heading || heading.length > 52 || KV_RE.test(heading)) return null;
+  const rows: ResultRow[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    if (!label || label.length > 42) return null;
+    const tail = kv[2].trim().match(DELTA_TAIL_RE);
+    const value = (tail ? tail[1] : kv[2]).trim();
+    const delta = tail ? tail[2].trim() : '';
+    if (!value || value.length > 24 || !/\d/.test(value)) return null;
+    if (delta && delta.length > 14) return null;
+    rows.push({ label, value, delta, down: /^[−–-]/.test(delta) });
+  }
+  return { heading, rows };
+}
+
+function buildResults(results: Results): string {
+  const rows = results.rows
+    .map(row => {
+      const delta = row.delta
+        ? `<span class="lect-res-delta" data-dir="${row.down ? 'down' : 'up'}">` +
+          // The arrow already carries the sign; keeping the glyph too gives
+          // "▼ −38%", which reads as a double negative next to a plain
+          // "▲ 28%". Strip it so both directions are written the same way
+          // and the column of signs stays scannable.
+          `<span aria-hidden="true">${row.down ? '▼' : '▲'}</span> ${esc(row.delta.replace(/^[+\-−–]\s*/, ''))}</span>`
+        : '<span class="lect-res-delta" data-dir="flat"></span>';
+      return (
+        `<div class="lect-res-row"><span class="lect-res-label">${esc(row.label)}</span>` +
+        `${countupSpan(row.value, 'lect-res-value')}${delta}</div>`
+      );
+    })
+    .join('');
+  return (
+    `<div class="lect-device lect-res" role="note" aria-label="Resultados: ${esc(results.heading)}">` +
+    `<span class="lect-device-label">Resultados</span>` +
+    `<div class="lect-res-panel">` +
+    `<span class="lect-res-head">${esc(results.heading)}</span>` +
+    `<div class="lect-res-body" data-lect-stagger>${rows}</div></div></div>`
   );
 }
 
@@ -732,6 +817,14 @@ const DEVICES: Device[] = [
     render: raw => {
       const parsed = parseQuote(raw);
       return parsed ? buildQuote(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Resultados'),
+    html: deviceHtmlRe('Resultados'),
+    render: raw => {
+      const parsed = parseResults(raw);
+      return parsed ? buildResults(parsed) : null;
     },
   },
   {
