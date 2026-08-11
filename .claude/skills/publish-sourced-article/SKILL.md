@@ -17,70 +17,16 @@ here), except: mandatory cross-referencing against other outlets (Step 2),
 cover-image sourcing that starts with the referenced article itself (Step 5),
 and the human-approval gate (Step 6) before anything reaches the database.
 
-**Every article ends with a Fuentes line** (publisher directive,
-2026-08-10, which REVERSES the 2026-08-04 "no visible citation block"
-rule): the last block of `bodyMarkdown` is one paragraph, no bullet list,
-in this exact shape:
-
-```
-Fuentes: [Concacaf](https://…) · [Sky Sports](https://…) · [Yahoo Sports](https://…)
-```
-
-**Only PRIMARY sources belong on this line** (publisher directive,
-2026-08-10, tightened the same day it shipped): the institution that
-issued the thing the article is about, and its co-issuers. For a joint
-open letter from three confederations that is Concacaf, UEFA and AFC,
-each linked to its own posting of the letter, and nothing else. The
-editorial outlets read for Step 2 do NOT go here — not the link the human
-pasted, not the wire that confirmed a number, not the Mexican outlet that
-carried the federation's statement. They did their job by being read; the
-credit line is for who said it, not for who reported it.
-
-The one exception is an EXCLUSIVE: when a fact exists only because a
-particular newsroom broke it, that newsroom is a primary source for that
-fact and belongs on the line. A story everyone covered off the same press
-release has no exclusive in it.
-
-The first entry is the ORIGIN and gets the mark: the institution whose
-posting the piece was built from, not whichever link happened to be
-pasted first. Two to four entries is the shape that works. Use the
-institution's NAME alone, never a headline, and never an internal
-Playbook link (a backlink to prior coverage is a cross-reference and
-belongs inline in the prose, per Step 3 — the renderer drops internal
-hrefs from this line anyway).
-
-Practical consequence for Step 2: find each co-issuer's own posting, not
-just the one that was handed over. When a confederation, league or club
-publishes jointly, every signatory usually posts the same document on its
-own site, and those URLs are what this line wants. Verify each one loads
-before using it; a site behind aggressive bot protection may refuse an
-automated fetch while serving readers normally, in which case say so
-rather than silently dropping the co-issuer.
-
-Why the reversal is safe when the 2026-08-04 removal was right: the credit
-itself was never the problem, the typography was. The old shape was a bold
-"Fuentes:" paragraph followed by a bullet list of full headlines, set at
-body size, which read as a second and much worse ending glued under the
-closing take. It now renders as foot apparatus instead of body copy — the
-paragraph is lifted OUT of the body entirely and set below the end mark as
-a hairline, a caption-scale label and the outlet names, with an "origen"
-mark on the first (`lib/article-sources.ts`, `components/article/
-ArticleSources.tsx`, `.lect-sources` in `styles/lectura.css`). It is
-deliberately the quietest element on the page. The old bullet-list shape
-is still detected, so the pre-2026-08-04 back catalog renders the same
-way with no re-editing.
-
-Because it is lifted out before anything else runs, the Fuentes line sits
-outside Step 3's four-paragraph count and outside the device budget: it
-never costs a device slot and never counts as the fifth paragraph.
-`check-voice.mjs` does still see it in the file, so a run reporting "5
-párrafos" on a four-paragraph piece is that line being counted, not a
-structural problem.
-
-This does not replace `sourceUrl` (Step 4), which stays an internal DB
-dedupe key and is still never rendered. And it does not soften Step 2:
-the Fuentes line is a credit, not a substitute for actually reading the
-other outlets.
+**No visible Fuentes/citation block** (changed 2026-08-04, publisher
+directive): earlier versions of this skill appended a visible "Fuentes"
+list of linked outlets at the bottom of every article's body. The human
+reviewer decided that space should never appear on a live article page,
+so it's gone for good, not just for one draft. Step 2's cross-referencing
+is still mandatory, it's still what makes a piece Playbook's own take
+instead of a paraphrase of one competitor, it just no longer surfaces as
+a citation list in `bodyMarkdown`. The only place a source URL still shows
+up anywhere is the internal `sourceUrl` field (Step 4), which is a DB
+dedupe key, never rendered on the page.
 
 ## Requirements before running
 
@@ -92,35 +38,21 @@ TCP, don't try to reconnect it to `lib/db/client.ts`'s `pg` Pool.
 
 ## Step 1: Read the primary source
 
-Fetch every URL given (WebFetch). Unlike a Noticias digest, each link
+Fetch every URL given (WebFetch). Unlike an Industry Shots digest, each link
 here is one standalone story, one link becomes one article (if given
 several unrelated links in one run, draft each as its own separate
 article). Confirm the publish date and the core facts (who, what, the key
 numbers) directly from the page, don't guess or carry over stale context.
 
-**Then run the overlap check before drafting a word.** This funnel is the
-one most likely to arrive at a story Playbook already published — a wire
-link about something a Noticias edition briefed two days ago is the
-normal case, not the edge case:
-
-```
-node scripts/find-duplicates.mjs "<the story's headline>"
-```
-
-The full protocol, including what to do with each outcome, lives in
-`publish-newsletter`'s **Step 0** and applies here unchanged. In short: the
-same event with nothing new means no article at all; the same event with a
-new fact means upgrading the published piece instead of adding a second one;
-a genuine new development means a new article that links back; and the same
-event read through a different product's thesis means both may run, cross-
-linked. Do not draft until that call is made — deciding after a draft exists
-biases the answer toward publishing it.
-
-The check doubles as the follow-up detector this step used to do by hand
-with an `ILIKE`. When it surfaces an earlier piece on the same running
-story, this becomes a follow-up rather than a fresh explainer that
-re-establishes everything from scratch, which changes how Step 3 gets
-written.
+If the story reads as one step in something already in motion (a vote on a
+proposal, a decision that follows an earlier announcement, an update to a
+running dispute), check whether Playbook already published on the earlier
+step: query the DB for rows whose title plausibly covers the same
+underlying story (a simple `ILIKE` on the obvious names/terms works, see
+`publish-newsletter`'s Requirements section for how to reach
+`POSTGRES_URL`). Finding one changes how Step 3 gets written, this becomes
+a follow-up, not a fresh explainer that re-establishes everything from
+scratch.
 
 ## Step 2: Cross-reference other coverage (mandatory)
 
@@ -147,50 +79,11 @@ If, after genuinely trying, no other outlet has covered the story (a truly
 exclusive or very fresh item), say so explicitly rather than inventing a
 second source, and draft from the primary article alone.
 
-**A forced Mexico angle is worse than no Mexico angle** (publisher,
-2026-08-11, on a batch of four foreign business stories). Research it
-every time, per the paragraph below, but when the honest answer is that
-the region has no real stake in the story, close the Opinión on a global
-read instead of manufacturing a hook. The failure this prevents is the
-tacked-on last sentence that reaches for Mexico because the format seems
-to demand one, which reads as filler and tells the reader nothing. Worked
-example from that batch: the F1 quarter genuinely bears on the region,
-because a calendar that is shrinking makes the Gran Premio de México's
-confirmed date through 2028 worth more, so it kept the angle; Fox's
-advertising quarter, a naming-rights reversal in Kansas City and a
-prediction market buying ATP streaming had no honest regional stake, and
-all three close on the industry read instead. Both outcomes are correct.
-"Cuando sea relevante" in the structure below means exactly that, and it
-is a real permission not to, not a soft way of saying always.
-
-**The Mexico/LATAM angle is part of this research pass, not something to
-reason out at drafting time.** A foreign outlet's article will almost never
-carry the regional hook Step 3's Opinión paragraph needs, so it has to be
-found, and the failure mode is inferring it from the story's own logic
-rather than checking it. On 2026-08-05 a draft argued that a shrinking
-league would probably drop its Mexican stop; the league had in fact already
-announced that venue's next edition months earlier, so the honest read was
-the reverse (a shorter calendar makes a surviving venue more important, not
-less). Before the Opinión gets written, search the things that could
-falsify it: whether the league/competition actually plays in Mexico and at
-which venue, whether the next edition is already confirmed, who the local
-commercial partner is, and which Mexican or LATAM athletes are involved and
-on which team. Naming a real club, promoter, and player roster is also what
-makes the closing paragraph something the reader can't get from the
-original outlet.
-
 ## Step 3: Editorial voice
 
 Same four-paragraph structure and tone as `publish-newsletter`'s Industry
 Shots format (see that skill's Step 3 for the exact voice rules: direct,
-analytical, authoritative, Mexico/LATAM angle, never an em dash "—", at
-most one negative-parallelism construction per piece, no computed
-percentages or ratios used as rhetoric, metric units throughout, and
-background facts explained rather than name-dropped). Those last four
-matter more here than in `publish-newsletter`: a third-party article is
-being rewritten rather than expanded, and a rewrite that keeps reaching
-for the same rhetorical shapes is exactly what reads as a machine
-paraphrase of someone else's piece.
+analytical, authoritative, Mexico/LATAM angle, never an em dash "—"):
 
 1. Fact paragraph: what happened, who, the key numbers, source context.
 2. Cross-referenced context paragraph (Step 2): the data point, comparison,
@@ -201,101 +94,15 @@ paraphrase of someone else's piece.
 4. Opinión de Playbook: what it means for the industry, Mexico/LATAM angle
    when relevant. Always present, grounded in what's actually in the piece.
 
-Always four paragraphs, no exceptions — from the skill's own judgment.
-A human reviewer in Step 6 can still explicitly ask for more (2026-08-07:
-"split into two paragraphs on the opinion... it doesn't matter if it is
-too long"), and that instruction overrides this default same as any other
-Step 6 revision request. When it happens, know the technical shape of
-what you're doing: `**Opinión de Playbook:**` is matched against exactly
-one `<p>` (see the callout mechanics two paragraphs down), so only the
-paragraph that opens with that literal lead-in gets the fenced callout
-treatment — a second paragraph split off after it (e.g. a closing
-"**La apuesta:**" beat) renders as ordinary body text immediately below
-the callout, not inside it. That's a fine, expected outcome for a
-deliberate split, not a bug to route around by cramming everything back
-into one paragraph.
-
-Every paragraph, not only the
+Always four paragraphs, no exceptions. Every paragraph, not only the
 Opinión one, opens with a short bold lead-in (2-5 words, ending in a
 colon, specific to what that paragraph covers, not a generic repeated
 label across articles), same readability rule as `publish-newsletter`'s
 Step 3, four paragraphs of unbroken prose read as one dense block on the
-article page otherwise. The Opinión paragraph's lead-in must be exactly
-`**Opinión de Playbook:**` — as of 2026-08-05 it is a UI contract, not
-just house style: the article page detects it and renders that paragraph
-as the fenced opinion callout (see `publish-newsletter`'s "The product
-hub pages read the body" section, which also covers the La Lana
-money-trail/board conventions if a run ever publishes into those
-sources). That skill's "Dynamic-elements checklist" applies here too —
-for this skill's industry-shots output that means: honest `priority`
-(it decides whether /noticias renders the story as a feature band, a
-card, or a compact row), the story's OWN biggest figure verbatim and
-symbol-prefixed ("US$250 millones", never "250 millones de dólares") in
-title/excerpt when it's a numbers story — a context figure (what someone
-ELSE once spent) must not be the only number there, or the homepage's
-"La cifra del día" scrapes the wrong one — a real cover image, and — when
-the story is number-driven — an optional `Cifra clave: <figure> — <caption>`
-paragraph (that skill's pull-figure convention, 2026-08-05: renders as a
-full-bleed counting figure on the article page AND is preferred by "La
-cifra del día" over any scrape; value ≤24 chars with a digit, rumored
-figures attributed in the caption, at most one per article in practice). When the story is instead a
-two-party relationship (a deal, partnership, acquisition), the
-`Jugada: A ↔ B` convention applies (split-flap connection strip; `→` for
-one-way flows, sides ≤32 chars, one max, only pairings the piece
-documents). Lead-ins render as scan marks, so keep each one specific to
-its paragraph; figures in house shapes highlight automatically, and the
-single most important one should be bold (bold counts up). The full
-device collection (Cronología / Recibo / Ecuación / Salto / Reparto /
-Alineación / Cotización / Resultados / Mapa — syntax and when-to-use in
-`publish-newsletter`'s "device collection" section) applies to this
-skill's output too, under the same code-enforced, priority-aware budget
-(2026-08-06, round 2): ≤2 min read → 1 designed device, 3-5 min → 2, 6+
-min → 3, **plus one more at any length when `priority: 5`** — a piece
-this skill rates 5 stars is exactly the one most likely to lead the
-homepage, and it should carry the fullest structure the format allows,
-not be capped at one device just because the standard four-paragraph
-shape keeps `readingTime` at 2. Never a repeated type. Check the story
-against the full device list before concluding none fits — "no device
-fits" should be the rare finding, not the default — but never invent a
-milestone, split, or figure to force one: every number in a device must
-be sourced from the verified reporting.
-
-**When the link is an earnings release or a filing, the device is
-`Resultados:`** (added 2026-08-11, on publisher feedback that a quarterly
-report deserved better than a lone `Cifra clave`). This funnel gets
-company results more than any other — a Liberty Media quarter, a Fox
-10-K, an Ollamani report — and until that device existed there was
-nothing shaped like a statement: `Recibo` has no deltas, `Cotización` is
-one tile, `Salto` is one metric, `Duelo` needs two actors. `Resultados`
-puts four to six of the SAME company's lines in one period, each with its
-own change, which is exactly what makes an earnings story readable. Full
-syntax in `publish-newsletter`'s collection; the rule that bites hardest
-is that the prose must not recite the grid the panel already prints.
-
-Word-count range: roughly
-300-500 words across the four. Write every paragraph in Playbook's own
-words, this is a rewrite grounded in multiple sources, never a close
-paraphrase or translation of any single outlet's article.
-
-### The rhythm (publisher directive, 2026-08-06, round 2)
-
-Same as `publish-newsletter`'s Step 3 rhythm section, which supersedes the
-earlier archive-measurement guidance: write each movement as **one
-substantial block of roughly 80-100 words**, not as two or three short
-beats. The short-beat version was tried and reversed the same day for
-reading choppy on the article page. Land the hammer line as the block's
-last sentence rather than promoting it to a paragraph of its own.
-
-Run `node scripts/check-voice.mjs <draft.json>` before Step 6's human
-review and bring its output into the review. It is retuned to this format:
-it flags runaway blocks (past ~130 words, which are two movements fused),
-the em-dash ban and the one-negative-parallelism cap, and no longer asks
-for short paragraphs.
-
-Wire copy needs watching for a different reason now. A Reuters paragraph is
-built to be lifted whole, so translating one faithfully imports its
-breaking-news pacing along with its facts. Rebuild the block in Playbook's
-register instead of carrying the source's shape across.
+article page otherwise. Word-count range: roughly 300-500 words across the
+four. Write every paragraph in Playbook's own words, this is a rewrite
+grounded in multiple sources, never a close paraphrase or translation of
+any single outlet's article.
 
 ### Tone: analytical brief, not breaking-news urgency
 
@@ -343,13 +150,13 @@ Importancia scale. Differences from that skill:
 - **author**: leave `""` unless a byline is genuinely known, same as
   `publish-newsletter`.
 - **publication** / **source**: `"Noticias"` / `"industry-shots"`. This
-  reuses Noticias' pair rather than `publish-newsletter`'s "anything
+  reuses Industry Shots' pair rather than `publish-newsletter`'s "anything
   else" fallback (`"Playbook"` / `"playbook"`): a third-party wire pickup
   reads as a news brief, not as a Playbook-branded opinion piece, and the
   `"Playbook"` kicker/tag (`app/(public)/articulo/page.tsx`'s
   `article-kicker`, and the `tag-mini` chip on every card,
   `components/article/NewsRow.tsx` and friends) should say "Noticias" on
-  these the same way it does on a Noticias item, both visually
+  these the same way it does on an Industry Shots item, both visually
   (`styles/components.css`'s `.tag-mini.industry-shots` color) and in the
   taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
   `topicsForSection`). There's no separate "wire story" entry in
@@ -397,22 +204,6 @@ here is the primary source article's own lead/hero image:
   Getty Images (including iStock) or AP Images/AP Photo, don't use it,
   same exclusion as `publish-newsletter`, these agencies pursue unlicensed
   use aggressively. Fall back to the search below instead.
-- **A candidate photo can also carry no visible credit at all**, distinct
-  from being excluded or missing (2026-08-07): a source page's HTML/JSON
-  metadata simply has no `credit`/`copyright`/`fuente` field anywhere, so
-  there's nothing to exclude and nothing confirmed safe either. Don't
-  treat that silence as a green light, and don't treat it as an automatic
-  fallback trigger either — first check whether other outlets covering
-  the same photo-op independently agree on a source (an award ceremony,
-  a press conference, a signing): if two or three unrelated outlets all
-  caption the same scene as a federation/league/company handout (e.g.
-  "Cortesía FMF", "@FMF") rather than a wire agency, that convergence is
-  real evidence the photo is a press handout, not a Getty/AP pickup
-  running uncredited. One outlet's silence is inconclusive; independent
-  agreement across several is enough to use it with that credit. If no
-  other coverage of the same scene turns up, that's the genuine "no clear
-  usable image" case below, fall back to the broad search instead of
-  guessing.
 - If the source article has no clear usable image, or its image is
   excluded or genuinely doesn't fit (generic stock photo unrelated to the
   actual story), fall back to the same broad multi-platform search

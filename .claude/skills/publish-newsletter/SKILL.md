@@ -1,6 +1,6 @@
 ---
 name: publish-newsletter
-description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Noticias, La Lana del Deporte, Infinitas) into Playbook.
+description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Industry Shots, La Lana del Deporte, Infinitas) into Playbook.
 ---
 
 # Publish Newsletter: Substack link to live article, no human in the loop
@@ -23,116 +23,12 @@ supports HTTPS, not raw TCP, so the insert script uses Neon's HTTP driver.
 Don't try to reconnect it to `lib/db/client.ts`'s `pg` Pool (TCP-only, works on
 Vercel, does not work from a sandboxed agent session).
 
-## Step 0: The overlap check (run it before drafting anything)
-
-Playbook ingests through two funnels — this skill for the Substack editions,
-`publish-sourced-article` for third-party links — feeding four products that
-legitimately cover overlapping ground. The same story reaches the newsroom
-twice all the time: a Reuters link and a Noticias item, or an
-Infinitas edition and a digest brief two days apart. `articles.sourceUrl`'s
-unique index does not catch any of it; it only stops the *same URL* being run
-twice.
-
-Run this on **every item, not every edition** — a digest with nine briefs is
-nine checks:
-
-```
-node scripts/find-duplicates.mjs "<the item's headline or one-line topic>"
-node scripts/find-duplicates.mjs --draft <path-to-draft.json>   # a whole batch
-```
-
-It scores the candidate against everything published and prints `MISMA
-HISTORIA` (treat as a duplicate until proven otherwise) or `revisar` (open it
-before drafting). No hits means clear.
-
-### The decision, in two questions
-
-For every candidate the script surfaces, open the published article and ask,
-in this order:
-
-1. **Is it the same underlying event?** Not the same topic, the same event. A
-   second story about Liga F is not a duplicate; the same rights deal is.
-2. **Does the incoming source carry a fact the published article doesn't
-   have?**
-
-That gives four outcomes. Three of them mean no second article.
-
-**A. Same event, nothing new → don't publish it.** The story already lives on
-the site. This is what the newsroom already does by hand: the 2026-08-04
-Noticias edition carried a Netflix/Mundial Femenil brief and pointed
-its "(Acá más info)" at the Infinitas article from two days earlier instead
-of minting a second one. Skip the item and say so in the run report, with the
-id of the article that covers it.
-
-Which product keeps the story when both could claim it: the one whose
-vertical it belongs to (a women's-sport story is Infinitas' even if a digest
-carried it first), and on a tie, whoever published first.
-
-**B. Same event, the source adds facts → upgrade the existing article.** Still
-no second article. Fold the new facts into the published one where they
-belong, and:
-
-- keep the original `date` — the archive's chronology is a record, not a
-  field to refresh — and let `updated_at` move on its own;
-- update `title` and `excerpt` too if the new fact changes the claim they
-  make, since the hubs and the homepage read them;
-- if a figure in the published piece turns out to be wrong, correct it and
-  state the correction in one plain sentence inside the body rather than
-  silently overwriting it;
-- keep the existing cover image unless the new source genuinely has a better
-  one. Re-running the Step 5a search on an upgrade is wasted work.
-
-Write the update the same way an insert is written (markdown → TipTap →
-`bodyHtml`) — `scripts/update-article.ts` does exactly that, patching only
-the fields you give it and regenerating `body_json` + `body_html` together
-whenever `bodyMarkdown` is present:
-
-```
-npx tsx --env-file=.env.local scripts/update-article.ts <fix.json> --dry-run
-```
-
-Never hand-edit a stored `body_html` instead: it is a cache of `body_json`,
-and the two drifting apart is invisible until a deploy pulls the CSS out
-from under whatever the HTML picked up (see Step 3's render-time rule).
-
-**C. A new development on a story already covered → a new article that links
-back.** The test: the new piece must be able to state, in its own headline,
-something that was not true when the earlier one ran. A rights auction
-opening after an investment closed passes. "More reaction to the same deal"
-does not. Then follow the existing back-link rule in Step 3: one inline link
-inside a sentence that is already stating the new fact, never a paragraph
-that narrates Playbook's own prior reporting.
-
-**D. Same event, different product, genuinely different thesis → both may
-run, and each must link the other.** Infinitas asking what the Liga Femenil
-BBVA is building and Noticias reporting its identity launch are two real
-pieces. The tiebreaker against outcome A is strict: **if you cannot write the
-second piece's thesis without restating the first piece's core fact, it is
-not a different angle — it is A.** When both run, neither may repeat the
-other's central figure as if it were news.
-
-### When the sources disagree
-
-Two funnels on one story will sometimes carry different numbers. The more
-specific, better-attributed figure wins (a company filing over a wire
-summary, a wire over a newsletter brief). If the published article has the
-weaker one, that is outcome B and the correction is part of the upgrade.
-
-### If it was already published twice
-
-Found after the fact, the fix depends on how long the duplicate has been
-live. Inside about 48 hours, fold its unique facts into the canonical piece
-and set the duplicate's `status` to `'draft'`, which unpublishes it. Past
-that, leave both up and cross-link them instead: a live URL may already be
-shared, and breaking it costs more than the duplication does. Either way, say
-which one you did in the report.
-
 ## Step 1: Read the sources
 
 Fetch every Substack URL given (use WebFetch; it follows the `open.substack.com`
 to `<pub>.substack.com` redirect automatically, re-fetch the redirect URL it
 reports). For each edition, identify individual news items: each story in an
-Noticias or La Lana del Deporte edition is a separate article. Also
+Industry Shots or La Lana del Deporte edition is a separate article. Also
 fetch the page a second time asking specifically for the exact publication
 date shown, and a third time asking for item order, exact headings, which
 items have an "Opinión"/editorial sentence vs. which are brief facts-only, and
@@ -149,11 +45,11 @@ used as the cover image.
 
 ## Step 2: Independent research
 
-Applies to Noticias and Infinitas items. Does **not** apply to La Lana
+Applies to Industry Shots and Infinitas items. Does **not** apply to La Lana
 del Mundial: its fact/analysis content tracks the source as written, never
 supplemented with outside research (see Step 3's La Lana section).
 
-Mandatory, always attempted, for every Noticias/Infinitas item: search
+Mandatory, always attempted, for every Industry Shots/Infinitas item: search
 for at least one concrete fact the Substack brief doesn't fully spell out, a
 number, a comparable deal size, a market/audience figure, relevant history
 (prior similar deals, past precedents), a regulatory detail, or a quote from
@@ -177,132 +73,10 @@ Rules:
   research.
 - This research is always paragraph 2 of Step 3's structure below, and can
   sharpen the priority/Importancia call in Step 4.
-- **Research the Mexico/LATAM angle too, don't reason your way to it.** The
-  Opinión paragraph almost always reaches for a regional hook, and the
-  temptation is to derive it from the story's logic (a league is shrinking,
-  therefore its Mexican stop is presumably at risk) instead of checking. On
-  2026-08-05 that inference was exactly backwards: the venue's next edition
-  had already been confirmed by the league months earlier, which made the
-  real angle the opposite of the drafted one. Before writing the Opinión,
-  run the searches that would falsify it: does this league/competition
-  actually play in Mexico, at which venue, is the next edition confirmed,
-  who is the local commercial partner, and which Mexican or LATAM athletes
-  are involved. Those specifics (a named club, a named promoter, named
-  players and their team) are also what turns a generic "esto importa para
-  la región" closer into something a reader can't get elsewhere.
 
 ## Step 3: Editorial voice
 
-### The uniformity contract — read this before drafting a word
-
-Several sessions publish through this skill, and readers see the output as
-one publication. Everything below is what makes four products look like one
-masthead; none of it is a stylistic preference to re-derive per run. The
-failure mode is real and recent: a 2026-08-07 La Lana piece shipped as 50
-standalone beats with no lead-ins, no devices and no promise block, next to
-a Noticias piece carrying all three, and read as a different site.
-
-| | Noticias (`industry-shots`) · Infinitas | La Lana del Deporte | TFBR |
-|---|---|---|---|
-| **Body shape** | 4 paragraphs, fixed | cold open → promise block → 6-8 `##` sections → Opinión | free-form essay, one idea |
-| **Blocks** | 80-100 words each | 80-100 words each, 1-2 per section | 80-100 words each |
-| **Bold lead-in** | every paragraph | every block inside a `##` section | every block |
-| **Closing take** | `**Opinión de Playbook:**` paragraph | `## La Opinión de Playbook` + exactly 3 bullets | none, `## La visión de Interticket` instead |
-| **Devices** | budget by length + priority | same budget | same budget |
-| **Length** | 300-500 words | 400-600 (guest essays run longer) | as the edition runs |
-
-Never carrying a lead-in, in any product: the cold open, device
-declarations, `Foto: Playbook` captions, and the Opinión bullets.
-
-**What the page does with all this, so nobody rebuilds it by hand.** Every
-visual treatment is a RENDER-time transform reading plain authoring
-conventions — write the markdown, get the design:
-
-- `**Label:**` at the start of a block → a product-colored scan mark, and on
-  Noticias and La Lana a numbered beat (`01`, `02`) down the margin.
-- `**70%**` (a bold span that is only a figure) → counts up on scroll.
-  Money and percentages in plain prose → an automatic marker highlight.
-- The closing take, in EITHER shape → the green fenced callout, signed with
-  the product's own mark: the Playbook bracket for Noticias (the same
-  symbol that closes the body), a stack of coins for La Lana, the
-  lemniscate for Infinitas, a forward arrow for TFBR (`--isotope-bracket`
-  and the `--mark-*` tokens in `styles/tokens.css`).
-- `Cifra clave:` / `Jugada:` / the seven other device lines → their designed
-  elements, within budget.
-
-Corollary, learned the hard way: **never post-process the HTML at publish
-time to fake any of this.** See the render-time rule further down this step.
-
-### The rhythm (publisher directive, 2026-08-06, round 2 — supersedes the archive measurement)
-
-Playbook's portal articles are written as **four substantial blocks**, one
-per movement of the structure below, at roughly **80-100 words each**. That
-is the shape the site has been publishing, and it is the shape to write.
-
-A short-beat experiment ran earlier the same day and was reversed after a
-single article shipped in it. That version split every movement into two or
-three paragraphs of 25-35 words with standalone hammer lines between them;
-on the article page it read choppy and it undercut the calm analytical
-register the brief format depends on. Don't reach for it again, and don't
-re-derive it from the numbers in the next paragraph.
-
-Worth stating plainly so the reversal isn't mistaken for an oversight: a
-2026-08-06 measurement of the Substack archive's editorial-viewpoint prose
-(La Lana, TFBR, the weekly essays, headings and bullets excluded) does put
-its median paragraph near 30 words, not 90. That measurement is real and it
-describes **the newsletter**. The portal is a different product with a
-different reading posture, and its four-block brief is a deliberate
-editorial choice rather than drift away from the newsletter's rhythm. If the
-two are ever meant to converge, that is the publisher's call to make
-explicitly, not something to infer from the newsletter numbers.
-
-Two things hold regardless of paragraph length:
-
-**The hammer line.** Land one short, flat sentence that states the
-conclusion the evidence just earned, at the point where the reader has been
-given enough to agree with it. Inside the block, as its last sentence, not
-promoted to a paragraph of its own. Real ones from the archive:
-
-- *Las sedes reciben la vitrina. FIFA vende la vitrina.*
-- *No todo lo que se puede vender conviene venderlo.*
-- *Mover dinero no es quedarse con él.*
-- *Sin aceptación ciudadana, el discurso de grandes eventos se desgasta rápido.*
-
-They work because they come **after** the evidence, never before. The same
-line opening a section is a slogan; after two sentences of figures it is a
-verdict.
-
-**Headings and lead-ins are arguments, not labels.** Every La Lana heading
-in the archive states a position: *"Mover dinero no es quedarse con él"*,
-*"El descanso se volvió inventario"*, *"Sobrevivir no es salir limpio"*.
-None is a topic label like "Contexto" or "El acuerdo". The same standard
-applies to the bold lead-ins: prefer *"**El precio real:**"* over
-*"**El acuerdo:**"*.
-
-`scripts/check-voice.mjs` is retuned to this format: it now flags only
-runaway blocks (past ~130 words, which are two movements fused) and still
-enforces the em-dash ban and the one-negative-parallelism-per-piece cap. It
-no longer asks for short beats or standalone hammer paragraphs.
-
-**Never take away length, only add (publisher, standing directive).** The
-word-count ranges below are floors that shape a brief, not ceilings that
-license cutting the source down to them. Whatever reporting an edition
-carries survives into the portal: every named party, every figure, every
-piece of context the newsletter spent a sentence on. Research (Step 2),
-the Mexico/LATAM angle and the extra clause that explains a background
-fact are all additive, and a source item that already runs long stays
-long. Concretely, this is what separates the four Infinitas/Noticias
-briefs in an edition from its lead feature: the briefs genuinely are four
-paragraphs at `readingTime: 2`, while the feature keeps its own `##`
-sections, its quotes and its carried-over images and lands nearer 900-1,100
-words at `readingTime: 4` (the live archive does exactly this, e.g. the
-2026-08-02 Tour de France Femmes piece). Compressing a feature into the
-four-paragraph brief shape to satisfy the table above is the mistake, not
-the compliance. The only things that ever get removed are the newsletter's
-own chrome (mastheads, section-divider banners, "(Acá más info)" pointers)
-and material a Step 0 outcome says already lives on the site.
-
-### Noticias / Infinitas
+### Industry Shots / Infinitas
 
 Every article is four paragraphs, always: three paragraphs of information,
 then a separate Opinión de Playbook paragraph.
@@ -313,48 +87,35 @@ then a separate Opinión de Playbook paragraph.
    voice, not a citation dump.
 3. Detail paragraph: more from the source itself, background, mechanics,
    additional named parties, why it happened, whatever rounds the story out.
-4. Opinión de Playbook: what it means for the industry, with a Mexico or
-   LATAM angle when relevant. Always present, every article, in the same
+4. Opinión de Playbook: what it means for the industry, always with a Mexico
+   or LATAM angle when relevant. Always present, every article, in the same
    direct/analytical register as the rest, grounded in what's actually in
    the piece rather than reaching for a take that isn't there.
 
-   **"When relevant" is a real permission not to** (publisher,
-   2026-08-11). Research the regional stake every time, per Step 2, but
-   when the honest answer is that Mexico and LATAM have none, close on a
-   global industry read rather than manufacturing a hook. A tacked-on
-   final sentence that reaches for the region because the format seems to
-   demand one reads as filler and tells the reader nothing. A story about
-   a US broadcaster's quarter or a stadium naming deal in Kansas City can
-   end on what it means for the industry and stop there; a story about a
-   shrinking F1 calendar genuinely bears on the Gran Premio de México and
-   should say so. Both are correct outcomes of the same check.
+   "When relevant" is a real condition, not a formality (team directive,
+   2026-08-08, after a Premier League sponsorship-renewal piece got a
+   bolted-on closing line comparing it to LATAM stadium naming rights that
+   had no actual basis in the story). A lot of Industry Shots items are
+   genuinely regional-neutral: a shirt-sponsorship renewal between two
+   European entities, an executive appointment at a league with no LATAM
+   footprint, a stadium-tech vendor deal. Forcing a "for Mexico/LATAM..."
+   sentence onto one of those reads as a template being filled in rather
+   than an actual read on the news, the opposite of what the Opinión
+   paragraph is for. Write the Opinión grounded in what the story itself
+   is actually about (here, that's brand stability as a commercial asset,
+   and the deal resetting the shirt-sponsorship price benchmark) and only
+   reach for the Mexico/LATAM angle when the story has a genuine, specific
+   connection there, a league already active in the region, a brand with
+   real LATAM presence, a mechanic another market could actually learn
+   from. If that connection isn't real, a strong industry-wide close
+   without one beats a forced regional comparison every time.
 
 No exceptions to the four-paragraph structure: a "brief, no real angle"
 story still gets all four, it just stays tight and grounded rather than
 padded or invented.
 
-**On a running political story, the Opinión reads the alignment, it does
-not keep score** (publisher feedback, 2026-08-10, on a FIFA-governance
-follow-up). The tempting shape, and the one to avoid, is a tally of who
-looks bad: X backed the loser, the count came to 40, X is alone. That
-lands as stingy, and worse, it is the smallest true thing available. What
-the reader wants from a fight with a known end date is where the sides
-are FORMING and what the fight will cost to run. Concretely: name both
-blocs, not just the isolated party; look for where the emerging blocs cut
-ACROSS the formal institutions rather than along them (in the worked
-example, the AFC signed a letter against the FIFA president while its own
-Gulf federations backed him, exactly the split Concacaf had with Mexico,
-which turns "Mexico is alone" into "the camps don't respect confederation
-borders" — a bigger and more useful read); and close on the attrition,
-the months of process, the venues and calendars and development money
-that get spent while it plays out, the cost of holding a position in
-public for that long. A closing beat about the wear on everyone involved
-is a better ending than a verdict on one party. This is also the case
-where a second closing paragraph after the callout earns itself (see the
-2026-08-07 precedent below).
-
 If an item is itself a follow-up to a story Playbook already covered (a
-prior Noticias/Infinitas item, findable by querying the DB), don't
+prior Industry Shots/Infinitas item, findable by querying the DB), don't
 re-explain what that earlier piece established, link back to it inline
 from within a sentence that's stating the new fact (`/articulo?id=<id>`),
 and never open a paragraph narrating that Playbook covered it before
@@ -388,629 +149,6 @@ lens where relevant), not filler stretched to hit a length. If there isn't
 a genuine second point, leave the single Opinión paragraph as before rather
 than padding it.
 
-**La Lana's architecture is fixed — reproduce it (measured 2026-08-06:
-present in 8 of 8 published editions).** These pieces are not free-form
-long-form. They run the same four movements every time, and a La Lana
-article that doesn't wear this shape isn't one.
-`docs/la-lana-article-spec.md` is the same four movements plus the fields,
-the device budget and the post-publish board step as a walkable checklist —
-read it back against the piece once it's live, which is when the misses
-(2026-08-07: promise block skipped, zero devices, no figure in the excerpt,
-board never updated) are still cheap to fix:
-
-1. **The cold open.** Two to four short paragraphs that put the tension on
-   the table in the first line. No scene-setting, no "en los últimos años".
-   *"Las pausas de hidratación llegaron al Mundial con una explicación fácil
-   de comprar: calor, humedad y cuidado de los jugadores."* Then the turn:
-   *"Pero bastaron unos partidos para que la conversación cambiara."*
-2. **The promise block**, verbatim in this wording, followed by exactly
-   three questions the piece will answer:
-   `Si lees este artículo podrás responder las siguientes preguntas:`
-   The questions are the reader's, not the newsroom's: *"¿Por qué FIFA hizo
-   obligatorias las pausas?"*, *"¿Esta medida se queda o es una rareza del
-   Mundial 2026?"*. Write them as a markdown bullet list.
-3. **Six to eight `##` sections**, each heading an argument (see the
-   headings rule above). **Inside a section: one or two substantial blocks
-   of 80-100 words, each opening with its own bold lead-in** — the same
-   `**El costo de entrar:**` shape the short products use on every
-   paragraph, applied per block rather than per sentence, which is what
-   makes a long piece scan like the rest of the catalog instead of like a
-   different publication. The lead-ins render as product-colored scan marks
-   (`markLeadIns`), so a reader skims the whole argument off them; that
-   also means they have to be specific and never repeat across the piece.
-   Only four kinds of paragraph go without one: the cold open, the device
-   declarations, the `Foto: Playbook` captions and the Opinión bullets.
-   A section written as eight standalone 20-word beats has the same words
-   and none of the structure — that is the short-beat format the publisher
-   reversed (see the rhythm section above), and it is what the 2026-08-07
-   guest piece shipped in before it was reformatted.
-   The sections carry the reporting: named parties,
-   figures against comparable figures, what each actor did differently.
-   Where the piece does arithmetic, do it out loud and invite the reader in
-   — *"Analicemos esto: En 104 partidos, dos pausas de tres minutos por
-   juego significan 624 minutos nuevos de inventario potencial."*
-4. **`## La Opinión de Playbook`, exactly three bullets.** Not two, not
-   four, and written as a markdown list, not as loose paragraphs. One point
-   per bullet: what the story established, who read it best or worst, and
-   what has to hold for the thing to keep working. `**Opinión de
-   Playbook:**` as an inline lead-in is for the short products; La Lana uses
-   the heading form.
-
-   The Opinión is the most metrically uniform thing Playbook writes, and it
-   is worth matching exactly: across the 2026 editions its bullets run
-   **p25 30, median 33, p75 37 words — zero under 15, zero over 60.** No
-   hammer lines here and no blocks either. The register is even and
-   declarative, three verdicts of the same weight; a one-line zinger in this
-   position reads as a tweet, and a 70-word bullet reads as a fourth section
-   that lost its heading.
-
-`Por eso` is La Lana's closing connector (the densest in the archive,
-0.84 per 1,000 words) — it earns a conclusion off the preceding section.
-Use it where you've actually just proven something.
-
-### The Futbol Business Review
-
-TFBR is ghostwritten by Playbook for Interticket and it is the most
-distilled version of the house mind: no news peg, no figures parade, one
-commercial idea taken apart until it's obvious. Written in Spanish for the
-portal even though the source edition is in English.
-
-The move that defines it is **definitional antithesis**, and it is denser
-here than anywhere else in the archive (1.38 per 1,000 words): name the
-thing the reader assumes it is, reject it in a short sentence, then say
-what it actually is in the next one. From the real editions:
-
-- *"The difference is not who has access to football, it is who can make
-  that access make sense faster."*
-- *"The strongest opportunities are not always the biggest. They are the
-  ones where the brand has a clearer role and a better reason to be there."*
-- *"It comes from understanding that these matches are not just games. They
-  are cultural events."*
-
-In Spanish that is *"La diferencia no está en quién tiene acceso al futbol,
-está en quién puede volverlo útil más rápido."* Place it at the thesis
-beat — the sentence the whole piece exists to earn — and only once (see the
-negative-parallelism cap below; the cap and this move are the same rule seen
-from two sides: used once at the thesis it IS the voice, used four times it
-is a tic).
-
-Other TFBR habits worth keeping: the piece argues from operator experience
-rather than from data it just looked up (*"la experiencia acumulada en
-varias campañas apunta a una realidad consistente"*), and it closes on the
-practical test a reader can run tomorrow (*"Antes de colgar tu activo del
-Mundial, intenta venderlo sin mencionarlo"*).
-
-Attribution matters on this product: the edition's own closing section
-belongs to the partner. Render it under its own `## La visión de
-Interticket` heading and never fold it into a Playbook opinion. Per
-editorial decision 2026-08-06, TFBR articles carry **no** `Opinión de
-Playbook` paragraph at all — the analysis is the author's and it already
-closes with the partner's read.
-
-### The product hub pages read the body (2026-08-05)
-
-Each product now has its own front page (`/noticias`, `/la-lana`,
-`/infinitas`, `/futbol-business-review` — see `lib/product-hubs.ts`) that
-updates itself from the DB within ~60 seconds of an insert: nothing in
-this skill needs to "add the article to the hub". But the hubs and the
-article template read three things out of what this skill writes, so get
-them right at drafting time:
-
-- **The `**Opinión de Playbook:**` lead-in is load-bearing.** On every
-  product article, the article page detects that exact lead-in and renders
-  the paragraph as a visually fenced opinion callout (the explicit
-  fact/opinion separation). Keep the wording exactly `Opinión de
-  Playbook:` — don't ever restyle it to "Nuestra opinión", "El análisis
-  de Playbook", or similar, and don't fold the opinion into another
-  paragraph. This already matched the standard structure above; it is now
-  also a UI contract.
-  **Both shapes get the same box (2026-08-07).** La Lana's `## La Opinión
-  de Playbook` heading plus its three bullets is detected too, so the
-  closing take is one recognizable green-fenced element across every
-  product instead of a branded box on Noticias and a bare subhead on La
-  Lana. Write whichever shape the product calls for as plain markdown and
-  the callout appears; the heading is replaced by the callout's own
-  kicker, so don't repeat the label inside the bullets.
-  **Each product signs the box with its own mark**, set in CSS from the
-  `--mark-*` tokens (`styles/tokens.css`) and picked by the article's
-  `source`: the Playbook bracket for Noticias, coins for La Lana, the
-  lemniscate for Infinitas, a forward arrow for TFBR. Nothing to write at drafting time —
-  getting `publication`/`source` right (Step 4) is what selects the mark,
-  which is one more reason a wrong source pair is a visible mistake and
-  not just a filing error.
-- **Body presentation is decided at RENDER time, never at publish time
-  (2026-08-07).** Everything in this section is a plain authoring
-  convention that `app/(public)/articulo/page.tsx`'s transform chain turns
-  into markup as the page renders. `scripts/publish-newsletter.ts` converts
-  markdown to TipTap and renders that TipTap to HTML; it adds nothing of
-  its own. Never reach for a publish-time HTML post-processor to give a
-  body some new visual treatment — a `wrapOpinionBox` that wrapped the
-  closing take in a green `<div>` did exactly that, unaware the article
-  page already had `markOpinionCallout` doing the same job per-product
-  tinted, and shipped nested `<div class="opinion-box"><aside
-  class="shot-opinion">` markup. Two things make render-time the only
-  correct place: the treatment applies to the whole existing catalog with
-  zero re-editing, and it can be changed or reverted without touching a
-  single stored row. A wrapper written into `body_html` outlives the code
-  that wrote it — when that revert landed, the dead `<div>` stayed baked
-  into the live article with no stylesheet behind it. If a body genuinely
-  needs a new element, it becomes a device in `lib/article-devices.ts` or
-  `lib/product-hubs.ts`, driven by a plain paragraph convention.
-- **Fixing a published body: regenerate it, never hand-edit the HTML.**
-  `body_html` is a cache of `body_json`, and the two silently drifting
-  apart is what left that dead wrapper live. Run the corrected
-  `bodyMarkdown` back through the same pipeline the insert uses:
-  `npx tsx --env-file=.env.local scripts/update-article.ts <fix.json>`
-  (`--dry-run` first; it patches only the fields an entry carries, matched
-  on `id` or `sourceUrl`, and rebuilds `body_json` + `body_html` together
-  whenever `bodyMarkdown` is present). This is also the tool for Step 0's
-  outcome B, folding new facts into an already-published article.
-- **La Lana: the money trail.** When (and only when) a La Lana story
-  genuinely traces money moving between named places — a fee flowing from
-  a country to a federation's HQ, a sale crossing borders, an investor
-  entering from abroad — add one plain paragraph on its own line in
-  `bodyMarkdown`, at the point in the story where that flow is described:
-  `Ruta del dinero: México → Zúrich → Riad` (2 to 5 stops, `→` between
-  them, short place names). The article page replaces that paragraph with
-  an animated route line that draws itself as the reader scrolls. Never
-  invent a route the story doesn't state, and never add more than one per
-  article. Stories with no geographic flow simply don't get one.
-- **La Lana: the hero figure.** The hub's case-file hero pulls the
-  story's single biggest number out of `title` + `excerpt` (e.g.
-  "€3M/año", "US$9,612m", "MX$42.8 millones") and displays it huge. When
-  the story has a defining figure, make sure it appears verbatim in the
-  title or the excerpt — not only buried in a middle paragraph — or the
-  hero renders without its hook.
-- **La Lana: the departures board (mandatory step after publishing).**
-  /la-lana's masthead is a departures board whose rows are the
-  CONNECTIONS the investigations uncovered, set as flights ("Isaac del
-  Toro ↔ UAE · EXP. 006 · Abierto"). After inserting la-lana articles,
-  extract each piece's connections and push them to the board:
-    1. A connection is a two-party relationship the piece actually
-       DOCUMENTS as central to the case — a person/org/company/place
-       pair whose link is the story ("AR Monex ↔ Europa", "Infantino ↔
-       UEFA y Concacaf"). Not every named entity qualifies: if the piece
-       doesn't establish the relationship, it's not a row. Zero
-       connections is a valid answer for a piece that's about one actor.
-    2. Per article: as many as genuinely qualify, capped at 2 (pick the
-       two most central — one article CAN yield several, e.g. the AR
-       Monex piece supports both its sponsor-pipeline route and its star
-       rider). Board-wide, `scripts/update-lana-board.ts` keeps only the
-       6 most recent curated rows, so the marquee stays relevant instead
-       of bulky — don't try to preserve old rows manually.
-    3. Write `[{ "conexion": "A ↔ B", "articleId": "<the id the insert
-       returned>" }, …]` to a scratch JSON and run
-       `npx tsx scripts/update-lana-board.ts <file> --dry-run`, check the
-       printed board, then run without `--dry-run`. The script derives
-       everything else (EXP. number, date, open/archived status, link)
-       from the article row itself and replaces a repeated connection
-       instead of duplicating it; an unknown articleId is skipped with a
-       warning, never invented around.
-    4. Use "↔" for two-way relationships and "→" only when the piece
-       describes a one-way flow. Keep each side short (1-3 words) — the
-       board is a flap panel, not a sentence.
-- **All products: the "Cifra clave:" pull-figure beat (2026-08-05).** A
-  plain paragraph on its own line in `bodyMarkdown` of the form
-  `Cifra clave: US$720 millones — el valor del nuevo espacio comercial`
-  renders as a full-bleed pull-figure on the article page: the number set
-  huge between rules, counting up as the reader reaches it, with the text
-  after the ` — ` (dash with spaces; optional) as its caption. Rules:
-  the value must contain a digit and stay short (≤24 characters — longer
-  values are left as ordinary text); use it when a story has ONE defining
-  number that deserves a full visual stop, typically 0-1 per article
-  (more is legal but dilutes the beat); never restate the figure in the
-  neighboring paragraph — the beat replaces the sentence, not decorates
-  it. Separately, any `**bold**` span in body text that is purely a
-  figure ("US$9,612 millones", "22%") counts up inline automatically —
-  no syntax needed, just keep bolding key figures as the standard
-  structure already asks.
-  - **The Cifra clave must be the STORY'S OWN figure, never a context
-    figure** (calibrated on real output, 2026-08-05: the LIV Golf piece
-    led its excerpt with the PIF's historical "6,000 millones" — context
-    — while the story's actual figure, the rumored US$250M investment,
-    sat unmarked mid-body; the homepage surfaced the wrong number). Ask:
-    "if the reader remembers one number from this story, which is it?"
-    That's the Cifra clave. A rumored or unconfirmed figure still
-    qualifies when it IS the story — declare it with the attribution in
-    the caption ("La inversión que reporta el New York Post; LIV no la
-    confirma"), never in the value.
-  - **The homepage reads this beat.** "La cifra del día" (sidebar) picks
-    the top ranked story with a figure and PREFERS its declared Cifra
-    clave over anything scraped from title/excerpt — declaring the beat
-    is how you control what number represents the story site-wide.
-  - **The caption has to work away from the article too (2026-08-07).**
-    The rail prints it under the chip, where it is the only thing telling
-    a reader what the number measures — a figure alone reads as a price
-    with no unit ("US$8,000 a US$20,000" under a headline about talent
-    factories). So write the caption to NAME the thing, not to lean on
-    the sentence it came from: "el costo anual del futbol juvenil de alto
-    nivel en Estados Unidos", not "lo que cuesta". A caption is optional
-    to the parser and mandatory in practice; a Cifra clave declared
-    without one ships a bare number to the homepage.
-  - **Write figures with their currency symbol** in the house shapes
-    ("US$250 millones", "MX$42.8 millones", "€3M") — never spelled out
-    ("250 millones de dólares"): every extractor ranks symbol-prefixed
-    money above bare counts, so the spelled-out form loses to any bare
-    number that appears earlier.
-- **All products: the "Jugada:" connection strip (2026-08-05, round 2).**
-  A plain paragraph `Jugada: Volkswagen ↔ Bayern` renders as a split-flap
-  connection strip — the story's central two-party relationship in the
-  departures-board language. Use it when the story IS a relationship
-  (a deal, a partnership, an investigation pairing, an acquisition):
-  `↔` for two-way relationships, `→` for a one-way flow (an expansion, a
-  sale, a rights move). Each side 1-4 words, ≤32 characters (longer
-  leaves the paragraph as plain text). At most ONE per article, and only
-  when the pairing is documented by the piece itself — same "never invent
-  links" standard as the La Lana board. Placement: right after the
-  paragraph that establishes the relationship, usually the first. A
-  figure-driven story should prefer "Cifra clave:" — don't stack both
-  unless the story genuinely carries both a defining number AND a
-  defining pairing. For la-lana articles the jugada usually matches a
-  connection you're also pushing to the departures board — same wording
-  in both places.
-- **All products: the "Fuentes:" credit line (2026-08-10).** A final
-  paragraph `Fuentes: [Concacaf](https://…) · [Sky Sports](https://…)`
-  is lifted out of the body and set below the end mark as foot apparatus:
-  a hairline, a caption-scale label, the outlet names, and an "origen"
-  mark on the first one. It costs no device slot and doesn't count as a
-  paragraph. A Playbook Substack edition is first-party reporting and
-  normally has nothing to credit, so this is `publish-sourced-article`'s
-  convention rather than this skill's — reach for it here only when an
-  edition genuinely leans on outside reporting, and then follow that
-  skill's rules for it (origin first, outlet names not headlines, three
-  or four entries, never an internal Playbook link).
-- **All products: the device collection (2026-08-05, round 3) — pick by
-  story shape.** Beyond Cifra clave and Jugada, seven more one-paragraph
-  conventions render as designed, animated elements (see
-  `lib/article-devices.ts`; all product-tinted, all inert if malformed).
-  Syntax rules shared by all: items separated by ` · ` (spaced middle
-  dot), key—value separated by ` — ` (spaced dash), plain paragraph on
-  its own line:
-    - `Cronología: 2022 — PIF entra · 2024 — recorte · 2026 — salida` →
-      a drawn timeline. For sagas: a deal, feud or decline that unfolds
-      over dated milestones (2-6, dates ≤14 chars, events ≤70). **The
-      6-item ceiling is a hard code limit, not a stylistic suggestion**
-      (`parseTimeline` in `lib/article-devices.ts` returns null past 6,
-      and the layout it feeds is a single-row flexbox sized for a small
-      count — more items just squeeze narrower, it doesn't wrap or
-      scroll). Two directions follow from that, both from a real case
-      (2026-08-07, a FIFA-governance saga with 13 independently dated
-      events): first, when the story has 6 or more real milestones, USE
-      all 6 slots — a 3-item Cronología on a story that's actually had
-      six-plus dated beats is under-using the device, not being
-      conservative. Second, when a saga genuinely runs past 6 (this one
-      had 13), the device is not the place to fit the rest: pick the 6
-      most load-bearing beats for the Cronología (the ones that carry
-      the spine of the story) and weave the remaining, still-sourced
-      events into the prose paragraphs instead — a paragraph that names
-      three more dated developments in a sentence tells that part of the
-      story fine without needing a tenth timeline slot that doesn't
-      exist. Never respond to "I want a bigger timeline" by writing more
-      than 6 items into the paragraph anyway; past the cap the device
-      silently fails to parse and the whole thing renders as an inert,
-      unstyled paragraph instead of a timeline, which reads worse than a
-      tight 6-item one.
-    - `Recibo: Torneos — 10 · Bolsa por evento — US$10M · Total — US$107M`
-      → a thermal receipt whose Total counts up. For cost breakdowns and
-      who-paid-what (2-8 lines; a line whose label starts with "Total"
-      gets the total treatment — include one when the sum is the point).
-    - `Ecuación: 104 partidos × US$6M por partido = US$624M` → display
-      math with counting operands. For "the math behind the deal" — every
-      term must start with a real number; operators ×, +, −, / and one =.
-    - `Salto: 14 torneos → 10 torneos — el calendario 2027` → before/after
-      delta, direction-colored (green up, red down, computed from the
-      numbers). For growth/shrink stories; optional caption after ` — `.
-    - `Reparto: FIFA — 70% · Federaciones — 20% · Clubes — 10%` → a
-      proportion bar with legend. For how money/rights split (2-5 shares,
-      percentages; they're normalized, so they should roughly sum to 100).
-      Not only money: it's the right device any time a story has a
-      countable universe splitting into camps — members of a body who
-      back/oppose/haven't said, votes, seats, market share of competing
-      products. (2026-08-07: a FIFA-governance piece used it as "of
-      FIFA's 211 member federations, X% publicly backed the president,
-      Y% opposed, Z% hadn't taken a position" — computed from actually
-      -confirmed individual/bloc counts, e.g. a confederation that voted
-      unanimously counts as its full membership, a single federation's
-      own statement counts as one, and the remainder is whatever's left
-      of the total universe. Never estimate the remainder bucket from a
-      guess — it should always be `total - everything you can actually
-      source`, and every figure that feeds it needs the same sourcing
-      bar as any other fact in the piece, not a rounder guess because
-      it's going into a chart instead of a sentence.) An Alineación
-      naming the same actors is the weaker choice whenever a real
-      number is available for each side: chips show who, a Reparto also
-      shows how big, which is usually the more informative half of a
-      camps-and-counts story.
-    - `Alineación: Madonna · Shakira · Justin Bieber · BTS` → numbered
-      lineup chips that flap in. For enumerations of actors — artists,
-      investors, host cities (2-8 names, each ≤28 chars).
-    - `Cotización: Ollamani — MX$14.50 · -34.6% · en el año` → a market
-      tile with ▲/▼ delta. For public-company/valuation results: name,
-      value, signed percent delta, optional note.
-    - `Resultados: Fox Corporation, Q4 fiscal 2026 · Ingresos — US$4,210M
-      (+28%) · Publicidad — US$1,916M (+78%) · Utilidad neta — US$696M` →
-      a statement panel: one line per metric, value right-aligned on
-      tabular numerals, its change in a fixed gutter after it, so a reader
-      can run down the column of ▲/▼ without reading a single figure.
-      **This is the device for an earnings release or a filing**, the
-      shape the collection was missing until 2026-08-11: Recibo lists
-      labelled amounts but knows nothing about a delta, Cotización carries
-      a value AND a delta but only as a single tile, Salto moves one
-      metric from before to after, and Duelo needs two different actors.
-      A quarterly report is none of those. It is four to six lines
-      belonging to the SAME company over ONE period, each moving by its
-      own amount, and the story is almost always in which lines disagree
-      with each other (Fox's advertising up 78% against total revenue up
-      28% is the whole article in two rows).
-      First item is the subject and period and must NOT contain a ` — `
-      (same way Duelo and Serie spend their first item on framing);
-      every item after it is `etiqueta — valor`, with an OPTIONAL signed
-      percentage in parentheses at the end. Two to six rows, label ≤42
-      chars, value ≤24 and containing a digit.
-      **The delta is optional per row on purpose.** A filing routinely
-      reports a line with no comparable in the prior period (a segment
-      that did not exist, a first reported quarter), and the honest
-      answer is to leave the parenthetical off, which renders as an empty
-      gutter. Never fill it with a number you computed to make the column
-      look complete, and never carry a percentage across from a different
-      line because it is nearby in the release.
-      Direction colour follows Salto (green up, red down) rather than
-      guessing whether "up" is good for that particular line: an expense
-      rising draws green here exactly as a Salto on the same expense
-      would, and the label plus the prose carry the judgement. The arrow
-      already states the sign, so the rendered delta drops it (`▲ 28%`,
-      `▼ 38%`) and the authored `(+28%)` / `(−38%)` is just how you write
-      it.
-      Because the panel prints every value and every delta itself, the
-      prose must NOT recite the grid back — the same rule Serie carries,
-      for the same reason. Name the source, state the one or two lines
-      the argument turns on, and let the rest live in the device. A
-      paragraph that repeats all eight numbers next to a table of the
-      same eight numbers is what a reader calls a crossword.
-    - `Duelo: UEFA vs FIFA · Ingresos 2022-2025 — €20,163M vs US$10,083M
-      · Reservas — €522M vs US$2,699M` → a butterfly chart: two actors,
-      1-4 metric rows, bars anchored on the centre line and growing
-      outwards. For "X gana más que Y" comparisons — the shape Reparto
-      and Salto can't cover, because Reparto splits ONE whole into
-      slices and Salto moves ONE metric from before to after, while this
-      puts two separate institutions against each other on several
-      measures at once. First item names the sides (`A vs B`, ≤26 chars
-      each), every item after it is `etiqueta — valorA vs valorB`. A row
-      whose two values aren't both numeric renders as a bare text row
-      with no bars, so a `Sede — Nyon vs Zúrich` line can sit under the
-      money without faking a magnitude. Mixed currencies are allowed and
-      the bars compare the raw magnitudes, so only put two currencies in
-      one row when the piece has already told the reader why that
-      comparison holds. A value written with a leading minus (`−€46.2M`)
-      bars its magnitude in the loss treatment, red bar and red figure,
-      so a `Resultado del año` row can sit next to the revenue rows
-      without a longer bar reading as a bigger win.
-      **One scale for the whole device** (publisher directive,
-      2026-08-08): every bar is a share of the single largest magnitude
-      in the device, so rows are readable against each other — a reserve
-      that is a tenth of a year's revenue draws a tenth of the top bar,
-      and an annual deficit draws the sliver it actually is. This is the
-      point of the shape, so **write all rows in one unit**; a percentage
-      row next to money rows can't share a scale and silently drops the
-      whole device back to per-row scaling, where every row peaks at 100%
-      and four different magnitudes end up looking identical.
-      **Check that both numerators cover the same activity** before
-      putting two institutions' spending side by side. Each body
-      classifies its money its own way and a matching category name is
-      not evidence that the contents match. Worked example, 2026-08-08:
-      UEFA's €3,861M distribution against FIFA's US$748M "Development &
-      Education" line implied a five-to-one gap, but FIFA books Club
-      World Cup prize money (US$1,000M in 2025) under Competitions &
-      Events, so the comparable figure was US$1,748M. Read it off each
-      side's OWN statements, never off the label.
-    - `Serie: UEFA vs FIFA · 2022 — €4,052M vs US$5,769M · 2023 — €4,321M
-      vs US$1,170M · 2024 — €6,777M vs US$483M · 2025 — €5,014M vs
-      US$2,661M` → two lines on one axis, drawn left to right on scroll,
-      with each point's value printed on the line. Deliberately the same
-      grammar as `Duelo` (first item names the sides, then
-      `punto — valorA vs valorB`), except the rows are points in TIME and
-      3-8 of them are required. Use it for **volatility**, the one thing
-      no single-moment device can show: two bodies can post the same
-      four-year total while one collects it evenly and the other collects
-      it in a single spike, and only the shape says which. The 2026-08-08
-      FIFA/UEFA piece is the worked example — FIFA swung 12x between its
-      weakest and strongest year while UEFA moved 1.7x, and the lines
-      cross, which is the whole argument in one image. Every point must
-      be numeric on both sides (a chart cannot carry a gap the way a
-      `Duelo` row carries a text value, since one hole makes every later
-      x position lie), and both series share one Y axis, so the values
-      must be the same kind of measure. Series A takes the product
-      accent, series B a blue; **red is deliberately not available here**
-      because it means "a loss" everywhere else in the collection, and a
-      permanently red line would read as a verdict at every point,
-      including the ones where that series is ahead. When the two series
-      use different period conventions (a July-June season against a
-      calendar year), say so in the prose — the axis can only carry one
-      set of labels.
-      **The "every device number must be in the piece" rule bends here,
-      and only here.** For every other device that rule is literal. A
-      Serie prints its own values on the lines, so restating all eight or
-      twelve of them in the paragraph above produces exactly the number
-      dump a chart exists to replace. What the prose owes a Serie
-      instead: name the SOURCE the series comes from, and state the
-      EXTREMES that carry the argument (the peak, the floor, the range
-      each side moved in). Interior points can live on the chart alone.
-      The rule's purpose is that no figure appears without provenance a
-      reader can check, and a named source plus printed values satisfies
-      it; a paragraph reciting the series does not serve the reader.
-      **Pair it with a Duelo rather than repeating one in the other.**
-      When both run in one piece they have to divide the labour: the
-      Serie shows how the money ARRIVES over time, the Duelo what each
-      side DOES with it (distributions, result, reserves). The 2026-08-08
-      piece first shipped a Duelo whose top rows were the series' own
-      minimum and maximum, which drew the same comparison twice; moving
-      the butterfly onto the distribution/result/reserves data made the
-      two devices complementary instead of redundant.
-    - `Mapa: Concacaf · En el comunicado — resto · Sin firmar — MEX` →
-      real geography (2026-08-10). The frame's countries are drawn from
-      the world dataset and split into labelled camps, with a legend that
-      counts each camp for itself. First item is the FRAME: `mundo`,
-      `concacaf`, `conmebol`, `uefa`, `ofc`, `europa`, `áfrica`, `asia`,
-      `oceanía`, `norteamérica`, `sudamérica`, or `auto` (which frames
-      exactly the countries the groups name — use it for any set that
-      isn't one of the above, e.g. World Cup hosts). Every item after it
-      is a group: `Etiqueta — MEX, USA, CAN` with **ISO3** codes, or
-      `Etiqueta — resto` for every framed country no other group claimed.
-      One to three groups.
-      The visual ramp is fixed and means the same thing on every map:
-      group 1 is the filled mass, group 2 is **hollow with a heavy
-      outline** — the exception, the holdout, the one that's missing —
-      and group 3 is a mid tint. So "everyone except X" is written as
-      `Grupo — resto · X — MEX` and X reads as the hole in the map, which
-      is exactly the shape a "who signed and who didn't" story has.
-      Use it when the story's unit is COUNTRIES and their split is the
-      argument: signatories vs holdouts, hosts vs bidders, the markets a
-      rights deal covers, where a league is carried. It is the wrong
-      device for a split with no geography (that's `Reparto`) and for
-      naming people (`Alineación`). Territories too small to draw at this
-      size render as dots rather than shapes, which is most of the
-      Caribbean and much of Oceania — a Concacaf map is 19 shapes and 22
-      dots, and that is correct, not a data gap.
-      The legend counts are computed from the codes, so **the count in
-      the prose and the count on the map cannot disagree** — that's the
-      device's main advantage over asserting "40 of 41" in a sentence,
-      and it's why a `Cifra clave` restating the same ratio next to it is
-      redundant; spend the second device slot on something else.
-      Frames are data (`scripts/build-world-map.ts`): CAF and AFC aren't
-      pre-baked yet, so a story about those confederations needs `auto`
-      plus an explicit code list, or a new frame added to that script.
-  Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
-  now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
-  here):** designed devices scale with `readingTime` **and** `priority`.
-  Base budget by length — **≤2 min → 1 device · 3-5 min → 2 · 6+ min →
-  3** — then **+1 whenever `priority: 5`**, on top of whatever the length
-  already gives. A `priority: 5` story is the site's own signal for "most
-  likely to lead the homepage" (`lib/rank.ts`'s hero selection), and it's
-  meant to carry the fullest structure the format allows regardless of
-  how short the standard four-paragraph shape keeps `readingTime` — so a
-  `priority: 5` piece at the ordinary `readingTime: 2` gets a budget of
-  2, not 1, and a 6-minute `priority: 5` La Lana piece gets 4. `featured`
-  doesn't add to the budget: it decays within a day
-  (`FEATURED_BOOST_DAYS`) and marks today's placement, not the story's
-  lasting weight the way `priority` does.
-  The Opinión callout, the automatic devices (lead-ins, highlights,
-  count-ups) and La Lana's money trail are EXEMPT and never count.
-  Never repeat a device type in one article (the renderer refuses the
-  second one even under budget). Declarations beyond the budget render
-  as plain text — visible to the reader — so writing over budget is a
-  shipped mistake, not a silent one. Order matters: first declared in
-  the document wins the budget, so place the device that carries the
-  story's spine first. Keep at least two prose paragraphs between
-  devices (renderer doesn't enforce this one — you do). Choose by
-  shape: a saga → Cronología, a breakdown → Recibo, a split → Reparto,
-  a pairing → Jugada, one number → Cifra clave.
-  Every number inside a device must appear in (or be directly
-  computable from) the newsletter being published — never invent data
-  to fill a device.
-  - **"No device fits" is the exception, not the default (2026-08-06,
-    publisher directive).** The earlier wording here ("only when the
-    story genuinely has that shape; a forced device is worse than
-    none") read as license to skip the whole collection the moment
-    nothing obvious jumped out, and that quietly made zero devices the
-    normal outcome instead of the rare one. In practice almost every
-    story fits something once you check the full list instead of the
-    first one or two shapes that come to mind: a contract has the
-    career-to-date as a Cronología, a fee has a Reparto of who gets
-    what or a Cifra clave for the headline number, a signing has a
-    Jugada for the two sides, a schedule change has a Salto. Before
-    writing an article off as device-free, walk all nine shapes against
-    it, especially on a `priority: 5` piece, which is exactly the story
-    that should carry the richest structure. What stays strict is
-    fabrication, not effort: never invent a milestone, a split, or a
-    figure the piece doesn't already contain just to manufacture a fit
-    — a story that genuinely has no numbers, no timeline, no pairing
-    and no roster still gets none, that's a real outcome, just one that
-    should be rarer than it was under the old wording.
-- **All products: lead-ins are now UI (2026-08-05, round 2).** The
-  standard bold lead-in every paragraph already opens with
-  (`**La sanción:** …`) renders as a product-colored scan mark — readers
-  skim the article by lead-ins alone. This raises the bar on writing
-  them: each must be specific to its paragraph (a generic label repeated
-  across paragraphs now VISIBLY repeats), 2-5 words, always ending in a
-  colon inside the bold. No formatting change — just know they're
-  load-bearing UI now.
-- **All products: figures highlight themselves.** Money amounts and
-  percentages in plain prose get an automatic marker-swipe highlight on
-  the article page (capped at 6 per article, applied client-side). No
-  action needed at drafting time beyond what the standards already say:
-  write figures in the house shapes ("US$3,400 millones", "MX$42.8
-  millones", "22%") and keep the SINGLE most important one bold — bold
-  figures count up, plain ones highlight.
-- **Infinitas: El Marcador.** The hub shows a scoreboard of sourced
-  women's-sports business metrics, editable in the admin CMS ("Hubs de
-  producto" tab — no deploy needed; defaults live in
-  `lib/product-hubs-content.ts`). If an Infinitas item being published
-  contains a headline metric that supersedes one on the board (a new
-  attendance record, a new revenue projection from a named source), don't
-  edit anything as part of the publish run — flag it in one line of the
-  run report ("El Marcador: la cifra X quedó superada por Y (fuente Z)")
-  so editorial updates it in the CMS deliberately.
-
-### Dynamic-elements checklist — walk it per article, every run
-
-Each hub page renders itself from what a run inserts, so a field written
-carelessly is a hub rendering worse for weeks. Before reporting back,
-walk this list for every article in the batch (it takes a minute and
-every item maps to a visible element):
-
-- **Rhythm, every article** — run
-  `node scripts/check-voice.mjs <draft.json>` before Step 6 and read what it
-  prints. It measures each draft against the editorial-prose archive: median
-  paragraph 25-35 words, p75 under 45, median sentence ≤20, at most one
-  paragraph in ten over 60 words, at least one hammer line, and at most one
-  negative-parallelism construction. It
-  is a mirror, not a gate — a flagged long paragraph that genuinely carries
-  one idea can ship, but the default answer to a flag is to split the
-  paragraph, not to argue with it.
-- **All products except TFBR** — `**Opinión de Playbook:**` lead-in exact
-  (fenced opinion callout on the article page). TFBR carries none by
-  editorial decision (Step 3); La Lana uses the `## La Opinión de Playbook`
-  heading form with three paragraphs instead of the inline lead-in.
-  Then, for every product: `priority` set honestly on the
-  1-5 rubric — on /noticias it is also the LAYOUT: 5 renders as a
-  full-width feature band, 4 as a two-up card, the rest as compact rows,
-  so an inflated 5 hogs a band and a lazy 2 buries a real story;
-  `imageUrl` present (feature bands and cards on /noticias show it;
-  text-only there is a visible hole at priority ≥4); the full device
-  collection walked against the story BEFORE deciding it gets none — does
-  it fit a Cifra clave (one defining number, the story's OWN figure, not
-  a context one, symbol-prefixed, rumored figures attributed in the
-  caption, value ≤24 chars with a digit, caption after ` — `), a Jugada
-  (a two-party relationship, sides ≤32 chars, one max), or a Cronología /
-  Recibo / Ecuación / Salto / Reparto / Alineación / Cotización /
-                Resultados (the one for an earnings release or filing) — "no
-  device fits" should be the rare finding, not the default one; and the
-  device BUDGET respected (≤2 min read → 1 designed device, 3-5 min → 2,
-  6+ → 3, **+1 more at any length when `priority: 5`**; no repeated
-  types; data only from the piece itself, never invented to force a
-  fit); every paragraph's bold lead-in specific and colon-terminated
-  (they render as scan marks now); key figures in house shapes, the
-  single most important one bold.
-- **Noticias** — if the story is number-driven, its biggest figure
-  verbatim in `title` or `excerpt` (the feature band pulls it out as the
-  green chip); `date` correct (the weekday badge derives from it).
-- **La Lana** — biggest figure verbatim in title/excerpt (hub hero);
-  "Ruta del dinero: A → B → C" paragraph when the story genuinely traces
-  a geographic flow (article route + auto board row); connections
-  extracted and pushed via `scripts/update-lana-board.ts` (board rows —
-  step above). Remember the numbering is computed: never write "EXP."
-  numbers into article copy, they'd go stale when a backlog upload
-  renumbers the catalog.
-- **Infinitas** — Marcador supersession flagged in the report when a
-  published metric beats the board (step above).
-- **TFBR** — the `"The Futbol Business Review"` /
-  `"futbol-business-review"` pair (Step 4) is what lists an edition on
-  /futbol-business-review at all.
-
-If a run can't satisfy an item (no findable cover photo, no figure in a
-figure-less story), say so in the report in one line rather than
-silently shipping the gap — same standard as Step 5a's image rule.
-
 Tone (both sections above): direct, analytical, authoritative. No filler,
 no sensationalism. Playbook reads closer to a business brief than to a
 news alert, calm and analytical even when the underlying story is
@@ -1022,66 +160,16 @@ give them.
 Style rule: never use em dashes (the "—" character) anywhere in the drafted
 text, in any field. Use commas, periods, parentheses, or "y"/"pero" instead.
 
-Three more style rules, all from a 2026-08-05 review round where the human
-read a draft back as stiff and formulaic:
-
-- **Negative parallelism: exactly one, at the thesis.** The "no es X, es Y"
-  shape (and its variants: "el golpe no vino de A, vino de B", "deja de ser
-  A y se convierte en B") used three or four times across four paragraphs
-  stops reading as analysis and starts reading as a tic, every point
-  arriving in the same rhetorical costume. The 2026-08-06 archive
-  measurement confirms the cap is right and says where the one belongs:
-  Playbook averages **about one per piece** (La Lana 0.21, Ensayo 0.38,
-  Infinitas 0.90 per 1,000 words), and it lands on the sentence the article
-  exists to make. So don't avoid it — spend it. One per article, at the
-  thesis beat, and state every other point directly. The softer "no … sino"
-  (2.15 per 1,000 words in Infinitas) doesn't count against this and can
-  carry the load elsewhere.
-- **No arithmetic showmanship.** Don't compute a ratio or percentage the
-  sources didn't publish in order to land a rhetorical punch ("el rescate
-  vale menos del 5% de lo que costó llegar hasta aquí", "la aritmética es
-  brutal"). Put the two real figures next to each other and say what the
-  gap means in business terms; the reader does the division. This reads as
-  a business brief; a calculated stat wearing a verdict reads as a hot take.
-- **Metric units always.** Convert anything a US or UK source gives in feet,
-  miles, yards, pounds, or acres into meters/kilometers/kilos before it
-  reaches any field. Playbook's reader is in Mexico and LATAM; "7,300 pies
-  de altura" is a unit they have to translate mid-sentence, "más de 2,200
-  metros" is one they feel. Sport-specific units that are genuinely used in
-  Spanish-language coverage of that sport (yardas in golf/NFL) are the
-  exception, keep those.
-
-Related: when a paragraph name-drops a background fact the reader can't be
-assumed to carry (a state's incentive package, a canceled event, a prior
-lawsuit, a regulatory ruling), spend the extra clause explaining it rather
-than dropping the bare reference. "Luisiana espera la devolución de 1.2
-millones de dólares de un acuerdo de sede" tells a reader nothing;
-the same fact with its shape (a 7.2-million incentive package, 5 of it a
-hosting fee, 1.2 already advanced, the event canceled in April, the money
-never returned) is the kind of detail that makes the piece worth reading.
-It costs one sentence and it's usually the sentence a competitor's recap
-left out.
-
 Write the body as **bold**/`##` heading formatted prose, plus any
 `![alt](url)` in-body images carried over per Step 5b (this becomes a TipTap
 document, see Step 6), never HTML tags.
 
 ## Step 4: Fields per article
 
-- **title**: headline, in Spanish. Shape it the way the archive does
-  (measured over 91 titles, 2026-08-06): **around 9 words**, and one of
-  three families — a question the piece answers (*"¿Por qué FIFA nunca
-  pierde con el Mundial?"*, 27% of titles), a claim with a colon splitting
-  subject from turn (*"Airbnb y WSL: cuando patrocinar también es
-  resolver"*, 21%), or a flat declarative that names the actor and the
-  consequence (*"El deal que le volteó el tablero a Infantino"*). 20% carry
-  a figure, and when the story has a defining number it belongs here (see
-  the Cifra clave rule). Playbook titles say what happened or what is at
-  stake; they never tease ("Lo que nadie te contó de…") and they never lead
-  with the newsletter's own name.
+- **title**: headline, in Spanish.
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
-- **bodyMarkdown**: see Step 3. For Noticias/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
+- **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
 - **author**: leave `""` unless a byline is genuinely known. Never prepend "Por " yourself, the byline template
   (`app/(public)/articulo/page.tsx`) already renders "Por " ahead of this field, a stored "Por Jane Doe" renders as
   the double "Por Por Jane Doe" (a real 2026-08-08 mistake). For a guest collaboration piece where the byline itself
@@ -1092,33 +180,17 @@ document, see Step 6), never HTML tags.
   default regardless of whether author is known, flip it `true` only when the human explicitly asks the byline to
   show (a guest collaboration is exactly that case, a normal Substack item usually isn't).
 - **publication** / **source**: pick the pair matching the source:
-    - Noticias: `"Noticias"` / `"industry-shots"`
+    - Industry Shots: `"Noticias"` / `"industry-shots"`
     - La Lana del Deporte: `"La Lana del Deporte"` / `"la-lana"`
     - Infinitas: `"Infinitas"` / `"infinitas"`
-    - The Futbol Business Review: `"The Futbol Business Review"` /
-      `"futbol-business-review"` — the hub at /futbol-business-review
-      lists this source automatically; TFBR content published with this
-      pair is what turns that page from its "las ediciones viven en
-      Substack" state into a live list. `readingTime: 3`.
-    - Anything else: `"Noticias"` / `"industry-shots"` (the old
-      `"playbook"` source was deleted in Fase 1, 2026-08-01 — inserting
-      it would create articles no filter or hub can reach).
+    - Anything else: `"Playbook"` / `"playbook"`
 
-  **The product is called Noticias. "Industry Shots" is retired
-  (publisher, 2026-08-08)** — it was this skill's internal nickname for
-  that Substack newsletter, and it is not one any more, in prose or in
-  conversation. Readers never saw it either way:
-  `SOURCE_LABELS['industry-shots']` in `lib/constants.ts` has always
-  rendered the source as "Noticias" everywhere on the site. Never write
-  the literal string "Industry Shots" into any visible field (title,
-  excerpt, teaser, body, author).
-
-  `"industry-shots"` survives ONLY as the `source` key, because it is the
-  value 68 published rows are filed under and the string every hub filter,
-  CSS product class and rank rule matches on. Keep writing it verbatim in
-  that one field; renaming the key is a migration, tracked in
-  `docs/TODO.md`. Reading it as a product name is the mistake — it is a
-  database identifier that happens to spell an old title.
+  "Industry Shots" is only this skill's internal name for that Substack
+  newsletter, used to pick the fields above. It is never a label readers
+  see: `SOURCE_LABELS['industry-shots']` in `lib/constants.ts` renders it as
+  "Noticias" everywhere on the site. Never write the literal string
+  "Industry Shots" into any visible field (title, excerpt, teaser, body,
+  author).
 - **tagsScope**: any of `Nacional`, `Internacional` (array, can be empty).
 - **tagsSport**: choose only from (case-sensitive, don't invent new ones):
   `Fútbol, Liga MX, NFL, NBA, Béisbol, Tenis, Golf, F1, Olímpico, Multi-deporte / Otros` (see `lib/taxonomy.ts`, `SPORT_OPTIONS`).
@@ -1146,7 +218,7 @@ document, see Step 6), never HTML tags.
   `Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`.
 - **date**: `YYYY-MM-DD`, confirmed from the page (Step 1), not guessed.
 - **dateFormatted**: e.g. `"21 jul 2026"` (day, 3-letter lowercase month, year).
-- **readingTime**: `2` for Noticias/Infinitas (four-paragraph standard), `3` for La Lana long-form.
+- **readingTime**: `2` for Industry Shots/Infinitas (four-paragraph standard), `3` for La Lana long-form.
 - **priority** (Importancia): 1-5, objective scale:
     - `5` = Mexico/LATAM-specific regulatory, structural, or major business story.
     - `4` = Major international story with clear LATAM or business implication.
@@ -1310,12 +382,6 @@ content (photos, banners, infographics, charts) gets carried over.
    (`https://playbook-portal-phi.vercel.app/articulo?id=<id>`), not a re-print
    of the full draft. If any came back `duplicate`, say so (it means that
    exact story was already published from a prior run of this same link).
-
-   Report the Step 0 outcomes in the same breath, because an edition where
-   three of nine briefs were already covered looks like a thin run otherwise.
-   One line each: what was skipped and which article covers it, what was
-   folded into an existing piece, and what ran as a cross-linked second angle.
-   A skipped item is work done, not work missing.
 
 Do not ask for approval before step 6. Publishing without a review step is
 the point of this flow. Do flag anything genuinely uncertain (e.g. couldn't
