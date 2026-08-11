@@ -123,6 +123,13 @@ full-width feature band, 4 as a two-up card, the rest as compact rows. An
 inflated 5 hogs a band; a lazy 2 buries a real story. It also buys an extra
 device slot at 5 (`dynamic-element-library.md` §1).
 
+**Check precedent before you set it** (2026-08-11): query two or three
+comparable published stories, same vertical or same running story, and match
+them rather than reading the scale fresh. The rubric above is qualitative and
+the 3/4 boundary carries most of the archive, so applied cold it drifts — a
+Trump/FIFA follow-up went out at 4 off the "international, not Mexico-specific"
+line while every other article in that saga was filed at 5.
+
 **Breaking News override** (team directive, 2026-08-01): when the source itself
 is presented as a flash/urgent update outside the normal cadence (its own title
 reads "Breaking News:" or equivalent, rather than a scheduled edition), set

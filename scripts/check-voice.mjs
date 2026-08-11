@@ -49,18 +49,84 @@ const TARGETS = {
 const STRUCTURAL =
   /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Fuentes:|Ruta del dinero:|## )/;
 
-// Two members of the same family, counted against one budget.
-//   1. "no es X, es Y" and its conjugated variants.
-//   2. "no solo X, sino Y" — un-exempted 2026-08-11. The comma is optional in
-//      practice ("no solo cambia el precio sino quién lo fija"), so it is not
-//      required here the way it is in the first pattern.
+// The negative-parallelism family, counted against one budget.
+//
+// voice-and-style.md §2 says "the whole family counts against the one cap" and
+// enumerates four shapes. Until 2026-08-11 this file only detected two of them:
+// the first pattern hard-coded a list of copular and auxiliary verbs
+// (es|son|fue|viene|está|estaba|se trata de), so any member built on a lexical
+// verb slipped through uncounted. All three articles published that day closed
+// on one — "Disney no compró carreras, compró fechas fijas", "Trump no defendió
+// una gestión, cambió la pregunta", "El tope no dejó fuera al capital privado,
+// le cambió el instrumento" — and the checker reported `antítesis 0` on every
+// one. Each was within budget, so nothing shipped wrong, but the number the
+// reviewer reads was not the number the rule defines, and a piece carrying two
+// would have passed silently.
+//
+// Spanish has no POS tagger here, so the general shape is matched structurally:
+// a negated clause whose verb is followed by a comma and a second clause that
+// also opens on a verb. VERB below is deliberately conservative — unambiguous
+// finite endings (-ó, -ió, -aron, -ieron, -aba, -ía, -ará, -aría) plus the
+// common irregulars — because a false positive here costs a rewrite the rule
+// does not actually demand.
+const CLITIC = '(?:me|te|se|le|les|lo|la|los|las|nos)\\s+';
+// JS \b is ASCII-only, so it does NOT fire after an accented letter: "compró "
+// is non-word followed by non-word, i.e. no boundary at all. Every lexical
+// preterite in Spanish ends in a vowel with an accent, so a trailing \b here
+// would silently fail on exactly the forms this is meant to catch. Use an
+// explicit "no more letters follow" lookahead instead.
+const NOT_LETTER = '(?![a-zñáéíóúü])';
+const VERB =
+  '(?:' +
+  // unambiguous finite morphology
+  '[a-zñáéíóú]{2,}?(?:ó|ió|aron|ieron|aba|abas|aban|ábamos|ía|ías|ían|íamos|ará|erá|irá|arán|erán|irán|aría|ería|iría)' +
+  // high-frequency irregulars and present forms that carry this construction
+  '|es|son|era|eran|fue|fueron|será|serán|está|están|estaba|estaban|hay|tiene|tienen' +
+  '|va|van|viene|vienen|vino|vinieron|deja|dejan|hace|hacen|sigue|siguen|puede|pueden' +
+  '|quiere|quieren|busca|buscan|gana|ganan|pierde|pierden|cambia|cambian|compra|compran' +
+  '|vende|venden|mueve|mueven|pone|ponen|dice|dicen|sabe|saben|vale|valen|toca|tocan' +
+  ')';
+
 const NEGATIVE_PARALLELISM = [
-  /\bno (?:es|son|fue|viene|está|estaba|se trata de)\b[^.;]{2,70}[,;]\s*(?:es|son|sino|viene|está)\b/gi,
-  /\bno s[oó]l(?:o|amente)\b[^.;]{2,70}[,;]?\s*sino\b/gi,
+  // 1. "no es X, es Y" / "el golpe no vino de A, vino de B" / "no compró X,
+  //    compró Y" / "no defendió X, cambió Y". Optional "sino (que)" or "pero"
+  //    on the second clause, optional clitic before either verb.
+  new RegExp(
+    `\\bno\\s+(?:${CLITIC})?${VERB}${NOT_LETTER}[^.;:!?]{2,80},\\s*(?:sino\\s+(?:que\\s+)?|pero\\s+)?(?:${CLITIC})?${VERB}${NOT_LETTER}`,
+    'gi',
+  ),
+  // 2. "no es X, SINO Y" — second clause led by sino with no finite verb of
+  //    its own ("no es una regla, sino un contrato").
+  new RegExp(`\\bno\\s+(?:${CLITIC})?${VERB}${NOT_LETTER}[^.;:!?]{2,80},?\\s*sino\\b`, 'gi'),
+  // 3. "no solo X, sino Y" — un-exempted 2026-08-11. The comma is optional in
+  //    practice ("no solo cambia el precio sino quién lo fija").
+  /\bno s[oó]l(?:o|amente)\b[^.;:!?]{2,80}[,;]?\s*sino\b/gi,
+  // 4. "deja de ser A y se convierte en B" — named in the guide, never detected.
+  /\bdeja(?:n)? de (?:ser|estar)\b[^.;:!?]{2,80}\by se (?:convierte|convierten|vuelve|vuelven|transforma|transforman)\b/gi,
 ];
 
-const countNegatives = md =>
-  NEGATIVE_PARALLELISM.reduce((n, re) => n + (md.match(re) || []).length, 0);
+// The patterns overlap by design (shape 1 and shape 2 both fire on "no es X,
+// sino Y"), so count distinct spans rather than raw matches or the same
+// sentence is charged twice against a budget of one.
+export function findNegatives(md) {
+  const spans = [];
+  for (const re of NEGATIVE_PARALLELISM) {
+    re.lastIndex = 0;
+    for (const m of md.matchAll(re)) spans.push([m.index, m.index + m[0].length, m[0]]);
+  }
+  spans.sort((a, b) => a[0] - b[0]);
+  const merged = [];
+  for (const s of spans) {
+    const last = merged[merged.length - 1];
+    if (last && s[0] < last[1]) {
+      last[1] = Math.max(last[1], s[1]);
+      if (s[2].length > last[2].length) last[2] = s[2];
+    } else merged.push(s.slice());
+  }
+  return merged.map(s => s[2]);
+}
+
+const countNegatives = md => findNegatives(md).length;
 
 const words = s => s.split(/\s+/).filter(Boolean).length;
 const median = a => {
@@ -151,4 +217,5 @@ function main() {
   if (flagged && strict) process.exit(1);
 }
 
-main();
+if (import.meta.url === `file://${process.argv[1]}`) main();
+
