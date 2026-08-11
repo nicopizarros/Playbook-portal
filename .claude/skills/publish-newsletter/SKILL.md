@@ -361,38 +361,117 @@ content (photos, banners, infographics, charts) gets carried over.
 
 ## Step 5c: Designed devices (the "dynamic elements", every article)
 
-Separately from Step 5's images, `lib/article-devices.ts` (plus `lib/article-map.ts`
-for Mapa and `lib/product-hubs.ts` for Cifra clave / Ruta del dinero / Jugada) is a
-whole authoring convention this file used to say nothing about, discovered
-2026-08-11 only because a human had to point at a live article and ask why it
-"had dynamic elements" and a freshly-published one didn't. It renders a plain
+Separately from Step 5's images, `lib/article-devices.ts` (plus
+`lib/article-map.ts` for Mapa and `lib/product-hubs.ts` for Cifra clave,
+Ruta del dinero, and Jugada) is a whole authoring convention this file used
+to say nothing about, discovered 2026-08-11 only because a human had to
+point at a live article and ask why it "had dynamic elements" and a
+freshly-published one didn't. The full checkable rules already existed in
+`docs/la-lana-article-spec.md` §2, written for La Lana but the mechanics
+apply to every product; this section folds that in. It renders a plain
 paragraph, typed exactly like any other, as an animated/interactive visual
-block, one of: `Cronología`, `Recibo`, `Ecuación`, `Salto`, `Reparto`,
-`Alineación`, `Cotización`, `Resultados`, `Duelo`, `Serie`, `Mapa`, plus the
-older `Cifra clave`, `Ruta del dinero`, and `Jugada`. It happens at render
-time (`app/(public)/articulo/page.tsx` calls `applyBodyDevices`/
-`deviceFromParagraph` off the stored plain text), so authoring one is nothing
-more than writing the trigger paragraph correctly into `bodyMarkdown`, no
-separate rendering step.
+block at RENDER time (`app/(public)/articulo/page.tsx` calls
+`applyBodyDevices`/`deviceFromParagraph` off the stored plain text, per
+`docs/la-lana-article-spec.md` §5's rule that body *presentation* is always
+a render-time transform, never something baked into `bodyMarkdown`/HTML at
+publish time), so authoring one is nothing more than writing the trigger
+paragraph correctly, no separate rendering step and nothing to keep in sync.
 
-Every article should carry at least one of these when the story's own
-numbers genuinely support one, never invented to hit a quota: a deal's
-dollar figures fit `Recibo` or `Cifra clave`, a before/after fits `Salto`,
-two competing sides on the same metrics fit `Duelo`, a set of countries
-split into camps (who signed, who didn't, who's covered by a rights deal)
-fits `Mapa`. `deviceBudgetFor` in that file caps how many per article
-(1 for the standard 2-minute Noticias length, +1 more when `priority: 5`),
-so don't stack several, pick the one that fits the story's best number best.
-Read the module's own header comments for each device's exact grammar
-(`Etiqueta — Valor · Etiqueta — Valor`, separated by ` · `, em dash `—`
-between label and value is the house convention despite the no-em-dash
-prose rule elsewhere, this is a technical syntax token, not sentence
-punctuation) before writing one, and never guess the shape from memory,
-a malformed paragraph just renders as inert plain text (no error, easy to
-miss). Place the device paragraph as its own paragraph immediately after
-the fact/detail paragraph whose numbers it visualizes, not bunched at the
-end. If nothing in the piece has a genuine device-shaped number, it's fine
-to skip, this is additive polish, not a required field like the cover image.
+**Zero devices on a piece is a bug, not restraint** (docs/la-lana-article-spec.md
+§2's framing, applies here too): before concluding none fits, walk the story
+against all thirteen shapes, matched to what the story's own numbers/actors
+actually are, never invented to hit a quota:
+
+- `Cifra clave: Valor — caption` — one huge pull-figure when the story's
+  single number IS the hook. **Replaces its sentence**, never restate the
+  same figure in the neighboring prose. Its caption is reused verbatim by
+  the homepage's "La cifra del día" rail, where it's the *only* thing
+  telling a reader what the number measures, so write it to name the thing
+  even out of context (`US$8,000 a US$20,000 — el costo anual del futbol
+  juvenil de alto nivel en Estados Unidos`, not `— lo que cuesta`).
+- `Jugada: Lado A ↔ Lado B` (or `→` for one-way) — the connection strip, for
+  a two-party deal story whose headline asset IS the relationship rather
+  than a figure (Chelsea ↔ Strava, a transfer, an acquisition).
+- `Cronología: cuándo — qué · cuándo — qué` — a saga in milestones, 2-6 of
+  them, each `cuándo` ≤14 chars and `qué` ≤70.
+- `Recibo: etiqueta — valor · etiqueta — valor` — itemized amounts, 2-8 of
+  them; a label starting with "Total" gets the receipt's highlighted total
+  row and counts up.
+- `Ecuación: factor × factor = resultado` — display math when the story's
+  number is literally a product of two or three named factors.
+- `Salto: de — a — caption` (`→` between from/to) — a single metric's
+  before/after, both sides need a digit; direction (color) is inferred from
+  the two magnitudes.
+- `Reparto: etiqueta — pct% · etiqueta — pct%` — a proportional split, 2-5
+  shares, drawn as a floor-plan bar.
+- `Alineación: Nombre · Nombre · Nombre` — a lineup of 2-8 named
+  parties/signatories, no values, flap-chip strip.
+- `Cotización: Nombre — valor · delta% · nota` — a market-tile quote (price,
+  a signed percentage delta, optional note).
+- `Resultados: Sujeto, periodo · etiqueta — valor (delta%) · …` — a filing's
+  lines (3-7), each with its own optional delta; the shape an earnings
+  release actually has, use it over `Recibo` when the numbers are a set of
+  reported line items with period-over-period change.
+- `Duelo: A vs B · etiqueta — valorA vs valorB` — two actors on the same
+  metrics, butterfly bars on one shared scale (mix currencies deliberately,
+  never a % next to an amount).
+- `Serie: A vs B · punto — valorA vs valorB · …` — the same two actors
+  tracked over 3-8 points in time, when the *shape over time* (volatility,
+  a collapse-and-recover) is the story, not just the endpoint comparison
+  `Duelo` would show.
+- `Mapa: marco · etiqueta — ISO3, ISO3 · etiqueta — resto` — real geography,
+  countries split into up to 3 labeled camps (who signed, who didn't, whose
+  rights deal covers what). `marco` picks the frame (`concacaf`, `uefa`,
+  `mundo`, `auto` for a set that isn't a standard confederation/continent);
+  one camp can be `resto` (everyone framed but unclaimed). See
+  `lib/article-map.ts`'s header comment for the full frame list and the
+  "second group is the hollow outline, the holdout" visual convention.
+- `Ruta del dinero: Parada → Parada → Parada` (`lib/product-hubs.ts`) — La
+  Lana's own narrative-identity device, the money's path across
+  entities/jurisdictions. **Exempt from the budget below**, capped at one
+  per article on its own; don't count it against the thirteen above and
+  don't use it outside La Lana.
+
+**Budget** (`deviceBudgetFor`, applies to the thirteen above, not Ruta del
+dinero):
+
+| reading time | devices | `priority: 5` |
+| --- | --- | --- |
+| ≤2 min (Noticias/Infinitas standard) | 1 | +1 |
+| 3-5 min | 2 | +1 |
+| 6+ min (La Lana) | 3 | +1 |
+
+**Grammar and rules that bite** (read the exact regex in
+`lib/article-devices.ts`'s header comment before writing one, don't guess
+from memory; a malformed paragraph silently renders as inert plain text, no
+error):
+
+- Each device is a **plain paragraph on its own line**, items separated by
+  ` · `, key/value by ` — ` (em dash). The em-dash prose ban elsewhere in
+  this file does not apply here, the parsers require it as syntax, not
+  sentence punctuation.
+- **Never repeat a device type** in one article, the second declaration
+  silently renders as plain text.
+- **First declared wins the budget** (document order): put the device
+  carrying the story's actual spine first, not a secondary one.
+- Over-budget declarations degrade to visible plain paragraphs, a reader
+  sees the raw `Recibo: …` text if this is gotten wrong.
+- Leave at least two prose paragraphs between devices when using more than
+  one (nothing enforces this, it's a readability call).
+- **Every number inside a device must already be stated elsewhere in the
+  piece** (or be the number that paragraph's own prose is presenting),
+  never invented to fill a shape.
+- Place the device paragraph immediately after the fact/detail paragraph
+  whose numbers it visualizes, not bunched at the end.
+- Complementary, not a device itself: bold the single most important
+  figure in ordinary prose (`**70%**`) when it isn't already inside a
+  device, a bold span that's purely a figure counts up automatically.
+
+If nothing in the piece has a genuine device-shaped number after actually
+checking all thirteen, it's fine to skip, this is additive polish, not a
+required field like the cover image, but "didn't check" isn't the same as
+"none fit". See `docs/la-lana-article-spec.md` §2 for the fuller version of
+this checklist (written for La Lana's longer budget tier, same rules).
 
 ## Step 6: Publish
 

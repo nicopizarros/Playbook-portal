@@ -234,17 +234,24 @@ content, so body images stay out unless a human explicitly asks for one.
 
 ### 6c. Designed devices ("dynamic elements")
 
-Same convention as `publish-newsletter`'s Step 5c: `lib/article-devices.ts`
-turns a correctly-formatted plain paragraph (`Recibo`, `Duelo`, `Mapa`, etc.,
-see that file's header comments and that skill's Step 5c for the full list
-and grammar) into an animated visual block at render time. Add one to
-`bodyMarkdown` when the story's own numbers genuinely fit a device shape
-(this skill's Step 2 cross-referencing often surfaces exactly that kind of
-comparable figure), never invented to hit a quota, capped at
-`deviceBudgetFor`'s per-article budget (usually one). This applies here
-too, a wire pickup is just as eligible as a Substack item, and its Step 2
-sourcing (a second/third outlet's numbers) is a natural source for a
-`Duelo`/`Serie` comparison a single-source piece wouldn't have.
+Same convention as `publish-newsletter`'s Step 5c, which has the full
+catalog of all thirteen shapes (`Cifra clave`, `Jugada`, `Cronología`,
+`Recibo`, `Ecuación`, `Salto`, `Reparto`, `Alineación`, `Cotización`,
+`Resultados`, `Duelo`, `Serie`, `Mapa`), each one's exact trigger grammar,
+the budget table, and the rules that bite (never repeat a type, first
+declared wins the budget, every number must already be in the piece):
+`lib/article-devices.ts` turns a correctly-formatted plain paragraph into an
+animated visual block at render time, so authoring one is nothing more than
+writing it into `bodyMarkdown`. **Zero devices on a piece is a bug, not
+restraint**, walk the story against the full catalog before concluding none
+fits, this readingTime-2 four-paragraph shape budgets exactly 1 (+1 more
+when `priority: 5`, see the table). This skill's Step 2 cross-referencing
+is a natural source for one: a second/third outlet's comparable figure is
+exactly the kind of number that fits `Duelo` (two actors, same metrics) or
+`Serie` (the same two over time) when a single-source piece wouldn't have
+had it. `Ruta del dinero` is the one exception, La Lana's own
+narrative-identity device, not applicable to this skill's Noticias-shaped
+output.
 
 ## Step 6: Human review, before anything touches the database
 
