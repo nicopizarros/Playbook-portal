@@ -1,0 +1,11 @@
+# Graphify generated artifacts.
+#
+# These are deliberately NOT in .gitignore — graphify-out/ is committed so the
+# repo carries a prebuilt knowledge graph. They are excluded here instead so
+# Claude Code does not pull them into context: graph.json and the graphify-out/
+# tree are rewritten on every `graphify update`, and a file that changes on
+# every extract invalidates the prompt cache each session.
+#
+# Query the graph with `graphify query "..."` rather than reading these directly.
+graph.json
+graphify-out/
