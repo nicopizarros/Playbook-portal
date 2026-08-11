@@ -96,15 +96,27 @@ const CASES = [
   // hand-picked ids were absent, which a scorer returning eight OTHER spurious
   // rows passes comfortably. `maxHits` and `maxScore` are the assertions that
   // can actually see it: bound the noise, don't enumerate it.
+  //
+  // Both carry `self`, the way a real Step 0 run on a draft does. Without it
+  // these cases decay the moment their own story is published: they were
+  // written before the two articles went live, passed, and started failing at
+  // 71% against the very articles the queries describe. That is the scorer
+  // being right, so the fix belongs in the case, not the threshold. Excluding
+  // the story itself keeps what is actually under test — that a piece whose
+  // only match in the archive is itself comes back clean — and does not weaken
+  // the regression, because the rows the pre-fix scorer invented (a Bundesliga
+  // financing, Pau Gasol, Liga MX, the Seahawks sale) are not the self row.
   {
     name: 'Novel actors, none in the archive, must not read as a duplicate',
     query: 'CME lanza futuros sobre el desempeño de equipos de la NHL',
+    self: 'https://www.reuters.com/sports/cme-takes-nhl-team-performance-into-futures-market-2026-08-11/',
     maxHits: 1,
     maxScore: 0.45,
   },
   {
     name: 'Novel actors, long query, must not read as a duplicate',
     query: 'Daniel Levy incumple el plazo de la emisión de acciones del Tottenham Hotspur',
+    self: 'https://www.bloomberg.com/news/articles/2026-08-11/tottenham-hotspur-s-levy-said-to-miss-deadline-for-share-issue?srnd=phx-business-of-sports',
     maxHits: 1,
     maxScore: 0.45,
   },
@@ -121,7 +133,7 @@ const index = buildIndex(rows);
 
 let failed = 0;
 for (const c of CASES) {
-  const hits = rank(c.query, index);
+  const hits = rank(c.query, index, { self: c.self });
   const ids = hits.map(h => h.d.id);
   const missing = (c.mustFind || []).filter(id => !ids.includes(id));
   const leaked = (c.mustNotFind || []).filter(id => ids.includes(id));
@@ -152,5 +164,43 @@ for (const c of CASES) {
   }
 }
 
-console.log(`\n${CASES.length - failed}/${CASES.length} casos pasan`);
+// ---------------------------------------------------------------------------
+// One case that does NOT read the live archive, because every case above does.
+//
+// The archive-backed novel-actor cases decay by construction: they assert that
+// a story about actors the corpus has never carried scores low, and publishing
+// that story puts the actors in the corpus. Measured immediately after the
+// CME/NHL and Tottenham pieces went live, both cases stopped failing against
+// the pre-fix scorer, i.e. they had quietly lost the regression they were added
+// for while still reporting ok.
+//
+// The invariant belongs to `score()`, not to the corpus, so it is pinned here
+// against a fixed synthetic index that no publish run can move: a query whose
+// distinctive terms are all absent must not come back as a duplicate off the
+// one generic word it happens to share.
+const SYNTHETIC = [
+  { id: 'a', title: 'La Bundesliga negocia mil millones de euros con un fondo',
+    excerpt: 'El acuerdo daria al fondo una participacion en los derechos comerciales.', teaser: '' },
+  { id: 'b', title: 'La liga femenil estrena identidad y formato',
+    excerpt: 'El torneo cambia de nombre y suma patrocinadores para el siguiente ciclo.', teaser: '' },
+  { id: 'c', title: 'El plazo para presentar ofertas por los derechos vence el viernes',
+    excerpt: 'Tres cadenas siguen en la puja por el paquete completo.', teaser: '' },
+];
+const synthIndex = buildIndex(SYNTHETIC.map(r => ({ ...r, date: '2026-01-01', source: 'x', publication: 'X', substack_url: '', source_url: `https://example.test/${r.id}` })));
+// Every distinctive token here (zzyrix, kappler, vondel) is absent from that
+// corpus; only "plazo" and "derechos" are shared, and sharing a generic word
+// with an article is not evidence of being the same story.
+const synthQuery = 'Zzyrix Kappler incumple el plazo de la emision de derechos del Vondel United';
+const synthHits = rank(synthQuery, synthIndex);
+const synthTop = synthHits.length ? synthHits[0].s : 0;
+const synthOk = synthTop < 0.45;
+if (!synthOk) failed++;
+console.log(`${synthOk ? '  ok  ' : 'FAIL  '}Unseen query terms must count in the denominator (sin archivo)`);
+if (!synthOk || verbose) {
+  console.log(`        query: ${synthQuery}`);
+  console.log(`        top score ${(synthTop * 100).toFixed(0)}% (máximo 45%), ${synthHits.length} filas`);
+}
+const TOTAL = CASES.length + 1;
+
+console.log(`\n${TOTAL - failed}/${TOTAL} casos pasan`);
 process.exit(failed ? 1 : 0);

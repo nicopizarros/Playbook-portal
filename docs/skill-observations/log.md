@@ -452,3 +452,48 @@ inputs, so a negative claim about them requires external corroboration before it
 is reported, and doubly so before it is written into durable documentation.
 Absence of evidence gathered by introspection is not evidence of absence, and a
 diagnosis that survives only because every test passed is not a diagnosis.
+
+### Observation 13: A regression test keyed to live data can be erased by the workflow it guards
+
+**Status:** OPEN
+**Date:** 2026-08-11
+**Session context:** Same session; the novel-actor cases added for Observation 9 stopped catching the bug within the hour
+**Skill:** publish-sourced-article / publish-newsletter (`scripts/test-duplicate-detection.mjs`)
+**Type:** internal
+**Phase/Area:** Step 0 tooling, regression suite
+
+**Issue:** The cases added to pin Observation 9's fix asserted that a story about
+actors the archive had never carried must not score as a duplicate. They were
+verified the right way, by running them against the pre-fix scorer, and they
+failed 3/12 as intended.
+
+Then the run published the two articles those queries describe. The actors were
+now in the corpus, the unseen-term path the bug lived in no longer executed, and
+both cases passed against the broken scorer. Within the same session the tests
+went from catching the regression to reporting `ok` while catching nothing, and
+the only reason this surfaced is that the suite was re-run against the old code
+a second time after publishing.
+
+The suite is deliberately keyed to the live archive, which is right for the
+recall cases: they exist because term-frequency distribution is what broke the
+scorer, and a synthetic corpus would not reproduce it. But the same coupling
+means the publish pipeline mutates the fixture, and a case whose premise is
+"the archive does not contain X" is guaranteed to be invalidated by the very
+workflow it protects.
+
+**Suggested improvement:** Done. The two cases now pass `self`, matching how a
+real Step 0 run checks a draft, which keeps them meaningful as "a story whose
+only match is itself comes back clean". The invariant they were added for
+belongs to `score()` rather than to any corpus, so it is now pinned separately
+against a fixed synthetic index that no publish run can move (verified: 100%
+pre-fix, clean after). More generally: when a suite reads mutable shared state,
+sort cases by whether they test a property of the *data* or of the *code*, and
+give the second kind a fixture it owns.
+
+**Principle:** A test whose premise is the absence of something in a live
+dataset has a built-in expiry, and the actor most likely to trigger it is the
+pipeline the test guards. Coupling to production data buys realism for
+behaviour that depends on the data's shape and silently costs coverage for
+everything else, so verify a regression test against the broken code **after**
+the workflow has run once, not only before, or it can go green without anyone
+touching it.
