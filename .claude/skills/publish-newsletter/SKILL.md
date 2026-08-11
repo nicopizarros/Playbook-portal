@@ -322,6 +322,26 @@ No exceptions to the four-paragraph structure: a "brief, no real angle"
 story still gets all four, it just stays tight and grounded rather than
 padded or invented.
 
+**On a running political story, the Opinión reads the alignment, it does
+not keep score** (publisher feedback, 2026-08-10, on a FIFA-governance
+follow-up). The tempting shape, and the one to avoid, is a tally of who
+looks bad: X backed the loser, the count came to 40, X is alone. That
+lands as stingy, and worse, it is the smallest true thing available. What
+the reader wants from a fight with a known end date is where the sides
+are FORMING and what the fight will cost to run. Concretely: name both
+blocs, not just the isolated party; look for where the emerging blocs cut
+ACROSS the formal institutions rather than along them (in the worked
+example, the AFC signed a letter against the FIFA president while its own
+Gulf federations backed him, exactly the split Concacaf had with Mexico,
+which turns "Mexico is alone" into "the camps don't respect confederation
+borders" — a bigger and more useful read); and close on the attrition,
+the months of process, the venues and calendars and development money
+that get spent while it plays out, the cost of holding a position in
+public for that long. A closing beat about the wear on everyone involved
+is a better ending than a verdict on one party. This is also the case
+where a second closing paragraph after the callout earns itself (see the
+2026-08-07 precedent below).
+
 If an item is itself a follow-up to a story Playbook already covered (a
 prior Noticias/Infinitas item, findable by querying the DB), don't
 re-explain what that earlier piece established, link back to it inline
@@ -775,6 +795,39 @@ them right at drafting time:
       minimum and maximum, which drew the same comparison twice; moving
       the butterfly onto the distribution/result/reserves data made the
       two devices complementary instead of redundant.
+    - `Mapa: Concacaf · En el comunicado — resto · Sin firmar — MEX` →
+      real geography (2026-08-10). The frame's countries are drawn from
+      the world dataset and split into labelled camps, with a legend that
+      counts each camp for itself. First item is the FRAME: `mundo`,
+      `concacaf`, `conmebol`, `uefa`, `ofc`, `europa`, `áfrica`, `asia`,
+      `oceanía`, `norteamérica`, `sudamérica`, or `auto` (which frames
+      exactly the countries the groups name — use it for any set that
+      isn't one of the above, e.g. World Cup hosts). Every item after it
+      is a group: `Etiqueta — MEX, USA, CAN` with **ISO3** codes, or
+      `Etiqueta — resto` for every framed country no other group claimed.
+      One to three groups.
+      The visual ramp is fixed and means the same thing on every map:
+      group 1 is the filled mass, group 2 is **hollow with a heavy
+      outline** — the exception, the holdout, the one that's missing —
+      and group 3 is a mid tint. So "everyone except X" is written as
+      `Grupo — resto · X — MEX` and X reads as the hole in the map, which
+      is exactly the shape a "who signed and who didn't" story has.
+      Use it when the story's unit is COUNTRIES and their split is the
+      argument: signatories vs holdouts, hosts vs bidders, the markets a
+      rights deal covers, where a league is carried. It is the wrong
+      device for a split with no geography (that's `Reparto`) and for
+      naming people (`Alineación`). Territories too small to draw at this
+      size render as dots rather than shapes, which is most of the
+      Caribbean and much of Oceania — a Concacaf map is 19 shapes and 22
+      dots, and that is correct, not a data gap.
+      The legend counts are computed from the codes, so **the count in
+      the prose and the count on the map cannot disagree** — that's the
+      device's main advantage over asserting "40 of 41" in a sentence,
+      and it's why a `Cifra clave` restating the same ratio next to it is
+      redundant; spend the second device slot on something else.
+      Frames are data (`scripts/build-world-map.ts`): CAF and AFC aren't
+      pre-baked yet, so a story about those confederations needs `auto`
+      plus an explicit code list, or a new frame added to that script.
   Rules of use — **the device budget (round 4, 2026-08-06, priority-aware
   now, enforced in code by `applyBodyDevices`/`deviceBudgetFor`, not just
   here):** designed devices scale with `readingTime` **and** `priority`.

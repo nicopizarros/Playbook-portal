@@ -209,7 +209,7 @@ documents). Lead-ins render as scan marks, so keep each one specific to
 its paragraph; figures in house shapes highlight automatically, and the
 single most important one should be bold (bold counts up). The full
 device collection (Cronología / Recibo / Ecuación / Salto / Reparto /
-Alineación / Cotización — syntax and when-to-use in
+Alineación / Cotización / Mapa — syntax and when-to-use in
 `publish-newsletter`'s "device collection" section) applies to this
 skill's output too, under the same code-enforced, priority-aware budget
 (2026-08-06, round 2): ≤2 min read → 1 designed device, 3-5 min → 2, 6+
