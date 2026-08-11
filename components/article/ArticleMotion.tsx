@@ -6,7 +6,19 @@ import { gsap } from '@/lib/gsap';
 // file's guidance (same as DeparturesBoard): only article pages use the
 // scramble here, so the plugin shouldn't ship to every GSAP route.
 import { ScrambleTextPlugin } from '@/vendor/gsap/esm/ScrambleTextPlugin.js';
-import { splitFigure, parseNumeric, formatNumeric, FIGURE_TEXT_RE, FIGURE_INLINE_RE } from '@/lib/figures';
+import { FIGURE_TEXT_RE } from '@/lib/figures';
+// The five primitives this page shares with the hubs and the homepage
+// (2026-08-10). What stays local below is what only an article has: the
+// scramble-driven flaps, and the four data devices (Reparto, Duelo, Serie,
+// pull-figure) whose geometry has no equivalent anywhere else.
+import {
+  type MotionScope,
+  drawIn,
+  parallax,
+  staggerIn,
+  countUp,
+  highlightFigures,
+} from '@/lib/motion-kit';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrambleTextPlugin);
@@ -51,6 +63,10 @@ export function ArticleMotion() {
 
     const tweens: { kill(): void; scrollTrigger?: { kill(): void } | null }[] = [];
     const cleanups: (() => void)[] = [];
+    // Same two arrays, handed to the shared primitives as one object so they
+    // can register their own tweens and undo functions on this component's
+    // lifecycle without owning any state themselves.
+    const scope: MotionScope = { tweens, cleanups };
 
     // 1 — Kicker scramble. Width-locked before the flap so the chip (and
     // anything after it on the line) never shifts.
@@ -76,62 +92,17 @@ export function ArticleMotion() {
     // frame; transform-only, scrubbed, no layout involvement.
     const photo = document.querySelector<HTMLElement>('.article-photo');
     const cover = photo?.querySelector<HTMLElement>('img');
-    if (photo && cover) {
-      gsap.set(cover, { scale: 1.12 });
-      tweens.push(
-        gsap.fromTo(
-          cover,
-          { yPercent: -5 },
-          {
-            yPercent: 5,
-            ease: 'none',
-            scrollTrigger: { trigger: photo, start: 'top bottom', end: 'bottom top', scrub: 0.4 },
-          },
-        ),
-      );
-      cleanups.push(() => {
-        cover.style.removeProperty('transform');
-      });
-    }
+    if (photo && cover) parallax(scope, photo, cover);
 
     // 3 — Drawn rules (plus any device baseline carrying .lect-draw,
     // e.g. the timeline's spine).
-    document.querySelectorAll<HTMLElement>('.lect-rule, .article-body hr, .lect-draw').forEach(rule => {
-      gsap.set(rule, { scaleX: 0, transformOrigin: 'left center' });
-      tweens.push(
-        gsap.to(rule, {
-          scaleX: 1,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: rule, start: 'top 92%', once: true },
-        }),
-      );
-      cleanups.push(() => rule.style.removeProperty('transform'));
-    });
+    drawIn(scope, document.querySelectorAll<HTMLElement>('.lect-rule, .article-body hr, .lect-draw'));
 
     // 3b — Device choreography (round-3 collection): children of any
     // [data-lect-stagger] group rise in sequence, and the Reparto bar's
     // segments grow left-to-right. Both once, on first view.
     document.querySelectorAll<HTMLElement>('[data-lect-stagger]').forEach(group => {
-      const children = Array.from(group.children) as HTMLElement[];
-      if (!children.length) return;
-      gsap.set(children, { opacity: 0, y: 8 });
-      tweens.push(
-        gsap.to(children, {
-          opacity: 1,
-          y: 0,
-          duration: 0.45,
-          stagger: 0.12,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: group, start: 'top 88%', once: true },
-        }),
-      );
-      cleanups.push(() => {
-        children.forEach(child => {
-          child.style.removeProperty('opacity');
-          child.style.removeProperty('transform');
-        });
-      });
+      staggerIn(scope, group, Array.from(group.children) as HTMLElement[]);
     });
     document.querySelectorAll<HTMLElement>('.lect-rep-bar').forEach(bar => {
       const segments = Array.from(bar.querySelectorAll<HTMLElement>('[data-lect-seg]'));
@@ -263,52 +234,17 @@ export function ArticleMotion() {
     // count-up's territory), the opinion callout, links, captions and
     // existing devices. Reduced-motion never reaches this code, so the
     // page stays byte-identical to the server render there.
-    const marks: HTMLElement[] = [];
     const body = document.querySelector<HTMLElement>('.article-body');
     if (body) {
-      const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
-        acceptNode(node) {
-          const el = node.parentElement;
-          if (!el) return NodeFilter.FILTER_REJECT;
-          if (el.closest('strong, a, aside, figure, mark, .lect-jugada, .lect-device, .money-trail, h2, h3, figcaption')) {
-            return NodeFilter.FILTER_REJECT;
-          }
-          return NodeFilter.FILTER_ACCEPT;
-        },
-      });
-      const textNodes: Text[] = [];
-      for (let n = walker.nextNode(); n; n = walker.nextNode()) textNodes.push(n as Text);
-      for (const node of textNodes) {
-        if (marks.length >= MAX_INLINE_FIGS) break;
-        const text = node.textContent || '';
-        FIGURE_INLINE_RE.lastIndex = 0;
-        const match = FIGURE_INLINE_RE.exec(text);
-        if (!match) continue;
-        const mark = document.createElement('mark');
-        mark.className = 'lect-fig';
-        const rest = node.splitText(match.index);
-        rest.splitText(match[0].length);
-        mark.textContent = rest.textContent;
-        rest.parentNode?.replaceChild(mark, rest);
-        marks.push(mark);
-      }
-      marks.forEach(mark => {
-        mark.style.setProperty('--lect-fx', '0');
-        tweens.push(
-          gsap.to(mark, {
-            '--lect-fx': 1,
-            duration: 0.7,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: mark, start: 'top 85%', once: true },
-          }),
-        );
-      });
-      cleanups.push(() => {
-        marks.forEach(mark => {
-          const textNode = document.createTextNode(mark.textContent || '');
-          mark.parentNode?.replaceChild(textNode, mark);
-        });
-      });
+      highlightFigures(
+        scope,
+        [body],
+        MAX_INLINE_FIGS,
+        // On top of the shared skip list, an article body also has to stay
+        // clear of the devices and the opinion callout — those already carry
+        // their own treatment and a swipe underneath reads as a mistake.
+        'strong, a, aside, figure, mark, .lect-jugada, .lect-device, .money-trail, h2, h3, figcaption',
+      );
     }
 
     // 6 — Inline count-ups.
@@ -317,36 +253,7 @@ export function ArticleMotion() {
     document.querySelectorAll<HTMLElement>('.article-body strong').forEach(el => {
       if (FIGURE_TEXT_RE.test(el.textContent || '')) numberEls.add(el);
     });
-    numberEls.forEach(el => {
-      const finalText = el.textContent || '';
-      const parts = splitFigure(finalText);
-      const numeric = parts && parseNumeric(parts.num);
-      if (!parts || !numeric) return;
-      // Lock the final width so the running number never reflows the line.
-      el.style.display = 'inline-block';
-      el.style.minWidth = `${el.offsetWidth}px`;
-      const counter = { value: 0 };
-      el.textContent = parts.pre + formatNumeric(0, numeric.decimals) + parts.post;
-      tweens.push(
-        gsap.to(counter, {
-          value: numeric.value,
-          duration: 1.4,
-          ease: 'power3.out',
-          onUpdate() {
-            el.textContent = parts.pre + formatNumeric(counter.value, numeric.decimals) + parts.post;
-          },
-          onComplete() {
-            el.textContent = finalText;
-          },
-          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-        }),
-      );
-      cleanups.push(() => {
-        el.textContent = finalText;
-        el.style.removeProperty('display');
-        el.style.removeProperty('min-width');
-      });
-    });
+    countUp(scope, numberEls);
 
     return () => {
       tweens.forEach(t => {

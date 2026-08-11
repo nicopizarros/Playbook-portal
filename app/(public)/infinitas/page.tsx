@@ -5,6 +5,7 @@ import { getSiteContent } from '@/lib/data/site-content';
 import { productHubsContent, type HubMetric } from '@/lib/product-hubs-content';
 import { Scoreboard, type ScoreboardMetric } from '@/components/products/Scoreboard';
 import { SITE_URL } from '@/lib/site-url';
+import { SiteMotion } from '@/components/SiteMotion';
 
 // Infinitas — "El Marcador" (design brief, 2026-08-05). Flat violet, final
 // identity, deliberately clean: the ONE product that does not borrow the
@@ -132,6 +133,10 @@ export default async function InfinitasHubPage() {
           </Link>
         </div>
       </div>
+      {/* The Lectura motion vocabulary (count-ups, lead-photo parallax,
+          staggered groups, the masthead sweep) — shared with the article
+          page through lib/motion-kit.ts. */}
+      <SiteMotion />
     </main>
   );
 }

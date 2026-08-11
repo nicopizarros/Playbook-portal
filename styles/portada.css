@@ -14,14 +14,17 @@
 .pt-sweep-bottom{position:relative;}
 .pt-sweep-bottom::after{
   content:"";position:absolute;left:0;bottom:-2px;width:100%;height:2px;
-  background:var(--green);opacity:var(--sweep-alpha,1);
+  /* --sweep-color lets a product hub tint the accent with its own colour
+     (styles/product-hubs.css); unset, it stays the house green the homepage
+     has always used. */
+  background:var(--sweep-color,var(--green));opacity:var(--sweep-alpha,1);
   transform:scaleX(var(--sweep,1));transform-origin:left center;
   pointer-events:none;
 }
 .pt-sweep-top{position:relative;}
 .pt-sweep-top::before{
   content:"";position:absolute;left:0;top:-1px;width:100%;height:2px;
-  background:var(--green);opacity:var(--sweep-alpha,1);
+  background:var(--sweep-color,var(--green));opacity:var(--sweep-alpha,1);
   transform:scaleX(var(--sweep,1));transform-origin:left center;
   pointer-events:none;
 }

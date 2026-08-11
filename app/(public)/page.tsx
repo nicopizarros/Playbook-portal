@@ -3,6 +3,7 @@ import { getAllArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
 import { HomeChoreography } from '@/components/home/HomeChoreography';
+import { SiteMotion } from '@/components/SiteMotion';
 import { MostReadSection } from '@/components/home/MostReadSection';
 import { StillMattersSection } from '@/components/home/StillMattersSection';
 import { HomeSidebar } from '@/components/home/HomeSidebar';
@@ -94,6 +95,12 @@ export default async function HomePage() {
           sweep along the section rules on scroll, then fade back out.
           Mounted here, not in the layout, so no other route ships it. */}
       <HomeChoreography />
+      {/* The Lectura motion vocabulary shared with the article page and the
+          four hubs (lib/motion-kit.ts). On this page it only has the hero
+          photo to work with — the stats, the cifra del día and the section
+          rules already move under their own components, and SiteMotion's
+          selectors exclude every one of them on purpose. */}
+      <SiteMotion />
     </>
   );
 }

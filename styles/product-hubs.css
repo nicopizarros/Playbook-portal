@@ -82,6 +82,11 @@
 .hub-lana{
   background:radial-gradient(rgba(10,10,10,.055) 1px,transparent 1px) 0 0/22px 22px,var(--pb-paper);
   color:var(--pb-ink);
+  /* The masthead-rule sweep components/SiteMotion.tsx draws on arrival
+     (styles/portada.css owns the .pt-sweep-* treatment). Each hub tints it
+     with its own accent so the motion reads as the product's, not as a
+     homepage flourish that wandered in. */
+  --sweep-color:var(--lana-gold);
 }
 
 .hub-lana-masthead{padding:12px 0 38px;border-bottom:2px solid var(--pb-ink);}

@@ -28,8 +28,8 @@ export function EmailWall({ articleUrl, teaser }: { articleUrl: string; teaser?:
       <p>
         Ya leíste tus {FREE_ARTICLES_PER_MONTH} artículos gratis este mes.{' '}
         {google
-          ? 'Continúa con tu cuenta de Google, o con tu correo y contraseña, para seguir leyendo sin costo.'
-          : 'Crea tu cuenta con tu correo y contraseña para seguir leyendo sin costo.'}
+          ? <>Continúa con tu cuenta de Google, o con tu correo y contraseña, para seguir leyendo <strong>sin costo</strong>.</>
+          : <>Crea tu cuenta con tu correo y contraseña para seguir leyendo <strong>sin costo</strong>.</>}
       </p>
       {google && (
         <form className="pill-form email-wall-form" action={signInWithGoogle.bind(null, articleUrl)}>

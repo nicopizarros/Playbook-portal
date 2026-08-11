@@ -5,6 +5,7 @@ import { getSiteContent } from '@/lib/data/site-content';
 import { productHubsContent } from '@/lib/product-hubs-content';
 import { chronologicalNumber } from '@/lib/product-hubs';
 import { SITE_URL } from '@/lib/site-url';
+import { SiteMotion } from '@/components/SiteMotion';
 
 // The Futbol Business Review — "La Sala de Juntas". Black, not navy: a
 // market briefing a business reader consults, not a magazine they browse.
@@ -142,7 +143,11 @@ export default async function FutbolBusinessReviewHubPage() {
                 <div className="tfbr-board-item" key={stat.label}>
                   <span className="tfbr-board-value">
                     <TrendArrow direction="up" />
-                    {stat.value}
+                    {/* The figure gets its own text-only span because
+                        components/SiteMotion.tsx counts it up by rewriting
+                        textContent — done on the flex parent it would wipe
+                        the arrow out with it. */}
+                    <span className="tfbr-board-figure">{stat.value}</span>
                   </span>
                   <span className="tfbr-board-label">{stat.label}</span>
                 </div>
@@ -209,6 +214,10 @@ export default async function FutbolBusinessReviewHubPage() {
           </div>
         )}
       </div>
+      {/* The Lectura motion vocabulary (count-ups, lead-photo parallax,
+          staggered groups) — shared with the article page through
+          lib/motion-kit.ts. */}
+      <SiteMotion />
     </main>
   );
 }

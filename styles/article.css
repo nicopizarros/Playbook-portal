@@ -144,6 +144,10 @@
 .article-walled{margin-top:8px;padding:28px 32px;border:1px solid var(--ink);background:var(--paper-soft);}
 .wall-kicker{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin:0 0 14px;}
 .article-walled > p{font-size:14.5px;color:var(--gray-dark);margin:0 0 16px;max-width:56ch;}
+/* "sin costo" es el argumento entero del muro: no hay pago, solo identidad.
+   En gris corrido se perdía, así que va en tinta y en negrita para que se
+   lea antes que el resto del párrafo. */
+.article-walled > p strong{color:var(--ink);font-weight:700;}
 .article-walled-teaser{font-size:17px !important;line-height:1.7;max-width:68ch !important;padding-bottom:20px;margin-bottom:20px !important;border-bottom:1px solid var(--rule);}
 .email-wall-form{max-width:380px;}
 /* El pill-form del muro vive sobre --paper-soft; el input hereda fondo
