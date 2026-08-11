@@ -26,15 +26,36 @@ in this exact shape:
 Fuentes: [Concacaf](https://…) · [Sky Sports](https://…) · [Yahoo Sports](https://…)
 ```
 
-The first outlet listed is the ORIGIN, so it must be the one that actually
-broke the story (the press release, the newsroom that published first),
-not whichever link the human happened to paste first. Everything after it
-is corroboration, in whatever order reads best. Three or four entries is
-the shape that works; a citation run longer than that stops being a credit
-and becomes a bibliography. Use the outlet's NAME alone, never its
-headline, and never an internal Playbook link (a backlink to prior
-coverage is a cross-reference and belongs inline in the prose, per Step 3
-— the renderer drops internal hrefs from this line anyway).
+**Only PRIMARY sources belong on this line** (publisher directive,
+2026-08-10, tightened the same day it shipped): the institution that
+issued the thing the article is about, and its co-issuers. For a joint
+open letter from three confederations that is Concacaf, UEFA and AFC,
+each linked to its own posting of the letter, and nothing else. The
+editorial outlets read for Step 2 do NOT go here — not the link the human
+pasted, not the wire that confirmed a number, not the Mexican outlet that
+carried the federation's statement. They did their job by being read; the
+credit line is for who said it, not for who reported it.
+
+The one exception is an EXCLUSIVE: when a fact exists only because a
+particular newsroom broke it, that newsroom is a primary source for that
+fact and belongs on the line. A story everyone covered off the same press
+release has no exclusive in it.
+
+The first entry is the ORIGIN and gets the mark: the institution whose
+posting the piece was built from, not whichever link happened to be
+pasted first. Two to four entries is the shape that works. Use the
+institution's NAME alone, never a headline, and never an internal
+Playbook link (a backlink to prior coverage is a cross-reference and
+belongs inline in the prose, per Step 3 — the renderer drops internal
+hrefs from this line anyway).
+
+Practical consequence for Step 2: find each co-issuer's own posting, not
+just the one that was handed over. When a confederation, league or club
+publishes jointly, every signatory usually posts the same document on its
+own site, and those URLs are what this line wants. Verify each one loads
+before using it; a site behind aggressive bot protection may refuse an
+automated fetch while serving readers normally, in which case say so
+rather than silently dropping the co-issuer.
 
 Why the reversal is safe when the 2026-08-04 removal was right: the credit
 itself was never the problem, the typography was. The old shape was a bold
