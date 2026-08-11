@@ -16,6 +16,7 @@ import { ShareRow } from '@/components/article/ShareRow';
 // homepage's plain list rows.
 import { EmailWall } from '@/components/article/EmailWall';
 import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
+import { ArticleSources } from '@/components/article/ArticleSources';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { splitAfterParagraph } from '@/lib/split-after-paragraph';
 import {
@@ -31,6 +32,7 @@ import {
   OPINION_TEXT_PREFIX,
 } from '@/lib/product-hubs';
 import { applyBodyDevices, deviceFromParagraph, deviceBudgetFor } from '@/lib/article-devices';
+import { extractSourcesFromHtml, extractSourcesFromParagraphs } from '@/lib/article-sources';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { ShotProgress } from '@/components/products/ShotProgress';
 import { jsonLdScript } from '@/lib/json-ld';
@@ -519,7 +521,22 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // The opinion callout is applied BEFORE the ad split —
   // splitAfterParagraph tracks <aside> so it can't cut the callout open.
   // All product sources get it (see plainBlocksFor's comment).
-  const rawHtmlBody = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
+  const bodyHtmlSource = hasNativeBody ? (article.bodyHtml as string) : bodyIsHtml ? bodySource : null;
+
+  // Fuentes (2026-08-10): the source credit is lifted out of the body
+  // BEFORE anything else touches it — ahead of the device chain, because
+  // markLeadIns would otherwise claim "Fuentes:" as a scan mark, and ahead
+  // of the ad split, because the credit belongs at the foot rather than
+  // inside either half. Both body shapes are handled; when neither carries
+  // a Fuentes paragraph this is simply null and the body is untouched.
+  const htmlSources = bodyHtmlSource ? extractSourcesFromHtml(bodyHtmlSource) : null;
+  const plainSources = paragraphs.length ? extractSourcesFromParagraphs(paragraphs) : null;
+  const sources = htmlSources?.sources ?? plainSources?.sources ?? [];
+  const bodyParagraphs = plainSources
+    ? paragraphs.filter((_, i) => i !== plainSources.index)
+    : paragraphs;
+
+  const rawHtmlBody = htmlSources ? `${htmlSources.before}${htmlSources.after}` : bodyHtmlSource;
   // Device transform chain (all string transforms on the same trust
   // boundary, all before the ad split, which only counts top-level </p>
   // and therefore never cuts any of them open). Order matters only for
@@ -531,7 +548,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
       ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority)))
       : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
-  const blocks = plainBlocksFor(paragraphs, article.source, meta.readingTime, article.priority);
+  const blocks = plainBlocksFor(bodyParagraphs, article.source, meta.readingTime, article.priority);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
 
   // The "siguiente expediente" handoff already shows the next case — keep
@@ -586,6 +603,9 @@ export default async function ArticuloPage({ searchParams }: Props) {
             )}
           </div>
           <ArticleEndMark />
+          {/* Source credit, outside .article-body so the end mark stays on
+              the last real paragraph (see components/article/ArticleSources). */}
+          <ArticleSources sources={sources} />
           {/* Scroll-drawn divider between the reading column and the foot
               apparatus; the topics disclosure drops its own hairline when
               this rule precedes it (styles/lectura.css). */}

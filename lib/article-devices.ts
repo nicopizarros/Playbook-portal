@@ -26,6 +26,8 @@
 //                → butterfly bars, both sides anchored at the centre
 //   Serie:       UEFA vs FIFA · 2022 — €4,052M vs US$5,769M · 2023 — …
 //                → two lines on one axis, drawn on scroll (volatility)
+//   Mapa:        Concacaf · Firmaron — resto · Sin firmar — MEX
+//                → real geography, countries split into labelled camps
 //
 // Both body shapes go through the same builders: the HTML transform
 // (markDevices) rewrites matching <p>s, and the plain-text path asks
@@ -34,6 +36,10 @@
 // assembled, so the escaping can't be forgotten at a call site.
 
 import { splitFigure, parseNumeric } from './figures';
+// The Mapa device carries the whole world's geometry, so it lives in its
+// own module (lib/article-map.ts) the way Cifra/Jugada live in
+// product-hubs.ts — it is registered here and budgeted like every other.
+import { parseMap, buildMap } from './article-map';
 import {
   CIFRA_HTML_RE,
   JUGADA_HTML_RE,
@@ -742,6 +748,14 @@ const DEVICES: Device[] = [
     render: raw => {
       const parsed = parseSeries(raw);
       return parsed ? buildSeries(parsed) || null : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Mapa'),
+    html: deviceHtmlRe('Mapa'),
+    render: raw => {
+      const parsed = parseMap(raw);
+      return parsed ? buildMap(parsed) : null;
     },
   },
 ];

@@ -37,6 +37,80 @@
    rule immediately precedes it, or the foot double-rules. */
 .lect-rule-foot + .article-topics{border-top:none;}
 
+/* ——— El Mapa ("Mapa:" convention, lib/article-map.ts). Real geography,
+   drawn from the world dataset and split into labelled camps. Land is
+   flat fills with hairline borders, no relief and no graticule: this is a
+   diagram that happens to be shaped like the world, not an atlas. The
+   group ramp is fixed — filled mass, hollow exception, mid tint — so the
+   reader learns it once and it means the same thing on every map. ——— */
+.lect-map{margin:34px 0;}
+.lect-map-svg{
+  display:block;width:100%;height:auto;
+  background:var(--paper-soft);border:1px solid var(--rule);
+}
+.lect-map-area{stroke:var(--paper);stroke-width:.8;vector-effect:non-scaling-stroke;}
+.lect-map-dot{stroke:var(--paper);stroke-width:1.2;vector-effect:non-scaling-stroke;}
+/* Framed but unclaimed: context, present but never competing. */
+.lect-map-base{fill:color-mix(in srgb,var(--ink) 9%,var(--paper));}
+/* Group 1 — the mass. */
+.lect-map-g1{fill:var(--lect-accent);}
+/* Group 2 — the exception. Hollow, heavy outline: it reads as the hole. */
+.lect-map-g2{fill:var(--paper);stroke:var(--ink);stroke-width:2;}
+/* Group 3 — the third camp, when a story has one. */
+.lect-map-g3{fill:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+.lect-map-legend{
+  display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;
+}
+.lect-map-key{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--gray-txt);}
+.lect-map-swatch{
+  width:13px;height:13px;flex-shrink:0;border:1px solid var(--rule);
+  background:color-mix(in srgb,var(--ink) 9%,var(--paper));
+}
+.lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--lect-accent);border-color:var(--lect-accent);}
+.lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--paper);border:2px solid var(--ink);}
+.lect-map-key.lect-map-g3 .lect-map-swatch{background:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+.lect-map-key-label{letter-spacing:.02em;}
+.lect-map-key-count{
+  font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
+  font-size:13px;
+}
+
+/* ——— Fuentes: the source credit, set as the quietest thing on the page
+   (see lib/article-sources.ts for why it is credit and not body copy).
+   A hairline, a caption-scale label and the outlet names in one run —
+   deliberately below the reading column's weight, so it reads as a
+   colophon the eye can skip. The first name wears the "origen" mark: the
+   outlet that actually broke the story, named as such. ——— */
+.lect-sources{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;
+  margin:26px 0 0;padding-top:12px;border-top:1px solid var(--rule);
+}
+.lect-sources-label{
+  font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gray-txt);
+}
+.lect-sources-list{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
+  margin:0;padding:0;list-style:none;
+}
+.lect-source{display:flex;align-items:baseline;gap:6px;}
+/* Separator between names, drawn rather than typed so the markup stays a
+   real list for anything reading the page as structure. */
+.lect-source + .lect-source::before{content:"·";color:var(--rule);}
+.lect-source a{
+  font-size:13px;color:var(--gray-txt);text-decoration:none;
+  border-bottom:1px solid var(--rule);padding-bottom:1px;
+  transition:color .18s ease,border-color .18s ease;
+}
+.lect-source a:hover,.lect-source a:focus-visible{color:var(--ink);border-bottom-color:var(--ink);}
+/* The origin mark stays gray in every skin — it labels a fact about the
+   reporting, not the product's identity. */
+.lect-source-origin{
+  font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray-txt);border:1px solid var(--rule);border-radius:2px;
+  padding:1px 5px;line-height:1.4;
+}
+
 /* ——— Pull-figure beat ("Cifra clave:" authoring convention). The number
    is a full visual stop between rules; ArticleMotion counts it up. ——— */
 .lect-pullfig{margin:36px 0;padding:22px 0 18px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);}
