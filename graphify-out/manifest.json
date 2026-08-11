@@ -1745,8 +1745,8 @@
     "semantic_hash": ""
   },
   "scripts/test-duplicate-detection.mjs": {
-    "mtime": 1786484979.1228952,
-    "ast_hash": "68ed2eb8510d8254aea133bb965d3ea0",
+    "mtime": 1786486632.9829936,
+    "ast_hash": "692b8b3bea27d88e5e3d73d4d10c39be",
     "semantic_hash": ""
   },
   "scripts/test-voice-antithesis.mjs": {
@@ -1790,8 +1790,8 @@
     "semantic_hash": ""
   },
   "docs/skill-observations/log.md": {
-    "mtime": 1786486367.836516,
-    "ast_hash": "c3585a59d6efe5c52b95283523014027",
+    "mtime": 1786486660.774995,
+    "ast_hash": "d1a672a8bc9e82d55a5bdd6c1144be6d",
     "semantic_hash": ""
   },
   "public/android-chrome-192x192.png": {
@@ -1902,6 +1902,11 @@
   "public/favicon-32x32.png": {
     "mtime": 1786356960.5439248,
     "ast_hash": "8da3df689bd8595fe35c8ad16f0e6695",
+    "semantic_hash": ""
+  },
+  "docs/graphify-task-observer-setup.md": {
+    "mtime": 1786486524.8189871,
+    "ast_hash": "a0751d944cd8f983319d85fd876af906",
     "semantic_hash": ""
   }
 }
