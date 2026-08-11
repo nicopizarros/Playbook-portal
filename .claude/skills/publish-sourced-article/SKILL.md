@@ -17,16 +17,49 @@ here), except: mandatory cross-referencing against other outlets (Step 2),
 cover-image sourcing that starts with the referenced article itself (Step 5),
 and the human-approval gate (Step 6) before anything reaches the database.
 
-**No visible Fuentes/citation block** (changed 2026-08-04, publisher
-directive): earlier versions of this skill appended a visible "Fuentes"
-list of linked outlets at the bottom of every article's body. The human
-reviewer decided that space should never appear on a live article page,
-so it's gone for good, not just for one draft. Step 2's cross-referencing
-is still mandatory, it's still what makes a piece Playbook's own take
-instead of a paraphrase of one competitor, it just no longer surfaces as
-a citation list in `bodyMarkdown`. The only place a source URL still shows
-up anywhere is the internal `sourceUrl` field (Step 4), which is a DB
-dedupe key, never rendered on the page.
+**Every article ends with a Fuentes line** (publisher directive,
+2026-08-10, which REVERSES the 2026-08-04 "no visible citation block"
+rule): the last block of `bodyMarkdown` is one paragraph, no bullet list,
+in this exact shape:
+
+```
+Fuentes: [Concacaf](https://…) · [Sky Sports](https://…) · [Yahoo Sports](https://…)
+```
+
+The first outlet listed is the ORIGIN, so it must be the one that actually
+broke the story (the press release, the newsroom that published first),
+not whichever link the human happened to paste first. Everything after it
+is corroboration, in whatever order reads best. Three or four entries is
+the shape that works; a citation run longer than that stops being a credit
+and becomes a bibliography. Use the outlet's NAME alone, never its
+headline, and never an internal Playbook link (a backlink to prior
+coverage is a cross-reference and belongs inline in the prose, per Step 3
+— the renderer drops internal hrefs from this line anyway).
+
+Why the reversal is safe when the 2026-08-04 removal was right: the credit
+itself was never the problem, the typography was. The old shape was a bold
+"Fuentes:" paragraph followed by a bullet list of full headlines, set at
+body size, which read as a second and much worse ending glued under the
+closing take. It now renders as foot apparatus instead of body copy — the
+paragraph is lifted OUT of the body entirely and set below the end mark as
+a hairline, a caption-scale label and the outlet names, with an "origen"
+mark on the first (`lib/article-sources.ts`, `components/article/
+ArticleSources.tsx`, `.lect-sources` in `styles/lectura.css`). It is
+deliberately the quietest element on the page. The old bullet-list shape
+is still detected, so the pre-2026-08-04 back catalog renders the same
+way with no re-editing.
+
+Because it is lifted out before anything else runs, the Fuentes line sits
+outside Step 3's four-paragraph count and outside the device budget: it
+never costs a device slot and never counts as the fifth paragraph.
+`check-voice.mjs` does still see it in the file, so a run reporting "5
+párrafos" on a four-paragraph piece is that line being counted, not a
+structural problem.
+
+This does not replace `sourceUrl` (Step 4), which stays an internal DB
+dedupe key and is still never rendered. And it does not soften Step 2:
+the Fuentes line is a credit, not a substitute for actually reading the
+other outlets.
 
 ## Requirements before running
 

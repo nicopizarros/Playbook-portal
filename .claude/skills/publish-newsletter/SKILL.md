@@ -617,6 +617,17 @@ them right at drafting time:
   defining pairing. For la-lana articles the jugada usually matches a
   connection you're also pushing to the departures board — same wording
   in both places.
+- **All products: the "Fuentes:" credit line (2026-08-10).** A final
+  paragraph `Fuentes: [Concacaf](https://…) · [Sky Sports](https://…)`
+  is lifted out of the body and set below the end mark as foot apparatus:
+  a hairline, a caption-scale label, the outlet names, and an "origen"
+  mark on the first one. It costs no device slot and doesn't count as a
+  paragraph. A Playbook Substack edition is first-party reporting and
+  normally has nothing to credit, so this is `publish-sourced-article`'s
+  convention rather than this skill's — reach for it here only when an
+  edition genuinely leans on outside reporting, and then follow that
+  skill's rules for it (origin first, outlet names not headlines, three
+  or four entries, never an internal Playbook link).
 - **All products: the device collection (2026-08-05, round 3) — pick by
   story shape.** Beyond Cifra clave and Jugada, seven more one-paragraph
   conventions render as designed, animated elements (see
