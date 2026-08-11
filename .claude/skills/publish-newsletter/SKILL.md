@@ -359,6 +359,41 @@ content (photos, banners, infographics, charts) gets carried over.
   position, so this only works through that exact syntax, not a raw `<img>`
   tag or a description of the image.
 
+## Step 5c: Designed devices (the "dynamic elements", every article)
+
+Separately from Step 5's images, `lib/article-devices.ts` (plus `lib/article-map.ts`
+for Mapa and `lib/product-hubs.ts` for Cifra clave / Ruta del dinero / Jugada) is a
+whole authoring convention this file used to say nothing about, discovered
+2026-08-11 only because a human had to point at a live article and ask why it
+"had dynamic elements" and a freshly-published one didn't. It renders a plain
+paragraph, typed exactly like any other, as an animated/interactive visual
+block, one of: `Cronología`, `Recibo`, `Ecuación`, `Salto`, `Reparto`,
+`Alineación`, `Cotización`, `Resultados`, `Duelo`, `Serie`, `Mapa`, plus the
+older `Cifra clave`, `Ruta del dinero`, and `Jugada`. It happens at render
+time (`app/(public)/articulo/page.tsx` calls `applyBodyDevices`/
+`deviceFromParagraph` off the stored plain text), so authoring one is nothing
+more than writing the trigger paragraph correctly into `bodyMarkdown`, no
+separate rendering step.
+
+Every article should carry at least one of these when the story's own
+numbers genuinely support one, never invented to hit a quota: a deal's
+dollar figures fit `Recibo` or `Cifra clave`, a before/after fits `Salto`,
+two competing sides on the same metrics fit `Duelo`, a set of countries
+split into camps (who signed, who didn't, who's covered by a rights deal)
+fits `Mapa`. `deviceBudgetFor` in that file caps how many per article
+(1 for the standard 2-minute Noticias length, +1 more when `priority: 5`),
+so don't stack several, pick the one that fits the story's best number best.
+Read the module's own header comments for each device's exact grammar
+(`Etiqueta — Valor · Etiqueta — Valor`, separated by ` · `, em dash `—`
+between label and value is the house convention despite the no-em-dash
+prose rule elsewhere, this is a technical syntax token, not sentence
+punctuation) before writing one, and never guess the shape from memory,
+a malformed paragraph just renders as inert plain text (no error, easy to
+miss). Place the device paragraph as its own paragraph immediately after
+the fact/detail paragraph whose numbers it visualizes, not bunched at the
+end. If nothing in the piece has a genuine device-shaped number, it's fine
+to skip, this is additive polish, not a required field like the cover image.
+
 ## Step 6: Publish
 
 1. Write a JSON array of article objects (shape: `title, excerpt, teaser,

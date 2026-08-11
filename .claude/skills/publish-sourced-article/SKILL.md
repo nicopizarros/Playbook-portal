@@ -232,6 +232,20 @@ one cover image from 6a. Reproducing a competitor's full photo set inside a
 Playbook article is a different risk profile than Playbook's own Substack
 content, so body images stay out unless a human explicitly asks for one.
 
+### 6c. Designed devices ("dynamic elements")
+
+Same convention as `publish-newsletter`'s Step 5c: `lib/article-devices.ts`
+turns a correctly-formatted plain paragraph (`Recibo`, `Duelo`, `Mapa`, etc.,
+see that file's header comments and that skill's Step 5c for the full list
+and grammar) into an animated visual block at render time. Add one to
+`bodyMarkdown` when the story's own numbers genuinely fit a device shape
+(this skill's Step 2 cross-referencing often surfaces exactly that kind of
+comparable figure), never invented to hit a quota, capped at
+`deviceBudgetFor`'s per-article budget (usually one). This applies here
+too, a wire pickup is just as eligible as a Substack item, and its Step 2
+sourcing (a second/third outlet's numbers) is a natural source for a
+`Duelo`/`Serie` comparison a single-source piece wouldn't have.
+
 ## Step 6: Human review, before anything touches the database
 
 This is the difference that defines this skill. Never run Step 7 without an
