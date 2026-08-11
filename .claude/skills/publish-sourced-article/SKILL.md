@@ -5,320 +5,63 @@ description: Turn a link from a third-party (non-Playbook) news source into a Pl
 
 # Publish Sourced Article: third-party link to Playbook article, with human approval
 
-This is the human-reviewed counterpart to the `publish-newsletter` skill. That
-skill is for Playbook's own Substack editions (trusted first-party content,
-zero review, straight to `status: 'published'`). This one is for links to
-someone else's article, an outlet Playbook doesn't own or control, so it
-never publishes without an explicit yes from the human in this session.
+The human-reviewed counterpart to `publish-newsletter`. That skill handles
+Playbook's own Substack editions — trusted first-party content, zero review,
+straight to `status: 'published'`. This one handles links to **someone else's**
+article, an outlet Playbook doesn't own or control, so it **never publishes
+without an explicit yes** from the human in this session.
 
-Same field shape, same taxonomy, same production database and insert script
-as `publish-newsletter` (see that skill's SKILL.md for anything not repeated
-here), except: mandatory cross-referencing against other outlets (Step 2),
-cover-image sourcing that starts with the referenced article itself (Step 5),
-and the human-approval gate (Step 6) before anything reaches the database.
+## When this runs
 
-**No visible Fuentes/citation block** (changed 2026-08-04, publisher
-directive): earlier versions of this skill appended a visible "Fuentes"
-list of linked outlets at the bottom of every article's body. The human
-reviewer decided that space should never appear on a live article page,
-so it's gone for good, not just for one draft. Step 2's cross-referencing
-is still mandatory, it's still what makes a piece Playbook's own take
-instead of a paraphrase of one competitor, it just no longer surfaces as
-a citation list in `bodyMarkdown`. The only place a source URL still shows
-up anywhere is the internal `sourceUrl` field (Step 4), which is a DB
-dedupe key, never rendered on the page.
+- Any link from an outlet that isn't Playbook's Substack: ESPN, Reuters, a
+  press release, a competitor, a wire.
+- A Playbook Substack link is the **other** skill: `publish-newsletter`.
+- One link becomes one article. Several unrelated links in one run means
+  several separate articles.
 
-## Requirements before running
+## What differs from `publish-newsletter`
 
-Same as `publish-newsletter`: `POSTGRES_URL` must point at the production
-Neon database and be available to the shell (exported, or in a local
-`.env.local`, see `.env.local.example`). The insert script uses Neon's HTTP
-driver because this session's outbound network only supports HTTPS, not raw
-TCP, don't try to reconnect it to `lib/db/client.ts`'s `pg` Pool.
+Same field shape, same taxonomy, same voice, same production database and
+insert script. Four differences, all of them here:
 
-## Step 1: Read the primary source
+1. **Cross-referencing is mandatory** — at least one or two other outlets on
+   the same story, different domains from the primary link.
+2. **Every article ends with a `Fuentes:` line** crediting primary sources.
+3. **Cover image starts with the referenced article itself**, and **no in-body
+   images** are carried over.
+4. **A human approval gate** before anything reaches the database.
 
-Fetch every URL given (WebFetch). Unlike an Industry Shots digest, each link
-here is one standalone story, one link becomes one article (if given
-several unrelated links in one run, draft each as its own separate
-article). Confirm the publish date and the core facts (who, what, the key
-numbers) directly from the page, don't guess or carry over stale context.
+## Decision flow
 
-If the story reads as one step in something already in motion (a vote on a
-proposal, a decision that follows an earlier announcement, an update to a
-running dispute), check whether Playbook already published on the earlier
-step: query the DB for rows whose title plausibly covers the same
-underlying story (a simple `ILIKE` on the obvious names/terms works, see
-`publish-newsletter`'s Requirements section for how to reach
-`POSTGRES_URL`). Finding one changes how Step 3 gets written, this becomes
-a follow-up, not a fresh explainer that re-establishes everything from
-scratch.
+| | Step | Read |
+|---|---|---|
+| **0** | **Overlap check — before drafting a word.** This funnel is the one most likely to arrive at a story Playbook already published. | `references/overlap-check.md` |
+| **1** | **Ingest.** Fetch the link, confirm date and core facts from the page. | `references/ingestion.md` |
+| **2** | **Cross-reference (mandatory).** Verify, enrich, stay independent. Find each primary co-issuer's own posting for the `Fuentes:` line, and research the regional angle. | `references/ingestion.md` |
+| **3** | **Classify the format tier**, then apply the product's architecture. | `references/format-tiers.md` |
+| **4** | **Apply the voice.** Movimiento + mecanismo + incentivo + consecuencia; find the palanca; one thing per paragraph. | `references/voice-and-style.md` |
+| **5** | **Apply the element library.** Walk all thirteen devices, respect the budget. | `references/dynamic-element-library.md` |
+| **6** | **Fill the fields and source the image.** | `references/fields-and-taxonomy.md`, `references/images.md` |
+| **7** | **Self-check** against the ten-point publication checklist and run `check-voice.mjs`. | `references/voice-and-style.md` §12 |
+| **8** | **Human review — the gate.** Present the complete draft, ask, revise, repeat. | `references/publishing-mechanics.md` |
+| **9** | **Publish only what was approved. Report, capture feedback.** | `references/publishing-mechanics.md` |
 
-## Step 2: Cross-reference other coverage (mandatory)
+Steps 3–5 are one pass, not three: the tier decides the length, the voice
+decides the prose, the library decides the visual beats, and they are written
+together.
 
-Before drafting, for every article, search for and read at least one or two
-*other* outlets' coverage of the same story, different domains from the
-primary link. This is mandatory, not optional, and it's the core of this
-skill:
+**Never publish without an explicit yes in this session.** No exceptions, no
+"seems fine, publishing."
 
-- **Verification**: don't take the primary source's framing or numbers at
-  face value, confirm the key facts independently where another outlet
-  covered them.
-- **Enrichment**: surface a data point, comparison, or piece of history the
-  primary article didn't have.
-- **Independence**: a Playbook piece built from a single competitor's
-  article reads as a close paraphrase of that one competitor. Pulling in a
-  second (or third) angle is what makes it a Playbook piece instead.
+## Shared vs. own
 
-Rules: fetch the actual pages (never rely on a search snippet), prefer
-reputable outlets (wire services, established sports-business or general
-press, official newsrooms) over blogs or forums, and never fabricate a fact
-or a source.
+`references/voice-and-style.md`, `format-tiers.md`,
+`dynamic-element-library.md`, `overlap-check.md`, `fields-and-taxonomy.md` and
+`images.md` are **symlinks into `.claude/playbook-editorial/`, shared with
+`publish-newsletter`**. One copy, both funnels — output from the two skills
+should be indistinguishable once published, aside from whatever ingestion path
+produced it. Edit them there and both skills change; never fork a copy into
+this folder.
 
-If, after genuinely trying, no other outlet has covered the story (a truly
-exclusive or very fresh item), say so explicitly rather than inventing a
-second source, and draft from the primary article alone.
-
-## Step 3: Editorial voice
-
-Same four-paragraph structure and tone as `publish-newsletter`'s Industry
-Shots format (see that skill's Step 3 for the exact voice rules: direct,
-analytical, authoritative, Mexico/LATAM angle, never an em dash "—"):
-
-1. Fact paragraph: what happened, who, the key numbers, source context.
-2. Cross-referenced context paragraph (Step 2): the data point, comparison,
-   or angle the primary article didn't have, in Playbook's own voice, never
-   a citation dump.
-3. Detail paragraph: more of the story, background, mechanics, other named
-   parties.
-4. Opinión de Playbook: what it means for the industry, Mexico/LATAM angle
-   when relevant. Always present, grounded in what's actually in the piece.
-
-Always four paragraphs, no exceptions. Every paragraph, not only the
-Opinión one, opens with a short bold lead-in (2-5 words, ending in a
-colon, specific to what that paragraph covers, not a generic repeated
-label across articles), same readability rule as `publish-newsletter`'s
-Step 3, four paragraphs of unbroken prose read as one dense block on the
-article page otherwise. Word-count range: roughly 300-500 words across the
-four. Write every paragraph in Playbook's own words, this is a rewrite
-grounded in multiple sources, never a close paraphrase or translation of
-any single outlet's article.
-
-### Tone: analytical brief, not breaking-news urgency
-
-A wire story (Reuters, AP, AFP) is often written with the pacing of a live,
-developing situation, short declarative sentences building tension toward
-what happens next. Playbook's voice doesn't inherit that register. It
-reads closer to a business brief than a news alert: calm and analytical
-even when the underlying story is dramatic. This is easiest to get wrong
-in the Fact paragraph, where translating the source too literally carries
-its urgency over with it. Watch for it there specifically.
-
-It's also worth actively looking for asymmetries in how different parties
-reacted, rather than flattening a story into "everyone opposed X." When
-the cross-referenced sources support it (Step 2), a story often has one
-party objecting to the substance of something (a principled rejection) and
-another objecting mainly to being left out of the process (a procedural
-complaint that doesn't necessarily mean opposing the substance). Drawing
-that distinction out, when it's genuinely there in the sources, is the
-kind of analytical read that makes a piece Playbook's own take rather than
-a translated summary of the wire copy.
-
-### Building on prior Playbook coverage
-
-When Step 1 turns up an earlier Playbook article on the same underlying
-story, don't re-explain what that piece already established, the numbers,
-the structure of a deal, the background context. A reader who already saw
-the earlier piece doesn't need it restated, and a reader who didn't can
-click through. Instead, weave one inline link back to it into a sentence
-that's already stating a fact (`[what it covered](/articulo?id=<id>)`, a
-relative path resolves fine since it renders on the same site), never as
-the paragraph's opening frame. Concretely: don't open a paragraph with
-"Horas después de que Playbook reportó..." or any variant that narrates
-the newsroom's own reporting process, that reads as the outlet talking
-about itself instead of about the news. State the new development
-directly, with the backlink sitting inside that sentence rather than
-introducing it. What actually belongs in this piece is what changed since
-the earlier one, not a recap of it.
-
-## Step 4: Fields per article
-
-Same shape as `publish-newsletter`'s `ArticleInput`
-(`scripts/publish-newsletter.ts`), same taxonomy (`lib/taxonomy.ts`), same
-Importancia scale. Differences from that skill:
-
-- **author**: leave `""` unless a byline is genuinely known, same as
-  `publish-newsletter`.
-- **publication** / **source**: `"Noticias"` / `"industry-shots"`. This
-  reuses Industry Shots' pair rather than `publish-newsletter`'s "anything
-  else" fallback (`"Playbook"` / `"playbook"`): a third-party wire pickup
-  reads as a news brief, not as a Playbook-branded opinion piece, and the
-  `"Playbook"` kicker/tag (`app/(public)/articulo/page.tsx`'s
-  `article-kicker`, and the `tag-mini` chip on every card,
-  `components/article/NewsRow.tsx` and friends) should say "Noticias" on
-  these the same way it does on an Industry Shots item, both visually
-  (`styles/components.css`'s `.tag-mini.industry-shots` color) and in the
-  taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
-  `topicsForSection`). There's no separate "wire story" entry in
-  `KNOWN_SOURCES`/`SOURCE_LABELS` (`lib/constants.ts`) to reach for
-  instead, reusing `industry-shots` is the pragmatic way to get the
-  "Noticias" label without adding a new taxonomy value for this.
-- **substackUrl**: always `""`, leave it empty. `app/(public)/articulo/page.tsx`
-  renders a "Ver en Substack" button whenever this field is non-empty,
-  pointing wherever it's set. That label is wrong for a third-party link,
-  and there's no generic "ver fuente" variant of that button today, so
-  don't populate it with the source URL.
-- **sourceUrl**: the primary reference URL from Step 1, used as-is. It's
-  the DB's unique dedupe key (`articles.sourceUrl`), so re-running this
-  skill on the same link no-ops (`duplicate`) instead of publishing twice.
-  This is an internal field only, never rendered on the article page, it's
-  not a substitute for the Fuentes block that used to exist here.
-- **readingTime**: `2` (the standard four-paragraph length).
-- **dateFormatted**: same format as `publish-newsletter`'s (`"30 jul
-  2026"`). For a fast-developing story where the exact time matters (a
-  vote, an announcement tied to a specific wire timestamp), it's fine to
-  fold a time onto the end, e.g. `"30 jul 2026, 10:01 hrs"`, converted to
-  Mexico City local time (UTC-6, Mexico hasn't observed DST since 2022)
-  from whatever timestamp the source gives. There's no separate time
-  column in the schema (`lib/db/schema.ts`'s `articles` table only has
-  `date` and this free-text `dateFormatted`), so this is the only place
-  time-of-day precision can live. It's optional, most stories don't need
-  it, reach for it when the time itself is part of what makes the story
-  current.
-- **tagsScope** / **tagsSport** / **tagsVertical** / **priority** /
-  **featured**: identical rules to `publish-newsletter` (see that skill's
-  Step 4 Fields section), including querying the DB for existing
-  `featured = true` rows before setting one here.
-
-## Step 5: Image
-
-### 6a. Cover image, default source: the referenced article itself
-
-Unlike `publish-newsletter` (which always searches broadly), the default
-here is the primary source article's own lead/hero image:
-
-- Fetch the source page itself and identify its main image (not a
-  thumbnail, not a masthead/avatar), confirm it genuinely depicts the
-  story's subject.
-- Check how that image is credited on the source page. If it's credited to
-  Getty Images (including iStock) or AP Images/AP Photo, don't use it,
-  same exclusion as `publish-newsletter`, these agencies pursue unlicensed
-  use aggressively. Fall back to the search below instead.
-- If the source article has no clear usable image, or its image is
-  excluded or genuinely doesn't fit (generic stock photo unrelated to the
-  actual story), fall back to the same broad multi-platform search
-  `publish-newsletter`'s Step 5a uses: Google/Bing Images, Wikimedia
-  Commons, Flickr (Creative Commons), official team/league/company press
-  rooms, editorial photo agencies (Reuters Pictures, Shutterstock, LATAM
-  agencies like Mexsport or Imago7 for Mexico/LATAM subjects), same
-  Getty/iStock/AP exclusion throughout.
-- Confirm the image resolves and depicts what it claims before using it,
-  never invent or guess a URL. Set `imageCredit` to the real photographer
-  or agency, matched to whatever the image's own page attributes it to,
-  same as `publish-newsletter`'s Step 5a. Required for every article.
-- **No cropped-looking cover images:** check the candidate's actual pixel
-  dimensions before settling on it, same rule and same reasoning as
-  `publish-newsletter`'s Step 5a (search that file for "No cropped-looking"
-  for the full explanation of the site's forced `16/10`/`4/3`/`1/1`
-  crop boxes). A source article's own hero image is exactly as likely to be
-  an awkward portrait crop as anything found by search, so this check
-  applies to it too, not only to fallback-search results.
-
-### 6b. No automatic in-body images
-
-Different from `publish-newsletter`'s Step 5b: don't carry over additional
-photos from the referenced (competitor's) article into the body. Only the
-one cover image from 6a. Reproducing a competitor's full photo set inside a
-Playbook article is a different risk profile than Playbook's own Substack
-content, so body images stay out unless a human explicitly asks for one.
-
-### 6c. Designed devices ("dynamic elements")
-
-Same convention as `publish-newsletter`'s Step 5c, which has the full
-catalog of all thirteen shapes (`Cifra clave`, `Jugada`, `Cronología`,
-`Recibo`, `Ecuación`, `Salto`, `Reparto`, `Alineación`, `Cotización`,
-`Resultados`, `Duelo`, `Serie`, `Mapa`), each one's exact trigger grammar,
-the budget table, and the rules that bite (never repeat a type, first
-declared wins the budget, every number must already be in the piece):
-`lib/article-devices.ts` turns a correctly-formatted plain paragraph into an
-animated visual block at render time, so authoring one is nothing more than
-writing it into `bodyMarkdown`. **Zero devices on a piece is a bug, not
-restraint**, walk the story against the full catalog before concluding none
-fits, this readingTime-2 four-paragraph shape budgets exactly 1 (+1 more
-when `priority: 5`, see the table). This skill's Step 2 cross-referencing
-is a natural source for one: a second/third outlet's comparable figure is
-exactly the kind of number that fits `Duelo` (two actors, same metrics) or
-`Serie` (the same two over time) when a single-source piece wouldn't have
-had it. `Ruta del dinero` is the one exception, La Lana's own
-narrative-identity device, not applicable to this skill's Noticias-shaped
-output.
-
-## Step 6: Human review, before anything touches the database
-
-This is the difference that defines this skill. Never run Step 7 without an
-explicit yes in this session, no exceptions, no "seems fine, publishing":
-
-1. After Step 5, present the complete draft for every article in the batch:
-   every field from Step 4 (title, excerpt, teaser, full bodyMarkdown, tags,
-   priority, featured, image + credit, sourceUrl), not a summary.
-2. Then explicitly ask whether to publish, per article if there's more than
-   one (use `AskUserQuestion`, or just ask directly if that fits the
-   conversation better). Don't default to "yes" on silence or an
-   ambiguous reply.
-3. If changes are requested, revise and re-present the full draft before
-   asking again. Repeat until each article is either approved or dropped.
-4. Only articles that got an explicit approval move to Step 7. Anything
-   not approved is simply not published, no need to explain why.
-
-## Step 7: Publish
-
-Only for the articles approved in Step 6:
-
-1. Write a JSON array of the approved article objects (same shape as
-   `publish-newsletter`'s `ArticleInput` in `scripts/publish-newsletter.ts`)
-   to a scratch file.
-2. Run:
-   ```
-   npx tsx --env-file=.env.local scripts/publish-newsletter.ts <path-to-json-file>
-   ```
-   (drop `--env-file` if `POSTGRES_URL` is already exported in the shell).
-3. Same script as `publish-newsletter` uses, it inserts with
-   `status: 'published'`, live immediately, for whatever's in the file, so
-   only the approved articles belong in it.
-4. Report back a short confirmation per article: title, id, and the live
-   URL (`https://playbook-portal-phi.vercel.app/articulo?id=<id>`). If any
-   came back `duplicate`, say so (that link was already published before).
-
-## Step 8: Capture feedback for next time, automatically
-
-Step 6's review loop is exactly where the human corrects things this skill
-got wrong, tone, redundancy with prior coverage, a field convention, a
-sourcing judgment call. Left alone, those corrections vanish at the end of
-the session and the next run makes the same mistake, the human re-explains
-it, and nothing accumulates. Close that loop every run, without being
-asked:
-
-1. After Step 7, look back over any revision requests from Step 6. Ask: is
-   this a durable, generalizable lesson (would it help write the *next*
-   article too, on some other topic), or is it specific to this one
-   article (a fact, a word choice, a one-off structural call for this
-   story)? Only the former is worth capturing. If Step 7 had no revision
-   rounds, or every round was article-specific, there's nothing to do
-   here, skip silently.
-2. If there's a genuine generalizable lesson, edit this file (and
-   `publish-newsletter/SKILL.md` if the lesson applies there too, e.g. a
-   Playbook-wide voice rule) to fold it in, in the same dense-prose style
-   as the rest of the document (explain the why, don't just add a bullet
-   command), placed wherever it's most load-bearing, not just appended at
-   the end.
-3. Run `scripts/sync-skill-feedback.sh "<one-line summary of the lesson>"`
-   to push that update straight to `main`. Do this without asking for
-   confirmation, this only ever touches `.claude/skills/` (see the
-   script's own comments for how it isolates that from whatever else this
-   session's branch is doing) and never application code, so it doesn't
-   carry the deploy risk a normal code change would. If the script reports
-   nothing to push (the edit ended up matching what's already on main),
-   that's fine, no need to mention it.
-4. Mention in your final report to the human, briefly, if you updated the
-   skill, one sentence is enough. This is about the skill quietly getting
-   better every time it's used, not about making a production out of it.
+`references/ingestion.md` and `references/publishing-mechanics.md` are this
+skill's own. `references/_GOVERNANCE.md` covers how to edit the shared tree; read it only when changing a rule, not when drafting.
