@@ -102,7 +102,19 @@ function properNouns(raw) {
 // semi-rare ones should not be enough. Requiring their combined IDF to clear
 // this keeps "uefa + concacaf" (5.83) in and a pair of df-10 coincidences
 // (4.8) out.
-const ENTITY_IDF_FLOOR = 5.5;
+//
+// 5.5 -> 5.0 on 2026-08-11, when `score` stopped letting unseen query terms
+// fall out of its denominator. That correction cost the term channel about a
+// tenth of its score on long queries, and the FIFA/Trump recall case turned out
+// to have been riding on the inflation: covQ 0.247 -> 0.217 against a 0.22
+// floor. The right channel for it was always this one — "infantino" (df 12) and
+// "uefa" (df 8) are the saga vocabulary the entity channel exists to rescue —
+// and their combined 5.19 sat just under the floor. Measured over the archive,
+// 5.0 restores that case with no change at all in spurious rows on novel-story
+// queries (0.6 avg, 2 max, identical to 5.5), where lowering REVIEW to 0.20
+// buys the same recall at 0.8. Prefer moving the channel that should have
+// fired over loosening the one that shouldn't.
+const ENTITY_IDF_FLOOR = 5.0;
 
 // Spanish function words plus the vocabulary every sports-business headline
 // carries, which would otherwise match everything against everything. The
@@ -157,15 +169,35 @@ export function figures(text) {
 // query about a long article and a long query about a short one both score,
 // and neither side is punished for being wordy — which is the bug this
 // replaced.
-function score(queryTerms, queryFigs, docTerms, docFigs, idf) {
+//
+// A term the corpus has never seen still counts, and counts for MORE than any
+// term it has. This is not a detail: scoring `idf[t] || 0` drops unseen terms
+// out of the denominator, so covQ stops measuring "how much of the query this
+// article covers" and starts measuring "how much of the part of the query the
+// archive already knows about". For a genuinely new story every distinctive
+// token is unseen, the denominator collapses to whatever generic word survives,
+// and coverage is pinned at 1.0 — a guaranteed MISMA HISTORIA off one shared
+// word. Measured 2026-08-11: "CME lanza futuros sobre el desempeño de equipos
+// de la NHL" had 1 of 5 tokens in the corpus (`futuros`) and returned 100%
+// against a Bundesliga financing story; "Daniel Levy incumple el plazo…" had
+// 1 of 8 (`plazo`) and returned 100% against three unrelated articles. That is
+// the 2026-08-11 rewrite's own fault #2 running backwards: it made a
+// heavily-covered story visible by making a never-covered one indistinguishable
+// from a duplicate. Treating df=0 as df=0.5 puts an unpublished actor above the
+// rarest published one, which is the honest reading — nobody has written about
+// it, so it cannot be what makes this a repeat.
+function score(queryTerms, queryFigs, docTerms, docFigs, idf, unseenIdf) {
   const docSet = new Set(docTerms);
   const shared = queryTerms.filter(t => docSet.has(t));
   const figHit = queryFigs.filter(f => docFigs.includes(f)).length;
   if (!shared.length && !figHit) return { s: 0, shared: [] };
 
+  // Doc terms are in the corpus by construction, so only the query side can
+  // carry an unseen term; shared terms are always known.
   const weight = ts => ts.reduce((sum, t) => sum + (idf[t] || 0), 0);
+  const queryWeight = queryTerms.reduce((sum, t) => sum + (idf[t] ?? unseenIdf), 0);
   const sharedW = weight(shared);
-  const covQ = sharedW / (weight(queryTerms) || 1);
+  const covQ = sharedW / (queryWeight || 1);
   const covD = sharedW / (weight(docTerms) || 1);
 
   let s = Math.max(covQ, covD);
@@ -185,11 +217,16 @@ export function buildIndex(rows) {
   const idf = {};
   for (const t of Object.keys(df)) idf[t] = Math.log(1 + docs.length / df[t]);
 
-  return { docs, df, idf, cut: distinctiveCut(docs.length) };
+  // The weight a query term gets when the corpus has never seen it. Same curve
+  // as above evaluated at df=0.5, so it sits just above the rarest published
+  // term (df=1) rather than at zero. See `score`.
+  const unseenIdf = Math.log(1 + docs.length / 0.5);
+
+  return { docs, df, idf, unseenIdf, cut: distinctiveCut(docs.length) };
 }
 
 export function rank(text, index, { self } = {}) {
-  const { docs, df, idf, cut } = index;
+  const { docs, df, idf, unseenIdf, cut } = index;
   const qt = tokens(text);
   const qf = figures(text);
 
@@ -206,7 +243,7 @@ export function rank(text, index, { self } = {}) {
   for (const d of docs) {
     if (self && d.source_url === self) continue; // never match a draft against itself
 
-    const { s, shared } = score(qt, qf, d.terms, d.figs, idf);
+    const { s, shared } = score(qt, qf, d.terms, d.figs, idf, unseenIdf);
     const docSet = new Set(d.terms);
     const ents = qEntities.filter(t => docSet.has(t));
     const entW = ents.reduce((sum, t) => sum + (idf[t] || 0), 0);

@@ -80,6 +80,33 @@ const CASES = [
       'concacaf-firma-contra-infantino-y-mexico-se-queda-fuera-del-comunicado-regional',
       'el-mundial-le-deja-a-fifa-ingresos-record-de-us-15-000-millones',
     ],
+    maxHits: 2,
+  },
+
+  // A story about actors the archive has never carried is this funnel's normal
+  // input — a wire link is usually the first time Playbook touches the company.
+  // Those queries have almost no tokens the corpus knows, which is exactly the
+  // shape that broke on 2026-08-11: `score` left unseen terms out of its
+  // denominator, so coverage was computed over the one generic word that did
+  // match and came back pinned at 100% MISMA HISTORIA. Both queries below did
+  // that against wholly unrelated articles (CME/NHL -> a Bundesliga financing;
+  // Levy/Tottenham -> Infantino, Liga MX and the Seahawks sale).
+  //
+  // The reason it shipped is that the precision case above only asserted two
+  // hand-picked ids were absent, which a scorer returning eight OTHER spurious
+  // rows passes comfortably. `maxHits` and `maxScore` are the assertions that
+  // can actually see it: bound the noise, don't enumerate it.
+  {
+    name: 'Novel actors, none in the archive, must not read as a duplicate',
+    query: 'CME lanza futuros sobre el desempeño de equipos de la NHL',
+    maxHits: 1,
+    maxScore: 0.45,
+  },
+  {
+    name: 'Novel actors, long query, must not read as a duplicate',
+    query: 'Daniel Levy incumple el plazo de la emisión de acciones del Tottenham Hotspur',
+    maxHits: 1,
+    maxScore: 0.45,
   },
 ];
 
@@ -98,7 +125,12 @@ for (const c of CASES) {
   const ids = hits.map(h => h.d.id);
   const missing = (c.mustFind || []).filter(id => !ids.includes(id));
   const leaked = (c.mustNotFind || []).filter(id => ids.includes(id));
-  const ok = !missing.length && !leaked.length;
+  // Bounds, not enumerations. A named id can only catch the spurious row you
+  // already thought of; the failure that shipped was eight rows nobody listed.
+  const tooMany = c.maxHits !== undefined && hits.length > c.maxHits ? hits.length : 0;
+  const tooHigh =
+    c.maxScore !== undefined && hits.length && hits[0].s >= c.maxScore ? hits[0] : null;
+  const ok = !missing.length && !leaked.length && !tooMany && !tooHigh;
   if (!ok) failed++;
 
   console.log(`${ok ? '  ok  ' : 'FAIL  '}${c.name}`);
@@ -112,6 +144,11 @@ for (const c of CASES) {
     }
     for (const id of missing) console.log(`        MISSING: ${id}`);
     for (const id of leaked) console.log(`        LEAKED:  ${id}`);
+    if (tooMany) console.log(`        TOO NOISY: ${tooMany} filas, máximo ${c.maxHits}`);
+    if (tooHigh)
+      console.log(
+        `        TOO HIGH: ${(tooHigh.s * 100).toFixed(0)}% en ${tooHigh.d.id.slice(0, 52)} (máximo ${(c.maxScore * 100).toFixed(0)}%)`,
+      );
   }
 }
 
