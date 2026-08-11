@@ -38,3 +38,8 @@ __pycache__/
 .claude/skills/seo/.venv/
 .claude/skills/seo/ms-playwright/
 .claude/skills/seo/runtime-state.json
+
+# graphify writes a dated snapshot of the previous curated graph on every
+# `graphify update`. Git history already holds that state, so the backup is
+# pure bloat (~2.3MB a run) and has never been tracked.
+graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
