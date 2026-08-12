@@ -361,6 +361,23 @@ consulting.
 Accumulated Spanglish, abstractions, moralejas, grandiloquent phrasing, or
 corporate language that could come out of any deck.
 
+**The operative word is ACCUMULATED** (publisher, 2026-08-12, on the Federer
+piece: *"aquí sí usa spanglish porque se oye mucho mejor"*). A single English
+term that is the register the industry actually speaks in LATAM is not the
+failure this rule names, and reaching for a technically-correct Spanish word
+the reader never uses is its own kind of stiffness. `billionaire` beat
+`milmillonario` in a headline for exactly that reason, and the same holds for
+the vocabulary already all over this guide: `private equity`, `naming rights`,
+`streaming`, `merchandising`.
+
+The test is **frequency and necessity, not language**: one borrowed term
+carrying a meaning Spanish handles worse is voice; three or four in a
+paragraph, or an English word standing in for a Spanish one that reads fine
+(`el deal` for `el acuerdo`, `performance` for `desempeño`), is the accumulation
+the rule bans. When one is used, use it consistently through the piece rather
+than alternating with a translation — a headline that says `billionaire` and a
+body that says `milmillonario` reads as indecision.
+
 ### Fórmulas bajo vigilancia
 
 Not banned. But every time one appears, ask: **can I say this more specifically
