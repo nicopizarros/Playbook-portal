@@ -366,6 +366,28 @@ auto-scales both tracks corner to corner and they come out exactly collinear,
 which is worst at the most magnified moment. Declare an `Umbral` whenever the
 story turns on a level being crossed (a billion, a covenant, a market cap).
 
+**`Ligado — sí` makes track B move with track A between its anchors**
+(2026-08-12, publisher directive: "fluctuate it more with the stock, as it
+impacts"). A fortune that is mostly one shareholding moves every day that
+stock moves, but nobody publishes it daily, so a straight line between four
+Forbes estimates asserts the one thing we know is false: that the wealth sat
+still for seven months.
+
+With the flag on, the device marks track B to market. Net worth = k × price +
+everything else; `k` comes from the LAST anchor pair, the only place a wealth
+move and a price move cover the same interval, and the residual is
+interpolated linearly between anchors to absorb the drift a share price
+cannot explain. The curve passes exactly through every declared value, so no
+sourced figure is disturbed.
+
+**This is a level-3 reading, and the device says so.** Every point the model
+adds is flagged internally: it gets no dot and prints no figure, because a
+marker is a claim that someone published that number. A disclosure line sits
+**above** the chart naming how many estimates are real and what the rest is,
+and the same sentence goes into the `aria-label`. Never turn this on to make
+a flat line look livelier — turn it on when the second track is genuinely
+driven by the first, and say so in the prose too.
+
 **The ticker wears its own brand.** Track A's name is resolved against the
 same registry `Venta` and `Cadena` use, so a `Cotización` on On Holding opens
 with the same colour-block crest a `Venta` on the Lakers does, and track A's

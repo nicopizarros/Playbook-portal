@@ -421,13 +421,23 @@ const ZOOM_MIN = 2;
 // being the line, so a dense series draws as a bare stroke.
 const DOT_LIMIT = 14;
 
-type TrackPoint = { label: string; a: string; b: string; magA: number; magB: number | null };
+type TrackPoint = {
+  label: string;
+  a: string;
+  b: string;
+  magA: number;
+  magB: number | null;
+  /** True for a track B value this module derived rather than the author declaring it. */
+  estimated?: boolean;
+};
 type Track = {
   a: string;
   b: string;
   points: TrackPoint[];
   threshold: string;
   thresholdMag: number | null;
+  /** `Ligado — sí`: fill track B between its anchors from track A's movement. */
+  linked: boolean;
 };
 
 function parseTrack(raw: string): Track | null {
@@ -445,6 +455,7 @@ function parseTrack(raw: string): Track | null {
 
   let threshold = '';
   let thresholdMag: number | null = null;
+  let linked = false;
   const points: TrackPoint[] = [];
   for (const item of items.slice(1)) {
     const kv = item.match(KV_RE);
@@ -465,6 +476,11 @@ function parseTrack(raw: string): Track | null {
     const label = kv[1].trim();
     const value = kv[2].trim();
     if (!label || label.length > 16) return null;
+    if (normalizeLabel(label) === 'ligado') {
+      if (!/^(si|s[ií]|yes)$/i.test(normalizeLabel(value))) return null;
+      linked = true;
+      continue;
+    }
     if (normalizeLabel(label) === 'umbral') {
       if (threshold) return null;
       if (value.length > 20 || !/\d/.test(value)) return null;
@@ -506,7 +522,63 @@ function parseTrack(raw: string): Track | null {
   const bValues = points.filter(p => p.magB !== null).length;
   if (b && bValues < 2) return null;
   if (threshold && !b && points.length < 2) return null;
-  return { a, b, points, threshold, thresholdMag };
+  if (linked && bValues < 2) return null;
+  const track: Track = { a, b, points, threshold, thresholdMag, linked };
+  if (linked) linkTrackB(track);
+  return track;
+}
+
+// Fill track B between its declared anchors by marking it to market.
+//
+// A fortune that is mostly one shareholding moves every day that stock
+// moves, but nobody publishes it every day: the anchors here are four
+// Forbes estimates across a year, and a straight line between them says
+// the wealth sat still for seven months, which is the one thing we know is
+// false. So between anchors track B follows track A's actual movement.
+//
+// The model is the obvious one. Net worth = k × price + everything else.
+// `k` (how many millions the fortune moves per unit of share price) comes
+// from the LAST anchor pair, the only place we have a wealth move and a
+// price move over the same interval. The residual — every asset that is
+// not this stock — is then interpolated linearly between anchors, which is
+// what absorbs the drift a share price cannot explain.
+//
+// Two properties make this publishable rather than invented: the curve
+// passes exactly through every declared value, so no sourced figure is
+// disturbed; and every point it adds is flagged `estimated`, which is what
+// keeps its dots off the chart and puts the disclosure under the key. It
+// is a level-3 reading in the evidence ladder (Playbook explaining what
+// the evidence implies), never a level-1 fact, and it is only ever drawn
+// because the author asked for it with `Ligado — sí`.
+function linkTrackB(track: Track): void {
+  const { points } = track;
+  const anchors = points.map((p, i) => ({ p, i })).filter(o => o.p.magB !== null);
+  if (anchors.length < 2) return;
+
+  const last = anchors[anchors.length - 1];
+  const prev = anchors[anchors.length - 2];
+  const dPrice = last.p.magA - prev.p.magA;
+  const dWealth = (last.p.magB as number) - (prev.p.magB as number);
+  // A flat price across the closing pair leaves the sensitivity undefined;
+  // without it there is nothing to fluctuate and the straight line stands.
+  if (!dPrice) return;
+  const k = dWealth / dPrice;
+  if (!Number.isFinite(k) || k === 0) return;
+
+  for (let seg = 0; seg < anchors.length - 1; seg += 1) {
+    const from = anchors[seg];
+    const to = anchors[seg + 1];
+    const residualFrom = (from.p.magB as number) - k * from.p.magA;
+    const residualTo = (to.p.magB as number) - k * to.p.magA;
+    const span = to.i - from.i;
+    if (span < 2) continue;
+    for (let i = from.i + 1; i < to.i; i += 1) {
+      const t = (i - from.i) / span;
+      const residual = residualFrom + (residualTo - residualFrom) * t;
+      points[i].magB = k * points[i].magA + residual;
+      points[i].estimated = true;
+    }
+  }
 }
 
 // One complete, self-consistent chart layer over points[from..to]. Called
@@ -572,13 +644,16 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
 
   // The threshold rides track B's scale (or A's when there is no B), so it
   // is drawn only when the window it belongs to actually contains it.
+  // The rule is drawn under the data; its caption is drawn OVER it. Keeping
+  // both in the same early group let the lines paint across the text, which
+  // the linked track does constantly since it lives near the threshold.
   let threshold = '';
+  let thresholdText = '';
   if (track.thresholdMag !== null && bPts.length) {
     const ty = yB(track.thresholdMag);
     if (ty >= Q_Y0 - 2 && ty <= Q_Y1 + 2) {
-      threshold =
-        `<line class="lect-cot-umbral" x1="${Q_X0}" y1="${ty.toFixed(1)}" x2="${Q_X1}" y2="${ty.toFixed(1)}" />` +
-        `<text class="lect-cot-umbral-txt" x="${Q_X0}" y="${(ty - 7).toFixed(1)}" text-anchor="start">${esc(track.threshold)}</text>`;
+      threshold = `<line class="lect-cot-umbral" x1="${Q_X0}" y1="${ty.toFixed(1)}" x2="${Q_X1}" y2="${ty.toFixed(1)}" />`;
+      thresholdText = `<text class="lect-cot-umbral-txt" x="${Q_X0}" y="${(ty - 7).toFixed(1)}" text-anchor="start">${esc(track.threshold)}</text>`;
     }
   }
 
@@ -587,7 +662,10 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
     : win
         .map((p, i) => `<circle class="lect-cot-dot" data-side="a" cx="${x(i).toFixed(1)}" cy="${yA(p.magA).toFixed(1)}" r="4" />`)
         .join('');
+  // A dot is a claim that someone published this number, so modelled points
+  // never get one: the line may be an estimate, the markers on it are not.
   const dotsB = bPts
+    .filter(o => !o.p.estimated)
     .map(o => `<circle class="lect-cot-dot" data-side="b" cx="${x(o.i).toFixed(1)}" cy="${yB(o.p.magB as number).toFixed(1)}" r="4" />`)
     .join('');
 
@@ -602,7 +680,9 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
       if (i !== 0 && i !== span) return '';
       const label = (side: 'a' | 'b', y: number, text: string) =>
         `<text class="lect-cot-val" data-side="${side}" x="${x(i).toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${edge(i)}">${esc(text)}</text>`;
-      if (p.magB === null) return label('a', yA(p.magA) + ABOVE, p.a);
+      // An estimated point carries a magnitude but no declared string, so it
+      // draws no figure — the chart never prints a number nobody published.
+      if (p.magB === null || !p.b) return label('a', yA(p.magA) + ABOVE, p.a);
       // Whichever track sits HIGHER at this point is labelled above its own
       // dot and the lower one below its own — decided per point, not per
       // track. Fixing "A above, B below" collides exactly where the two are
@@ -655,6 +735,7 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
     `<polyline class="lect-cot-line" data-side="a" pathLength="1" points="${lineA}" />` +
     dotsA +
     bLayer +
+    thresholdText +
     vals +
     ticks +
     `</g>`
@@ -711,9 +792,19 @@ function buildTrack(track: Track): string {
     `<span class="lect-cot-name" data-side="a">${esc(a)}</span>` +
     (b ? `<span class="lect-cot-name" data-side="b">${esc(b)}</span>` : '');
 
+  // The disclosure is not optional and not a footnote: a reader looking at a
+  // daily line for a figure that is published four times a year has to be
+  // told which part of it is the estimate.
+  const declared = points.filter(p => p.magB !== null && !p.estimated).length;
+  const note = track.linked
+    ? `<div class="lect-cot-note">${esc(b)}: ${declared} estimaciones publicadas. ` +
+      `Entre ellas, Playbook proyecta el valor con el movimiento diario de ${esc(a)}.</div>`
+    : '';
+
   const spoken =
     `Cotización de ${a}${b ? ` y ${b}` : ''}. ` +
-    points.map(p => `${p.label}: ${p.a}${p.b ? `, ${b} ${p.b}` : ''}`).join('; ') +
+    (track.linked ? `${b} tiene ${declared} estimaciones publicadas; el resto de la curva es una proyección. ` : '') +
+    points.filter(p => p.label).map(p => `${p.label}: ${p.a}${p.b ? `, ${b} ${p.b}` : ''}`).join('; ') +
     (move ? `. Movimiento final ${down ? 'a la baja' : 'al alza'} de ${move}` : '') +
     (crossed ? `, por debajo del umbral de ${track.threshold}` : '') +
     '.';
@@ -724,6 +815,7 @@ function buildTrack(track: Track): string {
     `<span class="lect-device-label">La cotización</span>` +
     `<div class="lect-cot-crest"><span class="lect-cot-asset">${esc(assetLabel)}</span></div>` +
     `<div class="lect-cot-key" aria-hidden="true">${key}</div>` +
+    note +
     `<div class="lect-cot-stage">` +
     `<svg class="lect-cot-chart" viewBox="0 0 640 232" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">` +
     trackLayer(track, 0, points.length - 1, 'lect-cot-wide') +
