@@ -368,6 +368,307 @@ function buildQuote(quote: Quote): string {
   );
 }
 
+// ——————————————————————————————— Cotización, track form (round 5)
+// The tile above is one moment. This is the same device given a TIME AXIS
+// and a second, independently-scaled track, for the story where a market
+// price is dragging a person's or a fund's stated wealth around with it.
+//
+//   Cotización: On Holding vs Patrimonio de Federer · Umbral — US$1,000M
+//     · sep 2021 — US$35.00 · 12 ago 2026 — US$31.29 vs US$952M
+//
+// Why it is not `Serie` (2026-08-12, publisher directive). `Serie` puts two
+// series on ONE shared Y axis and its own rules say the values must be the
+// same kind of measure, because that shared axis is what makes the shapes
+// comparable. A share price of US$31.29 and a fortune of US$952M are not
+// the same measure and never will be. Forcing them onto one axis flattens
+// the smaller series into the baseline and the chart says nothing. So this
+// device gives each track its OWN scale: the reader is being shown
+// correlation in time, not magnitude against magnitude, and the two axes
+// are the honest way to draw that.
+//
+// Three things the tile form cannot express and this one is built for:
+//
+//   1. **The threshold.** `Umbral — US$1,000M` draws a labelled line on the
+//      second track's scale. A story about someone ceasing to be a
+//      billionaire IS the crossing of that line, and a chart that makes the
+//      reader infer it from two printed numbers has buried its own lede.
+//   2. **Gaps in the second track.** A price has a quote every day; a
+//      fortune is estimated occasionally. A point may carry track A alone,
+//      and track B simply starts where its first real value is. This is a
+//      correctness feature, not a convenience: the alternative is inventing
+//      the intermediate net-worth values, which the collection forbids.
+//   3. **The zoom.** The device renders the whole arc AND the final window,
+//      as two complete, independently-projected layers, and
+//      ArticleMotion pushes from one to the other on scroll. The reader
+//      gets the context first and the decisive moment second, in that
+//      order, without either layer ever being geometrically wrong.
+//
+// Both layers resolve to correct geometry at rest, so the transition can be
+// interrupted or never run at all. The `lect-cot-detail` strip below the
+// chart carries the closing numbers as text and is always visible, which is
+// what makes the whole thing degrade to something readable with no JS.
+const Q_X0 = 52;
+const Q_X1 = 596;
+const Q_Y0 = 30;
+const Q_Y1 = 190;
+// The zoom lands on the last two points: the move itself. One point has no
+// slope to show, three starts being the wide view again.
+const ZOOM_TAIL = 2;
+
+type TrackPoint = { label: string; a: string; b: string; magA: number; magB: number | null };
+type Track = {
+  a: string;
+  b: string;
+  points: TrackPoint[];
+  threshold: string;
+  thresholdMag: number | null;
+};
+
+function parseTrack(raw: string): Track | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 4) return null;
+  const head = items[0].trim();
+  // The framing item is what separates this form from the tile: the tile's
+  // first item is `Nombre — valor`, so a dash here means the caller wanted
+  // the tile and this parser must decline rather than half-match it.
+  if (!head || head.length > 64 || KV_RE.test(head)) return null;
+  const sides = head.match(VS_RE);
+  const a = (sides ? sides[1] : head).trim();
+  const b = sides ? sides[2].trim() : '';
+  if (!a || a.length > 34 || b.length > 34) return null;
+
+  let threshold = '';
+  let thresholdMag: number | null = null;
+  const points: TrackPoint[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const value = kv[2].trim();
+    if (!label || label.length > 16) return null;
+    if (normalizeLabel(label) === 'umbral') {
+      if (threshold) return null;
+      if (value.length > 20 || !/\d/.test(value)) return null;
+      threshold = value;
+      thresholdMag = magnitudeOf(value);
+      if (thresholdMag === null) return null;
+      continue;
+    }
+    const pair = value.match(VS_RE);
+    const aVal = (pair ? pair[1] : value).trim();
+    const bVal = pair ? pair[2].trim() : '';
+    if (!aVal || aVal.length > 20 || !/\d/.test(aVal)) return null;
+    if (bVal && (bVal.length > 20 || !/\d/.test(bVal))) return null;
+    // A second track value on a device that never named a second track is
+    // a typo, not a silent extra series.
+    if (bVal && !b) return null;
+    const magA = magnitudeOf(aVal);
+    if (magA === null) return null;
+    points.push({ label, a: aVal, b: bVal, magA, magB: bVal ? magnitudeOf(bVal) : null });
+  }
+  if (points.length < 3 || points.length > 8) return null;
+  // Track B has to be a line, so it needs at least two real values; and a
+  // threshold with nothing to cross is decoration.
+  const bValues = points.filter(p => p.magB !== null).length;
+  if (b && bValues < 2) return null;
+  if (threshold && !b && points.length < 2) return null;
+  return { a, b, points, threshold, thresholdMag };
+}
+
+// One complete, self-consistent chart layer over points[from..to]. Called
+// twice with different windows — the whole arc and the closing window — so
+// each layer is correctly projected on its own and the transition between
+// them never has to fake geometry.
+function trackLayer(track: Track, from: number, to: number, cls: string): string {
+  const { points, a, b } = track;
+  const win = points.slice(from, to + 1);
+  const span = win.length - 1;
+  const x = (i: number) => (span === 0 ? (Q_X0 + Q_X1) / 2 : Q_X0 + (i * (Q_X1 - Q_X0)) / span);
+
+  // Each track scales to ITS OWN visible range, padded, which is what makes
+  // the zoom informative: a 19% fall that is a rounding error against the
+  // full arc becomes the whole height of the closing window.
+  const scaleFor = (vals: number[], extra: number | null) => {
+    const all = extra !== null ? [...vals, extra] : vals;
+    const lo = Math.min(...all);
+    const hi = Math.max(...all);
+    const pad = (hi - lo) * 0.18 || Math.abs(hi) * 0.1 || 1;
+    const min = lo - pad;
+    const max = hi + pad;
+    return (v: number) => Q_Y1 - ((v - min) / (max - min || 1)) * (Q_Y1 - Q_Y0);
+  };
+  // Track B, when there IS a threshold, is scaled SYMMETRICALLY about it
+  // rather than to its own extremes, which pins the threshold to the middle
+  // of the box at every zoom level.
+  //
+  // This is not a cosmetic choice. Auto-scaling both tracks to their own
+  // min/max means that in any two-point window each line runs corner to
+  // corner, so A and B come out exactly collinear and the chart states
+  // nothing at the moment it is most magnified — which is precisely the
+  // window the zoom exists to show (caught on the Federer render,
+  // 2026-08-12, where the two lines sat perfectly on top of each other).
+  // Anchoring B on the threshold also makes the crossing legible by
+  // construction: above the middle is still a billionaire, below it is not.
+  const thresholdScale = (vals: number[], mark: number) => {
+    const reach = Math.max(...vals.map(v => Math.abs(v - mark)), Math.abs(mark) * 0.004);
+    const min = mark - reach * 1.35;
+    const max = mark + reach * 1.35;
+    return (v: number) => Q_Y1 - ((v - min) / (max - min)) * (Q_Y1 - Q_Y0);
+  };
+
+  const yA = scaleFor(win.map(p => p.magA), null);
+  const bPts = win.map((p, i) => ({ p, i })).filter(o => o.p.magB !== null);
+  const bVals = bPts.map(o => o.p.magB as number);
+  const yB = !bPts.length
+    ? () => Q_Y1
+    : track.thresholdMag !== null
+      ? thresholdScale(bVals, track.thresholdMag)
+      : scaleFor(bVals, null);
+
+  const lineA = win.map((p, i) => `${x(i).toFixed(1)},${yA(p.magA).toFixed(1)}`).join(' ');
+  const areaA = `${lineA} ${x(span).toFixed(1)},${Q_Y1} ${x(0).toFixed(1)},${Q_Y1}`;
+  const lineB = bPts.map(o => `${x(o.i).toFixed(1)},${yB(o.p.magB as number).toFixed(1)}`).join(' ');
+
+  const grid = [0, 0.5, 1]
+    .map(f => {
+      const gy = (Q_Y1 - f * (Q_Y1 - Q_Y0)).toFixed(1);
+      return `<line class="lect-cot-grid" x1="${Q_X0}" y1="${gy}" x2="${Q_X1}" y2="${gy}" />`;
+    })
+    .join('');
+
+  // The threshold rides track B's scale (or A's when there is no B), so it
+  // is drawn only when the window it belongs to actually contains it.
+  let threshold = '';
+  if (track.thresholdMag !== null && bPts.length) {
+    const ty = yB(track.thresholdMag);
+    if (ty >= Q_Y0 - 2 && ty <= Q_Y1 + 2) {
+      threshold =
+        `<line class="lect-cot-umbral" x1="${Q_X0}" y1="${ty.toFixed(1)}" x2="${Q_X1}" y2="${ty.toFixed(1)}" />` +
+        `<text class="lect-cot-umbral-txt" x="${Q_X1}" y="${(ty - 7).toFixed(1)}" text-anchor="end">${esc(track.threshold)}</text>`;
+    }
+  }
+
+  const dotsA = win
+    .map((p, i) => `<circle class="lect-cot-dot" data-side="a" cx="${x(i).toFixed(1)}" cy="${yA(p.magA).toFixed(1)}" r="4" />`)
+    .join('');
+  const dotsB = bPts
+    .map(o => `<circle class="lect-cot-dot" data-side="b" cx="${x(o.i).toFixed(1)}" cy="${yB(o.p.magB as number).toFixed(1)}" r="4" />`)
+    .join('');
+
+  // Only the window's endpoints get printed values. Labelling every point
+  // is what turned the first draft into a wall of numbers over the line it
+  // was supposed to reveal.
+  const edge = (i: number) => (i === 0 ? 'start' : i === span ? 'end' : 'middle');
+  const vals = win
+    .map((p, i) => {
+      if (i !== 0 && i !== span) return '';
+      const out = [
+        `<text class="lect-cot-val" data-side="a" x="${x(i).toFixed(1)}" y="${(yA(p.magA) - 12).toFixed(1)}" text-anchor="${edge(i)}">${esc(p.a)}</text>`,
+      ];
+      if (p.magB !== null) {
+        // A sits above its dot and B below its own, but the two tracks have
+        // independent scales and nothing stops their dots landing on top of
+        // each other. When they are within a label's height, push B further
+        // down so the two figures never overprint.
+        const gap = Math.abs(yA(p.magA) - yB(p.magB));
+        out.push(
+          `<text class="lect-cot-val" data-side="b" x="${x(i).toFixed(1)}" y="${(yB(p.magB) + (gap < 30 ? 34 : 20)).toFixed(1)}" text-anchor="${edge(i)}">${esc(p.b)}</text>`,
+        );
+      }
+      return out.join('');
+    })
+    .join('');
+
+  const ticks = win
+    .map((p, i) =>
+      i === 0 || i === span
+        ? `<text class="lect-cot-tick" x="${x(i).toFixed(1)}" y="${Q_Y1 + 26}" text-anchor="${edge(i)}">${esc(p.label)}</text>`
+        : '',
+    )
+    .join('');
+
+  const bLayer = bPts.length > 1
+    ? `<polyline class="lect-cot-line" data-side="b" pathLength="1" points="${lineB}" />${dotsB}`
+    : '';
+
+  return (
+    `<g class="${cls}">` +
+    grid +
+    threshold +
+    `<polygon class="lect-cot-area" points="${areaA}" />` +
+    `<polyline class="lect-cot-line" data-side="a" pathLength="1" points="${lineA}" />` +
+    dotsA +
+    bLayer +
+    vals +
+    ticks +
+    `</g>`
+  );
+}
+
+function buildTrack(track: Track): string {
+  const { points, a, b } = track;
+  const last = points[points.length - 1];
+  const prev = points[points.length - 2];
+  const from = Math.max(0, points.length - ZOOM_TAIL);
+
+  // The closing move on track A, computed rather than authored, same rule
+  // Venta's multiple follows: a number the device derives cannot disagree
+  // with the prose beside it.
+  let move = '';
+  let down = false;
+  if (prev && prev.magA > 0) {
+    const pct = ((last.magA - prev.magA) / prev.magA) * 100;
+    down = pct < 0;
+    move = `${formatNumeric(Math.abs(pct), Math.abs(pct) >= 10 ? 1 : 2)}%`;
+  }
+
+  const crossed =
+    track.thresholdMag !== null && last.magB !== null && last.magB < track.thresholdMag;
+
+  const detail = [
+    `<span class="lect-cot-detail-when">${esc(last.label)}</span>`,
+    `<span class="lect-cot-detail-item"><span class="lect-cot-detail-k">${esc(a)}</span>` +
+      `${countupSpan(last.a, 'lect-cot-detail-v')}` +
+      (move
+        ? `<span class="lect-cot-move" data-dir="${down ? 'down' : 'up'}">` +
+          `<span aria-hidden="true">${down ? '▼' : '▲'}</span> ${esc(move)}</span>`
+        : '') +
+      `</span>`,
+    b && last.magB !== null
+      ? `<span class="lect-cot-detail-item"><span class="lect-cot-detail-k">${esc(b)}</span>` +
+        `${countupSpan(last.b, 'lect-cot-detail-v')}` +
+        (crossed
+          ? `<span class="lect-cot-broke">bajo ${esc(track.threshold)}</span>`
+          : '') +
+        `</span>`
+      : '',
+  ].join('');
+
+  const key =
+    `<span class="lect-cot-name" data-side="a">${esc(a)}</span>` +
+    (b ? `<span class="lect-cot-name" data-side="b">${esc(b)}</span>` : '');
+
+  const spoken =
+    `Cotización de ${a}${b ? ` y ${b}` : ''}. ` +
+    points.map(p => `${p.label}: ${p.a}${p.b ? `, ${b} ${p.b}` : ''}`).join('; ') +
+    (move ? `. Movimiento final ${down ? 'a la baja' : 'al alza'} de ${move}` : '') +
+    (crossed ? `, por debajo del umbral de ${track.threshold}` : '') +
+    '.';
+
+  return (
+    `<div class="lect-device lect-cot" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">La cotización</span>` +
+    `<div class="lect-cot-key" aria-hidden="true">${key}</div>` +
+    `<div class="lect-cot-stage">` +
+    `<svg class="lect-cot-chart" viewBox="0 0 640 232" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">` +
+    trackLayer(track, 0, points.length - 1, 'lect-cot-wide') +
+    trackLayer(track, from, points.length - 1, 'lect-cot-zoom') +
+    `</svg></div>` +
+    `<div class="lect-cot-detail">${detail}</div>` +
+    `</div>`
+  );
+}
+
 // ———————————————————————————————————————————————————————— Resultados
 // One institution's reporting period, line by line, each with its own
 // change against the comparable period. The shape a quarterly filing
@@ -1152,7 +1453,16 @@ const DEVICES: Device[] = [
     name: 'cotizacion',
     prefix: deviceTextRe('Cotizaci[óo]n'),
     html: deviceHtmlRe('Cotizaci[óo]n'),
+    // Track form first, tile second. The two are told apart by their FIRST
+    // item: the tile opens `Nombre — valor` and the track opens with a bare
+    // framing item, so parseTrack declines anything shaped like a tile
+    // instead of half-matching it. Order matters only for speed, not for
+    // correctness — but keeping the richer form first means a malformed
+    // track never silently renders as a tile built from its first two
+    // fields, which would be a wrong chart rather than a visible mistake.
     render: raw => {
+      const track = parseTrack(raw);
+      if (track) return buildTrack(track);
       const parsed = parseQuote(raw);
       return parsed ? buildQuote(parsed) : null;
     },

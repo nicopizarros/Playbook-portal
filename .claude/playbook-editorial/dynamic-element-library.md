@@ -98,8 +98,9 @@ used to be.
 Pick by **story shape**: a saga → `Cronología`; a breakdown → `Recibo`; a split
 → `Reparto`; a pairing → `Jugada`; one number → `Cifra clave`; an earnings
 release → `Resultados`; two institutions → `Duelo`; volatility over time →
-`Serie`; countries → `Mapa`; **an asset changing hands → `Venta`; a succession
-of owners → `Cadena`**.
+`Serie`; countries → `Mapa`; an asset changing hands → `Venta`; a succession
+of owners → `Cadena`; **a market price dragging something else with it →
+`Cotización` (track form)**.
 
 ---
 
@@ -285,7 +286,12 @@ host cities.
 
 ---
 
-### `Cotización:` — the market tile
+### `Cotización:` — the market tile, and the track
+
+Two forms. They are told apart by the **first item**: a `Nombre — valor` opening
+is the tile, a bare framing item is the track.
+
+#### The tile — one moment
 
 ```
 Cotización: Ollamani — MX$14.50 · -34.6% · en el año
@@ -297,6 +303,62 @@ A market tile with a ▲/▼ delta. For public-company and valuation results.
 - Value ≤20 chars and must contain a digit.
 - Delta ≤14 chars and **must contain `%`**. A leading `−`/`-` sets the down
   treatment.
+
+#### The track — a price over time, and what it is dragging with it
+
+```
+Cotización: On Holding vs Patrimonio de Federer · Umbral — US$1,000M · ago 2025 — US$50.00 · 11 ago 2026 — US$38.78 vs US$1,004M · 12 ago 2026 — US$31.29 vs US$952M
+```
+
+(2026-08-12, publisher directive.) The tile is one moment. This is the same
+device given a time axis, a second **independently scaled** track, a threshold
+line, and a scroll-driven zoom from the whole arc into the closing window.
+
+- First item names the tracks: `A vs B`, or just `A` for a single line. Each
+  side ≤34 chars, and the item must contain no ` — ` (the framing rule `Duelo`,
+  `Serie` and `Resultados` all carry).
+- `Umbral — US$1,000M` is optional and may sit anywhere in the item list. It
+  draws a labelled line on track B's scale.
+- Every other item is `punto — valorA` or `punto — valorA vs valorB`. Point
+  label ≤16 chars, values ≤20 and each must contain a digit.
+- **3–8 points.** Track B needs at least two real values; a `vs` value on a
+  device that never named a second track rejects the whole declaration.
+
+**Why this is not `Serie`.** `Serie` puts both series on ONE shared Y axis and
+its own rules require the same kind of measure, because the shared axis is what
+makes the two shapes comparable. A share price of US$31.29 and a fortune of
+US$952M are not the same measure, and forcing them onto one axis flattens the
+smaller series into the baseline. Here each track carries its own scale: the
+reader is being shown **correlation in time**, not magnitude against magnitude.
+Reach for `Serie` when the two series are the same measure and the comparison
+IS the point; reach for this when one number is visibly driving another.
+
+**Track B may start late, and that is the feature.** A price has a quote every
+day; a fortune is estimated occasionally. Give track B a value only at the
+points where a real one exists and its line simply begins there. The
+alternative is interpolating the missing net-worth values, which the
+"every number must be in the reporting" rule forbids — so the gap is what keeps
+the device honest, not a limitation to work around.
+
+**The threshold is the story, when there is one.** Track B is scaled
+symmetrically about the declared `Umbral`, so the line sits at mid-box at every
+zoom level and above/below it means something the reader can see. This also
+stops the two tracks rendering as one line: without it, any two-point window
+auto-scales both tracks corner to corner and they come out exactly collinear,
+which is worst at the most magnified moment. Declare an `Umbral` whenever the
+story turns on a level being crossed (a billion, a covenant, a market cap).
+
+**The zoom needs the arc to be worth zooming out of.** The device renders two
+complete, independently projected layers, the full range and the last two
+points, and the motion pushes from one to the other on scroll. Both are correct
+at rest and the `lect-cot-detail` strip under the chart always carries the
+closing numbers as text, so a reader with no JS or reduced motion loses the
+animation and nothing else. Spend the extra points on real history: a
+three-point declaration works, but the push-in earns its place when the wide
+view has a shape the closing window contradicts.
+
+The closing percentage move is **computed** from the last two track A values,
+like `Venta`'s multiple. Don't restate it in the neighbouring paragraph.
 
 ---
 

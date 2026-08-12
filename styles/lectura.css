@@ -461,6 +461,98 @@
   .lect-duelo-label{align-self:flex-start;text-align:left;}
 }
 
+/* ——— Cotización, track form (round 5). The tile above is one moment;
+   this is the same device with a time axis, a second independently-scaled
+   track, and a threshold line.
+
+   TWO COMPLETE LAYERS, NOT ONE THAT MOVES. .lect-cot-wide is the whole arc
+   and .lect-cot-zoom is the closing window, each projected on its own by
+   buildTrack, so both are geometrically correct at rest. ArticleMotion
+   pushes from the first to the second on scroll; if it never runs, the
+   wide layer is what shows and the detail strip below still carries the
+   closing numbers as text. That is the whole reason the zoom is built as
+   a cross-fade of two truths rather than a transform on one. ——— */
+.lect-cot{--cot-a:var(--lect-accent);--cot-b:#2f6fed;}
+[data-theme="dark"] .lect-cot{--cot-b:#6ea8ff;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cot{--cot-b:#6ea8ff;}
+}
+.lect-cot-key{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;}
+.lect-cot-name{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+}
+.lect-cot-name::before{content:"";width:16px;height:3px;flex-shrink:0;}
+.lect-cot-name[data-side="a"]::before{background:var(--cot-a);}
+.lect-cot-name[data-side="b"]::before{background:var(--cot-b);}
+/* The stage clips the push-in so a scaling layer never bleeds over the
+   prose while it is on its way out. */
+.lect-cot-stage{position:relative;overflow:hidden;}
+.lect-cot-chart{display:block;width:100%;height:auto;}
+/* Both layers occupy the same box. The zoom layer starts hidden and is
+   revealed by the motion; with no JS the wide layer simply stays. */
+.lect-cot-zoom{opacity:0;}
+.lect-cot-grid{stroke:var(--rule);stroke-width:1;}
+.lect-cot-area{fill:color-mix(in srgb,var(--cot-a) 14%,transparent);stroke:none;}
+.lect-cot-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;}
+.lect-cot-line[data-side="a"]{stroke:var(--cot-a);}
+.lect-cot-line[data-side="b"]{stroke:var(--cot-b);stroke-dasharray:6 4;}
+.lect-cot-dot{stroke:var(--paper);stroke-width:2;}
+.lect-cot-dot[data-side="a"]{fill:var(--cot-a);}
+.lect-cot-dot[data-side="b"]{fill:var(--cot-b);}
+.lect-cot-val{
+  font-family:var(--sans);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.lect-cot-val[data-side="a"]{fill:var(--lect-ink-accent);}
+.lect-cot-val[data-side="b"]{fill:var(--cot-b);}
+.lect-cot-tick{
+  font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;fill:var(--gray-txt);
+}
+/* The threshold is the line the story is about, so it is drawn as a stated
+   rule rather than another gridline. */
+.lect-cot-umbral{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:2 4;opacity:.55;}
+.lect-cot-umbral-txt{
+  font-family:var(--sans);font-size:11px;font-weight:800;letter-spacing:.08em;fill:var(--gray-txt);
+}
+/* Always visible, and the reason the device degrades gracefully: the
+   closing numbers live here as text, not only as geometry. */
+.lect-cot-detail{
+  display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;
+  margin-top:12px;padding-top:11px;border-top:1.5px solid var(--rule);
+}
+.lect-cot-detail-when{
+  font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-cot-detail-item{display:inline-flex;align-items:baseline;gap:8px;}
+.lect-cot-detail-k{font-size:12px;font-weight:700;color:var(--gray-dark);}
+.lect-cot-detail-v{
+  font-size:17px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.lect-cot-move{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;}
+.lect-cot-move[data-dir="up"]{color:#3f7d0a;}
+.lect-cot-move[data-dir="down"]{color:#c0392b;}
+[data-theme="dark"] .lect-cot-move[data-dir="up"]{color:var(--green);}
+[data-theme="dark"] .lect-cot-move[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cot-move[data-dir="up"]{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-cot-move[data-dir="down"]{color:#e0616b;}
+}
+/* Crossing the threshold is the news, so it is set as a stamp rather than
+   another figure in the row. */
+.lect-cot-broke{
+  font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--paper);background:#c0392b;padding:3px 7px;
+}
+[data-theme="dark"] .lect-cot-broke{background:#e0616b;color:var(--ink-fixed);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cot-broke{background:#e0616b;color:var(--ink-fixed);}
+}
+@media(max-width:640px){
+  .lect-cot-detail{gap:8px 14px;}
+  .lect-cot-detail-v{font-size:15px;}
+}
+
 /* ——— Round 4: the transfer-of-title devices (Venta, Cadena). These two
    are the ONLY devices that do not wear the product accent. The asset
    changing hands wears its own brand palette, resolved and contrast-
