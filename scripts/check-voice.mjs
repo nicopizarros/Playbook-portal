@@ -47,7 +47,7 @@ const TARGETS = {
 // Declared devices, image blocks and their captions are structural, not prose —
 // counting them would drag every median toward zero and hide real paragraphs.
 const STRUCTURAL =
-  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Fuentes:|Ruta del dinero:|## )/;
+  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Venta:|Cadena:|Fuentes:|Ruta del dinero:|## )/;
 
 // The negative-parallelism family, counted against one budget.
 //
