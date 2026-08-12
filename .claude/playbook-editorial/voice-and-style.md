@@ -476,6 +476,22 @@ for. In that case the real read was already in the story: brand stability as a
 commercial asset, and the deal resetting the shirt-sponsorship price benchmark.
 **A strong industry-wide close beats a forced regional comparison every time.**
 
+**A genuine regional angle can still lose to the story's own mechanism**
+(publisher, 2026-08-12, on the record Lakers sale). The rule above is about
+*forced* angles; this is the case one step in. The draft closed on Liga MX
+having just eliminated promotion and relegation and put two slots up for sale,
+which is a real, researched, non-forced parallel and still the wrong ending:
+the bigger read was why US franchise prices are compounding at all (a closed
+league, national media contracts, rationed expansion, so the franchise prices
+like an income asset with guaranteed growth), and spending the close on a
+smaller market's version of it traded the mechanism for a comparison.
+
+So the test is not only "is this angle real?" but **"is it the most load-bearing
+thing I can end on?"** When the story's own structure is the more interesting
+finding, close on that and leave the region out entirely, even when a
+defensible regional parallel exists. This is a third outcome alongside the two
+above, not a replacement for either.
+
 **Research it, don't infer it.** The failure mode is deriving the angle from
 the story's own logic instead of checking. On 2026-08-05 a draft argued that a
 shrinking league would probably drop its Mexican stop; the league had already
