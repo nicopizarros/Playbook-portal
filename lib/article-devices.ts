@@ -578,7 +578,7 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
     if (ty >= Q_Y0 - 2 && ty <= Q_Y1 + 2) {
       threshold =
         `<line class="lect-cot-umbral" x1="${Q_X0}" y1="${ty.toFixed(1)}" x2="${Q_X1}" y2="${ty.toFixed(1)}" />` +
-        `<text class="lect-cot-umbral-txt" x="${Q_X1}" y="${(ty - 7).toFixed(1)}" text-anchor="end">${esc(track.threshold)}</text>`;
+        `<text class="lect-cot-umbral-txt" x="${Q_X0}" y="${(ty - 7).toFixed(1)}" text-anchor="start">${esc(track.threshold)}</text>`;
     }
   }
 
@@ -595,23 +595,28 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
   // is what turned the first draft into a wall of numbers over the line it
   // was supposed to reveal.
   const edge = (i: number) => (i === 0 ? 'start' : i === span ? 'end' : 'middle');
+  const ABOVE = -12;
+  const BELOW = 20;
   const vals = win
     .map((p, i) => {
       if (i !== 0 && i !== span) return '';
-      const out = [
-        `<text class="lect-cot-val" data-side="a" x="${x(i).toFixed(1)}" y="${(yA(p.magA) - 12).toFixed(1)}" text-anchor="${edge(i)}">${esc(p.a)}</text>`,
-      ];
-      if (p.magB !== null) {
-        // A sits above its dot and B below its own, but the two tracks have
-        // independent scales and nothing stops their dots landing on top of
-        // each other. When they are within a label's height, push B further
-        // down so the two figures never overprint.
-        const gap = Math.abs(yA(p.magA) - yB(p.magB));
-        out.push(
-          `<text class="lect-cot-val" data-side="b" x="${x(i).toFixed(1)}" y="${(yB(p.magB) + (gap < 30 ? 34 : 20)).toFixed(1)}" text-anchor="${edge(i)}">${esc(p.b)}</text>`,
-        );
-      }
-      return out.join('');
+      const label = (side: 'a' | 'b', y: number, text: string) =>
+        `<text class="lect-cot-val" data-side="${side}" x="${x(i).toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${edge(i)}">${esc(text)}</text>`;
+      if (p.magB === null) return label('a', yA(p.magA) + ABOVE, p.a);
+      // Whichever track sits HIGHER at this point is labelled above its own
+      // dot and the lower one below its own — decided per point, not per
+      // track. Fixing "A above, B below" collides exactly where the two are
+      // close, because A's label reaches up while B's reaches down into the
+      // same gap: on the Federer ticker the closing US$30.91 and US$952M
+      // overprinted despite their dots being 37px apart. Same rule, and the
+      // same reason, as the Serie device.
+      const ya = yA(p.magA);
+      const yb = yB(p.magB);
+      const aOnTop = ya <= yb;
+      return (
+        label('a', ya + (aOnTop ? ABOVE : BELOW), p.a) +
+        label('b', yb + (aOnTop ? BELOW : ABOVE), p.b)
+      );
     })
     .join('');
 
@@ -631,8 +636,15 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
     )
     .join('');
 
+  // Track B gets a paper-coloured under-stroke before its own. Over a dense
+  // track A (258 closes drawn as a near-solid band) a 2.5px line simply
+  // disappears into the texture — the pixels are there and the reader still
+  // cannot follow it, which for the series carrying the story's threshold
+  // is the same as not drawing it. The halo costs nothing on a sparse chart
+  // and is what makes the quiet series survive a loud one.
   const bLayer = bPts.length > 1
-    ? `<polyline class="lect-cot-line" data-side="b" pathLength="1" points="${lineB}" />${dotsB}`
+    ? `<polyline class="lect-cot-halo" points="${lineB}" />` +
+      `<polyline class="lect-cot-line" data-side="b" pathLength="1" points="${lineB}" />${dotsB}`
     : '';
 
   return (

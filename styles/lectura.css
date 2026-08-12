@@ -514,7 +514,11 @@
 .lect-cot-area{fill:color-mix(in srgb,var(--cot-a) 14%,transparent);stroke:none;}
 .lect-cot-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;}
 .lect-cot-line[data-side="a"]{stroke:var(--cot-a);}
-.lect-cot-line[data-side="b"]{stroke:var(--cot-b);stroke-dasharray:6 4;}
+/* Solid and a touch heavier than track A: B is the series the threshold
+   belongs to, and a dashed hairline lost the argument against a dense
+   ticker. The halo below is what buys it contrast without a second hue. */
+.lect-cot-line[data-side="b"]{stroke:var(--cot-b);stroke-width:3;}
+.lect-cot-halo{fill:none;stroke:var(--paper);stroke-width:7;stroke-linejoin:round;stroke-linecap:round;opacity:.85;}
 .lect-cot-dot{stroke:var(--paper);stroke-width:2;}
 .lect-cot-dot[data-side="a"]{fill:var(--cot-a);}
 .lect-cot-dot[data-side="b"]{fill:var(--cot-b);}
