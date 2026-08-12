@@ -60,7 +60,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 <div class="container">
 
 <h1>Playbook-portal — Complete Call Flow &amp; Architecture Documentation</h1>
-<p class="subtitle">Generated from graphify knowledge graph: 2754 nodes, 4545 edges, 220 communities. Commit: 8a73ef0</p>
+<p class="subtitle">Generated from graphify knowledge graph: 2754 nodes, 4545 edges, 217 communities. Commit: ac7e5ff</p>
 
 <div class="nav">
     <a href="#overview">Architecture Overview</a>
@@ -90,11 +90,11 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 flowchart LR
     BUILD_GRAPH_321CBB04("Graph Build<br/><small>389 nodes</small>")
     class BUILD_GRAPH_321CBB04 module;
-    ANALYSIS_CLUSTERING_C79796DA("Analysis &amp; Clustering<br/><small>29 nodes</small>")
+    ANALYSIS_CLUSTERING_C79796DA("Analysis &amp; Clustering<br/><small>38 nodes</small>")
     class ANALYSIS_CLUSTERING_C79796DA module;
     OUTPUTS_DOCS_ED82387C("Outputs &amp; Docs<br/><small>97 nodes</small>")
     class OUTPUTS_DOCS_ED82387C module;
-    CLI_SKILLS_9964CBB8("CLI &amp; Skill Installers<br/><small>1035 nodes</small>")
+    CLI_SKILLS_9964CBB8("CLI &amp; Skill Installers<br/><small>1030 nodes</small>")
     class CLI_SKILLS_9964CBB8 module;
     INGEST_CACHE_UPDATE_FF457338("Ingestion &amp; Updates<br/><small>193 nodes</small>")
     class INGEST_CACHE_UPDATE_FF457338 module;
@@ -102,7 +102,7 @@ flowchart LR
     class SERVE_API_35EC8E86 module;
     SECURITY_GLOBAL_5B9C6A04("Security &amp; Global Graph<br/><small>35 nodes</small>")
     class SECURITY_GLOBAL_5B9C6A04 module;
-    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>57 nodes</small>")
+    TESTS_FIXTURES_B84B1DCC("Tests &amp; Fixtures<br/><small>53 nodes</small>")
     class TESTS_FIXTURES_B84B1DCC module;
     ANALYTICS_DATA_TS_15D9EF2C("analytics-data.ts<br/><small>57 nodes</small>")
     class ANALYTICS_DATA_TS_15D9EF2C module;
@@ -146,19 +146,19 @@ flowchart LR
     <h4>Architecture Layers</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
-      <tr><td>Graph Build</td><td>389</td><td><code>21, 47, 31, 8, 16, 12, 13, 15, 57, 32, 58, 159, 168, 128, 201, 145, 146, 147, 149, 150, 219</code></td></tr><tr><td>Analysis &amp; Clustering</td><td>29</td><td><code>93, 180, 187</code></td></tr><tr><td>Outputs &amp; Docs</td><td>97</td><td><code>66, 79, 67, 174, 148, 154</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>1035</td><td><code>131, 10, 19, 41, 60, 25, 18, 27, 64, 94, 70, 74, 34, 28, 39, 40, 80, 101, 87, 51, 52, 53, 95, 96, 100, 65, 82, 97, 113, 115, 117, 50, 61, 119, 120, 121, 26, 33, 125, 127, 59, 78, 81, 169, 84, 161, 166, 170, 171, 172, 173, 175, 176, 91, 165, 177, 45, 73, 178, 181, 182, 183, 184, 185, 186, 110, 111, 112, 118, 188, 189, 190, 210, 211, 98, 191, 192, 193, 194, 99, 126, 195, 196, 197, 199, 217, 214, 83, 136, 205, 206, 207, 208</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>193</td><td><code>5, 9, 22, 88, 56, 75, 105, 158, 3, 167, 90, 198, 200, 202</code></td></tr><tr><td>Serving API</td><td>37</td><td><code>11, 54</code></td></tr><tr><td>Security &amp; Global Graph</td><td>35</td><td><code>14, 133, 138</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>57</td><td><code>106, 107, 102, 92, 134, 135</code></td></tr><tr><td>analytics-data.ts</td><td>57</td><td><code>0</code></td></tr><tr><td>site-content.ts</td><td>39</td><td><code>2</code></td></tr><tr><td>SplitText.js</td><td>39</td><td><code>4</code></td></tr><tr><td>article-devices.ts</td><td>38</td><td><code>6</code></td></tr><tr><td>AdminDashboard.tsx</td><td>33</td><td><code>62</code></td></tr><tr><td>team.ts</td><td>29</td><td><code>20</code></td></tr><tr><td>Other</td><td>647</td><td><code>36, 17, 86, 23, 24, 37, 44, 30, 38, 1, 35, 46, 43, 42, 48, 49, 63, 69, 108, 55, 68, 72, 76, 157, 77, 160, 114, 162, 7, 71, 85, 163, 179, 204, 89, 104, 109, 129, 116, 212, 213, 103, 122, 123, 124, 142, 215, 216, 218, 29, 130, 132, 203, 137, 139, 140, 141, 143, 144, 209, 151, 152, 153, 155, 156, 164</code></td></tr>
+      <tr><td>Graph Build</td><td>389</td><td><code>21, 47, 31, 8, 16, 12, 13, 15, 57, 32, 58, 159, 168, 128, 201, 145, 146, 147, 149, 150, 219</code></td></tr><tr><td>Analysis &amp; Clustering</td><td>38</td><td><code>93, 99, 180, 187</code></td></tr><tr><td>Outputs &amp; Docs</td><td>97</td><td><code>66, 79, 67, 174, 148, 154</code></td></tr><tr><td>CLI &amp; Skill Installers</td><td>1030</td><td><code>131, 10, 19, 60, 18, 25, 27, 64, 94, 70, 74, 84, 34, 28, 39, 40, 41, 80, 101, 161, 87, 51, 52, 53, 82, 95, 96, 100, 45, 50, 65, 97, 98, 113, 115, 117, 61, 119, 120, 121, 33, 125, 127, 59, 78, 81, 169, 166, 170, 171, 172, 173, 175, 176, 91, 177, 73, 178, 181, 182, 183, 184, 185, 186, 26, 110, 111, 112, 118, 188, 189, 190, 210, 191, 192, 193, 194, 126, 195, 196, 197, 199, 217, 83, 136, 205, 206, 207, 208</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>193</td><td><code>5, 9, 22, 88, 56, 75, 105, 158, 3, 167, 90, 198, 200, 202</code></td></tr><tr><td>Serving API</td><td>37</td><td><code>11, 54</code></td></tr><tr><td>Security &amp; Global Graph</td><td>35</td><td><code>14, 133, 138</code></td></tr><tr><td>Tests &amp; Fixtures</td><td>53</td><td><code>106, 107, 92, 102, 134, 135</code></td></tr><tr><td>analytics-data.ts</td><td>57</td><td><code>0</code></td></tr><tr><td>site-content.ts</td><td>39</td><td><code>2</code></td></tr><tr><td>SplitText.js</td><td>39</td><td><code>4</code></td></tr><tr><td>article-devices.ts</td><td>38</td><td><code>6</code></td></tr><tr><td>AdminDashboard.tsx</td><td>33</td><td><code>62</code></td></tr><tr><td>team.ts</td><td>29</td><td><code>20</code></td></tr><tr><td>Other</td><td>647</td><td><code>36, 17, 86, 23, 24, 37, 44, 30, 38, 1, 35, 46, 43, 42, 48, 49, 63, 69, 108, 55, 68, 72, 76, 157, 77, 160, 114, 162, 7, 71, 85, 163, 179, 204, 89, 104, 109, 129, 116, 212, 213, 103, 122, 123, 124, 142, 215, 216, 218, 29, 130, 132, 203, 137, 139, 140, 141, 143, 144, 209, 151, 152, 153, 155, 156, 164</code></td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Core Flow</h4>
-    <div class="arrow-chain">Analysis &amp; Clustering -&gt; Graph Build -&gt; Other -&gt; Ingestion &amp; Updates -&gt; site-content.ts -&gt; Outputs &amp; Docs -&gt; Serving API</div>
+    <div class="arrow-chain">Analysis &amp; Clustering -&gt; CLI &amp; Skill Installers -&gt; Tests &amp; Fixtures -&gt; Graph Build -&gt; Other -&gt; Ingestion &amp; Updates -&gt; site-content.ts</div>
   </div>
 </div>
 <div class="grid">
   <div class="card">
     <h4>Graph Report Highlights</h4>
     <ul>
-      <li>2754 nodes · 4545 edges · 220 communities (189 shown, 31 thin omitted)</li>
+      <li>2754 nodes · 4545 edges · 217 communities (186 shown, 31 thin omitted)</li>
       <li>Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 120 edges (avg confidence: 0.77)</li>
       <li>Token cost: 0 input · 0 output</li>
       <li>1. `Fase 4: plan detallado de lo que falta` - 66 edges</li>
@@ -525,12 +525,12 @@ flowchart LR
 
 <!-- ====== 3. Analysis & Clustering ====== -->
 <h2 id="analysis-clustering">3. Analysis &amp; Clustering</h2>
-<p>Analysis &amp; Clustering groups implementation around graph, querypy, scripts, claude, mostly in scripts/graph-query.py, .claude/agents/seo-cluster.md, graphify/references/query.md. This section covers 29 nodes and 43 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Analysis &amp; Clustering groups implementation around claude, graph, seo, querypy, mostly in scripts/graph-query.py, .claude/agents/seo-cluster.md, graphify/references/query.md. This section covers 38 nodes and 51 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Analysis &amp; Clustering (29 nodes, 43 edges)
+    %% Section: Analysis &amp; Clustering (38 nodes, 51 edges)
     subgraph analysis_clustering_scripts_graph_query_py_509e8c05["scripts/graph-query.py"]
         scripts_graph_query_cmd_query_08263155("cmd_query()<br/><small>scripts/graph-query.py</small>")
         scripts_graph_query_cmd_explain_e559eab9("cmd_explain()<br/><small>scripts/graph-query.py</small>")
@@ -547,11 +547,11 @@ flowchart LR
         scripts_graph_query_758d072b("graph-query.py")
     end
     subgraph analysis_clustering_claude_agents_seo_cluster_md_67fdc66f[".claude/agents/seo-cluster.md"]
-        claude_agents_seo_cluster_cross_skill_awareness_69179dab("Cross-Skill Awareness<br/><small>.claude/agents/seo-cluster.md</small>")
-        claude_agents_seo_cluster_how_to_report_findings_d2d7ace4("How to Report Findings<br/><small>.claude/agents/seo-cluster.md</small>")
-        claude_agents_seo_cluster_output_format_79f4f7c2("Output Format<br/><small>.claude/agents/seo-cluster.md</small>")
-        claude_agents_seo_cluster_pre_delivery_validatio_93591f03("Pre-Delivery Validation Checklist<br/><small>.claude/agents/seo-cluster.md</small>")
-        claude_agents_seo_cluster_reference_files_60cc5aa8("Reference Files<br/><small>.claude/agents/seo-cluster.md</small>")
+        claude_agents_seo_cluster_hub_spoke_architecture_9c7a4a2f("Hub-and-spoke cluster architecture<br/><small>.claude/agents/seo-cluster.md</small>")
+        claude_agents_seo_cluster_internal_link_matrix_b1b50bce("Internal link matrix (mandatory/recomme...<br/><small>.claude/agents/seo-cluster.md</small>")
+        claude_agents_seo_cluster_cannibalization_check_233254e7("Keyword cannibalization check<br/><small>.claude/agents/seo-cluster.md</small>")
+        claude_agents_seo_cluster_keyword_intent_classif_5a61984f("Keyword intent classification<br/><small>.claude/agents/seo-cluster.md</small>")
+        claude_agents_seo_cluster_serp_overlap_methodolo_a725e7ac("SERP overlap methodology and thresholds<br/><small>.claude/agents/seo-cluster.md</small>")
     end
     scripts_graph_query_cmd_explain_e559eab9 -->|calls| scripts_graph_query_find_nodes_c9bccbc0
     scripts_graph_query_cmd_explain_e559eab9 -->|calls| scripts_graph_query_index_edges_7df68731
@@ -566,7 +566,7 @@ flowchart LR
     scripts_graph_query_find_nodes_c9bccbc0 -->|calls| scripts_graph_query_score_node_5d37ecb0
     scripts_graph_query_find_nodes_c9bccbc0 -->|calls| scripts_graph_query_node_haystack_a06fbd15
     scripts_graph_query_main_f2c5e485 -->|calls| scripts_graph_query_load_graph_c2720b13
-    %% Omitted for readability: 11 nodes, 0 edges
+    %% Omitted for readability: 20 nodes, 0 edges
     class scripts_graph_query_cmd_query_08263155 function;
     class scripts_graph_query_cmd_explain_e559eab9 function;
     class scripts_graph_query_cmd_path_0bf839e7 function;
@@ -580,11 +580,11 @@ flowchart LR
     class scripts_graph_query_load_graph_c2720b13 function;
     class scripts_graph_query_cmd_stats_1406506f function;
     class scripts_graph_query_758d072b module;
-    class claude_agents_seo_cluster_cross_skill_awareness_69179dab concept;
-    class claude_agents_seo_cluster_how_to_report_findings_d2d7ace4 concept;
-    class claude_agents_seo_cluster_output_format_79f4f7c2 concept;
-    class claude_agents_seo_cluster_pre_delivery_validatio_93591f03 concept;
-    class claude_agents_seo_cluster_reference_files_60cc5aa8 concept;
+    class claude_agents_seo_cluster_hub_spoke_architecture_9c7a4a2f klass;
+    class claude_agents_seo_cluster_internal_link_matrix_b1b50bce klass;
+    class claude_agents_seo_cluster_cannibalization_check_233254e7 klass;
+    class claude_agents_seo_cluster_keyword_intent_classif_5a61984f klass;
+    class claude_agents_seo_cluster_serp_overlap_methodolo_a725e7ac klass;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -736,6 +736,78 @@ flowchart LR
 </tr>
 <tr>
   <td>17</td>
+  <td><code>Keyword cannibalization check</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Keyword cannibalization check node in .claude/agents/seo-cluster.md.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>Hub-and-spoke cluster architecture</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Hub-and-spoke cluster architecture node in .claude/agents/seo-cluster.md.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>Internal link matrix (mandatory/recommended/optional)</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Internal link matrix (mandatory/recommended/optional) node in .claude/agents/seo-cluster.md.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>Keyword intent classification</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Keyword intent classification node in .claude/agents/seo-cluster.md.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>SERP overlap methodology and thresholds</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>SERP overlap methodology and thresholds node in .claude/agents/seo-cluster.md.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>cluster-plan.json output artifact</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing cluster-plan.json output artifact.</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>seo-cluster agent</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing seo-cluster agent.</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>E-E-A-T scoring model</code><br><small style="color:var(--muted)">.claude/agents/seo-content.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for E-E-A-T scoring model.</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>Score against extracted_text, not raw content</code><br><small style="color:var(--muted)">.claude/agents/seo-content.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Score against extracted_text, not raw content.</td>
+</tr>
+<tr>
+  <td>26</td>
   <td><code>seo-cluster.md</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -743,7 +815,7 @@ flowchart LR
   <td>Documentation node describing seo-cluster.md.</td>
 </tr>
 <tr>
-  <td>18</td>
+  <td>27</td>
   <td><code>Cross-Skill Awareness</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -751,7 +823,7 @@ flowchart LR
   <td>Documentation node describing Cross-Skill Awareness.</td>
 </tr>
 <tr>
-  <td>19</td>
+  <td>28</td>
   <td><code>How to Report Findings</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -759,7 +831,7 @@ flowchart LR
   <td>Documentation node describing How to Report Findings.</td>
 </tr>
 <tr>
-  <td>20</td>
+  <td>29</td>
   <td><code>Output Format</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
@@ -767,76 +839,12 @@ flowchart LR
   <td>Documentation node describing Output Format.</td>
 </tr>
 <tr>
-  <td>21</td>
+  <td>30</td>
   <td><code>Pre-Delivery Validation Checklist</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
   <td><span class="tag tag-func">Concept</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
   <td>Documentation node describing Pre-Delivery Validation Checklist.</td>
-</tr>
-<tr>
-  <td>22</td>
-  <td><code>Reference Files</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing Reference Files.</td>
-</tr>
-<tr>
-  <td>23</td>
-  <td><code>What to Analyze</code><br><small style="color:var(--muted)">.claude/agents/seo-cluster.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing What to Analyze.</td>
-</tr>
-<tr>
-  <td>24</td>
-  <td><code>query.md</code><br><small style="color:var(--muted)">graphify/references/query.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing query.md.</td>
-</tr>
-<tr>
-  <td>25</td>
-  <td><code>For /graphify explain</code><br><small style="color:var(--muted)">graphify/references/query.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing For /graphify explain.</td>
-</tr>
-<tr>
-  <td>26</td>
-  <td><code>For /graphify path</code><br><small style="color:var(--muted)">graphify/references/query.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing For /graphify path.</td>
-</tr>
-<tr>
-  <td>27</td>
-  <td><code>graphify reference: query, path, explain</code><br><small style="color:var(--muted)">graphify/references/query.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing graphify reference: query, path, explain.</td>
-</tr>
-<tr>
-  <td>28</td>
-  <td><code>Step 0 — Constrained query expansion (REQUIRED before traversal)</code><br><small style="color:var(--muted)">graphify/references/query.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing Step 0 — Constrained query expansion (REQUIRED before traversal).</td>
-</tr>
-<tr>
-  <td>29</td>
-  <td><code>Step 1 — Traversal</code><br><small style="color:var(--muted)">graphify/references/query.md</small></td>
-  <td><span class="tag tag-func">Concept</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Documentation node describing Step 1 — Traversal.</td>
 </tr>
 </table>
 
@@ -846,13 +854,14 @@ flowchart LR
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>scripts/graph-query.py</code></td><td>16 nodes</td></tr>
-<tr><td><code>.claude/agents/seo-cluster.md</code></td><td>7 nodes</td></tr>
+<tr><td><code>.claude/agents/seo-cluster.md</code></td><td>14 nodes</td></tr>
 <tr><td><code>graphify/references/query.md</code></td><td>6 nodes</td></tr>
+<tr><td><code>.claude/agents/seo-content.md</code></td><td>2 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x23, calls x13, explains x3. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x23, calls x13, explains x6, relates x2. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -1216,16 +1225,15 @@ flowchart LR
 
 <!-- ====== 5. CLI & Skill Installers ====== -->
 <h2 id="cli-skills">5. CLI &amp; Skill Installers</h2>
-<p>CLI &amp; Skill Installers groups implementation around claude, skills, seo, references, mostly in docs/ENCYCLOPEDIA.md, .claude/playbook-editorial/voice-and-style.md, .claude/playbook-editorial/dynamic-element-library.md. This section covers 1035 nodes and 1212 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>CLI &amp; Skill Installers groups implementation around claude, skills, references, seo, mostly in docs/ENCYCLOPEDIA.md, .claude/playbook-editorial/voice-and-style.md, .claude/playbook-editorial/dynamic-element-library.md. This section covers 1030 nodes and 1215 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: CLI &amp; Skill Installers (1035 nodes, 1212 edges)
+    %% Section: CLI &amp; Skill Installers (1030 nodes, 1215 edges)
     subgraph cli_skills_ui_ux_pro_max_scripts_design_system_p_1735c936["ui-ux-pro-max/scripts/design_system.py"]
         claude_skills_ui_ux_pro_max_scripts_design_syste_5daef6e8("DesignSystemGenerator<br/><small>ui-ux-pro-max/scripts/design_system.py</small>")
         claude_skills_ui_ux_pro_max_scripts_design_syste_2f2e29bb("generate()<br/><small>ui-ux-pro-max/scripts/design_system.py</small>")
-        claude_skills_ui_ux_pro_max_scripts_design_syste_46622dd5("generate_design_system()<br/><small>ui-ux-pro-max/scripts/design_system.py</small>")
         claude_skills_ui_ux_pro_max_scripts_design_syste_1b18260d("_find_reasoning_rule()<br/><small>ui-ux-pro-max/scripts/design_system.py</small>")
         claude_skills_ui_ux_pro_max_scripts_design_syste_74378013("_apply_reasoning()<br/><small>ui-ux-pro-max/scripts/design_system.py</small>")
         claude_skills_ui_ux_pro_max_scripts_design_syste_5f392127("_select_best_match()<br/><small>ui-ux-pro-max/scripts/design_system.py</small>")
@@ -1235,6 +1243,7 @@ flowchart LR
         claude_skills_ui_ux_pro_max_scripts_design_syste_10a3208b("_multi_domain_search()<br/><small>ui-ux-pro-max/scripts/design_system.py</small>")
     end
     subgraph cli_skills_scripts_tests_test_core_py_3b21e7a5["scripts/tests/test_core.py"]
+        claude_skills_ui_ux_pro_max_scripts_tests_test_c_4eb2a008("test_core.py")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_c5ecd59b("TestReasoningMatch<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_121bda87("test_known_category_matches_exactly()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_005eda39("test_unknown_category_falls_back_gracefully()<br/><small>scripts/tests/test_core.py</small>")
@@ -1265,12 +1274,11 @@ flowchart LR
     claude_skills_ui_ux_pro_max_scripts_design_syste_346955f1 -->|calls| claude_skills_ui_ux_pro_max_scripts_design_syste_d6a1e1cd
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_121bda87 -->|calls| claude_skills_ui_ux_pro_max_scripts_design_syste_5daef6e8
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_005eda39 -->|calls| claude_skills_ui_ux_pro_max_scripts_design_syste_5daef6e8
-    claude_skills_ui_ux_pro_max_scripts_design_syste_46622dd5 -->|calls| claude_skills_ui_ux_pro_max_scripts_design_syste_5daef6e8
-    claude_skills_ui_ux_pro_max_scripts_search_3d560801 -->|imports| claude_skills_ui_ux_pro_max_scripts_design_syste_46622dd5
-    %% Omitted for readability: 1017 nodes, 0 edges
+    claude_skills_ui_ux_pro_max_scripts_tests_test_c_4eb2a008 -->|imports| claude_skills_ui_ux_pro_max_scripts_core_bm25_4886abbe
+    claude_skills_ui_ux_pro_max_scripts_tests_test_c_4eb2a008 -->|imports| claude_skills_ui_ux_pro_max_scripts_design_syste_5daef6e8
+    %% Omitted for readability: 1012 nodes, 0 edges
     class claude_skills_ui_ux_pro_max_scripts_design_syste_5daef6e8 klass;
     class claude_skills_ui_ux_pro_max_scripts_design_syste_2f2e29bb function;
-    class claude_skills_ui_ux_pro_max_scripts_design_syste_46622dd5 function;
     class claude_skills_ui_ux_pro_max_scripts_design_syste_1b18260d function;
     class claude_skills_ui_ux_pro_max_scripts_design_syste_74378013 function;
     class claude_skills_ui_ux_pro_max_scripts_design_syste_5f392127 function;
@@ -1278,6 +1286,7 @@ flowchart LR
     class claude_skills_ui_ux_pro_max_scripts_design_syste_346955f1 function;
     class claude_skills_ui_ux_pro_max_scripts_design_syste_d6a1e1cd function;
     class claude_skills_ui_ux_pro_max_scripts_design_syste_10a3208b function;
+    class claude_skills_ui_ux_pro_max_scripts_tests_test_c_4eb2a008 test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_c5ecd59b test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_121bda87 test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_005eda39 test;
@@ -1566,7 +1575,7 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x491, references x313, relates x100, explains x88. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x494, references x310, relates x98, explains x85. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -2455,7 +2464,7 @@ flowchart LR
   <td>10</td>
   <td><code>caseNumber()</code><br><small style="color:var(--muted)">lib/product-hubs.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
-  <td><code>ArticuloPage()</code><br><small style="color:var(--muted)">(public)/articulo/page.tsx</small><br><code>LaLanaHubPage()</code><br><small style="color:var(--muted)">(public)/la-lana/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">(public)/articulo/page.tsx</small><br>+1 more</td>
+  <td><code>ArticuloPage()</code><br><small style="color:var(--muted)">(public)/articulo/page.tsx</small><br><code>LaLanaHubPage()</code><br><small style="color:var(--muted)">(public)/la-lana/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">(public)/la-lana/page.tsx</small><br>+1 more</td>
   <td><code>chronologicalNumber()</code><br><small style="color:var(--muted)">lib/product-hubs.ts</small></td>
   <td>caseNumber() node in lib/product-hubs.ts.</td>
 </tr>
@@ -2463,7 +2472,7 @@ flowchart LR
   <td>11</td>
   <td><code>caseStatus()</code><br><small style="color:var(--muted)">lib/product-hubs.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
-  <td><code>ArticuloPage()</code><br><small style="color:var(--muted)">(public)/articulo/page.tsx</small><br><code>LaLanaHubPage()</code><br><small style="color:var(--muted)">(public)/la-lana/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">(public)/articulo/page.tsx</small><br>+1 more</td>
+  <td><code>ArticuloPage()</code><br><small style="color:var(--muted)">(public)/articulo/page.tsx</small><br><code>LaLanaHubPage()</code><br><small style="color:var(--muted)">(public)/la-lana/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">(public)/la-lana/page.tsx</small><br>+1 more</td>
   <td>No direct outbound edge</td>
   <td>caseStatus() node in lib/product-hubs.ts.</td>
 </tr>
@@ -2567,7 +2576,7 @@ flowchart LR
   <td>24</td>
   <td><code>product-hubs.ts</code><br><small style="color:var(--muted)">lib/product-hubs.ts</small></td>
   <td><span class="tag tag-class">Module</span></td>
-  <td><code>article-devices.ts</code><br><small style="color:var(--muted)">lib/article-devices.ts</small><br><code>HomeSidebar.tsx</code><br><small style="color:var(--muted)">components/home/HomeSidebar.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">(public)/noticias/page.tsx</small><br>+8 more</td>
+  <td><code>article-devices.ts</code><br><small style="color:var(--muted)">lib/article-devices.ts</small><br><code>HomeSidebar.tsx</code><br><small style="color:var(--muted)">components/home/HomeSidebar.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">(public)/la-lana/page.tsx</small><br>+8 more</td>
   <td><code>Article</code><br><small style="color:var(--muted)">lib/data/articles.ts</small><br><code>articles.ts</code><br><small style="color:var(--muted)">lib/data/articles.ts</small></td>
   <td>Module file in lib/product-hubs.ts.</td>
 </tr>
@@ -2643,38 +2652,38 @@ flowchart LR
 
 <!-- ====== 9. Tests & Fixtures ====== -->
 <h2 id="tests-fixtures">9. Tests &amp; Fixtures</h2>
-<p>Tests &amp; Fixtures groups implementation around scripts, test, claude, skills, mostly in scripts/tests/test_core.py, scripts/find-duplicates.mjs, scripts/check-voice.mjs. This section covers 57 nodes and 82 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Tests &amp; Fixtures groups implementation around scripts, test, claude, skills, mostly in scripts/find-duplicates.mjs, scripts/tests/test_core.py, scripts/check-voice.mjs. This section covers 53 nodes and 75 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Tests &amp; Fixtures (57 nodes, 82 edges)
+    %% Section: Tests &amp; Fixtures (53 nodes, 75 edges)
     subgraph tests_fixtures_scripts_tests_test_core_py_1e7e7a2d["scripts/tests/test_core.py"]
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_5a32abba("TestDomainDetection<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_dd57a8f0("TestSearchDomains<br/><small>scripts/tests/test_core.py</small>")
-        claude_skills_ui_ux_pro_max_scripts_tests_test_c_4eb2a008("test_core.py")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_aeb506bc("test_style_keywords_route_to_style()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_442dde01("test_accessibility_keywords_route_to_ux()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_4c90e20b("test_ambiguous_query_returns_runner_up()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_2038ca7b("test_empty_query_falls_back_to_style()<br/><small>scripts/tests/test_core.py</small>")
-        claude_skills_ui_ux_pro_max_scripts_tests_test_c_a60cfb94("TestPersistence<br/><small>scripts/tests/test_core.py</small>")
-        claude_skills_ui_ux_pro_max_scripts_tests_test_c_52a43259("test_persist_writes_only_under_output_dir()<br/><small>scripts/tests/test_core.py</small>")
-        claude_skills_ui_ux_pro_max_scripts_tests_test_c_d43a1330("test_persist_then_skip_then_force()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_1f817c55("test_ui_is_searchable_in_style_domain()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_fb129d65("test_accessibility_query_hits_ux()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_2c7ce26e("test_zero_result_query_reports_suggestions_not_error()<br/><small>scripts/tests/test_core.py</small>")
         claude_skills_ui_ux_pro_max_scripts_tests_test_c_755e8518("test_every_configured_domain_file_exists_and_is_searchable()<br/><small>scripts/tests/test_core.py</small>")
     end
+    subgraph tests_fixtures_scripts_find_duplicates_mjs_bc860568["scripts/find-duplicates.mjs"]
+        scripts_find_duplicates_rank_399240ac("rank()<br/><small>scripts/find-duplicates.mjs</small>")
+        scripts_find_duplicates_main_4c268912("main()<br/><small>scripts/find-duplicates.mjs</small>")
+        scripts_find_duplicates_buildindex_654dc1ed("buildIndex()<br/><small>scripts/find-duplicates.mjs</small>")
+        scripts_find_duplicates_tokens_4dffb8a8("tokens()<br/><small>scripts/find-duplicates.mjs</small>")
+        scripts_find_duplicates_figures_9e24b91c("figures()<br/><small>scripts/find-duplicates.mjs</small>")
+    end
     scripts_check_voice_analyse_6c9bbf11("analyse()<br/><small>scripts/check-voice.mjs</small>")
-    scripts_find_duplicates_rank_399240ac("rank()<br/><small>scripts/find-duplicates.mjs</small>")
     scripts_test_duplicate_detection_f056b374("test-duplicate-detection.mjs")
     claude_skills_ui_ux_pro_max_scripts_core_detect_c5a42b00("detect_domain()<br/><small>ui-ux-pro-max/scripts/core.py</small>")
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_5a32abba -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_aeb506bc
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_5a32abba -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_442dde01
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_5a32abba -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_4c90e20b
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_5a32abba -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_2038ca7b
-    claude_skills_ui_ux_pro_max_scripts_tests_test_c_a60cfb94 -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_52a43259
-    claude_skills_ui_ux_pro_max_scripts_tests_test_c_a60cfb94 -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_d43a1330
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_dd57a8f0 -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_1f817c55
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_dd57a8f0 -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_fb129d65
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_dd57a8f0 -->|method| claude_skills_ui_ux_pro_max_scripts_tests_test_c_2c7ce26e
@@ -2683,25 +2692,31 @@ flowchart LR
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_4c90e20b -->|calls| claude_skills_ui_ux_pro_max_scripts_core_detect_c5a42b00
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_2038ca7b -->|calls| claude_skills_ui_ux_pro_max_scripts_core_detect_c5a42b00
     claude_skills_ui_ux_pro_max_scripts_tests_test_c_aeb506bc -->|calls| claude_skills_ui_ux_pro_max_scripts_core_detect_c5a42b00
-    claude_skills_ui_ux_pro_max_scripts_tests_test_c_4eb2a008 -->|imports| claude_skills_ui_ux_pro_max_scripts_core_detect_c5a42b00
+    scripts_find_duplicates_buildindex_654dc1ed -->|calls| scripts_find_duplicates_tokens_4dffb8a8
+    scripts_find_duplicates_buildindex_654dc1ed -->|calls| scripts_find_duplicates_figures_9e24b91c
+    scripts_find_duplicates_main_4c268912 -->|calls| scripts_find_duplicates_buildindex_654dc1ed
+    scripts_find_duplicates_main_4c268912 -->|calls| scripts_find_duplicates_rank_399240ac
+    scripts_find_duplicates_rank_399240ac -->|calls| scripts_find_duplicates_tokens_4dffb8a8
+    scripts_find_duplicates_rank_399240ac -->|calls| scripts_find_duplicates_figures_9e24b91c
+    scripts_test_duplicate_detection_f056b374 -->|imports| scripts_find_duplicates_buildindex_654dc1ed
     scripts_test_duplicate_detection_f056b374 -->|imports| scripts_find_duplicates_rank_399240ac
-    %% Omitted for readability: 39 nodes, 0 edges
+    %% Omitted for readability: 35 nodes, 0 edges
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_5a32abba test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_dd57a8f0 test;
-    class claude_skills_ui_ux_pro_max_scripts_tests_test_c_4eb2a008 test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_aeb506bc test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_442dde01 test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_4c90e20b test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_2038ca7b test;
-    class claude_skills_ui_ux_pro_max_scripts_tests_test_c_a60cfb94 test;
-    class claude_skills_ui_ux_pro_max_scripts_tests_test_c_52a43259 test;
-    class claude_skills_ui_ux_pro_max_scripts_tests_test_c_d43a1330 test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_1f817c55 test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_fb129d65 test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_2c7ce26e test;
     class claude_skills_ui_ux_pro_max_scripts_tests_test_c_755e8518 test;
-    class scripts_check_voice_analyse_6c9bbf11 function;
     class scripts_find_duplicates_rank_399240ac function;
+    class scripts_find_duplicates_main_4c268912 function;
+    class scripts_find_duplicates_buildindex_654dc1ed function;
+    class scripts_find_duplicates_tokens_4dffb8a8 function;
+    class scripts_find_duplicates_figures_9e24b91c function;
+    class scripts_check_voice_analyse_6c9bbf11 function;
     class scripts_test_duplicate_detection_f056b374 test;
     class claude_skills_ui_ux_pro_max_scripts_core_detect_c5a42b00 function;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
@@ -2972,8 +2987,8 @@ flowchart LR
     <h4>Key Files</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>File</th><th>Coverage</th></tr>
-      <tr><td><code>scripts/tests/test_core.py</code></td><td>15 nodes</td></tr>
-<tr><td><code>scripts/find-duplicates.mjs</code></td><td>12 nodes</td></tr>
+      <tr><td><code>scripts/find-duplicates.mjs</code></td><td>12 nodes</td></tr>
+<tr><td><code>scripts/tests/test_core.py</code></td><td>11 nodes</td></tr>
 <tr><td><code>scripts/check-voice.mjs</code></td><td>10 nodes</td></tr>
 <tr><td><code>scripts/test-duplicate-detection.mjs</code></td><td>7 nodes</td></tr>
 <tr><td><code>ui-ux-pro-max/scripts/core.py</code></td><td>4 nodes</td></tr>
@@ -2984,7 +2999,7 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x34, calls x26, method x10, imports x5. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x31, calls x26, method x8, explains x3. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -3260,7 +3275,7 @@ flowchart LR
   <td><code>breakdownPanel()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td><code>getAnalyticsSnapshot()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small></td>
-  <td><code>aggregateVisits()</code><br><small style="color:var(--muted)">lib/vercel-analytics.ts</small><br><code>aggregateVisits()</code><br><small style="color:var(--muted)">lib/ga4-analytics.ts</small><br><code>isoDaysAgo()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small><br>+2 more</td>
+  <td><code>aggregateVisits()</code><br><small style="color:var(--muted)">lib/ga4-analytics.ts</small><br><code>aggregateVisits()</code><br><small style="color:var(--muted)">lib/vercel-analytics.ts</small><br><code>isoDaysAgo()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small><br>+2 more</td>
   <td>breakdownPanel() node in lib/analytics-data.ts.</td>
 </tr>
 <tr>
@@ -3316,7 +3331,7 @@ flowchart LR
   <td><code>safeCount()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td><code>periodKpis()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small></td>
-  <td><code>count()</code><br><small style="color:var(--muted)">lib/ga4-analytics.ts</small><br><code>count()</code><br><small style="color:var(--muted)">lib/vercel-analytics.ts</small><br><code>withGa4Fallback()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small></td>
+  <td><code>count()</code><br><small style="color:var(--muted)">lib/vercel-analytics.ts</small><br><code>count()</code><br><small style="color:var(--muted)">lib/ga4-analytics.ts</small><br><code>withGa4Fallback()</code><br><small style="color:var(--muted)">lib/analytics-data.ts</small></td>
   <td>safeCount() node in lib/analytics-data.ts.</td>
 </tr>
 <tr>
@@ -5564,7 +5579,7 @@ flowchart LR
       <tr><td>Nodes</td><td>2754</td></tr>
       <tr><td>Edges</td><td>4545</td></tr>
       <tr><td>Hyperedges</td><td>12</td></tr>
-      <tr><td>Communities</td><td>220</td></tr>
+      <tr><td>Communities</td><td>217</td></tr>
       <tr><td>Documented Sections</td><td>15</td></tr>
     </table>
   </div>
@@ -5580,7 +5595,7 @@ flowchart LR
 
 <div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
   <p>Playbook-portal — Architecture Documentation</p>
-  <p>Generated: 2026-08-12 16:17 UTC · graphify callflow-html</p>
+  <p>Generated: 2026-08-12 16:21 UTC · graphify callflow-html</p>
 </div>
 
 </div><!-- .container -->
