@@ -778,8 +778,9 @@ function buildSeries(series: Series): string {
 // resolved by lib/brand-colors.ts, contrast-corrected for both themes and
 // scoped to the device element. An asset with no registered palette (a
 // rights package, a stadium, a league stake) is a first-class case and
-// falls back to the product accent; the devices are declared for any asset
-// worth the beat, not for clubs only.
+// falls back to Playbook's own house palette, identically on every
+// product; the devices are declared for any asset worth the beat, not for
+// clubs only.
 //
 // Two ratios are COMPUTED rather than authored — Venta's multiple against
 // the prior price, Cadena's multiple across the whole chain. Same argument

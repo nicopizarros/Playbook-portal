@@ -24,10 +24,12 @@
 //
 // Containment is the other half of the contract. Nothing here writes
 // --lect-accent. The device root gets its own --pb-brand-* properties and
-// styles/lectura.css reads them with the product accent as the fallback,
-// so a story about a sale stays a Playbook page with one foreign object
-// on it, and an unregistered asset degrades to the house accent instead of
-// to a blank.
+// styles/lectura.css reads them with PLAYBOOK'S OWN palette as the
+// fallback, so a story about a sale stays a Playbook page with one foreign
+// object on it, and an unregistered asset degrades to the house green
+// rather than to a blank — or, as it did until 2026-08-12, to whichever
+// product accent happened to apply, which gave the same "no brand here"
+// state three different looks across La Lana, Infinitas and TFBR.
 
 export type BrandPalette = {
   name: string;
@@ -351,10 +353,11 @@ export type ResolvedBrand = {
 // an explicit hex override, a registry hit, or a plain label with no
 // palette at all — the last of which is a first-class result, not a
 // failure. An unregistered asset ("los derechos de la Bundesliga", a
-// stadium, a media package) renders in the product accent and reads
-// exactly like every other device on the page, which is why `Venta` and
-// `Cadena` can be declared for ANY asset worth the beat and not only for
-// clubs whose colours someone remembered to add here.
+// stadium, a media package) emits no custom properties and renders in
+// Playbook's house palette (see the fallback chain in styles/lectura.css),
+// which is why `Venta` and `Cadena` can be declared for ANY asset worth
+// the beat and not only for clubs whose colours someone remembered to add
+// here.
 export function resolveBrand(rawAsset: string): ResolvedBrand {
   const override = rawAsset.match(HEX_OVERRIDE_RE);
   if (override) {

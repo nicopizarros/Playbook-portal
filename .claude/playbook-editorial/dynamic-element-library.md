@@ -519,8 +519,10 @@ all land.
 
 - **An unregistered asset is a normal outcome, not a failure.** Media rights, a
   stadium, a league stake, a club nobody has added yet: the device renders in
-  the product accent and reads like every other beat on the page. Declare
-  `Venta` for **any asset worth the beat**, not for registered clubs only.
+  **Playbook's own house palette** — the same on Noticias, La Lana, Infinitas
+  and TFBR alike, because "this asset has no crest" is one state and should
+  look like one thing. Declare `Venta` for **any asset worth the beat**, not
+  for registered clubs only.
 - **Escape hatch:** `Venta: Wrexham AFC #FF0000 #FFFFFF · …` — the asset name
   followed by two hex values, primary then secondary. Use it for a one-off; if
   the club will come up again, add it to the registry instead.

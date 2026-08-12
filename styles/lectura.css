@@ -470,31 +470,45 @@
    Everything below reads the four LOCAL names, never --pb-* directly, so
    the fallback lives in exactly one place: an asset with no registered
    palette (a rights package, a stadium, a league stake) emits no custom
-   properties at all and every rule here quietly resolves to the product
-   accent instead. That is why there is no "unbranded" variant class.
+   properties at all and every rule here resolves to the house palette
+   instead. That is why there is no "unbranded" variant class.
+
+   THE FALLBACK IS PLAYBOOK'S OWN PALETTE, NOT --lect-accent (publisher
+   directive, 2026-08-12). Inheriting the product accent meant an
+   unbranded deed came out gold on La Lana, violet on Infinitas and red on
+   TFBR — three different looks for the same "no brand here" state, none
+   of them chosen, each one reading as a colour that meant something. The
+   device's argument is that the crest belongs to the ASSET; when the
+   asset has no crest the honest answer is that it belongs to Playbook, so
+   it wears the house green deliberately and looks the same on every
+   product. --green is the house graphic colour and #3f7d0a its legible
+   text counterpart on paper (the same darker green .share-btn.is-copied
+   and the default --lect-ink-accent already use); the crest's rule takes
+   --ink, so the block reads as a Playbook object rather than a tinted
+   one.
 
    Same three-layer theme cascade the Serie uses above, and for the same
    reason — :root and [data-theme] tie on specificity, so order decides.
    Both themes get their own corrected values because a colour legible on
    cream is routinely invisible on #121316 and the reverse. ——— */
 .lect-brand{
-  --brand-fill:var(--pb-brand-fill,var(--lect-accent));
+  --brand-fill:var(--pb-brand-fill,var(--green));
   --brand-on:var(--pb-brand-on,var(--ink-fixed));
-  --brand-ink:var(--pb-brand-ink,var(--lect-ink-accent));
-  --brand-alt:var(--pb-brand-alt,var(--lect-accent));
+  --brand-ink:var(--pb-brand-ink,#3f7d0a);
+  --brand-alt:var(--pb-brand-alt,var(--ink));
 }
 [data-theme="dark"] .lect-brand{
-  --brand-fill:var(--pb-brand-fill-dark,var(--lect-accent));
+  --brand-fill:var(--pb-brand-fill-dark,var(--green));
   --brand-on:var(--pb-brand-on-dark,var(--ink-fixed));
-  --brand-ink:var(--pb-brand-ink-dark,var(--lect-ink-accent));
-  --brand-alt:var(--pb-brand-alt-dark,var(--lect-accent));
+  --brand-ink:var(--pb-brand-ink-dark,var(--green));
+  --brand-alt:var(--pb-brand-alt-dark,var(--ink));
 }
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]) .lect-brand{
-    --brand-fill:var(--pb-brand-fill-dark,var(--lect-accent));
+    --brand-fill:var(--pb-brand-fill-dark,var(--green));
     --brand-on:var(--pb-brand-on-dark,var(--ink-fixed));
-    --brand-ink:var(--pb-brand-ink-dark,var(--lect-ink-accent));
-    --brand-alt:var(--pb-brand-alt-dark,var(--lect-accent));
+    --brand-ink:var(--pb-brand-ink-dark,var(--green));
+    --brand-alt:var(--pb-brand-alt-dark,var(--ink));
   }
 }
 
@@ -618,10 +632,16 @@
   grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;
   align-items:center;gap:8px;margin-top:7px;
 }
+/* Tinted from --brand-ink, NOT --brand-fill. The fill is only guaranteed
+   to clear the graphic bar (2.2:1), so a light one — Playbook's own green,
+   Dortmund yellow — mixed down to 42% lands almost on the paper and the
+   bar carrying the device's argument becomes the faintest thing in it.
+   --brand-ink is guaranteed 4.5:1 against the page in both themes, so a
+   tint of it is visible whatever palette arrived. */
 .lect-cadena-holdbar{
   display:block;height:6px;min-width:3px;
-  background:color-mix(in srgb,var(--brand-fill) 42%,var(--paper));
-  border-left:2px solid var(--brand-fill);box-sizing:border-box;
+  background:color-mix(in srgb,var(--brand-ink) 45%,var(--paper));
+  border-left:2px solid var(--brand-ink);box-sizing:border-box;
 }
 .lect-cadena-holdtxt{
   font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);
