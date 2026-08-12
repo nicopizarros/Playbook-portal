@@ -380,6 +380,24 @@ interpolated linearly between anchors to absorb the drift a share price
 cannot explain. The curve passes exactly through every declared value, so no
 sourced figure is disturbed.
 
+**Check the source's own figures against each other before one drives a
+curve.** (2026-08-12, on the Federer ticker.) Forbes published both a stake
+("about 2.5% of On") and a same-day loss ("at least US$52 million" on a 19%
+fall). Those cannot both hold: On's market cap counts both share classes,
+about 638M shares, so 2.5% is roughly 16M shares and the day would have cost
+about US$126M, some 2.4 times the figure the same article reported. The
+published dollar moves imply an exposure nearer 1.1%.
+
+The rule that follows: **derive a device's sensitivity from direct
+observations of the quantity being plotted**, not from a descriptive
+attribute mentioned in passing. Two net-worth readings a day apart are two
+measurements of the line you are drawing; a percentage is a characterisation
+that ages (a 2019 stake dilutes through an IPO and later issuance, and
+insiders sell). When they disagree, prefer the measurements, drop the
+conflicting attribute from the copy rather than printing both, and say in the
+run report that they did not reconcile. Printing both invites a reader to
+multiply and catch the publication out.
+
 **This is a level-3 reading, and the device says so.** Every point the model
 adds is flagged internally: it gets no dot and prints no figure, because a
 marker is a claim that someone published that number. A disclosure line sits
