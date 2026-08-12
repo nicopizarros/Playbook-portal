@@ -1,16 +1,16 @@
-# Graph Report - Playbook-portal  (2026-08-11)
+# Graph Report - Playbook-portal  (2026-08-12)
 
 ## Corpus Check
-- 353 files · ~553,671 words
+- 355 files · ~562,330 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2742 nodes · 4485 edges · 215 communities (185 shown, 30 thin omitted)
+- 2754 nodes · 4545 edges · 220 communities (189 shown, 31 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 120 edges (avg confidence: 0.77)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `28e2d14a`
+- Built from commit: `8a73ef06`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,11 +18,11 @@
 - analytics-data.ts
 - metering.ts
 - site-content.ts
-- schema.ts
+- siteContent
 - SplitText.js
-- LivePreview.tsx
-- article-devices.ts
 - (public)/page.tsx
+- article-devices.ts
+- getAllArticles
 - articulo/page.tsx
 - sitemap.ts
 - /graphify skill
@@ -31,8 +31,8 @@
 - compilerOptions
 - product-hubs.ts
 - dependencies
-- admin.ts
-- ArticlesTab.tsx
+- schema.ts
+- NewsGrid.tsx
 - Device Budget (readingTime + priority)
 - publish-newsletter Decision Flow (steps 0-8)
 - team.ts
@@ -41,10 +41,10 @@
 - archivo/page.tsx
 - articles.ts
 - DesignSystemGenerator
-- SERP overlap methodology and thresholds
+- seo-sxo agent
 - Extraction Subagent Prompt
 - The dynamic element library (thirteen devices)
-- la-lana/page.tsx
+- DeparturesBoard.tsx
 - SiteMotion.tsx
 - build-substack-backlog.mjs
 - build-world-map.ts
@@ -52,15 +52,15 @@
 - The Dynamic Element Library
 - theme-store.ts
 - TextField.tsx
-- constants.ts
-- rankArticles
+- ArticlesTab.tsx
+- brand-colors.ts
 - core.py
 - BM25
 - design_system.py
 - gsap.ts
 - article-map.ts
 - paths.js
-- Schema validation checklist
+- GEO Health Score (0-100, 5 dimensions)
 - Presupuesto de dispositivos (piso, no techo)
 - Registro de progreso
 - all.js
@@ -72,7 +72,7 @@
 - editors
 - tema/page.tsx
 - articles
-- client.ts
+- migrate-json-to-db.ts
 - scripts
 - La Opinión de Playbook (three moves)
 - What You Must Do When Invoked
@@ -82,26 +82,26 @@
 - 2. The thirteen devices
 - Shared vs own: six symlinks into .claude/playbook-editorial/
 - (public)/layout.tsx
-- auth.ts
+- data/reader-account.ts
 - noticias/page.tsx
 - splitFigure
 - The Playbook editorial voice
 - HeaderNav.tsx
 - gsap-core.js
 - The overlap check (run before drafting)
-- Every visual treatment is a render-time transform
+- La Lana del Deporte fixed architecture
 - update-articles/route.ts
 - Write layer — Server Actions (lib/actions/)
-- update-lana-board.ts
+- La Lana del Deporte: the exact shape of an article
 - ArticleInput field shape (20 fields)
 - publish-newsletter.ts
 - UI/UX Pro Max - Design Intelligence
-- 0000_rainy_harry_osborn.sql
+- The four-movement brief (Noticias / Infinitas)
 - Audit persistence contract (output_dir/findings + audit-data.json)
 - Cifra clave: the pull-figure
 - seo-performance agent
 - StudioTab.tsx
-- infinitas/page.tsx
+- getSiteContent
 - Getting Started with the task-observer meta-skill (aka "One skill to rule them all")
 - Detalle por contenedor
 - 404/page.tsx
@@ -109,16 +109,16 @@
 - UI/UX Quick Reference Rule Set (10 categories)
 - search
 - graph-query.py
-- publish-newsletter skill
+- anon-cookie.ts
 - seo-backlinks.md
 - Format tiers and per-product architecture
 - Execution Steps
-- seo-local agent
+- seo-sitemap agent
 - seo-visual agent
 - Task Observer — Continuous Skill Discovery & Improvement
 - 2026-08-11
 - test_core.py
-- TIPTAP_EXTENSIONS
+- strip-tfbr-opinion.ts
 - Read layer (lib/data/)
 - update-article.ts
 - find-duplicates.mjs
@@ -153,7 +153,7 @@
 - test-email-wall.mjs
 - author field and byline rendering
 - app/layout.tsx — root layout
-- Hubs de producto (carpetas internas)
+- ShotProgress.tsx
 - Related articles (shared-tag score + backfill)
 - next-env.d.ts
 - pg
@@ -168,8 +168,15 @@
 - Report in six phases
 - Look for asymmetries in how parties reacted
 - { GET, POST }
+- Invitaciones de editores por email (token hasheado)
+- update-lana-board.ts
+- Database Schema (nine Drizzle tables)
+- la-lana-article-spec.md
+- seo-local agent
+- seed-jugadas.ts
+- taxonomy.ts
 - Tier-Based Backlink Source Ladder (Tier 0-3)
-- SOURCE_LABELS
+- publication/source product routing pair
 - seo-google.md
 - seo-schema.md
 - The decision, in two questions
@@ -207,17 +214,22 @@
 - graphify reference: GitHub clone and cross-repo merge
 - graphify reference: transcribe video and audio
 - 2026-08-04 — Auditoría pre-lanzamiento completa: 15 defectos reales encontrados y corregidos
-- @auth/drizzle-adapter
+- Hubs de producto (carpetas internas)
 - .claude/CLAUDE.md
 - graphify-guard.sh
 - extraction-spec.md
 - _GOVERNANCE.md
 - gsap/README.md
-- product-hubs-content.ts
+- publish-newsletter skill
 - url_safety.py SSRF and DNS-rebinding protection
-- La Opinion de Playbook: reencuadra, palanca, consecuencia
-- update-matador-report.ts
+- MoneyTrail
+- fix-testimonial-avatars.ts
 - Baseline / Compare / History drift workflow
+- Foto del destacado — 16:10
+- point-products-at-hubs.ts
+- The product hubs read the body
+- LeadStory
+- bcryptjs
 
 ## God Nodes (most connected - your core abstractions)
 1. `Fase 4: plan detallado de lo que falta` - 66 edges
@@ -260,55 +272,55 @@
 - **The thirteen designed devices form the element library** — _claude_playbook_editorial_dynamic_element_library_cifra_clave, _claude_playbook_editorial_dynamic_element_library_jugada, _claude_playbook_editorial_dynamic_element_library_cronologia, _claude_playbook_editorial_dynamic_element_library_recibo, _claude_playbook_editorial_dynamic_element_library_ecuacion, _claude_playbook_editorial_dynamic_element_library_salto, _claude_playbook_editorial_dynamic_element_library_reparto, _claude_playbook_editorial_dynamic_element_library_alineacion, _claude_playbook_editorial_dynamic_element_library_cotizacion, _claude_playbook_editorial_dynamic_element_library_resultados, _claude_playbook_editorial_dynamic_element_library_duelo, _claude_playbook_editorial_dynamic_element_library_serie, _claude_playbook_editorial_dynamic_element_library_mapa, _claude_playbook_editorial_dynamic_element_library_library [EXTRACTED 1.00]
 - **Tiered-capability scoring pattern with weight redistribution** — _claude_agents_seo_backlinks_tier_based_source_ladder, _claude_agents_seo_backlinks_confidence_weighted_scoring, _claude_agents_seo_google_credential_tiers, _claude_agents_seo_maps_tier_weight_redistribution, _claude_agents_seo_backlinks_insufficient_data_rule [INFERRED 0.85]
 
-## Communities (215 total, 30 thin omitted)
+## Communities (220 total, 31 thin omitted)
 
 ### Community 0 - "analytics-data.ts"
-Cohesion: 0.08
-Nodes (42): AdminAnalyticsPage(), AnalyticsView(), BarList(), formatNumber(), formatUpdatedAt(), KpiCard(), unavailableMessage(), BarChart() (+34 more)
+Cohesion: 0.07
+Nodes (46): AdminAnalyticsPage(), AnalyticsView(), BarList(), formatNumber(), formatUpdatedAt(), KpiCard(), unavailableMessage(), BarChart() (+38 more)
 
 ### Community 1 - "metering.ts"
 Cohesion: 0.18
-Nodes (18): ANON_COOKIE_NAME, getKey(), signAnonId(), toBase64Url(), verifyAnonCookie(), BOT_USER_AGENTS, isBotUserAgent(), countReadsThisMonth() (+10 more)
+Nodes (14): metadata, BOT_USER_AGENTS, isBotUserAgent(), FREE_ARTICLES_PER_MONTH, anonReaders, countReadsThisMonth(), currentMonthKey(), Entitlement (+6 more)
 
 ### Community 2 - "site-content.ts"
-Cohesion: 0.08
-Nodes (31): ArrayEditor(), ArrayEditorProps, Badge, Option, SelectField(), SelectFieldProps, AboutTab(), Props (+23 more)
-
-### Community 3 - "schema.ts"
 Cohesion: 0.09
-Nodes (20): AdminDashboardPage(), ALLOWED_CONTENT_TYPES, getAllArticlesForAdmin(), anonReaders, contentRevisions, media, siteContent, db (+12 more)
+Nodes (29): ArrayEditor(), ArrayEditorProps, Badge, Option, SelectField(), SelectFieldProps, AboutTab(), Props (+21 more)
+
+### Community 3 - "siteContent"
+Cohesion: 0.20
+Nodes (7): contentRevisions, siteContent, db, DRY_RUN, db, DRY_RUN, Product
 
 ### Community 4 - "SplitText.js"
 Cohesion: 0.08
 Nodes (23): _createClass(), _defineProperties(), ScrollSmoother(), constructor(), _context(), _defaultContext, _disallowInline(), _elements() (+15 more)
 
-### Community 5 - "LivePreview.tsx"
-Cohesion: 0.10
-Nodes (28): applyServerArticle(), ArticleEntry, articleToEntry(), isEntryDirty(), newArticleEntry(), toData(), toPreviewArticle(), LivePreview() (+20 more)
+### Community 5 - "(public)/page.tsx"
+Cohesion: 0.12
+Nodes (25): metadata, PreviewFooter(), PreviewHeader(), Props, TopicDirectory(), TOPICS, LazyEmbed(), AboutSection() (+17 more)
 
 ### Community 6 - "article-devices.ts"
-Cohesion: 0.08
-Nodes (31): ALL_DEVICES, decodeEntities(), Delta, Device, DEVICES, Duel, DuelRow, Equation (+23 more)
+Cohesion: 0.07
+Nodes (34): ALL_DEVICES, Chain, ChainLink, decodeEntities(), Delta, Denominated, Device, DEVICES (+26 more)
 
-### Community 7 - "(public)/page.tsx"
-Cohesion: 0.14
-Nodes (19): HomePage(), metadata, useAdSenseConfig(), AdSlot(), HomeSidebar(), MostReadSection(), TopicDirectory(), TOPICS (+11 more)
+### Community 7 - "getAllArticles"
+Cohesion: 0.31
+Nodes (6): BrandLink(), Header(), Ticker(), Roadmap Agosto 2026 (Fases 0-6), getAllArticles, queryPublishedArticles
 
 ### Community 8 - "articulo/page.tsx"
-Cohesion: 0.12
-Nodes (24): The device budget (by readingTime, +1 at priority 5), ArticuloPage(), canonicalUrlFor(), generateMetadata(), looksLikeHtml(), paragraphsFrom(), pathFor(), PlainBlock (+16 more)
+Cohesion: 0.11
+Nodes (25): The device budget (by readingTime, +1 at priority 5), ArticuloPage(), canonicalUrlFor(), generateMetadata(), looksLikeHtml(), paragraphsFrom(), pathFor(), PlainBlock (+17 more)
 
 ### Community 9 - "sitemap.ts"
-Cohesion: 0.12
-Nodes (23): app/admin/(protected)/dashboard/page.tsx, cdata(), dynamic, GET(), parseTopicFromQuery(), toRfc822(), xmlEscape(), app/(public)/archivo/page.tsx — archivo filtrable (+15 more)
+Cohesion: 0.13
+Nodes (21): app/admin/(protected)/dashboard/page.tsx, cdata(), dynamic, GET(), parseTopicFromQuery(), toRfc822(), xmlEscape(), app/(public)/archivo/page.tsx — archivo filtrable (+13 more)
 
 ### Community 10 - "/graphify skill"
 Cohesion: 0.08
 Nodes (31): sourceUrl Unique Dedupe Key, substackUrl field (differs by funnel), /graphify add (URL ingest), --watch folder watcher, FalkorDB export and push, graphify MCP stdio server, Neo4j export and push, Token reduction benchmark (+23 more)
 
 ### Community 11 - "reader-auth.ts"
-Cohesion: 0.16
-Nodes (15): dynamic, AccountSignInPrompt(), PasswordAuthForm(), LoginForm(), EmailWall(), loginAction(), LoginState, PasswordAuthState (+7 more)
+Cohesion: 0.15
+Nodes (16): dynamic, AccountSignInPrompt(), PasswordAuthForm(), LoginForm(), EmailWall(), loginAction(), LoginState, PasswordAuthState (+8 more)
 
 ### Community 12 - "devDependencies"
 Cohesion: 0.07
@@ -319,20 +331,20 @@ Cohesion: 0.07
 Nodes (26): dom, dom.iterable, esnext, next-env.d.ts, .next/types/**/*.ts, node_modules, **/*.ts, **/*.tsx (+18 more)
 
 ### Community 14 - "product-hubs.ts"
-Cohesion: 0.09
-Nodes (29): ProductHtml(), RelatedCard(), CIFRA_HTML_RE, CIFRA_TEXT_PREFIX, CifraFigure, cifraMarkup(), extractMoneyTrailFromHtml(), extractMoneyTrailFromParagraphs() (+21 more)
+Cohesion: 0.11
+Nodes (26): ProductHtml(), boardKey(), LaLanaHubPage(), metadata, RelatedCard(), caseNumber(), caseStatus(), CIFRA_HTML_RE (+18 more)
 
 ### Community 15 - "dependencies"
 Cohesion: 0.08
-Nodes (25): bcryptjs, chart.js, drizzle-orm, next, next-auth, dependencies, bcryptjs, chart.js (+17 more)
+Nodes (25): @auth/drizzle-adapter, chart.js, drizzle-orm, next, next-auth, dependencies, @auth/drizzle-adapter, chart.js (+17 more)
 
-### Community 16 - "admin.ts"
-Cohesion: 0.29
-Nodes (13): AdminDashboard(), archiveArticle(), createArticle(), reloadArticle(), reloadSiteContent(), renderBodyHtml(), requireEditor(), sameMillisecond() (+5 more)
-
-### Community 17 - "ArticlesTab.tsx"
+### Community 16 - "schema.ts"
 Cohesion: 0.14
-Nodes (21): CheckboxGroupField(), CheckboxGroupFieldProps, StarPickerField(), StarPickerFieldProps, ArticlesTab(), COVERAGE_TIERS, Props, NewsGrid() (+13 more)
+Nodes (16): Neon HTTP driver, not the pg Pool, POSTGRES_URL env var (production Neon DB), Requirements: POSTGRES_URL and the Neon HTTP driver, AdminDashboardPage(), ALLOWED_CONTENT_TYPES, adapter, { handlers, auth, signIn, signOut }, deleteMyAccount() (+8 more)
+
+### Community 17 - "NewsGrid.tsx"
+Cohesion: 0.18
+Nodes (20): ArticlesTab(), useAdSenseConfig(), AdSlot(), HomeSidebar(), FILTERS, NEWS_SOURCES, NewsGrid(), StillMattersSection() (+12 more)
 
 ### Community 18 - "Device Budget (readingTime + priority)"
 Cohesion: 0.11
@@ -351,24 +363,24 @@ Cohesion: 0.03
 Nodes (65): 2026-07-21 — Bug real reportado: página de inicio en blanco tras el muro de artículos; causa raíz real: cero error boundaries en toda la app, 2026-07-21 — Datos legales reales + módulo "Mi cuenta" para lectores, 2026-07-21 — Diagnóstico confirmado: el no-op también falló. Se elimina `middleware.ts` para restaurar el sitio, 2026-07-21 — El `__dirname` persiste tras "Clear Cache and Deploy"; diagnóstico: middleware no-op temporal, 2026-07-21 — Fix: algoritmo de ranking (portada/ticker mostraba noticias de hasta 13 días), 2026-07-21 — Fix: CI agregado (no existía ningún workflow), 2026-07-21 — Fix de despliegue: `middleware` crasheaba en producción (`MIDDLEWARE_INVOCATION_FAILED`), 2026-07-21 — Fix de despliegue: Vercel rechazaba `middleware.ts` ("Edge Function referencing unsupported modules") (+57 more)
 
 ### Community 22 - "google-sheets.ts"
-Cohesion: 0.16
-Nodes (18): constantTimeEqual(), GET(), dateFmt, ReadersTab(), getReadersData(), requireEditor(), getAllReaders(), ReaderRow (+10 more)
+Cohesion: 0.17
+Nodes (16): constantTimeEqual(), GET(), dateFmt, ReadersTab(), getReadersData(), requireEditor(), getAllReaders(), ReaderRow (+8 more)
 
 ### Community 23 - "archivo/page.tsx"
-Cohesion: 0.10
-Nodes (25): tagsScope / tagsSport / tagsVertical taxonomy, ArchivoPage(), FILTER_TIERS, filterHref(), FilterKey, Filters, groupRiver(), metadata (+17 more)
+Cohesion: 0.12
+Nodes (20): ArchivoPage(), FILTER_TIERS, filterHref(), FilterKey, Filters, groupRiver(), metadata, monthKeyOf() (+12 more)
 
 ### Community 24 - "articles.ts"
-Cohesion: 0.12
-Nodes (23): AutorPage(), generateMetadata(), Props, ArchiveFeatureRow(), ArticleTopics(), TIER_COLUMN, LeadStory(), Heading (+15 more)
+Cohesion: 0.16
+Nodes (17): AutorPage(), generateMetadata(), Props, ArticleTopics(), TIER_COLUMN, Heading, NewsRow(), TagPillRow() (+9 more)
 
 ### Community 25 - "DesignSystemGenerator"
 Cohesion: 0.13
 Nodes (12): DesignSystemGenerator, Find matching reasoning rule for a category., Apply reasoning rules to search results., Select best matching result based on priority keywords., Extract results list from search result dict., Generate complete design system recommendation. variance/motion/density are…, Bucket a 1-10 dial value into its tier config. Returns None if value is None., Generates design system recommendations from aggregated searches. (+4 more)
 
-### Community 26 - "SERP overlap methodology and thresholds"
-Cohesion: 0.22
-Nodes (9): Keyword cannibalization check, Hub-and-spoke cluster architecture, Internal link matrix (mandatory/recommended/optional), Keyword intent classification, SERP overlap methodology and thresholds, Page-type mismatch detection, page-type-taxonomy.md reference, SERP backwards analysis (+1 more)
+### Community 26 - "seo-sxo agent"
+Cohesion: 0.17
+Nodes (12): Keyword cannibalization check, Hub-and-spoke cluster architecture, Internal link matrix (mandatory/recommended/optional), Keyword intent classification, SERP overlap methodology and thresholds, Page-type mismatch detection, page-type-taxonomy.md reference, Persona scoring (Relevance/Clarity/Trust/Action) (+4 more)
 
 ### Community 27 - "Extraction Subagent Prompt"
 Cohesion: 0.11
@@ -378,17 +390,17 @@ Nodes (20): When the Sources Disagree (better-attributed figure wins), Four Evid
 Cohesion: 0.20
 Nodes (17): Four evidence levels that never blend, Alineacion: the lineup chips, The dynamic element library (thirteen devices), Cotizacion: the market tile, Cronologia: the drawn timeline, Duelo: the butterfly chart, Jugada: the connection strip, Mapa: real geography (+9 more)
 
-### Community 29 - "la-lana/page.tsx"
-Cohesion: 0.27
-Nodes (9): boardKey(), LaLanaHubPage(), metadata, BoardRow, DeparturesBoard(), statusBlinks(), caseNumber(), caseStatus() (+1 more)
+### Community 29 - "DeparturesBoard.tsx"
+Cohesion: 0.67
+Nodes (3): BoardRow, DeparturesBoard(), statusBlinks()
 
 ### Community 30 - "SiteMotion.tsx"
 Cohesion: 0.24
 Nodes (16): ArticleMotion(), COUNTUP_SELECTOR, HIGHLIGHT_SELECTOR, LEAD_PHOTO_SELECTOR, SiteMotion(), STAGGER_SELECTOR, SWEEP_SELECTOR, countUp() (+8 more)
 
 ### Community 31 - "build-substack-backlog.mjs"
-Cohesion: 0.06
-Nodes (45): Orden sugerido de ataque (6 lotes), Backlog del archivo Substack → playbook.la, Beyond Bounds Arena, Contenido perecedero vs. permanente, Cómo leer las estimaciones, Detalle por serie, Dónde están los huecos, Ensayo / one-off (+37 more)
+Cohesion: 0.07
+Nodes (42): Orden sugerido de ataque (6 lotes), Backlog del archivo Substack → playbook.la, Beyond Bounds Arena, Contenido perecedero vs. permanente, Cómo leer las estimaciones, Detalle por serie, Dónde están los huecos, Ensayo / one-off (+34 more)
 
 ### Community 32 - "build-world-map.ts"
 Cohesion: 0.13
@@ -407,16 +419,16 @@ Cohesion: 0.22
 Nodes (11): dynamic, AdminTopbarNav(), applyThemeColor(), isDarkActive(), listeners, notify(), storedTheme(), subscribeTheme() (+3 more)
 
 ### Community 36 - "TextField.tsx"
-Cohesion: 0.13
-Nodes (16): FormValidationContext, FormValidationHandle, FormValidationProvider, Registration, useFormValidationRegistrar(), Validator, isValidUrlValue(), NumberField() (+8 more)
+Cohesion: 0.10
+Nodes (20): FormValidationContext, FormValidationHandle, FormValidationProvider, Registration, useFormValidationRegistrar(), Validator, isValidUrlValue(), NumberFieldProps (+12 more)
 
-### Community 37 - "constants.ts"
-Cohesion: 0.24
-Nodes (8): Ticker(), KNOWN_SOURCES, LEAD_COUNT, RELATED_COUNT, Source, TICKER_COUNT, relatedArticles(), sharedTagCount()
+### Community 37 - "ArticlesTab.tsx"
+Cohesion: 0.12
+Nodes (18): applyServerArticle(), ArticleEntry, articleToEntry(), newArticleEntry(), toData(), CheckboxGroupField(), CheckboxGroupFieldProps, StarPickerField() (+10 more)
 
-### Community 38 - "rankArticles"
-Cohesion: 0.67
-Nodes (4): Homepage ranking (rankArticles/selectHero), rankScore con decaimiento por antigüedad (priority*1.5 - días), rankArticles(), selectHero()
+### Community 38 - "brand-colors.ts"
+Cohesion: 0.23
+Nodes (18): normalizeLabel(), parseChain(), parseSale(), BRAND_TABLE, BrandPalette, BRANDS, brandStyleAttr(), contrast() (+10 more)
 
 ### Community 39 - "core.py"
 Cohesion: 0.17
@@ -431,31 +443,31 @@ Cohesion: 0.12
 Nodes (24): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+16 more)
 
 ### Community 42 - "gsap.ts"
-Cohesion: 0.11
-Nodes (12): HomeChoreography(), SplitHeadline(), TickerScramble(), MoneyTrail(), routePath(), gsap, GsapTween, lib/gsap — registra y re-exporta los plugins (+4 more)
+Cohesion: 0.16
+Nodes (7): HomeChoreography(), SplitHeadline(), TickerScramble(), gsap, GsapTween, ScrollTriggerInstance, ScrollTriggerStatic
 
 ### Community 43 - "article-map.ts"
 Cohesion: 0.17
 Nodes (16): ArticleMap, buildMap(), codesFrom(), COUNTRIES, CountryEntry, esc(), fold(), FRAME_ALIASES (+8 more)
 
 ### Community 44 - "paths.js"
-Cohesion: 0.18
-Nodes (22): arcToSegment(), cacheRawPathMeasurements(), convertToPath(), copyRawPath(), flatPointsToSegment(), getClosestData(), getClosestProgressOnBezier(), getPositionOnPath() (+14 more)
+Cohesion: 0.21
+Nodes (18): arcToSegment(), cacheRawPathMeasurements(), convertToPath(), copyRawPath(), flatPointsToSegment(), getPositionOnPath(), getProgressData(), getRawPath() (+10 more)
 
-### Community 45 - "Schema validation checklist"
-Cohesion: 0.17
-Nodes (12): AI citation readiness score, AI Crawler Access (GPTBot, ClaudeBot, PerplexityBot, CCBot), Brand mention correlation with AI citations, Passage citability signals (134-167 word passages), GEO Health Score (0-100, 5 dimensions), local-schema-types.md reference (shared with seo-maps), LocalBusiness schema subtype validation, Deprecated schema types (HowTo, SpecialAnnouncement, CourseInfo) (+4 more)
+### Community 45 - "GEO Health Score (0-100, 5 dimensions)"
+Cohesion: 0.25
+Nodes (8): AI citation readiness score, AI Crawler Access (GPTBot, ClaudeBot, PerplexityBot, CCBot), Brand mention correlation with AI citations, Passage citability signals (134-167 word passages), GEO Health Score (0-100, 5 dimensions), Deprecated schema types (HowTo, SpecialAnnouncement, CourseInfo), FAQPage rich-result retirement (May 7, 2026), AI Crawler Management section (crawler tokens, robots.txt)
 
 ### Community 46 - "Presupuesto de dispositivos (piso, no techo)"
-Cohesion: 0.16
-Nodes (16): app/(public)/articulo/page.tsx — página de artículo, Presupuesto de dispositivos (piso, no techo), Regla: la presentación del cuerpo se decide en render, no al publicar, Convención de autoría "Cifra clave:", Presupuesto de dispositivos por readingTime/priority, La colección de dispositivos de artículo, La Lectura — un esqueleto, cuatro pieles de artículo, applyBodyDevices() (+8 more)
+Cohesion: 0.14
+Nodes (18): app/(public)/articulo/page.tsx — página de artículo, Presupuesto de dispositivos (piso, no techo), Regla: la presentación del cuerpo se decide en render, no al publicar, Convención de autoría "Cifra clave:", Presupuesto de dispositivos por readingTime/priority, La colección de dispositivos de artículo, La Lectura — un esqueleto, cuatro pieles de artículo, Convención de autoría "Ruta del dinero:" (+10 more)
 
 ### Community 47 - "Registro de progreso"
 Cohesion: 0.04
 Nodes (44): 2026-07-20 — Fase 1: scaffold + schema + migración de datos, 2026-07-20 — Fase 2: páginas públicas + SEO + sistema de diseño, 2026-07-20 — Fix: build roto en Vercel (sin `app/`), 2026-07-20 — Fix: `npm run build` roto en Vercel (falta `POSTGRES_URL`), 2026-07-21 — Fase 3: Auth.js + medición + muro de correo, 2026-07-21 — Fase 4 (checkpoint 1 de 5): login de editor + guard del layout protegido, 2026-07-21 — Fase 4 (checkpoint 2 de 5): Server Actions con detección de conflictos, 2026-07-21 — Fase 4 (checkpoint 3 de 5): editor TipTap + subida a Vercel Blob (+36 more)
 
 ### Community 49 - "Draggable.js"
-Cohesion: 0.17
+Cohesion: 0.18
 Nodes (5): _assertThisInitialized(), Draggable(), NOTE: "force" is actually the "time" when this method gets called by the…, getGlobalMatrix(), Matrix2D()
 
 ### Community 50 - "render_page.py SPA-aware page fetcher"
@@ -475,20 +487,20 @@ Cohesion: 0.19
 Nodes (15): Icons & visual elements rules, Interaction (app) rules, Layout & spacing rules (safe areas, 4/8dp rhythm), Light/dark mode contrast rules, Pre-Delivery Checklist (canonical - the only one), Scope notice: native/mobile app UI only, ui-ux-pro-max scripts/search.py, Step 2c: design dials (variance, motion, density) (+7 more)
 
 ### Community 54 - "editors"
-Cohesion: 0.14
-Nodes (16): app/admin/(protected)/layout.tsx — guard de editor, app/admin/set-password/page.tsx, POST(), auth.ts — instancia única de Auth.js, components/admin/studio-prompts.ts, Un Auth.js, dos flujos de identidad (lectores/editores), Invitaciones de editores por email (token hasheado), Fase 8 — invitaciones de editores + Studio (+8 more)
+Cohesion: 0.29
+Nodes (9): app/admin/(protected)/layout.tsx — guard de editor, POST(), auth.ts — instancia única de Auth.js, Un Auth.js, dos flujos de identidad (lectores/editores), editors, generatePassword(), main(), pick() (+1 more)
 
 ### Community 55 - "tema/page.tsx"
-Cohesion: 0.48
-Nodes (6): generateMetadata(), Props, resolveTopic(), TemaPage(), TIER_LABELS, getArticlesByTag()
+Cohesion: 0.20
+Nodes (13): generateMetadata(), Props, resolveTopic(), TemaPage(), TIER_LABELS, Homepage ranking (rankArticles/selectHero), Taxonomía cerrada de tres niveles, TODO 1 — clasificación de noticias (+5 more)
 
 ### Community 56 - "articles"
-Cohesion: 0.09
-Nodes (22): app/(public)/noticias/page.tsx — hub Noticias, bodyHtml como cache server-rendered de bodyJson, Fuentes editoriales (Noticias, La Lana, Infinitas, Opinión), Metering / paywall de lectores (3 gratis al mes), sourceUrl como identidad de dedup por artículo, Foto del destacado — 16:10, Logo del header — única imagen con variación por breakpoint, Referencia de formatos de imagen (+14 more)
+Cohesion: 0.16
+Nodes (12): app/(public)/noticias/page.tsx — hub Noticias, bodyHtml como cache server-rendered de bodyJson, Fuentes editoriales (Noticias, La Lana, Infinitas, Opinión), Tech Stack (Next.js 15, Drizzle, Auth.js v5, TipTap, Blob), body_html es cache de body_json — no editar a mano, Detección de ediciones ya procesadas por substackUrl, TODO 2 — retirar la clave source `industry-shots`, Decisiones de stack (Neon/Drizzle/Resend/3 gratis) (+4 more)
 
-### Community 57 - "client.ts"
-Cohesion: 0.08
-Nodes (29): Neon HTTP driver, not the pg Pool, POSTGRES_URL env var (production Neon DB), Requirements: POSTGRES_URL and the Neon HTTP driver, graphify knowledge-graph workflow convention, Diferir la validación de env vars más allá del import, Notable Engineering Lessons, Variables de entorno y degradación por integración, Known gaps: solo configuración de producción (+21 more)
+### Community 57 - "migrate-json-to-db.ts"
+Cohesion: 0.12
+Nodes (19): graphify knowledge-graph workflow convention, Driving the browser with global Playwright, Playbook — publicación de negocio del deporte MX/LATAM, Repository Map, Scripts de ops y migración, Migración automática en cada deploy (vercel-build), Migración a Next.js (Fases 1-6), Auditoría pre-lanzamiento (15 defectos reales) (+11 more)
 
 ### Community 58 - "scripts"
 Cohesion: 0.13
@@ -503,40 +515,40 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 61 - "The rhythm: 2-3 sentences, 40-80 words, one thing per paragraph"
-Cohesion: 0.21
-Nodes (12): Definitional antithesis (TFBR thesis move), The Futbol Business Review (ghostwritten for Interticket), The three website tiers (Flash / Noticia Playbook / Analisis), The uniformity contract (four products, one masthead), Features vs briefs (readingTime 2 vs 4), TFBR: translate the argument, not the sentences, check-voice.mjs is a mirror, not a gate, The hammer line (+4 more)
+Cohesion: 0.19
+Nodes (13): publish-newsletter references/format-tiers.md, Definitional antithesis (TFBR thesis move), The Futbol Business Review (ghostwritten for Interticket), The three website tiers (Flash / Noticia Playbook / Analisis), The uniformity contract (four products, one masthead), Features vs briefs (readingTime 2 vs 4), TFBR: translate the argument, not the sentences, check-voice.mjs is a mirror, not a gate (+5 more)
 
 ### Community 62 - "AdminDashboard.tsx"
-Cohesion: 0.13
-Nodes (14): DEFAULT_ORDER, GROUPS, LABELS, Props, SAVELESS_TABS, Status, TAB_DEFS, TabKey (+6 more)
+Cohesion: 0.11
+Nodes (29): AdminDashboard(), DEFAULT_ORDER, GROUPS, LABELS, Props, SAVELESS_TABS, Status, TAB_DEFS (+21 more)
 
 ### Community 63 - "esc"
-Cohesion: 0.23
-Nodes (14): buildDelta(), buildDuel(), buildEquation(), buildLineup(), buildQuote(), buildReceipt(), buildResults(), buildSeries() (+6 more)
+Cohesion: 0.21
+Nodes (16): buildChain(), buildDelta(), buildDuel(), buildEquation(), buildLineup(), buildQuote(), buildReceipt(), buildResults() (+8 more)
 
 ### Community 64 - "2. The thirteen devices"
 Cohesion: 0.10
 Nodes (19): 1. The budget, 2. The thirteen devices, 3. Automatic elements — nothing to author, 4. Per-run checklist, `Alineación:` — the lineup chips, `Cifra clave:` — the pull-figure, `Cotización:` — the market tile, `Cronología:` — the drawn timeline (+11 more)
 
 ### Community 65 - "Shared vs own: six symlinks into .claude/playbook-editorial/"
-Cohesion: 0.18
-Nodes (15): publish-newsletter references/fields-and-taxonomy.md, publish-newsletter references/format-tiers.md, publish-newsletter references/images.md, publish-newsletter references/overlap-check.md, publish-newsletter references/voice-and-style.md, One rule, one home (cross-reference, never copy), Place before you create (file ownership table), Single source of truth (never fork a rule into a skill-local file) (+7 more)
+Cohesion: 0.20
+Nodes (14): publish-newsletter references/fields-and-taxonomy.md, publish-newsletter references/images.md, publish-newsletter references/overlap-check.md, publish-newsletter references/voice-and-style.md, One rule, one home (cross-reference, never copy), Place before you create (file ownership table), Single source of truth (never fork a rule into a skill-local file), Why the shared tree exists (2026-08-11 truncation incident) (+6 more)
 
 ### Community 66 - "(public)/layout.tsx"
-Cohesion: 0.05
-Nodes (43): dynamic, GET(), dynamic, PublicLayout(), AdSenseContext, AdSenseProvider(), AdSlotName, GoogleAnalytics() (+35 more)
+Cohesion: 0.06
+Nodes (41): dynamic, GET(), dynamic, PublicLayout(), AdSenseContext, AdSenseProvider(), AdSlotName, GoogleAnalytics() (+33 more)
 
-### Community 67 - "auth.ts"
-Cohesion: 0.11
-Nodes (20): GET(), CuentaPage(), dateFormatter, metadata, adapter, { handlers, auth, signIn, signOut }, DeleteAccountButton(), Database Schema (nine Drizzle tables) (+12 more)
+### Community 67 - "data/reader-account.ts"
+Cohesion: 0.26
+Nodes (8): GET(), CuentaPage(), dateFormatter, metadata, DeleteAccountButton(), currentMonthKey(), getReaderAccountSummary(), ReaderAccountSummary
 
 ### Community 68 - "noticias/page.tsx"
-Cohesion: 0.26
-Nodes (11): articleHref(), groupRiver(), Measure(), metadata, NewsBlock, NoticiasHubPage(), tierFor(), When() (+3 more)
+Cohesion: 0.23
+Nodes (12): articleHref(), groupRiver(), Measure(), metadata, NewsBlock, NoticiasHubPage(), tierFor(), When() (+4 more)
 
 ### Community 69 - "splitFigure"
-Cohesion: 0.35
-Nodes (9): DailyFigure(), isCountable(), magnitudeOf(), parseDelta(), FIGURE_INLINE_RE, FIGURE_TEXT_RE, formatNumeric(), parseNumeric() (+1 more)
+Cohesion: 0.25
+Nodes (13): DailyFigure(), denominatedOf(), isCountable(), magnitudeOf(), multipleBetween(), parseDelta(), parseDuel(), unitOf() (+5 more)
 
 ### Community 70 - "The Playbook editorial voice"
 Cohesion: 0.11
@@ -551,44 +563,44 @@ Cohesion: 0.23
 Nodes (6): _assertThisInitialized(), PropTween(), TODO: repeat: Infinity on a timeline's children must flag that timeline…, NOTE: wrap() CANNOT be an arrow function! A very odd compiling bug causes…, Timeline(), Tween()
 
 ### Community 73 - "The overlap check (run before drafting)"
-Cohesion: 0.20
-Nodes (12): sourceUrl unique dedupe key, El Marcador (Infinitas hub scoreboard) - flag, don't fix, The product hubs read the body, If it was already published twice (48-hour rule), Outcome A: same event, nothing new - don't publish, Outcome C: new development - a new article that links back, Outcome D: different product, different thesis - both run cross-linked, Reporting overlap outcomes (a skipped item is work done) (+4 more)
+Cohesion: 0.32
+Nodes (8): sourceUrl unique dedupe key, If it was already published twice (48-hour rule), Outcome A: same event, nothing new - don't publish, Outcome C: new development - a new article that links back, Outcome D: different product, different thesis - both run cross-linked, The overlap check (run before drafting), Building on prior Playbook coverage (one inline backlink), Step 1: read the primary source (one link, one article)
 
-### Community 74 - "Every visual treatment is a render-time transform"
-Cohesion: 0.40
-Nodes (6): The Opinion callout is a UI contract, Regenerate a published body, never hand-edit the HTML, Every visual treatment is a render-time transform, Ruta del dinero (the money trail), Automatic elements (nothing to author, never budgeted), styles/tokens.css --mark-* tokens
+### Community 74 - "La Lana del Deporte fixed architecture"
+Cohesion: 0.12
+Nodes (19): The departures board (la-lana connections), La Lana del Deporte fixed architecture, ## La Opinion de Playbook - exactly three bullets, The Opinion callout is a UI contract, The promise block (verbatim + three reader questions), Regenerate a published body, never hand-edit the HTML, Every visual treatment is a render-time transform, Ruta del dinero (the money trail) (+11 more)
 
 ### Community 75 - "update-articles/route.ts"
-Cohesion: 0.29
-Nodes (11): constantTimeEqual(), decodeEntities(), detectPublication(), escapeRegExp(), getClientIp(), inferTags(), normalizeText(), POST() (+3 more)
+Cohesion: 0.26
+Nodes (12): constantTimeEqual(), decodeEntities(), detectPublication(), escapeRegExp(), getClientIp(), inferTags(), normalizeText(), POST() (+4 more)
 
 ### Community 76 - "Write layer — Server Actions (lib/actions/)"
 Cohesion: 0.20
 Nodes (11): Concurrencia optimista con date_trunc('milliseconds'), Rate limiting en memoria, no distribuido, Write layer — Server Actions (lib/actions/), archiveArticle(id) — soft delete, createArticle(input), saveArticle(id, input, expectedUpdatedAt), saveSiteContent(data, expectedVersion), loginAction() (+3 more)
 
-### Community 77 - "update-lana-board.ts"
-Cohesion: 0.06
-Nodes (37): The departures board (la-lana connections), La Lana del Deporte fixed architecture, ## La Opinion de Playbook - exactly three bullets, The promise block (verbatim + three reader questions), La Lana ingestion note (no outside research), After a la-lana article: the departures board run steps, Openings en frio, Subheads and bold lead-ins advance the argument (+29 more)
+### Community 77 - "La Lana del Deporte: the exact shape of an article"
+Cohesion: 0.18
+Nodes (11): 1. The body, movement by movement, 2. Devices — the budget is a floor, not a ceiling to avoid, 3. Fields, 4. After publishing — the step that has no reminder, 5. How the 2026-08-07 break happened, and the rule that prevents it, 6. The pre-flight, in one block, La Lana del Deporte: the exact shape of an article, Movement 1 — the cold open (+3 more)
 
 ### Community 78 - "ArticleInput field shape (20 fields)"
-Cohesion: 0.13
-Nodes (22): ArticleInput field shape (20 fields), author / mostrarAutor byline rules, Breaking News override (priority 5 + featured), date / dateFormatted, featured (Destacado) flag, priority (Importancia) 1-5 scale, substackUrl (funnel-specific), The four-movement brief (Noticias / Infinitas) (+14 more)
+Cohesion: 0.24
+Nodes (11): ArticleInput field shape (20 fields), author / mostrarAutor byline rules, Breaking News override (priority 5 + featured), featured (Destacado) flag, priority (Importancia) 1-5 scale, substackUrl (funnel-specific), Publish: JSON array through publish-newsletter.ts, Step 8: human review before anything touches the database (+3 more)
 
 ### Community 79 - "publish-newsletter.ts"
-Cohesion: 0.24
-Nodes (11): BackfillEntry, db, main(), unescapeUrl(), updateOne(), ArticleInput, db, insertOne() (+3 more)
+Cohesion: 0.16
+Nodes (16): Props, TipTapEditor(), TIPTAP_EXTENSIONS, BackfillEntry, db, main(), unescapeUrl(), updateOne() (+8 more)
 
 ### Community 80 - "UI/UX Pro Max - Design Intelligence"
 Cohesion: 0.12
 Nodes (16): Before Delivering App UI, Example Workflow, If a search returns 0 results, Output Formats, Rule Categories by Priority, Running the search tool, Step 1: Analyze User Requirements, Step 2: Generate Design System (REQUIRED for new pages/projects) (+8 more)
 
-### Community 81 - "0000_rainy_harry_osborn.sql"
-Cohesion: 0.18
-Nodes (10): "account", "anon_readers", "article_reads", "articles", "content_revisions", "editors", "media", "site_content" (+2 more)
+### Community 81 - "The four-movement brief (Noticias / Infinitas)"
+Cohesion: 0.25
+Nodes (11): date / dateFormatted, The four-movement brief (Noticias / Infinitas), In-body images (differs by funnel), Step 2: independent research (mandatory for Noticias/Infinitas), Step 1: read the sources (four WebFetch passes), The regional connection (Mexico / LATAM) - research it, don't infer it, Step 2: cross-reference other coverage (mandatory), The ten-step decision flow (+3 more)
 
 ### Community 82 - "Audit persistence contract (output_dir/findings + audit-data.json)"
 Cohesion: 0.21
-Nodes (15): Audit persistence contract (output_dir/findings + audit-data.json), cluster-plan.json output artifact, seo-cluster agent, Content word-count minimums by page type, E-E-A-T scoring model, seo-content agent, seo-drift agent, llms.txt and RSL 1.0 licensing check (+7 more)
+Nodes (14): Audit persistence contract (output_dir/findings + audit-data.json), cluster-plan.json output artifact, seo-cluster agent, Content word-count minimums by page type, E-E-A-T scoring model, seo-content agent, seo-drift agent, llms.txt and RSL 1.0 licensing check (+6 more)
 
 ### Community 83 - "Cifra clave: the pull-figure"
 Cohesion: 1.00
@@ -602,9 +614,9 @@ Nodes (10): Core Web Vitals thresholds (LCP/INP/CLS), Google credential tiers (A
 Cohesion: 0.31
 Nodes (4): STUDIO_SECTIONS, StudioPrompt, StudioSection, StudioTab()
 
-### Community 86 - "infinitas/page.tsx"
-Cohesion: 0.23
-Nodes (11): FutbolBusinessReviewHubPage(), metadata, InfinitasHubPage(), metadata, toScoreboardMetric(), formatValue(), Scoreboard(), ScoreboardMetric (+3 more)
+### Community 86 - "getSiteContent"
+Cohesion: 0.14
+Nodes (18): FutbolBusinessReviewHubPage(), metadata, InfinitasHubPage(), metadata, toScoreboardMetric(), HomePage(), Footer(), SocialIcon() (+10 more)
 
 ### Community 87 - "Getting Started with the task-observer meta-skill (aka "One skill to rule them all")"
 Cohesion: 0.12
@@ -618,10 +630,6 @@ Nodes (15): 10. Logo — footer, 1. Foto del destacado (hero / lead story), 2. B
 Cohesion: 0.32
 Nodes (3): metadata, metadata, NotFoundContent()
 
-### Community 90 - "site-url.ts"
-Cohesion: 0.21
-Nodes (4): metadata, metadata, FREE_ARTICLES_PER_MONTH, SITE_URL
-
 ### Community 91 - "UI/UX Quick Reference Rule Set (10 categories)"
 Cohesion: 0.22
 Nodes (9): Accessibility rules (CRITICAL), Animation rules (MEDIUM), Navigation Patterns (HIGH), Performance rules (HIGH), UI/UX Quick Reference Rule Set (10 categories), Touch & Interaction rules (CRITICAL), Nested <a> regression check, ShareRow() (+1 more)
@@ -634,9 +642,9 @@ Nodes (4): Main search function with auto-domain detection, search(), Known quer
 Cohesion: 0.27
 Nodes (15): cmd_explain(), cmd_path(), cmd_query(), cmd_stats(), find_nodes(), fmt_node(), index_edges(), load_graph() (+7 more)
 
-### Community 94 - "publish-newsletter skill"
+### Community 94 - "anon-cookie.ts"
 Cohesion: 0.15
-Nodes (13): publish-newsletter skill, publish-sourced-article skill, resolveSiteUrl https self-fetch gotcha, Tiny local http.createServer harness, Driving the browser with global Playwright, verify skill — run the site locally in a sandbox, CI/CD y despliegue en Vercel, Claude Code skills del proyecto (+5 more)
+Nodes (18): resolveSiteUrl https self-fetch gotcha, Tiny local http.createServer harness, verify skill — run the site locally in a sandbox, CI/CD y despliegue en Vercel, Diferir la validación de env vars más allá del import, Notable Engineering Lessons, Nunca dejar `main` en rojo (alarma deshabilitada), Pre-flight en un bloque (+10 more)
 
 ### Community 95 - "seo-backlinks.md"
 Cohesion: 0.13
@@ -650,13 +658,13 @@ Nodes (14): 1. The three website tiers, 2. The uniformity contract, 3. Noticias 
 Cohesion: 0.14
 Nodes (13): 1. Fetch and Parse Target Page, 2. SERP Analysis, 3. Page-Type Mismatch Detection, 4. User Story Derivation, 5. Gap Analysis, 6. Persona Scoring, 7. Wireframe (Only if requested), Audit Persistence (+5 more)
 
-### Community 98 - "seo-local agent"
-Cohesion: 0.18
-Nodes (11): Business type detection (brick-and-mortar / SAB / hybrid), Local SEO Score (0-100, 6 dimensions), NAP consistency extraction and discrepancy flagging, seo-local agent, Whitespark 2026 critical local ranking factors, Doorway page penalty risk, Location page quality gates (30+ warning, 50+ hard stop), seo-sitemap agent (+3 more)
+### Community 98 - "seo-sitemap agent"
+Cohesion: 0.33
+Nodes (6): Doorway page penalty risk, Location page quality gates (30+ warning, 50+ hard stop), seo-sitemap agent, sitemap_discovery.py validated-found-entries rule, Sitemap per-file limits (50k URLs / 50MB, 1k for news), robots.txt sitemap declaration is not a passing result
 
 ### Community 99 - "seo-visual agent"
-Cohesion: 0.29
-Nodes (7): Common LCP / INP / CLS bottlenecks, Persona scoring (Relevance/Clarity/Trust/Action), SXO Gap Score (separate from SEO Health Score), Above-the-fold analysis, capture_screenshot.py Playwright automation, seo-visual agent, Viewport test matrix (desktop/laptop/tablet/mobile)
+Cohesion: 0.40
+Nodes (5): Common LCP / INP / CLS bottlenecks, Above-the-fold analysis, capture_screenshot.py Playwright automation, seo-visual agent, Viewport test matrix (desktop/laptop/tablet/mobile)
 
 ### Community 100 - "Task Observer — Continuous Skill Discovery & Improvement"
 Cohesion: 0.14
@@ -670,9 +678,9 @@ Nodes (15): 2026-08-11, Observation 10: The unreachable-source ladder has no doc
 Cohesion: 0.25
 Nodes (4): detect_domain(), Auto-detect the most relevant domain from query. Matches are weighted by…, TestDomainDetection, TestPersistence
 
-### Community 103 - "TIPTAP_EXTENSIONS"
-Cohesion: 0.24
-Nodes (8): Props, TipTapEditor(), Admin CMS (AdminDashboard + 12 pestañas), TIPTAP_EXTENSIONS, dryRun, main(), nodeText(), sql
+### Community 103 - "strip-tfbr-opinion.ts"
+Cohesion: 0.60
+Nodes (4): dryRun, main(), nodeText(), sql
 
 ### Community 104 - "Read layer (lib/data/)"
 Cohesion: 0.29
@@ -687,12 +695,12 @@ Cohesion: 0.19
 Nodes (17): buildIndex(), distinctiveCut(), ENTITY_STOP, figures(), main(), properNouns(), rank(), score() (+9 more)
 
 ### Community 107 - "check-voice.mjs"
-Cohesion: 0.22
-Nodes (12): Every change ships with a convergence check, Pre-flight en un bloque, analyse(), countNegatives(), findNegatives(), main(), median(), NEGATIVE_PARALLELISM (+4 more)
+Cohesion: 0.24
+Nodes (11): Every change ships with a convergence check, analyse(), countNegatives(), findNegatives(), main(), median(), NEGATIVE_PARALLELISM, pct() (+3 more)
 
 ### Community 108 - "PathEditor.js"
-Cohesion: 0.22
-Nodes (5): PathEditor(), bezierToPoints(), pointToSegDist(), simplifyPoints(), simplifyStep()
+Cohesion: 0.16
+Nodes (9): PathEditor(), bezierToPoints(), getClosestData(), getClosestProgressOnBezier(), pointToSegDist(), simplifyPoints(), simplifyStep(), subdivideSegment() (+1 more)
 
 ### Community 109 - "ScrambleTextPlugin.js"
 Cohesion: 0.62
@@ -782,17 +790,45 @@ Nodes (49): app/global-error.tsx, app/(public)/error.tsx, 10.1 Admin CMS (`compo
 Cohesion: 0.67
 Nodes (3): Security headers & CSP en next.config.ts, lib/safe-url.ts, next.config.ts headers() — CSP y cabeceras de seguridad
 
-### Community 142 - "Hubs de producto (carpetas internas)"
+### Community 142 - "ShotProgress.tsx"
+Cohesion: 0.40
+Nodes (4): Mark, MARKS, ShotProgress(), El Trago — hub /noticias (ex /industry-shots)
+
+### Community 157 - "Invitaciones de editores por email (token hasheado)"
 Cohesion: 0.18
-Nodes (10): Mark, MARKS, ShotProgress(), El Marcador — hub /infinitas, El Trago — hub /noticias (ex /industry-shots), Hubs de producto (carpetas internas), Convención de autoría "Ruta del dinero:", PRODUCT_HUBS (+2 more)
+Nodes (10): app/admin/set-password/page.tsx, components/admin/studio-prompts.ts, Variables de entorno y degradación por integración, Known gaps: solo configuración de producción, Invitaciones de editores por email (token hasheado), Fase 8 — invitaciones de editores + Studio, Studio — biblioteca de prompts del CMS, acceptInvitation() (+2 more)
+
+### Community 158 - "update-lana-board.ts"
+Cohesion: 0.24
+Nodes (10): CASE_OPEN_DAYS, buildRow(), CaseRow, db, DRY_RUN, IncomingConnection, main(), MAX_CURATED_ROWS (+2 more)
+
+### Community 159 - "Database Schema (nine Drizzle tables)"
+Cohesion: 0.20
+Nodes (10): Database Schema (nine Drizzle tables), Metering / paywall de lectores (3 gratis al mes), lib/anon-cookie.ts — HMAC-SHA256 de pb_anon, lib/bots.ts — 14 firmas de crawlers, anonReaders table, articleReads table, contentRevisions table, siteContent table (+2 more)
+
+### Community 160 - "la-lana-article-spec.md"
+Cohesion: 0.20
+Nodes (8): Tablero de salidas: empujar conexiones tras publicar, Los cuatro movimientos del cuerpo, Lead-ins en negrita por bloque (markLeadIns), ## La Opinión de Playbook con tres bullets, Promise block — tres preguntas, El Expediente — hub /la-lana, Convención "La opinión de Playbook" → callout, markOpinionCallout()
+
+### Community 161 - "seo-local agent"
+Cohesion: 0.22
+Nodes (9): Business type detection (brick-and-mortar / SAB / hybrid), local-schema-types.md reference (shared with seo-maps), Local SEO Score (0-100, 6 dimensions), LocalBusiness schema subtype validation, NAP consistency extraction and discrepancy flagging, seo-local agent, Whitespark 2026 critical local ranking factors, JSON-LD preference and formatting rules (+1 more)
+
+### Community 162 - "seed-jugadas.ts"
+Cohesion: 0.28
+Nodes (8): jugadaMarkup(), markJugada(), parseJugada(), db, DRY_RUN, Incoming, looksLikeHtml(), main()
+
+### Community 163 - "taxonomy.ts"
+Cohesion: 0.29
+Nodes (7): tagsScope / tagsSport / tagsVertical taxonomy, DEFAULT_TOPICS, SCOPE_OPTIONS, SECTION_TOPICS, SectionTopics, SPORT_OPTIONS, VERTICAL_OPTIONS
 
 ### Community 165 - "Tier-Based Backlink Source Ladder (Tier 0-3)"
 Cohesion: 0.25
 Nodes (8): Bing Webmaster source (bing_webmaster.py), Common Crawl web graph source (commoncrawl_graph.py), Moz API source (moz_api.py), Tier-Based Backlink Source Ladder (Tier 0-3), API credit efficiency rules (bulk endpoints, no re-fetch), claude-seo output conventions (tables, XX/100, priority ladder), Fail-closed MCP policy (never bypass with raw HTTP), seo-dataforseo agent
 
-### Community 166 - "SOURCE_LABELS"
+### Community 166 - "publication/source product routing pair"
 Cohesion: 0.22
-Nodes (9): publication/source product routing pair, The product is called Noticias ('Industry Shots' retired), Fixed product routing: Noticias / industry-shots, 1. News classification, 2. Retire the `industry-shots` source key, 3. Stale files and dead weight, TODO, SOURCE_LABELS (+1 more)
+Nodes (8): publication/source product routing pair, The product is called Noticias ('Industry Shots' retired), Fixed product routing: Noticias / industry-shots, 1. News classification, 2. Retire the `industry-shots` source key, 3. Stale files and dead weight, TODO, styles/components.css .tag-mini.industry-shots
 
 ### Community 167 - "seo-google.md"
 Cohesion: 0.20
@@ -934,25 +970,45 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 Cohesion: 0.67
 Nodes (3): 2026-08-04 — Auditoría pre-lanzamiento completa: 15 defectos reales encontrados y corregidos, Defectos corregidos, Verificado (y qué no)
 
-### Community 210 - "product-hubs-content.ts"
-Cohesion: 0.38
-Nodes (5): HubsTab(), Props, HubMetric, LanaBoardRow, PRODUCT_HUBS_DEFAULTS
+### Community 204 - "Hubs de producto (carpetas internas)"
+Cohesion: 0.25
+Nodes (8): El Marcador — hub /infinitas, La Sala de Juntas — hub /futbol-business-review, Hubs de producto (carpetas internas), Interticket, Inc. (Oscar Galiano, Director México), Luis Hernández "El Matador" como activo de marca, El Matador, Inc. — reporte de caso de Playbook, main(), styles/product-hubs.css
+
+### Community 210 - "publish-newsletter skill"
+Cohesion: 0.40
+Nodes (6): publish-newsletter skill, publish-sourced-article skill, Claude Code skills del proyecto, Make.com webhook ingestion path, insertOne(), main()
 
 ### Community 211 - "url_safety.py SSRF and DNS-rebinding protection"
 Cohesion: 0.33
 Nodes (6): url_safety.py SSRF and DNS-rebinding protection, fetch_page.py private/loopback IP validation, FLOW framework (Find/Leverage/Optimize/Win/Local), Context-budget prompt selection (max 5, never load all optimize prompts), seo-flow agent, Untrusted WebFetch content policy
 
-### Community 212 - "La Opinion de Playbook: reencuadra, palanca, consecuencia"
+### Community 212 - "MoneyTrail"
 Cohesion: 0.40
-Nodes (5): Las diez palancas, La idea central (movimiento, mecanismo, incentivo, consecuencia), La Opinion de Playbook: reencuadra, palanca, consecuencia, On a running political story, read the alignment - don't keep score, Checklist de publicacion (ten points)
+Nodes (5): MoneyTrail(), routePath(), lib/gsap — registra y re-exporta los plugins, Regla: importar solo desde @/lib/gsap, nunca vendor/gsap/esm/*, GSAP + plugins Club GreenSock auto-hospedados
 
-### Community 213 - "update-matador-report.ts"
-Cohesion: 0.50
-Nodes (4): dryRun, Input, main(), sql
+### Community 213 - "fix-testimonial-avatars.ts"
+Cohesion: 0.33
+Nodes (4): db, DRY_RUN, KNOWN_AVATARS, Testimonial
 
 ### Community 214 - "Baseline / Compare / History drift workflow"
 Cohesion: 0.67
 Nodes (3): Baseline / Compare / History drift workflow, Drift severity classification (CRITICAL/WARNING/INFO), SQLite baseline store with SHA-256 content hashes
+
+### Community 215 - "Foto del destacado — 16:10"
+Cohesion: 0.40
+Nodes (5): Foto del destacado — 16:10, Logo del header — única imagen con variación por breakpoint, Referencia de formatos de imagen, Campos obligatorios del artículo La Lana, Guest bylines con markdown inline en `author`
+
+### Community 216 - "point-products-at-hubs.ts"
+Cohesion: 0.40
+Nodes (4): db, DRY_RUN, HUB_URLS, Product
+
+### Community 217 - "The product hubs read the body"
+Cohesion: 0.50
+Nodes (4): El Marcador (Infinitas hub scoreboard) - flag, don't fix, The product hubs read the body, Reporting overlap outcomes (a skipped item is work done), Report back (title, id, live URL, unmet gaps)
+
+### Community 218 - "LeadStory"
+Cohesion: 0.50
+Nodes (4): app/(public)/page.tsx — homepage, LeadStory(), Arquitectura de componentes del sitio público, La Portada — coreografía de homepage dentro de las bardas
 
 ## Ambiguous Edges - Review These
 - `SITE_URL` → `resolveSiteUrl https self-fetch gotcha`  [AMBIGUOUS]
@@ -963,9 +1019,9 @@ Nodes (3): Baseline / Compare / History drift workflow, Drift severity classific
   public/google5d56d2b62c035791.html · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **1036 isolated node(s):** `graphify-guard.sh script`, `metadata`, `metadata`, `metadata`, `Filters` (+1031 more)
+- **1035 isolated node(s):** `graphify-guard.sh script`, `metadata`, `metadata`, `metadata`, `Filters` (+1030 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **30 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **31 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -976,11 +1032,11 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: cites) - confidence is low._
 - **What is the exact relationship between `Routes Map (public, admin, API, SEO)` and `Google Search Console site verification file`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `articles` connect `articles` to `auth.ts`, `schema.ts`, `The overlap check (run before drafting)`, `update-article.ts`, `update-articles/route.ts`, `update-lana-board.ts`, `ArticleInput field shape (20 fields)`, `publish-newsletter.ts`, `admin.ts`, `product-hubs.ts`, `fix-lana-rebrand-content.ts`, `articles.ts`, `client.ts`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
-- **Why does `The dynamic element library (thirteen devices)` connect `The dynamic element library (thirteen devices)` to `article-devices.ts`, `article-map.ts`, `product-hubs.ts`, `ArticleInput field shape (20 fields)`, `Cifra clave: the pull-figure`, `Language and tone: brief de negocios, formulas bajo vigilancia`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
-- **Why does `Every visual treatment is a render-time transform` connect `Every visual treatment is a render-time transform` to `ArticleInput field shape (20 fields)`, `publish-newsletter.ts`, `article-devices.ts`, `product-hubs.ts`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `articles` connect `articles` to `seed-jugadas.ts`, `data/reader-account.ts`, `The overlap check (run before drafting)`, `update-article.ts`, `update-articles/route.ts`, `publish-newsletter.ts`, `schema.ts`, `The four-movement brief (Noticias / Infinitas)`, `fix-lana-rebrand-content.ts`, `Foto del destacado — 16:10`, `articles.ts`, `migrate-json-to-db.ts`, `update-lana-board.ts`, `AdminDashboard.tsx`, `Database Schema (nine Drizzle tables)`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Why does `ArticleInput field shape (20 fields)` connect `ArticleInput field shape (20 fields)` to `Shared vs own: six symlinks into .claude/playbook-editorial/`, `taxonomy.ts`, `publication/source product routing pair`, `articulo/page.tsx`, `The overlap check (run before drafting)`, `Cover image (imageUrl / imageCredit)`, `The four-movement brief (Noticias / Infinitas)`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Why does `publish-newsletter skill` connect `publish-newsletter skill` to `la-lana-article-spec.md`, `getAllArticles`, `Presupuesto de dispositivos (piso, no techo)`, `tema/page.tsx`, `Invitaciones de editores por email (token hasheado)`, `build-substack-backlog.mjs`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **What connects `graphify-guard.sh script`, `metadata`, `metadata` to the rest of the system?**
-  _1036 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1035 weakly-connected nodes found - possible documentation gaps or missing edges._
