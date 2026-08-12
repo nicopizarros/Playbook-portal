@@ -40,7 +40,7 @@ insert script. Four differences, all of them here:
 | **2** | **Cross-reference (mandatory).** Verify, enrich, stay independent. **Read each primary co-issuer's own release before drafting** — it carries the governance terms wire copy cuts, and it produces the `Fuentes:` line as a by-product. Research the regional angle here too. | `references/ingestion.md` |
 | **3** | **Classify the format tier**, then apply the product's architecture. | `references/format-tiers.md` |
 | **4** | **Apply the voice.** Movimiento + mecanismo + incentivo + consecuencia; find the palanca; one thing per paragraph. | `references/voice-and-style.md` |
-| **5** | **Apply the element library.** Walk all thirteen devices, respect the budget. | `references/dynamic-element-library.md` |
+| **5** | **Apply the element library.** Walk all fifteen devices, respect the budget. | `references/dynamic-element-library.md` |
 | **6** | **Fill the fields and source the image.** | `references/fields-and-taxonomy.md`, `references/images.md` |
 | **7** | **Self-check** against the ten-point publication checklist and run `check-voice.mjs`. | `references/voice-and-style.md` §12 |
 | **8** | **Human review — the gate.** Present the complete draft, ask, revise, repeat. | `references/publishing-mechanics.md` |
