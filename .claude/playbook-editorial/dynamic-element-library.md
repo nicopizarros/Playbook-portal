@@ -4,11 +4,13 @@
 `publish-newsletter` and `publish-sourced-article` output.
 
 **Source of truth is code, not this file.** `lib/article-devices.ts` holds the
-parsers and the budget (`parseX` / `applyBodyDevices` / `deviceBudgetFor`);
-`lib/product-hubs.ts` holds `Cifra clave`, `Jugada` and `Ruta del dinero`;
-`lib/article-map.ts` holds `Mapa`'s renderer and the full frame list in its
-header comment, and `scripts/build-world-map.ts` builds the frame data it
-reads. If a limit here ever
+parsers, the budget and the mutually-exclusive pairs (`parseX` /
+`applyBodyDevices` / `deviceBudgetFor` / `createDeviceLedger` /
+`EXCLUSIVE_PAIRS`); `lib/product-hubs.ts` holds `Cifra clave`, `Jugada` and
+`Ruta del dinero`; `lib/article-map.ts` holds `Mapa`'s renderer and the full
+frame list in its header comment, and `scripts/build-world-map.ts` builds the
+frame data it reads; `lib/brand-colors.ts` holds the club-palette registry and
+the contrast guard that `Venta` and `Cadena` use. If a limit here ever
 disagrees with the code, the code wins and this file is stale — fix it.
 
 Everything is a **plain paragraph on its own line in `bodyMarkdown`**. No HTML,
@@ -52,6 +54,11 @@ dinero`, and the `Fuentes:` line.
 
 - **Never repeat a device type in one article.** The renderer refuses the
   second one even under budget.
+- **Two pairs are mutually exclusive** and the renderer enforces those too,
+  first-declared-wins: `Venta` locks out `Jugada`, and `Cadena` locks out
+  `Cronología`. Both pairs would tell the reader the same thing twice — see
+  §2's entries for each. The loser stays visible as plain text, so a
+  declaration you lose is a mistake you can see.
 - **Order matters.** First declared in document order wins the budget, so place
   the device carrying the story's spine first.
 - **Keep at least two prose paragraphs between devices.** The renderer does not
@@ -76,7 +83,7 @@ as a `Cronología`, a fee has a `Reparto` of who gets what or a `Cifra clave` fo
 the headline number, a signing has a `Jugada` for the two sides, a schedule
 change has a `Salto`, an earnings release is a `Resultados`.
 
-**Walk all thirteen shapes** before writing an article off as device-free,
+**Walk all fifteen shapes** before writing an article off as device-free,
 especially on a `priority: 5` piece — exactly the story that should carry the
 richest structure. What stays strict is fabrication, not effort: never invent a
 milestone, a split, or a figure the piece doesn't already contain just to
@@ -86,12 +93,13 @@ used to be.
 
 ---
 
-## 2. The thirteen devices
+## 2. The fifteen devices
 
 Pick by **story shape**: a saga → `Cronología`; a breakdown → `Recibo`; a split
 → `Reparto`; a pairing → `Jugada`; one number → `Cifra clave`; an earnings
 release → `Resultados`; two institutions → `Duelo`; volatility over time →
-`Serie`; countries → `Mapa`.
+`Serie`; countries → `Mapa`; **an asset changing hands → `Venta`; a succession
+of owners → `Cadena`**.
 
 ---
 
@@ -434,6 +442,96 @@ complementary instead of redundant.
 
 ---
 
+### `Venta:` — the deed
+
+```
+Venta: Lakers · Precio — US$12,500M · De — Mark Walter · A — Josh Kushner y Bob Iger · Anterior — US$10,000M (2025) · Fecha — Agosto 2026
+```
+
+The transfer of title itself: the asset's own colours across the top, the two
+parties either side of a transfer arrow, the price as the largest thing in the
+device. **This is the device for an acquisition** — the shape the collection
+was missing until 2026-08-12. `Jugada` names the two sides and drops the
+price; `Salto` moves the price and drops the sides; `Cifra clave` prints the
+number alone. A sale is all three facts in one beat or it is not the story.
+
+- First item is the **asset** and must NOT contain a ` — ` (same framing rule
+  `Duelo`, `Serie` and `Resultados` carry). ≤32 characters after resolution.
+- Then labelled rows, in any order. **`Precio`, `De` and `A` are required**;
+  `Anterior` and `Fecha` are optional. **Any other label rejects the whole
+  declaration** — a silently-dropped row in a deed is a fact the reader never
+  learns was declared.
+- `Precio` and `Anterior` ≤24 chars and must contain a digit; `De`/`A` ≤48;
+  `Fecha` ≤24. `Anterior` takes an optional parenthetical: `US$10,000M (2025)`.
+- **At most ONE per article**, and it **locks out `Jugada`** (see §1).
+
+**The multiple is computed, never authored.** Declare `Anterior` and the device
+divides it into `Precio` and prints `1.25×` in the direction colours. Do not
+also state the multiple in the prose — same rule the `Mapa` legend carries, for
+the same reason: a figure the device derives cannot contradict the copy. It is
+omitted silently when the two figures are denominated differently (`€900M` into
+`US$1,200M` is a currency change, not growth), so if you expected a multiple and
+don't see one, the units are the thing to check.
+
+---
+
+### `Cadena:` — the chain of title
+
+```
+Cadena: Lakers · 1979 — Jerry Buss — US$67.5M · 2025 — Mark Walter — US$10,000M · 2026 — Kushner y Iger — US$12,500M
+```
+
+Every owner the asset has had, drawn **down** the page, with each era's bar as
+long as the era lasted. Use it when the succession IS the argument: the Lakers
+spent 46 years with one family and then changed hands twice in fourteen months,
+and that shape is the story.
+
+- First item is the asset, same rule as `Venta`. Then **2–6 links**, each
+  `cuándo — quién — precio` (the em dash splits twice).
+- `cuándo` ≤14 chars, `quién` ≤32, `precio` ≤20 and must contain a digit. A
+  link carrying a third dash is malformed and rejects the device.
+- Years must run **forwards**; an out-of-order chain rejects rather than drawing
+  a negative span.
+- **It locks out `Cronología`** (see §1) — a chain of title that also runs a
+  timeline is two timelines.
+
+**The hold bars only draw when every link carries a real year.** A chain dated
+"los ochenta" renders fine, without bars, because a span drawn from a guess
+would be the one part of the device a reader can't check. The whole-chain
+multiple (first price into last) is computed on the same terms as `Venta`'s.
+
+**Prefer `Venta` when the story is today's transaction** and `Cadena` when it
+is the succession. They are not exclusive of each other — a big enough sale
+earns both, the deed for what just happened and the chain for what it took to
+get here — but that is two of your budget slots, so it wants a `priority: 5`
+piece.
+
+---
+
+### Both: the asset wears its own colours
+
+`Venta` and `Cadena` are the only devices that don't take the product accent.
+The asset's palette comes from the registry in `lib/brand-colors.ts` (NBA, NFL,
+MLB, Liga MX, LaLiga, Premier, Serie A, Bundesliga, Ligue 1, MLS, plus the
+leagues and confederations themselves), matched on the name you write —
+accents and punctuation are ignored, so `Lakers`, `lakers` and `L.A. Lakers`
+all land.
+
+- **An unregistered asset is a normal outcome, not a failure.** Media rights, a
+  stadium, a league stake, a club nobody has added yet: the device renders in
+  the product accent and reads like every other beat on the page. Declare
+  `Venta` for **any asset worth the beat**, not for registered clubs only.
+- **Escape hatch:** `Venta: Wrexham AFC #FF0000 #FFFFFF · …` — the asset name
+  followed by two hex values, primary then secondary. Use it for a one-off; if
+  the club will come up again, add it to the registry instead.
+- **Every palette is contrast-corrected per theme automatically**, so you never
+  have to think about whether a colour will read. Lakers gold darkens to an
+  ochre as a rule on cream paper and returns to full gold on the dark theme;
+  Nets black lifts to a grey there. If a rendered colour looks unlike the club's
+  actual one, that is the guard working, not a registry error.
+
+---
+
 ### `Mapa:` — real geography
 
 ```
@@ -501,7 +599,7 @@ These need no syntax and never touch the budget:
 
 Walk this for every article before publishing:
 
-1. Full thirteen-device list walked against the story **before** concluding it
+1. Full fifteen-device list walked against the story **before** concluding it
    gets none.
 2. Budget computed from `readingTime` **and** `priority` (+1 at `priority: 5`).
 3. No repeated device type.
@@ -513,3 +611,7 @@ Walk this for every article before publishing:
 7. Prose does not recite what `Resultados` or `Serie` already prints.
 8. `Cifra clave` is the story's own figure and has a caption that names the
    thing.
+9. No mutually exclusive pair declared together (`Venta`/`Jugada`,
+   `Cadena`/`Cronología`) — the second one ships as visible plain text.
+10. `Venta`/`Cadena` multiples are left to the device, not restated in prose,
+    and both figures in a multiple carry the same currency.

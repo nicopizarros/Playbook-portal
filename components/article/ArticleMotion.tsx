@@ -146,6 +146,45 @@ export function ArticleMotion() {
       cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
     });
 
+    // 3b1 — The Venta's crest bar wipes in as a colour block before the
+    // rest of the deed settles, so the asset announces itself first — the
+    // one moment in the article where a foreign brand takes the page.
+    // Clipped rather than scaled: the wordmark inside must not stretch.
+    document.querySelectorAll<HTMLElement>('.lect-venta-crest').forEach(crest => {
+      gsap.set(crest, { clipPath: 'inset(0 100% 0 0)' });
+      tweens.push(
+        gsap.to(crest, {
+          clipPath: 'inset(0 0% 0 0)',
+          duration: 0.7,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: crest, start: 'top 90%', once: true },
+        }),
+      );
+      cleanups.push(() => crest.style.removeProperty('clip-path'));
+    });
+
+    // 3b2 — The Cadena's hold bars grow left to right, longest era first
+    // in the reading order rather than the animation order: they are
+    // staggered down the chain so the eye follows the rail. Same
+    // transform-origin and cleanup contract as the Reparto segments above;
+    // the widths themselves are inline styles from buildChain, so this
+    // only ever animates toward a layout the server already decided.
+    document.querySelectorAll<HTMLElement>('.lect-cadena-list').forEach(list => {
+      const bars = Array.from(list.querySelectorAll<HTMLElement>('[data-lect-hold]'));
+      if (!bars.length) return;
+      gsap.set(bars, { scaleX: 0, transformOrigin: 'left center' });
+      tweens.push(
+        gsap.to(bars, {
+          scaleX: 1,
+          duration: 0.65,
+          stagger: 0.12,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: list, start: 'top 88%', once: true },
+        }),
+      );
+      cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
+    });
+
     // 3c — The Serie's lines draw themselves left to right, both at once,
     // so the reader watches the two shapes diverge rather than comparing a
     // finished line against one still arriving. pathLength="1" is set in

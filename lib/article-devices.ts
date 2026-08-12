@@ -31,16 +31,32 @@
 //   Mapa:        Concacaf · Firmaron — resto · Sin firmar — MEX
 //                → real geography, countries split into labelled camps
 //
+// Round 4 (2026-08-12) adds the two transfer-of-title devices, the one
+// shape the collection could previously only tell in pieces. Unlike every
+// device above them they are not styled by the product accent: the asset
+// changing hands wears its OWN brand palette (lib/brand-colors.ts),
+// contrast-corrected per theme and scoped to the device element so the
+// page around it stays Playbook's.
+//
+//   Venta:       Lakers · Precio — US$12,500M · De — Walter · A — Kushner
+//                → the deed: the asset, the two parties, the price
+//   Cadena:      Lakers · 1979 — Buss — US$67.5M · 2026 — Kushner — US$12,500M
+//                → the chain of title, each era held as long as it draws
+//
 // Both body shapes go through the same builders: the HTML transform
 // (markDevices) rewrites matching <p>s, and the plain-text path asks
 // deviceFromParagraph for the same markup. All interpolated text is
 // entity-escaped here — the builders are the one place device markup is
 // assembled, so the escaping can't be forgotten at a call site.
 
-import { splitFigure, parseNumeric } from './figures';
+import { splitFigure, parseNumeric, formatNumeric } from './figures';
 // The Mapa device carries the whole world's geometry, so it lives in its
 // own module (lib/article-map.ts) the way Cifra/Jugada live in
 // product-hubs.ts — it is registered here and budgeted like every other.
+// Venta and Cadena wear the asset's OWN colours instead of the product
+// accent; the registry, the hex escape hatch and the contrast correction
+// that makes an arbitrary palette safe on both themes all live there.
+import { resolveBrand, brandStyleAttr } from './brand-colors';
 import { parseMap, buildMap } from './article-map';
 import {
   CIFRA_HTML_RE,
@@ -743,8 +759,322 @@ function buildSeries(series: Series): string {
   );
 }
 
+// ————————————————————————————————————————————————— Venta / Cadena
+// The two transfer-of-title devices (round 4, 2026-08-12, publisher
+// directive). A sale is the one story shape the round-3 collection could
+// only ever tell in pieces: `Jugada` names the two sides and drops the
+// price, `Salto` moves the price and drops the sides, `Cifra clave` prints
+// the number alone. None of them can say "this asset, from A to B, for
+// this much" in one beat, which is the entire content of an acquisition
+// story.
+//
+//   Venta:  Lakers · Precio — US$12,500M · De — Mark Walter · A — Kushner y Iger
+//           → the deed: the asset's own colours, the two parties, the price
+//   Cadena: Lakers · 1979 — Buss — US$67.5M · 2025 — Walter — US$10,000M
+//           → the chain of title, each era's bar as long as it was held
+//
+// What makes them "made to measure" is that the ASSET is the subject, not
+// a label on someone else's chart — so both wear the brand palette
+// resolved by lib/brand-colors.ts, contrast-corrected for both themes and
+// scoped to the device element. An asset with no registered palette (a
+// rights package, a stadium, a league stake) is a first-class case and
+// falls back to the product accent; the devices are declared for any asset
+// worth the beat, not for clubs only.
+//
+// Two ratios are COMPUTED rather than authored — Venta's multiple against
+// the prior price, Cadena's multiple across the whole chain. Same argument
+// the Mapa legend makes for counting its own codes: a figure the device
+// derives can't contradict the prose the way a hand-typed one can. Both
+// are omitted silently when the units disagree (€ against US$, or a
+// figure that won't parse), because a wrong multiple is worse than none.
+
+type Denominated = { value: number; unit: string };
+
+// "US$12,500M" → { value: 12500, unit: "US$" }. The magnitude comes from
+// the Duelo's scale table (magnitudeOf above) rather than a second one of
+// its own, so what "M" or "mil millones" means can never diverge between a
+// bar the reader sees and a multiple the reader is told. What this adds is
+// the UNIT — the currency prefix, normalized — which is the guard: two
+// figures only divide into an honest multiple when they are denominated
+// the same way, and "€900M → US$1,200M" is a currency change, not growth.
+function denominatedOf(figure: string): Denominated | null {
+  const parts = splitFigure(figure);
+  if (!parts) return null;
+  const value = magnitudeOf(figure);
+  if (value === null || value <= 0) return null;
+  return { value, unit: parts.pre.replace(/\s+/g, '').toUpperCase() };
+}
+
+// The growth from `before` to `after`, as "185×" / "1.25×" — or '' when the
+// two can't honestly be divided. Precision falls with size on purpose: a
+// 185× move over half a century doesn't gain anything from two decimals,
+// and a 1.25× flip loses the whole story without them.
+function multipleBetween(before: string, after: string): { text: string; down: boolean } | null {
+  const from = denominatedOf(before);
+  const to = denominatedOf(after);
+  if (!from || !to || from.unit !== to.unit) return null;
+  const ratio = to.value / from.value;
+  if (!Number.isFinite(ratio) || ratio <= 0) return null;
+  const decimals = ratio >= 10 ? 0 : ratio >= 2 ? 1 : 2;
+  return { text: `${formatNumeric(ratio, decimals)}×`, down: ratio < 1 };
+}
+
+type Sale = {
+  asset: string;
+  brandStyle: string;
+  price: string;
+  from: string;
+  to: string;
+  prior: string;
+  priorNote: string;
+  date: string;
+  multiple: { text: string; down: boolean } | null;
+};
+
+// Accent- and case-insensitive row labels. `De`/`A` are the two the syntax
+// can't do without; everything else is optional. An UNKNOWN label rejects
+// the whole declaration rather than being ignored — devices fail loud, and
+// a silently-dropped row in a deed is a fact the reader never learns was
+// declared.
+const SALE_LABELS: Record<string, keyof Pick<Sale, 'price' | 'from' | 'to' | 'prior' | 'date'>> = {
+  precio: 'price',
+  de: 'from',
+  a: 'to',
+  anterior: 'prior',
+  fecha: 'date',
+};
+
+function normalizeLabel(label: string): string {
+  return label
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+// A trailing parenthetical on a value: "US$10,000M (2025)" → value +
+// "2025". Same shape as Resultados' DELTA_TAIL_RE, and reused for the same
+// reason — the count-up needs the figure clean, and the note is context
+// that belongs beside it rather than inside it.
+const NOTE_TAIL_RE = /^([\s\S]+?)\s*\(\s*([^)]{1,24})\s*\)$/;
+
+function parseSale(raw: string): Sale | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 4 || items.length > 6) return null;
+  const asset = items[0].trim();
+  // Same framing-item rule Duelo/Serie/Resultados carry: the first item
+  // names the subject and must not itself look like a labelled row.
+  if (!asset || asset.length > 48 || KV_RE.test(asset)) return null;
+
+  const fields: Partial<Record<'price' | 'from' | 'to' | 'prior' | 'date', string>> = {};
+  let priorNote = '';
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const key = SALE_LABELS[normalizeLabel(kv[1])];
+    // Unknown label, or the same row declared twice.
+    if (!key || fields[key] !== undefined) return null;
+    let value = kv[2].trim();
+    if (key === 'prior') {
+      const tail = value.match(NOTE_TAIL_RE);
+      if (tail) {
+        value = tail[1].trim();
+        priorNote = tail[2].trim();
+      }
+    }
+    if (!value) return null;
+    fields[key] = value;
+  }
+
+  const { price, from, to, prior = '', date = '' } = fields;
+  if (!price || !from || !to) return null;
+  if (price.length > 24 || !/\d/.test(price)) return null;
+  if (from.length > 48 || to.length > 48) return null;
+  if (prior && (prior.length > 24 || !/\d/.test(prior))) return null;
+  if (date.length > 24) return null;
+
+  const { label, palette } = resolveBrand(asset);
+  if (!label || label.length > 32) return null;
+
+  return {
+    asset: label,
+    brandStyle: brandStyleAttr(palette),
+    price,
+    from,
+    to,
+    prior,
+    priorNote,
+    date,
+    multiple: prior ? multipleBetween(prior, price) : null,
+  };
+}
+
+function buildSale(sale: Sale): string {
+  const style = sale.brandStyle ? ` style="${sale.brandStyle}"` : '';
+  const spoken = `Venta de ${sale.asset} en ${sale.price}, de ${sale.from} a ${sale.to}`;
+
+  const footParts: string[] = [];
+  if (sale.prior) {
+    const note = sale.priorNote ? ` <span class="lect-venta-note">${esc(sale.priorNote)}</span>` : '';
+    footParts.push(
+      `<span class="lect-venta-prior"><span class="lect-venta-foot-label">Anterior</span> ` +
+        `<span class="lect-venta-foot-value">${esc(sale.prior)}</span>${note}</span>`,
+    );
+  }
+  if (sale.multiple) {
+    footParts.push(
+      `<span class="lect-venta-mult" data-dir="${sale.multiple.down ? 'down' : 'up'}">` +
+        `${esc(sale.multiple.text)}</span>`,
+    );
+  }
+  if (sale.date) {
+    footParts.push(`<span class="lect-venta-date">${esc(sale.date)}</span>`);
+  }
+  const foot = footParts.length ? `<div class="lect-venta-foot">${footParts.join('')}</div>` : '';
+
+  return (
+    `<div class="lect-device lect-brand lect-venta" role="note" aria-label="${esc(spoken)}"${style}>` +
+    `<span class="lect-device-label">La venta</span>` +
+    `<div class="lect-venta-deed">` +
+    `<div class="lect-venta-crest"><span class="lect-venta-asset">${esc(sale.asset)}</span></div>` +
+    `<div class="lect-venta-parties" data-lect-stagger>` +
+    `<span class="lect-venta-party" data-side="from">` +
+    `<span class="lect-venta-role">De</span>` +
+    `<span class="lect-venta-name">${esc(sale.from)}</span></span>` +
+    `<span class="lect-venta-arrow" aria-hidden="true">→</span>` +
+    `<span class="lect-venta-party" data-side="to">` +
+    `<span class="lect-venta-role">A</span>` +
+    `<span class="lect-venta-name">${esc(sale.to)}</span></span>` +
+    `</div>` +
+    `<div class="lect-venta-price">` +
+    `<span class="lect-venta-price-label">Precio</span>` +
+    countupSpan(sale.price, 'lect-venta-figure') +
+    `</div>` +
+    foot +
+    `</div></div>`
+  );
+}
+
+type ChainLink = { when: string; who: string; price: string; year: number | null };
+type Chain = {
+  asset: string;
+  brandStyle: string;
+  links: ChainLink[];
+  multiple: { text: string; down: boolean } | null;
+};
+
+// `1979 — Jerry Buss — US$67.5M` — three parts, so the em dash splits
+// twice. KV_RE is non-greedy on its first capture, so the leftmost dash
+// takes the date off and the remainder splits again on the next one; a
+// link carrying a third dash is malformed and rejects the device.
+function parseChain(raw: string): Chain | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 7) return null;
+  const asset = items[0].trim();
+  if (!asset || asset.length > 48 || KV_RE.test(asset)) return null;
+
+  const links: ChainLink[] = [];
+  for (const item of items.slice(1)) {
+    const first = item.match(KV_RE);
+    if (!first) return null;
+    const when = first[1].trim();
+    const rest = first[2].match(KV_RE);
+    if (!rest) return null;
+    const who = rest[1].trim();
+    const price = rest[2].trim();
+    if (!when || when.length > 14) return null;
+    if (!who || who.length > 32 || KV_RE.test(who)) return null;
+    if (!price || price.length > 20 || !/\d/.test(price) || KV_RE.test(price)) return null;
+    const year = when.match(/\b(1\d{3}|2\d{3})\b/);
+    links.push({ when, who, price, year: year ? Number(year[1]) : null });
+  }
+
+  // A chain has to run forwards. Out-of-order years are almost always a
+  // transposed pair rather than a deliberate reverse-chronology, and the
+  // hold bars below would draw negative widths for them.
+  for (let i = 1; i < links.length; i += 1) {
+    const prev = links[i - 1].year;
+    const curr = links[i].year;
+    if (prev !== null && curr !== null && curr < prev) return null;
+  }
+
+  const { label, palette } = resolveBrand(asset);
+  if (!label || label.length > 32) return null;
+
+  return {
+    asset: label,
+    brandStyle: brandStyleAttr(palette),
+    links,
+    multiple: multipleBetween(links[0].price, links[links.length - 1].price),
+  };
+}
+
+function buildChain(chain: Chain): string {
+  const style = chain.brandStyle ? ` style="${chain.brandStyle}"` : '';
+  const { links } = chain;
+
+  // The hold bar is the argument: a franchise held for 46 years and then
+  // flipped twice in fourteen months should LOOK like that. Only drawn
+  // when every link carries a real year — a chain dated "los ochenta" has
+  // no spans to measure, and a bar drawn from a guess would be the one
+  // part of the device the reader can't check.
+  const years = links.map(l => l.year);
+  const dated = years.every((y): y is number => y !== null);
+  const spans = dated ? links.slice(0, -1).map((l, i) => (years[i + 1] as number) - (l.year as number)) : [];
+  const widest = spans.length ? Math.max(...spans) : 0;
+
+  const rows = links
+    .map((link, i) => {
+      const span = dated && i < spans.length ? spans[i] : null;
+      // A same-year handover is a real span of zero; it still gets a
+      // hairline so the rail reads as continuous rather than broken.
+      const hold =
+        span === null
+          ? ''
+          : `<span class="lect-cadena-hold">` +
+            `<span class="lect-cadena-holdbar" data-lect-hold style="width:${
+              widest > 0 ? Math.max(2, (span / widest) * 100).toFixed(1) : 100
+            }%"></span>` +
+            `<span class="lect-cadena-holdtxt">${span === 1 ? '1 año' : `${span} años`}</span></span>`;
+      return (
+        `<li class="lect-cadena-link"${i === links.length - 1 ? ' data-current="true"' : ''}>` +
+        `<span class="lect-cadena-when">${esc(link.when)}</span>` +
+        `<span class="lect-cadena-who">${esc(link.who)}</span>` +
+        countupSpan(link.price, 'lect-cadena-price') +
+        hold +
+        `</li>`
+      );
+    })
+    .join('');
+
+  const first = links[0];
+  const last = links[links.length - 1];
+  const foot = chain.multiple
+    ? `<div class="lect-cadena-foot">` +
+      `<span class="lect-cadena-foot-txt">De ${esc(first.price)} a ${esc(last.price)}</span>` +
+      `<span class="lect-cadena-mult" data-dir="${chain.multiple.down ? 'down' : 'up'}">` +
+      `${esc(chain.multiple.text)}</span></div>`
+    : '';
+
+  const spoken = `Cadena de propiedad de ${chain.asset}: ${links
+    .map(l => `${l.when}, ${l.who}, ${l.price}`)
+    .join('; ')}`;
+
+  return (
+    `<div class="lect-device lect-brand lect-cadena" role="note" aria-label="${esc(spoken)}"${style}>` +
+    `<span class="lect-device-label">La cadena</span>` +
+    `<div class="lect-cadena-panel">` +
+    `<span class="lect-cadena-asset">${esc(chain.asset)}</span>` +
+    `<ol class="lect-cadena-list" data-lect-stagger>${rows}</ol>` +
+    foot +
+    `</div></div>`
+  );
+}
+
 // ———————————————————————————————————————————————————— Dispatch tables
 type Device = {
+  /** Stable type name — the budget's no-repeat key and the exclusion key. */
+  name: string;
   /** Prefix as the editor types it (accent-tolerant). */
   prefix: RegExp;
   html: RegExp;
@@ -764,6 +1094,7 @@ function deviceTextRe(name: string): RegExp {
 
 const DEVICES: Device[] = [
   {
+    name: 'cronologia',
     prefix: deviceTextRe('Cronolog[íi]a'),
     html: deviceHtmlRe('Cronolog[íi]a'),
     render: raw => {
@@ -772,6 +1103,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'recibo',
     prefix: deviceTextRe('Recibo'),
     html: deviceHtmlRe('Recibo'),
     render: raw => {
@@ -780,6 +1112,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'ecuacion',
     prefix: deviceTextRe('Ecuaci[óo]n'),
     html: deviceHtmlRe('Ecuaci[óo]n'),
     render: raw => {
@@ -788,6 +1121,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'salto',
     prefix: deviceTextRe('Salto'),
     html: deviceHtmlRe('Salto'),
     render: raw => {
@@ -796,6 +1130,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'reparto',
     prefix: deviceTextRe('Reparto'),
     html: deviceHtmlRe('Reparto'),
     render: raw => {
@@ -804,6 +1139,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'alineacion',
     prefix: deviceTextRe('Alineaci[óo]n'),
     html: deviceHtmlRe('Alineaci[óo]n'),
     render: raw => {
@@ -812,6 +1148,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'cotizacion',
     prefix: deviceTextRe('Cotizaci[óo]n'),
     html: deviceHtmlRe('Cotizaci[óo]n'),
     render: raw => {
@@ -820,6 +1157,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'resultados',
     prefix: deviceTextRe('Resultados'),
     html: deviceHtmlRe('Resultados'),
     render: raw => {
@@ -828,6 +1166,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'duelo',
     prefix: deviceTextRe('Duelo'),
     html: deviceHtmlRe('Duelo'),
     render: raw => {
@@ -836,6 +1175,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'serie',
     prefix: deviceTextRe('Serie'),
     html: deviceHtmlRe('Serie'),
     render: raw => {
@@ -844,6 +1184,7 @@ const DEVICES: Device[] = [
     },
   },
   {
+    name: 'mapa',
     prefix: deviceTextRe('Mapa'),
     html: deviceHtmlRe('Mapa'),
     render: raw => {
@@ -851,14 +1192,30 @@ const DEVICES: Device[] = [
       return parsed ? buildMap(parsed) : null;
     },
   },
+  {
+    name: 'venta',
+    prefix: deviceTextRe('Venta'),
+    html: deviceHtmlRe('Venta'),
+    render: raw => {
+      const parsed = parseSale(raw);
+      return parsed ? buildSale(parsed) : null;
+    },
+  },
+  {
+    name: 'cadena',
+    prefix: deviceTextRe('Cadena'),
+    html: deviceHtmlRe('Cadena'),
+    render: raw => {
+      const parsed = parseChain(raw);
+      return parsed ? buildChain(parsed) : null;
+    },
+  },
 ];
 
 // The Cifra clave and Jugada conventions live in lib/product-hubs.ts (they
 // predate this module) but count against the same budget, so the matcher
-// list here covers all ten designed devices.
-type NamedDevice = { name: string; html: RegExp; prefix: RegExp; render(raw: string): string | null };
-
-const ALL_DEVICES: NamedDevice[] = [
+// list here covers all fifteen designed devices.
+const ALL_DEVICES: Device[] = [
   {
     name: 'cifra',
     html: CIFRA_HTML_RE,
@@ -877,8 +1234,56 @@ const ALL_DEVICES: NamedDevice[] = [
       return parsed ? jugadaMarkup(parsed) : null;
     },
   },
-  ...DEVICES.map((device, i) => ({ name: `device-${i}`, ...device })),
+  ...DEVICES,
 ];
+
+// —————————————————————————————————————————— Mutually exclusive pairs
+// Two devices that would tell the reader the same thing twice. The budget
+// already refuses a repeated TYPE; these are different types that overlap
+// in content, and the no-repeat rule alone can't see that.
+//
+// `venta` ↔ `jugada`: a sale story reaches for "Jugada: Walter → Kushner"
+// by reflex, and the deed says the same pairing WITH the price attached.
+// `cadena` ↔ `cronologia`: both are the story on a dated spine, and a
+// chain of title that also runs a timeline is two timelines.
+//
+// Symmetric and first-declared-wins, which is the same rule the budget
+// itself follows: whichever the editor placed first in document order
+// takes the slot and locks its partner out.
+const EXCLUSIVE_PAIRS: [string, string][] = [
+  ['venta', 'jugada'],
+  ['cadena', 'cronologia'],
+];
+
+function exclusiveSiblings(name: string): string[] {
+  const out: string[] = [];
+  for (const [a, b] of EXCLUSIVE_PAIRS) {
+    if (a === name) out.push(b);
+    else if (b === name) out.push(a);
+  }
+  return out;
+}
+
+// The budget as a stateful object, so the HTML path (applyBodyDevices) and
+// the plain-text path (articulo/page.tsx's plainBlocksFor) can't drift.
+// Both used to keep their own `budget` counter and `usedTypes` set, which
+// was fine while the only rules were "no repeats" and "stop at N" — the
+// exclusion table above is the third rule, and a third copy of it in a
+// second file is how the two paths start disagreeing about what shipped.
+export function createDeviceLedger(readingTime: number | null, priority?: number | null) {
+  let budget = deviceBudgetFor(readingTime, priority);
+  const used = new Set<string>();
+  return {
+    /** Claim a slot for this device type. False = leave it as plain text. */
+    take(name: string): boolean {
+      if (budget <= 0 || used.has(name)) return false;
+      used.add(name);
+      for (const sibling of exclusiveSiblings(name)) used.add(sibling);
+      budget -= 1;
+      return true;
+    },
+  };
+}
 
 // ————————————————————————————————————————————— The per-article budget
 // Density decision (user request, 2026-08-06): designed devices scale
@@ -928,8 +1333,7 @@ export function applyBodyDevices(html: string, readingTime: number | null, prior
   }
   found.sort((a, b) => a.start - b.start);
 
-  let budget = deviceBudgetFor(readingTime, priority);
-  const usedTypes = new Set<string>();
+  const ledger = createDeviceLedger(readingTime, priority);
   const selected: Match[] = [];
   let cursor = -1;
   for (const match of found) {
@@ -939,9 +1343,7 @@ export function applyBodyDevices(html: string, readingTime: number | null, prior
     // on the sampler article before shipping).
     if (match.start < cursor) continue; // overlapping match — first wins
     cursor = match.end;
-    if (budget <= 0 || usedTypes.has(match.name)) continue;
-    usedTypes.add(match.name);
-    budget -= 1;
+    if (!ledger.take(match.name)) continue;
     selected.push(match);
   }
 

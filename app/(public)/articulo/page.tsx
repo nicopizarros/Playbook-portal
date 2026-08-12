@@ -31,7 +31,7 @@ import {
   weekdayFor,
   OPINION_TEXT_PREFIX,
 } from '@/lib/product-hubs';
-import { applyBodyDevices, deviceFromParagraph, deviceBudgetFor } from '@/lib/article-devices';
+import { applyBodyDevices, deviceFromParagraph, createDeviceLedger } from '@/lib/article-devices';
 import { extractSourcesFromHtml, extractSourcesFromParagraphs } from '@/lib/article-sources';
 import { MoneyTrail } from '@/components/products/MoneyTrail';
 import { ShotProgress } from '@/components/products/ShotProgress';
@@ -227,17 +227,19 @@ function plainBlocksFor(
   // type, excess declarations stay readable text. The Opinión callout and
   // the money trail are exempt (see deviceBudgetFor's comment).
   const isProduct = hubForSource(source) !== null;
-  let budget = deviceBudgetFor(readingTime, priority);
-  const usedTypes = new Set<string>();
+  // One ledger, shared with the HTML path's implementation (createDeviceLedger
+  // in lib/article-devices.ts) rather than a second copy of the budget rules
+  // here — it owns the count, the no-repeated-type rule AND the mutually
+  // exclusive pairs (Venta/Jugada, Cadena/Cronología), which a duplicated
+  // counter here could not have known about.
+  const ledger = createDeviceLedger(readingTime, priority);
   const blocks: PlainBlock[] = paragraphs.map((p): PlainBlock => {
     if (isProduct && OPINION_TEXT_PREFIX.test(p)) {
       return { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') };
     }
     if (isProduct) {
       const device = deviceFromParagraph(p);
-      if (device && budget > 0 && !usedTypes.has(device.name)) {
-        usedTypes.add(device.name);
-        budget -= 1;
+      if (device && ledger.take(device.name)) {
         return { kind: 'device', html: device.markup };
       }
       if (device) return { kind: 'text', text: p };
