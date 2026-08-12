@@ -321,8 +321,26 @@ line, and a scroll-driven zoom from the whole arc into the closing window.
   draws a labelled line on track B's scale.
 - Every other item is `punto — valorA` or `punto — valorA vs valorB`. Point
   label ≤16 chars, values ≤20 and each must contain a digit.
-- **3–8 points.** Track B needs at least two real values; a `vs` value on a
-  device that never named a second track rejects the whole declaration.
+- **An item with no ` — ` is an unlabelled track A point**, written bare
+  (`47.60`). This is what makes a real ticker declarable: a year of daily
+  closes is 250-odd points and only two are ever drawn with a label, so
+  spending `fecha — valor` on the interior ones would quadruple the paragraph
+  to carry text the renderer discards. Bare values inherit their currency
+  from the first labelled point.
+- **3–300 points.** The first and last must carry labels, because that is
+  what the axis is drawn from. Track B needs at least two real values; a `vs`
+  value on a device that never named a second track rejects the whole
+  declaration.
+- Past ~14 points in a window the dots disappear and the track draws as a bare
+  stroke, which is what makes a dense series read as a ticker rather than a
+  bead necklace.
+
+**Beyond about ten points, paste, don't type.** A 258-point declaration is
+~2,200 characters and is generated from real market data, not authored by
+hand. That is the intended workflow for a ticker: pull the closes, format them
+as ` · `-separated values, and label only the ends. It also means the usual
+sourcing bar applies with more force, not less, because nobody is reading each
+number on the way in.
 
 **Why this is not `Serie`.** `Serie` puts both series on ONE shared Y axis and
 its own rules require the same kind of measure, because the shared axis is what
@@ -347,6 +365,21 @@ stops the two tracks rendering as one line: without it, any two-point window
 auto-scales both tracks corner to corner and they come out exactly collinear,
 which is worst at the most magnified moment. Declare an `Umbral` whenever the
 story turns on a level being crossed (a billion, a covenant, a market cap).
+
+**The ticker wears its own brand.** Track A's name is resolved against the
+same registry `Venta` and `Cadena` use, so a `Cotización` on On Holding opens
+with the same colour-block crest a `Venta` on the Lakers does, and track A's
+line and figures take that company's contrast-corrected ink. The two device
+families read as one visual language: the asset announces itself, then the
+data. An unregistered ticker falls back to Playbook's own palette exactly as
+the transfer devices do.
+
+**The zoom window scales with the series.** It is the last 8% of the points,
+never fewer than two: a three-point declaration lands on its final move, a
+258-day ticker lands on its last three weeks, which is the crash WITH the days
+either side of it. A window that opens on an unlabelled interior point gets no
+left-hand tick rather than a borrowed one, because an axis that says
+"1 ago 2025" over a three-week window is worse than an axis with one end.
 
 **The zoom needs the arc to be worth zooming out of.** The device renders two
 complete, independently projected layers, the full range and the last two

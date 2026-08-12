@@ -411,9 +411,15 @@ const Q_X0 = 52;
 const Q_X1 = 596;
 const Q_Y0 = 30;
 const Q_Y1 = 190;
-// The zoom lands on the last two points: the move itself. One point has no
-// slope to show, three starts being the wide view again.
-const ZOOM_TAIL = 2;
+// The zoom window, as a share of the series. A three-point declaration
+// lands on its last two (the move itself); a 258-day ticker lands on its
+// last three weeks, which is the crash WITH the days either side of it
+// rather than the crash alone. A fixed count cannot do both.
+const ZOOM_SHARE = 0.08;
+const ZOOM_MIN = 2;
+// Past this many points in a window the dots stop being markers and start
+// being the line, so a dense series draws as a bare stroke.
+const DOT_LIMIT = 14;
 
 type TrackPoint = { label: string; a: string; b: string; magA: number; magB: number | null };
 type Track = {
@@ -442,7 +448,20 @@ function parseTrack(raw: string): Track | null {
   const points: TrackPoint[] = [];
   for (const item of items.slice(1)) {
     const kv = item.match(KV_RE);
-    if (!kv) return null;
+    // An item with no ` — ` is an UNLABELLED track A point. This is what
+    // makes a real ticker declarable: a year of daily closes is 250-odd
+    // points, only two of which are ever drawn with a label, so spending
+    // `fecha — valor` on every interior one would quadruple the paragraph
+    // to carry text the renderer throws away. Bare values inherit their
+    // currency from the labelled endpoints.
+    if (!kv) {
+      const bare = item.trim();
+      if (!bare || bare.length > 20 || !/^[^\s]*\d/.test(bare)) return null;
+      const mag = magnitudeOf(bare);
+      if (mag === null) return null;
+      points.push({ label: '', a: bare, b: '', magA: mag, magB: null });
+      continue;
+    }
     const label = kv[1].trim();
     const value = kv[2].trim();
     if (!label || label.length > 16) return null;
@@ -466,7 +485,22 @@ function parseTrack(raw: string): Track | null {
     if (magA === null) return null;
     points.push({ label, a: aVal, b: bVal, magA, magB: bVal ? magnitudeOf(bVal) : null });
   }
-  if (points.length < 3 || points.length > 8) return null;
+  if (points.length < 3 || points.length > 300) return null;
+  // The axis is labelled from the ends, so both ends have to carry one.
+  if (!points[0].label || !points[points.length - 1].label) return null;
+
+  // Unlabelled points are authored bare ("37.74") because repeating the
+  // currency 250 times is noise in the source. Give it back here, once, so
+  // nothing downstream has to know the difference: a zoom window opening on
+  // an interior point printed a naked "37.74" against the labelled points'
+  // "US$30.91" (caught on the Federer ticker, 2026-08-12).
+  const prefix = splitFigure(points[0].a)?.pre ?? '';
+  if (prefix) {
+    for (const pt of points) {
+      if (!/^\s*[\d.,]/.test(pt.a)) continue;
+      pt.a = `${prefix}${pt.a}`;
+    }
+  }
   // Track B has to be a line, so it needs at least two real values; and a
   // threshold with nothing to cross is decoration.
   const bValues = points.filter(p => p.magB !== null).length;
@@ -548,9 +582,11 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
     }
   }
 
-  const dotsA = win
-    .map((p, i) => `<circle class="lect-cot-dot" data-side="a" cx="${x(i).toFixed(1)}" cy="${yA(p.magA).toFixed(1)}" r="4" />`)
-    .join('');
+  const dotsA = win.length > DOT_LIMIT
+    ? ''
+    : win
+        .map((p, i) => `<circle class="lect-cot-dot" data-side="a" cx="${x(i).toFixed(1)}" cy="${yA(p.magA).toFixed(1)}" r="4" />`)
+        .join('');
   const dotsB = bPts
     .map(o => `<circle class="lect-cot-dot" data-side="b" cx="${x(o.i).toFixed(1)}" cy="${yB(o.p.magB as number).toFixed(1)}" r="4" />`)
     .join('');
@@ -579,10 +615,18 @@ function trackLayer(track: Track, from: number, to: number, cls: string): string
     })
     .join('');
 
-  const ticks = win
-    .map((p, i) =>
-      i === 0 || i === span
-        ? `<text class="lect-cot-tick" x="${x(i).toFixed(1)}" y="${Q_Y1 + 26}" text-anchor="${edge(i)}">${esc(p.label)}</text>`
+  // Only a point's OWN label is ever drawn. A zoom window normally opens on
+  // an unlabelled interior point, and the first instinct — walk back to the
+  // nearest labelled point — reaches all the way to index 0 on a dense
+  // series, which stamped "1 ago 2025" on a window that starts three weeks
+  // before the end. An axis is worse than useless when it lies, so an
+  // unlabelled edge simply gets no tick; the detail strip under the chart
+  // carries the closing date regardless.
+  const ticks = [0, span]
+    .filter((i, n, all) => all.indexOf(i) === n)
+    .map(i =>
+      win[i].label
+        ? `<text class="lect-cot-tick" x="${x(i).toFixed(1)}" y="${Q_Y1 + 26}" text-anchor="${edge(i)}">${esc(win[i].label)}</text>`
         : '',
     )
     .join('');
@@ -609,7 +653,14 @@ function buildTrack(track: Track): string {
   const { points, a, b } = track;
   const last = points[points.length - 1];
   const prev = points[points.length - 2];
-  const from = Math.max(0, points.length - ZOOM_TAIL);
+  const tail = Math.max(ZOOM_MIN, Math.round(points.length * ZOOM_SHARE));
+  const from = Math.max(0, points.length - tail);
+  // The ticker wears its OWN brand, the same way a Venta deed wears the
+  // club's: same registry, same contrast guard, same --pb-brand-*
+  // properties scoped to the device. Track A is the company being quoted,
+  // so it is track A's name that resolves.
+  const { label: assetLabel, palette } = resolveBrand(a);
+  const brandStyle = brandStyleAttr(palette);
 
   // The closing move on track A, computed rather than authored, same rule
   // Venta's multiple follows: a number the device derives cannot disagree
@@ -656,8 +707,10 @@ function buildTrack(track: Track): string {
     '.';
 
   return (
-    `<div class="lect-device lect-cot" role="note" aria-label="${esc(spoken)}">` +
+    `<div class="lect-device lect-brand lect-cot" role="note" aria-label="${esc(spoken)}"` +
+    `${brandStyle ? ` style="${brandStyle}"` : ''}>` +
     `<span class="lect-device-label">La cotización</span>` +
+    `<div class="lect-cot-crest"><span class="lect-cot-asset">${esc(assetLabel)}</span></div>` +
     `<div class="lect-cot-key" aria-hidden="true">${key}</div>` +
     `<div class="lect-cot-stage">` +
     `<svg class="lect-cot-chart" viewBox="0 0 640 232" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">` +

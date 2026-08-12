@@ -472,10 +472,28 @@
    wide layer is what shows and the detail strip below still carries the
    closing numbers as text. That is the whole reason the zoom is built as
    a cross-fade of two truths rather than a transform on one. ——— */
-.lect-cot{--cot-a:var(--lect-accent);--cot-b:#2f6fed;}
+/* Track A is the quoted company, so it takes that company's own ink from
+   the brand registry (--brand-ink, set by .lect-brand above and already
+   contrast-corrected per theme); it falls back to the product accent for a
+   ticker nobody has registered. Track B keeps a blue of its own, because
+   the second track is a DIFFERENT quantity and must never read as a shade
+   of the first. Red stays unavailable here for the same reason it is in
+   Serie: it means "a loss" everywhere else in the collection. */
+.lect-cot{--cot-a:var(--brand-ink);--cot-b:#2f6fed;}
 [data-theme="dark"] .lect-cot{--cot-b:#6ea8ff;}
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]) .lect-cot{--cot-b:#6ea8ff;}
+}
+/* The same colour block the Venta deed opens with, so the two devices read
+   as one family: the asset announces itself, then the data. */
+.lect-cot-crest{
+  background:var(--brand-fill);border-bottom:4px solid var(--brand-alt);
+  padding:11px 16px 9px;margin-bottom:12px;
+}
+.lect-cot-asset{
+  display:block;font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(20px,3.2vw,30px);line-height:1;color:var(--brand-on);
+  letter-spacing:.02em;text-transform:uppercase;
 }
 .lect-cot-key{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;}
 .lect-cot-name{
@@ -503,7 +521,9 @@
 .lect-cot-val{
   font-family:var(--sans);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
 }
-.lect-cot-val[data-side="a"]{fill:var(--lect-ink-accent);}
+/* Value labels follow their own track's colour, not the product accent:
+   track A's line is the brand's ink, so its figures have to be too. */
+.lect-cot-val[data-side="a"]{fill:var(--cot-a);}
 .lect-cot-val[data-side="b"]{fill:var(--cot-b);}
 .lect-cot-tick{
   font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.08em;

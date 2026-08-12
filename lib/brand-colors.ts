@@ -297,6 +297,21 @@ const BRAND_TABLE: (BrandPalette & { keys: string[] })[] = [
   { keys: ['galaxy', 'lagalaxy'], name: 'LA Galaxy', primary: '#00245D', secondary: '#FFD200' },
   { keys: ['atlantaunited'], name: 'Atlanta United', primary: '#A5122B', secondary: '#221F1F' },
 
+  // Listed sportswear. These arrive through the market devices rather than
+  // the transfer ones: a `Cotización` track wears the ticker's own brand the
+  // same way a `Venta` deed wears the club's. Several of these identities
+  // are genuinely black-and-white, which is not a placeholder — the
+  // contrast guard lifts black to a readable grey on the dark theme, so the
+  // minimal ones stay minimal instead of being invented into a colour.
+  { keys: ['onholding', 'onrunning', 'on', 'onon'], name: 'On Holding', primary: '#000000', secondary: '#FFFFFF' },
+  { keys: ['nike'], name: 'Nike', primary: '#000000', secondary: '#FFFFFF' },
+  { keys: ['adidas'], name: 'Adidas', primary: '#000000', secondary: '#FFFFFF' },
+  { keys: ['puma'], name: 'Puma', primary: '#000000', secondary: '#E4002B' },
+  { keys: ['underarmour', 'ua'], name: 'Under Armour', primary: '#1D1D1D', secondary: '#E31837' },
+  { keys: ['newbalance'], name: 'New Balance', primary: '#CF0A2C', secondary: '#000000' },
+  { keys: ['lululemon'], name: 'Lululemon', primary: '#D31334', secondary: '#000000' },
+  { keys: ['asics'], name: 'Asics', primary: '#002855', secondary: '#FFFFFF' },
+
   // Leagues and bodies — a sale can be of a stake in the competition
   // itself, not only of a club.
   { keys: ['nba'], name: 'NBA', primary: '#17408B', secondary: '#C9082A' },
