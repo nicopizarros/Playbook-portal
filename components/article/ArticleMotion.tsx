@@ -104,7 +104,10 @@ export function ArticleMotion() {
     document.querySelectorAll<HTMLElement>('[data-lect-stagger]').forEach(group => {
       staggerIn(scope, group, Array.from(group.children) as HTMLElement[]);
     });
-    document.querySelectorAll<HTMLElement>('.lect-rep-bar').forEach(bar => {
+    // .lect-res-body joined 2026-08-13: the Resultados panel's delta bars
+    // grow with the same left-to-right choreography as the Reparto's
+    // segments — one primitive, two devices.
+    document.querySelectorAll<HTMLElement>('.lect-rep-bar, .lect-res-body').forEach(bar => {
       const segments = Array.from(bar.querySelectorAll<HTMLElement>('[data-lect-seg]'));
       if (!segments.length) return;
       gsap.set(segments, { scaleX: 0, transformOrigin: 'left center' });

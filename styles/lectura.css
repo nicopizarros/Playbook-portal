@@ -456,6 +456,106 @@
   text-transform:uppercase;fill:var(--gray-txt);
 }
 
+/* ——— 2026-08-13 per-device upgrades: the computed chips and annotations.
+   Direction colors reuse the Salto/Resultados pairs (one meaning for green
+   and red across the whole collection); side colors reuse the Duelo's. ——— */
+
+/* Cronología: the last milestone is where the saga stands NOW. */
+.lect-tl-item[data-current="true"]::before{background:var(--lect-accent);}
+.lect-tl-item[data-current="true"] .lect-tl-what{color:var(--ink);font-weight:600;}
+
+/* Cifra clave: attribution chip riding the caption (evidence ladder §8). */
+.lect-pullfig-source{
+  display:inline-block;margin-left:8px;padding:1px 8px;border:1px solid var(--rule);
+  border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--gray-txt);
+}
+
+/* Jugada: the stake note — what the connection actually is. */
+.lect-jugada-note{
+  width:100%;font-size:11.5px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:rgba(240,233,220,.55);
+}
+.article-product-infinitas .lect-jugada-note{color:var(--gray-txt);}
+
+/* Salto: the computed percent-change chip. */
+.lect-salto-pct{
+  align-self:center;padding:3px 8px;border-radius:6px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.lect-salto-pct[data-dir="up"]{color:#3f7d0a;background:color-mix(in srgb,#3f7d0a 10%,transparent);}
+.lect-salto-pct[data-dir="down"]{color:#c0392b;background:color-mix(in srgb,#c0392b 10%,transparent);}
+[data-theme="dark"] .lect-salto-pct[data-dir="up"]{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);}
+[data-theme="dark"] .lect-salto-pct[data-dir="down"]{color:#e0616b;background:color-mix(in srgb,#e0616b 12%,transparent);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-salto-pct[data-dir="up"]{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);}
+  :root:not([data-theme="light"]) .lect-salto-pct[data-dir="down"]{color:#e0616b;background:color-mix(in srgb,#e0616b 12%,transparent);}
+}
+
+/* Alineación: the role line under a chip's name. */
+.lect-lineup-chip{flex-wrap:wrap;row-gap:2px;}
+.lect-lineup-role{
+  width:100%;padding-left:0;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gray-txt);
+}
+
+/* Cotización tile: the 52-week-style range track. */
+.lect-quote-range{
+  display:flex;align-items:center;gap:10px;margin-top:8px;padding:0 18px 4px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;color:var(--gray-txt);font-variant-numeric:tabular-nums;
+}
+.lect-quote-range-track{
+  position:relative;flex:1;height:4px;border-radius:2px;
+  background:color-mix(in srgb,var(--lect-accent) 22%,var(--paper-soft));
+}
+.lect-quote-range-mark{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:10px;height:10px;border-radius:50%;
+  background:var(--lect-accent);border:2px solid var(--paper);
+}
+
+/* Resultados: the delta-magnitude bar under each row. */
+.lect-res-deltabar{
+  grid-column:1 / -1;display:block;height:3px;border-radius:2px;
+  background:color-mix(in srgb,var(--gray-txt) 12%,transparent);overflow:hidden;
+}
+.lect-res-deltabar-fill{display:block;height:100%;border-radius:2px;}
+.lect-res-deltabar-fill[data-dir="up"]{background:#3f7d0a;}
+.lect-res-deltabar-fill[data-dir="down"]{background:#c0392b;}
+[data-theme="dark"] .lect-res-deltabar-fill[data-dir="up"]{background:var(--green);}
+[data-theme="dark"] .lect-res-deltabar-fill[data-dir="down"]{background:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-res-deltabar-fill[data-dir="up"]{background:var(--green);}
+  :root:not([data-theme="light"]) .lect-res-deltabar-fill[data-dir="down"]{background:#e0616b;}
+}
+
+/* Duelo: the computed per-row ratio chip, tinted by the winning side. */
+.lect-duelo-ratio{
+  display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em;
+  vertical-align:1px;
+}
+.lect-duelo-ratio[data-side="a"]{color:var(--lect-ink-accent);background:color-mix(in srgb,var(--lect-accent) 16%,transparent);}
+.lect-duelo-ratio[data-side="b"]{color:var(--gray-dark);background:color-mix(in srgb,var(--gray-txt) 14%,transparent);border:1px solid var(--rule);}
+
+/* Cadena: the per-era appreciation chip, right under its handover price
+   (the link row is a 3-col grid; the chip claims the price column). */
+.lect-cadena-step{
+  grid-column:3;justify-self:end;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.lect-cadena-step[data-dir="up"]{color:#3f7d0a;}
+.lect-cadena-step[data-dir="down"]{color:#c0392b;}
+[data-theme="dark"] .lect-cadena-step[data-dir="up"]{color:var(--green);}
+[data-theme="dark"] .lect-cadena-step[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cadena-step[data-dir="up"]{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-cadena-step[data-dir="down"]{color:#e0616b;}
+}
+
 /* Device responsive: the timeline stacks vertical on phones (spine moves
    to the left edge), everything else already wraps. */
 @media(max-width:640px){

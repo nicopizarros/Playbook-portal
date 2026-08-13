@@ -111,9 +111,13 @@ const ITEM_SEP = /\s+·\s+/;
 const KV_RE = /^(.*?)\s+[—–-]\s+([\s\S]+)$/;
 
 // A term's leading figure, for count-ups: currency-prefixed money, a
-// percentage, or a number with an optional scale word.
+// percentage, or a number with an optional scale word. The single-letter
+// scales need the end-or-space lookahead: without it "3 minutos" split as
+// figure "3 m" + label "inutos" (caught rendering the device audit,
+// 2026-08-13) because /i lets [MBK] eat the first letter of any lowercase
+// word.
 const TERM_FIGURE_RE =
-  /^((?:€|US\$|USD\s?|MX\$|\$)?\s?-?\d[\d.,]*\s?(?:%|mil\s+millones|millones|billones|mdd|mdp|bn|[MBK])?)\s*([\s\S]*)$/i;
+  /^((?:€|US\$|USD\s?|MX\$|\$)?\s?-?\d[\d.,]*\s?(?:%|mil\s+millones|millones|billones|mdd|mdp|bn|[MBK](?=\s|$))?)\s*([\s\S]*)$/i;
 
 function stripTags(text: string): string {
   return decodeEntities(text.replace(/<[^>]+>/g, '').trim());
@@ -153,10 +157,14 @@ function parseTimeline(raw: string): Milestone[] | null {
 }
 
 function buildTimeline(milestones: Milestone[]): string {
+  // The last milestone is where the saga stands NOW, and it reads
+  // differently from history — data-current fills its dot with the accent
+  // and bolds its event (2026-08-13; same convention Cadena already uses
+  // for the current holder).
   const items = milestones
     .map(
-      m =>
-        `<li class="lect-tl-item"><span class="lect-tl-when">${esc(m.when)}</span><span class="lect-tl-what">${esc(m.what)}</span></li>`,
+      (m, i) =>
+        `<li class="lect-tl-item"${i === milestones.length - 1 ? ' data-current="true"' : ''}><span class="lect-tl-when">${esc(m.when)}</span><span class="lect-tl-what">${esc(m.what)}</span></li>`,
     )
     .join('');
   return (
@@ -181,6 +189,22 @@ function parseReceipt(raw: string): ReceiptLine[] | null {
     const value = kv[2].trim();
     if (!label || label.length > 42 || !value || value.length > 24) return null;
     lines.push({ label, value, total: /^total\b/i.test(label) });
+  }
+  // A receipt that doesn't add up is the one thing a receipt must never be
+  // (2026-08-13). When a Total row exists, every non-total line parses, and
+  // they all share the Total's denomination, the sum is CHECKED — off by
+  // more than 2.5% (rounding tolerance) rejects the device, fail-loud as
+  // plain text, same principle as Venta's computed multiple: the device
+  // must not lend a designed element's authority to arithmetic that is
+  // wrong. Mixed or unparseable lines skip the check rather than guessing.
+  const totalLine = lines.find(l => l.total);
+  if (totalLine) {
+    const total = denominatedOf(totalLine.value);
+    const parts = lines.filter(l => !l.total).map(l => denominatedOf(l.value));
+    if (total && parts.every((p): p is Denominated => p !== null && p.unit === total.unit)) {
+      const sum = parts.reduce((acc, p) => acc + p.value, 0);
+      if (total.value > 0 && Math.abs(sum - total.value) / total.value > 0.025) return null;
+    }
   }
   return lines;
 }
@@ -232,6 +256,34 @@ function parseEquation(raw: string): Equation | null {
   }
   const result = parseEqTerm(eq[2]);
   if (!result) return null;
+  // The equation CHECKS ITSELF (2026-08-13). When every term and the result
+  // parse as magnitudes, evaluate left to right (the device's semantics — a
+  // narrative equation, not operator precedence) and reject on a mismatch
+  // past 3% (rounding headroom). A device doing display math that is wrong
+  // is worse than no device; fail loud as plain text, same rule as the
+  // Recibo's total check. Any unparseable term skips the check — units like
+  // "partidos × pausas × minutos" are labels, not scales, and the guard
+  // only runs when the arithmetic is actually checkable.
+  // A percentage term parses as its face value (20% → 20, not 0.20), so an
+  // equation carrying one is not checkable by plain evaluation — skip.
+  const anyPct = [...terms, result].some(t => /%/.test(t.figure));
+  const mags = terms.map(t => magnitudeOf(t.figure));
+  const resultMag = magnitudeOf(result.figure);
+  if (!anyPct && mags.every((m): m is number => m !== null) && resultMag !== null && resultMag !== 0) {
+    let acc = mags[0];
+    let checkable = true;
+    for (let i = 0; i < ops.length; i++) {
+      const m = mags[i + 1];
+      if (ops[i] === '×') acc *= m;
+      else if (ops[i] === '+') acc += m;
+      else if (ops[i] === '−') acc -= m;
+      else if (ops[i] === '/') {
+        if (m === 0) { checkable = false; break; }
+        acc /= m;
+      } else { checkable = false; break; }
+    }
+    if (checkable && Math.abs(acc - resultMag) / Math.abs(resultMag) > 0.03) return null;
+  }
   return { terms, ops, result };
 }
 
@@ -273,6 +325,19 @@ function parseDelta(raw: string): Delta | null {
 
 function buildDelta(delta: Delta): string {
   const caption = delta.caption ? `<span class="lect-salto-caption">${esc(delta.caption)}</span>` : '';
+  // The move, COMPUTED rather than authored (2026-08-13, same rule as
+  // Venta's multiple): when both figures share a denomination, the chip
+  // prints the percent change so the reader never does the division — and a
+  // derived number can't contradict the prose. Units disagreeing (a
+  // currency change, not growth) or a zero base silently omit it.
+  let moveChip = '';
+  const from = denominatedOf(delta.from);
+  const to = denominatedOf(delta.to);
+  if (from && to && from.unit === to.unit && from.value > 0) {
+    const pct = ((to.value - from.value) / from.value) * 100;
+    const text = `${pct >= 0 ? '+' : '−'}${formatNumeric(Math.abs(pct), Math.abs(pct) >= 10 ? 0 : 1)}%`;
+    moveChip = `<span class="lect-salto-pct" data-dir="${pct < 0 ? 'down' : 'up'}">${esc(text)}</span>`;
+  }
   // data-lect-stagger (2026-08-13): from → arrow → to rise in sequence, so
   // the before is on the page before the after lands and starts counting —
   // the one device whose whole story is an ordering. Same shared primitive
@@ -282,7 +347,7 @@ function buildDelta(delta: Delta): string {
     `<span class="lect-device-label">El salto</span>` +
     `<div class="lect-salto-row" data-lect-stagger><span class="lect-salto-from">${esc(delta.from)}</span>` +
     `<span class="lect-salto-arrow" aria-hidden="true">${delta.dir === 'down' ? '↘' : delta.dir === 'up' ? '↗' : '→'}</span>` +
-    `${countupSpan(delta.to, 'lect-salto-to')}</div>${caption}</div>`
+    `${countupSpan(delta.to, 'lect-salto-to')}${moveChip}</div>${caption}</div>`
   );
 }
 
@@ -302,6 +367,19 @@ function parseShares(raw: string): Share[] | null {
     const value = Number(pct[1]);
     if (!value || Number.isNaN(value)) return null;
     shares.push({ label, pct: value });
+  }
+  // The bar must not misstate the declared numbers (2026-08-13). buildShares
+  // normalizes widths to the sum, so a declaration totalling 80 used to
+  // silently draw 60/20 as 75/25 — the legend said one thing and the bar
+  // another. Now: a sum in 97–103 is rounding and renders as declared; a
+  // sum under 97 gets an explicit "Otros" remainder segment (the reader
+  // sees the whole and the gap); a sum over 103 is arithmetic that cannot
+  // be true of one whole and rejects, fail-loud as plain text.
+  const sum = shares.reduce((acc, s) => acc + s.pct, 0);
+  if (sum > 103) return null;
+  if (sum < 97) {
+    if (shares.length >= 5) return null;
+    shares.push({ label: 'Otros', pct: Math.round((100 - sum) * 10) / 10 });
   }
   return shares;
 }
@@ -332,51 +410,114 @@ function buildShares(shares: Share[]): string {
 }
 
 // ————————————————————————————————————————————————————————— Alineación
-function parseLineup(raw: string): string[] | null {
-  const names = stripTags(raw).split(ITEM_SEP).map(n => n.trim());
-  if (names.length < 2 || names.length > 8) return null;
-  if (names.some(n => !n || n.length > 28)) return null;
-  return names;
+// Role tags (2026-08-13): an optional parenthetical per name —
+// "Alineación: Apple TV (broadcaster) · Nike (kit) · Grupo Salinas (dueño)"
+// — sets a small role line under each chip. A roster of unlike actors
+// (sponsor, broadcaster, owner, promoter) used to need its roles narrated
+// in prose; on the chip they read at a glance. Optional per name; a bare
+// roster renders exactly as before.
+type LineupEntry = { name: string; role: string };
+
+function parseLineup(raw: string): LineupEntry[] | null {
+  const items = stripTags(raw).split(ITEM_SEP).map(n => n.trim());
+  if (items.length < 2 || items.length > 8) return null;
+  const entries: LineupEntry[] = [];
+  for (const item of items) {
+    const tail = item.match(/^([\s\S]+?)\s*\(\s*([^)]{1,20})\s*\)$/);
+    const name = (tail ? tail[1] : item).trim();
+    const role = tail ? tail[2].trim() : '';
+    if (!name || name.length > 28) return null;
+    entries.push({ name, role });
+  }
+  return entries;
 }
 
-function buildLineup(names: string[]): string {
-  const chips = names
+function buildLineup(entries: LineupEntry[]): string {
+  const chips = entries
     .map(
-      (name, i) =>
-        `<span class="lect-lineup-chip"><span class="lect-lineup-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span class="lect-lineup-name">${esc(name)}</span></span>`,
+      (entry, i) =>
+        `<span class="lect-lineup-chip"><span class="lect-lineup-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span class="lect-lineup-name">${esc(entry.name)}</span>${entry.role ? `<span class="lect-lineup-role">${esc(entry.role)}</span>` : ''}</span>`,
     )
     .join('');
+  const spoken = entries.map(e => (e.role ? `${e.name} (${e.role})` : e.name)).join(', ');
   return (
-    `<div class="lect-device lect-lineup" role="note" aria-label="Alineación: ${esc(names.join(', '))}">` +
+    `<div class="lect-device lect-lineup" role="note" aria-label="Alineación: ${esc(spoken)}">` +
     `<span class="lect-device-label">La alineación</span>` +
     `<div class="lect-lineup-row">${chips}</div></div>`
   );
 }
 
 // ————————————————————————————————————————————————————————— Cotización
-type Quote = { name: string; value: string; delta: string; down: boolean; note: string };
+// Range track on the tile (2026-08-13): an optional `Rango — <lo> a <hi>`
+// item — "Cotización: On Holding — US$31.29 · −6.9% · Rango — US$25.90 a
+// US$55.87" — draws the 52-week-range bar every finance terminal puts
+// under a quote: a thin track from lo to hi with the current value marked
+// on it. WHERE in its year a price sits is the context a bare tile can't
+// carry. Drawn only when lo < value < hi all parse in one denomination —
+// a marker outside its own track would be the chart lying.
+type QuoteRange = { lo: string; hi: string; pct: number };
+type Quote = { name: string; value: string; delta: string; down: boolean; note: string; range: QuoteRange | null };
 
 function parseQuote(raw: string): Quote | null {
   const text = stripTags(raw);
   const kv = text.match(KV_RE);
   if (!kv) return null;
   const name = kv[1].trim();
-  const items = kv[2].split(ITEM_SEP).map(s => s.trim());
+  const allItems = kv[2].split(ITEM_SEP).map(s => s.trim());
+  let rangeRaw = '';
+  const items = allItems.filter(item => {
+    const ikv = item.match(KV_RE);
+    if (ikv && normalizeLabel(ikv[1]) === 'rango') {
+      rangeRaw = ikv[2].trim();
+      return false;
+    }
+    return true;
+  });
   if (!name || name.length > 36 || items.length < 2 || items.length > 3) return null;
   const [value, delta, note = ''] = items;
   if (!value || value.length > 20 || !/\d/.test(value)) return null;
   if (!delta || delta.length > 14 || !delta.includes('%')) return null;
-  return { name, value, delta, down: /^[−-]/.test(delta), note };
+
+  let range: QuoteRange | null = null;
+  if (rangeRaw) {
+    const pair = rangeRaw.match(/^([\s\S]+?)\s+a\s+([\s\S]+)$/i);
+    if (!pair) return null;
+    const lo = denominatedOf(pair[1].trim());
+    const hi = denominatedOf(pair[2].trim());
+    const val = denominatedOf(value);
+    if (
+      lo && hi && val &&
+      lo.unit === hi.unit && lo.unit === val.unit &&
+      hi.value > lo.value && val.value >= lo.value && val.value <= hi.value &&
+      pair[1].trim().length <= 20 && pair[2].trim().length <= 20
+    ) {
+      range = {
+        lo: pair[1].trim(),
+        hi: pair[2].trim(),
+        pct: ((val.value - lo.value) / (hi.value - lo.value)) * 100,
+      };
+    }
+    // A declared range that doesn't hold its own value is malformed data,
+    // not an optional decoration to drop silently.
+    if (!range) return null;
+  }
+  return { name, value, delta, down: /^[−-]/.test(delta), note, range };
 }
 
 function buildQuote(quote: Quote): string {
   const note = quote.note ? `<span class="lect-quote-note">${esc(quote.note)}</span>` : '';
+  const range = quote.range
+    ? `<div class="lect-quote-range" aria-label="Rango: ${esc(quote.range.lo)} a ${esc(quote.range.hi)}">` +
+      `<span class="lect-quote-range-lo">${esc(quote.range.lo)}</span>` +
+      `<span class="lect-quote-range-track"><span class="lect-quote-range-mark" style="left:${quote.range.pct.toFixed(1)}%"></span></span>` +
+      `<span class="lect-quote-range-hi">${esc(quote.range.hi)}</span></div>`
+    : '';
   return (
-    `<div class="lect-device lect-quote" role="note" aria-label="Cotización: ${esc(quote.name)} ${esc(quote.value)}, ${esc(quote.delta)}" data-dir="${quote.down ? 'down' : 'up'}">` +
+    `<div class="lect-device lect-quote" role="note" aria-label="Cotización: ${esc(quote.name)} ${esc(quote.value)}, ${esc(quote.delta)}${quote.range ? `, rango ${esc(quote.range.lo)} a ${esc(quote.range.hi)}` : ''}" data-dir="${quote.down ? 'down' : 'up'}">` +
     `<span class="lect-device-label">La cotización</span>` +
     `<div class="lect-quote-row"><span class="lect-quote-name">${esc(quote.name)}</span>` +
     `${countupSpan(quote.value, 'lect-quote-value')}` +
-    `<span class="lect-quote-delta"><span aria-hidden="true">${quote.down ? '▼' : '▲'}</span> ${esc(quote.delta)}</span>${note}</div></div>`
+    `<span class="lect-quote-delta"><span aria-hidden="true">${quote.down ? '▼' : '▲'}</span> ${esc(quote.delta)}</span>${note}</div>${range}</div>`
   );
 }
 
@@ -896,6 +1037,18 @@ function parseResults(raw: string): Results | null {
 }
 
 function buildResults(results: Results): string {
+  // Delta magnitude bars (2026-08-13). The statement's story is usually in
+  // which lines DISAGREE — revenue up 28% while a segment falls 38% — and a
+  // column of percentages makes the reader compare digits. A thin bar under
+  // each delta, scaled to the panel's largest move and colored by
+  // direction, makes the divergence scannable in one pass. Rows with no
+  // delta simply carry no bar; grown by the shared [data-lect-seg]
+  // choreography ArticleMotion already runs for the Reparto.
+  const deltaMag = (d: string) => {
+    const m = d.match(/(\d[\d.]*)\s*%/);
+    return m ? Number(m[1]) : 0;
+  };
+  const maxDelta = Math.max(0, ...results.rows.map(r => deltaMag(r.delta)));
   const rows = results.rows
     .map(row => {
       const delta = row.delta
@@ -906,9 +1059,14 @@ function buildResults(results: Results): string {
           // and the column of signs stays scannable.
           `<span aria-hidden="true">${row.down ? '▼' : '▲'}</span> ${esc(row.delta.replace(/^[+\-−–]\s*/, ''))}</span>`
         : '<span class="lect-res-delta" data-dir="flat"></span>';
+      const mag = deltaMag(row.delta);
+      const bar =
+        row.delta && maxDelta > 0
+          ? `<span class="lect-res-deltabar" aria-hidden="true"><span class="lect-res-deltabar-fill" data-lect-seg data-dir="${row.down ? 'down' : 'up'}" style="width:${Math.max(3, (mag / maxDelta) * 100).toFixed(1)}%"></span></span>`
+          : '';
       return (
         `<div class="lect-res-row"><span class="lect-res-label">${esc(row.label)}</span>` +
-        `${countupSpan(row.value, 'lect-res-value')}${delta}</div>`
+        `${countupSpan(row.value, 'lect-res-value')}${delta}${bar}</div>`
       );
     })
     .join('');
@@ -962,6 +1120,8 @@ type DuelRow = {
   bPct: number | null;
   aNeg: boolean;
   bNeg: boolean;
+  /** Computed per-row ratio, larger side over smaller — "2.0×" — with the winning side. */
+  ratio: { text: string; side: 'a' | 'b' } | null;
 };
 type Duel = { a: string; b: string; rows: DuelRow[] };
 
@@ -1051,6 +1211,25 @@ function parseDuel(raw: string): Duel | null {
     const max = shared ? globalMax : Math.max(row.magA ?? 0, row.magB ?? 0);
     const pct = (mag: number | null) =>
       max > 0 && mag !== null ? Math.max(MIN_BAR_PCT, Math.min(100, (mag / max) * 100)) : null;
+    // The row's finding, COMPUTED (2026-08-13, same family as Venta's
+    // multiple): how many times bigger the winning side is, shown as a
+    // small "2.0×" chip tinted with the winner's color. Only when both
+    // sides are positive figures in the same denomination — a ratio across
+    // currencies or against a negative is arithmetic noise — and only when
+    // it says something (≥1.15×; two near-equal bars already read as
+    // near-equal).
+    let ratio: DuelRow['ratio'] = null;
+    const da = denominatedOf(row.a);
+    const db = denominatedOf(row.b);
+    if (da && db && da.unit === db.unit && da.value > 0 && db.value > 0) {
+      const r = Math.max(da.value, db.value) / Math.min(da.value, db.value);
+      if (r >= 1.15 && Number.isFinite(r)) {
+        ratio = {
+          text: `${formatNumeric(r, r >= 10 ? 0 : 1)}×`,
+          side: da.value >= db.value ? 'a' : 'b',
+        };
+      }
+    }
     return {
       label: row.label,
       a: row.a,
@@ -1059,6 +1238,7 @@ function parseDuel(raw: string): Duel | null {
       bPct: pct(row.magB),
       aNeg: NEGATIVE_RE.test(row.a),
       bNeg: NEGATIVE_RE.test(row.b),
+      ratio,
     };
   });
   return { a, b, rows };
@@ -1086,7 +1266,11 @@ function buildDuel(duel: Duel): string {
     .map(
       row =>
         `<span class="lect-duelo-row">` +
-        `<span class="lect-duelo-label">${esc(row.label)}</span>` +
+        `<span class="lect-duelo-label">${esc(row.label)}` +
+        (row.ratio
+          ? ` <span class="lect-duelo-ratio" data-side="${row.ratio.side}">${esc(row.ratio.text)}</span>`
+          : '') +
+        `</span>` +
         `<span class="lect-duelo-track">${duelHalf('a', row.a, row.aPct, row.aNeg)}${duelHalf('b', row.b, row.bPct, row.bNeg)}</span>` +
         `</span>`,
     )
@@ -1186,10 +1370,22 @@ function buildSeries(series: Series): string {
   // lower one below, decided per point rather than per series: a fixed
   // "A above, B below" collides at exactly the points where the lines
   // cross, which are the points a volatility chart exists to show.
+  //
+  // Selective labels past five points (2026-08-13): a dense series printing
+  // every value is a wall of numbers over the line it exists to reveal —
+  // the same lesson the Cotización track learned. Up to five points, every
+  // value prints (unchanged); past that, only the endpoints and each
+  // series' own peak carry a figure. The dots still mark every point and
+  // the aria-label still speaks all of them.
   const ABOVE = -13;
   const BELOW = 20;
+  const peakA = points.reduce((best, p, i) => (p.magA > points[best].magA ? i : best), 0);
+  const peakB = points.reduce((best, p, i) => (p.magB > points[best].magB ? i : best), 0);
+  const labelled = (i: number) =>
+    points.length <= 5 || i === 0 || i === points.length - 1 || i === peakA || i === peakB;
   const labels = points
     .map((p, i) => {
+      if (!labelled(i)) return '';
       const anchor = i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle';
       const aOnTop = p.magA >= p.magB;
       const one = (side: 'a' | 'b', mag: number, text: string, dy: number) =>
@@ -1393,9 +1589,12 @@ function buildSale(sale: Sale): string {
     );
   }
   if (sale.multiple) {
+    // The multiple counts up (2026-08-13): "185×" ticking from zero as the
+    // deed enters view is the story's punchline animating — countupSpan
+    // keeps the "×" suffix and locks width, same as every other figure.
     footParts.push(
       `<span class="lect-venta-mult" data-dir="${sale.multiple.down ? 'down' : 'up'}">` +
-        `${esc(sale.multiple.text)}</span>`,
+        `${countupSpan(sale.multiple.text, 'lect-venta-mult-fig')}</span>`,
     );
   }
   if (sale.date) {
@@ -1507,11 +1706,21 @@ function buildChain(chain: Chain): string {
               widest > 0 ? Math.max(2, (span / widest) * 100).toFixed(1) : 100
             }%"></span>` +
             `<span class="lect-cadena-holdtxt">${span === 1 ? '1 año' : `${span} años`}</span></span>`;
+      // Per-era appreciation (2026-08-13): what THIS handover paid over the
+      // last one, computed via the same multipleBetween as the chain's
+      // total — so the reader sees which owner captured the growth, not
+      // just that the whole chain grew. Omitted on the first link and
+      // whenever the denominations disagree.
+      const step = i > 0 ? multipleBetween(links[i - 1].price, link.price) : null;
+      const stepChip = step
+        ? `<span class="lect-cadena-step" data-dir="${step.down ? 'down' : 'up'}">${esc(step.text)}</span>`
+        : '';
       return (
         `<li class="lect-cadena-link"${i === links.length - 1 ? ' data-current="true"' : ''}>` +
         `<span class="lect-cadena-when">${esc(link.when)}</span>` +
         `<span class="lect-cadena-who">${esc(link.who)}</span>` +
         countupSpan(link.price, 'lect-cadena-price') +
+        stepChip +
         hold +
         `</li>`
       );

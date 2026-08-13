@@ -127,7 +127,10 @@ the wrong number. Ask: *"if the reader remembers one number from this story,
 which is it?"* That's the Cifra clave. A rumored or unconfirmed figure still
 qualifies when it IS the story — declare it with the attribution **in the
 caption** ("La inversión que reporta el New York Post; LIV no la confirma"),
-never in the value.
+never in the value. Since 2026-08-13 a trailing parenthetical on the caption
+renders as a small attribution chip — `Cifra clave: US$250M — lo que pide LIV
+(Bloomberg)` — which is the designed home for that attribution (≤32 chars,
+optional).
 
 **The homepage reads this beat.** "La cifra del día" (sidebar) picks the top
 ranked story with a figure and PREFERS its declared Cifra clave over anything
@@ -157,6 +160,9 @@ A split-flap connection strip in the departures-board language.
   a rights move).
 - Each side **1–4 words, ≤32 characters** (longer leaves the paragraph as plain
   text).
+- An optional ` — nota` after the pairing (2026-08-13) sets what the connection
+  IS in one caption line under the strip: `Jugada: Chelsea ↔ Strava —
+  patrocinio de 3 años`. ≤60 chars; the bare pairing renders as before.
 - **At most ONE per article**, and only when the pairing is documented by the
   piece itself.
 - Placement: right after the paragraph that establishes the relationship, usually
@@ -197,13 +203,17 @@ For sagas: a deal, feud or decline that unfolds over dated milestones.
 Two directions follow, both from a real case (2026-08-07, a FIFA-governance
 saga with 13 independently dated events):
 
-1. **When the story has 6 or more real milestones, USE all 6 slots.** A 3-item
-   Cronología on a story that has had six-plus dated beats is under-using the
+1. **When the story has 8 or more real milestones, USE all 8 slots.** A 3-item
+   Cronología on a story that has had eight-plus dated beats is under-using the
    device, not being conservative.
-2. **When a saga genuinely runs past 6, the device is not where the rest goes.**
-   Pick the 6 most load-bearing beats (the spine) and weave the remaining,
+2. **When a saga genuinely runs past 8, the device is not where the rest goes.**
+   Pick the 8 most load-bearing beats (the spine) and weave the remaining,
    still-sourced events into the prose. A paragraph that names three more dated
    developments in a sentence tells that part of the story fine.
+
+The LAST milestone renders highlighted (filled dot, bolder event) as "where
+the saga stands now" — automatic, nothing to author, so order the beats
+chronologically and end on the current state, not on a side note.
 
 ---
 
@@ -218,6 +228,11 @@ For cost breakdowns and who-paid-what. The Total counts up.
 - **2–8 lines.** Label ≤42 chars, value ≤24 chars.
 - A line whose label starts with **"Total"** gets the total treatment. Include
   one when the sum is the point.
+- **The receipt checks its own arithmetic** (2026-08-13): when a Total row and
+  every other line parse in one denomination, a sum off by more than 2.5%
+  rejects the whole device to plain text. A receipt that doesn't add up is the
+  one thing a receipt must never be — recheck the figures, don't fudge a line
+  to force the render.
 
 ---
 
@@ -232,6 +247,10 @@ For "the math behind the deal", with counting operands.
 - **2–4 terms** plus one result, and exactly one `=`.
 - Operators: `×`, `+`, `−`, `/` (a plain `x` and `-` are normalized).
 - **Every term must start with a real number.**
+- **The equation checks itself** (2026-08-13): when every term parses, it is
+  evaluated left to right and a result off by more than 3% rejects the device
+  to plain text. Terms carrying `%` skip the check (a percentage's face value
+  isn't its factor).
 
 Note this device is where the "no arithmetic showmanship" rule
 (`voice-and-style.md` §7) bites: reach for it when the math reveals the
@@ -249,6 +268,10 @@ Direction-coloured (green up, red down), computed from the numbers.
 
 - Both sides **≤26 chars** and both must contain a digit.
 - Caption after ` — ` is optional.
+- **The percent change is computed, never authored** (2026-08-13): when both
+  sides share a denomination the device prints a `+98%` / `−29%` chip beside
+  the destination figure. Don't restate that percentage in the neighboring
+  prose — same rule as `Venta`'s multiple.
 
 For growth and shrink stories.
 
@@ -260,8 +283,11 @@ For growth and shrink stories.
 Reparto: FIFA — 70% · Federaciones — 20% · Clubes — 10%
 ```
 
-- **2–5 shares.** Label ≤30 chars; each value must contain a percentage. They
-  are normalized, so they should roughly sum to 100.
+- **2–5 shares.** Label ≤30 chars; each value must contain a percentage.
+- **The sum is checked** (2026-08-13): 97–103 renders as declared (rounding);
+  under 97 the device adds an explicit `Otros` segment for the remainder (so
+  make the shares sum to 100 yourself when "Otros" isn't the honest label);
+  over 103 rejects to plain text — shares of one whole cannot exceed it.
 - Since 2026-08-13 all five segments carry distinct swatches (a dark accent
   anchor, the accent, one flat tint and two striped tints — pattern keeps the
   light steps apart in print and for color-blind readers). Order the shares
@@ -296,6 +322,10 @@ Numbered chips that flap in. For enumerations of actors: artists, investors,
 host cities.
 
 - **2–8 names**, each ≤28 chars.
+- An optional parenthetical per name (2026-08-13) sets a small role line under
+  the chip — `Alineación: Apple TV (broadcaster) · Nike (kit) · Grupo Salinas
+  (dueño)` — for rosters of UNLIKE actors whose roles the prose would otherwise
+  have to narrate. ≤20 chars per role; a bare roster renders as before.
 
 ---
 
@@ -316,6 +346,11 @@ A market tile with a ▲/▼ delta. For public-company and valuation results.
 - Value ≤20 chars and must contain a digit.
 - Delta ≤14 chars and **must contain `%`**. A leading `−`/`-` sets the down
   treatment.
+- An optional `Rango — <lo> a <hi>` item (2026-08-13) draws the 52-week-style
+  range track under the tile with the current value marked on it — WHERE in
+  its year a price sits. All three figures must share one denomination and the
+  value must sit inside the range; a range that doesn't hold its own value
+  rejects the device (malformed data, not decoration).
 
 #### The track — a price over time, and what it is dragging with it
 
@@ -473,6 +508,9 @@ article in two rows.
 - Every item after it is `etiqueta — valor`, with an **optional** signed
   percentage in parentheses at the end.
 - **2–6 rows.** Label ≤42 chars; value ≤24 chars and must contain a digit.
+- Each row with a delta also draws a thin **delta-magnitude bar** (2026-08-13),
+  scaled to the panel's largest move and colored by direction — the
+  divergence between lines reads in one pass. Automatic, nothing to author.
 
 **The delta is optional per row on purpose.** A filing routinely reports a line
 with no comparable in the prior period (a segment that did not exist, a first
@@ -516,6 +554,10 @@ against each other on several measures at once.
 - A value with a leading minus (`−€46.2M`) bars its magnitude in the loss
   treatment, red bar and red figure, so a `Resultado del año` row can sit next
   to revenue rows without a longer bar reading as a bigger win.
+- **The per-row ratio is computed, never authored** (2026-08-13): when both
+  sides are positive figures in one denomination and differ by ≥1.15×, a small
+  `2.0×` chip appears beside the row label, tinted with the winning side.
+  Don't restate the ratio in prose — same rule as `Venta`'s multiple.
 
 **One scale for the whole device** (publisher directive, 2026-08-08). Every bar
 is a share of the single largest magnitude in the device, so rows are readable
@@ -614,7 +656,8 @@ number alone. A sale is all three facts in one beat or it is not the story.
 - **At most ONE per article**, and it **locks out `Jugada`** (see §1).
 
 **The multiple is computed, never authored.** Declare `Anterior` and the device
-divides it into `Precio` and prints `1.25×` in the direction colours. Do not
+divides it into `Precio` and prints `1.25×` in the direction colours (counting
+up from zero as the deed enters view, as of 2026-08-13). Do not
 also state the multiple in the prose — same rule the `Mapa` legend carries, for
 the same reason: a figure the device derives cannot contradict the copy. It is
 omitted silently when the two figures are denominated differently (`€900M` into
@@ -638,6 +681,10 @@ and that shape is the story.
   `cuándo — quién — precio` (the em dash splits twice).
 - `cuándo` ≤14 chars, `quién` ≤32, `precio` ≤20 and must contain a digit. A
   link carrying a third dash is malformed and rejects the device.
+- **Each handover's own multiple is computed** (2026-08-13): every link after
+  the first shows what it paid over the previous price (`4.0×`), beside its
+  price, when the denominations match — which owner captured the growth, not
+  just that the chain grew. Don't restate these in prose.
 - Years must run **forwards**; an out-of-order chain rejects rather than drawing
   a negative span.
 - **It locks out `Cronología`** (see §1) — a chain of title that also runs a
