@@ -29,9 +29,14 @@ Every piece, at any length, carries four things:
 | **Incentivo** | Qué busca cada parte y dónde está el negocio. |
 | **Consecuencia** | Qué cambia, para quién y con qué riesgo. |
 
-**A piece can be brief. It cannot be flat.** A Flash of 90 words still has to
-find at least one palanca behind the announcement. The news says what
-happened; Playbook finds where the business is.
+**Not every piece walks all four steps** (guide, 2026-08-13). A Noticia breve
+(format A) may legitimately stop at movimiento + minimal context — that is
+what makes it an A. The deeper the format, the more it must open mecanismo,
+incentivo and consecuencia; a Deep Dive that skips them isn't one. What no
+format at any depth gets to be is flat: even an A is *selected* because
+someone who knows the industry finds it worth knowing. The news says what
+happened; Playbook decides whether the story ends there or something more
+needs explaining.
 
 ### Las diez palancas
 
@@ -270,7 +275,12 @@ product-colored scan mark, and on Noticias and La Lana as a numbered beat
   movements now visibly repeats down the margin;
 - vary the wording per article rather than reusing the same word every piece;
 - prefer *"**El precio real:**"* over *"**El acuerdo:**"*, same standard as the
-  subheads.
+  subheads;
+- **never default to the `El movimiento` / `La mecánica` / `El contexto` /
+  `El impacto` set** (guide, 2026-08-13). The *logic* repeats across articles;
+  the *headings* must not — those four carry no information a reader couldn't
+  guess from the section they're about to read, and reused across pieces they
+  make the catalog read as a filled-in template.
 
 **Five kinds of paragraph go without one**, in any product: the cold open, the
 device declarations, the `Foto: Playbook` captions, the Opinión bullets, and a
@@ -301,11 +311,11 @@ Opinión explains the mecanismo; it does not deliver a moraleja.
 
 | Format | Opinión |
 |---|---|
-| Flash / Industry Shots Tier 2 | Not obligatory |
-| Noticia Playbook | One or two short paragraphs |
-| Industry Shots Main (Noticias) | A short, clearly separated paragraph |
-| La Lana del Deporte | Three bullets of roughly equal weight |
-| Infinitas | As Noticias, with the women's-sport read |
+| A · Noticia breve / Industry Shots Tier 2 | **None** (guide, 2026-08-13 — it stopped being "not obligatory" and became not carried) |
+| B · Noticia Playbook (Noticias) | One or two short paragraphs, a concrete second layer |
+| C · Deep Dive | One or two paragraphs synthesizing the read obtained **after** the analysis — never a recap |
+| D · La Lana del Deporte | Three bullets of roughly equal weight |
+| Infinitas | As the format it adopts (A/B/C), with the women's-sport read |
 | TFBR | **None** — the partner's `## La visión de Interticket` closes it |
 
 `**Opinión de Playbook:**` as an inline lead-in is a **UI contract**, not just
@@ -560,19 +570,21 @@ Length does not demonstrate depth. Selection does.
 
 ## 12. Checklist de publicación
 
-Run these ten before considering a piece done. This is the last gate in both
-skills' decision flow.
+Run these twelve before considering a piece done (guide, 2026-08-13). This is
+the last gate in both skills' decision flow.
 
-1. ¿El movimiento principal aparece desde el inicio?
-2. ¿Elegimos una sola historia central?
-3. ¿Explicamos cómo funciona el mecanismo?
-4. ¿Encontramos una palanca real de negocio?
+1. ¿Elegimos correctamente entre A, B, C y D? (`format-tiers.md` §1)
+2. ¿El movimiento principal aparece desde el inicio?
+3. ¿Hay una sola historia central?
+4. ¿El nivel de contexto corresponde al formato?
 5. ¿Cada párrafo hace una sola cosa?
-6. ¿La opinión añade algo que no estaba en el cuerpo?
-7. ¿Diferenciamos hecho, reporte, interpretación y escenario?
-8. ¿La conexión regional es concreta y necesaria?
-9. ¿Quitamos la frase intercambiable o demasiado perfecta?
-10. ¿El texto termina antes de explicar de más?
+6. ¿El dato fuerte aparece pronto?
+7. ¿La opinión añade una segunda capa real (y el formato la lleva)?
+8. ¿Separamos hecho, reporte, interpretación y escenario?
+9. ¿La conexión con México/LATAM es concreta?
+10. ¿Los gráficos explican algo o solo decoran?
+11. ¿Quitamos la frase intercambiable o demasiado perfecta?
+12. ¿El texto termina antes de explicar de más?
 
 > **La definición final.** Playbook escribe para alguien que conoce el deporte
 > y quiere entender mejor su negocio. Abre con el movimiento, elimina el

@@ -32,6 +32,11 @@ keeping.
 
 ## Snapshot history
 
+- **2026-08-13** — 15 entries. Observation 14 (architecture-destroying skill
+  commit, actioned by restoring the slim/reference architecture) and 15 (the
+  "hook didn't fire" claim recurring, OPEN) added during the codebase-audit
+  session.
+
 - **2026-08-11** — 8 entries, from the session that added the offline graph
   reader and ran the three-article `publish-sourced-article` validation.
   Observations 4, 5, 7 and 8 were acted on in that same session; the rest

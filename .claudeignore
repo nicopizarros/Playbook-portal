@@ -9,3 +9,8 @@
 # Query the graph with `graphify query "..."` rather than reading these directly.
 graph.json
 graphify-out/
+
+# HANDOFF.md is an archive (see docs/archive/): the migration-era session
+# journal. 386 KB of prose that changes never — excluded from context for the
+# same prompt-cache reason as the graph. docs/ENCYCLOPEDIA.md is the live doc.
+docs/archive/

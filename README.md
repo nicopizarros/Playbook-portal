@@ -6,37 +6,35 @@ migrada desde un sitio estático (HTML/JS vanilla, sin build).
 
 ## Estado del proyecto
 
-**Antes de tocar nada, leer [`HANDOFF.md`](./HANDOFF.md).** Ese archivo
-tiene el estado real: qué se hizo en cada fase de la migración, qué
-decisiones de stack se tomaron, y un registro de progreso por sesión con
-el detalle de qué se hizo y qué queda pendiente. Este README es solo
-referencia operativa rápida (cómo correr el proyecto) — el estado y el
-historial de trabajo viven en `HANDOFF.md`, no acá.
+**Antes de tocar nada, leer [`docs/ENCYCLOPEDIA.md`](./docs/ENCYCLOPEDIA.md).**
+Es la referencia de arquitectura vigente: cómo está armada la app, qué
+decisiones de stack se tomaron y por qué. Los pendientes viven en
+[`docs/TODO.md`](./docs/TODO.md). El registro histórico de la migración
+(2026, por sesión) está archivado en
+[`docs/archive/HANDOFF.md`](./docs/archive/HANDOFF.md) — es archivo, no
+documentación viva.
 
 ## Cómo correr en local
 
 ```bash
 npm install
-cp .env.local.example .env.local   # completar las variables, ver HANDOFF.md
+cp .env.local.example .env.local   # completar las variables, ver docs/ENCYCLOPEDIA.md
 npm run db:migrate                  # aplica el schema de Postgres
-npm run migrate:json                # carga articles.json/content.json (una sola vez, idempotente)
 npm run dev
 ```
 
 ## Estructura
 
 - `app/`, `lib/`, `components/`, `styles/` — la app Next.js.
-- `scripts/` — migraciones de schema y de datos, seed de editores.
+- `scripts/` — migraciones de schema, publicación de artículos, checks
+  editoriales (`check-voice.mjs`, `find-duplicates.mjs`) y utilidades.
+- `.claude/` — skills de Claude Code (publicación editorial) y el corpus
+  compartido de reglas editoriales (`.claude/playbook-editorial/`).
+- `graphify-out/` — grafo de conocimiento del código, committeado
+  (consultar con `python3 scripts/graph-query.py query "..."`).
 
-## Convención: mantener el registro de progreso al día
+## Convención: documentación
 
-Este proyecto avanza en sesiones grandes (múltiples archivos por push). Para
-que cualquiera pueda retomarlo sin releer todo el historial de commits:
-
-**Después de cada sesión de trabajo con cambios de código reales**, agregar
-una entrada al "Registro de progreso" en `HANDOFF.md` con fecha, qué se
-hizo, cómo se verificó, y qué queda pendiente para la siguiente sesión. Si
-cambió el orden o alcance de las fases restantes, actualizar también
-"Próximos pasos" en ese mismo archivo. Todo el historial de avance vive ahí
-— no crear archivos de changelog separados ni duplicar el registro en el
-README.
+La arquitectura se documenta en `docs/ENCYCLOPEDIA.md` y los pendientes en
+`docs/TODO.md` — mantener esos dos al día con cada cambio estructural. No
+crear changelogs separados; el historial fino vive en git.

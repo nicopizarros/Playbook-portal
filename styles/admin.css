@@ -368,6 +368,34 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 }
 .studio-library-title { margin-top: 30px; }
 
+/* Sistema editorial A/B/C/D (guía 2026-08-13): tarjetas de formato entre el
+   tutorial y la biblioteca. Mismo lenguaje visual que .studio-howto-item. */
+.studio-formats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;
+  margin: 12px 0;
+}
+.studio-format-card {
+  border: 1px solid var(--rule); border-radius: 10px; background: var(--paper);
+  padding: 12px 14px;
+}
+.studio-format-letter {
+  display: inline-grid; place-items: center; width: 26px; height: 26px;
+  border-radius: 7px; background: var(--green); color: #000;
+  font-weight: 900; font-size: 13px; margin-bottom: 8px;
+}
+.studio-format-card h4 { font-size: 13px; font-weight: 800; margin: 0 0 2px; }
+.studio-format-q { font-size: 12.5px; font-weight: 700; color: var(--ink); margin: 0 0 6px; }
+.studio-format-card > p { font-size: 12px; color: var(--gray-txt); line-height: 1.5; margin: 0; }
+.studio-format-meta {
+  margin-top: 8px !important; padding-top: 7px; border-top: 1px solid var(--rule);
+  font-size: 11px !important;
+}
+.studio-format-rule {
+  border-left: 3px solid var(--green); background: var(--paper-soft);
+  border-radius: 0 8px 8px 0; padding: 9px 12px;
+  font-size: 12.5px; color: var(--gray-txt); margin: 12px 0 0;
+}
+
 /* ---------- Studio (Fase 8B: biblioteca de prompts) ---------- */
 
 .studio-section { border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); margin-bottom: 12px; overflow: hidden; }

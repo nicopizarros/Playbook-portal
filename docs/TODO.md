@@ -80,31 +80,16 @@ old title, and the skills say so explicitly so no future run "fixes" it.
 
 ## 3. Stale files and dead weight
 
-**Status: verified, deliberately not deleted. Each is a judgment call the team
-should make, not a cleanup an agent should do on its own.**
-
-The unambiguous half was already removed on 2026-08-07 (14 MB of orphaned
-`la-lana-torito-*` PNGs referenced by neither the repo nor the database, and
-the CSS with no markup left behind it: the whole `.skel*` skeleton-loading
-system from the pre-Next static site, `.rank-list`/`.rank-item`,
-`.news-strip`, `.article-not-found`, `.btn.pulse-once`, `.tfbr-arrow-up`).
-What is left is everything where "unused" and "unwanted" are not the same
-question:
-
-| item | size | why it was left |
-| --- | --- | --- |
-| `docs/playbook-portal-v24-medio-consulta(1).html` | 1.7 MB | Design prototype. The `(1)` suffix says it is a duplicate download, but it is also the most recent one. Historical design reference, not code. |
-| `docs/playbook-portal-v23-medio-consulta.html` | 328 KB | Previous iteration of the same prototype. |
-| `docs/playbook-ux-02-trafico-interno-ads.html` | 324 KB | UX study for internal traffic + ads. |
-| `articles.json` + `content.json` | 64 KB | The pre-Postgres seed. Read only by `scripts/migrate-json-to-db.ts`, which ran once. Small, but a stale snapshot someone could re-run against the live DB by accident. |
-| one-off `fix-*` / `update-*` scripts | ~40 KB | Already-executed migrations (`fix-lana-rebrand-content`, `fix-newsletter-success-copy`, `fix-testimonial-avatars`, `point-products-at-hubs`, `reassign-playbook-tag`, `strip-tfbr-opinion`, `seed-jugadas`, `backfill-article-standards`). They document what was done to the data and cost almost nothing to keep. |
-| `scripts/update-matador-report.ts` | 2 KB | Superseded by `scripts/update-article.ts`, which does the same job generically. Safe to delete once nobody is mid-flight on it. |
-| `public/assets/img/playbook-isotope-dark.png` | 12 KB | Unreferenced, but it is the dark half of a logo pair whose light half IS used. Deleting half a pair is worse than keeping 12 KB. |
-
-Total recoverable: ~2.4 MB, almost all of it the three prototype HTML files.
-None of it ships to the browser or affects the build; this is repo weight, not
-page weight.
-
-**Before deleting the prototypes**, check whether anyone still opens them as
-design reference. Everything here is recoverable from git history, so the risk
-is losing something people look up, not losing something that runs.
+**Status: swept on 2026-08-13, on the owner's explicit instruction** ("remove
+stale and old code"). Deleted: the pre-Postgres seeds (`articles.json`,
+`content.json`, `scripts/migrate-json-to-db.ts` and its npm entry), all
+already-executed one-off `fix-*`/`update-*`/backfill scripts plus their npm
+entries, `scripts/update-matador-report.ts` (superseded by
+`update-article.ts`), the regenerable Substack-backlog snapshot
+(`docs/SUBSTACK-ARCHIVE-BACKLOG.md` + its 359 KB JSON twin), and the
+superseded `v23` design prototype. `HANDOFF.md` moved to `docs/archive/` with
+an archived banner (it is the one place recording what the deleted one-offs
+did to production data). Kept: the `v24` prototype and the UX study (design
+reference), `playbook-isotope-dark.png` (half of a used pair), and everything
+in `lib/`, `components/` and `vendor/` — a 2026-08-13 import audit found zero
+orphan modules. Everything deleted is recoverable from git history.

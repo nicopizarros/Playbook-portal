@@ -32,6 +32,7 @@ it belongs in a file that already exists:
 | `overlap-check.md` | dedupe and the four outcomes |
 | `fields-and-taxonomy.md` | the `ArticleInput` fields, taxonomy, priority, dates |
 | `images.md` | cover sourcing, credits, the crop check, in-body images |
+| `postura-editorial.md` | the sensitivity protocol: when a story touches an ally/prospect/source — relevance × sensitivity matrix, protocolo amarillo, publicar/escalar/frenar |
 
 A seventh file is a last resort, not a first instinct. If a rule seems not to
 fit anywhere, it is usually a rule about an existing topic stated at the wrong

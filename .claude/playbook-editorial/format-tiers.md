@@ -12,29 +12,64 @@ template for everything.
 
 ---
 
-## 1. The three website tiers
+## 1. The four website formats (A / B / C / D)
 
-| | Tier | Length | What it carries |
-|---|---|---|---|
-| 01 | **Flash** | 80–150 words | One movimiento, one or two data points, minimal context. **No obligatory Opinión.** |
-| 02 | **Noticia Playbook** | 250–400 words | One story, at most three movimientos, one concrete read. |
-| 03 | **Análisis** | As long as the case demands | More actors, context, figures, consequences. La Lana, Infinitas features and essays live here. |
+(Editorial guide, 2026-08-13, superseding the earlier 01 Flash / 02 Noticia /
+03 Análisis tier table.) **Editorial depth defines the format; graphics are a
+consequence of that depth, never the category.** Classify before drafting a
+word — the router question is *which story is in front of us*, not *how much
+research do we have*.
+
+| | Format | Editorial question | Length | Opinión | Devices |
+|---|---|---|---|---|---|
+| **A** | **Noticia breve** | ¿Qué pasó? | 100–180 words | **No** | None, save an exceptional simple callout |
+| **B** | **Noticia Playbook** | ¿Qué pasó y qué significa? | 250–500 words | Yes | Optional, light |
+| **C** | **Deep Dive** | ¿Cómo funciona realmente este negocio? | 700–1,200 words | Yes | 2–4 expected |
+| **D** | **La Lana del Deporte** | ¿Qué pregunta de industria queremos resolver? | Own flow | Yes (3 bullets) | Per the expediente |
+
+**The distinction that must not blur: a Deep Dive explains a news story in
+depth. La Lana investigates a question.** C is news-driven — there is always a
+concrete event that justifies publishing now. D is thesis-driven — the news may
+be the doorway, but not necessarily the story, and it is never drafted from
+these skills' prompts (see §4's website-transfer rule).
+
+**How to route:**
+
+- **A** when the movement plus one or two data points explain by themselves why
+  it's worth publishing. No thesis needed.
+- **B** when a concrete second layer of business exists: control, money,
+  ownership, distribution, audience, risk, negotiation, inventory, governance
+  or power.
+- **C** when understanding the news requires opening numbers, actors,
+  comparisons, precedents, calculations or the structure of the business.
+- **D** when an industry question deserves its own investigation — flag it for
+  editorial rather than drafting it here.
+
+**What must NOT decide the format** (all real failure modes):
+
+- having a lot of research available;
+- the existence of several figures or links;
+- being able to make an attractive chart;
+- a story being international and wanting to "aterrizarla" to Mexico;
+- the public "1 shot / 2 shots" label — it can survive user-facing, but it is
+  not an internal editorial category.
+
+Choosing a format is choosing what stays out: a short note doesn't need all
+the research, and a Deep Dive must not disguise itself as a two-minute read.
 
 Two notes on how these meet what the portal already publishes:
 
-- **Noticia Playbook's operating range on the portal has been 300–500 words**
-  across the four-movement Noticias/Infinitas shape below. The guide's 250–400 and
-  the portal's 300–500 overlap, and the *never take away length, only add*
-  directive (`voice-and-style.md` §2) settles the disagreement: 250 is the
+- **B's operating range on the portal has been 300–500 words.** The guide's
+  250–500 and the portal's practice overlap, and the *never take away length,
+  only add* directive (`voice-and-style.md` §2) settles the rest: 250 is the
   floor at which a Noticia is still a Noticia, and a source carrying more
   reporting keeps it rather than being cut back to a target.
-- **Flash currently has no ingestion path that produces it.** Neither skill
-  routes a story to a Flash today; the shortest thing either publishes is a
-  four-movement Noticia at `readingTime: 2`. The tier is documented here because
-  the guide defines it and because Industry Shots Tier 2 (below) *is* this
-  shape editorially. Turning it on as a real portal format — a `readingTime: 1`
-  filing with no Opinión — is a publisher decision, not one for a run to make
-  on its own.
+- **A (Noticia breve) is routable but publish it deliberately.** It maps to
+  `readingTime: 1`, no Opinión, no devices; editorially it is the shape
+  Industry Shots Tier 2 always was. When the router lands on A, say so in the
+  draft presentation — a human reviewer confirming "yes, this one stays brief"
+  is cheap, and it keeps A from becoming a lazy default for stories that had a
+  second layer worth finding.
 
 ---
 
@@ -44,7 +79,7 @@ Four products, one masthead. None of this is re-derivable per run.
 
 | | Noticias (`industry-shots`) · Infinitas | La Lana del Deporte | TFBR |
 |---|---|---|---|
-| **Body shape** | 4 movements, fixed | cold open → promise block → 6–8 `##` sections → Opinión | free-form essay, one idea |
+| **Body shape** | 3–5 movements + Opinión (§3); Deep Dives per §3b | cold open → promise block → 6–8 `##` sections → Opinión | free-form essay, one idea |
 | **Movements per section** | one each | 1–2 per `##` section | as the argument runs |
 | **Bold lead-in** | every movement | every movement inside a `##` section | every movement |
 | **Closing take** | `**Opinión de Playbook:**`, one paragraph | `## La Opinión de Playbook` + exactly 3 bullets | none — `## La visión de Interticket` instead |
@@ -66,33 +101,48 @@ inside a movement.
 | Producto | Reglas propias |
 |---|---|
 | **Industry Shots Main** (Noticias) | Dato fuerte, contexto breve y una lectura que encuentre control, margen, distribución, riesgo o poder. |
-| **Industry Shots Tier 2** | Una sola idea, dos o tres oraciones, sin opinión forzada. *(= the Flash tier; see §1.)* |
+| **Industry Shots Tier 2** | Una sola idea, dos o tres oraciones, sin opinión forzada. *(= format A; see §1.)* |
 | **La Lana del Deporte** | Apertura en frío, tres preguntas, seis a ocho secciones, cuentas en voz alta cuando ayudan, tres viñetas finales. |
 | **TFBR** | Una idea comercial destilada desde la experiencia del operador. Sin Opinión de Playbook. |
-| **Infinitas** | Mismo ADN, con lectura propia del deporte femenil y más aire cuando el análisis lo necesita. |
+| **Infinitas** | Mismo ADN, con lectura propia del deporte femenil y más aire cuando el análisis lo necesita. Puede adoptar A, B o C según la historia (guide, 2026-08-13). |
 
 **La estructura cambia. El criterio editorial no.**
 
 ---
 
-## 3. Noticias / Infinitas — the four-movement brief
+## 3. Noticias / Infinitas — the B brief (and the A filing)
 
-Every article is four movements, always: three of information, then a separate
-Opinión.
+(2026-08-13, superseding the fixed four-movement rule that used to live here.
+The information is the same; the count stopped being fixed.)
 
-1. **Fact movement** — what happened, who, the key numbers, source context.
-2. **Research / cross-reference movement** — the data point, comparison or history
-   the source didn't have, in Playbook's voice, never a citation dump. Where
-   this comes from is the one thing that differs by funnel (see each skill's
-   `references/ingestion.md`); that it exists is not optional in either.
-3. **Detail movement** — more from the source: background, mechanics, additional
-   named parties, why it happened, whatever rounds the story out.
-4. **`**Opinión de Playbook:**`** — the three moves in `voice-and-style.md` §6,
-   with the regional angle only when it is real (§9 there).
+**A · Noticia breve:** headline (protagonista + movimiento + cifra/socio/
+consecuencia), one paragraph of what happened plus the key figure, one of
+minimal context for scale, a third only if it adds an indispensable fact. No
+subheads, no Opinión, no moraleja, no forced regional line. The reader should
+be able to answer fast: qué pasó, quién, cuánto/por cuánto tiempo/qué derechos,
+por qué vale la pena saberlo.
 
-**No exceptions to the four-movement structure.** A "brief, no real angle" story
-still gets all four; it just stays tight and grounded rather than padded or
-invented.
+**B · Noticia Playbook — 3 to 5 movements, then the Opinión:**
+
+1. **Opening movement** — what just happened, the key numbers, straight in
+   (`voice-and-style.md` §4).
+2. **Research / cross-reference movement** — the data point, comparison or
+   history the source didn't have, in Playbook's voice, never a citation dump.
+   Where this comes from is the one thing that differs by funnel (see each
+   skill's `references/ingestion.md`); that it exists is not optional in
+   either.
+3. **Further movements (1–3 more)** — each adds something the reader didn't
+   have: mechanism, money, a named actor, precedent, comparison or
+   consequence. Never a restatement of the opening in different words. Before
+   drafting, pick **one** editorial reading (the palanca, `voice-and-style.md`
+   §1) and write toward it — a piece that gestures at five angles lands none.
+4. **`**Opinión de Playbook:**`** — the three moves in `voice-and-style.md`
+   §6, with the regional angle only when it is real (§9 there).
+
+Every movement opens with its own **specific** bold lead-in
+(`voice-and-style.md` §5 — never the generic `El movimiento` / `La mecánica` /
+`El contexto` set), and a continuation paragraph inside a movement runs
+unheaded.
 
 A human reviewer can still explicitly ask for more (2026-08-07: *"split into
 two paragraphs on the opinion… it doesn't matter if it is too long"*), and that
@@ -107,7 +157,48 @@ one that never runs two paragraphs (`voice-and-style.md` §2).
 
 ---
 
+## 3b. Deep Dive (C) — the business behind a news story
+
+(New format, editorial guide 2026-08-13.) News-driven: there is always a
+concrete event that justifies publishing **now**. 700–1,200 words as the story
+demands; `readingTime: 3` or `4`.
+
+- **Before drafting, define ONE central question**, then list the pieces
+  needed to answer it: actors, money, model, precedents, comparisons,
+  structure, incentives, risks, timing, consequences.
+- **Opening**: from the news, two or three paragraphs, tension fast
+  (`voice-and-style.md` §4).
+- **Body**: four to seven `##` sections, each answering a different part of
+  the central question. Subheads are arguments, never labels
+  (`voice-and-style.md` §5). Movements inside a section carry bold lead-ins,
+  same as La Lana's sections.
+- **Data**: figures, comparisons, series, valuations, prior contracts,
+  margins, audiences, calculations — only where each one moves the argument.
+  Never accumulate data to demonstrate research (`voice-and-style.md` §11).
+- **Devices**: two to four, each answering a question — ecuación, reparto,
+  serie, duelo, mapa or cronología (`dynamic-element-library.md`; the budget
+  and the exclusive pairs apply as everywhere).
+- **Opinión de Playbook**: one or two paragraphs that synthesize the reading
+  obtained **after** the analysis. Never a recap of the article.
+- **Close**: no moraleja. A consequence, an open tension, a pending decision,
+  a number to watch, or a concrete question the market hasn't answered.
+
+**The exit test:** the reader can explain what happened, how it works, where
+the money is, what incentives exist, who controls what, and what may change
+next. A graphic doesn't make an article deep; a deep article usually reveals
+something worth seeing.
+
+---
+
 ## 4. La Lana del Deporte — a fixed architecture
+
+**La Lana is thesis-driven and develops in its own flow — never regenerate it
+from these skills** (editorial guide, 2026-08-13). When bringing an approved
+La Lana piece to the website: conserve its thesis, structure, subheads and
+voice; conserve the three-question promise block when the edition carries it;
+conserve La Opinión de Playbook; adapt only presentation, annexes, metadata,
+hero and the portal's modules. Never summarize or rewrite it without an
+explicit editorial instruction.
 
 **Reproduce it.** Measured 2026-08-06: present in 8 of 8 published editions.
 These are not free-form long-form; they run the same four movements every time,

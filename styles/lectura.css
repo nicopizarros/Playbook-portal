@@ -1077,7 +1077,9 @@ mark.lect-fig{
    position:relative is what keeps the ::after overlay inside the frame. */
 .lect-duotone{position:relative;background:var(--inf-violet-deep);isolation:isolate;}
 .lect-duotone img{filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.92;}
-.lect-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.28),rgba(84,36,156,.16));pointer-events:none;}
+/* Overlay lightened .28/.16 → .20/.11 (2026-08-13) — keep in sync with
+   .infhub-duotone in styles/product-hubs.css. */
+.lect-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.20),rgba(84,36,156,.11));pointer-events:none;}
 
 .article-product-infinitas .lect-pullfig{border-color:var(--src-infinitas);}
 .article-product-infinitas .lect-pullfig-value{color:var(--src-infinitas);font-family:var(--sans);font-weight:800;letter-spacing:-.02em;}

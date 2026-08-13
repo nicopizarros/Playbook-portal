@@ -185,6 +185,13 @@ For sagas: a deal, feud or decline that unfolds over dated milestones.
   flexbox sized for a small count — more items just squeeze narrower, it
   doesn't wrap or scroll. Past the cap the device silently fails to parse and
   the whole thing renders as an inert, unstyled paragraph.
+- **Every limit fails the same silent way — count, date length, event length,
+  and an unspaced dash all make `parseTimeline` (`lib/article-devices.ts`)
+  return null and the line ship as plain text.** A 5-entry Cronología
+  "mysteriously" rendering unstyled (2026-08-13, the Flag Football piece) is
+  almost always one event past 70 characters, not a rendering bug. Check each
+  entry against the limits at drafting time, and spot-check the live page
+  after publishing a device-carrying piece.
 
 Two directions follow, both from a real case (2026-08-07, a FIFA-governance
 saga with 13 independently dated events):

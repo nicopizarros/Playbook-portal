@@ -497,3 +497,33 @@ behaviour that depends on the data's shape and silently costs coverage for
 everything else, so verify a regression test against the broken code **after**
 the workflow has run once, not only before, or it can go green without anyone
 touching it.
+
+---
+
+## 2026-08-13
+
+### Observation 14: A content-format commit silently destroyed the skill architecture it lived in
+
+**Status:** ACTIONED (2026-08-13) — this session restored the slim SKILL.md + `references/` symlink architecture from `5031b46^`, restored the collaterally deleted `graphify` and `task-observer` skills wholesale, and relocated the monolith commits' genuinely new content (NOTICIA PLAYBOOK 3–5 block shape, Cronología render caveat, wire-asymmetry guidance) into the corpus files that own those topics.
+**Date:** 2026-08-13
+**Session context:** Codebase audit session; found `.claude/playbook-editorial/` (the designed single source of truth) orphaned — no skill referenced it.
+**Skill:** publish-sourced-article / publish-newsletter (architecture), graphify, task-observer (collateral deletion)
+**Type:** process
+**Phase/Area:** Skill editing discipline
+
+**What happened:** Commit `5031b46` ("adopt the NOTICIA PLAYBOOK format") re-inflated both publishing SKILL.md files into ~415-line monoliths, deleted all 18 `references/` symlinks, deleted the skill-local `ingestion.md`/`publishing-mechanics.md`, and — mentioned nowhere in its message — deleted the entire `graphify` and `task-observer` skills. This is precisely the failure mode `_GOVERNANCE.md` §1b documents from 2026-08-11. The follow-up monolith even "couldn't diagnose" a Cronología render failure whose exact limits (2–6 items, events ≤70 chars) were documented all along in the orphaned `dynamic-element-library.md`.
+
+**Principle:** A commit that edits a skill's *content* must not change the skill's *architecture* as a side effect. Before editing any SKILL.md, check for a `references/` tree and a governance file; if the edit's diff shows symlinks or whole sibling skills being deleted, that is the signal to stop, not to commit. And a lesson already visible here: the very inability to diagnose the Cronología failure was caused by the same commit that severed the file that had the answer — architecture loss shows up later as capability loss, not as an immediate error.
+
+### Observation 15: "The hook didn't fire" was unverifiable from the inside — again
+
+**Status:** OPEN
+**Date:** 2026-08-13
+**Session context:** Same session. Early tool calls showed no graphify reminder; after `uv tool install graphifyy` succeeded, the reminder appeared on subsequent calls.
+**Skill:** Project CLAUDE.md tooling health check / graphify guard
+**Type:** process
+**Phase/Area:** Health check / self-observation
+
+**What happened:** Following the CLAUDE.md health check, this session reported the guard hook as "not firing" because no reminder was visible in early tool results — the exact claim Observation 11 already found to be false in a prior session. Later in the same session the reminder appeared (full mode, CLI present). Whether the offline-mode reminder was genuinely absent earlier or simply not surfaced could not be determined from inside the session.
+
+**Suggested improvement:** The health check should ask for evidence stronger than "I didn't see it" before reporting the hook broken — e.g. run `.claude/hooks/graphify-guard.sh search` directly and report its stdout, which distinguishes "hook produces nothing" from "harness didn't surface it". CLAUDE.md's health-check section could name this exact probe.
