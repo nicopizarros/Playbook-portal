@@ -43,6 +43,15 @@ Worth doing because the hubs, the archive filters, the related-articles rail
 and the homepage ranking all read these fields — they are the site's
 navigation, not decoration.
 
+**Annotation, 2026-08-13:** the *editorial format* half of classification now
+exists — the A/B/C/D router (`.claude/playbook-editorial/format-tiers.md` §1)
+classifies every incoming story by depth before drafting, and the admin Guía
+carries the router prompt. What this item still covers is the *taxonomy* half:
+validated `scope`/`sport`/`vertical` tags and the `priority` question. The
+four scoping questions above stand; question 2's "fixed controlled vocabulary
+the skills must choose from" now has a working precedent in how the router
+constrains format.
+
 ---
 
 ## 2. Retire the `industry-shots` source key
@@ -93,3 +102,33 @@ did to production data). Kept: the `v24` prototype and the UX study (design
 reference), `playbook-isotope-dark.png` (half of a used pair), and everything
 in `lib/`, `components/` and `vendor/` — a 2026-08-13 import audit found zero
 orphan modules. Everything deleted is recoverable from git history.
+
+---
+
+## 4. Build the proposed devices (device roadmap)
+
+**Status: designed, not built. Full spec in `docs/device-roadmap.md`.**
+
+The 2026-08-13 device-by-device audit shipped one upgrade to each of the
+fifteen existing devices and mapped the roster's blind spots: the future
+(every temporal device points backward), recurring contracts, N-actor
+comparisons, institutional money flow, governance votes, profiles, explicit
+scenarios, and the KPI strip. Eight devices are proposed to close them, in
+recommended build order:
+
+1. `Contrato:` — the term sheet (a rights deal is not a `Venta`)
+2. `Calendario:` — dated FUTURE beats, next one highlighted
+3. `Votación:` — the tally with the passing threshold drawn on the bar
+4. `Ranking:` — the league table, 3–6 actors on one metric
+5. `Cascada:` — the waterfall from revenue to margin, self-checking
+6. `Perfil:` — the actor card, brand palette via the existing registry
+7. `Escenarios:` — level-4 evidence made visual, fixed likelihood vocabulary
+8. `Tablero:` — the 3–4 tile KPI strip for market roundups
+
+Each proposal in the roadmap carries its syntax sketch and its exclusive
+pair. When one gets built: implement in `lib/article-devices.ts` (grammar,
+fail-loud parse, computed figures), register its exclusive pair, move its
+entry from the roadmap into `dynamic-element-library.md`, and add it to the
+harness sampler. The roadmap deliberately lives OUTSIDE
+`.claude/playbook-editorial/` so no drafting run authors an unbuilt device —
+keep it that way until the code exists.
