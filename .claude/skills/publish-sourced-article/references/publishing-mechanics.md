@@ -24,6 +24,16 @@ Never run Step 9 without an explicit yes in this session. No exceptions, no
    (title, excerpt, teaser, full `bodyMarkdown`, tags, priority, featured,
    image + credit, sourceUrl), **not a summary**. Bring `check-voice.mjs`'s
    output into the review with it.
+
+   **"Not a summary" means paste the `bodyMarkdown` text itself, verbatim, in
+   the chat** (2026-08-13, worked example below). A bulleted outline of what
+   each movement covers, or a description of the device and the Opinión's
+   argument, is still a summary even when it lists every field name — the
+   reviewer cannot approve prose they haven't read. On this run the first
+   presentation described the movements ("El nuevo socio: the deal, Gemini's
+   features...") instead of showing them, and the human had to ask "you did
+   not show me the full body" before reviewing anything. Show the body first;
+   describe it only in addition, never instead.
 2. **Then explicitly ask whether to publish**, per article if there is more
    than one (use `AskUserQuestion`, or ask directly if that fits the
    conversation better). **Don't default to "yes" on silence or an ambiguous
