@@ -17,16 +17,31 @@ here), except: mandatory cross-referencing against other outlets (Step 2),
 cover-image sourcing that starts with the referenced article itself (Step 5),
 and the human-approval gate (Step 6) before anything reaches the database.
 
-**No visible Fuentes/citation block** (changed 2026-08-04, publisher
-directive): earlier versions of this skill appended a visible "Fuentes"
-list of linked outlets at the bottom of every article's body. The human
-reviewer decided that space should never appear on a live article page,
-so it's gone for good, not just for one draft. Step 2's cross-referencing
-is still mandatory, it's still what makes a piece Playbook's own take
-instead of a paraphrase of one competitor, it just no longer surfaces as
-a citation list in `bodyMarkdown`. The only place a source URL still shows
-up anywhere is the internal `sourceUrl` field (Step 4), which is a DB
-dedupe key, never rendered on the page.
+**Fuentes block is visible again** (format changed 2026-08-13, reversing
+the 2026-08-04 removal below): the article body now always ends with a
+`Fuentes: [Outlet](url) · [Outlet](url)` line, one linked entry per outlet
+that materially contributed a fact, primary source first, cross-referenced
+outlets after. This isn't dead text, `app/(public)/articulo/page.tsx`'s
+reading-enhancement layer detects a paragraph starting with the literal
+word `Fuentes:` and renders it as a styled sources list (`lect-sources`,
+first entry tagged "origen"). See Step 3's Material gráfico section for
+the exact syntax and two more conventions (`Cifra clave:`, `Cronología:`)
+that same layer renders as real graphics. Step 2's cross-referencing is
+still mandatory regardless, it's still what makes a piece Playbook's own
+take instead of a paraphrase of one competitor, the Fuentes line is just
+where that work now surfaces visibly too, on top of (not instead of) the
+rewrite itself.
+
+(History, for context if this ever flips again: for about a week, from
+2026-08-04 to 2026-08-13, this skill appended no visible citation list, on
+a publisher directive that the space "should never appear on a live
+article page." That directive didn't survive contact with the newsroom's
+own practice: by 2026-08-12, human editors were again publishing pieces
+with a linked Fuentes block by hand, see the two reference pieces named in
+Step 3, and confirmed a visible sources list is the standard going
+forward. If a future session finds another explicit directive to remove
+it again, that's a real signal to ask the human before reinstating this
+section unilaterally, not to assume it's just another temporary reversal.)
 
 ## Requirements before running
 
@@ -79,30 +94,120 @@ If, after genuinely trying, no other outlet has covered the story (a truly
 exclusive or very fresh item), say so explicitly rather than inventing a
 second source, and draft from the primary article alone.
 
-## Step 3: Editorial voice
+## Step 3: Editorial voice — NOTICIA PLAYBOOK format
 
-Same four-paragraph structure and tone as `publish-newsletter`'s Industry
-Shots format (see that skill's Step 3 for the exact voice rules: direct,
-analytical, authoritative, Mexico/LATAM angle, never an em dash "—"):
+(format adopted 2026-08-13, replacing a fixed four-paragraph structure
+that used to live here, see the collapsed history note above Step 1 for
+why the shape changed along with the Fuentes block)
 
-1. Fact paragraph: what happened, who, the key numbers, source context.
-2. Cross-referenced context paragraph (Step 2): the data point, comparison,
-   or angle the primary article didn't have, in Playbook's own voice, never
-   a citation dump.
-3. Detail paragraph: more of the story, background, mechanics, other named
-   parties.
-4. Opinión de Playbook: what it means for the industry, Mexico/LATAM angle
-   when relevant. Always present, grounded in what's actually in the piece.
+**Goal**: tell the news and explain the business reading behind it,
+without turning it into a long analysis piece. The reader should come away
+with both *qué pasó* and *qué significa realmente* answered, neither one
+padded out to hit a length target.
 
-Always four paragraphs, no exceptions. Every paragraph, not only the
-Opinión one, opens with a short bold lead-in (2-5 words, ending in a
-colon, specific to what that paragraph covers, not a generic repeated
-label across articles), same readability rule as `publish-newsletter`'s
-Step 3, four paragraphs of unbroken prose read as one dense block on the
-article page otherwise. Word-count range: roughly 300-500 words across the
-four. Write every paragraph in Playbook's own words, this is a rewrite
-grounded in multiple sources, never a close paraphrase or translation of
-any single outlet's article.
+**Length**: roughly 250-500 words total. Never stretch a story to reach
+that range if it doesn't need to, a genuinely small brief that says
+everything it needs to in 280 words is correct at 280 words, not a draft
+that needs padding.
+
+### Before writing, work the five questions
+
+Identify, from Step 1's facts and Step 2's cross-referencing, before
+drafting a single sentence:
+
+1. El movimiento: what actually happened.
+2. El mecanismo: how it works structurally (the instrument, the clause,
+   the rule, the vehicle).
+3. El incentivo: why the parties involved wanted this.
+4. La consecuencia: what changes because of it.
+5. La palanca de negocio más importante: the one lever (control, revenue,
+   risk, capability, timing) this story is really about.
+
+Then pick **one** editorial reading built on that fifth answer and write
+toward it. Don't try to cover every possible implication, a piece that
+gestures at five different angles lands none of them. Cross-referencing
+(Step 2) still exists to give the newsroom its own angle instead of
+paraphrasing a competitor, this format just delivers that in a tighter
+shape than the old four fixed slots did.
+
+### Structure
+
+**Headline**: state the movement plainly. Add a figure or consequence only
+when it genuinely raises interest, not as a reflex.
+
+**Opening**: start from what just happened, not from throat-clearing or
+scene-setting. The most important number or fact should land within the
+first sentence or two.
+
+**Body, 3-5 blocks**: each block should add something the reader didn't
+already have (mechanism, money, a named actor, precedent, comparison, or
+consequence), never restate the opening in different words. Give each
+block its own short bold lead-in, specific to what that block actually
+covers (`**Por qué se cayeron las multas:**`, `**Lo que la Premier League
+no tiene:**`, `**Ya perdieron una vez:**`), never a generic label reused
+across articles, and never default to the same few nouns every time,
+`El movimiento` / `El contexto` / `La mecánica` / `El impacto` as headings
+carry no information a reader couldn't already guess from the section
+they're about to read. Not every block needs its own heading: a short
+paragraph that continues the previous block's point can run unheaded
+directly after it (see the reference pieces below for the pattern).
+
+**Opinión de Playbook**: one or two short paragraphs, not a fifth block
+that restates the news. It has to surface something that was *not*
+written explicitly in the source material: who actually gains or loses
+control, what revenue just got committed, where the risk really landed,
+why this is happening now rather than later, what new capability the
+protagonist just bought itself, or what plausibly changes next. Never a
+generic "esto importa para toda la industria" close, and never force a
+Mexico/LATAM angle onto a story with no genuine regional connection, an
+invented connection reads worse than having none at all.
+
+### Material gráfico (optional, use only when it genuinely helps)
+
+Two plain-text paragraph conventions that the article page's
+reading-enhancement layer (the `lect-*` classes) detects and renders as
+real graphics, not just text. Both must be their own **plain paragraph,
+not bold, not a heading**, on its own blank-line-separated line exactly
+like any other body paragraph, that plain-text shape is what the page's
+parser keys off:
+
+- `Cifra clave: <valor> — <descripción corta>` renders as a pulled-out
+  stat card with an animated count-up (`lect-pullfig`). Use it for the one
+  number that most concretely represents the money or scale in the story,
+  e.g. `Cifra clave: US$32 millones — lo que aprobaron los equipos de la
+  NFL para lanzar, junto con TMRW Sports, una liga profesional de flag
+  football rumbo a LA28`.
+- `Cronología: <hito> — <evento> · <hito> — <evento> · ...` (a middle dot
+  `·` between entries) renders as an animated timeline (`lect-tl-*`). Use
+  it only when a story genuinely has three or more dated beats worth
+  seeing in sequence, two dates rarely earn the space.
+
+Both use a literal em dash ("—") between the label/date and its
+description, on purpose, this is the one place in the whole body where
+that character belongs. Everywhere else in the prose the no-em-dash rule
+below still applies.
+
+Never fabricate a graphic just to have one, a story with no natural stat
+or multi-beat timeline gets neither, that's what "optional" means. At most
+one of each per article.
+
+### Style rules
+
+Never use em dashes in prose paragraphs (see the Material gráfico
+exception just above, that's the one deliberate carve-out). Use commas,
+periods, parentheses, or "y"/"pero" instead everywhere else. Write every
+block in Playbook's own words, grounded in multiple sources, never a close
+paraphrase or translation of any single outlet's article. Write the body
+as `**bold**`/`##` heading formatted prose plus any `![alt](url)` in-body
+images (Step 5b) and the `Fuentes:` line described above, never HTML tags.
+
+For two full worked examples of this exact shape (headline, opening,
+3-5 specifically-headed blocks, a `Cronología` or `Cifra clave` graphic,
+Opinión de Playbook, and the Fuentes block), read the live `bodyJson` of
+`fox-frena-la-prisa-de-la-nfl-por-renegociar-us-111-000-millones` and
+`apollo-pone-us-2-600-millones-en-los-yankees-y-se-queda-con-un-asiento-en-el-consejo`
+straight from the production DB, they're the reference pieces this format
+was lifted from.
 
 ### Tone: analytical brief, not breaking-news urgency
 
@@ -111,8 +216,8 @@ developing situation, short declarative sentences building tension toward
 what happens next. Playbook's voice doesn't inherit that register. It
 reads closer to a business brief than a news alert: calm and analytical
 even when the underlying story is dramatic. This is easiest to get wrong
-in the Fact paragraph, where translating the source too literally carries
-its urgency over with it. Watch for it there specifically.
+in the opening, where translating the source too literally carries its
+urgency over with it. Watch for it there specifically.
 
 It's also worth actively looking for asymmetries in how different parties
 reacted, rather than flattening a story into "everyone opposed X." When
@@ -171,9 +276,11 @@ Importancia scale. Differences from that skill:
 - **sourceUrl**: the primary reference URL from Step 1, used as-is. It's
   the DB's unique dedupe key (`articles.sourceUrl`), so re-running this
   skill on the same link no-ops (`duplicate`) instead of publishing twice.
-  This is an internal field only, never rendered on the article page, it's
-  not a substitute for the Fuentes block that used to exist here.
-- **readingTime**: `2` (the standard four-paragraph length).
+  This is a separate field from the visible `Fuentes:` line in the body
+  (Step 3), but they should point at the same primary source, list it
+  first in `Fuentes:` too.
+- **readingTime**: `2` for the typical 250-500 word length this format
+  produces.
 - **dateFormatted**: same format as `publish-newsletter`'s (`"30 jul
   2026"`). For a fast-developing story where the exact time matters (a
   vote, an announcement tied to a specific wire timestamp), it's fine to
