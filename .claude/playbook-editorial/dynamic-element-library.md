@@ -179,17 +179,18 @@ Cronología: 2022 — PIF entra · 2024 — recorte · 2026 — salida
 
 For sagas: a deal, feud or decline that unfolds over dated milestones.
 
-- **2–6 items.** Dates ≤14 chars, events ≤70 chars.
-- **The 6-item ceiling is a hard code limit, not a stylistic suggestion.**
-  `parseTimeline` returns null past 6, and the layout it feeds is a single-row
-  flexbox sized for a small count — more items just squeeze narrower, it
-  doesn't wrap or scroll. Past the cap the device silently fails to parse and
-  the whole thing renders as an inert, unstyled paragraph.
+- **2–8 items.** Dates ≤16 chars, events ≤90 chars. (Capacity raised
+  2026-08-13 from 2–6 / 14 / 70: the page now switches to a vertical-spine
+  layout past six items, so a long saga no longer squeezes or amputates.)
+- **The 8-item ceiling is a hard code limit, not a stylistic suggestion.**
+  `parseTimeline` returns null past 8. Up to six items render on the
+  horizontal spine; seven or eight automatically stack vertically — both are
+  designed layouts, neither needs anything from the author.
 - **Every limit fails the same silent way — count, date length, event length,
   and an unspaced dash all make `parseTimeline` (`lib/article-devices.ts`)
   return null and the line ship as plain text.** A 5-entry Cronología
-  "mysteriously" rendering unstyled (2026-08-13, the Flag Football piece) is
-  almost always one event past 70 characters, not a rendering bug. Check each
+  "mysteriously" rendering unstyled (2026-08-13, the Flag Football piece) was
+  one event past the old 70-character limit, not a rendering bug. Check each
   entry against the limits at drafting time, and spot-check the live page
   after publishing a device-carrying piece.
 
@@ -261,6 +262,11 @@ Reparto: FIFA — 70% · Federaciones — 20% · Clubes — 10%
 
 - **2–5 shares.** Label ≤30 chars; each value must contain a percentage. They
   are normalized, so they should roughly sum to 100.
+- Since 2026-08-13 all five segments carry distinct swatches (a dark accent
+  anchor, the accent, one flat tint and two striped tints — pattern keeps the
+  light steps apart in print and for color-blind readers). Order the shares
+  biggest-first when the story allows: the strongest shades land on the
+  biggest slices.
 
 **Not only money.** It is the right device any time a story has a countable
 universe splitting into camps: members of a body who back / oppose / haven't

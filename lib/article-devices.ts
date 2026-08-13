@@ -132,16 +132,21 @@ function countupSpan(figure: string, cls: string, attrs = ''): string {
 // ————————————————————————————————————————————————————————— Cronología
 type Milestone = { when: string; what: string };
 
+// Capacity raised 2026-08-13: 2–6 → 2–8 items (the CSS switches to the
+// vertical-spine layout past six, so a long saga no longer has to amputate
+// beats), dates 14 → 16 chars, events 70 → 90. The limits still exist for
+// the same reason as ever — past them the device silently falls back to
+// plain text — they're just wider now.
 function parseTimeline(raw: string): Milestone[] | null {
   const items = stripTags(raw).split(ITEM_SEP);
-  if (items.length < 2 || items.length > 6) return null;
+  if (items.length < 2 || items.length > 8) return null;
   const milestones: Milestone[] = [];
   for (const item of items) {
     const kv = item.match(KV_RE);
     if (!kv) return null;
     const when = kv[1].trim();
     const what = kv[2].trim();
-    if (!when || when.length > 14 || !what || what.length > 70) return null;
+    if (!when || when.length > 16 || !what || what.length > 90) return null;
     milestones.push({ when, what });
   }
   return milestones;
@@ -268,10 +273,14 @@ function parseDelta(raw: string): Delta | null {
 
 function buildDelta(delta: Delta): string {
   const caption = delta.caption ? `<span class="lect-salto-caption">${esc(delta.caption)}</span>` : '';
+  // data-lect-stagger (2026-08-13): from → arrow → to rise in sequence, so
+  // the before is on the page before the after lands and starts counting —
+  // the one device whose whole story is an ordering. Same shared primitive
+  // as every other stagger; no-JS renders the finished row.
   return (
     `<div class="lect-device lect-salto" role="note" aria-label="Salto: de ${esc(delta.from)} a ${esc(delta.to)}"${delta.dir ? ` data-dir="${delta.dir}"` : ''}>` +
     `<span class="lect-device-label">El salto</span>` +
-    `<div class="lect-salto-row"><span class="lect-salto-from">${esc(delta.from)}</span>` +
+    `<div class="lect-salto-row" data-lect-stagger><span class="lect-salto-from">${esc(delta.from)}</span>` +
     `<span class="lect-salto-arrow" aria-hidden="true">${delta.dir === 'down' ? '↘' : delta.dir === 'up' ? '↗' : '→'}</span>` +
     `${countupSpan(delta.to, 'lect-salto-to')}</div>${caption}</div>`
   );
@@ -299,16 +308,19 @@ function parseShares(raw: string): Share[] | null {
 
 function buildShares(shares: Share[]): string {
   const sum = shares.reduce((total, s) => total + s.pct, 0);
+  // Five distinct shades for the five-segment cap (was i % 4, which handed
+  // a fifth segment the same swatch as the first — two legend entries in
+  // identical colors, found in the 2026-08-13 palette pass).
   const segments = shares
     .map(
       (s, i) =>
-        `<span class="lect-rep-seg" data-lect-seg style="width:${((s.pct / sum) * 100).toFixed(2)}%" data-shade="${i % 4}"></span>`,
+        `<span class="lect-rep-seg" data-lect-seg style="width:${((s.pct / sum) * 100).toFixed(2)}%" data-shade="${i % 5}"></span>`,
     )
     .join('');
   const legend = shares
     .map(
       (s, i) =>
-        `<span class="lect-rep-key"><span class="lect-rep-swatch" data-shade="${i % 4}" aria-hidden="true"></span>${esc(s.label)} ${countupSpan(`${s.pct}%`, 'lect-rep-pct')}</span>`,
+        `<span class="lect-rep-key"><span class="lect-rep-swatch" data-shade="${i % 5}" aria-hidden="true"></span>${esc(s.label)} ${countupSpan(`${s.pct}%`, 'lect-rep-pct')}</span>`,
     )
     .join('');
   return (

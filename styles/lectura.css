@@ -153,6 +153,15 @@
   content:"";position:absolute;top:-5px;left:0;width:12px;height:12px;border-radius:50%;
   background:var(--paper);border:3px solid var(--lect-accent);
 }
+/* Long sagas (7–8 milestones, allowed since 2026-08-13): the single-row
+   spine would squeeze each event below readability, so past six items the
+   device adopts the phone treatment at every width — vertical spine on the
+   left, events stacked. Same geometry as the max-width:640px block below;
+   keep the two in step. */
+.lect-timeline:has(.lect-tl-item:nth-child(7)) .lect-tl-line{top:14px;bottom:6px;left:5px;right:auto;width:2px;height:auto;}
+.lect-tl-list:has(> :nth-child(7)){flex-direction:column;gap:16px;padding:0 0 0 24px;}
+.lect-tl-list:has(> :nth-child(7)) .lect-tl-item{padding-top:0;}
+.lect-tl-list:has(> :nth-child(7)) .lect-tl-item::before{top:2px;left:-24px;}
 .lect-tl-when{
   font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
   font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--lect-ink-accent);
@@ -227,13 +236,28 @@
 .lect-salto-caption{display:block;margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
 
 /* Reparto — the floor plan of the money: one bar, shaded in steps of the
-   product accent, with a swatch legend. */
-.lect-rep-bar{display:flex;height:34px;border:1px solid var(--rule);background:var(--paper-soft);overflow:hidden;}
+   product accent, with a swatch legend. Re-stepped 2026-08-13 after a
+   palette-validator pass: five DISTINCT shades (a five-part reparto used to
+   cycle back to shade 0, giving two legend entries the same swatch), a dark
+   ink-mix anchor to widen the ramp's spread, and diagonal stripes on the two
+   lightest steps — a single accent hue can't hold five tints apart on its
+   own, so the light end carries pattern as well as color (CVD/print-safe).
+   The 2px gaps let the surface separate adjacent fills. */
+.lect-rep-bar{display:flex;gap:2px;height:34px;border:1px solid var(--rule);background:var(--paper);overflow:hidden;}
 .lect-rep-seg{height:100%;}
-.lect-rep-seg[data-shade="0"],.lect-rep-swatch[data-shade="0"]{background:var(--lect-accent);}
-.lect-rep-seg[data-shade="1"],.lect-rep-swatch[data-shade="1"]{background:color-mix(in srgb,var(--lect-accent) 65%,var(--paper));}
-.lect-rep-seg[data-shade="2"],.lect-rep-swatch[data-shade="2"]{background:color-mix(in srgb,var(--lect-accent) 38%,var(--paper));}
-.lect-rep-seg[data-shade="3"],.lect-rep-swatch[data-shade="3"]{background:color-mix(in srgb,var(--lect-accent) 18%,var(--paper));}
+.lect-rep-seg[data-shade="0"],.lect-rep-swatch[data-shade="0"]{background:color-mix(in srgb,var(--lect-accent) 45%,var(--ink));}
+.lect-rep-seg[data-shade="1"],.lect-rep-swatch[data-shade="1"]{background:var(--lect-accent);}
+.lect-rep-seg[data-shade="2"],.lect-rep-swatch[data-shade="2"]{background:color-mix(in srgb,var(--lect-accent) 58%,var(--paper));}
+.lect-rep-seg[data-shade="3"],.lect-rep-swatch[data-shade="3"]{
+  background:repeating-linear-gradient(45deg,
+    color-mix(in srgb,var(--lect-accent) 52%,var(--paper)) 0 3px,
+    color-mix(in srgb,var(--lect-accent) 26%,var(--paper)) 3px 8px);
+}
+.lect-rep-seg[data-shade="4"],.lect-rep-swatch[data-shade="4"]{
+  background:repeating-linear-gradient(135deg,
+    color-mix(in srgb,var(--lect-accent) 44%,var(--paper)) 0 2px,
+    color-mix(in srgb,var(--lect-accent) 12%,var(--paper)) 2px 9px);
+}
 .lect-rep-legend{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:12px;}
 .lect-rep-key{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--gray-dark);}
 .lect-rep-swatch{width:11px;height:11px;flex-shrink:0;border:1px solid var(--rule);}
@@ -1076,10 +1100,10 @@ mark.lect-fig{
    tints the entire themed page lavender (seen in Playwright, 2026-08-05).
    position:relative is what keeps the ::after overlay inside the frame. */
 .lect-duotone{position:relative;background:var(--inf-violet-deep);isolation:isolate;}
-.lect-duotone img{filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.92;}
-/* Overlay lightened .28/.16 → .20/.11 (2026-08-13) — keep in sync with
-   .infhub-duotone in styles/product-hubs.css. */
-.lect-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.20),rgba(84,36,156,.11));pointer-events:none;}
+.lect-duotone img{filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.96;}
+/* Overlay lightened twice on owner feedback (2026-08-13): .28/.16 → .20/.11
+   → .10/.05 — keep in sync with .infhub-duotone in styles/product-hubs.css. */
+.lect-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.10),rgba(84,36,156,.05));pointer-events:none;}
 
 .article-product-infinitas .lect-pullfig{border-color:var(--src-infinitas);}
 .article-product-infinitas .lect-pullfig-value{color:var(--src-infinitas);font-family:var(--sans);font-weight:800;letter-spacing:-.02em;}
