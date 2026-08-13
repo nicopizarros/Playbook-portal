@@ -21,16 +21,14 @@ and the human-approval gate (Step 6) before anything reaches the database.
 the 2026-08-04 removal below): the article body now always ends with a
 `Fuentes: [Outlet](url) · [Outlet](url)` line, one linked entry per outlet
 that materially contributed a fact, primary source first, cross-referenced
-outlets after. This isn't dead text, `app/(public)/articulo/page.tsx`'s
-reading-enhancement layer detects a paragraph starting with the literal
-word `Fuentes:` and renders it as a styled sources list (`lect-sources`,
-first entry tagged "origen"). See Step 3's Material gráfico section for
-the exact syntax and two more conventions (`Cifra clave:`, `Cronología:`)
-that same layer renders as real graphics. Step 2's cross-referencing is
-still mandatory regardless, it's still what makes a piece Playbook's own
-take instead of a paraphrase of one competitor, the Fuentes line is just
-where that work now surfaces visibly too, on top of (not instead of) the
-rewrite itself.
+outlets after. On the live site this renders as a styled sources list
+(observed CSS class `lect-sources`, first entry tagged "origen"), not raw
+text, though that rendering isn't implemented anywhere in this repo's own
+source (see Step 3's Material gráfico section, same caveat applies here).
+Step 2's cross-referencing is still mandatory regardless, it's still what
+makes a piece Playbook's own take instead of a paraphrase of one
+competitor, the Fuentes line is just where that work now surfaces visibly
+too, on top of (not instead of) the rewrite itself.
 
 (History, for context if this ever flips again: for about a week, from
 2026-08-04 to 2026-08-13, this skill appended no visible citation list, on
@@ -165,27 +163,34 @@ invented connection reads worse than having none at all.
 ### Material gráfico (optional, use only when it genuinely helps)
 
 Two plain-text paragraph conventions that the article page's
-reading-enhancement layer (the `lect-*` classes) detects and renders as
-real graphics, not just text. Both must be their own **plain paragraph,
-not bold, not a heading**, on its own blank-line-separated line exactly
-like any other body paragraph, that plain-text shape is what the page's
-parser keys off:
+reading-enhancement layer (observed `lect-*` classes) detects and renders
+as real graphics on at least some published pieces: `Cifra clave: <valor>
+— <descripción corta>` (one pulled-out stat) and `Cronología: <hito> —
+<evento> · <hito> — <evento> · ...`, middle dot `·` between entries (a
+timeline of dated beats). Both use a literal em dash ("—") between the
+label/date and its description, the one deliberate carve-out from the
+no-em-dash rule below. Confirmed working, live, on
+`cinco-clubes-de-la-liga-de-expansion-vuelven-al-tas-contra-la-eliminacion-del-ascenso-y-descenso`
+(a 4-entry Cronología) and, briefly, on an earlier draft of the Flag
+Football piece below (a Cifra clave, and separately a 2-entry Cronología
+on the LaLiga piece, both later removed at the human reviewer's request
+for being forced rather than for a rendering problem).
 
-- `Cifra clave: <valor> — <descripción corta>` renders as a pulled-out
-  stat card with an animated count-up (`lect-pullfig`). Use it for the one
-  number that most concretely represents the money or scale in the story,
-  e.g. `Cifra clave: US$32 millones — lo que aprobaron los equipos de la
-  NFL para lanzar, junto con TMRW Sports, una liga profesional de flag
-  football rumbo a LA28`.
-- `Cronología: <hito> — <evento> · <hito> — <evento> · ...` (a middle dot
-  `·` between entries) renders as an animated timeline (`lect-tl-*`). Use
-  it only when a story genuinely has three or more dated beats worth
-  seeing in sequence, two dates rarely earn the space.
-
-Both use a literal em dash ("—") between the label/date and its
-description, on purpose, this is the one place in the whole body where
-that character belongs. Everywhere else in the prose the no-em-dash rule
-below still applies.
+**This isn't verified against source**: `grep -rn "lect-tl\|lect-pullfig"`
+across this entire repo, including build output, turns up nothing, so
+whatever renders these into styled graphics on the live site lives outside
+what this session can see or edit, not in `app/` or `components/` here.
+Treat the two patterns above as an observed convention, not a guaranteed
+contract: a 5-entry Cronología tried on the Flag Football piece
+(2026-08-13) rendered as plain unstyled text instead of a timeline, for a
+reason this skill couldn't diagnose from the checked-out source. After
+publishing a piece that uses either pattern, spot-check the live article
+page for the actual graphic (a stat card / timeline visual), not just that
+the raw text is present. If it didn't render, don't leave broken-looking
+plain text in an "optional graphic" shape sitting in the body, either
+retry with a smaller/simpler version (fewer entries is safer than more)
+or drop it and let the fact live in ordinary prose instead, exactly like
+any other piece of information.
 
 Never fabricate a graphic just to have one, a story with no natural stat
 or multi-beat timeline gets neither, that's what "optional" means. At most
