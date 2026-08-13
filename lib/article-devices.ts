@@ -586,7 +586,7 @@ function linkTrackB(track: Track): void {
 // each layer is correctly projected on its own and the transition between
 // them never has to fake geometry.
 function trackLayer(track: Track, from: number, to: number, cls: string): string {
-  const { points, a, b } = track;
+  const { points } = track;
   const win = points.slice(from, to + 1);
   const span = win.length - 1;
   const x = (i: number) => (span === 0 ? (Q_X0 + Q_X1) / 2 : Q_X0 + (i * (Q_X1 - Q_X0)) / span);
