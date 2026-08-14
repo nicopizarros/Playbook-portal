@@ -94,7 +94,7 @@ function articleHref(article: Article) {
 
 export default async function NoticiasHubPage() {
   const [articles, content] = await Promise.all([
-    getArticlesBySource('industry-shots'),
+    getArticlesBySource('noticias'),
     getSiteContent(),
   ]);
   const hubs = productHubsContent(content.productHubs);
@@ -198,7 +198,7 @@ export default async function NoticiasHubPage() {
         )}
 
         <div className="hub-foot">
-          <Link className="section-link hub-foot-link" href="/archivo?source=industry-shots">
+          <Link className="section-link hub-foot-link" href="/archivo?source=noticias">
             Ver Noticias en el archivo general →
           </Link>
         </div>

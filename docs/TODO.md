@@ -6,88 +6,73 @@ doesn't start with re-deriving the context.
 
 ---
 
-## 1. News classification
+## 1. News classification — RESOLVED 2026-08-14
 
-**Status: needs scoping before any code.**
+The four open questions were answered and the whole thing shipped in one
+pass:
 
-We should do the news classification. Nothing is implemented and the shape of
-it is not decided yet, so the first task is defining it, not building it.
+1. **Classify what?** Both ends. Publish-time validation plus an archive
+   audit. The audit ran against the real DB the same day: 133 rows, zero
+   out-of-vocabulary tags, zero empty tiers — the archive was already
+   consistent, so there was nothing to backfill.
+2. **By what?** The fixed controlled vocabulary that `lib/taxonomy.ts`
+   already was, now enforced: `validateTags()` /  `canonicalizeTag()` there
+   fold case/accents/whitespace to the canonical option and reject
+   everything else with the nearest option suggested. The drafting agent
+   proposes; the vocabulary constrains.
+3. **Who arbitrates?** The vocabulary. `scripts/publish-newsletter.ts`
+   hard-fails the publish on an invalid tag (the human running the skill
+   sees the rejection); `app/api/update-articles/route.ts` canonicalizes,
+   drops what doesn't fold, and reports `droppedTags` in its response;
+   `lib/actions/admin.ts` (saveArticle/createArticle) rejects as a backstop
+   — the dashboard's checkbox UI can't produce invalid tags anyway.
+4. **Priority?** Deliberately editorial, out of scope. No validator touches
+   it.
 
-What exists today to build on or replace:
+Still available: `scripts/audit-taxonomy.ts` (report-only by default,
+`--fix` canonicalizes folding variants and never invents classifications).
+Re-run it if bulk imports ever bypass the gates.
 
-- `lib/taxonomy.ts` holds the three axes every article is filed under —
-  `scope` (Nacional/Internacional), `sport`, `vertical` (Derechos de TV,
-  Patrocinios, M&A, Gobernanza…) — plus the per-product ordering that decides
-  which axis leads on each hub.
-- Today those tags are written **by hand at drafting time**, by whoever (or
-  whatever) runs `publish-newsletter` / `publish-sourced-article`. Nothing
-  validates them: a typo mints a tag that no filter or hub can reach, and two
-  runs can file the same kind of story differently.
-- `priority` (1-5) is likewise a per-run judgment call, and on /noticias it is
-  also the layout, so an inflated 5 hogs a feature band.
-
-Questions to answer before writing anything:
-
-1. **Classify what?** Only incoming items at publish time, or a backfill pass
-   over the ~87 published rows so the archive is consistent too?
-2. **By what?** A fixed controlled vocabulary the skills must choose from
-   (cheap, predictable, needs curation), or a model call at publish time
-   (flexible, needs a review step), or both — model proposes, vocabulary
-   constrains?
-3. **Who arbitrates?** If the classifier and the drafting agent disagree,
-   which wins, and does a human see it before it goes live?
-4. **Does it set `priority` too**, or is priority deliberately editorial and
-   out of scope?
-
-Worth doing because the hubs, the archive filters, the related-articles rail
-and the homepage ranking all read these fields — they are the site's
-navigation, not decoration.
-
-**Annotation, 2026-08-13:** the *editorial format* half of classification now
-exists — the A/B/C/D router (`.claude/playbook-editorial/format-tiers.md` §1)
-classifies every incoming story by depth before drafting, and the admin Guía
-carries the router prompt. What this item still covers is the *taxonomy* half:
-validated `scope`/`sport`/`vertical` tags and the `priority` question. The
-four scoping questions above stand; question 2's "fixed controlled vocabulary
-the skills must choose from" now has a working precedent in how the router
-constrains format.
+**How the two halves landed:** the *editorial format* half shipped first
+(2026-08-13) as the A/B/C/D router (`.claude/playbook-editorial/format-tiers.md`
+§1), which classifies every incoming story by depth before drafting; the
+*taxonomy* half above (validated tags) followed on 2026-08-14, answering the
+four scoping questions the same way the router had set the precedent —
+fixed vocabulary constrains, the drafting agent proposes.
 
 ---
 
-## 2. Retire the `industry-shots` source key
+## 2. Retire the `industry-shots` source key — CODE DONE 2026-08-14, one post-deploy step left
 
-**Status: the name is already gone; the identifier is not.**
+The machine key is now `noticias` across the codebase: `KNOWN_SOURCES`,
+`SOURCE_LABELS`, `lib/taxonomy.ts`, `lib/product-hubs.ts`, the schema
+default, both pages, the API route, the CMS (dropdown, entry defaults,
+studio prompts), `ShotProgress`, and every `.article-product-*` /
+`[data-source]` CSS selector across the six stylesheets. The publish-skill
+docs (`.claude/playbook-editorial/`) say `noticias` now too.
 
-The product is called **Noticias**, and "Industry Shots" was retired as a name
-on 2026-08-08 — both publish skills, `docs/ENCYCLOPEDIA.md` and this file now
-say Noticias throughout. Readers never saw the old name anyway
-(`SOURCE_LABELS` has always rendered the source as "Noticias").
+**The safety net:** `normalizeSource()` in `lib/constants.ts`, applied once
+at the data boundary (`lib/data/articles.ts`), maps legacy rows to
+`noticias` on read — so the site is correct against BOTH database states,
+and `/archivo?source=industry-shots` bookmarks still filter correctly.
 
-What is left is the machine key `source: "industry-shots"`, still the value
-**68 published rows** are filed under. It is not cosmetic — it is the string
-matched by:
+**What's left — strictly after the next deploy:**
 
-- `lib/product-hubs.ts` (`hubForSource`, which is what decides an article gets
-  a product template at all), `lib/constants.ts`, `lib/taxonomy.ts`,
-  `lib/db/schema.ts`, `lib/rank.ts`
-- `app/(public)/noticias/page.tsx`, `app/(public)/articulo/page.tsx`,
-  `app/api/update-articles/route.ts`
-- the `.article-product-industry-shots` CSS class across six stylesheets
-  (`lectura.css` carries the numbered beats and the whole Noticias skin)
-- `components/admin/article-entry.ts` and `studio-prompts.ts`, i.e. the CMS
-  dropdown an editor picks from
-- `components/products/ShotProgress.tsx`'s mark table
+```
+POSTGRES_URL=<production> npx tsx scripts/migrate-source-noticias.ts
+```
 
-Renaming it means a DB migration plus a coordinated rename across all of the
-above, and any row missed stops matching a hub, which silently drops the
-article out of `/noticias` and off its product template. Worth doing for
-consistency, but it is a migration with a rollback plan, not a find-and-
-replace. Until then the key is a legacy identifier that happens to spell an
-old title, and the skills say so explicitly so no future run "fixes" it.
+(93 rows carry the legacy key — verified by `--dry-run` on 2026-08-14; the
+TODO's old "68" was the published subset.) Do NOT run it before deploying:
+the currently-deployed build matches the literal old string, so migrating
+first would empty /noticias until the deploy lands. The script verifies
+counts and its header documents the reverse-update rollback. After it runs
+clean, `normalizeSource()` becomes a no-op that can stay indefinitely as
+cheap insurance.
 
 ---
 
-## 3. Stale files and dead weight
+## 3. Stale files and dead weight — the clear calls executed 2026-08-14, the judgment calls still open
 
 **Status: swept on 2026-08-13, on the owner's explicit instruction** ("remove
 stale and old code"). Deleted: the pre-Postgres seeds (`articles.json`,
@@ -105,9 +90,20 @@ orphan modules. Everything deleted is recoverable from git history.
 
 ---
 
-## 4. Build the proposed devices (device roadmap)
+## 4. Build the proposed devices (device roadmap) — DONE 2026-08-14
 
-**Status: designed, not built. Full spec in `docs/device-roadmap.md`.**
+**Status: all eight built**, in the roadmap's recommended order, each with
+its exclusive pair registered (`Contrato`×`Jugada`, `Calendario`×`Cronología`,
+`Votación`×`Reparto`, `Ranking`×`Duelo`, `Cascada`×`Recibo`,
+`Tablero`×`Cifra clave`). Entries moved from the roadmap into
+`dynamic-element-library.md` §2 (now twenty-three devices); the roadmap file
+keeps the coverage map and the original rationale. Computed figures per the
+specs: Contrato's term total and "hoy" marker, Calendario's "en N meses"
+chips (relative to the article's own date, threaded as `DeviceContext`
+through `applyBodyDevices`/`deviceFromParagraph`), Votación's
+`Aprobada`/`No alcanzada` verdict, Cascada's Recibo-style 2.5% sum guard.
+Verified: 8/8 render, 5/5 malformed cases stay inert, exclusive pairs lock,
+light/dark samplers reviewed. Original scoping notes below.
 
 The 2026-08-13 device-by-device audit shipped one upgrade to each of the
 fifteen existing devices and mapped the roster's blind spots: the future

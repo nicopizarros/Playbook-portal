@@ -34,6 +34,9 @@
 // null when malformed so the paragraph stays readable prose.
 
 import world from './data/world-map.json';
+// Shared with the other device modules — see lib/html-entities.ts for the
+// decode-then-escape contract this module now follows.
+import { escapeHtml as esc, decodeEntities } from './html-entities';
 
 type CountryEntry = { n: string; c: [number, number]; p?: number[][][]; r?: string };
 const COUNTRIES = world.countries as unknown as Record<string, CountryEntry>;
@@ -89,8 +92,10 @@ const ITEM_SEP = /\s+·\s+/;
 const KV_RE = /^(.*?)\s+[—–-]\s+([\s\S]+)$/;
 
 export function parseMap(raw: string): ArticleMap | null {
-  const items = raw
-    .replace(/<[^>]+>/g, '')
+  // Decode after tag-stripping (lib/html-entities.ts): captured body HTML
+  // carries generateHTML's entities, and esc() below would double-escape
+  // them into visible &amp;apos; in labels.
+  const items = decodeEntities(raw.replace(/<[^>]+>/g, ''))
     .split(ITEM_SEP)
     .map(item => item.trim())
     .filter(Boolean);
@@ -199,14 +204,6 @@ function pathFor(rings: number[][][], project: (p: number[]) => Projected, sx: n
       return `${d}Z`;
     })
     .join('');
-}
-
-function esc(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 export function buildMap(map: ArticleMap): string | null {

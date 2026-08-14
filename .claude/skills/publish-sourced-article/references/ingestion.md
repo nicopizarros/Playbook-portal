@@ -178,13 +178,13 @@ else's piece.
 
 ## What this funnel usually publishes
 
-**Product routing is fixed:** `"Noticias"` / `"industry-shots"`, not
+**Product routing is fixed:** `"Noticias"` / `"noticias"`, not
 `publish-newsletter`'s per-product pairs. A third-party wire pickup reads as a
 news brief, not as a Playbook-branded opinion piece, and the kicker and
 `tag-mini` chip should say "Noticias" the same way they do on a Noticias item —
-both visually (`styles/components.css`'s `.tag-mini.industry-shots`) and in the
+both visually (`styles/components.css`'s `.tag-mini.noticias`) and in the
 taxonomy-row ordering it drives. There is no separate "wire story" entry in
-`KNOWN_SOURCES` / `SOURCE_LABELS` to reach for; reusing `industry-shots` is the
+`KNOWN_SOURCES` / `SOURCE_LABELS` to reach for; reusing `noticias` is the
 pragmatic way to get the "Noticias" label without adding a taxonomy value for
 it.
 

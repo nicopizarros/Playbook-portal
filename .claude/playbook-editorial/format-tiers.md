@@ -77,7 +77,7 @@ Two notes on how these meet what the portal already publishes:
 
 Four products, one masthead. None of this is re-derivable per run.
 
-| | Noticias (`industry-shots`) · Infinitas | La Lana del Deporte | TFBR |
+| | Noticias (`noticias`) · Infinitas | La Lana del Deporte | TFBR |
 |---|---|---|---|
 | **Body shape** | 3–5 movements + Opinión (§3); Deep Dives per §3b | cold open → promise block → 6–8 `##` sections → Opinión | free-form essay, one idea |
 | **Movements per section** | one each | 1–2 per `##` section | as the argument runs |
@@ -193,12 +193,45 @@ something worth seeing.
 ## 4. La Lana del Deporte — a fixed architecture
 
 **La Lana is thesis-driven and develops in its own flow — never regenerate it
-from these skills** (editorial guide, 2026-08-13). When bringing an approved
-La Lana piece to the website: conserve its thesis, structure, subheads and
-voice; conserve the three-question promise block when the edition carries it;
+from these skills** (editorial guide, 2026-08-13; hardened into the verbatim
+contract below by the publisher, 2026-08-14). When bringing an approved
+La Lana piece to the website, **the words are not yours to touch — the build
+is.** The published article must read, sentence for sentence, as the edition
+was written; what the portal adds is the design system around it. That is
+"treat it like premier news": the value is the construction, not a rewrite.
+
+**The verbatim contract (publisher directive, 2026-08-14):**
+
+1. **Text ships word-for-word.** No rewriting, summarizing, trimming,
+   reordering or "improving" of the author's sentences — not the cold open,
+   not the subheads, not La Opinión, not even a typo (flag typos in the run
+   report instead of fixing them silently). The only markup you apply is
+   what the original already implies: its own `##` subheads, its own bold,
+   its own promise block and bullets.
+2. **Every image stays, in place.** Each embedded image from the edition is
+   carried into the body where it appeared, with its credit; the edition's
+   lead image is the cover. No swapping in "better" art.
+3. **Additions are limited to the design build:** exactly **1 or 2 designed
+   devices** — declarations added as their own paragraphs, every number in
+   them taken from the piece's own reporting (`dynamic-element-library.md`
+   rules apply unchanged) — plus the standard apparatus the portal owns
+   (fields, taxonomy, `Fuentes` when the edition names primary sources, the
+   Ruta del dinero if the piece declares one). This 1–2 cap OVERRIDES the
+   general device budget for verbatim La Lana ingests, even at `priority: 5`
+   on a long read: the piece is the star, the devices are its setting.
+4. **Premier treatment in the metadata:** real `readingTime` from the actual
+   length, `priority` 4 by default (5 when the edition is genuinely the
+   week's flagship), and the full expediente shell — case number, stamps,
+   pull figure, the La Lana skin — which the article page applies from
+   `source: 'la-lana'` on its own.
+5. **`check-voice.mjs` is informational only for La Lana.** Run it, read it,
+   report what it flags — and never edit the author's text to satisfy it.
+   The checker calibrates the portal's own drafting; an approved edition
+   outranks it.
+
+Conserve the three-question promise block when the edition carries it;
 conserve La Opinión de Playbook; adapt only presentation, annexes, metadata,
-hero and the portal's modules. Never summarize or rewrite it without an
-explicit editorial instruction.
+hero and the portal's modules.
 
 **Reproduce it.** Measured 2026-08-06: present in 8 of 8 published editions.
 These are not free-form long-form; they run the same four movements every time,
@@ -461,16 +494,18 @@ hub". But the hubs read what a run writes, so get these right at drafting time:
 **"Industry Shots" is retired** (publisher, 2026-08-08). It was an internal
 nickname for that Substack newsletter and it is not one any more, in prose or
 in conversation. Readers never saw it either way:
-`SOURCE_LABELS['industry-shots']` in `lib/constants.ts` has always rendered the
+`SOURCE_LABELS` in `lib/constants.ts` has always rendered the
 source as "Noticias" everywhere on the site. **Never write the literal string
 "Industry Shots" into any visible field** (title, excerpt, teaser, body,
 author).
 
-`"industry-shots"` survives ONLY as the `source` key, because it is the value
-68 published rows are filed under and the string every hub filter, CSS product
-class and rank rule matches on. Keep writing it verbatim in that one field;
-renaming the key is a migration, tracked in `docs/TODO.md`. Reading it as a
-product name is the mistake — it is a database identifier that happens to spell
+The machine key caught up on 2026-08-14 (TODO #2): the `source` value is now
+`"noticias"` in code, CSS and the CMS, with `normalizeSource()`
+(`lib/constants.ts`) mapping legacy rows until
+`scripts/migrate-source-noticias.ts` runs post-deploy. Write `"noticias"` in
+the `source` field; `"industry-shots"` remains only inside historical Substack
+slugs/URLs, which are external identifiers and never change. Reading either as
+a product name is the mistake — it is a database identifier that happens to spell
 an old title.
 
 (The guide's "Industry Shots Main / Tier 2" rows in §2 above are the editorial

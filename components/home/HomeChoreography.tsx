@@ -14,7 +14,11 @@ import { gsap } from '@/lib/gsap';
 // are added here, so a no-JS or reduced-motion render never has them and
 // the page is byte-identical to the pre-flourish design — the "static
 // final state, never missing content" rule satisfied by construction.
-const BOTTOM_EDGE_SELECTOR = '.section-head:not(.page-head)';
+// .infsec-head excluded: the Infinitas section frames itself with its own
+// violet top rule (2026-08-14 redesign) and has no bottom border for the
+// green sweep to ride — sweeping green through the one violet-branded
+// section would fight its identity.
+const BOTTOM_EDGE_SELECTOR = '.section-head:not(.page-head):not(.infsec-head)';
 const TOP_EDGE_SELECTOR = '.mr-band, .still-matters, .proof-grid, .topic-directory';
 
 export function HomeChoreography() {

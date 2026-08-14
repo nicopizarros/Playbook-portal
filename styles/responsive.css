@@ -147,8 +147,9 @@
   .quote{border-right:none;border-bottom:1px solid var(--rule);}
   .quote:last-child{border-bottom:none;}
   .topic-directory{grid-template-columns:repeat(3,1fr);}
-  .video-top,.inf-grid,.about-card{grid-template-columns:1fr;}
-  .inf-card{min-height:240px;}
+  .video-top,.infsec-grid,.about-card{grid-template-columns:1fr;}
+  .infsec-grid{gap:14px;}
+  .infsec-rows{margin-top:6px;}
   .proof-grid{grid-template-columns:1fr;}
   .stat{border-right:none;border-bottom:1px solid var(--rule);padding-bottom:16px;margin-bottom:16px;}
   .mid-cta-box{flex-direction:column;align-items:flex-start;}

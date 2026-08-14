@@ -17,11 +17,14 @@
      .hub-tfbr      The Futbol Business Review — "La Sala de Juntas".
                     Black + red: the co-brand's own identity (card art),
                     kept as-is on purpose.
-     .hub-infinitas Infinitas — "El Marcador". Flat violet, clean. Class
+     .hub-infinitas Infinitas — "El Marcador". Violet as accent lines on
+                    the site's own paper (2026-08-14 — the earlier
+                    full-surface violet wash/duotone was cut back). Class
                     names are infhub-* because the homepage's Infinitas
-                    section owns .inf-grid/.inf-card (dark overlay cards
-                    in sections.css) and colliding with them made titles
-                    unreadable — never reuse the inf-* prefix here.
+                    section owns its own prefix (infsec-* since the
+                    2026-08-14 redesign; before that inf-*, whose dark
+                    overlay cards collided with hub styles and made titles
+                    unreadable) — never share prefixes across the two.
 
    Every hub surface is a FIXED-color environment (same reasoning as the
    footer's --ink-fixed): a manila folder is paper and a bottle-label is
@@ -49,13 +52,18 @@
   --tfbr-faint:rgba(244,244,244,.55);
   --tfbr-rule:rgba(244,244,244,.14);
   --tfbr-red:#e01f26;
-  --inf-violet:#6b2fbf;
-  --inf-violet-deep:#54249c;
-  --inf-white:#ffffff;
-  --inf-paper:#faf7ff;
-  --inf-ink:#241832;
-  --inf-faint:rgba(36,24,50,.78);
-  --inf-rule:rgba(107,47,191,.18);
+  /* Infinitas (2026-08-14, user directive): the violet stays an ACCENT —
+     rules, the wordmark, the scoreboard figures — never a filled tint
+     over content. Surfaces ride the site theme tokens, which also makes
+     this the one hub that follows light/dark instead of pinning its own
+     paper. --src-infinitas swaps per theme in tokens.css, so every accent
+     below is theme-aware for free. */
+  --inf-violet:var(--src-infinitas);
+  --inf-white:var(--paper);
+  --inf-paper:var(--paper);
+  --inf-ink:var(--ink);
+  --inf-faint:var(--gray-txt);
+  --inf-rule:color-mix(in srgb,var(--src-infinitas) 20%,transparent);
 }
 
 /* ————— Shared hub scaffolding ————— */
@@ -257,6 +265,59 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
 }
 .lana-folder-card:hover .lana-folder-open{opacity:1;transform:none;}
+
+/* ——— El Archivero en movimiento (2026-08-14) ———
+   Scroll-driven cabinet, components/products/LanaArchiveCabinet.tsx. The
+   BASE state of this markup is the plain folder grid above — everything
+   cabinet-shaped is gated behind .is-cabinet, which only JS adds (desktop,
+   motion allowed), so no-JS and reduced-motion readers get the grid with
+   zero layout shift. Fixed light palette like the rest of the hub: a
+   drawer is furniture, it does not invert with the theme. */
+.lana-cabinet .lana-cab-excerpt{display:block;font-size:13.5px;line-height:1.55;color:var(--pb-gray);}
+.lana-cabinet .lana-cab-reading{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--pb-gray);}
+.lana-cabinet .lana-cab-folder .lana-pull-figure{font-size:clamp(30px,3.4vw,44px);margin:0;}
+/* Grid mode keeps the compact card: the cabinet-only extras stay hidden. */
+.lana-cabinet:not(.is-cabinet) .lana-cab-extra{display:none;}
+.lana-cabinet:not(.is-cabinet) .lana-cabinet-drawer,
+.lana-cabinet:not(.is-cabinet) .lana-cabinet-progress{display:none;}
+
+/* Cabinet mode: tall runway, sticky 100vh stage, folders stacked above a
+   CSS-drawn drawer they get pulled out of (GSAP scrubs transform/opacity
+   only, so the whole thing stays on the compositor). */
+.lana-cabinet.is-cabinet .lana-cabinet-stage{position:sticky;top:0;height:100vh;overflow:hidden;}
+/* top clears the sticky header + ticker (~110px) so the active folder's
+   tab never hides under them. */
+.lana-cabinet.is-cabinet .lana-cabinet-folders{display:block;position:absolute;left:50%;top:clamp(120px,15vh,180px);transform:translateX(-50%);width:min(640px,92%);}
+.lana-cabinet.is-cabinet .lana-cab-folder{position:absolute;left:0;right:0;top:0;will-change:transform,opacity;}
+.lana-cabinet.is-cabinet .lana-cab-folder .lana-folder-body{
+  min-height:0;gap:14px;padding:26px 28px 24px;border-radius:0 10px 10px 10px;
+  box-shadow:0 24px 50px rgba(10,10,10,.18);
+}
+.lana-cabinet.is-cabinet .lana-cab-folder h3{font-size:clamp(20px,2.2vw,26px);flex:none;}
+/* Tabs staggered across the folder top like real files in a drawer. */
+.lana-cabinet.is-cabinet .lana-cab-folder:nth-child(3n+2) .lana-folder-tab{margin-left:26%;}
+.lana-cabinet.is-cabinet .lana-cab-folder:nth-child(3n) .lana-folder-tab{margin-left:52%;}
+.lana-cabinet.is-cabinet .lana-cab-folder:hover{transform:none;}
+
+.lana-cabinet-progress{
+  position:absolute;top:76px;right:0;margin:0;z-index:6;
+  font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--pb-gray);
+  border:1px solid var(--pb-rule);background:var(--pb-paper-soft);padding:6px 12px;
+}
+.lana-cabinet.is-cabinet .lana-cabinet-drawer{position:absolute;left:50%;transform:translateX(-50%);bottom:5vh;width:min(760px,96%);z-index:5;}
+.lana-cabinet.is-cabinet .lana-cabinet-drawer-face{
+  position:relative;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  background:linear-gradient(180deg,#f4efe4,#e7e0d0);border:1px solid var(--pb-rule);border-radius:6px;
+  box-shadow:0 -16px 34px rgba(10,10,10,.10),inset 0 1px 0 rgba(255,255,255,.8);
+}
+/* The dark slot the folders come out of. */
+.lana-cabinet.is-cabinet .lana-cabinet-drawer-face::before{
+  content:"";position:absolute;top:-12px;left:10px;right:10px;height:12px;
+  border-radius:4px 4px 0 0;background:linear-gradient(180deg,rgba(10,10,10,.42),rgba(10,10,10,.16));
+}
+.lana-cabinet-plate{border:1px solid var(--pb-rule);background:#fff;padding:5px 16px;font-size:10.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--pb-ink);}
+.lana-cabinet-handle{display:block;width:130px;height:14px;border:2px solid var(--pb-ink);border-radius:8px;opacity:.7;}
+
 .hub-lana .hub-foot-link{font-size:12.5px;}
 
 /* ——— La Lana article template: the dossier carried into the story.
@@ -395,7 +456,7 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 .hub-shots .hub-foot-link{font-size:12.5px;}
 
 /* ——— Noticias article template. */
-.article-product-industry-shots .tag{background:var(--green);color:var(--ink-fixed);}
+.article-product-noticias .tag{background:var(--green);color:var(--ink-fixed);}
 
 /* Shot-glass reading progress: fixed corner chip over the themed page. */
 .shot-progress{
@@ -660,14 +721,15 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 .hub-infinitas .section-link:hover{color:var(--inf-violet);}
 .hub-infinitas .empty-state{color:var(--inf-faint);}
 
-/* Masthead: one flat violet block, the wordmark's rounded lowercase voice. */
-.hub-inf-masthead{background:var(--inf-violet);color:var(--inf-white);padding:52px 48px 56px;margin-top:4px;}
-.hub-inf-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px;}
+/* Masthead: the violet lives in a thick rule and the wordmark itself —
+   type on paper, not a filled block (2026-08-14). */
+.hub-inf-masthead{border-top:4px solid var(--inf-violet);border-bottom:1px solid var(--inf-rule);padding:34px 0 30px;margin-top:4px;color:var(--inf-ink);}
+.hub-inf-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px;color:var(--inf-faint);}
 .hub-inf-title{
   font-family:var(--sans);font-weight:800;font-size:clamp(48px,7vw,84px);line-height:.95;
-  letter-spacing:-.03em;text-transform:lowercase;margin:0 0 12px;
+  letter-spacing:-.03em;text-transform:lowercase;margin:0 0 12px;color:var(--inf-violet);
 }
-.hub-inf-sub{font-size:16.5px;font-weight:600;letter-spacing:.03em;margin:0;}
+.hub-inf-sub{font-size:16.5px;font-weight:500;letter-spacing:.03em;margin:0;color:var(--inf-faint);}
 
 /* El Marcador: the scoreboard module. */
 .infhub-marcador{margin-top:56px;}
@@ -686,20 +748,19 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 }
 .scoreboard-source{display:block;width:100%;margin-top:10px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--inf-faint);}
 
-/* Lead story + violet duotone photography. */
+/* Lead story. Photography is clean since 2026-08-14 — the violet duotone
+   wash was the heaviest tint on the hub; the identity now hangs on a thin
+   violet baseline under each photo instead. (The class name survives as
+   the shared photo-frame hook.) */
 .infhub-lead{margin-top:56px;}
 .infhub-lead-card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:36px;align-items:center;color:inherit;}
-/* isolation:isolate is load-bearing (same lesson as .lect-duotone in
-   styles/lectura.css): without it the img's mix-blend-mode:luminosity
-   blends against the ROOT stacking context and tints the whole page
-   lavender — seen intermittently on /infinitas below the fold. */
-.infhub-duotone{display:block;position:relative;overflow:hidden;background:var(--inf-violet-deep);isolation:isolate;}
-.infhub-duotone img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.96;}
-/* Overlay lightened twice on owner feedback (2026-08-13): .28/.16 → .20/.11
-   → .10/.05. The violet is now a whisper over the grayscale photo — the
-   identity comes from the deep-violet frame + luminosity blend, not the wash.
-   Keep in sync with .lect-duotone in styles/lectura.css — same recipe. */
-.infhub-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.10),rgba(84,36,156,.05));pointer-events:none;}
+/* The duotone history ended here: lightened twice on owner feedback
+   (2026-08-13, .28/.16 → .10/.05), then cut entirely on 2026-08-14 —
+   the directive moved from "whisper" to "no tint over content at all".
+   Clean photo, violet baseline. Keep in sync with .lect-duotone in
+   styles/lectura.css — same decision. */
+.infhub-duotone{display:block;position:relative;overflow:hidden;background:var(--paper-soft);border-bottom:3px solid var(--inf-violet);}
+.infhub-duotone img{display:block;width:100%;height:100%;object-fit:cover;}
 .infhub-kicker{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--inf-violet);margin-bottom:10px;}
 .infhub-lead-copy h3{font-family:var(--sans);font-weight:800;font-size:clamp(24px,3vw,34px);line-height:1.15;letter-spacing:-.015em;margin:0 0 12px;color:var(--inf-ink);}
 .infhub-lead-card:hover h3{color:var(--inf-violet);}
@@ -763,7 +824,7 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 }
 @media(max-width:640px){
   .hub{padding:24px 0 48px;}
-  .hub-inf-masthead{padding:36px 24px 40px;margin-left:-24px;margin-right:-24px;}
+  .hub-inf-masthead{padding:26px 0 24px;}
   .shots-row{grid-template-columns:1fr;gap:8px;padding:16px 6px;}
   .shots-row-when{flex-direction:row;align-items:center;gap:10px;}
   .shots-row-measure{justify-content:flex-start;}

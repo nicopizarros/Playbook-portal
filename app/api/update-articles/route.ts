@@ -9,7 +9,7 @@ import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db/client';
 import { articles } from '@/lib/db/schema';
 import { ARTICLES_CACHE_TAG } from '@/lib/data/articles';
-import { SPORT_OPTIONS } from '@/lib/taxonomy';
+import { SPORT_OPTIONS, validateTags, formatTagIssues } from '@/lib/taxonomy';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 // Only counts against failed-secret attempts, never against legitimate
@@ -86,13 +86,16 @@ function stripHtml(str: string) {
 }
 
 function detectPublication(title: string) {
-  if (/industry shots/i.test(title)) return { publication: 'Noticias', source: 'industry-shots' };
+  // "industry shots" in a TITLE is the newsletter's historical name and
+  // still worth matching; the machine key it maps to is 'noticias' since
+  // the 2026-08-14 source-key migration (TODO #2).
+  if (/industry shots/i.test(title)) return { publication: 'Noticias', source: 'noticias' };
   if (/lana/i.test(title)) return { publication: 'La Lana del Deporte', source: 'la-lana' };
   if (/infinitas/i.test(title)) return { publication: 'Infinitas', source: 'infinitas' };
   // 'playbook' as its own source was retired 2026-08-01 (folded into
   // Noticias, see lib/constants.ts) -- anything that doesn't match a known
   // newsletter title now defaults to Noticias instead.
-  return { publication: 'Noticias', source: 'industry-shots' };
+  return { publication: 'Noticias', source: 'noticias' };
 }
 
 function escapeRegExp(str: string) {
@@ -177,7 +180,17 @@ export async function POST(req: NextRequest) {
     (article.tags.sport && article.tags.sport.length) ||
     (article.tags.vertical && article.tags.vertical.length)
   );
-  const tags = hasUsableTags ? article.tags! : inferTags(article.title, excerpt);
+  const proposedTags = hasUsableTags ? article.tags! : inferTags(article.title, excerpt);
+  // Controlled-vocabulary gate (TODO #1): canonicalize case/accent
+  // variants, drop anything out of vocabulary rather than minting an
+  // unreachable tag. Dropped values are reported in the response (below)
+  // so the sender sees the arbitration instead of a silent change.
+  const { tags: validatedTags, issues: tagIssues } = validateTags({
+    scope: proposedTags.scope || [],
+    sport: proposedTags.sport || [],
+    vertical: proposedTags.vertical || [],
+  });
+  const tags = validatedTags;
 
   const values = {
     title: article.title,
@@ -217,7 +230,11 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ status: 'duplicate', url: article.url });
       }
       revalidateTag(ARTICLES_CACHE_TAG);
-      return NextResponse.json({ status: 'ok', article: inserted.title });
+      return NextResponse.json({
+        status: 'ok',
+        article: inserted.title,
+        ...(tagIssues.length ? { droppedTags: formatTagIssues(tagIssues) } : {}),
+      });
     } catch (err: unknown) {
       // Postgres unique_violation on the id primary key: derive a fresh id
       // and retry once, same fallback legacy used for a slug collision.

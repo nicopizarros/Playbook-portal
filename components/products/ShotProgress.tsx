@@ -43,7 +43,7 @@ const MARKS: Record<string, Mark> = {
   // carries an `outline` and no track. (The isotope bracket briefly stood
   // in here; it was reverted — that symbol closes the body and does not
   // stand for a product.)
-  'industry-shots': {
+  noticias: {
     viewBox: '0 0 36 48',
     body: <path d="M6 10 L30 10 L26 44 L10 44 Z" fill="#fff" />,
     outline: <path className="shot-progress-glass" d="M5 8 L31 8 L26.5 45 L9.5 45 Z" fill="none" />,
@@ -86,7 +86,7 @@ const MARKS: Record<string, Mark> = {
 };
 
 export function ShotProgress({
-  source = 'industry-shots',
+  source = 'noticias',
   targetSelector = '.article-body',
 }: {
   source?: string;
@@ -130,7 +130,7 @@ export function ShotProgress({
   }, [targetSelector]);
 
   const pct = Math.round(progress * 100);
-  const mark = MARKS[source] ?? MARKS['industry-shots'];
+  const mark = MARKS[source] ?? MARKS['noticias'];
   // viewBox height drives the fill geometry, so a mark can change its own
   // aspect ratio without touching the math.
   const height = Number(mark.viewBox.split(' ')[3]);

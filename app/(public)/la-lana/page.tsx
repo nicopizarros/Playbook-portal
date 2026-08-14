@@ -5,6 +5,7 @@ import { getSiteContent } from '@/lib/data/site-content';
 import { productHubsContent } from '@/lib/product-hubs-content';
 import { caseNumber, caseStatus, extractPullFigure, extractTrailStops } from '@/lib/product-hubs';
 import { DeparturesBoard, type BoardRow } from '@/components/products/DeparturesBoard';
+import { LanaArchiveCabinet, type CabinetFolder } from '@/components/products/LanaArchiveCabinet';
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
 
@@ -149,32 +150,23 @@ export default async function LaLanaHubPage() {
           <p className="empty-state hub-empty">Todavía no hay expedientes publicados.</p>
         )}
 
-        {rest.length > 0 && (
-          <section className="lana-archive" aria-label="Expedientes anteriores">
-            <h2 className="lana-archive-head">Archivero</h2>
-            <div className="lana-archive-grid">
-              {rest.map(article => (
-                <Link
-                  className="lana-folder lana-folder-card reveal"
-                  href={`/articulo?id=${encodeURIComponent(article.id)}`}
-                  key={article.id}
-                >
-                  <span className="lana-folder-tab">
-                    <span className="lana-case-number">Exp. {caseNumber(article, articles)}</span>
-                    <span className="lana-case-date">{article.dateFormatted}</span>
-                  </span>
-                  <span className="lana-folder-body">
-                    <h3>{article.title}</h3>
-                    <span className="lana-folder-card-foot">
-                      <Stamp status={caseStatus(article, now)} />
-                      <span className="lana-folder-open" aria-hidden="true">Abrir →</span>
-                    </span>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* El Archivero (2026-08-14): the folder grid became a scroll-
+            driven cabinet — each expediente pulled from a drawer as the
+            reader scrolls (desktop), sliding out of the drawer lip on
+            mobile, plain grid without JS/motion. The component owns the
+            three modes; this page just files the folders. */}
+        <LanaArchiveCabinet
+          folders={rest.map((article): CabinetFolder => ({
+            id: article.id,
+            title: article.title,
+            caseNo: caseNumber(article, articles),
+            dateFormatted: article.dateFormatted,
+            status: caseStatus(article, now),
+            figure: extractPullFigure(article.title, article.excerpt, article.teaser),
+            excerpt: article.excerpt,
+            readingTime: article.readingTime,
+          }))}
+        />
 
         <div className="hub-foot">
           <Link className="section-link hub-foot-link" href="/archivo?source=la-lana">

@@ -102,7 +102,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   // point at: playbook-logo.webp is a ~180×44 wordmark, which every social
   // network either letterboxes into a mostly-empty box or rejects outright
   // for being under its minimum. An article with no cover photo is common
-  // here (most industry-shots rows have imageUrl empty — checked against
+  // here (most Noticias rows have imageUrl empty — checked against
   // the real table), so this is the *usual* card, not an edge case.
   const image = article.imageUrl || `${SITE_URL}${DEFAULT_OG_IMAGE.url}`;
   const description = article.excerpt || '';
@@ -216,6 +216,7 @@ function plainBlocksFor(
   source: string,
   readingTime: number | null,
   priority: number | null,
+  articleDate?: string,
 ): PlainBlock[] {
   // Every product source gets the full device set — the four-paragraph
   // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
@@ -238,7 +239,7 @@ function plainBlocksFor(
       return { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') };
     }
     if (isProduct) {
-      const device = deviceFromParagraph(p);
+      const device = deviceFromParagraph(p, { articleDate });
       if (device && ledger.take(device.name)) {
         return { kind: 'device', html: device.markup };
       }
@@ -306,6 +307,16 @@ export default async function ArticuloPage({ searchParams }: Props) {
   const content = await getSiteContent();
   const canonicalUrl = canonicalUrlFor(meta.id);
   const showAuthor = shouldShowAuthor(meta, content.siteSettings.mostrarAutorGlobal);
+  // SEO block (2026-08-14 upgrade, all of it invisible): keywords from the
+  // taxonomy the article is already filed under, a real Person author when
+  // the byline is actually shown, the canonical url on the entity itself,
+  // and — the important one — PAYWALL markup. The site meters articles
+  // (3 free reads/month, lib/metering.ts) while serving crawlers the full
+  // body (bots are metering-exempt), which is precisely the situation
+  // Google's flexible-sampling guidance says to declare with
+  // isAccessibleForFree + hasPart, or risk it being read as cloaking. The
+  // cssSelector names the element the wall hides (.article-body).
+  const keywords = [...meta.tagsVertical, ...meta.tagsSport, ...meta.tagsScope];
   const jsonLdBase = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -320,7 +331,18 @@ export default async function ArticuloPage({ searchParams }: Props) {
     dateModified: meta.date || undefined,
     articleSection: meta.publication || undefined,
     inLanguage: 'es-MX',
-    author: { '@type': 'Organization', name: meta.publication || 'Playbook' },
+    url: canonicalUrl,
+    ...(keywords.length ? { keywords: keywords.join(', ') } : {}),
+    isAccessibleForFree: false,
+    hasPart: {
+      '@type': 'WebPageElement',
+      isAccessibleForFree: false,
+      cssSelector: '.article-body',
+    },
+    author:
+      showAuthor && meta.author
+        ? { '@type': 'Person', name: meta.author, worksFor: { '@type': 'Organization', name: 'Playbook' } }
+        : { '@type': 'Organization', name: meta.publication || 'Playbook' },
     publisher: {
       '@type': 'Organization',
       name: 'Playbook',
@@ -335,6 +357,20 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // e.g. opinion): links the kicker chip to the product's own hub and
   // scopes the per-product template CSS on the <article>.
   const hub = hubForSource(meta.source);
+
+  // BreadcrumbList mirrors the navigation the page already renders (the
+  // kicker chip links to the hub): Portada → hub → article. Non-hub
+  // sources (opinion) skip the middle crumb. Part of the invisible SEO
+  // block above — crawl-only, nothing visual.
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Playbook', item: SITE_URL },
+      ...(hub ? [{ '@type': 'ListItem', position: 2, name: hub.name, item: `${SITE_URL}${hub.path}` }] : []),
+      { '@type': 'ListItem', position: hub ? 3 : 2, name: meta.title, item: canonicalUrl },
+    ],
+  };
   const articleClass = `article-detail${hub ? ` article-product-${hub.source}` : ''}`;
 
   // ——— Per-product article shells (La Lectura, 2026-08-05): each product's
@@ -369,7 +405,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
   // Noticias opens like a shot being poured: real weekday + the shot
   // measure ("2 shots ≈ 6 min") — the same units the hub list uses.
-  const shotStrip = meta.source === 'industry-shots' && (
+  const shotStrip = meta.source === 'noticias' && (
     <div className="lect-shot-meta">
       <span className="lect-day-badge">{weekdayFor(meta.date)}</span>
       <span className="lect-shot-measure">{shotLabel(meta.readingTime)}</span>
@@ -488,7 +524,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
         </main>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLdBase) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript([jsonLdBase, breadcrumbJsonLd]) }}
         />
       </>
     );
@@ -547,10 +583,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // label can never double as a scan mark.
   const htmlBody =
     rawHtmlBody && hub
-      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority)))
+      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority, { articleDate: meta.date })))
       : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
-  const blocks = plainBlocksFor(bodyParagraphs, article.source, meta.readingTime, article.priority);
+  const blocks = plainBlocksFor(bodyParagraphs, article.source, meta.readingTime, article.priority, meta.date);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
 
   // The "siguiente expediente" handoff already shows the next case — keep
@@ -657,7 +693,12 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript({ ...jsonLdBase, articleBody: article.teaser || article.excerpt || '' }) }}
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript([
+            { ...jsonLdBase, articleBody: article.teaser || article.excerpt || '' },
+            breadcrumbJsonLd,
+          ]),
+        }}
       />
     </>
   );

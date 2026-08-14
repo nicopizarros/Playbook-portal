@@ -85,7 +85,7 @@ export function newArticleEntry(): ArticleEntry {
       date: '',
       dateFormatted: '',
       publication: 'Noticias',
-      source: 'industry-shots',
+      source: 'noticias',
       tagsScope: [],
       tagsSport: [],
       tagsVertical: [],

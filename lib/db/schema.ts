@@ -78,7 +78,9 @@ export const articles = pgTable(
     date: text('date').notNull(), // YYYY-MM-DD, matches legacy string format
     dateFormatted: text('date_formatted').notNull().default(''),
     publication: text('publication').notNull().default('Noticias'),
-    source: text('source').notNull().default('industry-shots'),
+    // Column default renamed with the key migration (TODO #2) — the
+    // DB-side default is updated by scripts/migrate-source-noticias.ts.
+    source: text('source').notNull().default('noticias'),
     tagsScope: text('tags_scope').array().notNull().default([]),
     tagsSport: text('tags_sport').array().notNull().default([]),
     tagsVertical: text('tags_vertical').array().notNull().default([]),

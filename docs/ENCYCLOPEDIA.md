@@ -6,10 +6,11 @@ more detail. Written so a new contributor — human or AI agent — can get
 oriented without reading the entire git history.
 
 **This document is a snapshot of architecture and how things work.** It does
-not track day-to-day progress or session-by-session decisions — that's
-[`HANDOFF.md`](../HANDOFF.md)'s job (see "Where to look next" at the bottom).
-If the two ever disagree, treat `HANDOFF.md`'s progress log as more current
-for *recent* changes, and this document as the map for *how the system is
+not track day-to-day progress — open work lives in [`docs/TODO.md`](TODO.md),
+and the migration-era session journal is archived at
+[`docs/archive/HANDOFF.md`](archive/HANDOFF.md) (audit evidence, no longer
+updated). If this document and recent commits disagree, trust the commits
+for *recent* changes and this document as the map for *how the system is
 structured*. Last synced against the codebase: 2026-07-22 (post–Fase 6,
 migration complete).
 
@@ -23,9 +24,10 @@ governance, broadcast rights, M&A, sponsorships, venues, sports finance,
 private equity, sports marketing, talent management, audiences, fan
 experience, naming rights. Content comes from three editorial lines/sources:
 
-- **Noticias** (source key `industry-shots`, a legacy identifier — the
-  product was renamed 2026-08-08 and "Industry Shots" is retired as a name)
-  — general news digest.
+- **Noticias** (source key `noticias` since 2026-08-14 — the launch-era
+  `industry-shots` key was retired with TODO #2's migration;
+  `normalizeSource()` in `lib/constants.ts` maps unmigrated legacy rows) —
+  general news digest.
 - **La Lana del Deporte** (source key `la-lana`) — sports business
   coverage.
 - **Infinitas** (source key `infinitas`) — a distinct newsletter product
@@ -37,7 +39,7 @@ There used to be a fourth, generic **Playbook** (`playbook`) bucket for
 content that didn't fit the three newsletters above. Retired 2026-08-01 at
 the user's request (Roadmap Agosto 2026, Fase 1) — it never had a distinct
 editorial identity from Noticias, so it was folded into
-`industry-shots`/Noticias everywhere: `KNOWN_SOURCES`, the webhook's
+Noticias everywhere: `KNOWN_SOURCES`, the webhook's
 `detectPublication()` fallback, the `articles` table's column defaults, and
 every article that had `source: 'playbook'`.
 
@@ -168,7 +170,7 @@ verbatim so `/articulo?id=...` URLs never break.
 | `bodyJson` | jsonb, nullable | TipTap document; `null` for legacy articles that never got a native editor body |
 | `bodyHtml` | text | **Server-rendered cache** of `bodyJson`, regenerated on every save (`@tiptap/html`'s `generateHTML`) so pages render plain HTML without re-walking the JSON tree per request |
 | `author`, `date` (`YYYY-MM-DD` text, not a date column), `dateFormatted` | | |
-| `publication` (default `'Noticias'`), `source` (default `'industry-shots'`) | | `'playbook'` was a distinct source until 2026-08-01, retired and folded into `'industry-shots'`/Noticias |
+| `publication` (default `'Noticias'`), `source` (default `'noticias'`, was `'industry-shots'` until 2026-08-14) | | `'playbook'` was a distinct source until 2026-08-01, retired and folded into Noticias |
 | `tagsScope`, `tagsSport`, `tagsVertical` | text[], default `{}` | the three-tier taxonomy (§8.2) |
 | `priority` | smallint, default 3 | 1–5 star editorial importance |
 | `featured` | boolean | hero-eligibility override |

@@ -6,7 +6,7 @@
      la-lana                  a case file: folder tab + stamp + expediente
                               number above the headline, exhibit-framed
                               cover, mono byline, dossier foot handoff.
-     industry-shots           a shot being poured: weekday + shot measure,
+     noticias           a shot being poured: weekday + shot measure,
                               green-ruled headline, numbered reporting
                               beats, the filling glass (ShotProgress).
      infinitas                El Marcador carried in: flat violet, Inter
@@ -920,6 +920,151 @@
   .lect-cadena-price{grid-column:2;}
 }
 
+/* ——— The roadmap eight (docs/device-roadmap.md, built 2026-08-14):
+   Contrato, Calendario, Votación, Ranking, Cascada, Perfil, Escenarios,
+   Tablero. Same system as every round before: product identity rides
+   --lect-accent / --lect-ink-accent, Perfil rides the .lect-brand vars,
+   bars animate via [data-lect-grow] (ArticleMotion) with static widths
+   as the no-JS state. ——— */
+
+/* Contrato — the pairing, the annual figure, the term drawn with "hoy". */
+.lect-contract-parties{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.lect-contract-side{font-family:var(--sans);font-weight:800;font-size:clamp(17px,2.2vw,22px);color:var(--ink);}
+.lect-contract-arrow{font-size:clamp(16px,2vw,20px);font-weight:800;color:var(--lect-ink-accent);}
+.lect-contract-amount{display:flex;align-items:baseline;gap:10px;margin:10px 0 12px;}
+.lect-contract-figure{font-family:var(--serif-display);font-size:clamp(30px,4.6vw,46px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-contract-per{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-contract-term{display:flex;align-items:center;gap:12px;}
+.lect-contract-year{font-size:11.5px;font-weight:800;color:var(--gray-txt);font-variant-numeric:tabular-nums;}
+.lect-contract-track{position:relative;flex:1;height:12px;background:var(--paper-soft);border:1px solid var(--rule);}
+.lect-contract-fill{position:absolute;inset:0;display:block;width:100%;background:var(--lect-accent);opacity:.85;}
+/* "hoy" rides above the track: the word, then a short stem down to it. */
+.lect-contract-hoy{position:absolute;bottom:100%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font-size:8.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);}
+.lect-contract-hoy i{display:block;width:2px;height:9px;margin-top:2px;background:var(--ink);}
+.lect-contract-foot{display:flex;gap:22px;flex-wrap:wrap;align-items:baseline;margin-top:12px;}
+.lect-contract-total-fig{font-size:14px;font-weight:800;color:var(--lect-ink-accent);font-variant-numeric:tabular-nums;}
+.lect-contract-clause{font-size:12.5px;color:var(--gray-txt);}
+.lect-contract-foot-label{font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gray-txt);margin-right:4px;}
+
+/* Calendario — the forward agenda: boxed dates, the next beat lit. */
+.lect-agenda-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
+.lect-agenda-item{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-top:1px solid var(--rule);}
+.lect-agenda-item:first-child{border-top:none;}
+.lect-agenda-when{flex-shrink:0;min-width:86px;padding:3px 8px;border:2px solid var(--lect-ink-accent);color:var(--lect-ink-accent);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;text-align:center;}
+.lect-agenda-item[data-next="true"] .lect-agenda-when{background:var(--lect-accent);border-color:var(--lect-accent);color:var(--ink-fixed);}
+.lect-agenda-what{font-size:14px;line-height:1.45;color:var(--ink);}
+.lect-agenda-chip{margin-left:10px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-txt);white-space:nowrap;}
+.lect-agenda-item[data-next="true"] .lect-agenda-chip{color:var(--lect-ink-accent);}
+
+/* Votación — the tally with the threshold ON the bar. Casts are
+   semantic, not a ramp: for = accent, against = the down-red the
+   Salto/Cotización pair already uses, abstention = neutral. */
+.lect-voto-motion{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);margin-bottom:12px;}
+.lect-voto-bar{position:relative;display:flex;height:16px;border:1px solid var(--rule);background:var(--paper-soft);}
+.lect-voto-seg{display:block;height:100%;}
+.lect-voto-seg[data-cast="favor"],.lect-voto-swatch[data-cast="favor"]{background:var(--lect-accent);}
+.lect-voto-seg[data-cast="contra"],.lect-voto-swatch[data-cast="contra"]{background:#c0392b;}
+.lect-voto-seg[data-cast="abst"],.lect-voto-swatch[data-cast="abst"]{background:color-mix(in srgb,var(--gray-txt) 45%,transparent);}
+[data-theme="dark"] .lect-voto-seg[data-cast="contra"],[data-theme="dark"] .lect-voto-swatch[data-cast="contra"]{background:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-voto-seg[data-cast="contra"],
+  :root:not([data-theme="light"]) .lect-voto-swatch[data-cast="contra"]{background:#e0616b;}
+}
+.lect-voto-tick{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);}
+.lect-voto-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;}
+.lect-voto-key{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--gray-txt);}
+.lect-voto-swatch{width:10px;height:10px;flex-shrink:0;}
+.lect-voto-count{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-voto-note{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-voto-verdict{padding:2px 8px;border:1.5px solid currentColor;font-size:10px;font-weight:800;letter-spacing:.14em;}
+.lect-voto-verdict[data-passed="true"]{color:var(--lect-ink-accent);}
+.lect-voto-verdict[data-passed="false"]{color:#c0392b;}
+[data-theme="dark"] .lect-voto-verdict[data-passed="false"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-voto-verdict[data-passed="false"]{color:#e0616b;}
+}
+
+/* Ranking — the league table, bars scaled to the leader. */
+.lect-rank-title{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);margin-bottom:10px;}
+.lect-rank-rows{display:flex;flex-direction:column;}
+.lect-rank-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--rule);}
+.lect-rank-row:first-child{border-top:none;}
+.lect-rank-num{font-family:var(--sans);font-weight:800;font-size:18px;color:var(--lect-ink-accent);font-variant-numeric:tabular-nums;}
+.lect-rank-main{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.lect-rank-line{display:flex;align-items:baseline;gap:10px;min-width:0;}
+.lect-rank-label{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lect-rank-move{font-size:10.5px;font-weight:800;font-variant-numeric:tabular-nums;}
+.lect-rank-move[data-dir="up"]{color:var(--lect-ink-accent);}
+.lect-rank-move[data-dir="down"]{color:#c0392b;}
+.lect-rank-move[data-dir="same"]{color:var(--gray-txt);}
+[data-theme="dark"] .lect-rank-move[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-rank-move[data-dir="down"]{color:#e0616b;}
+}
+.lect-rank-track{display:block;height:6px;background:var(--paper-soft);overflow:hidden;}
+.lect-rank-bar{display:block;height:100%;background:var(--lect-accent);}
+.lect-rank-value{font-size:14px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+/* Cascada — floating waterfall bars stepping from anchor to anchor. */
+.lect-cascada-rows{display:flex;flex-direction:column;gap:10px;}
+.lect-cascada-row{display:grid;grid-template-columns:minmax(72px,auto) minmax(0,1fr) auto;gap:12px;align-items:center;}
+.lect-cascada-label{font-size:12px;font-weight:700;color:var(--gray-txt);}
+.lect-cascada-row[data-kind="anchor"] .lect-cascada-label{color:var(--ink);font-weight:800;}
+.lect-cascada-track{display:block;height:14px;background:var(--paper-soft);overflow:hidden;}
+.lect-cascada-bar{display:block;height:100%;}
+.lect-cascada-row[data-kind="anchor"] .lect-cascada-bar{background:var(--lect-accent);}
+.lect-cascada-row[data-kind="down"] .lect-cascada-bar{background:#c0392b;opacity:.75;}
+.lect-cascada-row[data-kind="up"] .lect-cascada-bar{background:color-mix(in srgb,var(--lect-accent) 65%,var(--gray-txt));}
+[data-theme="dark"] .lect-cascada-row[data-kind="down"] .lect-cascada-bar{background:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cascada-row[data-kind="down"] .lect-cascada-bar{background:#e0616b;}
+}
+.lect-cascada-value{font-size:13px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.lect-cascada-row[data-kind="down"] .lect-cascada-value{color:var(--gray-txt);}
+
+/* Perfil — the actor card, brand-inked via the registry. */
+.lect-perfil-card{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;border:1px solid var(--rule);border-left:3px solid var(--brand-fill,var(--lect-accent));background:var(--paper-soft);padding:18px 20px 16px;}
+.lect-perfil-mono{grid-row:span 2;width:54px;height:54px;border:2px solid var(--brand-ink,var(--lect-ink-accent));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif-display);font-size:20px;color:var(--brand-ink,var(--lect-ink-accent));}
+.lect-perfil-id{display:flex;flex-direction:column;gap:2px;align-self:center;}
+.lect-perfil-name{font-family:var(--serif-display);font-size:clamp(19px,2.4vw,24px);line-height:1.1;color:var(--ink);}
+.lect-perfil-role{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-perfil-facts{grid-column:2;display:flex;gap:8px 26px;flex-wrap:wrap;margin-top:8px;padding-top:10px;border-top:1px solid var(--rule);}
+.lect-perfil-fact{display:flex;flex-direction:column;gap:1px;}
+.lect-perfil-key{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-perfil-value{font-size:13.5px;font-weight:700;color:var(--ink);}
+
+/* Escenarios — likelihood as a fixed vocabulary, marked as Playbook's
+   own reading, never as reporting. */
+.lect-esc-subject{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);margin-bottom:10px;}
+.lect-esc-rows{display:flex;flex-direction:column;}
+.lect-esc-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:9px 0;border-top:1px solid var(--rule);}
+.lect-esc-row:first-child{border-top:none;}
+.lect-esc-outcome{font-size:14px;font-weight:700;color:var(--ink);}
+.lect-esc-meter{display:inline-flex;gap:4px;}
+.lect-esc-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--gray-txt);opacity:.5;}
+.lect-esc-dot-on{background:var(--lect-accent);border-color:var(--lect-ink-accent);opacity:1;}
+.lect-esc-word{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);min-width:70px;text-align:right;}
+.lect-esc-row[data-likelihood="probable"] .lect-esc-word{color:var(--lect-ink-accent);}
+
+/* Tablero — the KPI strip. */
+.lect-tablero-title{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);margin-bottom:12px;}
+.lect-tablero-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
+.lect-tablero-tile{display:flex;flex-direction:column;gap:4px;border:1px solid var(--rule);border-top:4px solid var(--lect-accent);background:var(--paper-soft);padding:14px 16px 12px;}
+.lect-tablero-key{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-tablero-value{font-family:var(--serif-display);font-size:clamp(22px,3vw,30px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-tablero-note{font-size:11px;color:var(--gray-txt);}
+
+@media(max-width:640px){
+  .lect-rank-row{gap:10px;}
+  .lect-perfil-card{grid-template-columns:1fr;}
+  .lect-perfil-mono{grid-row:auto;}
+  .lect-perfil-facts{grid-column:1;}
+  .lect-agenda-when{min-width:72px;}
+  .lect-cascada-row{grid-template-columns:64px minmax(0,1fr) auto;}
+  .lect-esc-row{grid-template-columns:minmax(0,1fr) auto;}
+  .lect-esc-word{display:none;}
+}
+
 /* ——— The Jugada strip ("Jugada:" authoring convention, round 2): the
    story's central two-party connection set as a split-flap pairing — the
    departures-board language carried into every product's articles. Dark
@@ -1004,17 +1149,17 @@ mark.lect-fig{
 .lect-related-card:hover .lect-related-arrow{opacity:1;transform:none;}
 /* Rest accents: hub identity colors (green/gold/violet/red), not the
    sitewide --src-industry navy — the card previews the HUB. */
-.lect-related-card[data-source="industry-shots"]{border-top-color:var(--green);}
+.lect-related-card[data-source="noticias"]{border-top-color:var(--green);}
 .lect-related-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
 .lect-related-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
 .lect-related-card[data-source="futbol-business-review"]{border-top-color:var(--tfbr-red);}
 .lect-related-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
 /* Hover skins — the product surface itself (fixed literals, same criterion
    as the hubs: a bottle label is dark whatever the theme says). */
-.lect-related-card[data-source="industry-shots"]:hover{background:var(--shots-bg);color:var(--shots-white);border-color:var(--shots-bg);border-top-color:var(--pb-green);}
-.lect-related-card[data-source="industry-shots"]:hover .lect-related-eyebrow{color:var(--pb-green);}
-.lect-related-card[data-source="industry-shots"]:hover .lect-related-figure,
-.lect-related-card[data-source="industry-shots"]:hover .lect-related-meta{color:var(--shots-white);}
+.lect-related-card[data-source="noticias"]:hover{background:var(--shots-bg);color:var(--shots-white);border-color:var(--shots-bg);border-top-color:var(--pb-green);}
+.lect-related-card[data-source="noticias"]:hover .lect-related-eyebrow{color:var(--pb-green);}
+.lect-related-card[data-source="noticias"]:hover .lect-related-figure,
+.lect-related-card[data-source="noticias"]:hover .lect-related-meta{color:var(--shots-white);}
 .lect-related-card[data-source="la-lana"]:hover{background:var(--pb-paper-soft);color:var(--pb-ink);border-color:var(--pb-rule);border-top-color:var(--lana-gold);}
 .lect-related-card[data-source="la-lana"]:hover .lect-related-eyebrow{color:var(--lana-gold);}
 .lect-related-card[data-source="la-lana"]:hover .lect-related-figure,
@@ -1116,13 +1261,13 @@ mark.lect-fig{
 /* ============================================================
    2. Noticias — the shot
    ============================================================ */
-.article-product-industry-shots h1{
+.article-product-noticias h1{
   text-transform:uppercase;line-height:1.04;
   border-bottom:5px solid var(--green);padding-bottom:12px;
 }
 /* The green rule under the headline replaces the byline's hairline —
    one rule per header, not two. */
-.article-product-industry-shots .article-byline{border-bottom:none;padding-bottom:6px;}
+.article-product-noticias .article-byline{border-bottom:none;padding-bottom:6px;}
 
 .lect-shot-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px;}
 .lect-day-badge{
@@ -1142,14 +1287,14 @@ mark.lect-fig{
    blockquote paragraphs and figure captions never take a number.
    #3f7d0a is the site's existing darker legible-green (see
    .share-btn.is-copied) with the same dark-theme counterpart cascade. */
-.article-product-industry-shots{--lect-beat:#3f7d0a;}
-[data-theme="dark"] .article-product-industry-shots{--lect-beat:var(--green);}
+.article-product-noticias{--lect-beat:#3f7d0a;}
+[data-theme="dark"] .article-product-noticias{--lect-beat:var(--green);}
 @media(prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .article-product-industry-shots{--lect-beat:var(--green);}
+  :root:not([data-theme="light"]) .article-product-noticias{--lect-beat:var(--green);}
 }
-.article-product-industry-shots .article-body{counter-reset:lect-beat;}
-.article-product-industry-shots .article-body > p::before,
-.article-product-industry-shots .article-body > div > p::before{
+.article-product-noticias .article-body{counter-reset:lect-beat;}
+.article-product-noticias .article-body > p::before,
+.article-product-noticias .article-body > div > p::before{
   counter-increment:lect-beat;
   content:counter(lect-beat,decimal-leading-zero);
   display:inline-block;margin-right:10px;
@@ -1180,7 +1325,7 @@ mark.lect-fig{
 }
 
 /* Pull figure: the hub's rotated green chip. */
-.article-product-industry-shots .lect-pullfig-value{
+.article-product-noticias .lect-pullfig-value{
   background:var(--green);color:var(--ink-fixed);padding:2px 14px;transform:rotate(-1.2deg);
 }
 
@@ -1199,11 +1344,11 @@ mark.lect-fig{
    the img's mix-blend-mode:luminosity blends against the ROOT group and
    tints the entire themed page lavender (seen in Playwright, 2026-08-05).
    position:relative is what keeps the ::after overlay inside the frame. */
-.lect-duotone{position:relative;background:var(--inf-violet-deep);isolation:isolate;}
-.lect-duotone img{filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.96;}
-/* Overlay lightened twice on owner feedback (2026-08-13): .28/.16 → .20/.11
-   → .10/.05 — keep in sync with .infhub-duotone in styles/product-hubs.css. */
-.lect-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.10),rgba(84,36,156,.05));pointer-events:none;}
+/* The duotone history ended here: lightened twice on owner feedback
+   (2026-08-13), then cut entirely on 2026-08-14 — the directive moved
+   from "whisper" to "no tint over content at all". Clean photo, violet
+   baseline. Keep in sync with .infhub-duotone in product-hubs.css. */
+.lect-duotone{position:relative;border-bottom:3px solid var(--src-infinitas);}
 
 .article-product-infinitas .lect-pullfig{border-color:var(--src-infinitas);}
 .article-product-infinitas .lect-pullfig-value{color:var(--src-infinitas);font-family:var(--sans);font-weight:800;letter-spacing:-.02em;}
@@ -1277,7 +1422,7 @@ mark.lect-fig{
    Walled state wears the product accent too
    ============================================================ */
 .article-product-la-lana .article-walled{border-color:var(--src-lana);}
-.article-product-industry-shots .article-walled{border-color:var(--green);}
+.article-product-noticias .article-walled{border-color:var(--green);}
 .article-product-infinitas .article-walled{border-color:var(--src-infinitas);}
 .article-product-futbol-business-review .article-walled{border-color:var(--tfbr-red);}
 

@@ -47,11 +47,16 @@ imageUrl, imageCredit`.
 
 | Product | `publication` | `source` | `readingTime` |
 |---|---|---|---|
-| Noticias | `"Noticias"` | `"industry-shots"` | `2` |
+| Noticias | `"Noticias"` | `"noticias"` | `2` |
 | La Lana del Deporte | `"La Lana del Deporte"` | `"la-lana"` | `3` |
 | Infinitas | `"Infinitas"` | `"infinitas"` | `2` |
 | The Futbol Business Review | `"The Futbol Business Review"` | `"futbol-business-review"` | `3` |
-| Anything else | `"Noticias"` | `"industry-shots"` | `2` |
+| Anything else | `"Noticias"` | `"noticias"` | `2` |
+
+The machine key for Noticias is `"noticias"` since 2026-08-14 (TODO #2): the
+launch-era `"industry-shots"` key was retired everywhere in code, and
+`normalizeSource()` (`lib/constants.ts`) maps any leftover legacy rows. Never
+write `"industry-shots"` into a new row.
 
 This pair is what selects the product's mark on the Opinión callout, the hub
 the piece lists on, the `.tag-mini` chip colour, and the taxonomy-row ordering
@@ -70,6 +75,13 @@ words takes `4` (see `format-tiers.md` §2). It also drives the device budget.
 ---
 
 ## Taxonomy
+
+**Enforced since 2026-08-14 (TODO #1):** the publish script and every other
+write path validate tags against `lib/taxonomy.ts` with `validateTags()`.
+Case/accent/whitespace variants get canonicalized; anything else **fails the
+publish** with the nearest option named in the error. Copy values verbatim
+from the lists below — a typo can no longer mint a tag, it stops the run.
+`priority` stays an editorial judgment; no validator touches it.
 
 **`tagsScope`** — any of `Nacional`, `Internacional`. Array, can be empty.
 

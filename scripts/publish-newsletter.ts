@@ -20,6 +20,7 @@ import type { JSONContent } from '@tiptap/core';
 import { articles } from '../lib/db/schema';
 import { TIPTAP_EXTENSIONS } from '../lib/tiptap-extensions';
 import { slugify } from '../lib/slugify';
+import { validateTags, formatTagIssues } from '../lib/taxonomy';
 
 // Uses Neon's HTTP driver (plain HTTPS, one query per request) instead of
 // lib/db/client.ts's node-postgres Pool: this script runs from environments
@@ -118,6 +119,23 @@ export function markdownToTipTap(markdown: string): Record<string, unknown> {
 }
 
 async function insertOne(input: ArticleInput) {
+  // Controlled-vocabulary gate (TODO #1, 2026-08-14): tags must come out of
+  // lib/taxonomy.ts. Case/accent/whitespace variants are canonicalized;
+  // anything else hard-fails the publish so a typo can't mint an
+  // unreachable tag. The error message names the nearest option.
+  const { tags, issues } = validateTags({
+    scope: input.tagsScope,
+    sport: input.tagsSport,
+    vertical: input.tagsVertical,
+  });
+  if (issues.length) {
+    throw new Error(
+      `[publish] "${input.title}": etiquetas fuera de la taxonomía — ${formatTagIssues(issues)}. ` +
+        `Usa exactamente las opciones de lib/taxonomy.ts.`,
+    );
+  }
+  input = { ...input, tagsScope: tags.scope, tagsSport: tags.sport, tagsVertical: tags.vertical };
+
   const bodyJson = markdownToTipTap(input.bodyMarkdown);
   const bodyHtml = generateHTML(bodyJson as JSONContent, TIPTAP_EXTENSIONS);
   const baseId = slugify(input.title) || `articulo-${Date.now().toString(36)}`;

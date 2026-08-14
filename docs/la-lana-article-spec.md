@@ -5,6 +5,16 @@ Step 3 describes in prose. The skill stays the source of truth for *why*;
 this is the list you walk before and after publishing, and the reference for
 anyone (human or agent) fixing a piece that shipped wrong.
 
+**Since 2026-08-14 this is a VERIFICATION checklist, not a rewrite
+instruction.** Substack-ingested La Lana editions ship verbatim — text and
+images exactly as written, with the portal adding only the build: 1–2
+devices from the piece's own numbers (that cap overrides §2's budget
+table for ingests), fields, and the expediente shell (`format-tiers.md`
+§4, "the verbatim contract"). Walk this list to confirm the ORIGINAL
+already wears the shape and the build is complete — if the original
+deviates from the shape, that's a flag for the publisher, never a license
+to rewrite it.
+
 Written 2026-08-07, after a La Lana article went live missing four of these
 items at once. What that run got wrong is recorded at the bottom, because the
 failure mode matters as much as the checklist.
@@ -114,11 +124,16 @@ Enforced in code by `deviceBudgetFor` / `applyBodyDevices`
 | 6+ min | 3 | +1 |
 
 **Zero devices on a full-length La Lana piece is a bug, not restraint.** Walk
-all twelve shapes against the story before concluding none fits:
+all twenty-one shapes against the story before concluding none fits:
 
 `Cifra clave:` · `Jugada:` · `Cronología:` · `Recibo:` · `Ecuación:` ·
 `Salto:` · `Reparto:` · `Alineación:` · `Cotización:` · `Resultados:` ·
-`Duelo:` · `Serie:`
+`Duelo:` · `Serie:` · `Mapa:` · `Termómetro:` · `Contrato:` · `Ranking:` ·
+`Votación:` · `Calendario:` · `Perfil:` · `Escala:` · `Reloj:`
+
+(The last nine and their syntax live in
+`.claude/playbook-editorial/dynamic-element-library.md` — `Mapa` joined
+2026-08-10, the round-4 eight on 2026-08-14.)
 
 Rules that bite:
 

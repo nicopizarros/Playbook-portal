@@ -11,6 +11,23 @@ import { ARTICLES_CACHE_TAG, type Article } from '@/lib/data/articles';
 import { SITE_CONTENT_CACHE_TAG, type SiteContentData } from '@/lib/data/site-content';
 import { TIPTAP_EXTENSIONS } from '@/lib/tiptap-extensions';
 import { slugify } from '@/lib/slugify';
+import { validateTags, formatTagIssues } from '@/lib/taxonomy';
+
+// Controlled-vocabulary backstop (TODO #1): the dashboard's checkbox UI
+// can only produce canonical tags, so this guards the programmatic
+// callers of these actions — canonicalize folding variants, reject
+// anything out of lib/taxonomy.ts instead of minting an unreachable tag.
+function gateTags<T extends { tagsScope: string[]; tagsSport: string[]; tagsVertical: string[] }>(input: T): T {
+  const { tags, issues } = validateTags({
+    scope: input.tagsScope,
+    sport: input.tagsSport,
+    vertical: input.tagsVertical,
+  });
+  if (issues.length) {
+    throw new Error(`Etiquetas fuera de la taxonomía: ${formatTagIssues(issues)}`);
+  }
+  return { ...input, tagsScope: tags.scope, tagsSport: tags.sport, tagsVertical: tags.vertical };
+}
 
 async function requireEditor() {
   const session = await auth();
@@ -128,6 +145,7 @@ export async function saveArticle(
   expectedUpdatedAt: string,
 ): Promise<SaveArticleResult> {
   const session = await requireEditor();
+  input = gateTags(input);
   const bodyHtml = renderBodyHtml(input.bodyJson);
 
   const [updated] = await db
@@ -186,6 +204,7 @@ export async function archiveArticle(id: string): Promise<{ ok: true }> {
 
 export async function createArticle(input: ArticleInput & { id?: string }): Promise<{ article: Article }> {
   const session = await requireEditor();
+  input = gateTags(input);
   const bodyHtml = renderBodyHtml(input.bodyJson);
   const baseId = (input.id && input.id.trim()) || slugify(input.title) || `articulo-${Date.now().toString(36)}`;
 

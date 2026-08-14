@@ -28,7 +28,7 @@ nobody copy-pastes anything.
 | **2** | **Research.** Mandatory outside fact per Noticias/Infinitas item, plus the regional angle. Not for La Lana. | `references/ingestion.md` |
 | **3** | **Route the format — A / B / C / D — before drafting a word**, then apply the product's architecture. Depth decides the format; graphics are a consequence. | `references/format-tiers.md` §1 |
 | **4** | **Apply the voice.** Movimiento + mecanismo + incentivo + consecuencia; find the palanca; one thing per paragraph. | `references/voice-and-style.md` |
-| **5** | **Apply the element library** per the routed format (A skips it; see Read economy below). Walk the fifteen shapes before calling a B/C piece device-free; respect the budget. | `references/dynamic-element-library.md` |
+| **5** | **Apply the element library** per the routed format (A skips it; see Read economy below). Walk the twenty-three shapes before calling a B/C piece device-free; respect the budget. | `references/dynamic-element-library.md` |
 | **6** | **Fill the fields and source the images.** | `references/fields-and-taxonomy.md`, `references/images.md` |
 | **7** | **Self-check** against the twelve-point publication checklist and run `check-voice.mjs`. | `references/voice-and-style.md` §12 |
 | **8** | **Publish, report, capture feedback.** | `references/publishing-mechanics.md` |
@@ -45,8 +45,12 @@ together.
 - **B (Noticia Playbook)** → library §§1–2 headings, then only the chosen
   device's entry.
 - **C (Deep Dive)** → the full library walk plus `format-tiers.md` §3b.
-- **La Lana edition** → `format-tiers.md` §4 and its own architecture; never
-  regenerate an approved piece.
+- **La Lana edition** → `format-tiers.md` §4 and its own architecture — the
+  VERBATIM CONTRACT: the text and images ship exactly as written (never
+  regenerate, never trim, never fix), your work is the build — 1 or 2
+  devices from the piece's own numbers (this cap overrides the general
+  budget), premier metadata, the expediente shell. `check-voice.mjs` is
+  informational only for these pieces.
 - `_GOVERNANCE.md` → never during a drafting run.
 
 **Do not ask for approval before step 8.** Publishing without a review gate is
