@@ -52,6 +52,16 @@ If the user invoked `/graphify --help` or `/graphify -h` (with no other argument
 
 **Fast path — existing graph:** Before doing anything else, check whether `graphify-out/graph.json` exists. The expected location is `graphify-out/graph.json` relative to the **current working directory** (i.e. the project root where you are running commands). If it exists AND the user's request is a natural-language question about the codebase (e.g. "How does X work?", "What calls Y?", "Trace the data flow through Z") and NOT an explicit rebuild command (`--update`, `--cluster-only`, or a bare path/URL that implies fresh extraction): **skip Steps 1–5 entirely and jump straight to `## For /graphify query`.** Run `graphify query "<question>"` immediately. Do not run detect. Do not check corpus size. Do not ask the user to narrow. The graph is already built — use it.
 
+**Fast path without the CLI:** if `graphify` is not on `PATH`, do **not** go to Step 1 to install it — reading an existing graph never requires the CLI. This repo ships a stdlib-only reader over the same committed `graph.json`; use it and stay on the fast path:
+
+```bash
+python3 scripts/graph-query.py query   "<question>"
+python3 scripts/graph-query.py path    "<A>" "<B>"
+python3 scripts/graph-query.py explain "<concept>"
+```
+
+Steps 1–5 (install, detect, extract, build) are only for *creating or rebuilding* a graph. Enter them when the user explicitly asked for a rebuild (`--update`, `--cluster-only`, a bare path/URL), never merely because the binary is missing.
+
 If no path was given, use `.` (current directory). Do not ask the user for a path.
 
 If the path argument starts with `https://github.com/` or `http://github.com/`, treat it as a GitHub URL - run Step 0 before anything else, then continue with the resolved local path.

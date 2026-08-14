@@ -33,6 +33,15 @@ Still available: `scripts/audit-taxonomy.ts` (report-only by default,
 `--fix` canonicalizes folding variants and never invents classifications).
 Re-run it if bulk imports ever bypass the gates.
 
+**Annotation, 2026-08-13:** the *editorial format* half of classification now
+exists — the A/B/C/D router (`.claude/playbook-editorial/format-tiers.md` §1)
+classifies every incoming story by depth before drafting, and the admin Guía
+carries the router prompt. What this item still covers is the *taxonomy* half:
+validated `scope`/`sport`/`vertical` tags and the `priority` question. The
+four scoping questions above stand; question 2's "fixed controlled vocabulary
+the skills must choose from" now has a working precedent in how the router
+constrains format.
+
 ---
 
 ## 2. Retire the `industry-shots` source key — CODE DONE 2026-08-14, one post-deploy step left
@@ -67,27 +76,46 @@ cheap insurance.
 
 ## 3. Stale files and dead weight — the clear calls executed 2026-08-14, the judgment calls still open
 
-Deleted (all recoverable from git history):
+**Status: swept on 2026-08-13, on the owner's explicit instruction** ("remove
+stale and old code"). Deleted: the pre-Postgres seeds (`articles.json`,
+`content.json`, `scripts/migrate-json-to-db.ts` and its npm entry), all
+already-executed one-off `fix-*`/`update-*`/backfill scripts plus their npm
+entries, `scripts/update-matador-report.ts` (superseded by
+`update-article.ts`), the regenerable Substack-backlog snapshot
+(`docs/SUBSTACK-ARCHIVE-BACKLOG.md` + its 359 KB JSON twin), and the
+superseded `v23` design prototype. `HANDOFF.md` moved to `docs/archive/` with
+an archived banner (it is the one place recording what the deleted one-offs
+did to production data). Kept: the `v24` prototype and the UX study (design
+reference), `playbook-isotope-dark.png` (half of a used pair), and everything
+in `lib/`, `components/` and `vendor/` — a 2026-08-13 import audit found zero
+orphan modules. Everything deleted is recoverable from git history.
 
-- `scripts/update-matador-report.ts` — the table itself said "safe to
-  delete once nobody is mid-flight on it"; nobody was.
-- `articles.json` + `content.json` — the pre-Postgres seed whose only
-  remaining property was the risk of someone re-running
-  `scripts/migrate-json-to-db.ts` against the live DB by accident. The
-  script stays as the historical record; without its inputs it now fails
-  loudly instead of silently reseeding.
+---
 
-Deliberately still here, because "unused" and "unwanted" are different
-questions and an autonomous session can't confirm nobody opens them:
+## 4. Build the proposed devices (device roadmap)
 
-| item | size | the open question |
-| --- | --- | --- |
-| `docs/playbook-portal-v24-medio-consulta(1).html` | 1.7 MB | Most recent design prototype — still consulted as reference? |
-| `docs/playbook-portal-v23-medio-consulta.html` | 328 KB | Previous iteration of the same prototype. |
-| `docs/playbook-ux-02-trafico-interno-ads.html` | 324 KB | UX study for internal traffic + ads. |
-| remaining one-off `fix-*` / `update-*` scripts | ~40 KB | They document what was done to the data; cost nothing to keep. |
-| `public/assets/img/playbook-isotope-dark.png` | 12 KB | Dark half of a logo pair whose light half IS used. |
+**Status: designed, not built. Full spec in `docs/device-roadmap.md`.**
 
-If the team confirms the prototypes are no longer opened, deleting the
-three HTML files recovers ~2.3 MB of repo weight (none of it ships to the
-browser).
+The 2026-08-13 device-by-device audit shipped one upgrade to each of the
+fifteen existing devices and mapped the roster's blind spots: the future
+(every temporal device points backward), recurring contracts, N-actor
+comparisons, institutional money flow, governance votes, profiles, explicit
+scenarios, and the KPI strip. Eight devices are proposed to close them, in
+recommended build order:
+
+1. `Contrato:` — the term sheet (a rights deal is not a `Venta`)
+2. `Calendario:` — dated FUTURE beats, next one highlighted
+3. `Votación:` — the tally with the passing threshold drawn on the bar
+4. `Ranking:` — the league table, 3–6 actors on one metric
+5. `Cascada:` — the waterfall from revenue to margin, self-checking
+6. `Perfil:` — the actor card, brand palette via the existing registry
+7. `Escenarios:` — level-4 evidence made visual, fixed likelihood vocabulary
+8. `Tablero:` — the 3–4 tile KPI strip for market roundups
+
+Each proposal in the roadmap carries its syntax sketch and its exclusive
+pair. When one gets built: implement in `lib/article-devices.ts` (grammar,
+fail-loud parse, computed figures), register its exclusive pair, move its
+entry from the roadmap into `dynamic-element-library.md`, and add it to the
+harness sampler. The roadmap deliberately lives OUTSIDE
+`.claude/playbook-editorial/` so no drafting run authors an unbuilt device —
+keep it that way until the code exists.

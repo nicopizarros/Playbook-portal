@@ -30,6 +30,36 @@ body, per §2.
   the agency rule, genuinely doesn't fit (a generic stock photo unrelated to
   the actual story), or doesn't exist.
 
+### When the article body won't load, the image usually still will
+
+(2026-08-12, on the Lakers sale, where the ESPN primary returned an empty body
+and Sportico 307'd to a metering subdomain.) An outlet that blocks automated
+fetches of its *prose* is almost always still serving its `og:image` /
+`twitter:image` meta tags, because those exist to be read by crawlers it wants
+— every social preview depends on them. So a story whose text had to be
+rebuilt from cross-referenced outlets is **not** automatically a broad-search
+story for the cover.
+
+Before falling back, curl the page and read the meta tags out of the HTML head:
+
+```
+curl -sSL -A "<a normal browser UA>" "<url>" | grep -oiE '<meta[^>]+(og:image|twitter:image)[^>]*>'
+```
+
+It returns the full-resolution asset path plus `og:image:width`/`height`, which
+is the crop check below already answered. Run it on the **cross-referenced**
+outlets too, not just the primary: a sports-business outlet's own composite of
+the deal's principals is usually a better cover than anything a generic search
+turns up, and the width/height tags let you reject a bad ratio without
+downloading. Strip any `?w=` query the tag carries to get the original.
+
+Credit the outlet whose image it is (`"Foto: Sportico"`), and prefer
+**self-hosting** it per the crop-check section below rather than hotlinking a
+commercial competitor's CDN — the credit is what the site's takedown clause
+rests on, and a copy under `public/assets/img/` cannot break when they move a
+path. Self-hosted covers only resolve once the asset is on `main`, so push it
+before the article references it.
+
 ### The broad search
 
 **Always, always, always search for the best and most related cover photo,

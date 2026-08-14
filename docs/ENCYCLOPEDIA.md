@@ -75,11 +75,11 @@ checkpoint 2). **The migration is functionally done** — what remains is
 configuring real production credentials in Vercel (Resend, Vercel Blob, GA4,
 Vercel Analytics) and verifying them against live traffic; see §12.
 
-`articles.json` and `content.json` still exist at the repo root — they are
-**not read by the running app**. They're the original seed data, consumed
-exactly once by `scripts/migrate-json-to-db.ts` to populate Postgres, and
-are kept only as historical reference for what the legacy dataset looked
-like.
+`articles.json`, `content.json` and `scripts/migrate-json-to-db.ts` were
+**deleted in the 2026-08-13 stale-code sweep** — the seed ran once, the app
+never read the JSON files, and keeping a stale snapshot someone could re-run
+against the live DB by accident was pure risk. They remain in git history if
+the legacy dataset shape is ever needed as reference.
 
 ## 3. Tech Stack
 
@@ -138,8 +138,7 @@ docs/                        image-dimensions.md, this file
 .claude/skills/               publish-newsletter, verify (Claude Code skills) — §13
 .github/workflows/ci.yml      typecheck → lint → build, on push/PR
 
-articles.json, content.json   Legacy seed data — read once by migrate:json, not by the app
-HANDOFF.md                    Session-by-session progress log (the "diary")
+docs/archive/HANDOFF.md       Migration-era session journal (archived 2026-08-13)
 README.md                     Quick operational reference
 ```
 
@@ -266,8 +265,8 @@ Regenerate migrations after a schema change with `npm run db:generate`
   (nav, opinionSection, productsSection, midCta, videoSection,
   infinitasSection, statsSection, testimonialsSection, aboutSection, footer,
   siteSettings, lastUpdated). `getSiteContent()` (`React.cache()`-wrapped)
-  throws a setup-order error if the `id=1` row is missing (expects
-  `migrate:json` to have run).
+  throws a setup-order error if the `id=1` row is missing (the one-time
+  JSON seed populated it; see §11's history note).
 - **`reader-account.ts`** — `getReaderAccountSummary(readerId)`: email,
   join date, total/this-month read counts, 10 most recent reads (joined to
   `articles` for titles). Purely informational — a registered reader never
@@ -651,11 +650,23 @@ flash, paired with `suppressHydrationWarning` on `<html>`.
 | Script | Run via | Purpose |
 |---|---|---|
 | `run-migrations.ts` | `npm run db:migrate` | Applies pending Drizzle migrations |
-| `migrate-json-to-db.ts` | `npm run migrate:json` | **One-time, idempotent**: loads `articles.json`/`content.json` into Postgres |
 | `reset-editor-password.ts` | `npm run db:reset-editor-password -- <username>` | Rotates one editor's password: generates it, prints it once, stores only the bcrypt hash. Replaced `seed-editors.ts` (which took the whole roster as plaintext in `ADMIN_USERS`) on 2026-07-24 — the roster itself now ships as hashes in `drizzle/0005_editorial_team_accounts.sql` |
 | `publish-newsletter.ts` | `npm run publish:newsletter <file.json>` | The write-side of both the `publish-newsletter` and `publish-sourced-article` Claude skills (§13) — converts markdown (incl. `[text](url)` links, `- ` bullet lists) to a TipTap doc, inserts articles directly via Neon's HTTP driver (works from HTTPS-only sandboxes) |
 | `smoke-test.mjs` | `node scripts/smoke-test.mjs` (manual, against `localhost:3100`) | Playwright: theme toggle persistence, mobile drawer, search |
 | `test-email-wall.mjs` | `node scripts/test-email-wall.mjs` (manual) | Playwright: burns the 3-article quota, confirms the paywall form appears |
+| `check-voice.mjs` / `test-voice-antithesis.mjs` | `node scripts/check-voice.mjs <draft.json>` | Editorial voice mirror for the publish skills (em-dash ban, antithesis cap, rhythm stats) + its regression suite |
+| `find-duplicates.mjs` / `test-duplicate-detection.mjs` | `node scripts/find-duplicates.mjs "<title>"` | Overlap check against the live archive + its regression suite |
+| `update-article.ts` | `npx tsx scripts/update-article.ts <fix.json> --dry-run` | Regenerates a published body through the same pipeline as the insert (never hand-edit `body_html`) |
+| `update-lana-board.ts` | after each La Lana publish | Pushes the edition's connections to /la-lana's departures board |
+| `build-world-map.ts` / `build-substack-backlog.mjs` / `graph-query.py` | manual | Generators: `lib/data/world-map.json`, the Substack backlog diff, and the committed knowledge-graph reader |
+
+**History note (2026-08-13):** the one-off data-fix scripts that ran against
+production during the migration (`migrate-json-to-db`, `fix-lana-rebrand-content`,
+`reassign-playbook-tag`, `fix-newsletter-success-copy`, `fix-testimonial-avatars`,
+`update-la-lana-description`, `point-products-at-hubs`, `seed-jugadas`,
+`strip-tfbr-opinion`, `backfill-article-standards`, `update-matador-report`)
+were deleted in the stale-code sweep. What each did, and the evidence it ran,
+lives in `docs/archive/HANDOFF.md`'s session journal and in git history.
 
 ## 12. Environment Variables
 
@@ -705,15 +716,11 @@ error message — it's not a crash, just non-functional).
   as its write-side (that script's markdown-to-TipTap converter also
   supports `[text](url)` links and `- ` bullet lists, added for this
   skill's Fuentes block).
-- **`verify`** — documents how to run/verify the site in a sandbox with no
-  `npm`/build step/Vercel CLI available. **Note: this skill's content still
-  describes the pre-migration legacy static-site architecture**
-  (`api/*.js`, self-fetched `articles.json`, `vercel.json` rewrites) and
-  has not been updated to reflect the current Next.js/Postgres stack — a
-  known stale doc, flagged during a 2026-07-21 investigation session (see
-  HANDOFF.md). Treat its specific commands as outdated; its general
-  regression-testing advice (no nested `<a>` tags, Playwright checks) is
-  still relevant.
+- **`verify`** — how to run/verify the site locally: static checks, dev
+  server against `POSTGRES_URL`, the global-Playwright import path, the
+  ready-made smoke suites, and what to check per surface. Rewritten
+  2026-08-13 for the Next.js/Postgres stack (the previous version described
+  the pre-migration static site).
 
 ## 14. CI/CD
 
@@ -743,7 +750,6 @@ ever needs revisiting.
 npm install
 cp .env.local.example .env.local   # fill in values, see §12
 npm run db:migrate                  # applies Postgres schema
-npm run migrate:json                # loads articles.json/content.json (idempotent)
 npm run db:reset-editor-password -- nico   # rotate one password; prints it once
 npm run dev
 ```

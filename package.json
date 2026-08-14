@@ -12,11 +12,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/run-migrations.ts",
     "db:reset-editor-password": "tsx scripts/reset-editor-password.ts",
-    "migrate:json": "tsx scripts/migrate-json-to-db.ts",
-    "publish:newsletter": "tsx scripts/publish-newsletter.ts",
-    "fix:lana-rebrand": "tsx scripts/fix-lana-rebrand-content.ts",
-    "fix:reassign-playbook-tag": "tsx scripts/reassign-playbook-tag.ts",
-    "fix:newsletter-success-copy": "tsx scripts/fix-newsletter-success-copy.ts"
+    "publish:newsletter": "tsx scripts/publish-newsletter.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.7.4",

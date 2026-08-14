@@ -1,6 +1,6 @@
 ---
 name: publish-newsletter
-description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Noticias, La Lana del Deporte, Infinitas) into Playbook.
+description: Turn one or more Playbook Substack newsletter links into articles and publish them live to the Playbook site, with zero human review. Use when asked to process, draft, or publish a Substack link (Noticias, La Lana del Deporte, Infinitas, TFBR) into Playbook.
 ---
 
 # Publish Newsletter: Substack link to live article, no human in the loop
@@ -26,16 +26,28 @@ nobody copy-pastes anything.
 | **0** | **Overlap check — before drafting a word.** Every item, not every edition. Four outcomes; three of them mean no second article. | `references/overlap-check.md` |
 | **1** | **Ingest.** Fetch each edition, split it into items, pull the date, the item order and every embedded image URL. | `references/ingestion.md` |
 | **2** | **Research.** Mandatory outside fact per Noticias/Infinitas item, plus the regional angle. Not for La Lana. | `references/ingestion.md` |
-| **3** | **Classify the format tier**, then apply the product's architecture. | `references/format-tiers.md` |
+| **3** | **Route the format — A / B / C / D — before drafting a word**, then apply the product's architecture. Depth decides the format; graphics are a consequence. | `references/format-tiers.md` §1 |
 | **4** | **Apply the voice.** Movimiento + mecanismo + incentivo + consecuencia; find the palanca; one thing per paragraph. | `references/voice-and-style.md` |
-| **5** | **Apply the element library.** Walk all twenty-one devices, respect the budget. | `references/dynamic-element-library.md` |
+| **5** | **Apply the element library** per the routed format (A skips it; see Read economy below). Walk the fifteen shapes before calling a B/C piece device-free; respect the budget. | `references/dynamic-element-library.md` |
 | **6** | **Fill the fields and source the images.** | `references/fields-and-taxonomy.md`, `references/images.md` |
-| **7** | **Self-check** against the ten-point publication checklist and run `check-voice.mjs`. | `references/voice-and-style.md` §12 |
+| **7** | **Self-check** against the twelve-point publication checklist and run `check-voice.mjs`. | `references/voice-and-style.md` §12 |
 | **8** | **Publish, report, capture feedback.** | `references/publishing-mechanics.md` |
 
-Steps 3–5 are one pass, not three: the tier decides the length, the voice
+Steps 3–5 are one pass, not three: the format decides the length, the voice
 decides the prose, the library decides the visual beats, and they are written
 together.
+
+**Read economy — the route decides what you load.** `voice-and-style.md` and
+`format-tiers.md` §1 are always read; the rest is conditional per item:
+
+- **A (Noticia breve / Tier 2 item)** → skip `dynamic-element-library.md`
+  entirely (no devices) and voice §6 (no Opinión).
+- **B (Noticia Playbook)** → library §§1–2 headings, then only the chosen
+  device's entry.
+- **C (Deep Dive)** → the full library walk plus `format-tiers.md` §3b.
+- **La Lana edition** → `format-tiers.md` §4 and its own architecture; never
+  regenerate an approved piece.
+- `_GOVERNANCE.md` → never during a drafting run.
 
 **Do not ask for approval before step 8.** Publishing without a review gate is
 the point of this flow. Do flag anything genuinely uncertain (a fact that
@@ -44,9 +56,9 @@ couldn't be confirmed, no findable cover photo) rather than guessing silently.
 ## Shared vs. own
 
 `references/voice-and-style.md`, `format-tiers.md`,
-`dynamic-element-library.md`, `overlap-check.md`, `fields-and-taxonomy.md` and
-`images.md` are **symlinks into `.claude/playbook-editorial/`, shared with
-`publish-sourced-article`**. One copy, both funnels — output from the two skills
+`dynamic-element-library.md`, `overlap-check.md`, `fields-and-taxonomy.md`,
+`images.md` and `postura-editorial.md` are **symlinks into
+`.claude/playbook-editorial/`, shared with `publish-sourced-article`**. One copy, both funnels — output from the two skills
 should be indistinguishable once published. Edit them there and both skills
 change; never fork a copy into this folder.
 

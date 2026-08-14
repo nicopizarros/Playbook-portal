@@ -1,10 +1,14 @@
 # Handoff — Playbook: migración a Next.js
 
+> **ARCHIVADO (2026-08-13).** Este documento fue el diario de la migración a
+> Next.js y dejó de actualizarse el 2026-08-05. La documentación viva es
+> `docs/ENCYCLOPEDIA.md` (arquitectura) y `docs/TODO.md` (pendientes). Se
+> conserva porque es el único registro de qué scripts one-off corrieron
+> contra producción y qué hicieron — evidencia de auditoría, no guía.
+
 Documento de continuidad. Objetivo: que cualquiera (persona o sesión de
 Claude Code nueva) pueda retomar el proyecto sin tener que releer todo el
-historial de commits/PRs. **Este archivo se actualiza en cada sesión de
-trabajo relevante** — ver la convención al final. Última actualización:
-2026-08-05.
+historial de commits/PRs. Última actualización: 2026-08-05.
 
 **Estado: auditoría pre-lanzamiento hecha.** La rama
 `claude/playbook-pre-launch-audit-fu1bzg` contiene una revisión completa

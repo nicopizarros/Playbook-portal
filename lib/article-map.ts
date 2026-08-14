@@ -262,13 +262,17 @@ export function buildMap(map: ArticleMap): string | null {
     }
   }
 
+  // The counts tick up (2026-08-13): each camp's tally is the map's actual
+  // finding ("11 sedes contra 3"), so it gets the same count-up treatment
+  // as every other computed figure — data-lect-countup on a plain integer,
+  // handled by the shared primitive with zero layout shift.
   const legend = map.groups
     .map(
       (group, index) =>
         `<span class="lect-map-key lect-map-g${index + 1}">` +
         `<span class="lect-map-swatch" aria-hidden="true"></span>` +
         `<span class="lect-map-key-label">${esc(group.label)}</span>` +
-        `<span class="lect-map-key-count">${group.codes.length}</span></span>`,
+        `<span class="lect-map-key-count" data-lect-countup>${group.codes.length}</span></span>`,
     )
     .join('');
 
@@ -280,7 +284,11 @@ export function buildMap(map: ArticleMap): string | null {
     `<svg class="lect-map-svg" viewBox="0 0 ${VIEW_W} ${height.toFixed(0)}" role="img" ` +
     `aria-label="${esc(described)}" preserveAspectRatio="xMidYMid meet">` +
     `<g class="lect-map-shapes">${shapes.join('')}</g>` +
-    `<g class="lect-map-dots">${dots.join('')}</g>` +
+    // data-lect-stagger (2026-08-13): the city-state dots pop in sequence
+    // (shared staggerIn primitive; gsap animates SVG children fine). The
+    // landmasses deliberately don't move — terrain shifting reads as an
+    // error, markers arriving reads as data.
+    `<g class="lect-map-dots" data-lect-stagger>${dots.join('')}</g>` +
     `</svg>` +
     `<figcaption class="lect-map-legend">${legend}</figcaption>` +
     `</figure>`

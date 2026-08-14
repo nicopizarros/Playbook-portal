@@ -15,6 +15,40 @@ in one run, draft each as its own separate article.
 Confirm the publish date and the core facts (who, what, the key numbers)
 **directly from the page**. Don't guess or carry over stale context.
 
+### When the primary source won't load
+
+Wire services and paywalled outlets are this funnel's normal raw material and
+several of them hard-block automated fetching. On 2026-08-11 three links in one
+run refused: reuters.com returned 401 on every attempt (DataDome), a Sportico
+URL 307'd to a metering subdomain that doesn't resolve, and truthsocial.com
+returned 403. Improvising a workaround per run makes the quality of the
+substitution depend on who is running it, so it is written down here.
+
+**Do not draft from memory of the headline, and do not quietly swap in whatever
+does load.** Work down this ladder and stop at the first rung that gives you
+the facts:
+
+1. **A syndicated copy of the same wire on a reachable host.** A Reuters story
+   runs verbatim on dozens of local radio and regional news sites; those serve
+   automated fetches normally. This is the closest thing to the primary and
+   usually carries the whole text.
+2. **The issuer's own press release.** Often better than the wire (see the
+   co-issuer step below), and the thing to reach for anyway.
+3. **Two independent outlets agreeing on each figure.** Slowest, and the only
+   option for a story with no release and no syndication. Every number in the
+   article needs two sources agreeing, not one outlet plus an assumption.
+
+Three rules hold regardless of which rung you land on:
+
+- **`sourceUrl` stays the original link.** It is the DB's dedupe key and is
+  never rendered (`fields-and-taxonomy.md`), so pointing it at a syndication
+  would let the same story be published twice from the real URL later.
+- **Never silently substitute a reachable outlet on the `Fuentes:` line.** That
+  line credits who said it, not who reported it, and an editorial outlet does
+  not become a primary source by being the only one that loaded.
+- **Say so in the run report**, in one line: which primary was unreadable, what
+  it was replaced with, and any fact that could not be confirmed at all.
+
 **Then run the overlap check before drafting a word** (`overlap-check.md`).
 This funnel is the one most likely to arrive at a story Playbook already
 published — a wire link about something a Noticias edition briefed two days ago
@@ -36,8 +70,8 @@ skill:
 - **Verification** — don't take the primary source's framing or numbers at face
   value. Confirm the key facts independently where another outlet covered them.
 - **Enrichment** — surface a data point, comparison or piece of history the
-  primary article didn't have. This becomes movement 2 of the four-movement structure
-  (`format-tiers.md` §3).
+  primary article didn't have. This becomes the research movement of the B
+  brief (`format-tiers.md` §3), or feeds a section of a Deep Dive (§3b).
 - **Independence** — a Playbook piece built from a single competitor's article
   reads as a close paraphrase of that one competitor. Pulling in a second or
   third angle is what makes it a Playbook piece instead.
@@ -51,18 +85,41 @@ If, after genuinely trying, no other outlet has covered the story (a truly
 exclusive or very fresh item), **say so explicitly** rather than inventing a
 second source, and draft from the primary article alone.
 
-### Find each primary co-issuer's own posting
+### Read each primary co-issuer's own posting — BEFORE drafting, not at field-filling time
 
-The `Fuentes:` line credits **who said it, not who reported it**
-(`format-tiers.md` §6 for the full rule and the rendering). Practical
-consequence for this step: find each co-issuer's own posting, not just the one
-that was handed over. When a confederation, league or club publishes jointly,
-every signatory usually posts the same document on its own site, and **those
-URLs are what the line wants**.
+**This is a verification step that happens to also produce the `Fuentes:` line,
+and running it in that order is the point.** It used to be framed the other way
+round, as sourcing for the credit line, which meant it naturally got done while
+filling fields — after the body and the Opinión were already written. That is
+too late, and on 2026-08-11 it cost a wrong conclusion.
+
+Worked example from that run. Every wire and secondary outlet reported Apollo's
+US$2,600M into Yankee Global Enterprises as a financing that left the family in
+full control, so the draft's closing read was that the fund gets paid but never
+gets a seat: *"no cede una silla en la mesa."* The co-issuers' joint press
+release, found only by going to look for it, says the fund's chief executive
+**joins the board in an additional seat**. The Opinión was not incomplete, it
+was the opposite of the fact, and it was already written.
+
+The reason this keeps happening is structural, not a lapse: **wire copy
+compresses governance terms out of a story because they are not the headline
+number.** Board seats, consent rights, veto thresholds, unlock schedules and
+who signs what are exactly the terms a business read turns on, and exactly what
+gets cut for length. The issuer's own document is where they live. So read the
+release before you decide what the story means, not after.
+
+Practically: find each co-issuer's own posting, not just the one that was
+handed over. When a confederation, league or club publishes jointly, every
+signatory usually posts the same document on its own site, and **those URLs are
+what the line wants**. Company releases are often only on an investor-relations
+subdomain rather than the marketing site, so check `ir.<company>.com` before
+concluding there is no release.
 
 Verify each one loads before using it. A site behind aggressive bot protection
 may refuse an automated fetch while serving readers normally — say so rather
-than silently dropping the co-issuer.
+than silently dropping the co-issuer. If a joint release exists in only one
+place, that is one entry, not two: **under-fill the line rather than padding it
+with a homepage link or an editorial outlet.**
 
 The editorial outlets read above do their job by being read. They do **not** go
 on the line, unless one of them broke the story exclusively.

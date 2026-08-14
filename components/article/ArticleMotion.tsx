@@ -104,11 +104,10 @@ export function ArticleMotion() {
     document.querySelectorAll<HTMLElement>('[data-lect-stagger]').forEach(group => {
       staggerIn(scope, group, Array.from(group.children) as HTMLElement[]);
     });
-    // [data-lect-grow] generalizes the Reparto-bar treatment for the
-    // round-4 devices (Termómetro fill, Ranking/Escala bars, Votación
-    // segments): any container carrying it gets its [data-lect-seg]
-    // children grown left-to-right on first view.
-    document.querySelectorAll<HTMLElement>('.lect-rep-bar, [data-lect-grow]').forEach(bar => {
+    // .lect-res-body joined 2026-08-13: the Resultados panel's delta bars
+    // grow with the same left-to-right choreography as the Reparto's
+    // segments — one primitive, two devices.
+    document.querySelectorAll<HTMLElement>('.lect-rep-bar, .lect-res-body').forEach(bar => {
       const segments = Array.from(bar.querySelectorAll<HTMLElement>('[data-lect-seg]'));
       if (!segments.length) return;
       gsap.set(segments, { scaleX: 0, transformOrigin: 'left center' });
@@ -145,6 +144,96 @@ export function ArticleMotion() {
           stagger: 0.1,
           ease: 'power2.out',
           scrollTrigger: { trigger: rows, start: 'top 88%', once: true },
+        }),
+      );
+      cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
+    });
+
+    // 3b0 — The Cotización track's push-in: the whole arc first, then the
+    // window where the story actually happens. Scrubbed against scroll
+    // rather than fired once, because the point is that the READER drives
+    // the zoom and can hold it anywhere, including halfway.
+    //
+    // Two complete layers cross-fade (buildTrack projects each on its own),
+    // so neither is ever drawn with wrong geometry. The transform is only
+    // there to sell the movement: the wide layer pushes past the viewer and
+    // dissolves, the closing window rises to its correct resting scale of 1.
+    // If this never runs, CSS leaves the wide layer showing and the detail
+    // strip underneath still carries the closing numbers.
+    document.querySelectorAll<HTMLElement>('.lect-cot-stage').forEach(stage => {
+      const wide = stage.querySelector<SVGGElement>('.lect-cot-wide');
+      const zoom = stage.querySelector<SVGGElement>('.lect-cot-zoom');
+      if (!wide || !zoom) return;
+      // Origin at the right edge, mid-height: the closing point is the last
+      // one on the axis, so pushing in about it keeps the moment the device
+      // exists to show anchored while everything else slides away.
+      gsap.set([wide, zoom], { transformOrigin: '92% 50%' });
+      // Two scrubbed tweens rather than a timeline: lib/gsap.ts types only
+      // the surface the app actually uses, and widening that shared
+      // interface for one call site is the wrong trade. Both are driven by
+      // scroll position, so they cannot drift apart — the offset windows
+      // below are what give the hand-off its overlap.
+      tweens.push(
+        gsap.to(wide, {
+          scale: 2.6,
+          opacity: 0,
+          ease: 'power2.in',
+          scrollTrigger: { trigger: stage, start: 'top 78%', end: 'top 40%', scrub: 0.6 },
+        }),
+        gsap.fromTo(
+          zoom,
+          { scale: 0.82, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: stage, start: 'top 70%', end: 'top 34%', scrub: 0.6 },
+          },
+        ),
+      );
+      cleanups.push(() => {
+        [wide, zoom].forEach(g => {
+          g.style.removeProperty('transform');
+          g.style.removeProperty('opacity');
+          g.style.removeProperty('transform-origin');
+        });
+      });
+    });
+
+    // 3b1 — The Venta's crest bar wipes in as a colour block before the
+    // rest of the deed settles, so the asset announces itself first — the
+    // one moment in the article where a foreign brand takes the page.
+    // Clipped rather than scaled: the wordmark inside must not stretch.
+    document.querySelectorAll<HTMLElement>('.lect-venta-crest').forEach(crest => {
+      gsap.set(crest, { clipPath: 'inset(0 100% 0 0)' });
+      tweens.push(
+        gsap.to(crest, {
+          clipPath: 'inset(0 0% 0 0)',
+          duration: 0.7,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: crest, start: 'top 90%', once: true },
+        }),
+      );
+      cleanups.push(() => crest.style.removeProperty('clip-path'));
+    });
+
+    // 3b2 — The Cadena's hold bars grow left to right, longest era first
+    // in the reading order rather than the animation order: they are
+    // staggered down the chain so the eye follows the rail. Same
+    // transform-origin and cleanup contract as the Reparto segments above;
+    // the widths themselves are inline styles from buildChain, so this
+    // only ever animates toward a layout the server already decided.
+    document.querySelectorAll<HTMLElement>('.lect-cadena-list').forEach(list => {
+      const bars = Array.from(list.querySelectorAll<HTMLElement>('[data-lect-hold]'));
+      if (!bars.length) return;
+      gsap.set(bars, { scaleX: 0, transformOrigin: 'left center' });
+      tweens.push(
+        gsap.to(bars, {
+          scaleX: 1,
+          duration: 0.65,
+          stagger: 0.12,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: list, start: 'top 88%', once: true },
         }),
       );
       cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
