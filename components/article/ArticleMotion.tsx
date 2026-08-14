@@ -107,7 +107,11 @@ export function ArticleMotion() {
     // .lect-res-body joined 2026-08-13: the Resultados panel's delta bars
     // grow with the same left-to-right choreography as the Reparto's
     // segments — one primitive, two devices.
-    document.querySelectorAll<HTMLElement>('.lect-rep-bar, .lect-res-body').forEach(bar => {
+    // [data-lect-grow] generalizes this treatment: any container carrying
+    // it gets its [data-lect-seg] children grown left-to-right on first
+    // view — the hook the roadmap devices (Contrato term bar, Votación
+    // tally, Ranking/Cascada bars) opt into without new JS per device.
+    document.querySelectorAll<HTMLElement>('.lect-rep-bar, .lect-res-body, [data-lect-grow]').forEach(bar => {
       const segments = Array.from(bar.querySelectorAll<HTMLElement>('[data-lect-seg]'));
       if (!segments.length) return;
       gsap.set(segments, { scaleX: 0, transformOrigin: 'left center' });

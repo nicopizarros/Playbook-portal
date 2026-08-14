@@ -7,6 +7,7 @@
 // (app/(public)/articulo/page.tsx) leen de acá para no duplicar el mapeo.
 
 import type { Article } from './data/articles';
+import { escapeHtml, decodeEntities } from './html-entities';
 
 export type ProductHub = {
   /** `source` value in the articles table ('' = none exists yet, see TFBR). */
@@ -23,10 +24,11 @@ export type ProductHub = {
 // the day editorial mints a `futbol-business-review` source the page simply
 // starts listing articles with zero further code changes.
 export const PRODUCT_HUBS: ProductHub[] = [
-  // Named "Noticias" everywhere the reader looks (user feedback 2026-08-05
-  // — the SOURCE_LABELS name, not the newsletter's internal brand);
-  // /industry-shots 301s to /noticias in next.config.ts.
-  { source: 'industry-shots', path: '/noticias', name: 'Noticias', concept: 'El Trago' },
+  // Named "Noticias" everywhere the reader looks (user feedback 2026-08-05);
+  // the machine key caught up on 2026-08-14 (TODO #2 — 'industry-shots'
+  // retired, normalizeSource() in lib/constants.ts still maps unmigrated
+  // rows); /industry-shots 301s to /noticias in next.config.ts.
+  { source: 'noticias', path: '/noticias', name: 'Noticias', concept: 'El Trago' },
   { source: 'la-lana', path: '/la-lana', name: 'La Lana del Deporte', concept: 'El Expediente' },
   { source: 'futbol-business-review', path: '/futbol-business-review', name: 'The Futbol Business Review', concept: 'La Sala de Juntas' },
   { source: 'infinitas', path: '/infinitas', name: 'Infinitas', concept: 'El Marcador' },
@@ -222,7 +224,11 @@ export type CifraFigure = { value: string; caption: string; source: string };
 // had to share the caption's own type. Optional; a caption with no
 // parenthetical renders exactly as before.
 export function parseCifra(raw: string): CifraFigure | null {
-  const text = raw.replace(/<[^>]+>/g, '').trim();
+  // Decode after tag-stripping: on the HTML path `raw` comes out of
+  // already-serialized body HTML, so an author's apostrophe arrives as
+  // &apos; — without decoding it leaks into hub cards as literal text and
+  // into device markup double-escaped (lib/html-entities.ts).
+  const text = decodeEntities(raw.replace(/<[^>]+>/g, '')).trim();
   const [valuePart, ...captionParts] = text.split(/\s+[—–-]\s+/);
   const value = valuePart.trim();
   if (!value || value.length > 24 || !/\d/.test(value)) return null;
@@ -271,13 +277,14 @@ export function extractCifraFromBody(bodyHtml: string | null, teaser: string | n
 // split — splitAfterParagraph only counts top-level </p>, and the figure
 // contains none, so the split can never cut a beat open.
 export function cifraMarkup(parsed: CifraFigure): string {
+  // parseCifra hands back decoded plain text — escape exactly once here.
   const source = parsed.source
-    ? ` <span class="lect-pullfig-source">${parsed.source}</span>`
+    ? ` <span class="lect-pullfig-source">${escapeHtml(parsed.source)}</span>`
     : '';
   const caption = parsed.caption || parsed.source
-    ? `<figcaption class="lect-pullfig-caption">${parsed.caption}${source}</figcaption>`
+    ? `<figcaption class="lect-pullfig-caption">${escapeHtml(parsed.caption)}${source}</figcaption>`
     : '';
-  return `<figure class="lect-pullfig"><span class="lect-pullfig-value" data-lect-countup>${parsed.value}</span>${caption}</figure>`;
+  return `<figure class="lect-pullfig"><span class="lect-pullfig-value" data-lect-countup>${escapeHtml(parsed.value)}</span>${caption}</figure>`;
 }
 
 export function markCifraFigures(html: string): string {
@@ -314,7 +321,8 @@ export type Jugada = { left: string; right: string; arrow: '↔' | '→'; note: 
 // reader outside the story can't infer. ≤60 chars, optional, and the bare
 // two-sided form renders exactly as before.
 export function parseJugada(raw: string): Jugada | null {
-  const text = raw.replace(/<[^>]+>/g, '').trim();
+  // Same decode-then-escape contract as parseCifra above.
+  const text = decodeEntities(raw.replace(/<[^>]+>/g, '')).trim();
   const split = text.split(/\s+[—–]\s+/);
   const pair = split[0].trim();
   const note = split.slice(1).join(' — ').trim();
@@ -328,15 +336,17 @@ export function parseJugada(raw: string): Jugada | null {
 }
 
 export function jugadaMarkup(jugada: Jugada): string {
-  const conn = `${jugada.left} ${jugada.arrow} ${jugada.right}`;
-  const note = jugada.note ? `<span class="lect-jugada-note">${jugada.note}</span>` : '';
+  // Escaped once here (parseJugada decodes): an unescaped quote in a side
+  // used to break out of the aria-label attribute below.
+  const conn = escapeHtml(`${jugada.left} ${jugada.arrow} ${jugada.right}`);
+  const note = jugada.note ? `<span class="lect-jugada-note">${escapeHtml(jugada.note)}</span>` : '';
   return (
-    `<div class="lect-jugada" role="note" aria-label="La jugada: ${conn}${jugada.note ? `. ${jugada.note}` : ''}">` +
+    `<div class="lect-jugada" role="note" aria-label="La jugada: ${conn}${jugada.note ? `. ${escapeHtml(jugada.note)}` : ''}">` +
     `<span class="lect-jugada-label">La jugada</span>` +
     `<span class="lect-jugada-conn" aria-hidden="true">` +
-    `<span class="lect-jugada-side">${jugada.left}</span>` +
+    `<span class="lect-jugada-side">${escapeHtml(jugada.left)}</span>` +
     `<span class="lect-jugada-arrow">${jugada.arrow}</span>` +
-    `<span class="lect-jugada-side">${jugada.right}</span>` +
+    `<span class="lect-jugada-side">${escapeHtml(jugada.right)}</span>` +
     `</span>${note}</div>`
   );
 }

@@ -6,7 +6,7 @@
      la-lana                  a case file: folder tab + stamp + expediente
                               number above the headline, exhibit-framed
                               cover, mono byline, dossier foot handoff.
-     industry-shots           a shot being poured: weekday + shot measure,
+     noticias           a shot being poured: weekday + shot measure,
                               green-ruled headline, numbered reporting
                               beats, the filling glass (ShotProgress).
      infinitas                El Marcador carried in: flat violet, Inter
@@ -1004,17 +1004,17 @@ mark.lect-fig{
 .lect-related-card:hover .lect-related-arrow{opacity:1;transform:none;}
 /* Rest accents: hub identity colors (green/gold/violet/red), not the
    sitewide --src-industry navy — the card previews the HUB. */
-.lect-related-card[data-source="industry-shots"]{border-top-color:var(--green);}
+.lect-related-card[data-source="noticias"]{border-top-color:var(--green);}
 .lect-related-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
 .lect-related-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
 .lect-related-card[data-source="futbol-business-review"]{border-top-color:var(--tfbr-red);}
 .lect-related-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
 /* Hover skins — the product surface itself (fixed literals, same criterion
    as the hubs: a bottle label is dark whatever the theme says). */
-.lect-related-card[data-source="industry-shots"]:hover{background:var(--shots-bg);color:var(--shots-white);border-color:var(--shots-bg);border-top-color:var(--pb-green);}
-.lect-related-card[data-source="industry-shots"]:hover .lect-related-eyebrow{color:var(--pb-green);}
-.lect-related-card[data-source="industry-shots"]:hover .lect-related-figure,
-.lect-related-card[data-source="industry-shots"]:hover .lect-related-meta{color:var(--shots-white);}
+.lect-related-card[data-source="noticias"]:hover{background:var(--shots-bg);color:var(--shots-white);border-color:var(--shots-bg);border-top-color:var(--pb-green);}
+.lect-related-card[data-source="noticias"]:hover .lect-related-eyebrow{color:var(--pb-green);}
+.lect-related-card[data-source="noticias"]:hover .lect-related-figure,
+.lect-related-card[data-source="noticias"]:hover .lect-related-meta{color:var(--shots-white);}
 .lect-related-card[data-source="la-lana"]:hover{background:var(--pb-paper-soft);color:var(--pb-ink);border-color:var(--pb-rule);border-top-color:var(--lana-gold);}
 .lect-related-card[data-source="la-lana"]:hover .lect-related-eyebrow{color:var(--lana-gold);}
 .lect-related-card[data-source="la-lana"]:hover .lect-related-figure,
@@ -1116,13 +1116,13 @@ mark.lect-fig{
 /* ============================================================
    2. Noticias — the shot
    ============================================================ */
-.article-product-industry-shots h1{
+.article-product-noticias h1{
   text-transform:uppercase;line-height:1.04;
   border-bottom:5px solid var(--green);padding-bottom:12px;
 }
 /* The green rule under the headline replaces the byline's hairline —
    one rule per header, not two. */
-.article-product-industry-shots .article-byline{border-bottom:none;padding-bottom:6px;}
+.article-product-noticias .article-byline{border-bottom:none;padding-bottom:6px;}
 
 .lect-shot-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px;}
 .lect-day-badge{
@@ -1142,14 +1142,14 @@ mark.lect-fig{
    blockquote paragraphs and figure captions never take a number.
    #3f7d0a is the site's existing darker legible-green (see
    .share-btn.is-copied) with the same dark-theme counterpart cascade. */
-.article-product-industry-shots{--lect-beat:#3f7d0a;}
-[data-theme="dark"] .article-product-industry-shots{--lect-beat:var(--green);}
+.article-product-noticias{--lect-beat:#3f7d0a;}
+[data-theme="dark"] .article-product-noticias{--lect-beat:var(--green);}
 @media(prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .article-product-industry-shots{--lect-beat:var(--green);}
+  :root:not([data-theme="light"]) .article-product-noticias{--lect-beat:var(--green);}
 }
-.article-product-industry-shots .article-body{counter-reset:lect-beat;}
-.article-product-industry-shots .article-body > p::before,
-.article-product-industry-shots .article-body > div > p::before{
+.article-product-noticias .article-body{counter-reset:lect-beat;}
+.article-product-noticias .article-body > p::before,
+.article-product-noticias .article-body > div > p::before{
   counter-increment:lect-beat;
   content:counter(lect-beat,decimal-leading-zero);
   display:inline-block;margin-right:10px;
@@ -1180,7 +1180,7 @@ mark.lect-fig{
 }
 
 /* Pull figure: the hub's rotated green chip. */
-.article-product-industry-shots .lect-pullfig-value{
+.article-product-noticias .lect-pullfig-value{
   background:var(--green);color:var(--ink-fixed);padding:2px 14px;transform:rotate(-1.2deg);
 }
 
@@ -1199,11 +1199,11 @@ mark.lect-fig{
    the img's mix-blend-mode:luminosity blends against the ROOT group and
    tints the entire themed page lavender (seen in Playwright, 2026-08-05).
    position:relative is what keeps the ::after overlay inside the frame. */
-.lect-duotone{position:relative;background:var(--inf-violet-deep);isolation:isolate;}
-.lect-duotone img{filter:grayscale(1) contrast(1.06);mix-blend-mode:luminosity;opacity:.96;}
-/* Overlay lightened twice on owner feedback (2026-08-13): .28/.16 → .20/.11
-   → .10/.05 — keep in sync with .infhub-duotone in styles/product-hubs.css. */
-.lect-duotone::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(107,47,191,.10),rgba(84,36,156,.05));pointer-events:none;}
+/* The duotone history ended here: lightened twice on owner feedback
+   (2026-08-13), then cut entirely on 2026-08-14 — the directive moved
+   from "whisper" to "no tint over content at all". Clean photo, violet
+   baseline. Keep in sync with .infhub-duotone in product-hubs.css. */
+.lect-duotone{position:relative;border-bottom:3px solid var(--src-infinitas);}
 
 .article-product-infinitas .lect-pullfig{border-color:var(--src-infinitas);}
 .article-product-infinitas .lect-pullfig-value{color:var(--src-infinitas);font-family:var(--sans);font-weight:800;letter-spacing:-.02em;}
@@ -1277,7 +1277,7 @@ mark.lect-fig{
    Walled state wears the product accent too
    ============================================================ */
 .article-product-la-lana .article-walled{border-color:var(--src-lana);}
-.article-product-industry-shots .article-walled{border-color:var(--green);}
+.article-product-noticias .article-walled{border-color:var(--green);}
 .article-product-infinitas .article-walled{border-color:var(--src-infinitas);}
 .article-product-futbol-business-review .article-walled{border-color:var(--tfbr-red);}
 

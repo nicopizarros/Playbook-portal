@@ -69,41 +69,15 @@ import {
   jugadaMarkup,
 } from './product-hubs';
 
-function esc(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// Named + numeric entity decode, the inverse of esc() above. Needed because
-// the HTML path's raw device text is captured straight out of already-
-// serialized body HTML (generateHTML escapes text nodes on the way in, so an
-// author's plain "l'Avenir" is stored as "l&apos;Avenir"). Without decoding
-// here first, esc() re-escapes that literal "&apos;" into "&amp;apos;" and
-// the reader sees the entity name instead of the character (bug found
-// 2026-08-06 authoring a Cronología with an apostrophe in it). The
-// plain-text authoring path (deviceFromParagraph) never has entities to
-// decode, so this is a safe no-op there.
-const NAMED_ENTITIES: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-};
-
-function decodeEntities(text: string): string {
-  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, ent: string) => {
-    if (ent[0] === '#') {
-      const codePoint = ent[1] === 'x' || ent[1] === 'X' ? parseInt(ent.slice(2), 16) : parseInt(ent.slice(1), 10);
-      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match;
-    }
-    const named = NAMED_ENTITIES[ent.toLowerCase()];
-    return named ?? match;
-  });
-}
+// Decode-then-escape lives in one shared module now (lib/html-entities.ts)
+// because the double-escape bug it prevents (HANDOFF 2026-08-06: captured
+// device text arrives with generateHTML's &apos; already in it, and a
+// second escape turns it into a visible &amp;apos;) was fixed here on the
+// Cronología path but kept recurring in the sibling device modules that
+// each had their own esc() copy and no decode. The plain-text authoring
+// path (deviceFromParagraph) never has entities to decode, so decoding is
+// a safe no-op there.
+import { escapeHtml as esc, decodeEntities } from './html-entities';
 
 const ITEM_SEP = /\s+·\s+/;
 // First key—value split inside an item (em/en dash or hyphen, spaced —
