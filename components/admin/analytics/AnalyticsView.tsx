@@ -23,7 +23,11 @@ function DeltaBadge({ value }: { value: number | null }) {
   return <span className={`analytics-delta ${kind}`}>{arrow} {sign}{value}%</span>;
 }
 
-function KpiCard({ label, kpi }: { label: string; kpi: PeriodKpi }) {
+// The metering log measures readers, not hits (one row per identity ×
+// article × month, bots and editors excluded) — when it is the source,
+// the words change with the semantics instead of dressing reads up as
+// pageviews.
+function KpiCard({ label, kpi, firstParty }: { label: string; kpi: PeriodKpi; firstParty: boolean }) {
   return (
     <div className="analytics-kpi-card">
       <div className="analytics-kpi-label">{label}</div>
@@ -33,11 +37,11 @@ function KpiCard({ label, kpi }: { label: string; kpi: PeriodKpi }) {
         <div className="analytics-kpi-row">
           <div>
             <b>{formatNumber(kpi.pageviews)}</b>
-            <span>Vistas <DeltaBadge value={kpi.deltaPageviews} /></span>
+            <span>{firstParty ? 'Lecturas' : 'Vistas'} <DeltaBadge value={kpi.deltaPageviews} /></span>
           </div>
           <div>
             <b>{formatNumber(kpi.visitors)}</b>
-            <span>Visitantes <DeltaBadge value={kpi.deltaVisitors} /></span>
+            <span>{firstParty ? 'Lectores' : 'Visitantes'} <DeltaBadge value={kpi.deltaVisitors} /></span>
           </div>
         </div>
       )}
@@ -94,7 +98,11 @@ export function AnalyticsView({ initialSnapshot }: { initialSnapshot: AnalyticsS
       <div className="analytics-head">
         <div>
           <h2 className="admin-section-title">Analítica</h2>
-          <p className="admin-section-desc">Tráfico del sitio en los últimos 30 días.</p>
+          <p className="admin-section-desc">
+            Tráfico del sitio en los últimos 30 días.
+            {snapshot.source === 'first-party' &&
+              ' Fuente: el registro propio de lecturas del sitio (una lectura por lector, artículo y mes; sin bots ni editores). Configura GA4 en Vercel para pageviews completos y los paneles de referidos, países y dispositivos.'}
+          </p>
         </div>
         <div className="analytics-head-actions">
           <span className="analytics-updated">{error ? 'No se pudo actualizar' : formatUpdatedAt(snapshot.updatedAt)}</span>
@@ -105,9 +113,9 @@ export function AnalyticsView({ initialSnapshot }: { initialSnapshot: AnalyticsS
       </div>
 
       <div className="analytics-kpi-grid">
-        <KpiCard label="Hoy" kpi={snapshot.kpis.today} />
-        <KpiCard label="Últimos 7 días" kpi={snapshot.kpis.last7} />
-        <KpiCard label="Últimos 30 días" kpi={snapshot.kpis.last30} />
+        <KpiCard label="Hoy" kpi={snapshot.kpis.today} firstParty={snapshot.source === 'first-party'} />
+        <KpiCard label="Últimos 7 días" kpi={snapshot.kpis.last7} firstParty={snapshot.source === 'first-party'} />
+        <KpiCard label="Últimos 30 días" kpi={snapshot.kpis.last30} firstParty={snapshot.source === 'first-party'} />
       </div>
 
       <div className="analytics-panel-grid">

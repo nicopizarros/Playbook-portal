@@ -307,6 +307,16 @@ export default async function ArticuloPage({ searchParams }: Props) {
   const content = await getSiteContent();
   const canonicalUrl = canonicalUrlFor(meta.id);
   const showAuthor = shouldShowAuthor(meta, content.siteSettings.mostrarAutorGlobal);
+  // SEO block (2026-08-14 upgrade, all of it invisible): keywords from the
+  // taxonomy the article is already filed under, a real Person author when
+  // the byline is actually shown, the canonical url on the entity itself,
+  // and — the important one — PAYWALL markup. The site meters articles
+  // (3 free reads/month, lib/metering.ts) while serving crawlers the full
+  // body (bots are metering-exempt), which is precisely the situation
+  // Google's flexible-sampling guidance says to declare with
+  // isAccessibleForFree + hasPart, or risk it being read as cloaking. The
+  // cssSelector names the element the wall hides (.article-body).
+  const keywords = [...meta.tagsVertical, ...meta.tagsSport, ...meta.tagsScope];
   const jsonLdBase = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
@@ -321,7 +331,18 @@ export default async function ArticuloPage({ searchParams }: Props) {
     dateModified: meta.date || undefined,
     articleSection: meta.publication || undefined,
     inLanguage: 'es-MX',
-    author: { '@type': 'Organization', name: meta.publication || 'Playbook' },
+    url: canonicalUrl,
+    ...(keywords.length ? { keywords: keywords.join(', ') } : {}),
+    isAccessibleForFree: false,
+    hasPart: {
+      '@type': 'WebPageElement',
+      isAccessibleForFree: false,
+      cssSelector: '.article-body',
+    },
+    author:
+      showAuthor && meta.author
+        ? { '@type': 'Person', name: meta.author, worksFor: { '@type': 'Organization', name: 'Playbook' } }
+        : { '@type': 'Organization', name: meta.publication || 'Playbook' },
     publisher: {
       '@type': 'Organization',
       name: 'Playbook',
@@ -336,6 +357,20 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // e.g. opinion): links the kicker chip to the product's own hub and
   // scopes the per-product template CSS on the <article>.
   const hub = hubForSource(meta.source);
+
+  // BreadcrumbList mirrors the navigation the page already renders (the
+  // kicker chip links to the hub): Portada → hub → article. Non-hub
+  // sources (opinion) skip the middle crumb. Part of the invisible SEO
+  // block above — crawl-only, nothing visual.
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Playbook', item: SITE_URL },
+      ...(hub ? [{ '@type': 'ListItem', position: 2, name: hub.name, item: `${SITE_URL}${hub.path}` }] : []),
+      { '@type': 'ListItem', position: hub ? 3 : 2, name: meta.title, item: canonicalUrl },
+    ],
+  };
   const articleClass = `article-detail${hub ? ` article-product-${hub.source}` : ''}`;
 
   // ——— Per-product article shells (La Lectura, 2026-08-05): each product's
@@ -489,7 +524,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
         </main>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLdBase) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript([jsonLdBase, breadcrumbJsonLd]) }}
         />
       </>
     );
@@ -658,7 +693,12 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript({ ...jsonLdBase, articleBody: article.teaser || article.excerpt || '' }) }}
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript([
+            { ...jsonLdBase, articleBody: article.teaser || article.excerpt || '' },
+            breadcrumbJsonLd,
+          ]),
+        }}
       />
     </>
   );

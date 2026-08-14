@@ -12,8 +12,11 @@ Fetch every Substack URL given with **WebFetch**. It follows the
 `open.substack.com` → `<pub>.substack.com` redirect automatically; re-fetch the
 redirect URL it reports.
 
-**One edition is many articles.** Each story in a Noticias or La Lana del
-Deporte edition is a separate Playbook article.
+**One Noticias edition is many articles.** Each story in a Noticias edition
+is a separate Playbook article. **A La Lana del Deporte edition is ONE
+article** — the investigation ships whole and verbatim (`format-tiers.md`
+§4, the verbatim contract); splitting it was the old multi-item format,
+retired.
 
 Fetch each page **four times**, each pass asking for something different — one
 combined ask reliably loses detail:
@@ -87,19 +90,15 @@ gap to paper over.
 
 ## Product-specific ingestion notes
 
-**La Lana del Deporte.** Content stays exactly as it would without Step 2:
-don't run outside research, and don't otherwise pad or alter what the source
-says. The fact/analysis layers keep their existing length target, roughly
-400–600 words.
-
-The one addition: if a **second** Opinión de Playbook point is genuinely
-supportable — a real second thing to say — add it, in the exact same register as
-the first. If there isn't a genuine second point, leave the single one rather
-than padding. (Note the shape: La Lana's Opinión is the `## La Opinión de
-Playbook` heading with exactly three bullets, per `format-tiers.md` §4. "A
-second Opinión paragraph" is guidance from when this product used the inline
-form; today it means the third bullet must earn its place rather than repeat
-the second.)
+**La Lana del Deporte.** No outside research, and — since 2026-08-14 — no
+textual additions of ANY kind either: the edition ships verbatim under
+`format-tiers.md` §4's verbatim contract. The old allowance to add a second
+Opinión point is revoked; the only things the portal adds are the 1–2
+device declarations, the fields and the apparatus the contract lists.
+(Historical note: "a second Opinión paragraph" was guidance from when this
+product used the inline Opinión form and the portal still drafted these
+pieces; both ended — the edition's own `## La Opinión de Playbook` ships
+as written.)
 
 **TFBR.** Written in Spanish for the portal even though the source edition is
 in English. Translate the argument, don't translate the sentences — a literal

@@ -45,8 +45,12 @@ together.
 - **B (Noticia Playbook)** → library §§1–2 headings, then only the chosen
   device's entry.
 - **C (Deep Dive)** → the full library walk plus `format-tiers.md` §3b.
-- **La Lana edition** → `format-tiers.md` §4 and its own architecture; never
-  regenerate an approved piece.
+- **La Lana edition** → `format-tiers.md` §4 and its own architecture — the
+  VERBATIM CONTRACT: the text and images ship exactly as written (never
+  regenerate, never trim, never fix), your work is the build — 1 or 2
+  devices from the piece's own numbers (this cap overrides the general
+  budget), premier metadata, the expediente shell. `check-voice.mjs` is
+  informational only for these pieces.
 - `_GOVERNANCE.md` → never during a drafting run.
 
 **Do not ask for approval before step 8.** Publishing without a review gate is
