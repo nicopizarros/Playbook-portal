@@ -33,14 +33,12 @@ Still available: `scripts/audit-taxonomy.ts` (report-only by default,
 `--fix` canonicalizes folding variants and never invents classifications).
 Re-run it if bulk imports ever bypass the gates.
 
-**Annotation, 2026-08-13:** the *editorial format* half of classification now
-exists — the A/B/C/D router (`.claude/playbook-editorial/format-tiers.md` §1)
-classifies every incoming story by depth before drafting, and the admin Guía
-carries the router prompt. What this item still covers is the *taxonomy* half:
-validated `scope`/`sport`/`vertical` tags and the `priority` question. The
-four scoping questions above stand; question 2's "fixed controlled vocabulary
-the skills must choose from" now has a working precedent in how the router
-constrains format.
+**How the two halves landed:** the *editorial format* half shipped first
+(2026-08-13) as the A/B/C/D router (`.claude/playbook-editorial/format-tiers.md`
+§1), which classifies every incoming story by depth before drafting; the
+*taxonomy* half above (validated tags) followed on 2026-08-14, answering the
+four scoping questions the same way the router had set the precedent —
+fixed vocabulary constrains, the drafting agent proposes.
 
 ---
 
@@ -92,9 +90,20 @@ orphan modules. Everything deleted is recoverable from git history.
 
 ---
 
-## 4. Build the proposed devices (device roadmap)
+## 4. Build the proposed devices (device roadmap) — DONE 2026-08-14
 
-**Status: designed, not built. Full spec in `docs/device-roadmap.md`.**
+**Status: all eight built**, in the roadmap's recommended order, each with
+its exclusive pair registered (`Contrato`×`Jugada`, `Calendario`×`Cronología`,
+`Votación`×`Reparto`, `Ranking`×`Duelo`, `Cascada`×`Recibo`,
+`Tablero`×`Cifra clave`). Entries moved from the roadmap into
+`dynamic-element-library.md` §2 (now twenty-three devices); the roadmap file
+keeps the coverage map and the original rationale. Computed figures per the
+specs: Contrato's term total and "hoy" marker, Calendario's "en N meses"
+chips (relative to the article's own date, threaded as `DeviceContext`
+through `applyBodyDevices`/`deviceFromParagraph`), Votación's
+`Aprobada`/`No alcanzada` verdict, Cascada's Recibo-style 2.5% sum guard.
+Verified: 8/8 render, 5/5 malformed cases stay inert, exclusive pairs lock,
+light/dark samplers reviewed. Original scoping notes below.
 
 The 2026-08-13 device-by-device audit shipped one upgrade to each of the
 fifteen existing devices and mapped the roster's blind spots: the future

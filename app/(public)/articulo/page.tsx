@@ -216,6 +216,7 @@ function plainBlocksFor(
   source: string,
   readingTime: number | null,
   priority: number | null,
+  articleDate?: string,
 ): PlainBlock[] {
   // Every product source gets the full device set — the four-paragraph
   // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
@@ -238,7 +239,7 @@ function plainBlocksFor(
       return { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') };
     }
     if (isProduct) {
-      const device = deviceFromParagraph(p);
+      const device = deviceFromParagraph(p, { articleDate });
       if (device && ledger.take(device.name)) {
         return { kind: 'device', html: device.markup };
       }
@@ -547,10 +548,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // label can never double as a scan mark.
   const htmlBody =
     rawHtmlBody && hub
-      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority)))
+      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority, { articleDate: meta.date })))
       : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
-  const blocks = plainBlocksFor(bodyParagraphs, article.source, meta.readingTime, article.priority);
+  const blocks = plainBlocksFor(bodyParagraphs, article.source, meta.readingTime, article.priority, meta.date);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
 
   // The "siguiente expediente" handoff already shows the next case — keep

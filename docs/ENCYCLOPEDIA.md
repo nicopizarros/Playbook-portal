@@ -6,10 +6,11 @@ more detail. Written so a new contributor — human or AI agent — can get
 oriented without reading the entire git history.
 
 **This document is a snapshot of architecture and how things work.** It does
-not track day-to-day progress or session-by-session decisions — that's
-[`HANDOFF.md`](../HANDOFF.md)'s job (see "Where to look next" at the bottom).
-If the two ever disagree, treat `HANDOFF.md`'s progress log as more current
-for *recent* changes, and this document as the map for *how the system is
+not track day-to-day progress — open work lives in [`docs/TODO.md`](TODO.md),
+and the migration-era session journal is archived at
+[`docs/archive/HANDOFF.md`](archive/HANDOFF.md) (audit evidence, no longer
+updated). If this document and recent commits disagree, trust the commits
+for *recent* changes and this document as the map for *how the system is
 structured*. Last synced against the codebase: 2026-07-22 (post–Fase 6,
 migration complete).
 

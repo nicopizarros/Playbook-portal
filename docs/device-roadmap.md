@@ -1,12 +1,11 @@
 # Device roadmap — coverage map + proposed additions
 
-2026-08-13, from the device-by-device audit. Two halves: what story shape each
-of the fifteen existing devices owns (so a drafting run — or a human — can
-route a story shape to its device in one lookup), and eight proposed devices
-for shapes the roster cannot tell today. **The proposals are NOT implemented.**
-They live here, outside `.claude/playbook-editorial/`, precisely so no
-drafting run tries to author one; when one gets built, its entry moves into
-`dynamic-element-library.md` and out of this file.
+2026-08-13, from the device-by-device audit. **All eight proposals were
+built on 2026-08-14** — their entries moved into
+`dynamic-element-library.md` per this file's own rule, and what remains
+here is the coverage map: what story shape each of the twenty-three
+devices owns, so a drafting run — or a human — can route a story shape to
+its device in one lookup.
 
 ## 1. What the roster covers
 
@@ -29,21 +28,32 @@ drafting run tries to author one; when one gets built, its entry moves into
 | An asset changing hands | `Venta` | ¿Quién vendió, quién compró, por cuánto? |
 | The succession of owners | `Cadena` | ¿Quién lo ha tenido, y quién capturó el crecimiento? |
 | Money crossing borders (La Lana only) | `Ruta del dinero` | ¿Por dónde viaja el dinero? |
+| A deal signed for a term | `Contrato` | ¿En qué términos, por cuánto tiempo? |
+| The dated road ahead | `Calendario` | ¿Qué sigue, y cuándo? |
+| A governance vote | `Votación` | ¿Alcanzó el umbral? |
+| N actors on one metric | `Ranking` | ¿Cómo queda la tabla? |
+| The path from revenue to margin | `Cascada` | ¿A dónde se fue el dinero? |
+| One actor at the center | `Perfil` | ¿Quién es, desde cuándo, por cuánto? |
+| Explicit outcomes, Playbook's read | `Escenarios` | ¿Hacia dónde puede ir esto? |
+| A market roundup's numbers | `Tablero` | ¿Cómo cerró el mercado? |
 
-Blind spots the audit found, grouped: **the future** (every temporal device
+Blind spots the audit found (all CLOSED by the 2026-08-14 build), grouped: **the future** (every temporal device
 points backward), **recurring contracts** (a rights deal is not a sale),
 **N-actor rankings** (Duelo caps at two actors, Reparto needs one whole),
 **institutional money flow** (Ruta is geographic and La Lana-only),
 **governance votes** (Reparto fakes it without a passing threshold), **one
 actor's profile**, **explicit scenarios**, and **the KPI strip**.
 
-## 2. Proposed devices (not yet built)
+## 2. Proposed devices — BUILT 2026-08-14
 
-Ordered by how often the newsroom would reach for each, per the archive's
-story mix. Every one follows the house contract: plain-paragraph syntax with
-` — ` and ` · ` separators, parse-or-stay-text (fail loud), computed figures
-never authored, count-up/stagger motion from the shared primitives, one per
-article, budget-governed.
+All eight shipped in `lib/article-devices.ts` on 2026-08-14, in this
+order, each with its exclusive pair registered. Authoring syntax and
+limits now live in `dynamic-element-library.md` §2 — the entries below
+are kept only as the original design rationale. Every one follows the
+house contract: plain-paragraph syntax with ` — ` and ` · ` separators,
+parse-or-stay-text (fail loud), computed figures never authored,
+count-up/stagger motion from the shared primitives, one per article,
+budget-governed.
 
 ### 1 · `Contrato:` — the term sheet
 The single most common uncovered shape: a rights/sponsorship deal signed for a

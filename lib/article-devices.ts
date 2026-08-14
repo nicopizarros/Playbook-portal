@@ -1725,14 +1725,692 @@ function buildChain(chain: Chain): string {
   );
 }
 
+// ————————————————————————————————————— The roadmap eight (2026-08-14)
+// docs/device-roadmap.md §2, built in its recommended order. Same house
+// contract as every device above: ` — `/` · ` grammar, framing first item
+// where the syntax names a subject, fixed row vocabularies that REJECT
+// unknown labels, computed figures never authored, fail-loud null on
+// anything malformed. Each claims its exclusive pair (see
+// EXCLUSIVE_PAIRS below) per the roadmap's sequencing note.
+
+// —————————————————————————————————————————————————————— Contrato
+// `Contrato: Apple TV ↔ MLS · Monto — US$250M por año · Plazo — 2023 a
+//  2032 · Cláusula — salida mutua en 2028`
+// A rights/sponsorship deal signed for a term — `Venta` transfers title, a
+// contract RENTS it. The term draws as a filled bar with "hoy" marked on
+// it (computed at render; every public route is force-dynamic so it stays
+// fresh), and a per-year Monto also computes the term total in the foot —
+// `US$2,500M / 10 años`, seasons counted inclusively like the industry
+// counts them (2023 a 2032 = 10 seasons, the roadmap's own arithmetic).
+type Contract = {
+  left: string;
+  right: string;
+  arrow: '↔' | '→';
+  amount: string;
+  perYear: boolean;
+  start: number;
+  end: number;
+  clause: string;
+  total: string | null;
+};
+
+const CONTRACT_LABELS: Record<string, 'amount' | 'term' | 'clause'> = {
+  monto: 'amount',
+  plazo: 'term',
+  clausula: 'clause',
+};
+
+const PER_YEAR_RE = /\s*(?:por\s+año|al\s+año|anual(?:es)?)\s*$/i;
+
+function parseContract(raw: string): Contract | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 4) return null;
+  const pair = items[0].trim().match(/^(.{1,32}?)\s*(↔|<->|→|->)\s*(.{1,32})$/);
+  if (!pair) return null;
+  const left = pair[1].trim();
+  const right = pair[3].trim();
+  if (!left || !right) return null;
+
+  const fields: Partial<Record<'amount' | 'term' | 'clause', string>> = {};
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const key = CONTRACT_LABELS[normalizeLabel(kv[1])];
+    if (!key || fields[key] !== undefined) return null;
+    const value = kv[2].trim();
+    if (!value) return null;
+    fields[key] = value;
+  }
+  const { amount = '', term = '', clause = '' } = fields;
+  if (!amount || amount.length > 32 || !/\d/.test(amount) || !term || clause.length > 60) return null;
+
+  const termMatch = term.match(/^(\d{4})\s*(?:a|–|—|-)\s*(\d{4})$/);
+  if (!termMatch) return null;
+  const start = Number(termMatch[1]);
+  const end = Number(termMatch[2]);
+  if (end <= start || end - start > 40) return null;
+
+  const perYear = PER_YEAR_RE.test(amount);
+  const figure = amount.replace(PER_YEAR_RE, '').trim();
+  if (figure.length > 24) return null;
+
+  // Per-year amount × inclusive seasons = the computed term total, only
+  // when the figure honestly parses — never guessed.
+  let total: string | null = null;
+  if (perYear) {
+    const parts = splitFigure(figure);
+    const num = parts && parseNumeric(parts.num);
+    if (parts && num) {
+      const seasons = end - start + 1;
+      total = `${parts.pre}${formatNumeric(num.value * seasons, num.decimals)}${parts.post} / ${seasons} años`;
+    }
+  }
+
+  return { left, right, arrow: pair[2] === '→' || pair[2] === '->' ? '→' : '↔', amount: figure, perYear, start, end, clause, total };
+}
+
+function buildContract(contract: Contract, now: Date = new Date()): string {
+  const spanYears = contract.end + 1 - contract.start;
+  const nowPos = now.getFullYear() + now.getMonth() / 12;
+  const rawPct = ((nowPos - contract.start) / spanYears) * 100;
+  const inTerm = rawPct >= 0 && rawPct <= 100;
+  const hoy = inTerm
+    ? `<span class="lect-contract-hoy" style="left:${Math.min(97, Math.max(3, rawPct)).toFixed(1)}%" aria-hidden="true"><i></i>hoy</span>`
+    : '';
+  const spoken =
+    `Contrato ${contract.left} ${contract.arrow} ${contract.right}: ${contract.amount}` +
+    `${contract.perYear ? ' por año' : ''}, de ${contract.start} a ${contract.end}` +
+    (contract.total ? `, total ${contract.total}` : '');
+  const footParts: string[] = [];
+  if (contract.total) {
+    footParts.push(`<span class="lect-contract-total">${countupSpan(contract.total, 'lect-contract-total-fig')}</span>`);
+  }
+  if (contract.clause) {
+    footParts.push(
+      `<span class="lect-contract-clause"><span class="lect-contract-foot-label">Cláusula</span> ${esc(contract.clause)}</span>`,
+    );
+  }
+  const foot = footParts.length ? `<div class="lect-contract-foot">${footParts.join('')}</div>` : '';
+  return (
+    `<div class="lect-device lect-contract" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">El contrato</span>` +
+    `<div class="lect-contract-parties" data-lect-stagger>` +
+    `<span class="lect-contract-side">${esc(contract.left)}</span>` +
+    `<span class="lect-contract-arrow" aria-hidden="true">${contract.arrow}</span>` +
+    `<span class="lect-contract-side">${esc(contract.right)}</span></div>` +
+    `<div class="lect-contract-amount">${countupSpan(contract.amount, 'lect-contract-figure')}` +
+    `${contract.perYear ? '<span class="lect-contract-per">por año</span>' : ''}</div>` +
+    `<div class="lect-contract-term" data-lect-grow aria-hidden="true">` +
+    `<span class="lect-contract-year">${contract.start}</span>` +
+    `<span class="lect-contract-track"><span class="lect-contract-fill" data-lect-seg></span>${hoy}</span>` +
+    `<span class="lect-contract-year">${contract.end}</span></div>` +
+    foot +
+    `</div>`
+  );
+}
+
+// —————————————————————————————————————————————————————— Calendario
+// `Calendario: nov 2026 — Voto de sedes · mar 2027 — Opt-out de TV ·
+//  2028 — Expira el CBA`
+// Cronología's counterpart: the dated road AHEAD. Each beat carries a
+// computed "en N meses/años" derived from the ARTICLE's date — computed,
+// never authored, so it reads as "as of this piece" and can't go stale
+// wrong — and the first beat after the article date is highlighted as
+// what's next. Without an article date in context, the chips are simply
+// omitted (the list still stands on its own).
+type AgendaBeat = { when: string; what: string; inMonths: number | null };
+
+const AGENDA_MONTHS: Record<string, number> = {
+  ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5, jul: 6, ago: 7, sep: 8, sept: 8, oct: 9, nov: 10, dic: 11,
+};
+
+function parseBeatWhen(text: string): { year: number; month: number | null } | null {
+  const clean = normalizeLabel(text).replace(/\.$/, '');
+  const yearOnly = clean.match(/^(\d{4})$/);
+  if (yearOnly) return { year: Number(yearOnly[1]), month: null };
+  const monthYear = clean.match(/^(?:(\d{1,2})\s+)?([a-z]{3,5})\.?\s+(\d{4})$/);
+  if (monthYear && AGENDA_MONTHS[monthYear[2]] !== undefined) {
+    return { year: Number(monthYear[3]), month: AGENDA_MONTHS[monthYear[2]] };
+  }
+  return null;
+}
+
+function agendaChip(inMonths: number): string {
+  if (inMonths <= 0) return '';
+  if (inMonths >= 24) {
+    const years = Math.round(inMonths / 12);
+    return `en ${years} años`;
+  }
+  return inMonths === 1 ? 'en 1 mes' : `en ${inMonths} meses`;
+}
+
+function parseAgenda(raw: string, ctx?: DeviceContext): AgendaBeat[] | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 5) return null;
+  const article = ctx?.articleDate?.match(/^(\d{4})-(\d{2})-\d{2}$/);
+  const articleMonths = article ? Number(article[1]) * 12 + (Number(article[2]) - 1) : null;
+  const beats: AgendaBeat[] = [];
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const when = kv[1].trim();
+    const what = kv[2].trim();
+    if (!when || when.length > 16 || !what || what.length > 72) return null;
+    const parsedWhen = parseBeatWhen(when);
+    if (!parsedWhen) return null;
+    let inMonths: number | null = null;
+    if (articleMonths !== null) {
+      const beatMonths = parsedWhen.year * 12 + (parsedWhen.month ?? 6);
+      inMonths = beatMonths - articleMonths;
+    }
+    beats.push({ when, what, inMonths });
+  }
+  return beats;
+}
+
+function buildAgenda(beats: AgendaBeat[]): string {
+  const nextIndex = beats.findIndex(beat => beat.inMonths !== null && beat.inMonths > 0);
+  const rows = beats
+    .map((beat, i) => {
+      const chipText = beat.inMonths !== null ? agendaChip(beat.inMonths) : '';
+      const chip = chipText ? `<span class="lect-agenda-chip">${esc(chipText)}</span>` : '';
+      return (
+        `<li class="lect-agenda-item"${i === nextIndex ? ' data-next="true"' : ''}>` +
+        `<span class="lect-agenda-when">${esc(beat.when)}</span>` +
+        `<span class="lect-agenda-what">${esc(beat.what)}${chip}</span></li>`
+      );
+    })
+    .join('');
+  return (
+    `<div class="lect-device lect-agenda" role="note" aria-label="Calendario">` +
+    `<span class="lect-device-label">El calendario</span>` +
+    `<ol class="lect-agenda-list" data-lect-stagger>${rows}</ol></div>`
+  );
+}
+
+// ——————————————————————————————————————————————————————— Votación
+// `Votación: Mundial cada dos años · A favor — 166 · En contra — 22 ·
+//  Abstención — 23 · Umbral — 138 (dos tercios)`
+// The governance tally with the passing threshold drawn ON the bar —
+// passed or failed is visible by construction, the same design argument
+// as the Cotización track's Umbral. A declared Total must equal the sum
+// of the camps exactly (votes are integers; a tally that doesn't add up
+// rejects, fail-loud, same principle as the Recibo's sum guard).
+type Vote = {
+  motion: string;
+  favor: number;
+  contra: number;
+  abst: number | null;
+  threshold: number | null;
+  thresholdNote: string;
+  total: number;
+};
+
+const VOTE_LABELS: Record<string, 'favor' | 'contra' | 'abst' | 'threshold' | 'total'> = {
+  'a favor': 'favor',
+  favor: 'favor',
+  'en contra': 'contra',
+  contra: 'contra',
+  abstencion: 'abst',
+  abstenciones: 'abst',
+  umbral: 'threshold',
+  total: 'total',
+};
+
+function parseVote(raw: string): Vote | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 6) return null;
+  const motion = items[0].trim();
+  if (!motion || motion.length > 64 || KV_RE.test(motion)) return null;
+
+  const counts: Partial<Record<'favor' | 'contra' | 'abst' | 'threshold' | 'total', number>> = {};
+  let thresholdNote = '';
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const key = VOTE_LABELS[normalizeLabel(kv[1])];
+    if (!key || counts[key] !== undefined) return null;
+    let value = kv[2].trim();
+    if (key === 'threshold') {
+      const tail = value.match(NOTE_TAIL_RE);
+      if (tail) {
+        value = tail[1].trim();
+        thresholdNote = tail[2].trim();
+      }
+    }
+    const count = Number(value.replace(/[.,\s]/g, ''));
+    if (!Number.isInteger(count) || count < 0 || count > 1000000) return null;
+    counts[key] = count;
+  }
+  const { favor, contra, abst = null, threshold = null, total: declaredTotal } = counts;
+  if (favor === undefined || contra === undefined) return null;
+  const sum = favor + contra + (abst ?? 0);
+  if (sum <= 0) return null;
+  if (declaredTotal !== undefined && declaredTotal !== sum) return null;
+  const total = declaredTotal ?? sum;
+  if (threshold !== null && (threshold <= 0 || threshold > total)) return null;
+  return { motion, favor, contra, abst, threshold, thresholdNote, total };
+}
+
+function buildVote(vote: Vote): string {
+  const camps: { key: string; label: string; count: number }[] = [
+    { key: 'favor', label: 'A favor', count: vote.favor },
+    { key: 'contra', label: 'En contra', count: vote.contra },
+  ];
+  if (vote.abst !== null) camps.push({ key: 'abst', label: 'Abstención', count: vote.abst });
+
+  const segments = camps
+    .filter(camp => camp.count > 0)
+    .map(
+      camp =>
+        `<span class="lect-voto-seg" data-lect-seg data-cast="${camp.key}" style="width:${((camp.count / vote.total) * 100).toFixed(2)}%"></span>`,
+    )
+    .join('');
+  const tick =
+    vote.threshold !== null
+      ? `<span class="lect-voto-tick" style="left:${((vote.threshold / vote.total) * 100).toFixed(2)}%" aria-hidden="true"></span>`
+      : '';
+  const legend = camps
+    .map(
+      camp =>
+        `<span class="lect-voto-key"><span class="lect-voto-swatch" data-cast="${camp.key}" aria-hidden="true"></span>${esc(camp.label)} ${countupSpan(String(camp.count), 'lect-voto-count')}</span>`,
+    )
+    .join('');
+  // The verdict is COMPUTED from favor vs. threshold, never authored.
+  const passed = vote.threshold !== null ? vote.favor >= vote.threshold : null;
+  const verdict =
+    passed !== null
+      ? `<span class="lect-voto-verdict" data-passed="${passed}">${passed ? 'Aprobada' : 'No alcanzada'}</span>`
+      : '';
+  const note =
+    vote.threshold !== null
+      ? `<span class="lect-voto-note">Umbral: ${esc(String(vote.threshold))} de ${esc(String(vote.total))}` +
+        `${vote.thresholdNote ? ` (${esc(vote.thresholdNote)})` : ''}${verdict}</span>`
+      : '';
+  const spoken =
+    `Votación: ${vote.motion}. A favor ${vote.favor}, en contra ${vote.contra}` +
+    (vote.abst !== null ? `, abstenciones ${vote.abst}` : '') +
+    (vote.threshold !== null ? `, umbral ${vote.threshold}${passed ? ', aprobada' : ', no alcanzada'}` : '');
+  return (
+    `<div class="lect-device lect-voto" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">La votación</span>` +
+    `<span class="lect-voto-motion">${esc(vote.motion)}</span>` +
+    `<div class="lect-voto-bar" data-lect-grow aria-hidden="true">${segments}${tick}</div>` +
+    `<div class="lect-voto-legend" data-lect-stagger>${legend}</div>${note}</div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Ranking
+// `Ranking: Valor de franquicia NFL · Cowboys — US$10,100M · Rams —
+//  US$7,600M (+1) · Giants — US$7,300M (−1)`
+// The league table: 3–6 actors on ONE metric, in the order the story
+// means, bars scaled to the leader. Values must share a denomination —
+// a table mixing currencies isn't a ranking, it's a mistake, and it
+// rejects. The optional (±N) tail is movement since the last edition,
+// rendered as a direction chip.
+type RankRow = { label: string; value: string; pct: number; move: string | null; dir: 'up' | 'down' | 'same' | null };
+
+const RANK_MOVE_RE = /^([\s\S]+?)\s*\(\s*([+−-]\s?\d{1,2}|=)\s*\)$/;
+
+function parseRanking(raw: string): { title: string; rows: RankRow[] } | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 4 || items.length > 7) return null;
+  const title = items[0].trim();
+  if (!title || title.length > 48 || KV_RE.test(title)) return null;
+
+  const parsed: { label: string; value: string; move: string | null; dir: RankRow['dir'] }[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    let value = kv[2].trim();
+    let move: string | null = null;
+    let dir: RankRow['dir'] = null;
+    const tail = value.match(RANK_MOVE_RE);
+    if (tail) {
+      value = tail[1].trim();
+      const rawMove = tail[2].replace(/\s+/g, '');
+      if (rawMove === '=') {
+        move = '=';
+        dir = 'same';
+      } else {
+        dir = rawMove.startsWith('+') ? 'up' : 'down';
+        move = `${dir === 'up' ? '+' : '−'}${rawMove.slice(1)}`;
+      }
+    }
+    if (!label || label.length > 28 || !value || value.length > 20) return null;
+    parsed.push({ label, value, move, dir });
+  }
+
+  const figures = parsed.map(row => denominatedOf(row.value));
+  if (!figures.every((f): f is Denominated => f !== null)) return null;
+  if (new Set(figures.map(f => f.unit)).size !== 1) return null;
+  const max = Math.max(...figures.map(f => f.value));
+  if (max <= 0) return null;
+  return {
+    title,
+    rows: parsed.map((row, i) => ({ ...row, pct: Math.max(2, (figures[i].value / max) * 100) })),
+  };
+}
+
+function buildRanking(ranking: { title: string; rows: RankRow[] }): string {
+  const rows = ranking.rows
+    .map(
+      (row, i) =>
+        `<div class="lect-rank-row">` +
+        `<span class="lect-rank-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>` +
+        `<span class="lect-rank-main"><span class="lect-rank-line"><span class="lect-rank-label">${esc(row.label)}</span>` +
+        (row.move ? `<span class="lect-rank-move" data-dir="${row.dir}">${esc(row.move)}</span>` : '') +
+        `</span>` +
+        `<span class="lect-rank-track" data-lect-grow aria-hidden="true"><span class="lect-rank-bar" data-lect-seg style="width:${row.pct.toFixed(2)}%"></span></span>` +
+        `</span>${countupSpan(row.value, 'lect-rank-value')}</div>`,
+    )
+    .join('');
+  const spoken = `Ranking, ${ranking.title}: ${ranking.rows.map((r, i) => `${i + 1} ${r.label} ${r.value}`).join(', ')}`;
+  return (
+    `<div class="lect-device lect-rank" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">El ranking</span>` +
+    `<span class="lect-rank-title">${esc(ranking.title)}</span>` +
+    `<div class="lect-rank-rows" data-lect-stagger>${rows}</div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Cascada
+// `Cascada: Ingresos — US$4,210M · Producción — −US$1,900M · Derechos —
+//  −US$1,400M · Margen — US$910M`
+// The waterfall: the PATH from the first anchor to the last, middle
+// terms signed. Self-checking arithmetic exactly like the Recibo's total
+// guard — first + Σ(middles) must land on the last anchor within the
+// same 2.5% rounding tolerance, or the device rejects rather than lend a
+// designed element's authority to numbers that don't add up.
+type CascadeStep = { label: string; value: string; delta: number; offsetPct: number; widthPct: number; kind: 'anchor' | 'down' | 'up' };
+
+function parseCascade(raw: string): CascadeStep[] | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 7) return null;
+  const rows: { label: string; value: string; signed: number; display: string }[] = [];
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const display = kv[2].trim();
+    if (!label || label.length > 28 || !display || display.length > 24) return null;
+    const negative = /^[−-]/.test(display);
+    const positive = /^\+/.test(display);
+    const bare = display.replace(/^[−+-]\s*/, '');
+    const parsed = denominatedOf(bare);
+    if (!parsed) return null;
+    rows.push({ label, value: bare, signed: negative ? -parsed.value : parsed.value, display });
+    if ((negative || positive) && (rows.length === 1 || rows.length === items.length)) return null;
+  }
+  const units = new Set(rows.map(r => denominatedOf(r.value)!.unit));
+  if (units.size !== 1) return null;
+
+  const first = rows[0];
+  const last = rows[rows.length - 1];
+  if (first.signed <= 0 || last.signed <= 0) return null;
+  const middles = rows.slice(1, -1);
+  // Middle terms carry their sign in the declaration; an unsigned middle
+  // term is treated as the subtraction it almost always is only if... no —
+  // ambiguity is exactly what fails loud. Unsigned middles reject.
+  if (middles.some(row => !/^[−+-]/.test(row.display))) return null;
+  const sum = first.signed + middles.reduce((acc, row) => acc + row.signed, 0);
+  if (Math.abs(sum - last.signed) / first.signed > 0.025) return null;
+
+  const scale = first.signed;
+  let running = first.signed;
+  const steps: CascadeStep[] = [
+    { label: first.label, value: first.value, delta: first.signed, offsetPct: 0, widthPct: 100, kind: 'anchor' },
+  ];
+  for (const row of middles) {
+    const from = running;
+    running += row.signed;
+    const lo = Math.min(from, running);
+    const hi = Math.max(from, running);
+    steps.push({
+      label: row.label,
+      value: row.display.replace(/^-/, '−'),
+      delta: row.signed,
+      offsetPct: Math.max(0, (lo / scale) * 100),
+      widthPct: Math.max(1.2, ((hi - lo) / scale) * 100),
+      kind: row.signed < 0 ? 'down' : 'up',
+    });
+  }
+  steps.push({
+    label: last.label,
+    value: last.value,
+    delta: last.signed,
+    offsetPct: 0,
+    widthPct: Math.max(1.2, (last.signed / scale) * 100),
+    kind: 'anchor',
+  });
+  return steps;
+}
+
+function buildCascade(steps: CascadeStep[]): string {
+  const rows = steps
+    .map(
+      step =>
+        `<div class="lect-cascada-row" data-kind="${step.kind}">` +
+        `<span class="lect-cascada-label">${esc(step.label)}</span>` +
+        `<span class="lect-cascada-track" data-lect-grow aria-hidden="true">` +
+        `<span class="lect-cascada-bar" data-lect-seg style="margin-left:${step.offsetPct.toFixed(2)}%;width:${step.widthPct.toFixed(2)}%"></span></span>` +
+        countupSpan(step.value, 'lect-cascada-value') +
+        `</div>`,
+    )
+    .join('');
+  const spoken = `Cascada: ${steps.map(s => `${s.label} ${s.value}`).join(', ')}`;
+  return (
+    `<div class="lect-device lect-cascada" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">La cascada</span>` +
+    `<div class="lect-cascada-rows" data-lect-stagger>${rows}</div></div>`
+  );
+}
+
+// ————————————————————————————————————————————————————————— Perfil
+// `Perfil: Gianni Infantino · Cargo — Presidente de FIFA · Desde — 2016 ·
+//  Mandato — hasta 2027 · Sueldo — CHF3.9M`
+// One actor at the story's center, as a card: fixed row vocabulary
+// (unknown label rejects, like Venta), figures counting up, brand palette
+// via the same registry when the subject is an institution it knows.
+type Profile = {
+  name: string;
+  brandStyle: string;
+  rows: { label: string; value: string }[];
+};
+
+const PROFILE_LABELS: Record<string, string> = {
+  cargo: 'Cargo',
+  desde: 'Desde',
+  mandato: 'Mandato',
+  sueldo: 'Sueldo',
+  antes: 'Antes',
+  edad: 'Edad',
+  sede: 'Sede',
+};
+
+function parseProfile(raw: string): Profile | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 6) return null;
+  const rawName = items[0].trim();
+  if (!rawName || rawName.length > 48 || KV_RE.test(rawName)) return null;
+
+  const rows: { label: string; value: string }[] = [];
+  const seen = new Set<string>();
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const canonical = PROFILE_LABELS[normalizeLabel(kv[1])];
+    const value = kv[2].trim();
+    if (!canonical || seen.has(canonical) || !value || value.length > 40) return null;
+    seen.add(canonical);
+    rows.push({ label: canonical, value });
+  }
+  if (!seen.has('Cargo')) return null;
+
+  const { label, palette } = resolveBrand(rawName);
+  if (!label || label.length > 32) return null;
+  return { name: label, brandStyle: brandStyleAttr(palette), rows };
+}
+
+function buildProfile(profile: Profile): string {
+  const initials = profile.name
+    .split(/\s+/)
+    .filter(word => /^[\p{L}\d]/u.test(word))
+    .slice(0, 2)
+    .map(word => word[0] ?? '')
+    .join('')
+    .toUpperCase();
+  const role = profile.rows.find(row => row.label === 'Cargo')!;
+  const facts = profile.rows
+    .filter(row => row.label !== 'Cargo')
+    .map(
+      row =>
+        `<div class="lect-perfil-fact"><span class="lect-perfil-key">${esc(row.label)}</span>${countupSpan(row.value, 'lect-perfil-value')}</div>`,
+    )
+    .join('');
+  const style = profile.brandStyle ? ` style="${profile.brandStyle}"` : '';
+  // lect-brand only when the registry actually knows the subject: the
+  // class always defines --brand-fill (registry green as its fallback),
+  // so carrying it unbranded would paint a green card in every product
+  // skin instead of falling back to the product accent.
+  const brandClass = profile.brandStyle ? ' lect-brand' : '';
+  const spoken = `Perfil: ${profile.name}, ${role.value}`;
+  return (
+    `<div class="lect-device${brandClass} lect-perfil" role="note" aria-label="${esc(spoken)}"${style}>` +
+    `<span class="lect-device-label">El perfil</span>` +
+    `<div class="lect-perfil-card"><span class="lect-perfil-mono" aria-hidden="true">${esc(initials)}</span>` +
+    `<div class="lect-perfil-id"><span class="lect-perfil-name">${esc(profile.name)}</span>` +
+    `<span class="lect-perfil-role">${esc(role.value)}</span></div>` +
+    (facts ? `<div class="lect-perfil-facts" data-lect-stagger>${facts}</div>` : '') +
+    `</div></div>`
+  );
+}
+
+// —————————————————————————————————————————————————————— Escenarios
+// `Escenarios: Los derechos de la Liga MX · Renueva con Televisa —
+//  probable · Se parte en paquetes — posible · Streaming puro — lejano`
+// The evidence ladder's level 4 made visual and explicitly owned: a fixed
+// likelihood vocabulary instead of numbers (fake-precise percentages are
+// exactly what the aritmética rule bans), and a standing "Lectura de
+// Playbook" mark so a scenario can never be read as reporting — the
+// Cotización track's `Ligado` disclosure argument, reapplied.
+type Scenario = { outcome: string; likelihood: 'probable' | 'posible' | 'lejano' };
+
+const LIKELIHOODS: Record<string, Scenario['likelihood']> = {
+  probable: 'probable',
+  posible: 'posible',
+  lejano: 'lejano',
+};
+
+const LIKELIHOOD_STEPS: Record<Scenario['likelihood'], number> = { probable: 3, posible: 2, lejano: 1 };
+
+function parseScenarios(raw: string): { subject: string; rows: Scenario[] } | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 5) return null;
+  const subject = items[0].trim();
+  if (!subject || subject.length > 64 || KV_RE.test(subject)) return null;
+  const rows: Scenario[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const outcome = kv[1].trim();
+    const likelihood = LIKELIHOODS[normalizeLabel(kv[2])];
+    if (!outcome || outcome.length > 52 || !likelihood) return null;
+    rows.push({ outcome, likelihood });
+  }
+  return { subject, rows };
+}
+
+function buildScenarios(scenarios: { subject: string; rows: Scenario[] }): string {
+  const rows = scenarios.rows
+    .map(row => {
+      const steps = LIKELIHOOD_STEPS[row.likelihood];
+      const dots = [1, 2, 3]
+        .map(i => `<i class="lect-esc-dot${i <= steps ? ' lect-esc-dot-on' : ''}"></i>`)
+        .join('');
+      return (
+        `<div class="lect-esc-row" data-likelihood="${row.likelihood}">` +
+        `<span class="lect-esc-outcome">${esc(row.outcome)}</span>` +
+        `<span class="lect-esc-meter" aria-hidden="true">${dots}</span>` +
+        `<span class="lect-esc-word">${row.likelihood}</span></div>`
+      );
+    })
+    .join('');
+  const spoken = `Escenarios, lectura de Playbook: ${scenarios.subject}. ${scenarios.rows.map(r => `${r.outcome}, ${r.likelihood}`).join('; ')}`;
+  return (
+    `<div class="lect-device lect-esc" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">Escenarios · Lectura de Playbook</span>` +
+    `<span class="lect-esc-subject">${esc(scenarios.subject)}</span>` +
+    `<div class="lect-esc-rows" data-lect-stagger>${rows}</div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Tablero
+// `Tablero: Mercado de verano 2026 · Gasto total — €9,870M ·
+//  Operaciones — 412 · Récord — €180M (Mbappé)`
+// The KPI strip for market-wide roundups: 2–4 stat tiles that belong
+// together where `Cifra clave` is ONE number. Notes ride the same
+// parenthetical tail as Venta's Anterior.
+type Board = { title: string; tiles: { label: string; value: string; note: string }[] };
+
+function parseBoard(raw: string): Board | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 5) return null;
+  const title = items[0].trim();
+  if (!title || title.length > 48 || KV_RE.test(title)) return null;
+  const tiles: Board['tiles'] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    let value = kv[2].trim();
+    let note = '';
+    const tail = value.match(NOTE_TAIL_RE);
+    if (tail) {
+      value = tail[1].trim();
+      note = tail[2].trim();
+    }
+    if (!label || label.length > 26 || !value || value.length > 20 || !/\d/.test(value)) return null;
+    tiles.push({ label, value, note });
+  }
+  return { title, tiles };
+}
+
+function buildBoard(board: Board): string {
+  const tiles = board.tiles
+    .map(
+      tile =>
+        `<div class="lect-tablero-tile"><span class="lect-tablero-key">${esc(tile.label)}</span>` +
+        countupSpan(tile.value, 'lect-tablero-value') +
+        (tile.note ? `<span class="lect-tablero-note">${esc(tile.note)}</span>` : '') +
+        `</div>`,
+    )
+    .join('');
+  const spoken = `Tablero, ${board.title}: ${board.tiles.map(t => `${t.label} ${t.value}`).join(', ')}`;
+  return (
+    `<div class="lect-device lect-tablero" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">El tablero</span>` +
+    `<span class="lect-tablero-title">${esc(board.title)}</span>` +
+    `<div class="lect-tablero-tiles" data-lect-stagger>${tiles}</div></div>`
+  );
+}
+
 // ———————————————————————————————————————————————————— Dispatch tables
+// Per-article context a device may need at render time. Today that is
+// only the article's own date (Calendario computes each beat's "en N
+// meses" from it — computed relative to PUBLICATION, so the chip can't go
+// stale wrong). Optional everywhere: devices that don't read it ignore
+// it, and a missing date just omits the computed chips.
+export type DeviceContext = { articleDate?: string };
+
 type Device = {
   /** Stable type name — the budget's no-repeat key and the exclusion key. */
   name: string;
   /** Prefix as the editor types it (accent-tolerant). */
   prefix: RegExp;
   html: RegExp;
-  render(raw: string): string | null;
+  render(raw: string, ctx?: DeviceContext): string | null;
 };
 
 function deviceHtmlRe(name: string): RegExp {
@@ -1873,11 +2551,86 @@ const DEVICES: Device[] = [
       return parsed ? buildChain(parsed) : null;
     },
   },
+  // The roadmap eight (docs/device-roadmap.md §2, built 2026-08-14), in
+  // its recommended order.
+  {
+    name: 'contrato',
+    prefix: deviceTextRe('Contrato'),
+    html: deviceHtmlRe('Contrato'),
+    render: raw => {
+      const parsed = parseContract(raw);
+      return parsed ? buildContract(parsed) : null;
+    },
+  },
+  {
+    name: 'calendario',
+    prefix: deviceTextRe('Calendario'),
+    html: deviceHtmlRe('Calendario'),
+    render: (raw, ctx) => {
+      const parsed = parseAgenda(raw, ctx);
+      return parsed ? buildAgenda(parsed) : null;
+    },
+  },
+  {
+    name: 'votacion',
+    prefix: deviceTextRe('Votaci[óo]n'),
+    html: deviceHtmlRe('Votaci[óo]n'),
+    render: raw => {
+      const parsed = parseVote(raw);
+      return parsed ? buildVote(parsed) : null;
+    },
+  },
+  {
+    name: 'ranking',
+    prefix: deviceTextRe('Ranking'),
+    html: deviceHtmlRe('Ranking'),
+    render: raw => {
+      const parsed = parseRanking(raw);
+      return parsed ? buildRanking(parsed) : null;
+    },
+  },
+  {
+    name: 'cascada',
+    prefix: deviceTextRe('Cascada'),
+    html: deviceHtmlRe('Cascada'),
+    render: raw => {
+      const parsed = parseCascade(raw);
+      return parsed ? buildCascade(parsed) : null;
+    },
+  },
+  {
+    name: 'perfil',
+    prefix: deviceTextRe('Perfil'),
+    html: deviceHtmlRe('Perfil'),
+    render: raw => {
+      const parsed = parseProfile(raw);
+      return parsed ? buildProfile(parsed) : null;
+    },
+  },
+  {
+    name: 'escenarios',
+    prefix: deviceTextRe('Escenarios'),
+    html: deviceHtmlRe('Escenarios'),
+    render: raw => {
+      const parsed = parseScenarios(raw);
+      return parsed ? buildScenarios(parsed) : null;
+    },
+  },
+  {
+    name: 'tablero',
+    prefix: deviceTextRe('Tablero'),
+    html: deviceHtmlRe('Tablero'),
+    render: raw => {
+      const parsed = parseBoard(raw);
+      return parsed ? buildBoard(parsed) : null;
+    },
+  },
 ];
 
 // The Cifra clave and Jugada conventions live in lib/product-hubs.ts (they
 // predate this module) but count against the same budget, so the matcher
-// list here covers all fifteen designed devices.
+// list here covers all twenty-three designed devices (the fifteen through
+// the 2026-08-13 audit plus the roadmap eight).
 const ALL_DEVICES: Device[] = [
   {
     name: 'cifra',
@@ -1913,9 +2666,22 @@ const ALL_DEVICES: Device[] = [
 // Symmetric and first-declared-wins, which is the same rule the budget
 // itself follows: whichever the editor placed first in document order
 // takes the slot and locks its partner out.
+// The roadmap eight claimed their pairs up front (docs/device-roadmap.md
+// §3) — each is the same "two devices telling the reader the same thing
+// twice" argument as the original two: a Contrato reaches for the same
+// pairing a Jugada would; Calendario and Cronología are both the story on
+// a dated spine; a Votación is a Reparto with a threshold; a Ranking is a
+// Duelo grown past two actors; a Cascada is the Recibo's parts with the
+// path drawn; a Tablero is three Cifras that belong together.
 const EXCLUSIVE_PAIRS: [string, string][] = [
   ['venta', 'jugada'],
   ['cadena', 'cronologia'],
+  ['contrato', 'jugada'],
+  ['calendario', 'cronologia'],
+  ['votacion', 'reparto'],
+  ['ranking', 'duelo'],
+  ['cascada', 'recibo'],
+  ['tablero', 'cifra'],
 ];
 
 function exclusiveSiblings(name: string): string[] {
@@ -1982,13 +2748,18 @@ export function deviceBudgetFor(readingTime: number | null, priority?: number | 
 // declarations stay as readable plain paragraphs, so an over-budget
 // article degrades visibly-but-gracefully instead of silently. Same
 // trust boundary and ad-split safety as every transform before it.
-export function applyBodyDevices(html: string, readingTime: number | null, priority?: number | null): string {
+export function applyBodyDevices(
+  html: string,
+  readingTime: number | null,
+  priority?: number | null,
+  ctx?: DeviceContext,
+): string {
   type Match = { start: number; end: number; markup: string; name: string };
   const found: Match[] = [];
   for (const device of ALL_DEVICES) {
     device.html.lastIndex = 0;
     for (const match of html.matchAll(device.html)) {
-      const markup = device.render(match[1]);
+      const markup = device.render(match[1], ctx);
       if (markup && match.index !== undefined) {
         found.push({ start: match.index, end: match.index + match[0].length, markup, name: device.name });
       }
@@ -2023,10 +2794,10 @@ export function applyBodyDevices(html: string, readingTime: number | null, prior
 // paragraph by paragraph in document order by plainBlocksFor (which owns
 // the iteration). Returns the markup plus the device's type name so the
 // caller can enforce the no-repeated-type rule.
-export function deviceFromParagraph(paragraph: string): { markup: string; name: string } | null {
+export function deviceFromParagraph(paragraph: string, ctx?: DeviceContext): { markup: string; name: string } | null {
   for (const device of ALL_DEVICES) {
     if (device.prefix.test(paragraph)) {
-      const markup = device.render(paragraph.replace(device.prefix, ''));
+      const markup = device.render(paragraph.replace(device.prefix, ''), ctx);
       if (markup) return { markup, name: device.name };
     }
   }

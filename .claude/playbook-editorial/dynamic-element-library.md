@@ -83,7 +83,7 @@ as a `Cronología`, a fee has a `Reparto` of who gets what or a `Cifra clave` fo
 the headline number, a signing has a `Jugada` for the two sides, a schedule
 change has a `Salto`, an earnings release is a `Resultados`.
 
-**Walk all fifteen shapes** before writing an article off as device-free,
+**Walk all twenty-three shapes** before writing an article off as device-free,
 especially on a `priority: 5` piece — exactly the story that should carry the
 richest structure. What stays strict is fabrication, not effort: never invent a
 milestone, a split, or a figure the piece doesn't already contain just to
@@ -93,14 +93,18 @@ used to be.
 
 ---
 
-## 2. The fifteen devices
+## 2. The twenty-three devices
 
 Pick by **story shape**: a saga → `Cronología`; a breakdown → `Recibo`; a split
 → `Reparto`; a pairing → `Jugada`; one number → `Cifra clave`; an earnings
 release → `Resultados`; two institutions → `Duelo`; volatility over time →
 `Serie`; countries → `Mapa`; an asset changing hands → `Venta`; a succession
 of owners → `Cadena`; **a market price dragging something else with it →
-`Cotización` (track form)**.
+`Cotización` (track form)**; a deal signed for a term → `Contrato`; the dated
+road ahead → `Calendario`; a governance vote → `Votación`; N actors on one
+metric → `Ranking`; the path from revenue to margin → `Cascada`; one actor at
+the center → `Perfil`; explicit outcomes with Playbook's read → `Escenarios`;
+a market roundup's numbers → `Tablero`.
 
 ---
 
@@ -773,6 +777,116 @@ list, or a new frame added to that script.
 
 ---
 
+### `Contrato:` — the term sheet
+
+```
+Contrato: Apple TV ↔ MLS · Monto — US$250M por año · Plazo — 2023 a 2032 · Cláusula — salida mutua en 2028
+```
+
+A rights/sponsorship deal signed for a term — `Venta` transfers title, a
+contract RENTS it. First item is the pairing (`↔` or `→`, each side ≤32);
+then labelled rows from a fixed vocabulary (unknown label rejects):
+`Monto` (required, ≤32 incl. an optional `por año`/`al año`/`anual`),
+`Plazo` (required, `AAAA a AAAA`), `Cláusula` (optional, ≤60). The term
+draws as a filled bar with **"hoy" marked on it** (computed at render), and
+a per-year Monto also computes the term total in the foot — `US$2,500M /
+10 años`, seasons counted inclusively. **Mutually exclusive with `Jugada`**:
+the deed says the same pairing with the price attached.
+
+### `Calendario:` — the dated road ahead
+
+```
+Calendario: nov 2026 — Voto de sedes · mar 2027 — Opt-out de TV · 2028 — Expira el CBA
+```
+
+`Cronología` points backward; this points forward. 2–5 beats, date — event
+(date ≤16: `AAAA`, `mmm AAAA` or `d mmm AAAA` with Spanish month
+abbreviations; event ≤72). Each beat carries a computed **"en N meses/años"**
+derived from the article's own date — computed, never authored, so it reads
+as "as of this piece" and can't go stale wrong — and the first beat after
+the article date is highlighted as what's next. **Mutually exclusive with
+`Cronología`**: both are the story on a dated spine.
+
+### `Votación:` — the governance tally
+
+```
+Votación: Mundial cada dos años · A favor — 166 · En contra — 22 · Abstención — 23 · Umbral — 138 (dos tercios)
+```
+
+First item is the motion (≤64). Then `A favor` and `En contra` (required),
+`Abstención`, `Umbral` (with an optional parenthetical note) and `Total` —
+all integers, fixed vocabulary, unknown label rejects. A declared `Total`
+must equal the camps' sum EXACTLY or the device rejects. Renders one bar
+with the camps (for = product accent, against = red, abstention = neutral)
+and the threshold drawn as a line ON the bar — passed or failed is visible
+by construction, and the `Aprobada`/`No alcanzada` chip is computed, never
+authored. **Mutually exclusive with `Reparto`**, which has no notion of a
+passing threshold.
+
+### `Ranking:` — the league table
+
+```
+Ranking: Valor de franquicia NFL · Cowboys — US$10,100M · Rams — US$7,600M (+1) · Giants — US$7,300M (−1)
+```
+
+First item names the ONE metric (≤48); then 3–6 rows, name — value (name
+≤28, value ≤20), already in the order you mean. Every value must share one
+denomination — a table mixing currencies rejects. Bars scale to the leader,
+positions are numbered, and an optional `(±N)`/`(=)` tail per row is
+movement since the last edition, rendered as a direction chip. **Mutually
+exclusive with `Duelo`**, which caps at two actors.
+
+### `Cascada:` — the waterfall
+
+```
+Cascada: Ingresos — US$4,210M · Producción — −US$1,900M · Derechos — −US$1,400M · Margen — US$910M
+```
+
+`Recibo` lists a total's parts; the waterfall shows the PATH. 3–7 rows:
+first and last are unsigned anchors, every middle term carries its sign
+(`−`/`+` — an unsigned middle is ambiguous and rejects). One denomination
+throughout, and the arithmetic is CHECKED: first + Σ(middles) must land on
+the last anchor within the Recibo's same 2.5% rounding tolerance, or the
+device rejects. **Mutually exclusive with `Recibo`.**
+
+### `Perfil:` — the actor card
+
+```
+Perfil: Gianni Infantino · Cargo — Presidente de FIFA · Desde — 2016 · Mandato — hasta 2027 · Sueldo — CHF3.9M
+```
+
+One person or institution at the story's center. First item is the name
+(≤48, runs through the brand registry — an institution it knows wears its
+own palette, exactly like `Venta`'s crest); then 2–5 rows from a fixed
+vocabulary: `Cargo` (required), `Desde`, `Mandato`, `Sueldo`, `Antes`,
+`Edad`, `Sede` (values ≤40, unknown label rejects). Figure rows count up.
+
+### `Escenarios:` — the fork in the road
+
+```
+Escenarios: Los derechos de la Liga MX · Renueva con Televisa — probable · Se parte en paquetes — posible · Streaming puro — lejano
+```
+
+The evidence ladder's level 4 made visual and explicitly owned. First item
+is the question (≤64); then 2–4 outcomes (≤52) each tagged from the FIXED
+likelihood vocabulary — `probable` / `posible` / `lejano`, nothing else —
+because fake-precise percentages are exactly what the aritmética rule bans.
+The device carries a standing **"Lectura de Playbook"** mark in its label
+so a scenario can never be read as reporting (the `Cotización` track's
+`Ligado` disclosure argument, reapplied).
+
+### `Tablero:` — the KPI strip
+
+```
+Tablero: Mercado de verano 2026 · Gasto total — €9,870M · Operaciones — 412 · Récord — €180M (Mbappé)
+```
+
+Three or four stats that belong together, for market-wide roundups —
+`Cifra clave` is ONE number; a transfer-window story has several. First
+item is the strip's title (≤48); then 2–4 tiles, label — value (label ≤26,
+value ≤20 and numeric), with an optional parenthetical note as the tile's
+caption. Every value counts up. **Mutually exclusive with `Cifra clave`.**
+
 ## 3. Automatic elements — nothing to author
 
 These need no syntax and never touch the budget:
@@ -796,7 +910,7 @@ These need no syntax and never touch the budget:
 
 Walk this for every article before publishing:
 
-1. Full fifteen-device list walked against the story **before** concluding it
+1. Full twenty-three-device list walked against the story **before** concluding it
    gets none.
 2. Budget computed from `readingTime` **and** `priority` (+1 at `priority: 5`).
 3. No repeated device type.
