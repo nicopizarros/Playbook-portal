@@ -42,7 +42,7 @@ Two notes on how these meet what the portal already publishes:
 
 Four products, one masthead. None of this is re-derivable per run.
 
-| | Noticias (`industry-shots`) · Infinitas | La Lana del Deporte | TFBR |
+| | Noticias (`noticias`) · Infinitas | La Lana del Deporte | TFBR |
 |---|---|---|---|
 | **Body shape** | 4 movements, fixed | cold open → promise block → 6–8 `##` sections → Opinión | free-form essay, one idea |
 | **Movements per section** | one each | 1–2 per `##` section | as the argument runs |
@@ -370,16 +370,18 @@ hub". But the hubs read what a run writes, so get these right at drafting time:
 **"Industry Shots" is retired** (publisher, 2026-08-08). It was an internal
 nickname for that Substack newsletter and it is not one any more, in prose or
 in conversation. Readers never saw it either way:
-`SOURCE_LABELS['industry-shots']` in `lib/constants.ts` has always rendered the
+`SOURCE_LABELS` in `lib/constants.ts` has always rendered the
 source as "Noticias" everywhere on the site. **Never write the literal string
 "Industry Shots" into any visible field** (title, excerpt, teaser, body,
 author).
 
-`"industry-shots"` survives ONLY as the `source` key, because it is the value
-68 published rows are filed under and the string every hub filter, CSS product
-class and rank rule matches on. Keep writing it verbatim in that one field;
-renaming the key is a migration, tracked in `docs/TODO.md`. Reading it as a
-product name is the mistake — it is a database identifier that happens to spell
+The machine key caught up on 2026-08-14 (TODO #2): the `source` value is now
+`"noticias"` in code, CSS and the CMS, with `normalizeSource()`
+(`lib/constants.ts`) mapping legacy rows until
+`scripts/migrate-source-noticias.ts` runs post-deploy. Write `"noticias"` in
+the `source` field; `"industry-shots"` remains only inside historical Substack
+slugs/URLs, which are external identifiers and never change. Reading either as
+a product name is the mistake — it is a database identifier that happens to spell
 an old title.
 
 (The guide's "Industry Shots Main / Tier 2" rows in §2 above are the editorial

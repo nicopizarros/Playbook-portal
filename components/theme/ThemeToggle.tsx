@@ -1,7 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { isDarkActive, subscribeTheme, toggleTheme } from './theme-store';
+import { isDarkActive, subscribeTheme } from './theme-store';
 
 const SunIcon = () => (
   <svg
@@ -44,8 +44,12 @@ export function ThemeToggle({ variant, onToggle }: { variant: 'desktop' | 'drawe
   // this would otherwise cause, so this mismatch is intentional and safe.
   const dark = useSyncExternalStore(subscribeTheme, isDarkActive, () => false);
 
+  // The toggle itself happens in the theme-init script's delegated
+  // [data-theme-toggle] click listener (app/layout.tsx) — attached before
+  // first paint so taps work even before hydration. Calling toggleTheme()
+  // here too would double-toggle every post-hydration click into a no-op,
+  // so this handler only covers what React owns: closing the drawer.
   function handleClick() {
-    toggleTheme();
     onToggle?.();
   }
 

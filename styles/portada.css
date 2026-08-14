@@ -42,13 +42,13 @@
 /* Noticias — El Trago: brand green. --green is theme-stable, and the
    concept label needs the darker legible green on paper (same pair as
    .share-btn.is-copied). */
-.product[data-hub="industry-shots"]:hover,.product[data-hub="industry-shots"]:focus-visible{
+.product[data-hub="noticias"]:hover,.product[data-hub="noticias"]:focus-visible{
   border-color:var(--green);border-left-color:var(--green);box-shadow:0 14px 28px rgba(154,234,57,.22);
 }
-.product[data-hub="industry-shots"] .product-concept{color:#3f7d0a;}
-[data-theme="dark"] .product[data-hub="industry-shots"] .product-concept{color:var(--green);}
+.product[data-hub="noticias"] .product-concept{color:#3f7d0a;}
+[data-theme="dark"] .product[data-hub="noticias"] .product-concept{color:var(--green);}
 @media(prefers-color-scheme:dark){
-  :root:not([data-theme="light"]) .product[data-hub="industry-shots"] .product-concept{color:var(--green);}
+  :root:not([data-theme="light"]) .product[data-hub="noticias"] .product-concept{color:var(--green);}
 }
 /* La Lana — El Expediente: the source gold (theme-adaptive token). */
 .product[data-hub="la-lana"]:hover,.product[data-hub="la-lana"]:focus-visible{
@@ -132,7 +132,7 @@
 .mr-link:hover .mr-title,.mr-link:focus-visible .mr-title{color:var(--green);}
 .mr-meta{display:flex;align-items:center;gap:8px;}
 .mr-dot{width:6px;height:6px;border-radius:50%;background:var(--gray-txt);flex-shrink:0;}
-.mr-dot[data-source="industry-shots"]{background:var(--src-industry);}
+.mr-dot[data-source="noticias"]{background:var(--src-industry);}
 .mr-dot[data-source="la-lana"]{background:var(--src-lana);}
 .mr-dot[data-source="infinitas"]{background:var(--src-infinitas);}
 .mr-dot[data-source="opinion"]{background:var(--src-opinion);}
@@ -171,7 +171,8 @@
   .lead-story:active,
   .still-matters-card:active,
   .analysis-card:active,
-  .inf-card:active,
+  .infsec-lead:active,
+  .infsec-row:active,
   .archive-grid-card:active,
   .archive-feature-row:active,
   .archive-line-row:active,

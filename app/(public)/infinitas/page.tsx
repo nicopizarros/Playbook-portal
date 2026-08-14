@@ -7,14 +7,14 @@ import { Scoreboard, type ScoreboardMetric } from '@/components/products/Scorebo
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
 
-// Infinitas — "El Marcador" (design brief, 2026-08-05). Flat violet, final
-// identity, deliberately clean: the ONE product that does not borrow the
-// grunge language of the other three. The narrative — women's sports as a
-// business force to be reckoned with — is structural: a scoreboard of real
-// business growth metrics ticks upward as the reader arrives, so the
-// thesis is something they watch happen. Photography is treated with a
-// violet duotone overlay (CSS, see .infhub-duotone) to stay inside the
-// flat system rather than importing grit.
+// Infinitas — "El Marcador" (design brief 2026-08-05; violet dialed back
+// 2026-08-14 by user directive). The violet is the identity but only as
+// accent — rules, wordmark, scoreboard figures — never a filled tint:
+// surfaces ride the site theme and photography is clean with a violet
+// baseline (see .infhub-duotone, name kept as the photo-frame hook). The
+// narrative — women's sports as a business force to be reckoned with — is
+// structural: a scoreboard of real business growth metrics ticks upward
+// as the reader arrives, so the thesis is something they watch happen.
 //
 // Class names are all infhub-* — NOT inf-* — because the homepage's
 // Infinitas section already owns .inf-grid/.inf-card (dark overlay cards

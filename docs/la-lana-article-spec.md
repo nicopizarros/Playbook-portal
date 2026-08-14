@@ -114,11 +114,16 @@ Enforced in code by `deviceBudgetFor` / `applyBodyDevices`
 | 6+ min | 3 | +1 |
 
 **Zero devices on a full-length La Lana piece is a bug, not restraint.** Walk
-all twelve shapes against the story before concluding none fits:
+all twenty-one shapes against the story before concluding none fits:
 
 `Cifra clave:` · `Jugada:` · `Cronología:` · `Recibo:` · `Ecuación:` ·
 `Salto:` · `Reparto:` · `Alineación:` · `Cotización:` · `Resultados:` ·
-`Duelo:` · `Serie:`
+`Duelo:` · `Serie:` · `Mapa:` · `Termómetro:` · `Contrato:` · `Ranking:` ·
+`Votación:` · `Calendario:` · `Perfil:` · `Escala:` · `Reloj:`
+
+(The last nine and their syntax live in
+`.claude/playbook-editorial/dynamic-element-library.md` — `Mapa` joined
+2026-08-10, the round-4 eight on 2026-08-14.)
 
 Rules that bite:
 

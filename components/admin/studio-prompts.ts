@@ -56,7 +56,7 @@ Devuélveme los campos EN ESTE ORDEN, con el mismo nombre que usa el panel:
 5. Teaser del muro de registro (1 o 2 frases que dejen con ganas de seguir leyendo, sin regalar la nota)
 6. Cuerpo del artículo (ver arriba)
 7. Autor (vacío salvo que haya un byline real) y Mostrar autor (apagado por defecto)
-8. Publicación y Fuente (Noticias/industry-shots, La Lana del Deporte/la-lana, Infinitas/infinitas, o Playbook/playbook)
+8. Publicación y Fuente (Noticias/noticias, La Lana del Deporte/la-lana, o Infinitas/infinitas)
 9. Alcance, Deporte y Vertical de negocio, usando solo la taxonomía de abajo
 10. Fecha (AAAA-MM-DD) y Fecha en texto (ej. "23 jul 2026")
 11. Tiempo de lectura (1 breve, 2 estándar, 3 largo)

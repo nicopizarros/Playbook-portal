@@ -11,15 +11,32 @@ export const TICKER_COUNT = 6;
 export const RELATED_COUNT = 3;
 
 // 'playbook' was a real, separate source/tag until the Roadmap Agosto
-// 2026 Fase 1 session (2026-08-01): folded into 'industry-shots' at the
+// 2026 Fase 1 session (2026-08-01): folded into the news source at the
 // user's request ("borrar el tag Playbook, traspasar sus artículos a
 // Noticias") since it never had a distinct editorial identity from
 // Noticias. See scripts/reassign-playbook-tag.ts for the data-side move.
-export const KNOWN_SOURCES = ['industry-shots', 'la-lana', 'infinitas', 'opinion'] as const;
+//
+// 'noticias' (TODO #2, 2026-08-14) replaces the launch-era machine key
+// 'industry-shots' so the identifier finally matches the product name.
+// The DB may still hold rows under the old key until
+// scripts/migrate-source-noticias.ts runs (post-deploy, see HANDOFF):
+// normalizeSource() below is the single mapping that keeps those rows
+// filed correctly in the meantime, applied once at the data boundary
+// (lib/data/articles.ts), so every component past that boundary only ever
+// sees canonical keys.
+export const KNOWN_SOURCES = ['noticias', 'la-lana', 'infinitas', 'opinion'] as const;
 export type Source = (typeof KNOWN_SOURCES)[number];
 
+export const LEGACY_SOURCE_ALIASES: Record<string, Source> = {
+  'industry-shots': 'noticias',
+};
+
+export function normalizeSource(source: string): string {
+  return LEGACY_SOURCE_ALIASES[source] ?? source;
+}
+
 export const SOURCE_LABELS: Record<Source, string> = {
-  'industry-shots': 'Noticias',
+  noticias: 'Noticias',
   'la-lana': 'La Lana del Deporte',
   infinitas: 'Infinitas',
   opinion: 'Opinión',

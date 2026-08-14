@@ -28,7 +28,7 @@ nobody copy-pastes anything.
 | **2** | **Research.** Mandatory outside fact per Noticias/Infinitas item, plus the regional angle. Not for La Lana. | `references/ingestion.md` |
 | **3** | **Classify the format tier**, then apply the product's architecture. | `references/format-tiers.md` |
 | **4** | **Apply the voice.** Movimiento + mecanismo + incentivo + consecuencia; find the palanca; one thing per paragraph. | `references/voice-and-style.md` |
-| **5** | **Apply the element library.** Walk all thirteen devices, respect the budget. | `references/dynamic-element-library.md` |
+| **5** | **Apply the element library.** Walk all twenty-one devices, respect the budget. | `references/dynamic-element-library.md` |
 | **6** | **Fill the fields and source the images.** | `references/fields-and-taxonomy.md`, `references/images.md` |
 | **7** | **Self-check** against the ten-point publication checklist and run `check-voice.mjs`. | `references/voice-and-style.md` §12 |
 | **8** | **Publish, report, capture feedback.** | `references/publishing-mechanics.md` |

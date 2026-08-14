@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getArchiveArticles, type Article } from '@/lib/data/articles';
 import { rankScore } from '@/lib/rank';
-import { KNOWN_SOURCES, SOURCE_LABELS, type Source } from '@/lib/constants';
+import { KNOWN_SOURCES, SOURCE_LABELS, normalizeSource, type Source } from '@/lib/constants';
 import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '@/lib/taxonomy';
 import { NewsRow } from '@/components/article/NewsRow';
 import { ArchiveGridCard } from '@/components/article/ArchiveGridCard';
@@ -345,7 +345,13 @@ function groupRiver(articles: Article[], now: Date): RiverBlock[] {
 }
 
 export default async function ArchivoPage({ searchParams }: Props) {
-  const filters = await searchParams;
+  const rawFilters = await searchParams;
+  // Old bookmarks and inbound links still say ?source=industry-shots (the
+  // pre-2026-08-14 machine key) — normalize so they keep filtering to the
+  // Noticias section instead of silently matching nothing.
+  const filters = rawFilters.source
+    ? { ...rawFilters, source: normalizeSource(rawFilters.source) }
+    : rawFilters;
   const articles = await getArchiveArticles(filters);
   // Cuadrícula is the default (user feedback) — Lista is the opt-in via
   // ?view=list, not the other way around like the prior pass.

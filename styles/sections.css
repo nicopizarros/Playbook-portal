@@ -89,22 +89,44 @@
 .video-cta{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.16);padding-top:22px;}
 .video-cta p{font-size:13.5px;color:rgba(255,255,255,.65);margin:0;}
 
-/* ——— Infinitas (Fase 7 UX) ———
-   Grilla de tres columnas del prototipo v24 (1.3fr 1fr 1fr): cada tarjeta
-   es foto a sangre completa con overlay de degradado y el texto anclado
-   abajo (posicionamiento absoluto). El degradado siempre es
-   negro-sobre-foto, no reacciona al tema. */
-.inf-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:18px;}
-.inf-card{position:relative;display:block;overflow:hidden;min-height:280px;background:#111;transition:transform var(--duration-base) var(--ease-out);}
-.inf-card:hover{transform:translateY(-4px);}
-.inf-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
-.inf-card:hover .inf-bg,.inf-card:focus-visible .inf-bg{transform:scale(1.04);}
-.inf-content{position:absolute;left:0;right:0;bottom:0;padding:20px 18px 18px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.86) 100%);color:#fff;}
-.inf-content .eyebrow{color:rgba(255,255,255,.65);}
-.inf-content .eyebrow::before{background:var(--green);}
-.inf-content h3{font-family:var(--serif-display);font-weight:400;font-size:22px;margin:6px 0 0;text-transform:none;}
-.inf-content h4{font-family:var(--serif-display);font-weight:400;font-size:17px;margin:6px 0 0;text-transform:none;}
-.inf-content p{font-size:13px;color:rgba(255,255,255,.78);margin:8px 0 0;max-width:46ch;}
+/* ——— Infinitas — "El Marcador en portada" (2026-08-14 redesign) ———
+   Reemplaza la grilla de tarjetas con overlay negro (leía plana contra el
+   resto de la portada y su eyebrow era verde). Misma lengua que el hub
+   /infinitas tras su reducción de tinte del mismo día: violeta solo como
+   acento (regla gruesa, wordmark, numerales) sobre el papel del sitio —
+   tema-consciente vía --src-infinitas. Lead editorial partido + lista
+   lateral numerada estilo marcador. Prefijo infsec-*: distinto de inf-*
+   (retirado) y de infhub-* (el hub), la lección de la colisión 2026-08-05. */
+.infsec{padding:44px 24px;}
+.infsec-mast{border-top:4px solid var(--src-infinitas);padding-top:16px;}
+.infsec-wordmark{font-family:var(--sans);font-weight:800;font-size:16px;letter-spacing:-.02em;text-transform:lowercase;color:var(--src-infinitas);display:inline-block;}
+/* When the CMS heading is literally the brand, the h2 wears the wordmark
+   voice itself instead of stacking under a duplicate. */
+.infsec-head h2.infsec-heading-brand{font-family:var(--sans);font-weight:800;font-size:clamp(26px,3vw,36px);letter-spacing:-.03em;text-transform:lowercase;color:var(--src-infinitas);}
+.infsec-head{padding-top:2px;border-bottom:none;margin-bottom:18px;}
+.infsec-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:36px;align-items:stretch;}
+.infsec-lead{display:block;color:inherit;}
+.infsec-photo{display:block;overflow:hidden;background:var(--paper-soft);border-bottom:3px solid var(--src-infinitas);}
+.infsec-photo img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;transition:transform .5s ease;}
+.infsec-lead:hover .infsec-photo img,.infsec-lead:focus-visible .infsec-photo img{transform:scale(1.03);}
+.infsec-lead-copy{display:block;padding-top:16px;}
+.infsec-lead .eyebrow::before,.infsec-row .eyebrow::before{background:var(--src-infinitas);}
+.infsec-lead h3{font-family:var(--serif-display);font-weight:400;font-size:clamp(24px,2.6vw,32px);line-height:1.12;margin:8px 0 0;text-transform:none;}
+.infsec-lead:hover h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px;text-decoration-color:var(--src-infinitas);}
+.infsec-lead p{font-size:14.5px;line-height:1.6;color:var(--gray-txt);margin:10px 0 0;max-width:58ch;}
+.infsec-cta{display:inline-block;margin-top:14px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--src-infinitas);}
+/* Center the rail against the tall lead: with few side stories the
+   column otherwise floats sparse at the top (screenshot pass 2). */
+.infsec-rows{display:flex;flex-direction:column;justify-content:center;}
+.infsec-row{display:grid;grid-template-columns:auto minmax(0,1fr) 118px;gap:16px;align-items:center;padding:20px 0;border-top:1px solid var(--rule);color:inherit;}
+.infsec-row:first-child{border-top:none;padding-top:2px;}
+.infsec-num{font-family:var(--sans);font-weight:800;font-size:30px;line-height:1;color:var(--src-infinitas);font-variant-numeric:tabular-nums;opacity:.85;align-self:start;padding-top:3px;}
+.infsec-row h4{font-size:16.5px;font-weight:700;line-height:1.35;margin:4px 0 0;}
+.infsec-row:hover h4,.infsec-row:focus-visible h4{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px;}
+/* height:auto is load-bearing: the img carries width/height attributes
+   for CLS, and the attribute height would otherwise win over the CSS
+   width — a 92×276 sliver (caught on the first screenshot pass). */
+.infsec-thumb{width:118px;height:auto;aspect-ratio:4/3;object-fit:cover;display:block;border-bottom:2px solid var(--src-infinitas);}
 
 /* ——— Números + testimonios: banda de prueba comprimida (Fase 7 UX) ———
    Una sola banda compacta (~200px): tira horizontal de 3 stats con reglas

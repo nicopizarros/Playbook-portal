@@ -228,7 +228,7 @@
   .archive-river-cluster{grid-template-columns:repeat(4,1fr);}
 }
 .archive-grid-card{display:block;color:inherit;position:relative;border-top:3px solid transparent;padding-top:12px;transition:border-color var(--duration-base) var(--ease-out);}
-.archive-grid-card[data-source="industry-shots"]{border-top-color:var(--src-industry);}
+.archive-grid-card[data-source="noticias"]{border-top-color:var(--src-industry);}
 .archive-grid-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
 .archive-grid-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
 .archive-grid-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
@@ -312,7 +312,7 @@
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]) .archive-feature-row:hover,:root:not([data-theme="light"]) .archive-feature-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
 }
-.archive-feature-row[data-source="industry-shots"]{border-left-color:var(--src-industry);}
+.archive-feature-row[data-source="noticias"]{border-left-color:var(--src-industry);}
 .archive-feature-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .archive-feature-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
 .archive-feature-row[data-source="opinion"]{border-left-color:var(--src-opinion);}

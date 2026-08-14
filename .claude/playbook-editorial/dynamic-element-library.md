@@ -76,7 +76,7 @@ as a `Cronología`, a fee has a `Reparto` of who gets what or a `Cifra clave` fo
 the headline number, a signing has a `Jugada` for the two sides, a schedule
 change has a `Salto`, an earnings release is a `Resultados`.
 
-**Walk all thirteen shapes** before writing an article off as device-free,
+**Walk all twenty-one shapes** before writing an article off as device-free,
 especially on a `priority: 5` piece — exactly the story that should carry the
 richest structure. What stays strict is fabrication, not effort: never invent a
 milestone, a split, or a figure the piece doesn't already contain just to
@@ -86,12 +86,15 @@ used to be.
 
 ---
 
-## 2. The thirteen devices
+## 2. The twenty-one devices
 
 Pick by **story shape**: a saga → `Cronología`; a breakdown → `Recibo`; a split
 → `Reparto`; a pairing → `Jugada`; one number → `Cifra clave`; an earnings
 release → `Resultados`; two institutions → `Duelo`; volatility over time →
-`Serie`; countries → `Mapa`.
+`Serie`; countries → `Mapa`; progress toward a goal → `Termómetro`; a deal's
+terms → `Contrato`; an ordered comparison → `Ranking`; a governance vote →
+`Votación`; what's coming → `Calendario`; an appointment → `Perfil`; how big a
+number really is → `Escala`; a deadline → `Reloj`.
 
 ---
 
@@ -478,6 +481,100 @@ list, or a new frame added to that script.
 
 ---
 
+### `Termómetro:` — progress toward a goal
+
+```
+Termómetro: US$720M — meta US$1,000M — Recaudación del fondo de expansión
+```
+
+Value, then `meta <goal>`, then an optional caption (≤80 chars). Value and
+goal ≤24 chars each and **must share the same unit** (`US$…M` against
+`US$…M`) — the fill percentage is their ratio, and comparing across units is
+refusing to parse, not rounding. Renders a big count-up value, the goal in
+small caps, and an accent-filled track with a target tick. For funding
+rounds, expansion fees collected, attendance targets, quota progress.
+
+### `Contrato:` — the term sheet
+
+```
+Contrato: Partes — Necaxa ↔ Apollo · Vigencia — 2026-2031 · Monto — US$120M · Cláusula — Opción de compra
+```
+
+2–6 key/value rows (label ≤22, value ≤48). Renders a bordered term-sheet
+panel with signature lines. For any deal story whose reporting names the
+actual terms: acquisitions, broadcast agreements, naming rights, player
+contracts. Numeric values count up.
+
+### `Ranking:` — the ordered comparison
+
+```
+Ranking: Cowboys — US$10.1B · Yankees — US$7.9B · Real Madrid — US$6.6B
+```
+
+3–6 rows, name — value (name ≤28, value ≤20), already in the order you mean.
+When every value shares one unit the rows grow proportional bars; mixed
+units render as a clean list without bars. For valuation tables, salary
+rankings, attendance leaders.
+
+### `Votación:` — the tally
+
+```
+Votación: A favor — 28 · En contra — 7 · Abstención — 3 · Mayoría — 24
+```
+
+2–3 cast rows (integers) plus an optional `Mayoría — N` threshold. Renders a
+segmented bar (for = product accent, against = red, abstention = gray), a
+threshold tick, and the tally legend. For assembly votes, board decisions,
+FIFA congress counts. The device draws the count — the verdict stays in
+your prose.
+
+### `Calendario:` — the forward agenda
+
+```
+Calendario: 11 jun — Inauguración en el Azteca · 19 jun — México vs Corea · 5 jul — Octavos en Guadalajara
+```
+
+2–5 rows, date — event (date ≤16 chars, event ≤72). `Cronología`'s
+counterpart: what's coming, listed with boxed date badges, not what
+happened, drawn on a spine. Never use both in one article for the same
+sequence of events.
+
+### `Perfil:` — the who-is card
+
+```
+Perfil: Mikel Arriola — Presidente ejecutivo de la Liga MX · Antes — IMSS · Mandato — 2030
+```
+
+First item is name — role (name ≤32, role ≤44); then 1–4 quick facts
+(label ≤18, value ≤36). Renders a monogram card. For appointments,
+departures, Players interviews — any story whose subject is a person taking
+or leaving a chair.
+
+### `Escala:` — the sense of size
+
+```
+Escala: US$4,200M — FIFA Forward Enterprise · US$1,400M — Ingresos anuales de la Liga MX · US$210M — Presupuesto de la FMF
+```
+
+2–4 rows, value — label (value ≤20, label ≤52), the story's own figure
+FIRST — it draws at full width and the comparators scale under it. All
+values must share one unit, and **every comparator must come from the
+reporting**, same rule as every number here. For the story whose real
+substance is "how big is that, actually".
+
+### `Reloj:` — the countdown
+
+```
+Reloj: 2026-06-11 — Inauguración del Mundial
+```
+
+One ISO date (`YYYY-MM-DD`) — label (≤64). The server computes days
+remaining at render time, fresh per view — "faltan N días", "es hoy", or
+"fue hace N días" once past. For deadline stories: a vote date, a
+ratification window, days to kickoff.
+
+---
+
 ## 3. Automatic elements — nothing to author
 
 These need no syntax and never touch the budget:
@@ -501,7 +598,7 @@ These need no syntax and never touch the budget:
 
 Walk this for every article before publishing:
 
-1. Full thirteen-device list walked against the story **before** concluding it
+1. Full twenty-one-device list walked against the story **before** concluding it
    gets none.
 2. Budget computed from `readingTime` **and** `priority` (+1 at `priority: 5`).
 3. No repeated device type.

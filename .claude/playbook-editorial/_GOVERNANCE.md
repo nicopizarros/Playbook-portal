@@ -28,7 +28,7 @@ it belongs in a file that already exists:
 |---|---|
 | `voice-and-style.md` | voice, rhythm, titles, openings, lead-ins, Opinión method, language, evidence levels, region, the publication checklist |
 | `format-tiers.md` | total length, tiers, per-product architecture, render contracts, hub reads |
-| `dynamic-element-library.md` | the thirteen devices, their syntax and the budget |
+| `dynamic-element-library.md` | the twenty-one devices, their syntax and the budget |
 | `overlap-check.md` | dedupe and the four outcomes |
 | `fields-and-taxonomy.md` | the `ArticleInput` fields, taxonomy, priority, dates |
 | `images.md` | cover sourcing, credits, the crop check, in-body images |

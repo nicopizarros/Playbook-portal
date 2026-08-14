@@ -11,6 +11,19 @@ interface GsapTween {
   kill(): void;
   scrollTrigger?: { kill(): void } | null;
 }
+// Timelines joined the typed surface for the La Lana cabinet (2026-08-14)
+// — same rule as everything here: type only what call sites actually use.
+export interface GsapTimeline {
+  to(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
+  fromTo(
+    targets: unknown,
+    fromVars: Record<string, unknown>,
+    toVars: Record<string, unknown>,
+    position?: string | number,
+  ): GsapTimeline;
+  set(targets: unknown, vars: Record<string, unknown>, position?: string | number): GsapTimeline;
+  kill(): void;
+}
 interface GsapCore {
   registerPlugin(...args: unknown[]): void;
   to(targets: unknown, vars: Record<string, unknown>): GsapTween;
@@ -21,6 +34,7 @@ interface GsapCore {
     toVars: Record<string, unknown>,
   ): GsapTween;
   set(targets: unknown, vars: Record<string, unknown>): void;
+  timeline(vars?: Record<string, unknown>): GsapTimeline;
 }
 
 const gsap = gsapUntyped as unknown as GsapCore;

@@ -102,7 +102,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   // point at: playbook-logo.webp is a ~180×44 wordmark, which every social
   // network either letterboxes into a mostly-empty box or rejects outright
   // for being under its minimum. An article with no cover photo is common
-  // here (most industry-shots rows have imageUrl empty — checked against
+  // here (most Noticias rows have imageUrl empty — checked against
   // the real table), so this is the *usual* card, not an edge case.
   const image = article.imageUrl || `${SITE_URL}${DEFAULT_OG_IMAGE.url}`;
   const description = article.excerpt || '';
@@ -367,7 +367,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
 
   // Noticias opens like a shot being poured: real weekday + the shot
   // measure ("2 shots ≈ 6 min") — the same units the hub list uses.
-  const shotStrip = meta.source === 'industry-shots' && (
+  const shotStrip = meta.source === 'noticias' && (
     <div className="lect-shot-meta">
       <span className="lect-day-badge">{weekdayFor(meta.date)}</span>
       <span className="lect-shot-measure">{shotLabel(meta.readingTime)}</span>

@@ -104,7 +104,11 @@ export function ArticleMotion() {
     document.querySelectorAll<HTMLElement>('[data-lect-stagger]').forEach(group => {
       staggerIn(scope, group, Array.from(group.children) as HTMLElement[]);
     });
-    document.querySelectorAll<HTMLElement>('.lect-rep-bar').forEach(bar => {
+    // [data-lect-grow] generalizes the Reparto-bar treatment for the
+    // round-4 devices (Termómetro fill, Ranking/Escala bars, Votación
+    // segments): any container carrying it gets its [data-lect-seg]
+    // children grown left-to-right on first view.
+    document.querySelectorAll<HTMLElement>('.lect-rep-bar, [data-lect-grow]').forEach(bar => {
       const segments = Array.from(bar.querySelectorAll<HTMLElement>('[data-lect-seg]'));
       if (!segments.length) return;
       gsap.set(segments, { scaleX: 0, transformOrigin: 'left center' });

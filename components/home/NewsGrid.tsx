@@ -42,7 +42,20 @@ const FILTERS: { source: string; label: string }[] = [
 export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?: React.ReactNode }) {
   const [activeSource, setActiveSource] = useState('all');
   const gridRef = useRef<HTMLDivElement>(null);
-  const isFirstRender = useRef(true);
+  // The source a still-running fade-out will commit when it finishes — the
+  // guard below must compare against it, not against activeSource: state
+  // only commits at fade-out completion, so during those 180ms
+  // activeSource still holds the OUTGOING source, and a quick "back to
+  // where I was" click (Todo → Infinitas → Todo… then Infinitas again
+  // within the fade) matched the stale state and was silently swallowed.
+  // That was the intermittent "hero keeps showing the news hero" bug: the
+  // last click lost, whichever fade happened to be in flight won.
+  const pendingSource = useRef<string | null>(null);
+  // Single in-flight tween (fade-out or fade-in). Each click kills it
+  // before starting its own: a killed tween's onComplete never fires, so a
+  // superseded selection can never commit after a newer one — last click
+  // wins by construction, without delays or forced re-renders.
+  const fadeTween = useRef<ReturnType<typeof gsap.to> | null>(null);
 
   // Was a CSS class toggle (.is-fading) paired with a 180ms setTimeout
   // guessing when the fade-out would finish — except .fade-swap's actual
@@ -53,29 +66,39 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
   // the same GSAP tween's onComplete keeps them from ever drifting apart
   // again — the swap can't run before the fade finishes by construction.
   function selectSource(source: string) {
-    if (source === activeSource) return;
+    if (source === (pendingSource.current ?? activeSource)) return;
     const el = gridRef.current;
     if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      pendingSource.current = null;
+      fadeTween.current?.kill();
+      fadeTween.current = null;
       setActiveSource(source);
       return;
     }
-    gsap.to(el, {
+    pendingSource.current = source;
+    fadeTween.current?.kill();
+    fadeTween.current = gsap.to(el, {
       opacity: 0,
       duration: 0.18,
       ease: 'power1.in',
-      onComplete: () => setActiveSource(source),
+      onComplete: () => {
+        pendingSource.current = null;
+        setActiveSource(source);
+        // Fade-in chained here rather than from a [activeSource] effect:
+        // when the fade lands back on the source already committed (the
+        // swallowed-click scenario above, now allowed through), setState
+        // is a no-op, no re-render happens, and an effect would never run
+        // — leaving the grid parked at opacity 0. The state update above
+        // flushes in a microtask, before this tween's first RAF tick, so
+        // the swap still happens behind the fade.
+        fadeTween.current = gsap.to(el, { opacity: 1, duration: 0.22, ease: 'power1.out' });
+      },
     });
   }
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    const el = gridRef.current;
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    gsap.to(el, { opacity: 1, duration: 0.22, ease: 'power1.out' });
-  }, [activeSource]);
+  // Navigating away mid-fade must not leave a tween ticking on a detached
+  // node (its onComplete would also set state on an unmounted component).
+  useEffect(() => () => fadeTween.current?.kill(), []);
 
   // Ref instead of a `selectSource` dependency: this listener is registered
   // once and must always call the CURRENT selectSource (it closes over

@@ -53,41 +53,15 @@ import {
   jugadaMarkup,
 } from './product-hubs';
 
-function esc(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// Named + numeric entity decode, the inverse of esc() above. Needed because
-// the HTML path's raw device text is captured straight out of already-
-// serialized body HTML (generateHTML escapes text nodes on the way in, so an
-// author's plain "l'Avenir" is stored as "l&apos;Avenir"). Without decoding
-// here first, esc() re-escapes that literal "&apos;" into "&amp;apos;" and
-// the reader sees the entity name instead of the character (bug found
-// 2026-08-06 authoring a Cronología with an apostrophe in it). The
-// plain-text authoring path (deviceFromParagraph) never has entities to
-// decode, so this is a safe no-op there.
-const NAMED_ENTITIES: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-};
-
-function decodeEntities(text: string): string {
-  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, ent: string) => {
-    if (ent[0] === '#') {
-      const codePoint = ent[1] === 'x' || ent[1] === 'X' ? parseInt(ent.slice(2), 16) : parseInt(ent.slice(1), 10);
-      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match;
-    }
-    const named = NAMED_ENTITIES[ent.toLowerCase()];
-    return named ?? match;
-  });
-}
+// Decode-then-escape lives in one shared module now (lib/html-entities.ts)
+// because the double-escape bug it prevents (HANDOFF 2026-08-06: captured
+// device text arrives with generateHTML's &apos; already in it, and a
+// second escape turns it into a visible &amp;apos;) was fixed here on the
+// Cronología path but kept recurring in the sibling device modules that
+// each had their own esc() copy and no decode. The plain-text authoring
+// path (deviceFromParagraph) never has entities to decode, so decoding is
+// a safe no-op there.
+import { escapeHtml as esc, decodeEntities } from './html-entities';
 
 const ITEM_SEP = /\s+·\s+/;
 // First key—value split inside an item (em/en dash or hyphen, spaced —
@@ -743,6 +717,343 @@ function buildSeries(series: Series): string {
   );
 }
 
+// ————————————————————————————————————————————— Round-4 collection
+// Eight shapes commissioned 2026-08-14 (user request): the recurring
+// sports-business story forms none of the first thirteen could draw.
+// Same contract as everything above: plain-paragraph syntax, strict
+// limits, fail-loud null on anything malformed.
+
+// —————————————————————————————————————————————————————— Termómetro
+// `Termómetro: US$720M — meta US$1,000M — Recaudación del fondo`
+type Meter = { value: string; goal: string; caption: string; pct: number };
+
+function figureValue(figure: string): { value: number; unit: string } | null {
+  const parts = splitFigure(figure);
+  if (!parts) return null;
+  const num = parseNumeric(parts.num);
+  if (!num) return null;
+  return { value: num.value, unit: `${parts.pre}|${parts.post}`.toLowerCase() };
+}
+
+function parseMeter(raw: string): Meter | null {
+  const items = stripTags(raw).split(/\s+[—–]\s+/);
+  if (items.length < 2 || items.length > 3) return null;
+  const value = items[0].trim();
+  const goalMatch = items[1].trim().match(/^meta\s+(.+)$/i);
+  if (!goalMatch) return null;
+  const goal = goalMatch[1].trim();
+  if (!value || value.length > 24 || !goal || goal.length > 24) return null;
+  const a = figureValue(value);
+  const b = figureValue(goal);
+  // Same unit or no bar: US$720M against €1B is not a fraction.
+  if (!a || !b || b.value <= 0 || a.unit !== b.unit) return null;
+  const pct = Math.min(100, (a.value / b.value) * 100);
+  return { value, goal, caption: (items[2] || '').trim().slice(0, 80), pct };
+}
+
+function buildMeter(meter: Meter): string {
+  const caption = meter.caption ? `<span class="lect-meter-caption">${esc(meter.caption)}</span>` : '';
+  return (
+    `<div class="lect-device lect-meter" role="note" aria-label="Termómetro: ${esc(meter.value)} de una meta de ${esc(meter.goal)}">` +
+    `<span class="lect-device-label">El termómetro</span>` +
+    `<div class="lect-meter-row"><span class="lect-meter-value">${countupSpan(meter.value, 'lect-meter-num')}</span>` +
+    `<span class="lect-meter-goal">meta ${esc(meter.goal)}</span></div>` +
+    `<div class="lect-meter-track" data-lect-grow aria-hidden="true">` +
+    `<span class="lect-meter-fill" data-lect-seg style="width:${meter.pct.toFixed(2)}%"></span>` +
+    `<span class="lect-meter-tick"></span></div>${caption}</div>`
+  );
+}
+
+// ——————————————————————————————————————————————————————— Contrato
+// `Contrato: Partes — Necaxa ↔ Apollo · Vigencia — 2026-2031 · Monto — US$120M · Cláusula — Opción de compra`
+type ContractRow = { label: string; value: string };
+
+function parseContract(raw: string): ContractRow[] | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 6) return null;
+  const rows: ContractRow[] = [];
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const value = kv[2].trim();
+    if (!label || label.length > 22 || !value || value.length > 48) return null;
+    rows.push({ label, value });
+  }
+  return rows;
+}
+
+function buildContract(rows: ContractRow[]): string {
+  const body = rows
+    .map(
+      row =>
+        `<div class="lect-contract-row"><span class="lect-contract-key">${esc(row.label)}</span>${countupSpan(row.value, 'lect-contract-value')}</div>`,
+    )
+    .join('');
+  return (
+    `<div class="lect-device lect-contract" role="note" aria-label="Contrato">` +
+    `<span class="lect-contract-head">Contrato · Términos clave</span>` +
+    `<div class="lect-contract-body" data-lect-stagger>${body}</div>` +
+    `<div class="lect-contract-sign" aria-hidden="true"><span></span><span></span></div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Ranking
+// `Ranking: Cowboys — US$10.1B · Real Madrid — US$6.6B · Yankees — US$7.9B`
+type RankRow = { label: string; value: string; pct: number | null };
+
+function parseRanking(raw: string): RankRow[] | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 6) return null;
+  const parsed: { label: string; value: string }[] = [];
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const value = kv[2].trim();
+    if (!label || label.length > 28 || !value || value.length > 20) return null;
+    parsed.push({ label, value });
+  }
+  // Bars only when every value carries the same unit — mixed units list
+  // without bars rather than comparing incomparables.
+  const figures = parsed.map(row => figureValue(row.value));
+  const comparable =
+    figures.every(Boolean) && new Set(figures.map(f => f!.unit)).size === 1 && figures.some(f => f!.value > 0);
+  const max = comparable ? Math.max(...figures.map(f => f!.value)) : 0;
+  return parsed.map((row, i) => ({
+    ...row,
+    pct: comparable && max > 0 ? Math.max(2, (figures[i]!.value / max) * 100) : null,
+  }));
+}
+
+function buildRanking(rows: RankRow[]): string {
+  const body = rows
+    .map(
+      (row, i) =>
+        `<div class="lect-rank-row">` +
+        `<span class="lect-rank-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>` +
+        `<span class="lect-rank-main"><span class="lect-rank-label">${esc(row.label)}</span>` +
+        (row.pct !== null
+          ? `<span class="lect-rank-track" data-lect-grow aria-hidden="true"><span class="lect-rank-bar" data-lect-seg style="width:${row.pct.toFixed(2)}%"></span></span>`
+          : '') +
+        `</span>${countupSpan(row.value, 'lect-rank-value')}</div>`,
+    )
+    .join('');
+  return (
+    `<div class="lect-device lect-rank" role="note" aria-label="Ranking: ${esc(rows.map(r => `${r.label} ${r.value}`).join(', '))}">` +
+    `<span class="lect-device-label">El ranking</span>` +
+    `<div class="lect-rank-rows" data-lect-stagger>${body}</div></div>`
+  );
+}
+
+// ——————————————————————————————————————————————————————— Votación
+// `Votación: A favor — 28 · En contra — 7 · Abstención — 3 · Mayoría — 24`
+type Vote = { rows: { label: string; count: number }[]; threshold: { label: string; count: number } | null };
+
+function parseVote(raw: string): Vote | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 4) return null;
+  const rows: { label: string; count: number }[] = [];
+  let threshold: Vote['threshold'] = null;
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const count = Number(kv[2].trim().replace(/[.,]/g, ''));
+    if (!label || label.length > 22 || !Number.isInteger(count) || count < 0 || count > 100000) return null;
+    if (/^mayor[íi]a\b/i.test(label)) {
+      threshold = { label, count };
+    } else {
+      rows.push({ label, count });
+    }
+  }
+  if (rows.length < 2 || rows.length > 3) return null;
+  if (!rows.some(row => row.count > 0)) return null;
+  return { rows, threshold };
+}
+
+function buildVote(vote: Vote): string {
+  const total = vote.rows.reduce((sum, row) => sum + row.count, 0);
+  const segments = vote.rows
+    .map(
+      (row, i) =>
+        `<span class="lect-voto-seg" data-lect-seg data-cast="${i}" style="width:${((row.count / total) * 100).toFixed(2)}%"></span>`,
+    )
+    .join('');
+  const tick = vote.threshold
+    ? `<span class="lect-voto-tick" style="left:${Math.min(100, (vote.threshold.count / total) * 100).toFixed(2)}%" aria-hidden="true"></span>`
+    : '';
+  const legend = vote.rows
+    .map(
+      (row, i) =>
+        `<span class="lect-voto-key"><span class="lect-voto-swatch" data-cast="${i}" aria-hidden="true"></span>${esc(row.label)} ${countupSpan(String(row.count), 'lect-voto-count')}</span>`,
+    )
+    .join('');
+  const note = vote.threshold
+    ? `<span class="lect-voto-note">${esc(vote.threshold.label)}: ${esc(String(vote.threshold.count))} de ${esc(String(total))}</span>`
+    : '';
+  return (
+    `<div class="lect-device lect-voto" role="note" aria-label="Votación: ${esc(vote.rows.map(r => `${r.label} ${r.count}`).join(', '))}">` +
+    `<span class="lect-device-label">La votación</span>` +
+    `<div class="lect-voto-bar" data-lect-grow aria-hidden="true">${segments}${tick}</div>` +
+    `<div class="lect-voto-legend" data-lect-stagger>${legend}</div>${note}</div>`
+  );
+}
+
+// —————————————————————————————————————————————————————— Calendario
+// `Calendario: 11 jun — Inauguración en el Azteca · 19 jun — México vs ...`
+type AgendaItem = { when: string; what: string };
+
+function parseAgenda(raw: string): AgendaItem[] | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 5) return null;
+  const rows: AgendaItem[] = [];
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const when = kv[1].trim();
+    const what = kv[2].trim();
+    if (!when || when.length > 16 || !what || what.length > 72) return null;
+    rows.push({ when, what });
+  }
+  return rows;
+}
+
+function buildAgenda(rows: AgendaItem[]): string {
+  const body = rows
+    .map(
+      row =>
+        `<li class="lect-agenda-item"><span class="lect-agenda-when">${esc(row.when)}</span><span class="lect-agenda-what">${esc(row.what)}</span></li>`,
+    )
+    .join('');
+  return (
+    `<div class="lect-device lect-agenda" role="note" aria-label="Calendario">` +
+    `<span class="lect-device-label">La agenda</span>` +
+    `<ol class="lect-agenda-list" data-lect-stagger>${body}</ol></div>`
+  );
+}
+
+// ————————————————————————————————————————————————————————— Perfil
+// `Perfil: Mikel Arriola — Presidente ejecutivo · Antes — Liga MX · Mandato — 2030`
+type Profile = { name: string; role: string; facts: ContractRow[] };
+
+function parseProfile(raw: string): Profile | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 5) return null;
+  const head = items[0].match(KV_RE);
+  if (!head) return null;
+  const name = head[1].trim();
+  const role = head[2].trim();
+  if (!name || name.length > 32 || !role || role.length > 44) return null;
+  const facts: ContractRow[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const label = kv[1].trim();
+    const value = kv[2].trim();
+    if (!label || label.length > 18 || !value || value.length > 36) return null;
+    facts.push({ label, value });
+  }
+  return { name, role, facts };
+}
+
+function buildProfile(profile: Profile): string {
+  const initials = profile.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(word => word[0] ?? '')
+    .join('')
+    .toUpperCase();
+  const facts = profile.facts
+    .map(
+      fact =>
+        `<div class="lect-perfil-fact"><span class="lect-perfil-key">${esc(fact.label)}</span>${countupSpan(fact.value, 'lect-perfil-value')}</div>`,
+    )
+    .join('');
+  return (
+    `<div class="lect-device lect-perfil" role="note" aria-label="Perfil: ${esc(profile.name)}, ${esc(profile.role)}">` +
+    `<span class="lect-device-label">El perfil</span>` +
+    `<div class="lect-perfil-card"><span class="lect-perfil-mono" aria-hidden="true">${esc(initials)}</span>` +
+    `<div class="lect-perfil-id"><span class="lect-perfil-name">${esc(profile.name)}</span>` +
+    `<span class="lect-perfil-role">${esc(profile.role)}</span></div>` +
+    `<div class="lect-perfil-facts" data-lect-stagger>${facts}</div></div></div>`
+  );
+}
+
+// ————————————————————————————————————————————————————————— Escala
+// `Escala: US$4,200M — FIFA Forward Enterprise · US$1,400M — Ingresos anuales de Liga MX`
+type ScaleRow = { value: string; label: string; pct: number };
+
+function parseScale(raw: string): ScaleRow[] | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 4) return null;
+  const parsed: { value: string; label: string }[] = [];
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const value = kv[1].trim();
+    const label = kv[2].trim();
+    if (!value || value.length > 20 || !label || label.length > 52) return null;
+    parsed.push({ value, label });
+  }
+  const figures = parsed.map(row => figureValue(row.value));
+  if (!figures.every(Boolean) || new Set(figures.map(f => f!.unit)).size !== 1) return null;
+  const max = Math.max(...figures.map(f => f!.value));
+  if (max <= 0) return null;
+  return parsed.map((row, i) => ({ ...row, pct: Math.max(1.5, (figures[i]!.value / max) * 100) }));
+}
+
+function buildScale(rows: ScaleRow[]): string {
+  const body = rows
+    .map(
+      (row, i) =>
+        `<div class="lect-escala-row${i === 0 ? ' lect-escala-lead' : ''}">` +
+        `<span class="lect-escala-meta">${countupSpan(row.value, 'lect-escala-value')}<span class="lect-escala-label">${esc(row.label)}</span></span>` +
+        `<span class="lect-escala-track" data-lect-grow aria-hidden="true"><span class="lect-escala-bar" data-lect-seg style="width:${row.pct.toFixed(2)}%"></span></span></div>`,
+    )
+    .join('');
+  return (
+    `<div class="lect-device lect-escala" role="note" aria-label="Escala: ${esc(rows.map(r => `${r.value} ${r.label}`).join(', '))}">` +
+    `<span class="lect-device-label">La escala</span>` +
+    `<div class="lect-escala-rows" data-lect-stagger>${body}</div></div>`
+  );
+}
+
+// —————————————————————————————————————————————————————————— Reloj
+// `Reloj: 2026-06-11 — Inauguración del Mundial`
+// The one device whose number the SERVER computes: days remaining at
+// render time. Every (public) route is force-dynamic, so the count is
+// fresh per view without any client JS.
+type Clock = { date: string; label: string; days: number };
+
+function parseClock(raw: string, now: Date = new Date()): Clock | null {
+  const text = stripTags(raw);
+  const kv = text.match(KV_RE);
+  if (!kv) return null;
+  const date = kv[1].trim();
+  const label = kv[2].trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !label || label.length > 64) return null;
+  const target = new Date(`${date}T00:00:00Z`);
+  if (Number.isNaN(target.getTime())) return null;
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const days = Math.round((target.getTime() - today.getTime()) / 86400000);
+  return { date, label, days };
+}
+
+function buildClock(clock: Clock): string {
+  const magnitude = Math.abs(clock.days);
+  const phrase =
+    clock.days > 0 ? (clock.days === 1 ? 'falta 1 día' : `faltan ${magnitude} días`) : clock.days === 0 ? 'es hoy' : magnitude === 1 ? 'fue hace 1 día' : `fue hace ${magnitude} días`;
+  const bigNumber = clock.days === 0 ? 'HOY' : String(magnitude);
+  return (
+    `<div class="lect-device lect-reloj" role="note" aria-label="Reloj: ${esc(clock.label)}, ${esc(phrase)}" data-past="${clock.days < 0}">` +
+    `<span class="lect-device-label">El reloj</span>` +
+    `<div class="lect-reloj-row">${clock.days === 0 ? `<span class="lect-reloj-num">${bigNumber}</span>` : countupSpan(bigNumber, 'lect-reloj-num')}` +
+    `<span class="lect-reloj-unit">${clock.days === 0 ? '' : clock.days > 0 ? (magnitude === 1 ? 'día falta' : 'días faltan') : magnitude === 1 ? 'día atrás' : 'días atrás'}</span></div>` +
+    `<span class="lect-reloj-caption">${esc(clock.label)} · ${esc(clock.date)}</span></div>`
+  );
+}
+
 // ———————————————————————————————————————————————————— Dispatch tables
 type Device = {
   /** Prefix as the editor types it (accent-tolerant). */
@@ -851,11 +1162,78 @@ const DEVICES: Device[] = [
       return parsed ? buildMap(parsed) : null;
     },
   },
+  // Round-4 collection (2026-08-14).
+  {
+    prefix: deviceTextRe('Term[óo]metro'),
+    html: deviceHtmlRe('Term[óo]metro'),
+    render: raw => {
+      const parsed = parseMeter(raw);
+      return parsed ? buildMeter(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Contrato'),
+    html: deviceHtmlRe('Contrato'),
+    render: raw => {
+      const parsed = parseContract(raw);
+      return parsed ? buildContract(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Ranking'),
+    html: deviceHtmlRe('Ranking'),
+    render: raw => {
+      const parsed = parseRanking(raw);
+      return parsed ? buildRanking(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Votaci[óo]n'),
+    html: deviceHtmlRe('Votaci[óo]n'),
+    render: raw => {
+      const parsed = parseVote(raw);
+      return parsed ? buildVote(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Calendario'),
+    html: deviceHtmlRe('Calendario'),
+    render: raw => {
+      const parsed = parseAgenda(raw);
+      return parsed ? buildAgenda(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Perfil'),
+    html: deviceHtmlRe('Perfil'),
+    render: raw => {
+      const parsed = parseProfile(raw);
+      return parsed ? buildProfile(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Escala'),
+    html: deviceHtmlRe('Escala'),
+    render: raw => {
+      const parsed = parseScale(raw);
+      return parsed ? buildScale(parsed) : null;
+    },
+  },
+  {
+    prefix: deviceTextRe('Reloj'),
+    html: deviceHtmlRe('Reloj'),
+    render: raw => {
+      const parsed = parseClock(raw);
+      return parsed ? buildClock(parsed) : null;
+    },
+  },
 ];
 
 // The Cifra clave and Jugada conventions live in lib/product-hubs.ts (they
 // predate this module) but count against the same budget, so the matcher
-// list here covers all ten designed devices.
+// list here covers all twenty-one designed devices (thirteen through the
+// 2026-08-10 Mapa round, plus the eight of the 2026-08-14 round-4
+// collection).
 type NamedDevice = { name: string; html: RegExp; prefix: RegExp; render(raw: string): string | null };
 
 const ALL_DEVICES: NamedDevice[] = [
@@ -907,7 +1285,7 @@ export function deviceBudgetFor(readingTime: number | null, priority?: number | 
   return priority === 5 ? base + 1 : base;
 }
 
-// HTML bodies: ONE document-order pass over all nine device patterns —
+// HTML bodies: ONE document-order pass over every device pattern —
 // per-type passes would spend the budget in type order instead of the
 // order the editor placed things. First declared wins; a device TYPE
 // repeats never (the second Recibo stays text even under budget); excess

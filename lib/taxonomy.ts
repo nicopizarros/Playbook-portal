@@ -54,10 +54,10 @@ export const DEFAULT_TOPICS: SectionTopics = {
 };
 
 export const SECTION_TOPICS: Record<string, SectionTopics> = {
-  // Industry Shots is the daily business-news feed: the business vertical
+  // Noticias is the daily business-news feed: the business vertical
   // (derechos de TV, patrocinios, M&A…) is the reason a reader clicks
   // through, the sport is context.
-  'industry-shots': { order: ['vertical', 'sport', 'scope'], label: 'Temas de esta noticia' },
+  noticias: { order: ['vertical', 'sport', 'scope'], label: 'Temas de esta noticia' },
   // La Lana del Deporte (renamed from La Lana del Mundial once its scope
   // widened past the 2026 World Cup to sports business generally) leads
   // with scope (Nacional/Internacional) over sport, since a given edition
@@ -73,4 +73,86 @@ export const SECTION_TOPICS: Record<string, SectionTopics> = {
 
 export function topicsForSection(source: string): SectionTopics {
   return SECTION_TOPICS[source] ?? DEFAULT_TOPICS;
+}
+
+// ------------------------------------------------- Controlled-vocabulary gate
+// TODO #1 (news classification), decided 2026-08-14: tags stay a fixed
+// controlled vocabulary — the three option lists above — and every write
+// path validates against it, so a typo can no longer mint a tag that no
+// filter, hub, or /tema page can reach. The drafting agent (publish
+// skills) proposes; this vocabulary constrains; a rejection surfaces to
+// whoever ran the publish, which is the arbitration order. `priority`
+// stays deliberately editorial and out of scope for the classifier.
+//
+// canonicalizeTag folds case/accents/whitespace so "futbol", "Fútbol " and
+// "FÚTBOL" all file under the canonical 'Fútbol' instead of being
+// rejected; only values that don't fold to any option are invalid.
+
+function fold(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+const FOLDED_OPTIONS: Record<TaxonomyTier, Map<string, string>> = {
+  scope: new Map(SCOPE_OPTIONS.map(o => [fold(o), o])),
+  sport: new Map(SPORT_OPTIONS.map(o => [fold(o), o])),
+  vertical: new Map(VERTICAL_OPTIONS.map(o => [fold(o), o])),
+};
+
+/** The canonical option this value folds to, or null if out of vocabulary. */
+export function canonicalizeTag(tier: TaxonomyTier, value: string): string | null {
+  return FOLDED_OPTIONS[tier].get(fold(value)) ?? null;
+}
+
+export type TagIssue = { tier: TaxonomyTier; value: string; suggestion: string | null };
+
+export type ValidatedTags = {
+  tags: Record<TaxonomyTier, string[]>;
+  /** Values that could not be canonicalized — already excluded from `tags`. */
+  issues: TagIssue[];
+};
+
+// Cheap nearest-option hint for rejection messages: the option sharing the
+// longest common prefix with the folded input (≥4 chars), else null. Not a
+// classifier — just enough for "Patrocinio → ¿Patrocinios?" in an error.
+function nearestOption(tier: TaxonomyTier, value: string): string | null {
+  const folded = fold(value);
+  let best: string | null = null;
+  let bestLen = 3;
+  for (const [key, canonical] of FOLDED_OPTIONS[tier]) {
+    let i = 0;
+    while (i < key.length && i < folded.length && key[i] === folded[i]) i++;
+    if (i > bestLen) {
+      bestLen = i;
+      best = canonical;
+    }
+  }
+  return best;
+}
+
+export function validateTags(input: Record<TaxonomyTier, string[]>): ValidatedTags {
+  const tags: Record<TaxonomyTier, string[]> = { scope: [], sport: [], vertical: [] };
+  const issues: TagIssue[] = [];
+  for (const tier of Object.keys(tags) as TaxonomyTier[]) {
+    for (const value of input[tier] ?? []) {
+      if (!value?.trim()) continue;
+      const canonical = canonicalizeTag(tier, value);
+      if (canonical) {
+        if (!tags[tier].includes(canonical)) tags[tier].push(canonical);
+      } else {
+        issues.push({ tier, value, suggestion: nearestOption(tier, value) });
+      }
+    }
+  }
+  return { tags, issues };
+}
+
+export function formatTagIssues(issues: TagIssue[]): string {
+  return issues
+    .map(i => `${i.tier}: "${i.value}"${i.suggestion ? ` (¿"${i.suggestion}"?)` : ''}`)
+    .join(', ');
 }

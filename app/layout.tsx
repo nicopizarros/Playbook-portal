@@ -84,12 +84,38 @@ export const metadata: Metadata = {
 // data-theme before first paint, exactly like legacy/index.html's inline
 // <head> script. `beforeInteractive` is the Next.js-sanctioned way to run
 // a script this early (before hydration) from the root layout.
+//
+// The script also OWNS the toggle action (__pbToggleTheme + the delegated
+// [data-theme-toggle] click listener). The theme buttons are server-rendered
+// and look tappable from first paint, but their React onClick only exists
+// after hydration — on a slow load every tap in that window silently did
+// nothing (the intermittent "toggle doesn't work" bug). A document-level
+// native listener attached before paint catches those clicks and keeps
+// handling them after hydration; ThemeToggle deliberately does NOT call
+// toggleTheme() on click, so there is exactly one toggler at all times.
+// components/theme/theme-store.ts subscribes to the playbook:theme-change
+// event this dispatches to keep React aria state in sync.
 const THEME_INIT_SCRIPT = `
 (function(){
   try{
     var t=localStorage.getItem('playbook_theme');
     if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}
   }catch(e){}
+  window.__pbToggleTheme=function(){
+    var d=document.documentElement;
+    var cur=d.getAttribute('data-theme');
+    var dark=cur?cur==='dark':!!(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var next=dark?'light':'dark';
+    d.setAttribute('data-theme',next);
+    try{localStorage.setItem('playbook_theme',next);}catch(e){}
+    var m=document.querySelector('meta[name="theme-color"]');
+    if(m){m.setAttribute('content',next==='dark'?'#121316':'#ffffff');}
+    window.dispatchEvent(new Event('playbook:theme-change'));
+  };
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('[data-theme-toggle]')){window.__pbToggleTheme();}
+  });
 })();
 `;
 
@@ -177,9 +203,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Script>
           </>
         )}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {THEME_INIT_SCRIPT}
-        </Script>
+        {/* A RAW inline script, deliberately not next/script: in the App
+            Router, beforeInteractive inline scripts are serialized into
+            self.__next_s and executed by the framework's bootstrap chunk —
+            verified 2026-08-14 by blocking /_next/static/chunks/* in
+            Playwright, which left window.__pbToggleTheme undefined and the
+            toggle dead. Both jobs of this script (set data-theme before
+            first paint, own the toggle before hydration) only hold if it
+            executes the moment the parser reaches it, so it must be real
+            inline HTML. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <Script id="va-init" strategy="beforeInteractive">
           {VA_INIT_SCRIPT}
         </Script>
