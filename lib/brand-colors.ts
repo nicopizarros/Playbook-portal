@@ -240,6 +240,9 @@ const BRAND_TABLE: (BrandPalette & { keys: string[] })[] = [
   { keys: ['jets', 'newyorkjets'], name: 'Jets', primary: '#125740', secondary: '#FFFFFF' },
   { keys: ['bengals', 'cincinnatibengals'], name: 'Bengals', primary: '#FB4F14', secondary: '#000000' },
 
+  // WNBA
+  { keys: ['sparks', 'lasparks', 'losangelessparks'], name: 'Sparks', primary: '#702F8A', secondary: '#FFC72C' },
+
   // MLB
   { keys: ['yankees', 'newyorkyankees'], name: 'Yankees', primary: '#0C2340', secondary: '#C4CED4' },
   { keys: ['dodgers', 'losangelesdodgers'], name: 'Dodgers', primary: '#005A9C', secondary: '#EF3E42' },
@@ -327,6 +330,12 @@ const BRAND_TABLE: (BrandPalette & { keys: string[] })[] = [
   { keys: ['conmebol'], name: 'Conmebol', primary: '#0B4EA2', secondary: '#FFCC00' },
   { keys: ['concacaf'], name: 'Concacaf', primary: '#0A2240', secondary: '#00A94F' },
   { keys: ['f1', 'formula1', 'formulauno'], name: 'Fórmula 1', primary: '#E10600', secondary: '#15151E' },
+
+  // Racing teams. Cadillac's 2026 debut livery is a deliberate black-to-white
+  // split (the gradient is the Cadillac chevron repeated), so this row is
+  // monochrome for the same reason On Holding and the NHL are: it is the
+  // identity, not a missing value waiting to be filled in with a guess.
+  { keys: ['cadillacf1', 'cadillac', 'cadillacformula1'], name: 'Cadillac F1', primary: '#000000', secondary: '#FFFFFF' },
 ];
 
 const BRANDS = new Map<string, BrandPalette>();

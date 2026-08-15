@@ -319,6 +319,13 @@
   font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);
   min-height:1em;
 }
+/* A chip whose name the brand registry recognises wears that asset's own
+   colours instead of the product accent (2026-08-15). Scoped to .lect-brand,
+   which lib/article-devices.ts adds ONLY on a resolved name, so a roster of
+   people keeps the accent it has always had. The --brand-* names and their
+   two-theme cascade are defined once, with the transfer devices below. */
+.lect-lineup-chip.lect-brand{border-left-color:var(--brand-fill);}
+.lect-lineup-chip.lect-brand .lect-lineup-num{color:var(--brand-ink);}
 
 /* Cotización — a market tile: name, price, delta with direction. */
 .lect-quote-row{

@@ -390,7 +390,15 @@ function buildShares(shares: Share[]): string {
 // (sponsor, broadcaster, owner, promoter) used to need its roles narrated
 // in prose; on the chip they read at a glance. Optional per name; a bare
 // roster renders exactly as before.
-type LineupEntry = { name: string; role: string };
+//
+// Brand chips (2026-08-15, publisher directive: "en alineación usa colores
+// de los equipos"). A roster of CLUBS was the one lineup that read as
+// undifferentiated — six identical chips for six identities that each own a
+// colour. Each name is resolved against the same registry `Venta`, `Cadena`
+// and `Perfil` use, so a chip the registry knows wears that asset's
+// contrast-corrected ink and nothing else changes. A roster of PEOPLE
+// resolves to nothing and renders exactly as it did before.
+type LineupEntry = { name: string; role: string; brandStyle: string };
 
 function parseLineup(raw: string): LineupEntry[] | null {
   const items = stripTags(raw).split(ITEM_SEP).map(n => n.trim());
@@ -398,20 +406,35 @@ function parseLineup(raw: string): LineupEntry[] | null {
   const entries: LineupEntry[] = [];
   for (const item of items) {
     const tail = item.match(/^([\s\S]+?)\s*\(\s*([^)]{1,20})\s*\)$/);
-    const name = (tail ? tail[1] : item).trim();
+    const rawName = (tail ? tail[1] : item).trim();
     const role = tail ? tail[2].trim() : '';
-    if (!name || name.length > 28) return null;
-    entries.push({ name, role });
+    // Resolved BEFORE the length check, the same order `Perfil` uses, so the
+    // `Nombre #HEX #HEX` escape hatch spends its characters on the palette
+    // rather than against the name's 28-character budget.
+    const { label, palette } = resolveBrand(rawName);
+    if (!label || label.length > 28) return null;
+    entries.push({ name: label, role, brandStyle: brandStyleAttr(palette) });
   }
   return entries;
 }
 
 function buildLineup(entries: LineupEntry[]): string {
   const chips = entries
-    .map(
-      (entry, i) =>
-        `<span class="lect-lineup-chip"><span class="lect-lineup-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span class="lect-lineup-name">${esc(entry.name)}</span>${entry.role ? `<span class="lect-lineup-role">${esc(entry.role)}</span>` : ''}</span>`,
-    )
+    .map((entry, i) => {
+      const style = entry.brandStyle ? ` style="${entry.brandStyle}"` : '';
+      // Same rule as `Perfil`: .lect-brand ALWAYS defines --brand-* with the
+      // house green as its fallback, so carrying it on an unregistered name
+      // would paint every roster of people green instead of letting it fall
+      // through to the product accent it wears today.
+      const brandClass = entry.brandStyle ? ' lect-brand' : '';
+      return (
+        `<span class="lect-lineup-chip${brandClass}"${style}>` +
+        `<span class="lect-lineup-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>` +
+        `<span class="lect-lineup-name">${esc(entry.name)}</span>` +
+        (entry.role ? `<span class="lect-lineup-role">${esc(entry.role)}</span>` : '') +
+        `</span>`
+      );
+    })
     .join('');
   const spoken = entries.map(e => (e.role ? `${e.name} (${e.role})` : e.name)).join(', ');
   return (
