@@ -24,12 +24,12 @@
 //   bloque-en-contra      its confederation asked for an independent
 //                         review; it has not spoken in its own name
 //   declarada-en-contra   said so itself, against Infantino
-//   sin-definir           explicitly has not taken a position
+//   sin-definir           explicitly declined to take a position
 //
 // A federation's OWN declaration always wins over its confederation's,
 // which is what puts Mexico (Concacaf asked for a review, the FMF backed
 // Infantino) and New Zealand (the OFC backed him, NZF withdrew) on the
-// opposite side from their own bloc. Only 22 of the 210 have spoken for
+// opposite side from their own bloc. Only 20 of the 210 have spoken for
 // themselves; the rest are inheriting a position, which is the single
 // most useful thing this board shows.
 //
@@ -149,8 +149,7 @@ export const CONFEDERATIONS: ConfederationStance[] = [
 // the board is inherited from a confederation. Sources: Playbook's own
 // coverage for the confederations, Mexico and the six-federation Arab
 // letter; BBC Sport for the associations it reached directly (the UAE,
-// Bhutan, the Philippines, Grenada, St Kitts and Nevis, Saudi Arabia, and
-// the United States and Canada's careful non-position).
+// Bhutan, the Philippines, Grenada, St Kitts and Nevis, Saudi Arabia).
 export const FEDERATIONS: FederationStance[] = [
   // —— A favor. Todas menos las cuatro africanas rompen con su bloque.
   { code: 'MEX', name: 'México', confederation: 'concacaf', stance: 'respalda', since: '2026-08-06', note: 'Apoyó a Infantino y fue la única de las 41 federaciones de la Concacaf ausente del comunicado regional.' },
@@ -176,11 +175,11 @@ export const FEDERATIONS: FederationStance[] = [
   { code: 'NZL', name: 'Nueva Zelanda', confederation: 'ofc', stance: 'en-contra', since: '2026-08-14', note: 'Retiró su apoyo y pidió una revisión independiente, dos días después de que su confederación apoyara a Infantino.' },
 
   // —— Sin definir. No es silencio: es haber declinado tomar postura.
-  // Estados Unidos y Canadá firmaron el reclamo de gobernanza de la
-  // Concacaf sin pronunciarse sobre Infantino, que son dos cosas
-  // distintas y la diferencia es justo lo que este tablero mide.
-  { code: 'USA', name: 'Estados Unidos', confederation: 'concacaf', stance: 'sin-definir', since: '2026-08-11', note: 'Respaldó el comunicado de la Concacaf sin declarar una postura sobre Infantino.' },
-  { code: 'CAN', name: 'Canadá', confederation: 'concacaf', stance: 'sin-definir', since: '2026-08-11', note: 'Respaldó el comunicado de la Concacaf sin declarar una postura sobre Infantino.' },
+  // Estados Unidos y Canadá NO están aquí (decisión editorial, 2026-08-15):
+  // firmaron el reclamo de gobernanza de la Concacaf, así que cuentan con
+  // su confederación como el resto del bloque. La distinción que hace la
+  // BBC entre respaldar ese texto y pronunciarse sobre Infantino es real,
+  // pero es materia de una línea de prosa, no de una casilla del mapa.
   { code: 'SAU', name: 'Arabia Saudita', confederation: 'afc', stance: 'sin-definir', since: '2026-08-11', note: 'Sede del Mundial 2034 y todavía sin postura pública. Renueva su propia dirigencia en agosto.' },
 ];
 
