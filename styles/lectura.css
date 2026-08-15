@@ -41,7 +41,8 @@
    drawn from the world dataset and split into labelled camps. Land is
    flat fills with hairline borders, no relief and no graticule: this is a
    diagram that happens to be shaped like the world, not an atlas. The
-   group ramp is fixed — filled mass, hollow exception, mid tint — so the
+   group ramp is fixed — filled mass, hollow exception, mid tint, and at
+   four groups an accent fill carrying the same heavy outline — so the
    reader learns it once and it means the same thing on every map. ——— */
 .lect-map{margin:34px 0;}
 .lect-map-svg{
@@ -58,6 +59,15 @@
 .lect-map-g2{fill:var(--paper);stroke:var(--ink);stroke-width:2;}
 /* Group 3 — the third camp, when a story has one. */
 .lect-map-g3{fill:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+/* Group 4 (2026-08-15) — accent fill AND the heavy outline, which is
+   groups 1 and 2 combined on purpose. At four groups the ramp stops being
+   an arbitrary order and becomes two readable variables: the FILL says
+   which side a country is on (accent or tint), the OUTLINE says it spoke
+   in its own name rather than inheriting its bloc's position. So g1 and
+   g3 are the two silent masses, g2 is the outlier that spoke against its
+   own side, and g4 is the one that spoke WITH it. Nothing about the
+   one-to-three-group ramp changes. */
+.lect-map-g4{fill:var(--lect-accent);stroke:var(--ink);stroke-width:2;}
 .lect-map-legend{
   display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;
 }
@@ -69,6 +79,7 @@
 .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--lect-accent);border-color:var(--lect-accent);}
 .lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--paper);border:2px solid var(--ink);}
 .lect-map-key.lect-map-g3 .lect-map-swatch{background:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+.lect-map-key.lect-map-g4 .lect-map-swatch{background:var(--lect-accent);border:2px solid var(--ink);}
 .lect-map-key-label{letter-spacing:.02em;}
 .lect-map-key-count{
   font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;

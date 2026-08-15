@@ -750,7 +750,7 @@ camps, with a legend that counts each camp for itself.
   codes, a **confederation name** that expands to its federations
   (`Respaldan — CAF, CONMEBOL, OFC`), or `Etiqueta — resto` for every framed
   country no other group claimed.
-- **One to three groups.**
+- **One to four groups.**
 
 **A group may name a confederation** (2026-08-15), because that is the unit a
 governance story actually splits on, and spelling one out by hand is 41 to 55
@@ -781,6 +781,23 @@ the filled mass, group 2 is **hollow with a heavy outline** (the exception, the
 holdout, the one that's missing), group 3 is a mid tint. So "everyone except X"
 is written as `Grupo — resto · X — MEX` and X reads as the hole in the map,
 which is exactly the shape a "who signed and who didn't" story has.
+
+**A fourth group** (2026-08-15) takes the accent fill AND the heavy outline.
+At four groups the ramp stops being an order and becomes two variables: the
+**fill** says which side a country is on, the **outline** says it spoke in its
+own name instead of inheriting its bloc's position. Groups 1 and 3 are the two
+silent masses, group 2 is whoever broke away from group 1's side, group 4 is
+whoever said it out loud on that side. Declare them in that order and the map
+explains itself without a sentence of setup.
+
+**Group 1 takes the product accent, so put the side the accent should mean
+there.** On a Noticias article that accent is Playbook's green, and a reader
+reads green as the affirmative — so a governance map whose group 1 is the camp
+demanding somebody's head will say the opposite of what it means, in the
+loudest colour on the page. Order by what the colour asserts, not by which camp
+is biggest (2026-08-15, caught in review on the FIFA electorate map, where the
+first pass painted 127 federations asking for an independent review in the
+approval colour).
 
 Use it when the story's unit is **countries** and their split is the argument:
 signatories vs holdouts, hosts vs bidders, the markets a rights deal covers,

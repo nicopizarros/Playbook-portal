@@ -53,6 +53,14 @@
 // is missing), the third is a mid tint. So "everyone except X" is written
 // as `Grupo — resto · X — MEX`, and X reads as the hole in the map.
 //
+// A FOURTH group (2026-08-15) takes the accent fill AND the heavy
+// outline. At four groups the ramp reads as two variables rather than an
+// order: the fill says which side, the outline says the country spoke in
+// its own name instead of inheriting its bloc's position. So g1 and g3
+// are the two silent masses, g2 is whoever broke away from their own
+// side, and g4 is whoever said it out loud on the same side. Declare
+// them in that order and the map explains itself.
+//
 // Countries too small to draw at this scale (half of Concacaf is Caribbean
 // islands) are dots rather than shapes — see the build script's comment.
 // Same contract as every other device: plain text, parsed server-side,
@@ -101,7 +109,11 @@ const FRAME_ALIASES: Record<string, string[]> = {
 export type MapGroup = { label: string; codes: string[] };
 export type ArticleMap = { frame: string; groups: MapGroup[]; codes: string[] };
 
-const MAX_GROUPS = 3;
+// Raised from 3 on 2026-08-15. Three groups cover a story with two camps
+// and an outlier; a fourth is what a story needs when the SAME split has
+// to be shown twice, once for the bloc and once for whoever inside it
+// spoke in their own name (styles/lectura.css's g4 comment has the ramp).
+const MAX_GROUPS = 4;
 
 // Accent-insensitive key for frame lookup: "áfrica" and "africa" are the
 // same frame, and an editor should not have to think about it.
