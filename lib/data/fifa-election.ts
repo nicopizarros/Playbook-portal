@@ -14,33 +14,43 @@
 // keep saying what it said on the day it was published. Keeping the two
 // separate is deliberate: this file moves, the archive doesn't.
 //
-// ————————————————————————————————————————————— The four states
+// —————————————————————————————————————————————— The five states
 // A confederation's position and a federation's own words are two
 // different facts, and the interesting ones are where they disagree.
-// Every federation therefore lands in one of four buckets:
+// Every voting federation lands in one of five buckets:
 //
-//   declarada-en-contra   said so itself, against Infantino
-//   bloque-en-contra      its confederation asked for a review; it has
-//                         not spoken in its own name
-//   bloque-respalda       its confederation backs him; it has not spoken
 //   declarada-respalda    said so itself, for Infantino
+//   bloque-respalda       its confederation backs him; it has not spoken
+//   bloque-en-contra      its confederation asked for an independent
+//                         review; it has not spoken in its own name
+//   declarada-en-contra   said so itself, against Infantino
+//   sin-definir           explicitly has not taken a position
 //
 // A federation's OWN declaration always wins over its confederation's,
 // which is what puts Mexico (Concacaf asked for a review, the FMF backed
 // Infantino) and New Zealand (the OFC backed him, NZF withdrew) on the
-// opposite side from their own bloc. Only 14 of the 211 have spoken for
-// themselves; the other 197 are inheriting a position, which is the
-// single most useful thing this board shows.
+// opposite side from their own bloc. Only 22 of the 210 have spoken for
+// themselves; the rest are inheriting a position, which is the single
+// most useful thing this board shows.
 //
-// Vote weights are FIFA MEMBER ASSOCIATIONS, not confederation rosters.
-// The six confederations have 218 members between them and FIFA has 211;
-// nine associations play in a confederation without holding a FIFA seat
-// and therefore never vote. scripts/build-world-map.ts owns that list and
-// asserts the partition; the assertions at the foot of this file check
-// that the four buckets still add up to the same 211.
+// THE UNIVERSE IS 210, NOT 211. FIFA has 211 members and Nepal's vote is
+// suspended, so 210 ballots exist. The BBC's own map of this fight counts
+// 210 for the same reason; scripts/build-world-map.ts owns the suspension
+// list and the map device drops it from any confederation it expands.
+//
+// Vote weights are FIFA MEMBER ASSOCIATIONS, not confederation rosters:
+// the six confederations have 218 members between them, and nine of those
+// play without holding a FIFA seat at all. That file asserts the
+// partition; the assertions at the foot of this one check that the five
+// buckets still add up to the same 210.
 
-export type Stance = 'respalda' | 'en-contra' | 'sin-pronunciarse';
-export type Bucket = 'declarada-en-contra' | 'bloque-en-contra' | 'bloque-respalda' | 'declarada-respalda';
+export type Stance = 'respalda' | 'en-contra' | 'sin-definir';
+export type Bucket =
+  | 'declarada-respalda'
+  | 'bloque-respalda'
+  | 'bloque-en-contra'
+  | 'declarada-en-contra'
+  | 'sin-definir';
 
 export type ConfederationStance = {
   /** Frame key in lib/data/world-map.json, so the two can be joined. */
@@ -61,7 +71,7 @@ export type FederationStance = {
   code: string; // ISO3, joinable against world-map.json
   name: string;
   confederation: ConfederationStance['key'];
-  stance: Exclude<Stance, 'sin-pronunciarse'>;
+  stance: Stance;
   since: string;
   note: string;
 };
@@ -71,7 +81,9 @@ export const ELECTION = {
   candidaciesClose: '2026-11-18',
   /** The Congress votes. */
   vote: '2027-03',
-  totalVotes: 211,
+  /** FIFA has 211 members; Nepal's vote is suspended, so 210 ballots. */
+  members: 211,
+  totalVotes: 210,
 } as const;
 
 // Ordered by weight.
@@ -97,7 +109,8 @@ export const CONFEDERATIONS: ConfederationStance[] = [
   {
     key: 'afc',
     name: 'AFC',
-    votes: 46,
+    // 46 FIFA members, 45 with a vote: Nepal is suspended.
+    votes: 45,
     stance: 'en-contra',
     since: '2026-08-10',
     note: 'Firmó con la UEFA y la Concacaf la carta abierta que pide que la revisión la haga un tercero independiente.',
@@ -132,11 +145,28 @@ export const CONFEDERATIONS: ConfederationStance[] = [
   },
 ];
 
-// The 14 federations that have spoken in their own name. Everything else
-// on the board is inherited from a confederation.
+// The federations that have spoken in their own name. Everything else on
+// the board is inherited from a confederation. Sources: Playbook's own
+// coverage for the confederations, Mexico and the six-federation Arab
+// letter; BBC Sport for the associations it reached directly (the UAE,
+// Bhutan, the Philippines, Grenada, St Kitts and Nevis, Saudi Arabia, and
+// the United States and Canada's careful non-position).
 export const FEDERATIONS: FederationStance[] = [
-  // —— Contra, todas dentro de confederaciones que también piden revisión,
-  //    salvo Nueva Zelanda.
+  // —— A favor. Todas menos las cuatro africanas rompen con su bloque.
+  { code: 'MEX', name: 'México', confederation: 'concacaf', stance: 'respalda', since: '2026-08-06', note: 'Apoyó a Infantino y fue la única de las 41 federaciones de la Concacaf ausente del comunicado regional.' },
+  { code: 'QAT', name: 'Catar', confederation: 'afc', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes que expresan su respaldo total a Infantino.' },
+  { code: 'LBN', name: 'Líbano', confederation: 'afc', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
+  { code: 'EGY', name: 'Egipto', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
+  { code: 'MAR', name: 'Marruecos', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Coanfitriona del Mundial 2030. Firmó la carta conjunta de seis federaciones árabes.' },
+  { code: 'SDN', name: 'Sudán', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
+  { code: 'MRT', name: 'Mauritania', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
+  { code: 'ARE', name: 'Emiratos', confederation: 'afc', stance: 'respalda', since: '2026-08-11', note: 'Apoya a Infantino dentro de una AFC que firmó la carta en contra.' },
+  { code: 'BTN', name: 'Bután', confederation: 'afc', stance: 'respalda', since: '2026-08-11', note: 'Apoya a Infantino dentro de una AFC que firmó la carta en contra.' },
+  { code: 'PHL', name: 'Filipinas', confederation: 'afc', stance: 'respalda', since: '2026-08-11', note: 'Apoya a Infantino dentro de una AFC que firmó la carta en contra.' },
+  { code: 'GRD', name: 'Granada', confederation: 'concacaf', stance: 'respalda', since: '2026-08-11', note: 'Se sumó a la postura de México dentro de la Concacaf.' },
+  { code: 'KNA', name: 'San Cristóbal y Nieves', confederation: 'concacaf', stance: 'respalda', since: '2026-08-11', note: 'Se sumó a la postura de México dentro de la Concacaf.' },
+
+  // —— En contra. Todas dentro de la UEFA, salvo Nueva Zelanda.
   { code: 'FIN', name: 'Finlandia', confederation: 'uefa', stance: 'en-contra', since: '2026-07-30', note: 'De las primeras en quitarle el apoyo.' },
   { code: 'WAL', name: 'Gales', confederation: 'uefa', stance: 'en-contra', since: '2026-08-02', note: 'La primera federación en anunciar públicamente que le retiraba el apoyo.' },
   { code: 'SRB', name: 'Serbia', confederation: 'uefa', stance: 'en-contra', since: '2026-08-03', note: 'Retiró el apoyo que había firmado el 25 de mayo.' },
@@ -145,65 +175,77 @@ export const FEDERATIONS: FederationStance[] = [
   { code: 'IRL', name: 'Irlanda', confederation: 'uefa', stance: 'en-contra', since: '2026-08-13', note: 'La FAI retiró la carta de apoyo que había entregado este año.' },
   { code: 'NZL', name: 'Nueva Zelanda', confederation: 'ofc', stance: 'en-contra', since: '2026-08-14', note: 'Retiró su apoyo y pidió una revisión independiente, dos días después de que su confederación apoyara a Infantino.' },
 
-  // —— A favor. Seis firmaron una carta conjunta el 13 de agosto; México
-  //    se había pronunciado una semana antes.
-  { code: 'MEX', name: 'México', confederation: 'concacaf', stance: 'respalda', since: '2026-08-06', note: 'Apoyó a Infantino y fue la única de las 41 federaciones de la Concacaf ausente del comunicado regional.' },
-  { code: 'QAT', name: 'Catar', confederation: 'afc', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes que expresan su respaldo total a Infantino.' },
-  { code: 'LBN', name: 'Líbano', confederation: 'afc', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
-  { code: 'EGY', name: 'Egipto', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
-  { code: 'MAR', name: 'Marruecos', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Coanfitriona del Mundial 2030. Firmó la carta conjunta de seis federaciones árabes.' },
-  { code: 'SDN', name: 'Sudán', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
-  { code: 'MRT', name: 'Mauritania', confederation: 'caf', stance: 'respalda', since: '2026-08-13', note: 'Firmó la carta conjunta de seis federaciones árabes.' },
+  // —— Sin definir. No es silencio: es haber declinado tomar postura.
+  // Estados Unidos y Canadá firmaron el reclamo de gobernanza de la
+  // Concacaf sin pronunciarse sobre Infantino, que son dos cosas
+  // distintas y la diferencia es justo lo que este tablero mide.
+  { code: 'USA', name: 'Estados Unidos', confederation: 'concacaf', stance: 'sin-definir', since: '2026-08-11', note: 'Respaldó el comunicado de la Concacaf sin declarar una postura sobre Infantino.' },
+  { code: 'CAN', name: 'Canadá', confederation: 'concacaf', stance: 'sin-definir', since: '2026-08-11', note: 'Respaldó el comunicado de la Concacaf sin declarar una postura sobre Infantino.' },
+  { code: 'SAU', name: 'Arabia Saudita', confederation: 'afc', stance: 'sin-definir', since: '2026-08-11', note: 'Sede del Mundial 2034 y todavía sin postura pública. Renueva su propia dirigencia en agosto.' },
 ];
 
 export const BUCKET_LABEL: Record<Bucket, string> = {
-  'declarada-en-contra': 'Se pronunciaron en contra',
-  'bloque-en-contra': 'Su confederación pidió revisión',
+  'declarada-respalda': 'Lo apoyan, por su cuenta',
   'bloque-respalda': 'Su confederación lo apoya',
-  'declarada-respalda': 'Se pronunciaron a favor',
-};
-
-/** Short form for the map legend, where the column is narrow. */
-export const BUCKET_SHORT: Record<Bucket, string> = {
+  'bloque-en-contra': 'Su confederación pidió revisión',
   'declarada-en-contra': 'En contra, por su cuenta',
-  'bloque-en-contra': 'Su confederación pidió revisión',
-  'bloque-respalda': 'Su confederación lo apoya',
-  'declarada-respalda': 'A favor, por su cuenta',
+  'sin-definir': 'Sin definir',
 };
 
 export type BucketTally = { bucket: Bucket; votes: number; codes: string[] };
 
 /**
- * The four buckets, in a fixed order that runs from the hardest public
- * opposition to the hardest public support, so the bar reads as one
- * spectrum and never reorders under the reader between builds.
+ * The five buckets, in a fixed order that runs from the hardest public
+ * support to the hardest public opposition and ends on the undecided, so
+ * the bar reads as one spectrum and never reorders between builds.
  *
  * A federation's own declaration outranks its confederation's position.
- * The silent buckets are computed as the confederation's vote count minus
- * whoever inside it has spoken, so the four always sum to 211 and no
- * federation is counted twice.
+ * The two silent buckets are computed as each confederation's vote count
+ * minus whoever inside it has spoken, so the five always sum to the 210
+ * ballots and no federation is counted twice.
  */
 export function buckets(): BucketTally[] {
-  const spoken = new Map(FEDERATIONS.map(f => [f.code, f]));
-  const order: Bucket[] = ['declarada-en-contra', 'bloque-en-contra', 'bloque-respalda', 'declarada-respalda'];
+  const order: Bucket[] = [
+    'declarada-respalda',
+    'bloque-respalda',
+    'bloque-en-contra',
+    'declarada-en-contra',
+    'sin-definir',
+  ];
 
-  const declared = (stance: FederationStance['stance']) =>
-    FEDERATIONS.filter(f => f.stance === stance).map(f => f.code);
+  const declared = (stance: Stance) => FEDERATIONS.filter(f => f.stance === stance).map(f => f.code);
 
+  // Whatever a confederation's own position is, every federation inside it
+  // that has spoken — on either side, or to decline — leaves its silent count.
   const silent = (stance: Stance) =>
     CONFEDERATIONS.filter(c => c.stance === stance).reduce(
-      (total, c) => total + c.votes - FEDERATIONS.filter(f => f.confederation === c.key && spoken.has(f.code)).length,
+      (total, c) => total + c.votes - FEDERATIONS.filter(f => f.confederation === c.key).length,
       0,
     );
 
   const counts: Record<Bucket, { votes: number; codes: string[] }> = {
-    'declarada-en-contra': { votes: declared('en-contra').length, codes: declared('en-contra') },
-    'bloque-en-contra': { votes: silent('en-contra'), codes: [] },
-    'bloque-respalda': { votes: silent('respalda'), codes: [] },
     'declarada-respalda': { votes: declared('respalda').length, codes: declared('respalda') },
+    'bloque-respalda': { votes: silent('respalda'), codes: [] },
+    'bloque-en-contra': { votes: silent('en-contra'), codes: [] },
+    'declarada-en-contra': { votes: declared('en-contra').length, codes: declared('en-contra') },
+    'sin-definir': { votes: declared('sin-definir').length, codes: declared('sin-definir') },
   };
 
   return order.map(bucket => ({ bucket, ...counts[bucket] }));
+}
+
+/**
+ * The BBC-style three-way read: everything backing him, everything against
+ * him, everything undecided. Same data, aggregated — useful for a sentence
+ * where the declared/inherited split is more detail than the point needs.
+ */
+export function sides(): { respalda: number; enContra: number; sinDefinir: number } {
+  const by = Object.fromEntries(buckets().map(b => [b.bucket, b.votes])) as Record<Bucket, number>;
+  return {
+    respalda: by['declarada-respalda'] + by['bloque-respalda'],
+    enContra: by['declarada-en-contra'] + by['bloque-en-contra'],
+    sinDefinir: by['sin-definir'],
+  };
 }
 
 /** Confederations grouped by stance, for the roll call. */
@@ -215,7 +257,7 @@ export function byStance(stance: Stance): ConfederationStance[] {
 export function defectors(): FederationStance[] {
   return FEDERATIONS.filter(f => {
     const bloc = CONFEDERATIONS.find(c => c.key === f.confederation);
-    return bloc && bloc.stance !== f.stance;
+    return bloc && f.stance !== 'sin-definir' && bloc.stance !== f.stance;
   });
 }
 
@@ -224,21 +266,22 @@ export function lastMovement(): string {
   return [...CONFEDERATIONS, ...FEDERATIONS].map(entry => entry.since).sort().reverse()[0];
 }
 
-// Two invariants worth failing loudly on, both dev-only so a typo never
+// Three invariants worth failing loudly on, all dev-only so a typo never
 // takes production down over a legend.
 //
-//   1. The six confederations must account for FIFA's whole electorate.
-//   2. The four buckets must too, which is the stronger check: it also
+//   1. The six confederations must account for every ballot.
+//   2. The five buckets must too, which is the stronger check: it also
 //      catches a federation filed under a confederation it doesn't belong
 //      to, or listed twice, either of which would double-count a vote.
+//   3. No federation may be listed twice.
 if (process.env.NODE_ENV !== 'production') {
   const confederationSum = CONFEDERATIONS.reduce((total, c) => total + c.votes, 0);
   if (confederationSum !== ELECTION.totalVotes) {
-    console.error(`[fifa-election] las confederaciones suman ${confederationSum}, la FIFA tiene ${ELECTION.totalVotes}`);
+    console.error(`[fifa-election] las confederaciones suman ${confederationSum}, hay ${ELECTION.totalVotes} votos`);
   }
   const bucketSum = buckets().reduce((total, b) => total + b.votes, 0);
   if (bucketSum !== ELECTION.totalVotes) {
-    console.error(`[fifa-election] los cuatro grupos suman ${bucketSum}, la FIFA tiene ${ELECTION.totalVotes}`);
+    console.error(`[fifa-election] los cinco grupos suman ${bucketSum}, hay ${ELECTION.totalVotes} votos`);
   }
   const codes = FEDERATIONS.map(f => f.code);
   const dupes = codes.filter((code, i) => codes.indexOf(code) !== i);

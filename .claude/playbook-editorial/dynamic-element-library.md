@@ -750,7 +750,8 @@ camps, with a legend that counts each camp for itself.
   codes, a **confederation name** that expands to its federations
   (`Respaldan — CAF, CONMEBOL, OFC`), or `Etiqueta — resto` for every framed
   country no other group claimed.
-- **One to four groups.**
+- **One to five groups.**
+- An optional **PALETTE** follows the frame name: `Mapa: mundo bandos`.
 
 **A group may name a confederation** (2026-08-15), because that is the unit a
 governance story actually splits on, and spelling one out by hand is 41 to 55
@@ -798,6 +799,37 @@ loudest colour on the page. Order by what the colour asserts, not by which camp
 is biggest (2026-08-15, caught in review on the FIFA electorate map, where the
 first pass painted 127 federations asking for an independent review in the
 approval colour).
+
+### The `bandos` palette — two camps that are equally the story
+
+```
+Mapa: mundo bandos · Lo apoya su confederación — CAF, CONMEBOL, OFC · Lo apoyan por su cuenta — MEX, QAT · Pidió revisión su confederación — UEFA, AFC, CONCACAF · En contra por su cuenta — ENG, NZL · Sin definir — USA, CAN, SAU
+```
+
+The default ramp is one hue plus a hollow exception, which is right for "who
+signed and who didn't": one camp is the subject, the other is its absence. It
+is wrong when both camps are the story, because a single hue makes one side
+look like a weaker version of the other, and the accent hands one of them the
+approval colour whatever you do.
+
+`bandos` (2026-08-15, publisher directive: the two sides need contrast) uses
+**two opposed hues** — the house green against the Noticias blue — plus a flat
+neutral for whoever has not chosen. Declared on the frame item, opt-in, so
+every published map keeps the ramp it shipped with. Its slot order is fixed:
+
+| Slot | Treatment | Means |
+|---|---|---|
+| 1 | green | camp A, position inherited from its bloc |
+| 2 | green + heavy outline | camp A, **said it in its own name** |
+| 3 | blue | camp B, inherited |
+| 4 | blue + heavy outline | camp B, **said it in its own name** |
+| 5 | flat neutral | has not taken a position |
+
+Two variables, not five arbitrary colours: **hue says which side, the outline
+says the country spoke for itself.** A reader learns it once. Both hues are
+theme-adaptive tokens, so the contrast holds in dark mode. Use it for an
+election, a vote, a split that will run for months; keep the default ramp for
+a one-sided "everyone except X".
 
 Use it when the story's unit is **countries** and their split is the argument:
 signatories vs holdouts, hosts vs bidders, the markets a rights deal covers,

@@ -199,6 +199,14 @@ const NON_FIFA = [
   'MNP', //                                    AFC: 47 members, 46 vote
 ];
 
+// FIFA members whose voting rights are currently suspended. They are
+// members, so they are NOT in NON_FIFA, but they cannot vote, so a map of
+// an electorate must leave them out of every camp — the BBC's own map of
+// this fight counts 210 for exactly this reason. Kept separate from
+// NON_FIFA because suspension is reversible and the fix on the day it
+// lifts is deleting one line.
+const SUSPENDED = ['NPL']; // Nepal, suspended as of August 2026
+
 // Every frame's expected size, asserted below: a typo that silently drops
 // a country would otherwise ship as a map that quietly undercounts, which
 // is the one failure mode a map device cannot be allowed to have.
@@ -215,6 +223,7 @@ const FRAME_SIZES: Record<string, number> = {
 // federation is ever added, moved or dropped, this is the assertion that
 // catches it before a map ships a wrong tally.
 const FIFA_TOTAL = 211;
+const FIFA_VOTING = 210;
 
 async function main() {
   const dir = process.argv[2];
@@ -328,9 +337,15 @@ async function main() {
   if (nonFifaOutside.length) {
     problems.push(`NON_FIFA fuera de toda confederación → ${nonFifaOutside.join(', ')}`);
   }
-  const voters = [...seen.keys()].filter(code => !NON_FIFA.includes(code));
-  if (voters.length !== FIFA_TOTAL) {
-    problems.push(`electorado FIFA: ${voters.length} federaciones, se esperaban ${FIFA_TOTAL}`);
+  const members = [...seen.keys()].filter(code => !NON_FIFA.includes(code));
+  if (members.length !== FIFA_TOTAL) {
+    problems.push(`miembros FIFA: ${members.length} federaciones, se esperaban ${FIFA_TOTAL}`);
+  }
+  const outside = SUSPENDED.filter(code => !members.includes(code));
+  if (outside.length) problems.push(`suspendidas que no son miembros → ${outside.join(', ')}`);
+  const voters = members.filter(code => !SUSPENDED.includes(code));
+  if (voters.length !== FIFA_VOTING) {
+    problems.push(`electorado FIFA: ${voters.length} con voto, se esperaban ${FIFA_VOTING}`);
   }
 
   if (problems.length) {
@@ -339,7 +354,7 @@ async function main() {
     return;
   }
 
-  const out = { countries, frames, nonFifa: NON_FIFA };
+  const out = { countries, frames, nonFifa: NON_FIFA, suspended: SUSPENDED };
   const path = join(process.cwd(), 'lib/data/world-map.json');
   await writeFile(path, JSON.stringify(out));
   const withShapes = Object.values(countries).filter(c => c.p).length;
