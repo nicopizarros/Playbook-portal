@@ -156,6 +156,49 @@ const UEFA = [
   'SWE', 'CHE', 'TUR', 'UKR', 'WAL',
 ];
 
+// CAF's 54, all of them FIFA members. Réunion is a CAF associate and
+// Zanzibar an affiliate; neither is a FIFA member, so neither votes and
+// neither is listed. Note CAF the confederation and CAF the ISO3 code for
+// the Central African Republic collide — see lib/article-map.ts, which
+// resolves a group token as a country first and a confederation second.
+const CAF = [
+  'DZA', 'AGO', 'BEN', 'BWA', 'BFA', 'BDI', 'CMR', 'CPV', 'CAF', 'TCD',
+  'COM', 'COG', 'COD', 'DJI', 'EGY', 'GNQ', 'ERI', 'SWZ', 'ETH', 'GAB',
+  'GMB', 'GHA', 'GIN', 'GNB', 'CIV', 'KEN', 'LSO', 'LBR', 'LBY', 'MDG',
+  'MWI', 'MLI', 'MRT', 'MUS', 'MAR', 'MOZ', 'NAM', 'NER', 'NGA', 'RWA',
+  'STP', 'SEN', 'SYC', 'SLE', 'SOM', 'ZAF', 'SSD', 'SDN', 'TZA', 'TGO',
+  'TUN', 'UGA', 'ZMB', 'ZWE',
+];
+
+// AFC's 47. Australia moved across from the OFC in 2006 and is an AFC
+// member. Northern Mariana Islands is the one AFC member FIFA has not
+// admitted, so it is drawn but does not vote (see NON_FIFA below).
+const AFC = [
+  'AFG', 'AUS', 'BHR', 'BGD', 'BTN', 'BRN', 'KHM', 'CHN', 'TWN', 'GUM',
+  'HKG', 'IND', 'IDN', 'IRN', 'IRQ', 'JPN', 'JOR', 'KWT', 'KGZ', 'LAO',
+  'LBN', 'MAC', 'MYS', 'MDV', 'MNG', 'MMR', 'NPL', 'PRK', 'MNP', 'OMN',
+  'PAK', 'PSE', 'PHL', 'QAT', 'SAU', 'SGP', 'KOR', 'LKA', 'SYR', 'TJK',
+  'THA', 'TLS', 'TKM', 'ARE', 'UZB', 'VNM', 'YEM',
+];
+
+// ————————————————————————————————————————————— FIFA voting membership
+// A confederation's roster and FIFA's electorate are not the same set:
+// the six confederations have 218 members between them, FIFA has 211.
+// The gap is nine associations that play in a confederation without
+// being FIFA members, so they appear on a map and never on a ballot.
+//
+// This matters because a governance map's legend counts its own codes,
+// and a story about an election is counting votes. `lib/article-map.ts`
+// expands a confederation named inside a GROUP to its FIFA members only,
+// which is what keeps a legend that says 136 from sitting next to prose
+// that says 136. Framing is unaffected: `Mapa: concacaf` still draws all
+// 41, because drawing a region should show the whole region.
+const NON_FIFA = [
+  'BES', 'SXM', 'GUF', 'GLP', 'MTQ', 'MAF', // Concacaf: 41 members, 35 vote
+  'KIR', 'TUV', //                             OFC: 13 members, 11 vote
+  'MNP', //                                    AFC: 47 members, 46 vote
+];
+
 // Every frame's expected size, asserted below: a typo that silently drops
 // a country would otherwise ship as a map that quietly undercounts, which
 // is the one failure mode a map device cannot be allowed to have.
@@ -164,7 +207,14 @@ const FRAME_SIZES: Record<string, number> = {
   conmebol: 10,
   uefa: 55,
   ofc: 13,
+  caf: 54,
+  afc: 47,
 };
+
+// The six confederations must partition FIFA's electorate exactly. If a
+// federation is ever added, moved or dropped, this is the assertion that
+// catches it before a map ships a wrong tally.
+const FIFA_TOTAL = 211;
 
 async function main() {
   const dir = process.argv[2];
@@ -239,6 +289,8 @@ async function main() {
     conmebol: CONMEBOL,
     uefa: UEFA,
     ofc: OFC,
+    caf: CAF,
+    afc: AFC,
   };
   // Antarctica is dropped from the world frame: it owns a quarter of any
   // equirectangular canvas and never carries a story.
@@ -258,13 +310,36 @@ async function main() {
     const dupes = frames[frame].filter((c, i) => frames[frame].indexOf(c) !== i);
     if (dupes.length) problems.push(`frame ${frame}: repetidos → ${dupes.join(', ')}`);
   }
+
+  // The six confederations must be disjoint and must cover FIFA's
+  // electorate exactly once. A federation listed twice would be counted
+  // twice by any legend that adds two confederations together, and one
+  // listed nowhere would silently shrink the electorate.
+  const CONFEDERATIONS = ['concacaf', 'conmebol', 'uefa', 'ofc', 'caf', 'afc'];
+  const seen = new Map<string, string>();
+  for (const key of CONFEDERATIONS) {
+    for (const code of frames[key]) {
+      const already = seen.get(code);
+      if (already) problems.push(`${code} está en ${already} y en ${key}`);
+      else seen.set(code, key);
+    }
+  }
+  const nonFifaOutside = NON_FIFA.filter(code => !seen.has(code));
+  if (nonFifaOutside.length) {
+    problems.push(`NON_FIFA fuera de toda confederación → ${nonFifaOutside.join(', ')}`);
+  }
+  const voters = [...seen.keys()].filter(code => !NON_FIFA.includes(code));
+  if (voters.length !== FIFA_TOTAL) {
+    problems.push(`electorado FIFA: ${voters.length} federaciones, se esperaban ${FIFA_TOTAL}`);
+  }
+
   if (problems.length) {
     console.error('[world-map] no se escribió nada:\n  ' + problems.join('\n  '));
     process.exitCode = 1;
     return;
   }
 
-  const out = { countries, frames };
+  const out = { countries, frames, nonFifa: NON_FIFA };
   const path = join(process.cwd(), 'lib/data/world-map.json');
   await writeFile(path, JSON.stringify(out));
   const withShapes = Object.values(countries).filter(c => c.p).length;

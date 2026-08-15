@@ -743,12 +743,38 @@ The frame's countries are drawn from the world dataset and split into labelled
 camps, with a legend that counts each camp for itself.
 
 - First item is the **FRAME**: `mundo`, `concacaf`, `conmebol`, `uefa`, `ofc`,
-  `europa`, `áfrica`, `asia`, `oceanía`, `norteamérica`, `sudamérica`, or
-  `auto` (which frames exactly the countries the groups name — use it for any
-  set that isn't one of the above, e.g. World Cup hosts).
+  `caf`, `afc`, `europa`, `áfrica`, `asia`, `oceanía`, `norteamérica`,
+  `sudamérica`, or `auto` (which frames exactly the countries the groups
+  name — use it for any set that isn't one of the above, e.g. World Cup hosts).
 - Every item after it is a group: `Etiqueta — MEX, USA, CAN` with **ISO3**
-  codes, or `Etiqueta — resto` for every framed country no other group claimed.
+  codes, a **confederation name** that expands to its federations
+  (`Respaldan — CAF, CONMEBOL, OFC`), or `Etiqueta — resto` for every framed
+  country no other group claimed.
 - **One to three groups.**
+
+**A group may name a confederation** (2026-08-15), because that is the unit a
+governance story actually splits on, and spelling one out by hand is 41 to 55
+ISO3 codes in a paragraph. Two rules make the expansion trustworthy, both
+enforced in `lib/article-map.ts`:
+
+1. **A confederation named in a GROUP expands to its FIFA MEMBERS, not its full
+   roster.** The six confederations have 218 members between them and FIFA has
+   211: nine associations play in a confederation without holding a FIFA seat
+   (six in Concacaf, two in the OFC, one in the AFC). A legend counting an
+   electorate has to count votes, so those nine draw as context and are never
+   tallied. Framing is untouched, so `Mapa: concacaf` still draws all 41. This
+   is what lets a legend that says 136 sit next to prose that says 136.
+2. **A country named explicitly outranks the same country arriving via its
+   confederation**, whatever the group order. So "the bloc, minus the one that
+   broke ranks" is two groups and the defector is counted once, not twice:
+   `Piden revisión — UEFA, AFC, CONCACAF · Rompen filas — MEX, NZL` leaves
+   Mexico out of Concacaf's own tally and the counts still sum to 211.
+
+Frame names win over ISO3 codes inside a group. **Exactly one collision exists
+in the whole vocabulary: `CAF` is both the confederation and the Central
+African Republic**, and inside a group it means the confederation. The country
+is still drawn by the `caf`, `áfrica` and `mundo` frames and by any `resto`
+group, which is the only way it has ever come up.
 
 **The visual ramp is fixed and means the same thing on every map:** group 1 is
 the filled mass, group 2 is **hollow with a heavy outline** (the exception, the
@@ -771,9 +797,11 @@ over asserting "40 of 41" in a sentence, and it is why a `Cifra clave`
 restating the same ratio next to it is redundant — spend the second slot on
 something else.
 
-Frames are data (`scripts/build-world-map.ts`): **CAF and AFC aren't pre-baked
-yet**, so a story about those confederations needs `auto` plus an explicit code
-list, or a new frame added to that script.
+Frames are data (`scripts/build-world-map.ts`), and **all six confederations
+are pre-baked** since 2026-08-15, CAF and AFC included. Any other set still
+needs `auto` plus an explicit code list, or a new frame added to that script,
+which also asserts every frame's expected size and that the six confederations
+partition FIFA's 211 voters exactly once.
 
 ---
 

@@ -46,8 +46,15 @@ const TARGETS = {
 
 // Declared devices, image blocks and their captions are structural, not prose —
 // counting them would drag every median toward zero and hide real paragraphs.
+// Keep this list in step with lib/article-devices.ts. The eight devices
+// built on 2026-08-14 (Contrato, Calendario, Votación, Ranking, Cascada,
+// Perfil, Escenarios, Tablero) were missing here until 2026-08-15, so a
+// piece declaring one had its device line counted as a paragraph: it
+// dragged the median, and the ` — ` that is the devices' own key/value
+// syntax was reported as an em dash in prose. Both are false alarms that
+// cost a rewrite of text that was already correct.
 const STRUCTURAL =
-  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Venta:|Cadena:|Fuentes:|Ruta del dinero:|## )/;
+  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Venta:|Cadena:|Contrato:|Calendario:|Votación:|Ranking:|Cascada:|Perfil:|Escenarios:|Tablero:|Fuentes:|Ruta del dinero:|## )/;
 
 // The negative-parallelism family, counted against one budget.
 //

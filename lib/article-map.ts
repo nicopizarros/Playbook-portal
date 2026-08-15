@@ -14,13 +14,38 @@
 // broadcast. The first item picks the frame (what gets drawn and where the
 // map is centred), every item after it is a group.
 //
-//   Frame:   mundo · concacaf · conmebol · uefa · ofc · europa · áfrica ·
-//            asia · oceanía · norteamérica · sudamérica · auto
+//   Frame:   mundo · concacaf · conmebol · uefa · ofc · caf · afc ·
+//            europa · áfrica · asia · oceanía · norteamérica ·
+//            sudamérica · auto
 //            ("auto" frames exactly the countries the groups name, which
 //            is what to use for a set that is not one of the above.)
-//   Groups:  "Etiqueta — MEX, USA, CAN" with ISO3 codes, or
-//            "Etiqueta — resto" for every framed country no other group
-//            claimed. One to three groups.
+//   Groups:  "Etiqueta — MEX, USA, CAN" with ISO3 codes, or a
+//            confederation name that expands to its federations
+//            ("Respaldan — CAF, CONMEBOL, OFC"), or "Etiqueta — resto"
+//            for every framed country no other group claimed. One to
+//            three groups.
+//
+// A group may name a confederation because that is the unit a governance
+// story actually splits on, and spelling one out is 41 to 55 ISO3 codes
+// in a paragraph. Two rules make the expansion trustworthy:
+//
+//   1. A confederation named in a GROUP expands to its FIFA MEMBERS, not
+//      its full roster. The six confederations have 218 members between
+//      them and FIFA has 211: nine associations play in a confederation
+//      without holding a FIFA seat. A legend counting an electorate has
+//      to count votes, so those nine are dropped here. Framing is
+//      untouched — `Mapa: concacaf` still draws all 41, because drawing
+//      a region should show the whole region.
+//   2. A country named EXPLICITLY in any group outranks the same country
+//      arriving via its confederation, whatever the group order. That is
+//      what lets "the bloc, minus the one that broke ranks" be written
+//      as two groups without the defector being counted twice.
+//
+// Frame names win over ISO3 codes inside a group. Exactly one collision
+// exists in the whole vocabulary: CAF is both the confederation and the
+// Central African Republic. In a group it means the confederation; the
+// country is still drawn by the `caf`, `áfrica` and `mundo` frames and
+// by any `resto` group, which is the only way it has ever come up.
 //
 // The groups render in a fixed visual order that encodes the most common
 // shape of these stories: the FIRST group is the filled mass, the SECOND
@@ -41,6 +66,11 @@ import { escapeHtml as esc, decodeEntities } from './html-entities';
 type CountryEntry = { n: string; c: [number, number]; p?: number[][][]; r?: string };
 const COUNTRIES = world.countries as unknown as Record<string, CountryEntry>;
 const FRAMES = world.frames as unknown as Record<string, string[]>;
+// The nine confederation members FIFA has not admitted (scripts/build-world-map.ts).
+const NON_FIFA = new Set((world as { nonFifa?: string[] }).nonFifa || []);
+// The frames that are electorates rather than geography: only these get
+// filtered to FIFA membership when a group names one.
+const CONFEDERATIONS = new Set(['concacaf', 'conmebol', 'uefa', 'ofc', 'caf', 'afc']);
 
 // Spanish (and a couple of English) names for the frames, mapped onto the
 // dataset's own keys. Continent keys come from Natural Earth, so they are
@@ -53,6 +83,8 @@ const FRAME_ALIASES: Record<string, string[]> = {
   conmebol: ['conmebol'],
   uefa: ['uefa'],
   ofc: ['ofc'],
+  caf: ['caf'],
+  afc: ['afc'],
   oceania: ['oceania'],
   europa: ['europe'],
   europe: ['europe'],
@@ -88,6 +120,36 @@ function codesFrom(raw: string): string[] {
     .filter(code => /^[A-Z]{3}$/.test(code));
 }
 
+// A group's countries, split by how they got there: `named` is what the
+// editor wrote as an ISO3 code, `viaFrame` is what a confederation
+// expanded into. Keeping them apart is what lets an explicitly-named
+// country be lifted out of its own confederation's group below.
+type GroupCodes = { named: string[]; viaFrame: string[] };
+
+function resolveGroupValue(raw: string): GroupCodes | null {
+  const named: string[] = [];
+  const viaFrame: string[] = [];
+  // Split on separators only — a frame alias may contain a space
+  // ("america del norte"), so whitespace cannot be a token boundary here.
+  // codesFrom still splits on it, which keeps "MEX USA CAN" working.
+  for (const token of raw.split(/[,;·]+/).map(part => part.trim()).filter(Boolean)) {
+    const frameKeys = FRAME_ALIASES[fold(token)];
+    if (frameKeys) {
+      for (const key of frameKeys) {
+        const isElectorate = CONFEDERATIONS.has(key);
+        for (const code of FRAMES[key] || []) {
+          if (isElectorate && NON_FIFA.has(code)) continue;
+          if (COUNTRIES[code]) viaFrame.push(code);
+        }
+      }
+      continue;
+    }
+    for (const code of codesFrom(token)) if (COUNTRIES[code]) named.push(code);
+  }
+  if (!named.length && !viaFrame.length) return null;
+  return { named: [...new Set(named)], viaFrame: [...new Set(viaFrame)] };
+}
+
 const ITEM_SEP = /\s+·\s+/;
 const KV_RE = /^(.*?)\s+[—–-]\s+([\s\S]+)$/;
 
@@ -108,6 +170,7 @@ export function parseMap(raw: string): ArticleMap | null {
   if (!isAuto && !frameKeys) return null;
 
   const groups: MapGroup[] = [];
+  const resolved: (GroupCodes | null)[] = [];
   let restIndex = -1;
   for (const item of groupItems.slice(0, MAX_GROUPS)) {
     const kv = item.match(KV_RE);
@@ -121,13 +184,31 @@ export function parseMap(raw: string): ArticleMap | null {
       if (restIndex !== -1 || isAuto) return null;
       restIndex = groups.length;
       groups.push({ label, codes: [] });
+      resolved.push(null);
       continue;
     }
-    const codes = codesFrom(value).filter(code => COUNTRIES[code]);
-    if (!codes.length) return null;
-    groups.push({ label, codes });
+    const parts = resolveGroupValue(value);
+    if (!parts) return null;
+    groups.push({ label, codes: [...parts.named, ...parts.viaFrame] });
+    resolved.push(parts);
   }
   if (!groups.length) return null;
+
+  // Rule 2 from the header: a country the editor named outright is not
+  // also a member of whatever confederation another group expanded. New
+  // Zealand written into "rompen filas" leaves the OFC's own count, so
+  // the two legend numbers stay disjoint and still sum to the electorate.
+  const namedAnywhere = new Set(resolved.flatMap(part => part?.named || []));
+  for (let index = 0; index < groups.length; index++) {
+    const parts = resolved[index];
+    if (!parts) continue; // the "resto" group, filled in below
+    const own = new Set(parts.named);
+    const kept = parts.viaFrame.filter(code => own.has(code) || !namedAnywhere.has(code));
+    groups[index].codes = [...new Set([...parts.named, ...kept])];
+    // A confederation group emptied entirely by explicit names elsewhere
+    // means the declaration contradicts itself; stay plain text.
+    if (!groups[index].codes.length) return null;
+  }
 
   const framed = isAuto
     ? [...new Set(groups.flatMap(group => group.codes))]
