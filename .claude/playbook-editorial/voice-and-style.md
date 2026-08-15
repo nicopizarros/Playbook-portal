@@ -438,6 +438,25 @@ juego significan 624 minutos nuevos de inventario potencial."*
   Money and percentages in plain prose get an automatic marker highlight
   (capped at 6 per article); the single most important figure goes **bold**,
   which makes it count up.
+- **Explain the financial mechanism in the reader's words, not the filing's.**
+  (Publisher, 2026-08-15, on a deep dive about a federal probe into an owner's
+  insurance companies: *"entidades afiliadas, por algo más simple"* and *"que
+  sea más fácil de entender para no financieros"*.) The audience knows the
+  business of sport; it does not necessarily know insurance accounting,
+  securities procedure or private credit, and a term lifted from a disclosure
+  reads as precision while landing as nothing. Say what the money actually did:
+  *"prestado a empresas del mismo dueño"* beats *"inversiones en entidades
+  afiliadas"*, *"un gran jurado ordenó entregar documentos, el paso con el que
+  se decide si hay algo que perseguir"* beats *"citaciones de un gran jurado"*,
+  and *"sus auditores no les pusieron objeción alguna"* beats *"opiniones sin
+  salvedades"*. This is the same instinct as the background-fact rule below,
+  applied to vocabulary instead of context, and it costs a clause. The test:
+  read the sentence as someone who follows the league and has never opened a
+  10-K. Where the plain phrasing would lose a distinction that matters, keep
+  the technical term AND gloss it once; where it would not, the technical term
+  was decoration. This is not dumbing down, it is the difference between a
+  reader who finishes the paragraph knowing what happened and one who finishes
+  it knowing a phrase.
 - **Explain a background fact, don't name-drop it.** When a paragraph references
   something the reader can't be assumed to carry (a state's incentive package,
   a canceled event, a prior lawsuit, a regulatory ruling), spend the extra

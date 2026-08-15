@@ -330,6 +330,26 @@ host cities.
   the chip — `Alineación: Apple TV (broadcaster) · Nike (kit) · Grupo Salinas
   (dueño)` — for rosters of UNLIKE actors whose roles the prose would otherwise
   have to narrate. ≤20 chars per role; a bare roster renders as before.
+- **Each name is resolved against the brand registry** (2026-08-15, publisher
+  directive: *"en alineación usa colores de los equipos, si no los tienes
+  encuéntralos"*). A chip whose name `lib/brand-colors.ts` knows takes that
+  asset's contrast-corrected colours, the same registry and the same guard
+  `Venta`, `Cadena` and `Perfil` use, so a roster of clubs stops reading as
+  six identical chips for six identities that each own a colour. Nothing to
+  author: write the roster, get the colours. The `Nombre #HEX #HEX` escape
+  hatch works here too, and it is resolved BEFORE the 28-character name check,
+  so the hex spends no part of the name's budget.
+  **An unregistered name keeps the product accent** rather than falling to the
+  house green — the opposite of `Venta`'s fallback, and deliberate: a roster of
+  people (`Madonna · Shakira · BTS`) is the device's original use and must not
+  turn green. So a mixed roster of clubs and people is a legitimate, readable
+  outcome, not a half-applied one.
+  When a club in a roster has no registered palette, **add it to the registry
+  rather than eyeballing a hex** — and if no authoritative brand colour can be
+  sourced, leave it unregistered. The registry's own rule holds: a genuinely
+  monochrome or absent palette is an answer, never a value to invent. (The PWHL
+  is the standing example — every source agrees the mark is purple and none
+  publishes the hex, so it stays on the accent.)
 
 ---
 
