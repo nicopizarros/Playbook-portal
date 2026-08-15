@@ -14,19 +14,54 @@
 // broadcast. The first item picks the frame (what gets drawn and where the
 // map is centred), every item after it is a group.
 //
-//   Frame:   mundo · concacaf · conmebol · uefa · ofc · europa · áfrica ·
-//            asia · oceanía · norteamérica · sudamérica · auto
+//   Frame:   mundo · concacaf · conmebol · uefa · ofc · caf · afc ·
+//            europa · áfrica · asia · oceanía · norteamérica ·
+//            sudamérica · auto
 //            ("auto" frames exactly the countries the groups name, which
 //            is what to use for a set that is not one of the above.)
-//   Groups:  "Etiqueta — MEX, USA, CAN" with ISO3 codes, or
-//            "Etiqueta — resto" for every framed country no other group
-//            claimed. One to three groups.
+//            An optional PALETTE follows the frame: `Mapa: mundo bandos`.
+//   Groups:  "Etiqueta — MEX, USA, CAN" with ISO3 codes, or a
+//            confederation name that expands to its federations
+//            ("Respaldan — CAF, CONMEBOL, OFC"), or "Etiqueta — resto"
+//            for every framed country no other group claimed. One to
+//            FIVE groups.
+//
+// A group may name a confederation because that is the unit a governance
+// story actually splits on, and spelling one out is 41 to 55 ISO3 codes
+// in a paragraph. Two rules make the expansion trustworthy:
+//
+//   1. A confederation named in a GROUP expands to its FIFA MEMBERS, not
+//      its full roster. The six confederations have 218 members between
+//      them and FIFA has 211: nine associations play in a confederation
+//      without holding a FIFA seat. A legend counting an electorate has
+//      to count votes, so those nine are dropped here, along with any
+//      member whose vote is suspended. Framing is untouched — `Mapa:
+//      concacaf` still draws all 41, because drawing a region should
+//      show the whole region.
+//   2. A country named EXPLICITLY in any group outranks the same country
+//      arriving via its confederation, whatever the group order. That is
+//      what lets "the bloc, minus the one that broke ranks" be written
+//      as two groups without the defector being counted twice.
+//
+// Frame names win over ISO3 codes inside a group. Exactly one collision
+// exists in the whole vocabulary: CAF is both the confederation and the
+// Central African Republic. In a group it means the confederation; the
+// country is still drawn by the `caf`, `áfrica` and `mundo` frames and
+// by any `resto` group, which is the only way it has ever come up.
 //
 // The groups render in a fixed visual order that encodes the most common
 // shape of these stories: the FIRST group is the filled mass, the SECOND
 // is hollow with a heavy outline (the exception, the holdout, the one that
 // is missing), the third is a mid tint. So "everyone except X" is written
 // as `Grupo — resto · X — MEX`, and X reads as the hole in the map.
+//
+// A FOURTH group (2026-08-15) takes the accent fill AND the heavy
+// outline. At four groups the ramp reads as two variables rather than an
+// order: the fill says which side, the outline says the country spoke in
+// its own name instead of inheriting its bloc's position. So g1 and g3
+// are the two silent masses, g2 is whoever broke away from their own
+// side, and g4 is whoever said it out loud on the same side. Declare
+// them in that order and the map explains itself.
 //
 // Countries too small to draw at this scale (half of Concacaf is Caribbean
 // islands) are dots rather than shapes — see the build script's comment.
@@ -41,6 +76,16 @@ import { escapeHtml as esc, decodeEntities } from './html-entities';
 type CountryEntry = { n: string; c: [number, number]; p?: number[][][]; r?: string };
 const COUNTRIES = world.countries as unknown as Record<string, CountryEntry>;
 const FRAMES = world.frames as unknown as Record<string, string[]>;
+// The nine confederation members FIFA has not admitted, plus any member
+// whose vote is currently suspended (scripts/build-world-map.ts). Both
+// mean the same thing to a map of an electorate: drawn, never counted.
+const NO_VOTE = new Set([
+  ...((world as { nonFifa?: string[] }).nonFifa || []),
+  ...((world as { suspended?: string[] }).suspended || []),
+]);
+// The frames that are electorates rather than geography: only these get
+// filtered to FIFA membership when a group names one.
+const CONFEDERATIONS = new Set(['concacaf', 'conmebol', 'uefa', 'ofc', 'caf', 'afc']);
 
 // Spanish (and a couple of English) names for the frames, mapped onto the
 // dataset's own keys. Continent keys come from Natural Earth, so they are
@@ -53,6 +98,8 @@ const FRAME_ALIASES: Record<string, string[]> = {
   conmebol: ['conmebol'],
   uefa: ['uefa'],
   ofc: ['ofc'],
+  caf: ['caf'],
+  afc: ['afc'],
   oceania: ['oceania'],
   europa: ['europe'],
   europe: ['europe'],
@@ -67,9 +114,33 @@ const FRAME_ALIASES: Record<string, string[]> = {
 };
 
 export type MapGroup = { label: string; codes: string[] };
-export type ArticleMap = { frame: string; groups: MapGroup[]; codes: string[] };
+export type ArticleMap = { frame: string; groups: MapGroup[]; codes: string[]; palette: Palette };
 
-const MAX_GROUPS = 3;
+// ————————————————————————————————————————————————————————— Palettes
+// The default ramp is one hue: the product accent, its tint, and a hollow
+// outline for the exception. That is right for "who signed and who did
+// not", where one camp is the subject and the other is its absence.
+//
+// It is wrong for a map of two camps that are equally the story. A single
+// hue makes one side look like a weaker version of the other, and on a
+// Noticias article the accent is Playbook's green, which reads as the
+// affirmative wherever it lands. `bandos` (2026-08-15) answers that with
+// two opposed hues, the house green against the Noticias blue, plus a
+// neutral for whoever has not chosen. Both hues are theme-adaptive
+// tokens, so the contrast survives the dark theme.
+//
+// Declared on the frame item, after the frame name: `Mapa: mundo bandos`.
+// Opt-in on purpose — every published map keeps the ramp it shipped with.
+export type Palette = 'default' | 'bandos';
+const PALETTES = new Set<Palette>(['default', 'bandos']);
+
+// Raised from 3 on 2026-08-15. Three groups cover a story with two camps
+// and an outlier. A fourth is what a story needs when the SAME split has
+// to be shown twice, once for the bloc and once for whoever inside it
+// spoke in their own name; a fifth carries the ones who have not chosen,
+// which is a real camp on any map of an election in progress and reads as
+// nothing at all if it is left to the unclaimed base tint.
+const MAX_GROUPS = 5;
 
 // Accent-insensitive key for frame lookup: "áfrica" and "africa" are the
 // same frame, and an editor should not have to think about it.
@@ -88,6 +159,36 @@ function codesFrom(raw: string): string[] {
     .filter(code => /^[A-Z]{3}$/.test(code));
 }
 
+// A group's countries, split by how they got there: `named` is what the
+// editor wrote as an ISO3 code, `viaFrame` is what a confederation
+// expanded into. Keeping them apart is what lets an explicitly-named
+// country be lifted out of its own confederation's group below.
+type GroupCodes = { named: string[]; viaFrame: string[] };
+
+function resolveGroupValue(raw: string): GroupCodes | null {
+  const named: string[] = [];
+  const viaFrame: string[] = [];
+  // Split on separators only — a frame alias may contain a space
+  // ("america del norte"), so whitespace cannot be a token boundary here.
+  // codesFrom still splits on it, which keeps "MEX USA CAN" working.
+  for (const token of raw.split(/[,;·]+/).map(part => part.trim()).filter(Boolean)) {
+    const frameKeys = FRAME_ALIASES[fold(token)];
+    if (frameKeys) {
+      for (const key of frameKeys) {
+        const isElectorate = CONFEDERATIONS.has(key);
+        for (const code of FRAMES[key] || []) {
+          if (isElectorate && NO_VOTE.has(code)) continue;
+          if (COUNTRIES[code]) viaFrame.push(code);
+        }
+      }
+      continue;
+    }
+    for (const code of codesFrom(token)) if (COUNTRIES[code]) named.push(code);
+  }
+  if (!named.length && !viaFrame.length) return null;
+  return { named: [...new Set(named)], viaFrame: [...new Set(viaFrame)] };
+}
+
 const ITEM_SEP = /\s+·\s+/;
 const KV_RE = /^(.*?)\s+[—–-]\s+([\s\S]+)$/;
 
@@ -102,12 +203,19 @@ export function parseMap(raw: string): ArticleMap | null {
   if (items.length < 2) return null;
 
   const [frameItem, ...groupItems] = items;
-  const frameKey = fold(frameItem);
+  // The frame item may carry a palette name after the frame: "mundo bandos".
+  // Only strip the last word when it actually names a palette, so a
+  // multi-word frame ("america del norte") is untouched.
+  const frameWords = fold(frameItem).split(/\s+/);
+  const maybePalette = frameWords[frameWords.length - 1] as Palette;
+  const palette: Palette = frameWords.length > 1 && PALETTES.has(maybePalette) ? maybePalette : 'default';
+  const frameKey = palette === 'default' ? fold(frameItem) : frameWords.slice(0, -1).join(' ');
   const isAuto = frameKey === 'auto';
   const frameKeys = FRAME_ALIASES[frameKey];
   if (!isAuto && !frameKeys) return null;
 
   const groups: MapGroup[] = [];
+  const resolved: (GroupCodes | null)[] = [];
   let restIndex = -1;
   for (const item of groupItems.slice(0, MAX_GROUPS)) {
     const kv = item.match(KV_RE);
@@ -121,13 +229,31 @@ export function parseMap(raw: string): ArticleMap | null {
       if (restIndex !== -1 || isAuto) return null;
       restIndex = groups.length;
       groups.push({ label, codes: [] });
+      resolved.push(null);
       continue;
     }
-    const codes = codesFrom(value).filter(code => COUNTRIES[code]);
-    if (!codes.length) return null;
-    groups.push({ label, codes });
+    const parts = resolveGroupValue(value);
+    if (!parts) return null;
+    groups.push({ label, codes: [...parts.named, ...parts.viaFrame] });
+    resolved.push(parts);
   }
   if (!groups.length) return null;
+
+  // Rule 2 from the header: a country the editor named outright is not
+  // also a member of whatever confederation another group expanded. New
+  // Zealand written into "rompen filas" leaves the OFC's own count, so
+  // the two legend numbers stay disjoint and still sum to the electorate.
+  const namedAnywhere = new Set(resolved.flatMap(part => part?.named || []));
+  for (let index = 0; index < groups.length; index++) {
+    const parts = resolved[index];
+    if (!parts) continue; // the "resto" group, filled in below
+    const own = new Set(parts.named);
+    const kept = parts.viaFrame.filter(code => own.has(code) || !namedAnywhere.has(code));
+    groups[index].codes = [...new Set([...parts.named, ...kept])];
+    // A confederation group emptied entirely by explicit names elsewhere
+    // means the declaration contradicts itself; stay plain text.
+    if (!groups[index].codes.length) return null;
+  }
 
   const framed = isAuto
     ? [...new Set(groups.flatMap(group => group.codes))]
@@ -144,7 +270,7 @@ export function parseMap(raw: string): ArticleMap | null {
   // widening the frame to fit is the friendlier reading, and it is what
   // "auto" does anyway.
   const codes = [...new Set([...framed, ...groups.flatMap(group => group.codes)])];
-  return { frame: isAuto ? 'auto' : frameKey, groups, codes };
+  return { frame: isAuto ? 'auto' : frameKey, groups, codes, palette };
 }
 
 // ————————————————————————————————————————————————————————— Projection
@@ -279,7 +405,7 @@ export function buildMap(map: ArticleMap): string | null {
   const described = map.groups.map(group => `${group.label}: ${group.codes.length}`).join('. ');
 
   return (
-    `<figure class="lect-device lect-map reveal" role="group" aria-label="Mapa. ${esc(described)}">` +
+    `<figure class="lect-device lect-map reveal"${map.palette === 'default' ? '' : ` data-palette="${esc(map.palette)}"`} role="group" aria-label="Mapa. ${esc(described)}">` +
     `<span class="lect-device-label">El mapa</span>` +
     `<svg class="lect-map-svg" viewBox="0 0 ${VIEW_W} ${height.toFixed(0)}" role="img" ` +
     `aria-label="${esc(described)}" preserveAspectRatio="xMidYMid meet">` +

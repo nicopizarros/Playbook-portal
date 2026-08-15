@@ -743,18 +743,93 @@ The frame's countries are drawn from the world dataset and split into labelled
 camps, with a legend that counts each camp for itself.
 
 - First item is the **FRAME**: `mundo`, `concacaf`, `conmebol`, `uefa`, `ofc`,
-  `europa`, `áfrica`, `asia`, `oceanía`, `norteamérica`, `sudamérica`, or
-  `auto` (which frames exactly the countries the groups name — use it for any
-  set that isn't one of the above, e.g. World Cup hosts).
+  `caf`, `afc`, `europa`, `áfrica`, `asia`, `oceanía`, `norteamérica`,
+  `sudamérica`, or `auto` (which frames exactly the countries the groups
+  name — use it for any set that isn't one of the above, e.g. World Cup hosts).
 - Every item after it is a group: `Etiqueta — MEX, USA, CAN` with **ISO3**
-  codes, or `Etiqueta — resto` for every framed country no other group claimed.
-- **One to three groups.**
+  codes, a **confederation name** that expands to its federations
+  (`Respaldan — CAF, CONMEBOL, OFC`), or `Etiqueta — resto` for every framed
+  country no other group claimed.
+- **One to five groups.**
+- An optional **PALETTE** follows the frame name: `Mapa: mundo bandos`.
+
+**A group may name a confederation** (2026-08-15), because that is the unit a
+governance story actually splits on, and spelling one out by hand is 41 to 55
+ISO3 codes in a paragraph. Two rules make the expansion trustworthy, both
+enforced in `lib/article-map.ts`:
+
+1. **A confederation named in a GROUP expands to its FIFA MEMBERS, not its full
+   roster.** The six confederations have 218 members between them and FIFA has
+   211: nine associations play in a confederation without holding a FIFA seat
+   (six in Concacaf, two in the OFC, one in the AFC). A legend counting an
+   electorate has to count votes, so those nine draw as context and are never
+   tallied. Framing is untouched, so `Mapa: concacaf` still draws all 41. This
+   is what lets a legend that says 136 sit next to prose that says 136.
+2. **A country named explicitly outranks the same country arriving via its
+   confederation**, whatever the group order. So "the bloc, minus the one that
+   broke ranks" is two groups and the defector is counted once, not twice:
+   `Piden revisión — UEFA, AFC, CONCACAF · Rompen filas — MEX, NZL` leaves
+   Mexico out of Concacaf's own tally and the counts still sum to 211.
+
+Frame names win over ISO3 codes inside a group. **Exactly one collision exists
+in the whole vocabulary: `CAF` is both the confederation and the Central
+African Republic**, and inside a group it means the confederation. The country
+is still drawn by the `caf`, `áfrica` and `mundo` frames and by any `resto`
+group, which is the only way it has ever come up.
 
 **The visual ramp is fixed and means the same thing on every map:** group 1 is
 the filled mass, group 2 is **hollow with a heavy outline** (the exception, the
 holdout, the one that's missing), group 3 is a mid tint. So "everyone except X"
 is written as `Grupo — resto · X — MEX` and X reads as the hole in the map,
 which is exactly the shape a "who signed and who didn't" story has.
+
+**A fourth group** (2026-08-15) takes the accent fill AND the heavy outline.
+At four groups the ramp stops being an order and becomes two variables: the
+**fill** says which side a country is on, the **outline** says it spoke in its
+own name instead of inheriting its bloc's position. Groups 1 and 3 are the two
+silent masses, group 2 is whoever broke away from group 1's side, group 4 is
+whoever said it out loud on that side. Declare them in that order and the map
+explains itself without a sentence of setup.
+
+**Group 1 takes the product accent, so put the side the accent should mean
+there.** On a Noticias article that accent is Playbook's green, and a reader
+reads green as the affirmative — so a governance map whose group 1 is the camp
+demanding somebody's head will say the opposite of what it means, in the
+loudest colour on the page. Order by what the colour asserts, not by which camp
+is biggest (2026-08-15, caught in review on the FIFA electorate map, where the
+first pass painted 127 federations asking for an independent review in the
+approval colour).
+
+### The `bandos` palette — two camps that are equally the story
+
+```
+Mapa: mundo bandos · Lo apoya su confederación — CAF, CONMEBOL, OFC · Lo apoyan por su cuenta — MEX, QAT · Pidió revisión su confederación — UEFA, AFC, CONCACAF · En contra por su cuenta — ENG, NZL · Sin definir — USA, CAN, SAU
+```
+
+The default ramp is one hue plus a hollow exception, which is right for "who
+signed and who didn't": one camp is the subject, the other is its absence. It
+is wrong when both camps are the story, because a single hue makes one side
+look like a weaker version of the other, and the accent hands one of them the
+approval colour whatever you do.
+
+`bandos` (2026-08-15, publisher directive: the two sides need contrast) uses
+**two opposed hues** — the house green against the Noticias blue — plus a flat
+neutral for whoever has not chosen. Declared on the frame item, opt-in, so
+every published map keeps the ramp it shipped with. Its slot order is fixed:
+
+| Slot | Treatment | Means |
+|---|---|---|
+| 1 | green | camp A, position inherited from its bloc |
+| 2 | green + heavy outline | camp A, **said it in its own name** |
+| 3 | blue | camp B, inherited |
+| 4 | blue + heavy outline | camp B, **said it in its own name** |
+| 5 | flat neutral | has not taken a position |
+
+Two variables, not five arbitrary colours: **hue says which side, the outline
+says the country spoke for itself.** A reader learns it once. Both hues are
+theme-adaptive tokens, so the contrast holds in dark mode. Use it for an
+election, a vote, a split that will run for months; keep the default ramp for
+a one-sided "everyone except X".
 
 Use it when the story's unit is **countries** and their split is the argument:
 signatories vs holdouts, hosts vs bidders, the markets a rights deal covers,
@@ -771,9 +846,11 @@ over asserting "40 of 41" in a sentence, and it is why a `Cifra clave`
 restating the same ratio next to it is redundant — spend the second slot on
 something else.
 
-Frames are data (`scripts/build-world-map.ts`): **CAF and AFC aren't pre-baked
-yet**, so a story about those confederations needs `auto` plus an explicit code
-list, or a new frame added to that script.
+Frames are data (`scripts/build-world-map.ts`), and **all six confederations
+are pre-baked** since 2026-08-15, CAF and AFC included. Any other set still
+needs `auto` plus an explicit code list, or a new frame added to that script,
+which also asserts every frame's expected size and that the six confederations
+partition FIFA's 211 voters exactly once.
 
 ---
 

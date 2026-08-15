@@ -186,3 +186,67 @@
   .topic-directory a{transition:background var(--duration-fast) ease,color var(--duration-fast) ease,transform var(--duration-fast) ease;}
   .section-link{display:inline-block;}
 }
+
+/* ——— "El tablero de la FIFA" (sidebar module, 2026-08-15): a standing
+   scoreboard of where the 210 voting federations sit on the FIFA
+   presidency, read from lib/data/fifa-election.ts. Deliberately NOT a map
+   — the `Mapa:` device needs an article column to stay legible, so the
+   rail carries the tally and the article carries the geography.
+
+   Two opposed hues (publisher feedback, 2026-08-15): the house green for
+   the side backing Infantino, the Noticias blue for the side asking for an
+   independent review, a flat neutral for the ones who have declined to
+   say. FULL strength means the federation spoke in its own name; the tint
+   means it is inheriting its confederation's position. That is exactly the
+   article map's `bandos` palette, so the two surfaces teach one legend.
+   Both hues are theme-adaptive tokens, so the contrast survives dark mode.
+
+   Colour is never the only signal: every row states its side in words and
+   carries a real count, so the module survives a colour-blind reader and
+   a monochrome print. ——— */
+.side-board{display:flex;flex-direction:column;gap:9px;}
+.side-board-lede{
+  font-family:var(--sans);font-size:11.5px;line-height:1.45;color:var(--gray-txt);
+  margin:12px 0 0;
+}
+.side-board-bar{display:flex;height:8px;gap:2px;overflow:hidden;}
+.side-board-seg{display:block;min-width:3px;}
+.side-board-seg--declarada-respalda{background:var(--green);}
+.side-board-seg--bloque-respalda{background:color-mix(in srgb,var(--green) 52%,var(--paper));}
+.side-board-seg--bloque-en-contra{background:color-mix(in srgb,var(--src-industry) 58%,var(--paper));}
+.side-board-seg--declarada-en-contra{background:var(--src-industry);}
+.side-board-seg--sin-definir{background:color-mix(in srgb,var(--ink) 16%,var(--paper));}
+
+.side-board-keys{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;}
+.side-board-key{display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:11px;line-height:1.3;}
+.side-board-swatch{width:9px;height:9px;flex:0 0 9px;border:1px solid var(--rule);}
+.side-board-key--declarada-respalda .side-board-swatch{background:var(--green);border-color:var(--green);}
+.side-board-key--bloque-respalda .side-board-swatch{background:color-mix(in srgb,var(--green) 52%,var(--paper));}
+.side-board-key--bloque-en-contra .side-board-swatch{background:color-mix(in srgb,var(--src-industry) 58%,var(--paper));}
+.side-board-key--declarada-en-contra .side-board-swatch{background:var(--src-industry);border-color:var(--src-industry);}
+.side-board-key--sin-definir .side-board-swatch{background:color-mix(in srgb,var(--ink) 16%,var(--paper));}
+.side-board-key-label{flex:1 1 auto;color:var(--gray-txt);}
+.side-board-key-count{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+
+.side-board-blocs{
+  margin:3px 0 0;padding-top:9px;border-top:1px solid var(--rule);
+  display:grid;grid-template-columns:auto 1fr;gap:2px 10px;
+  font-family:var(--sans);font-size:11px;line-height:1.35;
+}
+.side-board-blocs dt{
+  font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--gray-txt);padding-top:1px;
+}
+.side-board-blocs dd{margin:0;color:var(--ink);font-weight:600;}
+
+.side-board-note{
+  font-family:var(--sans);font-size:11px;line-height:1.4;color:var(--ink);font-weight:600;
+  margin:0;padding-top:8px;border-top:1px solid var(--rule);
+}
+.side-board-note-label{
+  display:block;font-size:9.5px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--gray-txt);margin-bottom:2px;
+}
+.side-board-foot{
+  font-family:var(--sans);font-size:10px;line-height:1.4;color:var(--gray-txt);margin:0;
+}

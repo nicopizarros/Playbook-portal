@@ -41,7 +41,8 @@
    drawn from the world dataset and split into labelled camps. Land is
    flat fills with hairline borders, no relief and no graticule: this is a
    diagram that happens to be shaped like the world, not an atlas. The
-   group ramp is fixed — filled mass, hollow exception, mid tint — so the
+   group ramp is fixed — filled mass, hollow exception, mid tint, and at
+   four groups an accent fill carrying the same heavy outline — so the
    reader learns it once and it means the same thing on every map. ——— */
 .lect-map{margin:34px 0;}
 .lect-map-svg{
@@ -58,6 +59,15 @@
 .lect-map-g2{fill:var(--paper);stroke:var(--ink);stroke-width:2;}
 /* Group 3 — the third camp, when a story has one. */
 .lect-map-g3{fill:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+/* Group 4 (2026-08-15) — accent fill AND the heavy outline, which is
+   groups 1 and 2 combined on purpose. At four groups the ramp stops being
+   an arbitrary order and becomes two readable variables: the FILL says
+   which side a country is on (accent or tint), the OUTLINE says it spoke
+   in its own name rather than inheriting its bloc's position. So g1 and
+   g3 are the two silent masses, g2 is the outlier that spoke against its
+   own side, and g4 is the one that spoke WITH it. Nothing about the
+   one-to-three-group ramp changes. */
+.lect-map-g4{fill:var(--lect-accent);stroke:var(--ink);stroke-width:2;}
 .lect-map-legend{
   display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;
 }
@@ -69,6 +79,38 @@
 .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--lect-accent);border-color:var(--lect-accent);}
 .lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--paper);border:2px solid var(--ink);}
 .lect-map-key.lect-map-g3 .lect-map-swatch{background:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+.lect-map-key.lect-map-g4 .lect-map-swatch{background:var(--lect-accent);border:2px solid var(--ink);}
+
+/* ——— Paleta "bandos" (2026-08-15) ———
+   Opt-in via the frame item (`Mapa: mundo bandos`), so every map already
+   published keeps the single-hue ramp it shipped with.
+
+   The default ramp is one hue plus a hollow exception, which is right for
+   "who signed and who did not": one camp is the subject, the other is its
+   absence. A map of two camps that are equally the story needs two hues,
+   or one side reads as a weaker version of the other — and on Noticias the
+   accent is Playbook's green, which reads as the affirmative wherever it
+   lands, so a single hue also hands one camp the approval colour.
+
+   Two variables, same as the four-group ramp: the FILL says which side
+   (green for one, the Noticias blue for the other, a flat neutral for
+   whoever has not chosen), the OUTLINE says the country said it in its own
+   name rather than inheriting its bloc's position. Both hues are
+   theme-adaptive tokens, so the contrast holds in the dark theme, where
+   --src-industry lifts to a light blue and the ink outline to near-white.
+
+   Declaration order for this palette: 1 bloc A, 2 declared A, 3 bloc B,
+   4 declared B, 5 undecided. */
+.lect-map[data-palette="bandos"] .lect-map-g1{fill:var(--green);stroke:var(--paper);}
+.lect-map[data-palette="bandos"] .lect-map-g2{fill:var(--green);stroke:var(--ink);stroke-width:2;}
+.lect-map[data-palette="bandos"] .lect-map-g3{fill:var(--src-industry);stroke:var(--paper);}
+.lect-map[data-palette="bandos"] .lect-map-g4{fill:var(--src-industry);stroke:var(--ink);stroke-width:2;}
+.lect-map[data-palette="bandos"] .lect-map-g5{fill:color-mix(in srgb,var(--ink) 22%,var(--paper));stroke:var(--paper);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--green);border-color:var(--green);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--green);border:2px solid var(--ink);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g3 .lect-map-swatch{background:var(--src-industry);border-color:var(--src-industry);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{background:var(--src-industry);border:2px solid var(--ink);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g5 .lect-map-swatch{background:color-mix(in srgb,var(--ink) 22%,var(--paper));}
 .lect-map-key-label{letter-spacing:.02em;}
 .lect-map-key-count{
   font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
