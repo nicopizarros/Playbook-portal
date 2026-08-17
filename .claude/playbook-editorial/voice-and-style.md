@@ -488,6 +488,48 @@ never a rounder guess because it's going into a chart instead of a sentence.
 **When sources disagree**, the more specific, better-attributed figure wins: a
 company filing over a wire summary, a wire over a newsletter brief.
 
+### "Según reportó X" only when X actually broke it
+
+(Publisher, 2026-08-17.) Level 02 says *attributed*. It does not say attributed
+**to a newsroom**, and the habit of reaching for one is the single most common
+way a Playbook piece ends up reading like a rewrite of somebody else's article.
+The archive shows how routine it had become: the 2026-08-10 Liverpool piece
+carries "según reportó Sky Sports" and "según reportó Yahoo Sports" in
+consecutive movements, for facts that a dozen outlets were carrying the same
+morning.
+
+**The test is exclusivity, not convenience.** Name the outlet only when the fact
+exists *because that newsroom found it* — when no one else had it and the
+reporting is itself the news. Everything else gets stated directly, or
+attributed to the **party**, which is who actually knows:
+
+| Sí | No |
+|---|---|
+| Clearlake negocia comprar las participaciones de Boehly y Walter | Según reportó Sports Business Journal, Clearlake negocia… |
+| FIFA confirmó que la relación laboral terminó el 17 de agosto | Según reportó un medio, FIFA habría terminado la relación |
+| El New York Post reportó una inversión cercana a US$250 millones; LIV no la confirma | *(correct as written — the Post had that figure alone)* |
+
+Two live examples of the exception, both legitimate: the **New York Post**'s
+US$250M LIV financing figure, which no other outlet had and LIV never confirmed,
+and **The Athletic**'s 2026-08-17 confirmation of Kevin Lamour's exit, published
+under its own EXCLUSIVE flag with a FIFA statement given to it directly. In both
+the newsroom is a primary source for that fact and belongs in the prose **and**
+on the `Fuentes:` line.
+
+This is the prose-side twin of a rule that already governs the credit line
+(`format-tiers.md` §6: only primary sources, "the one exception is an
+**exclusive**"). Same test, applied in the body. The failure it prevents is
+subtle and expensive: attributing a widely-carried fact to whichever outlet
+happened to supply the link silently promotes a conduit to a source, tells the
+reader that Playbook's contribution was finding somebody else's article, and
+buries the party who actually made the decision behind the party who wrote it
+up.
+
+**When several outlets carry the same fact off one originating scoop, credit the
+origin, not the relay.** A story reaching Playbook through an aggregator that
+credits the Financial Times is a Financial Times fact; the aggregator's name
+never enters the piece.
+
 ---
 
 ## 9. The regional connection (México / LATAM)
