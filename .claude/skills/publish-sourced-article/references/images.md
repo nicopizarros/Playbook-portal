@@ -1,1 +1,0 @@
-../../../playbook-editorial/images.md
