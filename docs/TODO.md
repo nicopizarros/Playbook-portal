@@ -16,6 +16,16 @@ scaffolding and removing an `nfl-mexico` hub the same day).
 
 **Open, in priority order:**
 
+0. **Route namespace vs. nav label.** The reader-facing zone is now
+   **"Exclusivas"** (publisher, 2026-08-18) but the route is still
+   `/coberturas/<slug>`. The original justification for that namespace was
+   that the nav label and address bar would agree; they no longer do.
+   Renaming was free while the hub was unlisted (nothing linked to it, it was
+   out of the sitemap) — **it is no longer free**: as of the same day the hub
+   is linked from the nav and present in the sitemap, so a rename now needs a
+   301 from `/coberturas/*`. Decide deliberately; either answer is defensible,
+   but the cost only goes up.
+
 1. **The LFA hub's numbers need public citations.** Every figure on the page
    traces to a source by construction (`HubFigure` cannot be built without a
    `HubSource`), but the expansion and capital figures cite *"Brief editorial
