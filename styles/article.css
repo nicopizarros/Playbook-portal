@@ -1,5 +1,5 @@
 /* ——— Página de artículo (/articulo) ———
-   Reutiliza clases existentes (.lead-photo, .tag, .btn, .skel) en vez de
+   Reutiliza clases existentes (.lead-photo, .tag, .btn) en vez de
    duplicar estilos — solo se define aquí lo que es genuinamente nuevo: el
    layout y la tipografía de una lectura larga en una sola columna.
 
@@ -66,7 +66,18 @@
    medido directamente del isotopo fuente: barra superior de ancho
    completo + barra derecha que baja más, proporciones 628:600 ≈ 1:0.955. */
 .article-body > p:last-child::after,
-.article-body > div:last-child > p:last-child::after{content:"";display:inline-block;width:14px;height:13px;margin-left:9px;vertical-align:-1px;background:var(--green);clip-path:polygon(0 0,100% 0,100% 100%,70.7% 100%,70.7% 30%,0 30%);transform:scale(var(--mark-scale,1));transform-origin:left center;}
+.article-body > div:last-child > p:last-child::after,
+/* …and always on the last line BEFORE the Opinión callout (publisher
+   directive 2026-08-07). This was also a silent bug: the callout is an
+   <aside>, so on the 47 published articles that close on it the last
+   paragraph stopped being :last-child and the article rendered with no
+   end-mark at all. Marking the paragraph the callout follows is both the
+   fix and the intent — the mark closes the reporting, and the opinion
+   reads as the signed coda after it. :has is the only way to say "the
+   paragraph before" in CSS; both forms cover the ad-split <div> halves,
+   same as the two rules above. */
+.article-body > p:has(+ .shot-opinion)::after,
+.article-body > div > p:has(+ .shot-opinion)::after{content:"";display:inline-block;width:14px;height:13px;margin-left:9px;vertical-align:-1px;background:var(--green);clip-path:var(--isotope-bracket);transform:scale(var(--mark-scale,1));transform-origin:left center;}
 
 /* Links del cuerpo: subrayado en verde de marca (el reset global quita el
    subrayado — sin esto un link dentro del texto es indistinguible). */
@@ -91,36 +102,17 @@
 .article-body img{width:100%;height:auto;margin:28px 0;}
 .article-body hr{border:0;border-top:1px solid var(--rule);width:88px;margin:34px auto;}
 
-/* "Opinión de Playbook" callout (2026-08-08, user request: "el sello de
-   branding de Playbook"): the closing take gets its own green box instead
-   of blending into the rest of the body copy. Covers both shapes the
-   editorial voice produces: a full "La Opinión de Playbook" H2 + list (La
-   Lana pieces ported close to their source structure) and the inline
-   "**Opinión de Playbook:**" lead-in paragraph (Industry Shots/Infinitas'
-   four-paragraph shape). --green never changes between themes (tokens.css),
-   so ink-fixed text on it stays legible in both, same reasoning
-   components.css already uses for .btn.accent/.inf-pill. Wrapped
-   server-side in scripts/publish-newsletter.ts's bodyHtml post-processing,
-   not part of the TipTap JSON: purely a rendering treatment, so editing the
-   article later in admin won't fight a custom node type.  */
-.article-body .opinion-box{background:var(--green);color:var(--ink-fixed);padding:22px 26px;margin:32px 0 0;}
-.article-body .opinion-box h2{margin-top:0;color:var(--ink-fixed);}
-.article-body .opinion-box p{color:var(--ink-fixed);}
-.article-body .opinion-box p:last-child{margin-bottom:0;}
-.article-body .opinion-box ul,.article-body .opinion-box ol{margin:0;padding-left:20px;}
-.article-body .opinion-box li{margin-bottom:12px;}
-.article-body .opinion-box li:last-child{margin-bottom:0;}
-.article-body .opinion-box li::marker{color:var(--ink-fixed);}
-.article-body .opinion-box strong{color:var(--ink-fixed);}
-.article-body .opinion-box a{color:var(--ink-fixed);text-decoration-color:var(--ink-fixed);}
-.article-body .opinion-box a:hover,.article-body .opinion-box a:focus-visible{text-decoration-color:var(--ink-fixed);opacity:.75;}
-
 /* ——— Compartir ——— */
 .share-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:30px;}
 .share-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);}
-.share-btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);font-size:12.5px;font-weight:600;color:var(--ink);transition:border-color var(--duration-fast) ease;}
+.share-btn{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);font-size:12.5px;font-weight:600;color:var(--ink);background:none;cursor:pointer;font-family:var(--sans);transition:border-color var(--duration-fast) ease,color var(--duration-fast) ease;}
 .share-btn:hover,.share-btn:focus-visible{border-color:var(--ink);}
 .share-btn svg{flex-shrink:0;}
+.share-btn.is-copied{border-color:var(--green);color:#3f7d0a;}
+[data-theme="dark"] .share-btn.is-copied{color:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .share-btn.is-copied{color:var(--green);}
+}
 
 /* ——— Temas (índice completo de taxonomía, plegado al pie) ———
    <details> nativo, cerrado por defecto: el lector abre el índice si lo
@@ -146,20 +138,39 @@
 .article-related h2{font-family:var(--serif-display);font-weight:400;font-size:20px;text-transform:uppercase;margin:0 0 12px;}
 .article-related .news-list .news-row:first-child{padding-top:16px;}
 
-.article-not-found{padding:60px 0;text-align:center;}
-.article-not-found a{text-decoration:underline;color:var(--ink);}
-
 /* ——— Muro de correo (metered access, Fase 3) — genuinamente nuevo, sin
    equivalente legado. Reutiliza el lenguaje visual de .nl-box (mismo
    borde/padding) en vez de inventar un estilo aparte. ——— */
 .article-walled{margin-top:8px;padding:28px 32px;border:1px solid var(--ink);background:var(--paper-soft);}
 .wall-kicker{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin:0 0 14px;}
 .article-walled > p{font-size:14.5px;color:var(--gray-dark);margin:0 0 16px;max-width:56ch;}
+/* "sin costo" es el argumento entero del muro: no hay pago, solo identidad.
+   En gris corrido se perdía, así que va en tinta y en negrita para que se
+   lea antes que el resto del párrafo. */
+.article-walled > p strong{color:var(--ink);font-weight:700;}
 .article-walled-teaser{font-size:17px !important;line-height:1.7;max-width:68ch !important;padding-bottom:20px;margin-bottom:20px !important;border-bottom:1px solid var(--rule);}
 .email-wall-form{max-width:380px;}
 /* El pill-form del muro vive sobre --paper-soft; el input hereda fondo
    transparente y sigue leyéndose bien, pero el borde de 2px en tinta ya
    define la caja — sin cambios extra necesarios. */
+
+/* ——— Alternativa de correo+contraseña (Fase 5, 2026-08-02) — colapsada
+   por default, Google sigue siendo el botón principal. ——— */
+.password-auth-toggle{background:none;border:none;padding:8px 0 0;margin:0;font-size:13px;color:var(--gray-dark);text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
+.password-auth-toggle:hover{color:var(--ink);}
+/* flex-direction:column en el FORM, no solo en .nl-fields: .pill-form es
+   un flex row con nowrap, así que el hint (<p>) quedaba EN FILA junto a
+   los campos — encimado al borde en desktop y 29px de overflow horizontal
+   en 390px (medido con Playwright, 2026-08-05; invisible en producción
+   porque con Google configurado el form vive plegado tras el toggle).
+   El radio de 999px de .pill-form en una caja ya alta se vuelve una
+   elipse — radio fijo acorde a la caja apilada. */
+.password-auth-form{margin-top:10px;max-width:380px;flex-direction:column;align-items:stretch;border-radius:24px;}
+.password-auth-form .nl-fields{flex-direction:column;align-items:stretch;gap:8px;}
+.password-auth-form .password-auth-hint{padding:0 14px 8px;}
+.password-auth-form input{border:1px solid var(--rule);background:var(--paper);padding:10px 14px;font-size:14px;border-radius:999px;}
+.password-auth-hint{font-size:12px !important;color:var(--gray-dark);margin:8px 0 0 !important;max-width:none !important;}
+.password-auth-error{font-size:13px;color:#c0392b;margin:8px 0 0;}
 
 /* ——— Página de archivo (/archivo) ——— */
 /* Toolbar: disclosure de filtros + toggle de vista. Toda la taxonomía vive
@@ -217,10 +228,9 @@
   .archive-river-cluster{grid-template-columns:repeat(4,1fr);}
 }
 .archive-grid-card{display:block;color:inherit;position:relative;border-top:3px solid transparent;padding-top:12px;transition:border-color var(--duration-base) var(--ease-out);}
-.archive-grid-card[data-source="industry-shots"]{border-top-color:var(--src-industry);}
+.archive-grid-card[data-source="noticias"]{border-top-color:var(--src-industry);}
 .archive-grid-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
 .archive-grid-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
-.archive-grid-card[data-source="playbook"]{border-top-color:var(--src-playbook);}
 .archive-grid-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
 /* flex-grow:0 a propósito (no flex:1 1 Npx): con grow, una ficha que
    terminaba sola o casi sola en su fila se estiraba para llenar el
@@ -302,10 +312,9 @@
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]) .archive-feature-row:hover,:root:not([data-theme="light"]) .archive-feature-row:focus-within{border-bottom-color:rgba(255,255,255,.15);}
 }
-.archive-feature-row[data-source="industry-shots"]{border-left-color:var(--src-industry);}
+.archive-feature-row[data-source="noticias"]{border-left-color:var(--src-industry);}
 .archive-feature-row[data-source="la-lana"]{border-left-color:var(--src-lana);}
 .archive-feature-row[data-source="infinitas"]{border-left-color:var(--src-infinitas);}
-.archive-feature-row[data-source="playbook"]{border-left-color:var(--src-playbook);}
 .archive-feature-row[data-source="opinion"]{border-left-color:var(--src-opinion);}
 /* flex-wrap + a real flex-basis on .card-link, instead of `flex:1` (= flex
    basis 0) — 2026-07-24 iPad fix. .archive-feature-row is a flex ROW whose

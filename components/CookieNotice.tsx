@@ -16,6 +16,8 @@ import { gsap } from '@/lib/gsap';
 // migration of the old dismissal flag live in lib/consent.ts; every ad slot
 // (components/ads/AdSlot.tsx) gates on what this banner persists — GA4
 // (components/analytics/GoogleAnalytics.tsx) no longer does.
+export const REOPEN_COOKIE_NOTICE_EVENT = 'playbook:reopen-cookie-notice';
+
 export function CookieNotice() {
   const [visible, setVisible] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
@@ -26,7 +28,22 @@ export function CookieNotice() {
     // readConsent() also migrates the pre-Fase-7 dismissal flag
     // (playbook_cookie_notice_dismissed → advertising:true), so previously
     // informed readers never see the banner again.
-    if (!readConsent()) setVisible(true);
+    const consent = readConsent();
+    if (!consent) setVisible(true);
+    else setAdvertisingChecked(consent.advertising);
+  }, []);
+
+  // Compliance requires a standing way to revisit/withdraw a prior choice,
+  // not just a first-visit prompt — the footer's "Preferencias de cookies"
+  // link (Footer.tsx) fires this event instead of holding its own copy of
+  // the banner's state.
+  useEffect(() => {
+    function reopen() {
+      setShowPrefs(true);
+      setVisible(true);
+    }
+    window.addEventListener(REOPEN_COOKIE_NOTICE_EVENT, reopen);
+    return () => window.removeEventListener(REOPEN_COOKIE_NOTICE_EVENT, reopen);
   }, []);
 
   // The prefs panel used to just appear — a conditional render with no

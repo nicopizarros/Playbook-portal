@@ -5,30 +5,47 @@ import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { SearchBox, type SearchableArticle } from './SearchBox';
+import { NavMenu } from './NavMenu';
 import type { NavLink } from '@/lib/data/site-content';
+import { PRODUCT_HUBS } from '@/lib/product-hubs';
+import { HUBS, UPCOMING_HUBS } from '@/lib/hubs';
 import { gsap } from '@/lib/gsap';
 
-// The CMS stores these as bare fragments ("#noticias", "#analisis", …)
-// because the nav was built when the homepage was the only page. Every one
-// of those sections lives on the homepage only, so on /archivo, /articulo,
-// /tema, /autor and the legal pages all five links resolved to a fragment
-// with no matching element — clicking "Noticias" from an article did
-// nothing at all, no navigation, no scroll, no feedback. Prefixing with
-// "/" makes them navigate home and *then* anchor, which is what a reader
-// means by tapping "Video" from somewhere else on the site.
-// Deliberately normalised at render time rather than by rewriting
-// content.json: the hrefs stay editable as plain fragments in the CMS's
-// Navegación tab (where "#noticias" is the intuitive thing to type), and
-// an editor who enters a full path or an external URL still gets it
-// through untouched.
+// ---------------------------------------------------------------- Zones
+// THREE ZONES, three KINDS of thing (brief §2). They are differentiated
+// STRUCTURALLY, not by colour:
+//
+//   Publicaciones  a mega-menu of things Playbook AUTHORS. Two columns,
+//                  each product with its identity chip and a descriptor.
+//   Exclusivas     a narrower menu of DESTINATIONS about properties we do
+//                  not own. Separated from Publicaciones by a standing rule.
+//                  Reader-facing label only: the route namespace stays
+//                  /coberturas/<slug> (see lib/hubs/types.ts).
+//   Newsletter     not a menu at all — a filled button in the actions
+//                  cluster. An ACTION, and one of only two places on the
+//                  site newsletter signup is allowed to live (the other is
+//                  the footer module).
+//
+// Zone labels, and why these words:
+//   "Publicaciones" — a reader subscribes to and reads a publication;
+//     "productos" is our internal framing, not theirs. (Flagged: the
+//     homepage section still reads "Productos editoriales" — worth
+//     aligning, but renaming reader-facing copy is the publisher's call.)
+//   "Exclusivas"    — publisher's call, 2026-08-18. Frames these as what
+//     Playbook has that nobody else does, rather than as a filing category.
+//     Note this decouples the label from the /coberturas route namespace.
+//   "Newsletter"    — kept as the accessible group name because the visible
+//     control is the CTA's own words ("Suscríbete gratis"), already the
+//     site's established conversion copy.
+//
+// HUB IDENTITY IS CONTAINED: no --hub-* token is read anywhere in this
+// file. A hub's palette lives inside its own page subtree (data-hub) and
+// never touches global chrome.
+
 function sectionHref(href: string) {
   return href.startsWith('#') ? `/${href}` : href;
 }
 
-// Owns the mobile drawer's open/close state (nav-links, nav-overlay, and
-// the nav-toggle button all need to agree on it, mirroring
-// legacy/js/nav.js's initMobileDrawer) plus the two theme-toggle instances
-// and the search box, none of which have a server-renderable equivalent.
 export function HeaderNav({
   links,
   ctaLabel,
@@ -59,65 +76,188 @@ export function HeaderNav({
       if (e.key === 'Escape') {
         close();
         toggleRef.current?.focus();
+        return;
+      }
+      // Keep Tab inside the open drawer — see the original note: the
+      // overlay blocks pointers but tabbing walked straight past it into
+      // dimmed, unclickable controls.
+      if (e.key !== 'Tab') return;
+      const panel = drawerRef.current;
+      if (!panel) return;
+      const focusables = panel.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (!panel.contains(active)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
       }
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [isOpen]);
 
-  // The drawer panel itself already slides in via CSS (.nav-links.is-open,
-  // styles/responsive.css) — this staggers its links in on top of that
-  // slide, the kind of coordinated multi-element timing CSS transitions
-  // can't express cleanly since every link would otherwise appear all at
-  // once the instant the panel stops moving.
   useEffect(() => {
     if (!isOpen || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const items = drawerRef.current?.querySelectorAll('#nav-links-dynamic > *, .theme-toggle-drawer');
+    const items = drawerRef.current?.querySelectorAll('.nav-drawer-zone, .theme-toggle-drawer');
     if (!items?.length) return;
     gsap.fromTo(
       items,
       { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.045, delay: 0.08 },
+      { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.055, delay: 0.08 },
     );
   }, [isOpen]);
 
+  // The CMS's nav links are homepage SECTION anchors, and two of them
+  // ("Noticias", "Infinitas") share a name with a product that now has its
+  // own entry above. Listing both put the same word twice in one menu with
+  // two different destinations. The product wins: it is the real page.
+  const productNames = new Set(PRODUCT_HUBS.map(p => p.name.toLowerCase()));
+  const sectionLinks = links.filter(l => !productNames.has(l.label.trim().toLowerCase()));
+
+  const productItems = PRODUCT_HUBS.map(product => (
+    <Link className="navmenu-item" href={product.path} key={product.source}>
+      <span className="navmenu-chip" style={{ background: `var(${product.token})` }} aria-hidden="true" />
+      <span className="navmenu-item-body">
+        <span className="navmenu-item-name">{product.name}</span>
+        <span className="navmenu-item-desc">{product.descriptor}</span>
+      </span>
+    </Link>
+  ));
+
+  // Only LISTED hubs are advertised. An unlisted hub's route works, but the
+  // nav must not link to it — see Hub.listed.
+  const listedHubs = HUBS.filter(h => h.listed);
+
+  const hubItems = listedHubs.map(hub => (
+    <Link className="navmenu-item" href={`/coberturas/${hub.slug}`} key={hub.slug}>
+      <span className="navmenu-item-body">
+        <span className="navmenu-item-name">{hub.name}</span>
+        <span className="navmenu-item-desc">{hub.fullName}</span>
+      </span>
+    </Link>
+  ));
+
   return (
     <>
+      {/* ------------------------------------------------ Desktop zones */}
+      <nav className="nav-zones" aria-label="Navegación principal">
+        <NavMenu label="Publicaciones" wide>
+          <div className="navmenu-group">
+            <p className="navmenu-group-head">Publicaciones</p>
+            {productItems}
+          </div>
+          {sectionLinks.length > 0 && (
+            <div className="navmenu-group navmenu-group-secondary">
+              <p className="navmenu-group-head">En la portada</p>
+              {sectionLinks.map(link => (
+                <a
+                  className="navmenu-item navmenu-item-plain"
+                  key={link.href}
+                  href={sectionHref(link.href)}
+                >
+                  <span className="navmenu-item-name">{link.label}</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </NavMenu>
+
+        {/* The standing rule is the structural signal that what follows is
+            a different KIND of destination, not another peer link. */}
+        <span className="nav-zone-rule" aria-hidden="true" />
+
+        <NavMenu label="Exclusivas">
+          {/* Hidden entirely when nothing is live — an "activas" heading over
+              an empty list reads as broken, not as forthcoming. */}
+          {listedHubs.length > 0 && (
+            <div className="navmenu-group">
+              <p className="navmenu-group-head">Exclusivas</p>
+              {hubItems}
+            </div>
+          )}
+          {UPCOMING_HUBS.length > 0 && (
+            <div className={`navmenu-group${listedHubs.length ? ' navmenu-group-secondary' : ''}`}>
+              <p className="navmenu-group-head">En preparación</p>
+              {UPCOMING_HUBS.map(upcoming => (
+                <span className="navmenu-item navmenu-item-muted" key={upcoming.name}>
+                  <span className="navmenu-item-name">{upcoming.name}</span>
+                  <span className="navmenu-item-desc">{upcoming.note}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </NavMenu>
+      </nav>
+
+      {/* -------------------------------------------------- Mobile drawer */}
       <nav
         className={`nav-links${isOpen ? ' is-open' : ''}`}
         id="nav-links"
-        aria-label="Navegación principal"
+        aria-label="Navegación"
         ref={drawerRef}
       >
         <div id="nav-links-dynamic">
-          {links.map(link => (
+          <section className="nav-drawer-zone">
+            <h2 className="nav-drawer-head">Publicaciones</h2>
+            {PRODUCT_HUBS.map(product => (
+              <Link className="nav-drawer-link" href={product.path} key={product.source} onClick={close}>
+                <span className="navmenu-chip" style={{ background: `var(${product.token})` }} aria-hidden="true" />
+                {product.name}
+              </Link>
+            ))}
+            {sectionLinks.map(link => (
+              <a className="nav-drawer-link nav-drawer-sub" key={link.href} href={sectionHref(link.href)} onClick={close}>
+                {link.label}
+              </a>
+            ))}
+          </section>
+
+          <section className="nav-drawer-zone">
+            <h2 className="nav-drawer-head">Exclusivas</h2>
+            {listedHubs.map(hub => (
+              <Link className="nav-drawer-link" href={`/coberturas/${hub.slug}`} key={hub.slug} onClick={close}>
+                {hub.name}
+              </Link>
+            ))}
+            {UPCOMING_HUBS.map(upcoming => (
+              <span className="nav-drawer-link nav-drawer-muted" key={upcoming.name}>
+                {upcoming.name} <em>{upcoming.note}</em>
+              </span>
+            ))}
+          </section>
+
+          <section className="nav-drawer-zone">
+            <h2 className="nav-drawer-head">Newsletter</h2>
             <a
-              key={link.href}
-              className={link.variant === 'infinitas' ? 'nav-link-infinitas' : undefined}
-              href={sectionHref(link.href)}
+              className="btn nav-drawer-cta"
+              href={ctaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={close}
             >
-              {link.label}
+              {ctaLabel}
             </a>
-          ))}
-          <a
-            className="btn nav-drawer-cta"
-            href={ctaUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={close}
-          >
-            {ctaLabel}
-          </a>
-          {!readerEmail && (
-            <Link href="/cuenta" className="nav-drawer-login" onClick={close}>
-              Iniciar sesión
-            </Link>
-          )}
+            {!readerEmail && (
+              <Link href="/cuenta" className="nav-drawer-login" onClick={close}>
+                Iniciar sesión
+              </Link>
+            )}
+          </section>
         </div>
         <ThemeToggle variant="drawer" onToggle={close} />
       </nav>
 
+      {/* ------------------------------------------------------- Actions */}
       <div className="nav-actions">
         {readerEmail ? (
           <span className="reader-status" title={readerEmail}>
@@ -125,18 +265,14 @@ export function HeaderNav({
             <button type="button" onClick={() => signOut({ redirectTo: '/' })}>Salir</button>
           </span>
         ) : (
-          // ctaUrl/ctaLabel below ("Suscríbete gratis") link out to the
-          // Substack newsletter -- a separate product (email subscription)
-          // from this site's own reader accounts (free-article quota via
-          // magic-link login, see lib/metering.ts). Real gap this closes:
-          // there was no way to reach the on-site login at all except by
-          // first hitting the free-article wall on some article.
           <Link href="/cuenta" className="nav-login-link">
             Iniciar sesión
           </Link>
         )}
         <SearchBox articles={searchArticles} />
         <ThemeToggle variant="desktop" />
+        {/* Zone 3. A filled button, not a nav link — the one conversion
+            entry point in the header. */}
         <a className="btn" id="nav-cta" href={ctaUrl} target="_blank" rel="noopener noreferrer">
           {ctaLabel}
         </a>

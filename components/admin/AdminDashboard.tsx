@@ -20,6 +20,8 @@ import { OpinionTab } from './tabs/OpinionTab';
 import { VideoTab } from './tabs/VideoTab';
 import { InfinitasTab } from './tabs/InfinitasTab';
 import { ProductsTab } from './tabs/ProductsTab';
+import { HubsTab } from './tabs/HubsTab';
+import { productHubsContent } from '@/lib/product-hubs-content';
 import { StatsTab } from './tabs/StatsTab';
 import { TestimonialsTab } from './tabs/TestimonialsTab';
 import { AboutTab } from './tabs/AboutTab';
@@ -27,6 +29,7 @@ import { MidCtaTab } from './tabs/MidCtaTab';
 import { FooterTab } from './tabs/FooterTab';
 import { SettingsTab } from './tabs/SettingsTab';
 import { TeamTab } from './tabs/TeamTab';
+import { ReadersTab } from './tabs/ReadersTab';
 import { LivePreview } from './LivePreview';
 
 // `group` drives the section headers rendered above the tab rail
@@ -41,6 +44,7 @@ const TAB_DEFS = [
   { key: 'opinion', label: 'Opinión', group: 'Contenido editorial' },
   { key: 'video', label: 'Video', group: 'Contenido editorial' },
   { key: 'infinitas', label: 'Infinitas', group: 'Contenido editorial' },
+  { key: 'hubs', label: 'Hubs de producto', group: 'Contenido editorial' },
   { key: 'products', label: 'Productos', group: 'Secciones de portada' },
   { key: 'stats', label: 'Números', group: 'Secciones de portada' },
   { key: 'testimonials', label: 'Testimonios', group: 'Secciones de portada' },
@@ -50,11 +54,12 @@ const TAB_DEFS = [
   { key: 'footer', label: 'Footer', group: 'Sitio' },
   { key: 'settings', label: 'Ajustes', group: 'Sitio' },
   { key: 'team', label: 'Equipo', group: 'Equipo' },
+  { key: 'readers', label: 'Lectores', group: 'Equipo' },
 ] as const;
 
 // Tabs that don't edit draft state (they act on the server immediately or
 // are pure reference), so the topbar save button doesn't apply to them.
-const SAVELESS_TABS: ReadonlySet<string> = new Set(['team']);
+const SAVELESS_TABS: ReadonlySet<string> = new Set(['team', 'readers']);
 
 type TabKey = (typeof TAB_DEFS)[number]['key'];
 const DEFAULT_ORDER: TabKey[] = TAB_DEFS.map(t => t.key);
@@ -343,6 +348,12 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
             {activeTab === 'opinion' && <OpinionTab data={content.opinionSection} onChange={updateSection('opinionSection')} />}
             {activeTab === 'video' && <VideoTab data={content.videoSection} onChange={updateSection('videoSection')} />}
             {activeTab === 'infinitas' && <InfinitasTab data={content.infinitasSection} onChange={updateSection('infinitasSection')} />}
+            {/* HubsTab edits the merged view (stored ?? code defaults) so
+                a site_content row that predates the productHubs section is
+                editable as-is; the first save simply writes the section in. */}
+            {activeTab === 'hubs' && (
+              <HubsTab data={productHubsContent(content.productHubs)} onChange={updateSection('productHubs')} />
+            )}
             {activeTab === 'products' && <ProductsTab data={content.productsSection} onChange={updateSection('productsSection')} />}
             {activeTab === 'stats' && <StatsTab data={content.statsSection} onChange={updateSection('statsSection')} />}
             {activeTab === 'testimonials' && (
@@ -354,6 +365,7 @@ export function AdminDashboard({ initialContent, initialContentVersion, initialA
             {activeTab === 'footer' && <FooterTab data={content.footer} onChange={updateSection('footer')} />}
             {activeTab === 'settings' && <SettingsTab data={content.siteSettings} onChange={updateSection('siteSettings')} />}
             {activeTab === 'team' && <TeamTab onToast={pushToast} />}
+            {activeTab === 'readers' && <ReadersTab />}
           </section>
 
           <aside className="admin-preview-pane" aria-label="Vista previa en vivo">

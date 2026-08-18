@@ -196,6 +196,20 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 .preview-section.is-changed .preview-section-tag { display: inline-flex; }
 .admin-preview-page header.topbar { position: static; }
 
+/* The preview reuses the real homepage section components, and those carry
+   `.reveal` — which styles/layout.css starts at opacity:0, to be animated
+   in by <ScrollReveal>. That component is mounted by app/(public)/layout.tsx
+   and deliberately never by the admin layout, so nothing in here would ever
+   reveal them: the hero, all five news rows, and every opinion/product/
+   stat/testimonial card rendered as blank space (measured: computed
+   opacity 0 on all of them). LivePreview.tsx used to paper over this by
+   adding `.is-visible`, which worked only while that class carried
+   `opacity:1` in CSS; once ScrollReveal moved to GSAP inline styles the
+   class became a bare marker and the workaround quietly became a no-op.
+   Doing it in CSS instead means the preview can't decouple from the
+   animation implementation again. */
+.admin-preview-page .reveal { opacity: 1; transform: none; }
+
 /* ---------- Form building blocks ---------- */
 
 .admin-section-title { font-size: 16px; font-weight: 800; margin: 24px 0 4px; letter-spacing: -.005em; }
@@ -353,6 +367,34 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
   background: var(--paper-soft); border: 1px solid var(--rule); border-radius: 5px; padding: 1px 5px;
 }
 .studio-library-title { margin-top: 30px; }
+
+/* Sistema editorial A/B/C/D (guía 2026-08-13): tarjetas de formato entre el
+   tutorial y la biblioteca. Mismo lenguaje visual que .studio-howto-item. */
+.studio-formats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;
+  margin: 12px 0;
+}
+.studio-format-card {
+  border: 1px solid var(--rule); border-radius: 10px; background: var(--paper);
+  padding: 12px 14px;
+}
+.studio-format-letter {
+  display: inline-grid; place-items: center; width: 26px; height: 26px;
+  border-radius: 7px; background: var(--green); color: #000;
+  font-weight: 900; font-size: 13px; margin-bottom: 8px;
+}
+.studio-format-card h4 { font-size: 13px; font-weight: 800; margin: 0 0 2px; }
+.studio-format-q { font-size: 12.5px; font-weight: 700; color: var(--ink); margin: 0 0 6px; }
+.studio-format-card > p { font-size: 12px; color: var(--gray-txt); line-height: 1.5; margin: 0; }
+.studio-format-meta {
+  margin-top: 8px !important; padding-top: 7px; border-top: 1px solid var(--rule);
+  font-size: 11px !important;
+}
+.studio-format-rule {
+  border-left: 3px solid var(--green); background: var(--paper-soft);
+  border-radius: 0 8px 8px 0; padding: 9px 12px;
+  font-size: 12.5px; color: var(--gray-txt); margin: 12px 0 0;
+}
 
 /* ---------- Studio (Fase 8B: biblioteca de prompts) ---------- */
 
@@ -582,3 +624,38 @@ textarea.input { min-height: 76px; resize: vertical; line-height: 1.5; }
 [data-theme="dark"] .btn-mini.btn-danger:hover { background: #3a201c; border-color: #f87171; }
 [data-theme="dark"] .analytics-delta.is-up { color: #86e678; background: rgba(154, 234, 57, .15); }
 [data-theme="dark"] .analytics-delta.is-down { color: #f87171; background: rgba(248, 113, 113, .15); }
+
+/* ——— El Estilo: the design suite (/admin/estilo, 2026-08-14) ——— */
+.estilo-page { max-width: 880px; }
+.estilo-section { margin-top: 34px; }
+.estilo-note { font-size: 13px; color: var(--gray-txt); margin: 6px 0 16px; max-width: 72ch; }
+.estilo-broken { font-size: 13px; font-weight: 700; color: #c0392b; margin: 10px 0; }
+[data-theme="dark"] .estilo-broken { color: #e0616b; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .estilo-broken { color: #e0616b; }
+}
+.estilo-swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.estilo-swatch-grid-fixed { margin-top: 10px; }
+.estilo-swatch { display: flex; align-items: center; gap: 10px; border: 1px solid var(--rule); padding: 8px 10px; background: var(--paper); }
+.estilo-swatch-chip { width: 26px; height: 26px; border-radius: 4px; border: 1px solid var(--rule); flex-shrink: 0; }
+.estilo-swatch-name { font-size: 11.5px; font-weight: 700; }
+.estilo-swatch-value { font-size: 10px; color: var(--gray-txt); margin-left: auto; }
+.estilo-type { border: 1px solid var(--rule); background: var(--paper); padding: 18px 20px; }
+.estilo-type-display { font-family: var(--serif-display); font-size: clamp(30px, 4vw, 44px); text-transform: uppercase; line-height: 1; margin: 0; }
+.estilo-type-body { font-size: 14.5px; line-height: 1.6; margin: 14px 0 0; max-width: 60ch; }
+.estilo-type-meta { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gray-txt); margin: 6px 0 0; }
+.estilo-devices-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.estilo-skins { display: flex; gap: 6px; flex-wrap: wrap; }
+.estilo-skins .btn-mini.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.estilo-group { margin-top: 26px; }
+.estilo-group-title { font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--gray-txt); border-bottom: 1px solid var(--rule); padding-bottom: 8px; margin: 0 0 8px; }
+.estilo-sample { padding: 16px 0 6px; border-bottom: 1px solid var(--rule); }
+.estilo-sample:last-child { border-bottom: none; }
+.estilo-sample-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.estilo-sample-head b { font-size: 14px; }
+.estilo-sample-head span { font-size: 12px; color: var(--gray-txt); }
+.estilo-sample-syntax { display: block; font-size: 11px; color: var(--gray-txt); background: var(--paper-soft); border: 1px solid var(--rule); padding: 7px 10px; margin: 8px 0 4px; overflow-x: auto; white-space: nowrap; }
+/* The render canvas: the article page's measure, without its chrome. The
+   .article-detail class is what scopes --lect-accent per product skin. */
+.estilo-canvas { max-width: 680px; }
+.estilo-canvas .article-body { font-size: 15px; line-height: 1.65; }

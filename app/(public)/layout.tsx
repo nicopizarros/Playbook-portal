@@ -6,6 +6,35 @@ import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { CookieNotice } from '@/components/CookieNotice';
 import { AdSenseProvider } from '@/components/ads/AdSenseProvider';
 import { getAdSenseConfig } from '@/lib/adsense';
+import { jsonLdScript } from '@/lib/json-ld';
+import { SITE_URL } from '@/lib/site-url';
+
+// Site-wide entities, once per public page (2026-08-14 SEO block, crawl-
+// only): the Organization crawlers attach every NewsArticle's publisher
+// reference to, and the WebSite that names the publication and its
+// language. sameAs points at the newsletter — the publication's other
+// living surface. Static objects, so they serialize once at module load.
+const SITE_JSON_LD = jsonLdScript([
+  {
+    '@context': 'https://schema.org',
+    '@type': 'NewsMediaOrganization',
+    '@id': `${SITE_URL}#organization`,
+    name: 'Playbook',
+    url: SITE_URL,
+    logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/img/playbook-logo.webp` },
+    sameAs: ['https://playbookmedia.substack.com'],
+    knowsLanguage: 'es-MX',
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}#website`,
+    name: 'Playbook — El negocio del deporte',
+    url: SITE_URL,
+    inLanguage: 'es-MX',
+    publisher: { '@id': `${SITE_URL}#organization` },
+  },
+]);
 
 // Every public page reads live Postgres data (articles, site_content) that
 // changes outside of a deploy — the Make.com webhook and (Phase 4) the
@@ -44,6 +73,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <ScrollReveal />
       <HeaderScrollEffect />
       <CookieNotice />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: SITE_JSON_LD }} />
     </AdSenseProvider>
   );
 }

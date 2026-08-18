@@ -43,6 +43,27 @@
       "when": 1784896898831,
       "tag": "0005_editorial_team_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785567095325,
+      "tag": "0006_freezing_ben_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785753059768,
+      "tag": "0007_add-user-password-hash",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787088753609,
+      "tag": "0008_hub_property_tier",
+      "breakpoints": true
     }
   ]
 }

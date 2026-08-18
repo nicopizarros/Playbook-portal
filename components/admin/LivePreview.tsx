@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import Image from 'next/image';
 import type { SiteContentData } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
@@ -92,15 +91,20 @@ export function LivePreview({ content, contentBaseline, articleEntries }: Props)
     return JSON.stringify(content[key]) !== JSON.stringify(contentBaseline[key]);
   }
 
-  useEffect(() => {
-    // legacy's revealPreviewCards(): the live site's .reveal cards start at
-    // opacity:0 until a scroll-triggered IntersectionObserver adds
-    // .is-visible (js/ui.js) — the preview never runs that observer, so
-    // without this every opinion/product/stat/testimonial/clip card would
-    // sit invisible forever.
-    const root = document.querySelector('.admin-preview-body');
-    root?.querySelectorAll('.reveal:not(.is-visible)').forEach(el => el.classList.add('is-visible'));
-  });
+  // The .reveal cards this preview reuses from the public site start at
+  // opacity:0 and are only revealed by <ScrollReveal>, which the admin
+  // layout never mounts. This used to be handled here by adding
+  // `.is-visible` to each of them — a port of legacy's
+  // revealPreviewCards(), and correct when legacy's CSS gave that class
+  // `opacity:1`. It stopped working when ScrollReveal moved to GSAP:
+  // `.is-visible` is now purely a bookkeeping marker (see its comment in
+  // styles/layout.css) and the opacity comes from GSAP's inline styles, so
+  // adding the class did nothing at all. Measured, not inferred: every
+  // .reveal in the preview computed to opacity 0 — the hero and all five
+  // news rows of the Artículos tab's preview were blank boxes, which is
+  // most of what that preview exists to show. Now handled in CSS
+  // (styles/admin.css, `.admin-preview-page .reveal`), where it can't
+  // silently decouple from a JS animation implementation again.
 
   return (
     <div className="admin-preview-page">

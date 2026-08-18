@@ -1,4 +1,18 @@
 *{box-sizing:border-box;}
+/* Reserves the vertical scrollbar's width permanently, whether or not the
+   page is actually tall enough to scroll. Without this, a page that
+   crosses the scrollable/non-scrollable threshold (e.g. filtering the 5+1
+   down to a source with very few articles, like Infinitas) reflows the
+   whole page a few pixels wider the instant a non-overlay scrollbar
+   appears or disappears -- invisible on macOS/iOS (overlay scrollbars,
+   no layout space reserved) but a real, repeatable "everything in the
+   header shifts/resizes" glitch on Windows, where Chrome/Firefox/Edge all
+   reserve scrollbar space by default (roadmap Fase 3 report, 2026-08-01:
+   "el logo se hace chico y grande" -- the header's flex layout,
+   including .brand img's own size, recalculating against the changing
+   available width is the mechanism, not the .is-scrolled shrink-on-scroll
+   treatment itself). */
+html{scrollbar-gutter:stable;}
 body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-size:15.5px;line-height:1.62;}
 
 /* Paper grain — a barely-there fractal-noise overlay so the warm light

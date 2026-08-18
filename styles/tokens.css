@@ -15,11 +15,43 @@
   --serif-display: var(--font-serif-display), 'Anton', sans-serif;
   --sans: var(--font-sans), 'Inter', sans-serif;
   --maxw:1180px;
+
+  /* Product marks — the icon each product signs its "Opinión de Playbook"
+     callout with (styles/product-hubs.css's .shot-opinion-kicker). Held as
+     tokens rather than inline in the rule so the shape and the color that
+     fills it stay one lookup apart, and so a mark can be reused elsewhere
+     without copying a data URI. Used as mask-image: the geometry is here,
+     the color is the product token, which is what lets a single copy work
+     in both themes. Fill is stated as %23000 only because a mask reads
+     alpha, not hue. Keep them theme-agnostic (never encode a palette
+     color in the path). */
+  /* The isotope bracket — the house symbol, not a product mark. It ends
+     the article body (styles/article.css's remate editorial) and signs the
+     Opinión callout (product-hubs.css's .shot-opinion-kicker), which is
+     why it lives here rather than beside either of them. Held as a
+     clip-path polygon rather than an SVG like the --mark-* set below,
+     because the end-mark has always drawn it that way and two definitions
+     of one geometry would drift. Measured off the source isotope:
+     full-width top bar plus a right bar that drops further,
+     628:600 ≈ 1:0.955. */
+  --isotope-bracket:polygon(0 0,100% 0,100% 100%,70.7% 100%,70.7% 30%,0 30%);
+  --mark-coins:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 15'%3E%3Cellipse cx='8' cy='3' rx='7' ry='2.4' fill='%23000'/%3E%3Cellipse cx='8' cy='7.5' rx='7' ry='2.4' fill='%23000'/%3E%3Cellipse cx='8' cy='12' rx='7' ry='2.4' fill='%23000'/%3E%3C/svg%3E");
+  --mark-infinity:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 14' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M12 7c1.7-2.8 3.1-4.3 5.2-4.3a4.3 4.3 0 0 1 0 8.6c-2.1 0-3.5-1.5-5.2-4.3-1.7-2.8-3.1-4.3-5.2-4.3a4.3 4.3 0 0 0 0 8.6c2.1 0 3.5-1.5 5.2-4.3Z'/%3E%3C/svg%3E");
+  --mark-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' fill='none' stroke='%23000' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.2 7h12.4M8.7 2.2 13.9 7l-5.2 4.8'/%3E%3C/svg%3E");
+
   --src-industry:#1c2b4a;
   --src-lana:#b5850a;
   --src-infinitas:#6b2fbf;
-  --src-playbook:var(--gray-txt);
   --src-opinion:#146c64;
+  /* Same "-fixed" pattern as --ink-fixed above, for the same reason: the
+     footer (styles/sections.css) is always a dark surface regardless of
+     the theme toggle, so a color used on it can't be the theme-adaptive
+     --src-infinitas -- that swaps to a lighter purple (#a875e8) in dark
+     mode, meant for text/borders legible against a dark PAGE background,
+     not for pairing with white text as a button fill on an always-dark
+     surface (low contrast). This stays the light-mode purple value in
+     every theme, same as --ink-fixed never gets overridden below. */
+  --src-infinitas-fixed:#6b2fbf;
 
   /* Motion system */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);

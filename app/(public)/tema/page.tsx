@@ -49,6 +49,7 @@ const TIER_LABELS: Record<TaxonomyTier, string> = {
   scope: 'Alcance',
   sport: 'Deporte',
   vertical: 'Vertical de negocio',
+  property: 'Cobertura',
 };
 
 export default async function TemaPage({ searchParams }: Props) {
@@ -61,7 +62,7 @@ export default async function TemaPage({ searchParams }: Props) {
         <div className="section-head page-head">
           <div>
             {topic && <span className="eyebrow">{TIER_LABELS[topic.tier]}</span>}
-            <h2>{topic?.value || 'Tema'}</h2>
+            <h1>{topic?.value || 'Tema'}</h1>
             <p className="sub">Todo lo publicado en Playbook sobre este tema.</p>
           </div>
           <Link className="section-link" href="/">← Volver a Noticias</Link>

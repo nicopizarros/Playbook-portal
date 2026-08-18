@@ -216,6 +216,15 @@ document, see Step 6), never HTML tags.
   for the closest match.
 - **tagsVertical**: choose only from `lib/taxonomy.ts`'s `VERTICAL_OPTIONS`:
   `Gobernanza y Regulación, Derechos de TV y Streaming, Fusiones y Adquisiciones, Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio, Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento, Audiencias y Consumo, Fan Experience, Naming Rights`.
+- **tagsProperty** (coverage tier, added 2026-08-18): normally `[]`. Set it
+  **only** when the piece is coverage of a property that has a Playbook hub —
+  today the vocabulary is `LFA`. This is not a topic tag: it decides whether
+  the story appears on `/coberturas/lfa`, so a wrong value puts the wrong
+  piece on a destination page. **Read the boundary rule before setting it:**
+  `references/fields-and-taxonomy.md` → "`tagsProperty` — the coverage tier".
+  It is a two-part binary test (subject + business fact), with a table of the
+  near misses that do *not* qualify. A mention is not coverage.
+
 - **date**: `YYYY-MM-DD`, confirmed from the page (Step 1), not guessed.
 - **dateFormatted**: e.g. `"21 jul 2026"` (day, 3-letter lowercase month, year).
 - **readingTime**: `2` for Industry Shots/Infinitas (four-paragraph standard), `3` for La Lana long-form.

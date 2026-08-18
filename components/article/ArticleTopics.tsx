@@ -5,10 +5,11 @@ import type { Article } from '@/lib/data/articles';
 import { topicsForSection, type TaxonomyTier } from '@/lib/taxonomy';
 import { gsap } from '@/lib/gsap';
 
-const TIER_COLUMN: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertical'> = {
+const TIER_COLUMN: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertical' | 'tagsProperty'> = {
   scope: 'tagsScope',
   sport: 'tagsSport',
   vertical: 'tagsVertical',
+  property: 'tagsProperty',
 };
 
 // Full topic index at the foot of an article — collapsed by default behind
@@ -39,11 +40,12 @@ const TIER_COLUMN: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertica
 export function ArticleTopics({
   article,
 }: {
-  article: Pick<Article, 'source' | 'tagsScope' | 'tagsSport' | 'tagsVertical'>;
+  article: Pick<Article, 'source' | 'tagsScope' | 'tagsSport' | 'tagsVertical'> &
+    Partial<Pick<Article, 'tagsProperty'>>;
 }) {
   const { order, label } = topicsForSection(article.source);
   const entries = order.flatMap(tier =>
-    article[TIER_COLUMN[tier]].map(value => ({ tier, value })),
+    (article[TIER_COLUMN[tier]] ?? []).map(value => ({ tier, value })),
   );
 
   const listRef = useRef<HTMLDivElement>(null);

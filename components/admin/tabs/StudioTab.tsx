@@ -116,7 +116,7 @@ export function StudioTab() {
         </p>
         <dl className="studio-howto-list">
           <div className="studio-howto-item">
-            <dt>Una edición de newsletter (Industry Shots, La Lana del Mundial, Infinitas)</dt>
+            <dt>Una edición de newsletter (Industry Shots, La Lana del Deporte, Infinitas)</dt>
             <dd>
               “Usa el skill <code>publish-newsletter</code> con este enlace: [URL]”. Publica directo, sin
               paso de revisión — es contenido propio de Playbook.
@@ -125,9 +125,18 @@ export function StudioTab() {
           <div className="studio-howto-item">
             <dt>Una nota de otro medio (ESPN, Reuters, un comunicado, cualquier link que no sea de Playbook)</dt>
             <dd>
-              “Usa el skill <code>publish-sourced-article</code> con este enlace: [URL]”. Cruza otras
-              coberturas, cita todas las fuentes al final y siempre se detiene a pedir tu aprobación antes
-              de publicar.
+              “Usa el skill <code>publish-sourced-article</code> con este enlace: [URL]”. <b>Primero
+              clasifica el formato (A/B/C)</b> y después redacta con el núcleo de voz Playbook. Cruza
+              otras coberturas, cita todas las fuentes al final y siempre se detiene a pedir tu
+              aprobación antes de publicar.
+            </dd>
+          </div>
+          <div className="studio-howto-item">
+            <dt>La Lana del Deporte</dt>
+            <dd>
+              El artículo se desarrolla en su flujo propio. Al llevarlo al website, <b>no volver a
+              generarlo desde cero</b>: conservar su tesis, estructura y voz; adaptar únicamente
+              presentación, anexos, metadata y módulos del portal.
             </dd>
           </div>
           <div className="studio-howto-item">
@@ -135,6 +144,59 @@ export function StudioTab() {
             <dd>Todavía no tiene un skill dedicado — usa la biblioteca de prompts de abajo.</dd>
           </div>
         </dl>
+      </section>
+
+      <section className="studio-howto">
+        <h3 className="studio-howto-title">Sistema editorial de artículos</h3>
+        <p className="studio-section-desc">
+          Antes de escribir, Playbook decide qué clase de pieza tiene enfrente. <b>La profundidad
+          editorial define el formato; los gráficos son una consecuencia, no el criterio.</b> El flujo:
+          fuentes → brief → router A/B/C/D → núcleo Playbook → prompt del formato → editor final →
+          publicación.
+        </p>
+        <div className="studio-formats">
+          <div className="studio-format-card">
+            <span className="studio-format-letter">A</span>
+            <h4>Noticia breve</h4>
+            <p className="studio-format-q">¿Qué pasó?</p>
+            <p>Movimiento + dato principal + contexto mínimo. Sin tesis y sin Opinión de Playbook.</p>
+            <p className="studio-format-meta">100–180 palabras · Opinión: no · Gráficos: no</p>
+          </div>
+          <div className="studio-format-card">
+            <span className="studio-format-letter">B</span>
+            <h4>Noticia Playbook</h4>
+            <p className="studio-format-q">¿Qué pasó y qué significa?</p>
+            <p>
+              La noticia más una segunda capa concreta de negocio: control, dinero, propiedad,
+              distribución, riesgo, negociación o poder.
+            </p>
+            <p className="studio-format-meta">250–500 palabras · Opinión: sí · Gráficos: opcionales</p>
+          </div>
+          <div className="studio-format-card">
+            <span className="studio-format-letter">C</span>
+            <h4>Deep Dive</h4>
+            <p className="studio-format-q">¿Cómo funciona realmente este negocio?</p>
+            <p>
+              Parte de una noticia, pero necesita abrir números, actores, estructura, comparaciones o
+              mecanismos para entenderla.
+            </p>
+            <p className="studio-format-meta">700–1,200 palabras · Opinión: sí · Gráficos: 2–4</p>
+          </div>
+          <div className="studio-format-card">
+            <span className="studio-format-letter">D</span>
+            <h4>La Lana del Deporte</h4>
+            <p className="studio-format-q">¿Qué pregunta de industria queremos resolver?</p>
+            <p>
+              Thesis-driven. La noticia puede ser el punto de partida, pero no necesariamente es la
+              historia.
+            </p>
+            <p className="studio-format-meta">Flujo propio · Opinión: sí · Al website: adaptar, no regenerar</p>
+          </div>
+        </div>
+        <p className="studio-format-rule">
+          <b>La diferencia que no se debe perder:</b> Deep Dive explica a fondo una noticia. La Lana
+          investiga una pregunta.
+        </p>
       </section>
 
       <h3 className="admin-section-title studio-library-title">Biblioteca de prompts</h3>

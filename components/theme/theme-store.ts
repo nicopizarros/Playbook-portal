@@ -7,8 +7,18 @@
 const THEME_KEY = 'playbook_theme';
 type Theme = 'light' | 'dark';
 
+// Defined by the theme-init inline script in app/layout.tsx, which owns the
+// actual toggle (it must exist before hydration so pre-hydration taps work —
+// see the comment there).
+declare global {
+  interface Window {
+    __pbToggleTheme?: () => void;
+  }
+}
+
 const listeners = new Set<() => void>();
 let mediaListenerAttached = false;
+let changeListenerAttached = false;
 
 function storedTheme(): Theme | null {
   try {
@@ -37,6 +47,13 @@ function applyThemeColor(dark: boolean) {
 }
 
 export function toggleTheme() {
+  // The theme-init script's toggler is the canonical one (it also serves
+  // pre-hydration clicks); this body is only the fallback for the case
+  // where that script didn't run.
+  if (window.__pbToggleTheme) {
+    window.__pbToggleTheme();
+    return;
+  }
   const next: Theme = isDarkActive() ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   try {
@@ -51,6 +68,13 @@ export function toggleTheme() {
 
 export function subscribeTheme(callback: () => void): () => void {
   listeners.add(callback);
+  // The inline script's toggler announces changes via this event (it can't
+  // call notify() directly) — relay it so useSyncExternalStore consumers
+  // re-read isDarkActive after any toggle, including pre-hydration ones.
+  if (!changeListenerAttached && typeof window !== 'undefined') {
+    changeListenerAttached = true;
+    window.addEventListener('playbook:theme-change', notify);
+  }
   // Without a stored preference, follow the system theme live — attached
   // once, shared across every subscriber.
   if (!mediaListenerAttached && typeof window !== 'undefined' && window.matchMedia) {

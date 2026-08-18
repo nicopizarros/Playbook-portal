@@ -52,9 +52,20 @@
      in testing instead of being quietly swallowed. */
   html{overflow-x:clip;}
   .nav-toggle{display:flex;}
+  .nav-drawer-zone{display:block;}
   .nav-drawer-cta{display:block;}
   .nav-drawer-login{display:block;}
-  .theme-toggle-drawer{display:flex;}
+  /* `.theme-toggle.theme-toggle-drawer`, not `.theme-toggle-drawer`: the
+     base rule that hides it (end of styles/header.css) is written with both
+     classes, deliberately, so it can outrank `.theme-toggle{display:flex}`.
+     This rule has to match that specificity to turn it back on — as a
+     single class it scored (0,1,0) against the base rule's (0,2,0) and
+     simply lost, at every width in this query. Measured, not read off the
+     cascade: the drawer's theme toggle computed to `display:none` at 390,
+     768, 1024 and 1180px, and since `.nav-actions .theme-toggle` is hidden
+     here too, there was no way at all to switch between light and dark on
+     any phone or tablet. */
+  .theme-toggle.theme-toggle-drawer{display:flex;}
   .brand img{height:38px;}
   header.topbar.is-scrolled .brand img{height:38px;}
   #nav-cta{display:none;}
@@ -69,7 +80,12 @@
      this reason). */
   .reader-status{display:none;}
 
+  /* Below the drawer breakpoint the desktop zones give way to the drawer,
+     which carries the SAME three zones as labelled sections — the IA
+     survives the collapse intact rather than flattening to a link list. */
+  .nav-zones{display:none;}
   .nav-links{
+    display:flex;
     position:fixed;top:0;right:0;height:100vh;width:min(320px,86vw);
     background:var(--paper);flex-direction:column;align-items:flex-start;
     padding:96px 28px 28px;gap:2px;margin:0;
@@ -98,7 +114,15 @@
   .nav-links.is-open{transform:translateX(0);visibility:visible;transition:transform var(--duration-slow) var(--ease-out),visibility 0s;}
   .nav-links a{width:100%;padding:14px 0;border-bottom:1px solid var(--rule);font-size:15.5px;}
   .nav-link-infinitas{margin-left:0;}
-  .nav-links .nav-drawer-cta{width:100%;margin-top:16px;padding:0;min-height:48px;border-bottom:none;text-align:center;}
+  /* color:#fff restates what .btn already sets. Without it the drawer CTA
+     rendered black-on-black: `.nav-links a` (styles/header.css) sets
+     `color:var(--ink)` and scores (0,1,1), which outranks `.btn`'s (0,1,0),
+     so the pill kept .btn's --ink-fixed background but took the nav's ink
+     text colour. Measured at 390/768/1024/1180px: colour and background
+     both rgb(10,10,10) — a 1:1 contrast ratio, i.e. an entirely blank
+     black pill where "Suscríbete gratis" should be, on every phone and
+     tablet. This selector is (0,2,0) so it wins over both. */
+  .nav-links .nav-drawer-cta{width:100%;margin-top:16px;padding:0;min-height:48px;border-bottom:none;text-align:center;color:#fff;}
   .nav-links .nav-drawer-login{width:100%;margin-top:10px;padding:0;border-bottom:none;text-align:center;font-size:13.5px;color:var(--gray-txt);text-decoration:underline;text-decoration-color:var(--rule);}
   /* El toggle del drawer se ve como una fila más del menú (ícono + texto),
      no como el botón cuadrado de escritorio — reutiliza .theme-toggle-icon
@@ -117,8 +141,6 @@
 @media(max-width:920px){
   .news-grid{grid-template-columns:1fr;}
   .lead-story{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);padding-bottom:24px;margin-bottom:20px;}
-  .news-strip{grid-template-columns:1fr 1fr;}
-  .news-strip a:nth-child(2){border-right:none;}
   /* Fase 7 UX: la banda de tres columnas colapsa — hero, lista y
      sidebar apilados, sin sticky ni borde de rail (el ad rail-home
      además se oculta, ver ads.css). */
@@ -131,8 +153,9 @@
   .quote{border-right:none;border-bottom:1px solid var(--rule);}
   .quote:last-child{border-bottom:none;}
   .topic-directory{grid-template-columns:repeat(3,1fr);}
-  .video-top,.inf-grid,.about-card{grid-template-columns:1fr;}
-  .inf-card{min-height:240px;}
+  .video-top,.infsec-grid,.about-card{grid-template-columns:1fr;}
+  .infsec-grid{gap:14px;}
+  .infsec-rows{margin-top:6px;}
   .proof-grid{grid-template-columns:1fr;}
   .stat{border-right:none;border-bottom:1px solid var(--rule);padding-bottom:16px;margin-bottom:16px;}
   .mid-cta-box{flex-direction:column;align-items:flex-start;}
@@ -184,6 +207,16 @@
 @media(pointer:coarse){
   .tag-topic{display:inline-block;padding:6px 0;}
   .section-link{display:inline-block;padding-top:8px;padding-bottom:8px;}
+}
+/* The drawer-login tap target ALSO needs the drawer breakpoint: at
+   (0,2,0) this outranks header.css's base .nav-drawer-login{display:none}
+   (0,1,0) at every width, so on a touch device WIDER than 1180px — an
+   iPad Pro landscape at 1210px, where the desktop .nav-login-link is
+   visible — the drawer-only "Iniciar sesión" rendered inline in the nav
+   row next to the real one: two login links side by side (user
+   screenshot, 2026-08-06). Mouse desktops never matched pointer:coarse,
+   which is how it survived the audits. */
+@media(pointer:coarse) and (max-width:1180px){
   .nav-links .nav-drawer-login{min-height:44px;display:flex;align-items:center;justify-content:center;}
 }
 
@@ -192,4 +225,28 @@
   header.topbar.is-scrolled .brand img{height:32px;}
   .nav-search input{width:48px;}
   .nav-search:focus-within input{width:48px;}
+}
+
+/* ——— Header, narrowest tier (≤400px) ———
+   2026-08-04. Measured at a 320px viewport (iPhone SE / smallest phone
+   still in real use, and the width WCAG 2.1 SC 1.4.10 Reflow is written
+   against): the row needed 346px of content — 24px padding + 130px logo +
+   24px gap + 144px of actions + 24px padding — inside a 305px content box
+   (320 minus the 15px `scrollbar-gutter:stable` reserves). The hamburger
+   sat at x=278-322, so 17px of the only control that opens navigation on a
+   phone was clipped past the right edge, and `html{overflow-x:clip}` from
+   the drawer block above means it could not be scrolled into view either.
+   Fixed by giving the row back the space rather than by hiding anything:
+   padding and gaps tighten, and the search pill — which at this width is
+   already a stub with a 48px input — becomes the flexible element that
+   absorbs whatever is left instead of holding a width the row can't
+   afford. `min-width:0` is required on both the pill and its input for
+   that to work: a flex item's default `min-width:auto` floors it at the
+   input's intrinsic size, which is exactly what was overflowing. */
+@media(max-width:400px){
+  .nav{gap:10px;padding-left:14px;padding-right:14px;}
+  .nav-actions{gap:8px;min-width:0;}
+  .nav-search{flex-shrink:1;min-width:0;}
+  .nav-search input,
+  .nav-search:focus-within input{width:100%;min-width:0;}
 }

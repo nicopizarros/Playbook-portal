@@ -8,7 +8,13 @@
 // because that serverless function had no direct database access.
 import * as vercelAnalytics from './vercel-analytics';
 import * as ga4Analytics from './ga4-analytics';
+import * as firstParty from './first-party-analytics';
 import { getAllArticlesForAdmin } from './data/articles';
+
+// Which source actually answered — the UI words its numbers differently
+// for the metering log ("lecturas"/"lectores", see AnalyticsView) than
+// for real pageviews, so the label must travel with the data.
+export type MetricsSource = 'ga4' | 'vercel' | 'first-party';
 
 // Added 2026-07-31: try Google Analytics first for every panel below, fall
 // back to Vercel Analytics only when GA4 isn't configured yet or a specific
@@ -53,11 +59,24 @@ export type PeriodKpi = {
   deltaVisitors: number | null;
 };
 
+// GA4 → Vercel → the site's own metering log. The first two need
+// credentials in Vercel that may not exist yet; the last one is a direct
+// DB read that works from day one (same ladder lib/most-read.ts climbs).
+// `kpiSource` records the lowest rung any KPI call had to reach so the
+// UI can label the numbers for what they are.
+let kpiSource: MetricsSource = 'ga4';
+
 async function safeCount(range: { since: string; until: string }) {
   try {
     return await withGa4Fallback('count', () => ga4Analytics.count(range), () => vercelAnalytics.count(range));
   } catch (err) {
-    console.error('[Playbook] analytics-data count error:', (err as Error).message);
+    console.error('[Playbook] analytics-data count error, falling back to first-party reads:', (err as Error).message);
+  }
+  try {
+    kpiSource = 'first-party';
+    return await firstParty.count({ since: range.since, until: range.until });
+  } catch (err) {
+    console.error('[Playbook] analytics-data first-party count error:', (err as Error).message);
     return null;
   }
 }
@@ -94,8 +113,15 @@ async function topArticlesPanel(): Promise<TopArticlesPanel> {
       () => vercelAnalytics.aggregateEvents(params)
     );
   } catch (err) {
-    console.error('[Playbook] analytics-data topArticles error:', (err as Error).message);
-    return { available: false, items: [], error: (err as Error).message };
+    // Same last rung as the KPIs: the metering log always has an answer.
+    console.error('[Playbook] analytics-data topArticles error, falling back to first-party reads:', (err as Error).message);
+    try {
+      const reads = await firstParty.topArticles({ since: params.since, until: params.until, limit: params.limit });
+      rows = reads.map(r => ({ eventData: r.id, count: r.count }));
+    } catch (fpErr) {
+      console.error('[Playbook] analytics-data first-party topArticles error:', (fpErr as Error).message);
+      return { available: false, items: [], error: (err as Error).message };
+    }
   }
   if (!rows.length) return { available: true, items: [], error: null };
 
@@ -146,6 +172,8 @@ async function breakdownPanel(dimension: string): Promise<Panel> {
 
 export type AnalyticsSnapshot = {
   updatedAt: string;
+  /** Which ladder rung answered the KPI/top-article numbers this time. */
+  source: MetricsSource;
   kpis: { today: PeriodKpi; last7: PeriodKpi; last30: PeriodKpi };
   topArticles: TopArticlesPanel;
   referrers: Panel;
@@ -155,9 +183,14 @@ export type AnalyticsSnapshot = {
 };
 
 export async function getAnalyticsSnapshot(): Promise<AnalyticsSnapshot> {
+  // Reset the source ladder per snapshot: 'ga4' when its creds exist,
+  // 'vercel' when only Vercel's could answer, and safeCount overwrites to
+  // 'first-party' the moment any KPI call has to reach the metering log.
+  kpiSource = ga4Analytics.isConfigured() ? 'ga4' : 'vercel';
   const emptyKpi: PeriodKpi = { pageviews: null, visitors: null, deltaPageviews: null, deltaVisitors: null };
   const empty: AnalyticsSnapshot = {
     updatedAt: isoNow(),
+    source: kpiSource,
     kpis: { today: emptyKpi, last7: emptyKpi, last30: emptyKpi },
     topArticles: { available: false, items: [], error: null },
     referrers: { available: false, items: [], error: null },
@@ -179,6 +212,7 @@ export async function getAnalyticsSnapshot(): Promise<AnalyticsSnapshot> {
 
     return {
       updatedAt: isoNow(),
+      source: kpiSource,
       kpis: { today, last7, last30 },
       topArticles,
       referrers,

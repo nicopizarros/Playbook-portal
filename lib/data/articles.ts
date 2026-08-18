@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache';
 import { db } from '../db/client';
 import { articles } from '../db/schema';
 import { rankArticles, selectHero } from '../rank';
-import { LEAD_COUNT, LIST_COUNT } from '../constants';
+import { LEAD_COUNT, LIST_COUNT, normalizeSource } from '../constants';
 import type { TaxonomyTier } from '../taxonomy';
 
 export type Article = typeof articles.$inferSelect;
@@ -34,6 +34,7 @@ const LIST_COLUMNS = {
   tagsScope: articles.tagsScope,
   tagsSport: articles.tagsSport,
   tagsVertical: articles.tagsVertical,
+  tagsProperty: articles.tagsProperty,
   priority: articles.priority,
   featured: articles.featured,
   mostrarAutor: articles.mostrarAutor,
@@ -56,7 +57,13 @@ const LIST_COLUMNS = {
 const queryPublishedArticles = unstable_cache(
   async () => {
     const rows = await db.select(LIST_COLUMNS).from(articles).where(eq(articles.status, 'published'));
-    return rows.map(row => ({ ...row, bodyJson: null, bodyHtml: null }));
+    // normalizeSource here — the single data boundary every public reader
+    // goes through — so rows still carrying the legacy 'industry-shots'
+    // key (until scripts/migrate-source-noticias.ts runs) file under
+    // 'noticias' everywhere downstream: hubs, filters, CSS data-source
+    // hooks, taxonomy. All source filtering happens in memory on this
+    // result, so no SQL query needs to know the legacy key exists.
+    return rows.map(row => ({ ...row, source: normalizeSource(row.source), bodyJson: null, bodyHtml: null }));
   },
   ['articles-published-list'],
   { revalidate: 60, tags: [ARTICLES_CACHE_TAG] },
@@ -80,7 +87,7 @@ export const getAllArticles = cache(async (): Promise<Article[]> => {
 // issue the same by-id lookup twice.
 export const getArticleById = cache(async (id: string): Promise<Article | null> => {
   const [row] = await db.select().from(articles).where(eq(articles.id, id)).limit(1);
-  return row ?? null;
+  return row ? { ...row, source: normalizeSource(row.source) } : null;
 });
 
 export type ArticleMeta = {
@@ -134,12 +141,13 @@ export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta 
       tagsScope: articles.tagsScope,
       tagsSport: articles.tagsSport,
       tagsVertical: articles.tagsVertical,
+  tagsProperty: articles.tagsProperty,
       substackUrl: articles.substackUrl,
     })
     .from(articles)
     .where(eq(articles.id, id))
     .limit(1);
-  return row ?? null;
+  return row ? { ...row, source: normalizeSource(row.source) } : null;
 });
 
 export async function getArticlesByAuthor(name: string): Promise<Article[]> {
@@ -153,6 +161,7 @@ const TAG_COLUMN: Record<TaxonomyTier, keyof Article> = {
   scope: 'tagsScope',
   sport: 'tagsSport',
   vertical: 'tagsVertical',
+  property: 'tagsProperty',
 };
 
 export async function getArticlesByTag(tier: TaxonomyTier, value: string): Promise<Article[]> {
@@ -203,13 +212,28 @@ export async function getArchiveArticles(filters: ArchiveFilters): Promise<Artic
   });
 }
 
+// Product hubs (Roadmap Agosto 2026, Fase 1 — carpetas internas por
+// producto): a hub is the product's OWN archive, so unlike
+// getArchiveArticles it does NOT subtract what the homepage currently
+// shows — a reader on /la-lana should see every Expediente, including one
+// that happens to be today's homepage hero. Plain reverse-chronological
+// order on purpose: these are editions/cases of a publication, not a
+// ranked news feed, and e.g. El Expediente's case numbering depends on
+// publication order staying stable.
+export async function getArticlesBySource(source: string): Promise<Article[]> {
+  const all = await getAllArticles();
+  return all.filter(a => a.source === source);
+}
+
 // Admin-only: includes drafts (archived articles), unlike getAllArticles()
 // above which the public site uses and which filters to status='published'.
 // Not cache()-wrapped — the admin dashboard is the only caller, once per
 // page load, so there's nothing to dedupe.
 export async function getAllArticlesForAdmin(): Promise<Article[]> {
   const rows = await db.select().from(articles);
-  return rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  return rows
+    .map(row => ({ ...row, source: normalizeSource(row.source) }))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 }
 
 export { rankArticles, selectHero };

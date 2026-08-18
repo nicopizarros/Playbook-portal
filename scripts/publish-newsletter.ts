@@ -20,6 +20,7 @@ import type { JSONContent } from '@tiptap/core';
 import { articles } from '../lib/db/schema';
 import { TIPTAP_EXTENSIONS } from '../lib/tiptap-extensions';
 import { slugify } from '../lib/slugify';
+import { validateTags, formatTagIssues } from '../lib/taxonomy';
 
 // Uses Neon's HTTP driver (plain HTTPS, one query per request) instead of
 // lib/db/client.ts's node-postgres Pool: this script runs from environments
@@ -42,6 +43,8 @@ type ArticleInput = {
   tagsScope: string[];
   tagsSport: string[];
   tagsVertical: string[];
+  /** Coverage tier (hubs). Optional: a draft that omits it publishes as before. */
+  tagsProperty?: string[];
   priority: number;
   featured: boolean;
   mostrarAutor?: boolean;
@@ -117,34 +120,35 @@ export function markdownToTipTap(markdown: string): Record<string, unknown> {
   return { type: 'doc', content: content.length ? content : [{ type: 'paragraph' }] };
 }
 
-// Wraps the closing "Opinión de Playbook" take in styles/article.css's
-// `.opinion-box` (green branded callout, added 2026-08-08). Covers both
-// shapes the editorial voice produces: a full "La Opinión de Playbook" H2
-// (usually followed by a `<ul>`, sometimes `<p>`s) for La Lana pieces kept
-// close to their source structure, or the inline "**Opinión de
-// Playbook:**" lead-in paragraph for Industry Shots/Infinitas' fixed
-// four-paragraph shape. Pure post-processing on the rendered HTML string,
-// after generateHTML(): never touches bodyJson, since the box is a display
-// treatment, not part of the TipTap document schema the admin editor reads.
-export function wrapOpinionBox(html: string): string {
-  const headingMatch = html.match(/<h2>\s*La Opini[oó]n de Playbook\s*<\/h2>/i);
-  if (headingMatch && headingMatch.index !== undefined) {
-    const start = headingMatch.index;
-    return `${html.slice(0, start)}<div class="opinion-box">${html.slice(start)}</div>`;
-  }
-
-  const paragraphs = [...html.matchAll(/<p>(?:(?!<\/p>).)*<\/p>/gis)];
-  for (const p of paragraphs) {
-    if (/^<p>\s*<strong>\s*Opini[oó]n de Playbook:\s*<\/strong>/i.test(p[0]) && p.index !== undefined) {
-      return `${html.slice(0, p.index)}<div class="opinion-box">${p[0]}</div>${html.slice(p.index + p[0].length)}`;
-    }
-  }
-  return html;
-}
-
 async function insertOne(input: ArticleInput) {
+  // Controlled-vocabulary gate (TODO #1, 2026-08-14): tags must come out of
+  // lib/taxonomy.ts. Case/accent/whitespace variants are canonicalized;
+  // anything else hard-fails the publish so a typo can't mint an
+  // unreachable tag. The error message names the nearest option.
+  const { tags, issues } = validateTags({
+    scope: input.tagsScope,
+    sport: input.tagsSport,
+    vertical: input.tagsVertical,
+    // Coverage tier (hubs). Usually absent from a draft — `?? []` so a
+    // skill run that never mentions it publishes exactly as before.
+    property: input.tagsProperty ?? [],
+  });
+  if (issues.length) {
+    throw new Error(
+      `[publish] "${input.title}": etiquetas fuera de la taxonomía — ${formatTagIssues(issues)}. ` +
+        `Usa exactamente las opciones de lib/taxonomy.ts.`,
+    );
+  }
+  input = {
+    ...input,
+    tagsScope: tags.scope,
+    tagsSport: tags.sport,
+    tagsVertical: tags.vertical,
+    tagsProperty: tags.property,
+  };
+
   const bodyJson = markdownToTipTap(input.bodyMarkdown);
-  const bodyHtml = wrapOpinionBox(generateHTML(bodyJson as JSONContent, TIPTAP_EXTENSIONS));
+  const bodyHtml = generateHTML(bodyJson as JSONContent, TIPTAP_EXTENSIONS);
   const baseId = slugify(input.title) || `articulo-${Date.now().toString(36)}`;
 
   let id = baseId;
@@ -167,6 +171,7 @@ async function insertOne(input: ArticleInput) {
           tagsScope: input.tagsScope,
           tagsSport: input.tagsSport,
           tagsVertical: input.tagsVertical,
+          tagsProperty: input.tagsProperty ?? [],
           priority: input.priority,
           featured: input.featured,
           mostrarAutor: input.mostrarAutor === true,

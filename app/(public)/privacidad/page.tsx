@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { SITE_URL } from '@/lib/site-url';
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export default function PrivacidadPage() {
   return (
     <main className="container legal-page" id="privacidad-main">
       <h1>Aviso de Privacidad</h1>
-      <p className="legal-updated">Última actualización: 21 de julio de 2026.</p>
+      <p className="legal-updated">Última actualización: 4 de agosto de 2026.</p>
 
       <p>
         Este Aviso de Privacidad describe cómo <strong>Playbook SAPI de C.V.</strong>{' '}
@@ -25,10 +26,12 @@ export default function PrivacidadPage() {
       <h2>Qué datos recolectamos</h2>
       <ul>
         <li>
-          <strong>Correo electrónico</strong>, si te registrás como lector para acceder a más
-          artículos de los que permite el límite gratuito, a través de un enlace de acceso
-          (&quot;magic link&quot;) enviado por correo. No pedimos ni guardamos contraseñas de
-          lectores.
+          <strong>Correo electrónico, y opcionalmente una contraseña</strong>, si te registras como
+          lector para acceder a más artículos de los que permite el límite gratuito. Dos formas de
+          hacerlo: con tu cuenta de Google (Google comparte tu correo con nosotros, nunca tu
+          contraseña de Google), o con un correo y una contraseña que eliges tú, propios de
+          Playbook — en ese segundo caso guardamos tu contraseña de forma cifrada (hash), nunca en
+          texto plano, y ni el equipo de Playbook puede leerla.
         </li>
         <li>
           <strong>Historial de lectura y una cookie de identificación anónima</strong> (
@@ -42,14 +45,21 @@ export default function PrivacidadPage() {
           abajo.
         </li>
         <li>
-          <strong>Credenciales de acceso del equipo editorial</strong>, si trabajás como editor de
+          <strong>Correo electrónico para el newsletter</strong>, si lo escribes en alguno de los
+          formularios de suscripción del sitio. Ese formulario te lleva a Substack, donde completas
+          la suscripción: el newsletter lo edita Playbook, pero lo opera Substack, y tu correo queda
+          registrado ahí como suscriptor. Es independiente de la cuenta de lector del punto
+          anterior — puedes tener una sin la otra.
+        </li>
+        <li>
+          <strong>Credenciales de acceso del equipo editorial</strong>, si trabajas como editor de
           Playbook — estas cuentas son internas, no de lectores públicos.
         </li>
       </ul>
 
       <h2>Para qué usamos tus datos</h2>
       <ul>
-        <li>Enviarte el enlace de acceso que tú mismo solicitaste.</li>
+        <li>Darte acceso a tu cuenta cuando inicias sesión.</li>
         <li>Aplicar el límite de artículos gratuitos por mes.</li>
         <li>Entender qué contenido funciona, para decisiones editoriales.</li>
         <li>Mantener la seguridad del sitio (por ejemplo, frenar intentos de acceso abusivos).</li>
@@ -57,7 +67,7 @@ export default function PrivacidadPage() {
       <p>No vendemos tus datos personales a terceros.</p>
 
       <h2>Cookies</h2>
-      <p>Este sitio usa tres tipos de cookies:</p>
+      <p>Este sitio usa cuatro tipos de cookies:</p>
       <ul>
         <li>
           <strong>Necesaria</strong> (<code>pb_anon</code>): cuenta tus lecturas del mes. Sin ella, el
@@ -73,7 +83,7 @@ export default function PrivacidadPage() {
         </li>
         <li>
           <strong>Publicidad</strong> (Google AdSense): solo con tu consentimiento, para mostrar
-          anuncios y financiar el contenido. Si visitás el sitio desde la Unión Europea, el Reino
+          anuncios y financiar el contenido. Si visitas el sitio desde la Unión Europea, el Reino
           Unido o Suiza, Google puede mostrarte además su propio aviso de consentimiento
           (&quot;Privacy &amp; messaging&quot;), gestionado por Google como plataforma de gestión de
           consentimiento (CMP) certificada, conforme al marco de transparencia y consentimiento de
@@ -81,18 +91,34 @@ export default function PrivacidadPage() {
         </li>
       </ul>
       <p>
-        Puedes borrar las cookies de este sitio en cualquier momento desde la configuración de tu
-        navegador. Hacerlo no te bloquea el acceso, aunque sí reinicia el conteo de lecturas
-        gratuitas.
+        Puedes cambiar tu elección sobre la cookie de publicidad en cualquier momento desde{' '}
+        <strong>&quot;Preferencias de cookies&quot;</strong>, al pie de cualquier página del sitio.
+        También puedes borrar las cookies de este sitio desde la configuración de tu navegador;
+        hacerlo no te bloquea el acceso, aunque sí reinicia el conteo de lecturas gratuitas.
       </p>
 
       <h2>Con quién compartimos datos (terceros)</h2>
       <ul>
-        <li><strong>Resend</strong> — envío de los correos con el enlace de acceso.</li>
+        <li>
+          <strong>Google (Iniciar sesión con Google)</strong> — si eliges registrarte con tu cuenta
+          de Google, Google actúa como proveedor de identidad y nos comparte tu correo; no
+          controlamos ni almacenamos tu contraseña de Google.
+        </li>
         <li><strong>Vercel</strong> — hospedaje del sitio, almacenamiento de imágenes, analítica de uso.</li>
         <li><strong>Google Analytics 4</strong> — analítica de uso.</li>
         <li>
-          <strong>Google AdSense</strong> — publicidad, solo con consentimiento. Podés revisar o
+          <strong>Substack</strong> — plataforma del newsletter. Si te suscribes desde alguno de los
+          formularios del sitio, tu correo se registra en Substack y la suscripción se rige además
+          por las políticas de esa plataforma.
+        </li>
+        <li>
+          <strong>Google Sheets</strong> — el correo, el nombre (si lo tenemos), el método con el que
+          te registraste y el número de artículos que llevas leídos se copian a una hoja de cálculo
+          privada de Google, de acceso restringido al equipo de Playbook, que usamos como registro
+          interno de lectores. No se comparte con nadie más ni se usa para publicidad.
+        </li>
+        <li>
+          <strong>Google AdSense</strong> — publicidad, solo con consentimiento. Puedes revisar o
           ajustar tus preferencias de anuncios directamente con Google en{' '}
           <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer">
             myadcenter.google.com
@@ -107,8 +133,17 @@ export default function PrivacidadPage() {
         Como titular de tus datos, tienes derecho a Acceder, Rectificar, Cancelar u Oponerte (ARCO) al
         tratamiento de tus datos personales. Si eres lector registrado, puedes exportar o eliminar tu
         cuenta y tu historial de lectura tú mismo, sin escribirnos, desde{' '}
-        <a href="/cuenta">Mi cuenta</a>. Para cualquier otro pedido relacionado con tus datos,
-        escribinos a <strong>hola@playbook.la</strong>.
+        <Link href="/cuenta">Mi cuenta</Link>. Para cualquier otro pedido relacionado con tus datos,
+        escríbenos a <strong>hola@playbook.la</strong>.
+      </p>
+
+      <h2>Menores de edad</h2>
+      <p>
+        Este sitio está dirigido a un público general interesado en el negocio del deporte, no
+        específicamente a menores de edad, y no solicitamos intencionalmente datos personales de
+        menores de edad. Si eres madre, padre o tutor y tienes conocimiento de que un menor a tu
+        cargo nos proporcionó datos personales, escríbenos a <strong>hola@playbook.la</strong> para
+        eliminarlos.
       </p>
 
       <h2>Cambios a este aviso</h2>

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import { Anton, Inter } from 'next/font/google';
+import { Anton, Archivo, Inter } from 'next/font/google';
 import Script from 'next/script';
 import { AnalyticsClient } from '@/components/analytics/AnalyticsClient';
 import { getFundingChoicesPublisherId } from '@/lib/adsense';
+import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
 
 import '../styles/reset.css';
@@ -16,13 +17,47 @@ import '../styles/article.css';
 import '../styles/cookie-notice.css';
 import '../styles/ads.css';
 import '../styles/legal.css';
+import '../styles/product-hubs.css';
+// The 2026-08-05 design upgrade, one file per surface (after
+// product-hubs.css on purpose — these layer per-product skins over it):
+import '../styles/lectura.css';
+import '../styles/portada.css';
+import '../styles/hemeroteca.css';
 import '../styles/responsive.css';
+// Hubs (/coberturas/[slug]). hub.css is structure only; one token file per
+// hub supplies the palette — see styles/hubs/hub.css's header.
+import '../styles/hubs/hub.css';
+import '../styles/hubs/lfa.tokens.css';
 
 const anton = Anton({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-serif-display',
   display: 'swap',
+});
+
+// The hub display face. Archivo is variable on the WIDTH axis, which is
+// the whole reason it is here: field numerals are wide and flat-sided, and
+// every sports property (including the LFA's own kit) reaches for a
+// CONDENSED athletic face. Going wide is both the more grounded reading of
+// the material and the one nobody else takes.
+//
+// A third family is a real payload cost, paid on the hub route only —
+// `preload: false` keeps it off every other page's critical path. No
+// fourth "utility/mono" face was added: the data modules need tabular
+// figures, and Inter's `font-variant-numeric: tabular-nums` already
+// provides them, so a mono would have cost another download to solve a
+// problem that was already solved.
+const archivo = Archivo({
+  subsets: ['latin'],
+  // No `weight`: next/font only allows `axes` on a variable font whose
+  // weight is variable, and the wdth axis is the entire reason this face
+  // is here (see the note above). Weight stays variable too, which the
+  // hub CSS uses at 600/700.
+  axes: ['wdth'],
+  variable: '--font-display-wide',
+  display: 'swap',
+  preload: false,
 });
 
 const inter = Inter({
@@ -32,6 +67,15 @@ const inter = Inter({
   display: 'swap',
 });
 
+// `twitter.card` below is summary_large_image, which without an image
+// renders as a bare text link on X/WhatsApp/LinkedIn/Facebook — and every
+// route except /articulo was shipping exactly that, including the
+// homepage, i.e. the URL people actually paste when a site launches.
+// Article pages override this with their own cover photo
+// (app/(public)/articulo/page.tsx); everything else inherits this one.
+// Static asset rather than a generated ImageResponse: nothing about it
+// varies per request, so there's no reason to pay for og runtime on every
+// crawl. See lib/og-image.ts for why it isn't inlined here.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -54,12 +98,13 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
+    ...OG_DEFAULTS,
     type: 'website',
-    siteName: 'Playbook',
-    locale: 'es_MX',
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
+    images: [DEFAULT_OG_IMAGE.url],
   },
 };
 
@@ -67,12 +112,38 @@ export const metadata: Metadata = {
 // data-theme before first paint, exactly like legacy/index.html's inline
 // <head> script. `beforeInteractive` is the Next.js-sanctioned way to run
 // a script this early (before hydration) from the root layout.
+//
+// The script also OWNS the toggle action (__pbToggleTheme + the delegated
+// [data-theme-toggle] click listener). The theme buttons are server-rendered
+// and look tappable from first paint, but their React onClick only exists
+// after hydration — on a slow load every tap in that window silently did
+// nothing (the intermittent "toggle doesn't work" bug). A document-level
+// native listener attached before paint catches those clicks and keeps
+// handling them after hydration; ThemeToggle deliberately does NOT call
+// toggleTheme() on click, so there is exactly one toggler at all times.
+// components/theme/theme-store.ts subscribes to the playbook:theme-change
+// event this dispatches to keep React aria state in sync.
 const THEME_INIT_SCRIPT = `
 (function(){
   try{
     var t=localStorage.getItem('playbook_theme');
     if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}
   }catch(e){}
+  window.__pbToggleTheme=function(){
+    var d=document.documentElement;
+    var cur=d.getAttribute('data-theme');
+    var dark=cur?cur==='dark':!!(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var next=dark?'light':'dark';
+    d.setAttribute('data-theme',next);
+    try{localStorage.setItem('playbook_theme',next);}catch(e){}
+    var m=document.querySelector('meta[name="theme-color"]');
+    if(m){m.setAttribute('content',next==='dark'?'#121316':'#ffffff');}
+    window.dispatchEvent(new Event('playbook:theme-change'));
+  };
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('[data-theme-toggle]')){window.__pbToggleTheme();}
+  });
 })();
 `;
 
@@ -146,7 +217,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // wrong theme). React can't know that ahead of time during SSR, so it
     // would otherwise flag this exact, intentional mismatch as an error —
     // this is Next.js's own documented pattern for this case.
-    <html lang="es" className={`${anton.variable} ${inter.variable}`} suppressHydrationWarning>
+    <html lang="es" className={`${anton.variable} ${inter.variable} ${archivo.variable}`} suppressHydrationWarning>
       <body>
         {fundingChoicesPublisherId && (
           <>
@@ -160,9 +231,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Script>
           </>
         )}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {THEME_INIT_SCRIPT}
-        </Script>
+        {/* A RAW inline script, deliberately not next/script: in the App
+            Router, beforeInteractive inline scripts are serialized into
+            self.__next_s and executed by the framework's bootstrap chunk —
+            verified 2026-08-14 by blocking /_next/static/chunks/* in
+            Playwright, which left window.__pbToggleTheme undefined and the
+            toggle dead. Both jobs of this script (set data-theme before
+            first paint, own the toggle before hydration) only hold if it
+            executes the moment the parser reaches it, so it must be real
+            inline HTML. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <Script id="va-init" strategy="beforeInteractive">
           {VA_INIT_SCRIPT}
         </Script>

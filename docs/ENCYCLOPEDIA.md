@@ -6,10 +6,11 @@ more detail. Written so a new contributor — human or AI agent — can get
 oriented without reading the entire git history.
 
 **This document is a snapshot of architecture and how things work.** It does
-not track day-to-day progress or session-by-session decisions — that's
-[`HANDOFF.md`](../HANDOFF.md)'s job (see "Where to look next" at the bottom).
-If the two ever disagree, treat `HANDOFF.md`'s progress log as more current
-for *recent* changes, and this document as the map for *how the system is
+not track day-to-day progress — open work lives in [`docs/TODO.md`](TODO.md),
+and the migration-era session journal is archived at
+[`docs/archive/HANDOFF.md`](archive/HANDOFF.md) (audit evidence, no longer
+updated). If this document and recent commits disagree, trust the commits
+for *recent* changes and this document as the map for *how the system is
 structured*. Last synced against the codebase: 2026-07-22 (post–Fase 6,
 migration complete).
 
@@ -23,13 +24,24 @@ governance, broadcast rights, M&A, sponsorships, venues, sports finance,
 private equity, sports marketing, talent management, audiences, fan
 experience, naming rights. Content comes from three editorial lines/sources:
 
-- **Industry Shots** (source key `industry-shots`) — general news digest.
-- **La Lana del Mundial** (source key `la-lana`) — World Cup business
+- **Noticias** (source key `noticias` since 2026-08-14 — the launch-era
+  `industry-shots` key was retired with TODO #2's migration;
+  `normalizeSource()` in `lib/constants.ts` maps unmigrated legacy rows) —
+  general news digest.
+- **La Lana del Deporte** (source key `la-lana`) — sports business
   coverage.
 - **Infinitas** (source key `infinitas`) — a distinct newsletter product
   with its own homepage section.
-- Plus a generic **Playbook** (`playbook`) bucket for content that doesn't
-  fit those three.
+- **Opinión** (source key `opinion`) — bylined opinion pieces, own homepage
+  section (§ Análisis/Opinión).
+
+There used to be a fourth, generic **Playbook** (`playbook`) bucket for
+content that didn't fit the three newsletters above. Retired 2026-08-01 at
+the user's request (Roadmap Agosto 2026, Fase 1) — it never had a distinct
+editorial identity from Noticias, so it was folded into
+Noticias everywhere: `KNOWN_SOURCES`, the webhook's
+`detectPublication()` fallback, the `articles` table's column defaults, and
+every article that had `source: 'playbook'`.
 
 The publication's actual writing lives on **Substack**
 (`playbookmedia.substack.com`); this site is the **owned-and-operated
@@ -64,11 +76,11 @@ checkpoint 2). **The migration is functionally done** — what remains is
 configuring real production credentials in Vercel (Resend, Vercel Blob, GA4,
 Vercel Analytics) and verifying them against live traffic; see §12.
 
-`articles.json` and `content.json` still exist at the repo root — they are
-**not read by the running app**. They're the original seed data, consumed
-exactly once by `scripts/migrate-json-to-db.ts` to populate Postgres, and
-are kept only as historical reference for what the legacy dataset looked
-like.
+`articles.json`, `content.json` and `scripts/migrate-json-to-db.ts` were
+**deleted in the 2026-08-13 stale-code sweep** — the seed ran once, the app
+never read the JSON files, and keeping a stale snapshot someone could re-run
+against the live DB by accident was pure risk. They remain in git history if
+the legacy dataset shape is ever needed as reference.
 
 ## 3. Tech Stack
 
@@ -127,8 +139,7 @@ docs/                        image-dimensions.md, this file
 .claude/skills/               publish-newsletter, verify (Claude Code skills) — §13
 .github/workflows/ci.yml      typecheck → lint → build, on push/PR
 
-articles.json, content.json   Legacy seed data — read once by migrate:json, not by the app
-HANDOFF.md                    Session-by-session progress log (the "diary")
+docs/archive/HANDOFF.md       Migration-era session journal (archived 2026-08-13)
 README.md                     Quick operational reference
 ```
 
@@ -159,7 +170,7 @@ verbatim so `/articulo?id=...` URLs never break.
 | `bodyJson` | jsonb, nullable | TipTap document; `null` for legacy articles that never got a native editor body |
 | `bodyHtml` | text | **Server-rendered cache** of `bodyJson`, regenerated on every save (`@tiptap/html`'s `generateHTML`) so pages render plain HTML without re-walking the JSON tree per request |
 | `author`, `date` (`YYYY-MM-DD` text, not a date column), `dateFormatted` | | |
-| `publication` (default `'Playbook'`), `source` (default `'playbook'`) | | |
+| `publication` (default `'Noticias'`), `source` (default `'noticias'`, was `'industry-shots'` until 2026-08-14) | | `'playbook'` was a distinct source until 2026-08-01, retired and folded into Noticias |
 | `tagsScope`, `tagsSport`, `tagsVertical` | text[], default `{}` | the three-tier taxonomy (§8.2) |
 | `priority` | smallint, default 3 | 1–5 star editorial importance |
 | `featured` | boolean | hero-eligibility override |
@@ -170,7 +181,7 @@ verbatim so `/articulo?id=...` URLs never break.
 | `imageUrl`, `status` (`'published'`\|`'draft'`, default `'published'`) | | |
 | `createdAt`, `updatedAt`, `updatedBy` (FK → `editors.id`, `SET NULL`) | | |
 
-**Why `sourceUrl` is separate from `substackUrl`:** for "Industry Shots"
+**Why `sourceUrl` is separate from `substackUrl`:** for Noticias
 digest posts, one Substack post (`substackUrl`) legitimately backs *several*
 distinct articles, each with its own `sourceUrl` (the webhook payload's
 per-item `url`). A unique index on `substackUrl` would have rejected
@@ -255,8 +266,8 @@ Regenerate migrations after a schema change with `npm run db:generate`
   (nav, opinionSection, productsSection, midCta, videoSection,
   infinitasSection, statsSection, testimonialsSection, aboutSection, footer,
   siteSettings, lastUpdated). `getSiteContent()` (`React.cache()`-wrapped)
-  throws a setup-order error if the `id=1` row is missing (expects
-  `migrate:json` to have run).
+  throws a setup-order error if the `id=1` row is missing (the one-time
+  JSON seed populated it; see §11's history note).
 - **`reader-account.ts`** — `getReaderAccountSummary(readerId)`: email,
   join date, total/this-month read counts, 10 most recent reads (joined to
   `articles` for titles). Purely informational — a registered reader never
@@ -640,11 +651,23 @@ flash, paired with `suppressHydrationWarning` on `<html>`.
 | Script | Run via | Purpose |
 |---|---|---|
 | `run-migrations.ts` | `npm run db:migrate` | Applies pending Drizzle migrations |
-| `migrate-json-to-db.ts` | `npm run migrate:json` | **One-time, idempotent**: loads `articles.json`/`content.json` into Postgres |
 | `reset-editor-password.ts` | `npm run db:reset-editor-password -- <username>` | Rotates one editor's password: generates it, prints it once, stores only the bcrypt hash. Replaced `seed-editors.ts` (which took the whole roster as plaintext in `ADMIN_USERS`) on 2026-07-24 — the roster itself now ships as hashes in `drizzle/0005_editorial_team_accounts.sql` |
 | `publish-newsletter.ts` | `npm run publish:newsletter <file.json>` | The write-side of both the `publish-newsletter` and `publish-sourced-article` Claude skills (§13) — converts markdown (incl. `[text](url)` links, `- ` bullet lists) to a TipTap doc, inserts articles directly via Neon's HTTP driver (works from HTTPS-only sandboxes) |
 | `smoke-test.mjs` | `node scripts/smoke-test.mjs` (manual, against `localhost:3100`) | Playwright: theme toggle persistence, mobile drawer, search |
 | `test-email-wall.mjs` | `node scripts/test-email-wall.mjs` (manual) | Playwright: burns the 3-article quota, confirms the paywall form appears |
+| `check-voice.mjs` / `test-voice-antithesis.mjs` | `node scripts/check-voice.mjs <draft.json>` | Editorial voice mirror for the publish skills (em-dash ban, antithesis cap, rhythm stats) + its regression suite |
+| `find-duplicates.mjs` / `test-duplicate-detection.mjs` | `node scripts/find-duplicates.mjs "<title>"` | Overlap check against the live archive + its regression suite |
+| `update-article.ts` | `npx tsx scripts/update-article.ts <fix.json> --dry-run` | Regenerates a published body through the same pipeline as the insert (never hand-edit `body_html`) |
+| `update-lana-board.ts` | after each La Lana publish | Pushes the edition's connections to /la-lana's departures board |
+| `build-world-map.ts` / `build-substack-backlog.mjs` / `graph-query.py` | manual | Generators: `lib/data/world-map.json`, the Substack backlog diff, and the committed knowledge-graph reader |
+
+**History note (2026-08-13):** the one-off data-fix scripts that ran against
+production during the migration (`migrate-json-to-db`, `fix-lana-rebrand-content`,
+`reassign-playbook-tag`, `fix-newsletter-success-copy`, `fix-testimonial-avatars`,
+`update-la-lana-description`, `point-products-at-hubs`, `seed-jugadas`,
+`strip-tfbr-opinion`, `backfill-article-standards`, `update-matador-report`)
+were deleted in the stale-code sweep. What each did, and the evidence it ran,
+lives in `docs/archive/HANDOFF.md`'s session journal and in git history.
 
 ## 12. Environment Variables
 
@@ -672,8 +695,8 @@ error message — it's not a crash, just non-functional).
 ## 13. Claude Code Skills (`.claude/skills/`)
 
 - **`publish-newsletter`** — a fully automated, zero-human-review editorial
-  pipeline: given one or more Playbook Substack URLs (Industry Shots, La
-  Lana del Mundial, Infinitas), fetches each edition, treats each story as
+  pipeline: given one or more Playbook Substack URLs (Noticias, La
+  Lana del Deporte, Infinitas), fetches each edition, treats each story as
   a separate article, drafts it in Playbook's editorial voice (Industry
   Shots/Infinitas: fixed four-paragraph shape, fact + mandatory
   independent-research paragraph + detail + "Opinión de Playbook"; La Lana:
@@ -694,15 +717,11 @@ error message — it's not a crash, just non-functional).
   as its write-side (that script's markdown-to-TipTap converter also
   supports `[text](url)` links and `- ` bullet lists, added for this
   skill's Fuentes block).
-- **`verify`** — documents how to run/verify the site in a sandbox with no
-  `npm`/build step/Vercel CLI available. **Note: this skill's content still
-  describes the pre-migration legacy static-site architecture**
-  (`api/*.js`, self-fetched `articles.json`, `vercel.json` rewrites) and
-  has not been updated to reflect the current Next.js/Postgres stack — a
-  known stale doc, flagged during a 2026-07-21 investigation session (see
-  HANDOFF.md). Treat its specific commands as outdated; its general
-  regression-testing advice (no nested `<a>` tags, Playwright checks) is
-  still relevant.
+- **`verify`** — how to run/verify the site locally: static checks, dev
+  server against `POSTGRES_URL`, the global-Playwright import path, the
+  ready-made smoke suites, and what to check per surface. Rewritten
+  2026-08-13 for the Next.js/Postgres stack (the previous version described
+  the pre-migration static site).
 
 ## 14. CI/CD
 
@@ -732,7 +751,6 @@ ever needs revisiting.
 npm install
 cp .env.local.example .env.local   # fill in values, see §12
 npm run db:migrate                  # applies Postgres schema
-npm run migrate:json                # loads articles.json/content.json (idempotent)
 npm run db:reset-editor-password -- nico   # rotate one password; prints it once
 npm run dev
 ```

@@ -11,6 +11,10 @@ const legacyHtmlRedirects = [
   { source: '/autor.html', destination: '/autor' },
   { source: '/tema.html', destination: '/tema' },
   { source: '/404.html', destination: '/404' },
+  // The news hub launched briefly as /industry-shots (2026-08-05, same
+  // day) before being renamed to the reader-facing name; keep the short-
+  // lived URL working.
+  { source: '/industry-shots', destination: '/noticias' },
 ];
 
 // Real external origins this site actually loads, verified against source

@@ -1,0 +1,1490 @@
+/* ============================================================
+   La Lectura — the article experience (design brief 2026-08-05).
+   One shared skeleton, four fully-inhabited product skins, riding the
+   .article-product-<source> class articulo/page.tsx already sets:
+
+     la-lana                  a case file: folder tab + stamp + expediente
+                              number above the headline, exhibit-framed
+                              cover, mono byline, dossier foot handoff.
+     noticias           a shot being poured: weekday + shot measure,
+                              green-ruled headline, numbered reporting
+                              beats, the filling glass (ShotProgress).
+     infinitas                El Marcador carried in: flat violet, Inter
+                              800 headline, duotone cover, violet beats.
+     futbol-business-review   born boardroom: partner strip, red trend
+                              arrows on subheads, red-fenced callouts.
+
+   Everything here is layered ON TOP of styles/article.css (imported
+   earlier in app/layout.tsx, so equal-specificity rules below win) and
+   the article-template rules already in styles/product-hubs.css. The
+   article page is a THEMED surface — colors ride the adaptive tokens
+   (--ink/--paper/--src-*) except where a physical object is genuinely
+   one color (a photographic print's white matte). Motion lives in
+   components/article/ArticleMotion.tsx; every device below has a
+   complete static state without it.
+   ============================================================ */
+
+/* ————— Shared skeleton upgrades ————— */
+
+/* The reading page earns a display-scale headline — it was the plainest
+   surface on the site while the hubs shouted. */
+.article-detail h1{font-size:clamp(30px,5.2vw,46px);line-height:1.06;}
+
+/* Scroll-drawn rule between the reading column and the foot apparatus
+   (ArticleMotion draws it in; static full-width without JS). */
+.lect-rule{height:2px;background:var(--ink);margin:44px 0 0;}
+/* The topics disclosure carries its own hairline — drop it when the drawn
+   rule immediately precedes it, or the foot double-rules. */
+.lect-rule-foot + .article-topics{border-top:none;}
+
+/* ——— El Mapa ("Mapa:" convention, lib/article-map.ts). Real geography,
+   drawn from the world dataset and split into labelled camps. Land is
+   flat fills with hairline borders, no relief and no graticule: this is a
+   diagram that happens to be shaped like the world, not an atlas. The
+   group ramp is fixed — filled mass, hollow exception, mid tint, and at
+   four groups an accent fill carrying the same heavy outline — so the
+   reader learns it once and it means the same thing on every map. ——— */
+.lect-map{margin:34px 0;}
+.lect-map-svg{
+  display:block;width:100%;height:auto;
+  background:var(--paper-soft);border:1px solid var(--rule);
+}
+.lect-map-area{stroke:var(--paper);stroke-width:.8;vector-effect:non-scaling-stroke;}
+.lect-map-dot{stroke:var(--paper);stroke-width:1.2;vector-effect:non-scaling-stroke;}
+/* Framed but unclaimed: context, present but never competing. */
+.lect-map-base{fill:color-mix(in srgb,var(--ink) 9%,var(--paper));}
+/* Group 1 — the mass. */
+.lect-map-g1{fill:var(--lect-accent);}
+/* Group 2 — the exception. Hollow, heavy outline: it reads as the hole. */
+.lect-map-g2{fill:var(--paper);stroke:var(--ink);stroke-width:2;}
+/* Group 3 — the third camp, when a story has one. */
+.lect-map-g3{fill:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+/* Group 4 (2026-08-15) — accent fill AND the heavy outline, which is
+   groups 1 and 2 combined on purpose. At four groups the ramp stops being
+   an arbitrary order and becomes two readable variables: the FILL says
+   which side a country is on (accent or tint), the OUTLINE says it spoke
+   in its own name rather than inheriting its bloc's position. So g1 and
+   g3 are the two silent masses, g2 is the outlier that spoke against its
+   own side, and g4 is the one that spoke WITH it. Nothing about the
+   one-to-three-group ramp changes. */
+.lect-map-g4{fill:var(--lect-accent);stroke:var(--ink);stroke-width:2;}
+.lect-map-legend{
+  display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;
+}
+.lect-map-key{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--gray-txt);}
+.lect-map-swatch{
+  width:13px;height:13px;flex-shrink:0;border:1px solid var(--rule);
+  background:color-mix(in srgb,var(--ink) 9%,var(--paper));
+}
+.lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--lect-accent);border-color:var(--lect-accent);}
+.lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--paper);border:2px solid var(--ink);}
+.lect-map-key.lect-map-g3 .lect-map-swatch{background:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
+.lect-map-key.lect-map-g4 .lect-map-swatch{background:var(--lect-accent);border:2px solid var(--ink);}
+
+/* ——— Paleta "bandos" (2026-08-15) ———
+   Opt-in via the frame item (`Mapa: mundo bandos`), so every map already
+   published keeps the single-hue ramp it shipped with.
+
+   The default ramp is one hue plus a hollow exception, which is right for
+   "who signed and who did not": one camp is the subject, the other is its
+   absence. A map of two camps that are equally the story needs two hues,
+   or one side reads as a weaker version of the other — and on Noticias the
+   accent is Playbook's green, which reads as the affirmative wherever it
+   lands, so a single hue also hands one camp the approval colour.
+
+   Two variables, same as the four-group ramp: the FILL says which side
+   (green for one, the Noticias blue for the other, a flat neutral for
+   whoever has not chosen), the OUTLINE says the country said it in its own
+   name rather than inheriting its bloc's position. Both hues are
+   theme-adaptive tokens, so the contrast holds in the dark theme, where
+   --src-industry lifts to a light blue and the ink outline to near-white.
+
+   Declaration order for this palette: 1 bloc A, 2 declared A, 3 bloc B,
+   4 declared B, 5 undecided. */
+.lect-map[data-palette="bandos"] .lect-map-g1{fill:var(--green);stroke:var(--paper);}
+.lect-map[data-palette="bandos"] .lect-map-g2{fill:var(--green);stroke:var(--ink);stroke-width:2;}
+.lect-map[data-palette="bandos"] .lect-map-g3{fill:var(--src-industry);stroke:var(--paper);}
+.lect-map[data-palette="bandos"] .lect-map-g4{fill:var(--src-industry);stroke:var(--ink);stroke-width:2;}
+.lect-map[data-palette="bandos"] .lect-map-g5{fill:color-mix(in srgb,var(--ink) 22%,var(--paper));stroke:var(--paper);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--green);border-color:var(--green);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--green);border:2px solid var(--ink);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g3 .lect-map-swatch{background:var(--src-industry);border-color:var(--src-industry);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{background:var(--src-industry);border:2px solid var(--ink);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g5 .lect-map-swatch{background:color-mix(in srgb,var(--ink) 22%,var(--paper));}
+.lect-map-key-label{letter-spacing:.02em;}
+.lect-map-key-count{
+  font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
+  font-size:13px;
+}
+
+/* ——— Fuentes: the source credit, set as the quietest thing on the page
+   (see lib/article-sources.ts for why it is credit and not body copy).
+   A hairline, a caption-scale label and the outlet names in one run —
+   deliberately below the reading column's weight, so it reads as a
+   colophon the eye can skip. The first name wears the "origen" mark: the
+   outlet that actually broke the story, named as such. ——— */
+.lect-sources{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;
+  margin:26px 0 0;padding-top:12px;border-top:1px solid var(--rule);
+}
+.lect-sources-label{
+  font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gray-txt);
+}
+.lect-sources-list{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
+  margin:0;padding:0;list-style:none;
+}
+.lect-source{display:flex;align-items:baseline;gap:6px;}
+/* Separator between names, drawn rather than typed so the markup stays a
+   real list for anything reading the page as structure. */
+.lect-source + .lect-source::before{content:"·";color:var(--rule);}
+.lect-source a{
+  font-size:13px;color:var(--gray-txt);text-decoration:none;
+  border-bottom:1px solid var(--rule);padding-bottom:1px;
+  transition:color .18s ease,border-color .18s ease;
+}
+.lect-source a:hover,.lect-source a:focus-visible{color:var(--ink);border-bottom-color:var(--ink);}
+/* The origin mark stays gray in every skin — it labels a fact about the
+   reporting, not the product's identity. */
+.lect-source-origin{
+  font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray-txt);border:1px solid var(--rule);border-radius:2px;
+  padding:1px 5px;line-height:1.4;
+}
+
+/* ——— Pull-figure beat ("Cifra clave:" authoring convention). The number
+   is a full visual stop between rules; ArticleMotion counts it up. ——— */
+.lect-pullfig{margin:36px 0;padding:22px 0 18px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);}
+.lect-pullfig-value{display:inline-block;font-family:var(--serif-display);font-weight:400;font-size:clamp(44px,8vw,76px);line-height:1;color:var(--ink);letter-spacing:.01em;font-variant-numeric:tabular-nums;}
+.lect-pullfig-caption{display:block;margin-top:12px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
+
+/* ——— Device-collection accents. Every round-3 device reads these two
+   custom properties instead of hardcoding per-product rules four times:
+   --lect-accent is the product's graphic color (fills, bars, glyphs);
+   --lect-ink-accent is its LEGIBLE text counterpart (the brand green is
+   too light for text on paper, so light theme uses the same darker green
+   .share-btn.is-copied established, flipping to --green on dark). The
+   gold/violet tokens already adapt per theme; the TFBR red passes on
+   both. Existing devices keep their original rules untouched. ——— */
+.article-detail{--lect-accent:var(--green);--lect-ink-accent:#3f7d0a;}
+[data-theme="dark"] .article-detail{--lect-ink-accent:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-detail{--lect-ink-accent:var(--green);}
+}
+.article-product-la-lana.article-detail{--lect-accent:var(--src-lana);--lect-ink-accent:var(--src-lana);}
+.article-product-infinitas.article-detail{--lect-accent:var(--src-infinitas);--lect-ink-accent:var(--src-infinitas);}
+.article-product-futbol-business-review.article-detail{--lect-accent:var(--tfbr-red);--lect-ink-accent:var(--tfbr-red);}
+
+/* ——— The device collection (round 3): seven story-shaped elements the
+   publish skills choose from — see lib/article-devices.ts for syntax.
+   Shared scaffolding first, then one strong design per device. ——— */
+.lect-device{margin:32px 0;}
+.lect-device-label{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-device-label::before{content:"";width:8px;height:8px;background:var(--lect-accent);flex-shrink:0;}
+
+/* Cronología — a saga on a drawn spine. */
+.lect-timeline{position:relative;}
+.lect-tl-line{position:absolute;left:0;right:0;top:44px;height:2px;background:var(--lect-accent);}
+.lect-tl-list{display:flex;gap:18px;list-style:none;margin:0;padding:14px 0 0;counter-reset:none;}
+.lect-tl-item{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding-top:18px;position:relative;}
+.lect-tl-item::before{
+  content:"";position:absolute;top:-5px;left:0;width:12px;height:12px;border-radius:50%;
+  background:var(--paper);border:3px solid var(--lect-accent);
+}
+/* Long sagas (7–8 milestones, allowed since 2026-08-13): the single-row
+   spine would squeeze each event below readability, so past six items the
+   device adopts the phone treatment at every width — vertical spine on the
+   left, events stacked. Same geometry as the max-width:640px block below;
+   keep the two in step. */
+.lect-timeline:has(.lect-tl-item:nth-child(7)) .lect-tl-line{top:14px;bottom:6px;left:5px;right:auto;width:2px;height:auto;}
+.lect-tl-list:has(> :nth-child(7)){flex-direction:column;gap:16px;padding:0 0 0 24px;}
+.lect-tl-list:has(> :nth-child(7)) .lect-tl-item{padding-top:0;}
+.lect-tl-list:has(> :nth-child(7)) .lect-tl-item::before{top:2px;left:-24px;}
+.lect-tl-when{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--lect-ink-accent);
+}
+.lect-tl-what{font-size:13px;line-height:1.45;color:var(--gray-dark);}
+
+/* Recibo — thermal paper, torn edges, a total that counts. A receipt is
+   white paper whatever the theme says (same fixed-surface criterion as
+   the exhibit matte). */
+.lect-receipt{
+  position:relative;max-width:340px;margin-left:auto;margin-right:auto;padding:18px 20px 14px;
+  background:#fdfdfb;color:#191919;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  box-shadow:0 10px 24px rgba(10,10,10,.16);transform:rotate(.4deg);
+}
+/* Sawtooth tear at both ends — the thermal-roll edge, pure gradients. */
+.lect-receipt::before,.lect-receipt::after{
+  content:"";position:absolute;left:0;right:0;height:7px;
+  background:
+    linear-gradient(45deg,#fdfdfb 3.5px,transparent 0),
+    linear-gradient(-45deg,#fdfdfb 3.5px,transparent 0);
+  background-size:11px 7px;background-repeat:repeat-x;
+}
+.lect-receipt::before{top:-7px;transform:scaleY(-1);}
+.lect-receipt::after{bottom:-7px;}
+.lect-receipt-head{
+  display:block;text-align:center;font-size:11px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;border-bottom:1px dashed #b9b6ad;padding-bottom:10px;margin-bottom:10px;
+}
+.lect-receipt-row{
+  display:flex;align-items:baseline;gap:8px;justify-content:space-between;
+  font-size:12.5px;padding:4px 0;
+}
+/* text-overflow:clip, not ellipsis — the leader dots are MEANT to clip at
+   the row edge; an ellipsis glyph reads as a typo before every value. */
+.lect-receipt-row > span:first-child{overflow:hidden;white-space:nowrap;text-overflow:clip;}
+.lect-receipt-row > span:first-child::after{content:" ................................................";letter-spacing:2px;color:#b9b6ad;}
+.lect-receipt-value{flex-shrink:0;font-weight:700;font-variant-numeric:tabular-nums;}
+.lect-receipt-total{border-top:2px solid #191919;margin-top:8px;padding-top:9px;font-weight:800;text-transform:uppercase;font-size:13px;}
+.lect-receipt-foot{
+  display:block;text-align:center;margin-top:12px;padding-top:10px;border-top:1px dashed #b9b6ad;
+  font-size:10px;letter-spacing:.14em;color:#8b877d;text-transform:uppercase;
+}
+
+/* Ecuación — display math, the business read as arithmetic. */
+.lect-eq-row{display:flex;align-items:center;justify-content:center;gap:16px 22px;flex-wrap:wrap;text-align:center;}
+.lect-eq-term{display:flex;flex-direction:column;gap:4px;align-items:center;}
+.lect-eq-num{font-family:var(--serif-display);font-size:clamp(24px,3.6vw,38px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-eq-unit{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-txt);max-width:14ch;}
+.lect-eq-op{font-family:var(--serif-display);font-size:clamp(20px,2.6vw,28px);color:var(--lect-ink-accent);}
+.lect-eq-result .lect-eq-num{color:var(--lect-ink-accent);box-shadow:inset 0 -0.18em 0 0 color-mix(in srgb,var(--lect-accent) 40%,transparent);padding:0 4px;}
+
+/* Salto — before → after, colored by direction (finance semantics:
+   green up, red down — theme-checked pairs used elsewhere on site). */
+.lect-salto{text-align:left;}
+.lect-salto-row{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;}
+.lect-salto-from{
+  font-family:var(--serif-display);font-size:clamp(20px,3vw,30px);line-height:1;color:var(--gray-txt);
+  text-decoration:line-through;text-decoration-thickness:3px;
+  text-decoration-color:color-mix(in srgb,var(--gray-txt) 55%,transparent);
+}
+.lect-salto-arrow{font-size:clamp(22px,3vw,32px);line-height:1;font-weight:800;color:var(--lect-ink-accent);}
+.lect-salto-to{font-family:var(--serif-display);font-size:clamp(34px,5.4vw,54px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-salto[data-dir="up"] .lect-salto-arrow{color:#3f7d0a;}
+.lect-salto[data-dir="down"] .lect-salto-arrow{color:#c0392b;}
+[data-theme="dark"] .lect-salto[data-dir="up"] .lect-salto-arrow{color:var(--green);}
+[data-theme="dark"] .lect-salto[data-dir="down"] .lect-salto-arrow{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-salto[data-dir="up"] .lect-salto-arrow{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-salto[data-dir="down"] .lect-salto-arrow{color:#e0616b;}
+}
+.lect-salto-caption{display:block;margin-top:10px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
+
+/* Reparto — the floor plan of the money: one bar, shaded in steps of the
+   product accent, with a swatch legend. Re-stepped 2026-08-13 after a
+   palette-validator pass: five DISTINCT shades (a five-part reparto used to
+   cycle back to shade 0, giving two legend entries the same swatch), a dark
+   ink-mix anchor to widen the ramp's spread, and diagonal stripes on the two
+   lightest steps — a single accent hue can't hold five tints apart on its
+   own, so the light end carries pattern as well as color (CVD/print-safe).
+   The 2px gaps let the surface separate adjacent fills. */
+.lect-rep-bar{display:flex;gap:2px;height:34px;border:1px solid var(--rule);background:var(--paper);overflow:hidden;}
+.lect-rep-seg{height:100%;}
+.lect-rep-seg[data-shade="0"],.lect-rep-swatch[data-shade="0"]{background:color-mix(in srgb,var(--lect-accent) 45%,var(--ink));}
+.lect-rep-seg[data-shade="1"],.lect-rep-swatch[data-shade="1"]{background:var(--lect-accent);}
+.lect-rep-seg[data-shade="2"],.lect-rep-swatch[data-shade="2"]{background:color-mix(in srgb,var(--lect-accent) 58%,var(--paper));}
+.lect-rep-seg[data-shade="3"],.lect-rep-swatch[data-shade="3"]{
+  background:repeating-linear-gradient(45deg,
+    color-mix(in srgb,var(--lect-accent) 52%,var(--paper)) 0 3px,
+    color-mix(in srgb,var(--lect-accent) 26%,var(--paper)) 3px 8px);
+}
+.lect-rep-seg[data-shade="4"],.lect-rep-swatch[data-shade="4"]{
+  background:repeating-linear-gradient(135deg,
+    color-mix(in srgb,var(--lect-accent) 44%,var(--paper)) 0 2px,
+    color-mix(in srgb,var(--lect-accent) 12%,var(--paper)) 2px 9px);
+}
+.lect-rep-legend{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:12px;}
+.lect-rep-key{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--gray-dark);}
+.lect-rep-swatch{width:11px;height:11px;flex-shrink:0;border:1px solid var(--rule);}
+.lect-rep-pct{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+
+/* Alineación — the lineup as numbered kit chips, names flapping in. */
+.lect-lineup-row{display:flex;gap:10px;flex-wrap:wrap;}
+.lect-lineup-chip{
+  display:inline-flex;align-items:center;gap:9px;padding:7px 14px 7px 9px;
+  border:1.5px solid var(--rule);border-left:4px solid var(--lect-accent);background:var(--paper-soft);
+}
+.lect-lineup-num{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:800;color:var(--lect-ink-accent);
+}
+.lect-lineup-name{
+  font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);
+  min-height:1em;
+}
+/* A chip whose name the brand registry recognises wears that asset's own
+   colours instead of the product accent (2026-08-15). Scoped to .lect-brand,
+   which lib/article-devices.ts adds ONLY on a resolved name, so a roster of
+   people keeps the accent it has always had. The --brand-* names and their
+   two-theme cascade are defined once, with the transfer devices below. */
+.lect-lineup-chip.lect-brand{border-left-color:var(--brand-fill);}
+.lect-lineup-chip.lect-brand .lect-lineup-num{color:var(--brand-ink);}
+
+/* Cotización — a market tile: name, price, delta with direction. */
+.lect-quote-row{
+  display:flex;align-items:baseline;gap:14px 18px;flex-wrap:wrap;
+  padding:16px 18px;background:#101210;border-radius:8px;
+  border:1px solid color-mix(in srgb,var(--lect-accent) 30%,transparent);
+  font-variant-numeric:tabular-nums;
+}
+.lect-quote-name{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,233,220,.85);
+}
+.lect-quote-value{font-family:var(--serif-display);font-size:clamp(24px,3.4vw,34px);line-height:1;color:#fff;}
+.lect-quote-delta{
+  display:inline-flex;align-items:baseline;gap:5px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:14px;font-weight:800;
+}
+.lect-quote[data-dir="up"] .lect-quote-delta{color:var(--green);}
+.lect-quote[data-dir="down"] .lect-quote-delta{color:#ff6b6b;}
+.lect-quote-note{width:100%;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(240,233,220,.5);}
+/* Infinitas swaps the dark tile for its flat surface, same as the jugada. */
+.article-product-infinitas .lect-quote-row{background:var(--paper);border:1px solid var(--src-infinitas);}
+.article-product-infinitas .lect-quote-name{color:var(--gray-txt);}
+.article-product-infinitas .lect-quote-value{color:var(--ink);}
+/* The note's faint-on-dark color is invisible on Infinitas' light tile. */
+.article-product-infinitas .lect-quote-note{color:var(--gray-txt);}
+.article-product-infinitas .lect-quote[data-dir="up"] .lect-quote-delta{color:#3f7d0a;}
+[data-theme="dark"] .article-product-infinitas .lect-quote[data-dir="up"] .lect-quote-delta{color:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-product-infinitas .lect-quote[data-dir="up"] .lect-quote-delta{color:var(--green);}
+}
+.article-product-infinitas .lect-quote[data-dir="down"] .lect-quote-delta{color:#c0392b;}
+[data-theme="dark"] .article-product-infinitas .lect-quote[data-dir="down"] .lect-quote-delta{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-product-infinitas .lect-quote[data-dir="down"] .lect-quote-delta{color:#e0616b;}
+}
+
+/* Resultados — one company's reporting period as a statement panel: a
+   ruled header, then a line per metric with its value and its own change.
+   Deliberately the quietest numeric device in the collection. A filing is
+   read as a column of figures, so the layout is a real column — labels
+   flush left, values right-aligned on tabular numerals so digits stack,
+   deltas in a fixed-width gutter after them so the eye can run down the
+   signs alone without reading a single value. Direction colour matches
+   Salto (green up, red down); the flat variant reserves the gutter for a
+   row with no comparable, keeping the column from ragging. */
+.lect-res-panel{
+  border:1.5px solid var(--rule);border-top:3px solid var(--lect-accent);
+  background:var(--paper-soft);padding:16px 18px 6px;
+}
+.lect-res-head{
+  display:block;padding-bottom:12px;margin-bottom:4px;border-bottom:1px solid var(--rule);
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--lect-ink-accent);
+}
+.lect-res-row{
+  display:grid;grid-template-columns:1fr auto 74px;align-items:baseline;gap:12px;
+  padding:11px 0;border-bottom:1px solid color-mix(in srgb,var(--rule) 55%,transparent);
+}
+.lect-res-row:last-child{border-bottom:0;}
+.lect-res-label{
+  font-size:13px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-res-value{
+  font-family:var(--serif-display);font-size:clamp(19px,2.4vw,25px);line-height:1;
+  color:var(--ink);font-variant-numeric:tabular-nums;justify-self:end;
+}
+.lect-res-delta{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;
+  display:inline-flex;align-items:baseline;gap:4px;justify-self:end;
+}
+.lect-res-delta[data-dir="up"]{color:#3f7d0a;}
+.lect-res-delta[data-dir="down"]{color:#c0392b;}
+[data-theme="dark"] .lect-res-delta[data-dir="up"]{color:var(--green);}
+[data-theme="dark"] .lect-res-delta[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-res-delta[data-dir="up"]{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-res-delta[data-dir="down"]{color:#e0616b;}
+}
+/* Narrow screens: the delta gutter costs more than it gives, so the row
+   folds to label over value+delta rather than crushing the figure. */
+@media(max-width:480px){
+  .lect-res-row{grid-template-columns:1fr auto;gap:4px 10px;}
+  .lect-res-label{grid-column:1/-1;}
+  .lect-res-value{justify-self:start;}
+}
+
+/* Duelo — two institutions on the same metrics: a butterfly chart with
+   both bars anchored on the centre line and growing outwards. Side A
+   carries the solid product accent, side B a washed-out step of the same
+   ink, so the page never reads as two competing colours. Each row is
+   scaled against its own larger side, so the ratio is the message. */
+.lect-duelo-head{
+  display:grid;grid-template-columns:1fr 1fr;gap:0 22px;
+  padding-bottom:9px;border-bottom:2px solid var(--ink);
+}
+.lect-duelo-name{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+}
+.lect-duelo-name::before{content:"";width:10px;height:10px;flex-shrink:0;}
+.lect-duelo-name[data-side="a"]::before{background:var(--lect-accent);}
+.lect-duelo-name[data-side="b"]::before{background:color-mix(in srgb,var(--lect-accent) 32%,var(--paper));border:1px solid var(--rule);}
+.lect-duelo-name[data-side="b"]{flex-direction:row-reverse;}
+.lect-duelo-rows{display:flex;flex-direction:column;gap:14px;padding-top:14px;}
+.lect-duelo-row{display:flex;flex-direction:column;gap:6px;}
+.lect-duelo-label{
+  align-self:center;text-align:center;
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-duelo-track{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;align-items:center;position:relative;}
+.lect-duelo-track::before{
+  content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;
+  background:var(--rule);transform:translateX(-50%);
+}
+.lect-duelo-half{display:flex;align-items:center;gap:10px;min-width:0;}
+.lect-duelo-lane{flex:1 1 auto;min-width:0;display:flex;}
+.lect-duelo-half[data-side="a"] .lect-duelo-lane{justify-content:flex-end;}
+.lect-duelo-bar{height:20px;background:var(--lect-accent);}
+.lect-duelo-bar[data-side="b"]{background:color-mix(in srgb,var(--lect-accent) 32%,var(--paper));border:1px solid var(--rule);}
+/* Loss rows: the bar still measures magnitude, so the colour is what stops
+   "lost more" from reading as "earned more". Same red the Salto and the
+   Cotización already use for a downward move. */
+.lect-duelo-bar[data-neg]{background:#c0392b;border-color:#c0392b;}
+.lect-duelo-bar[data-side="b"][data-neg]{background:color-mix(in srgb,#c0392b 34%,var(--paper));}
+.lect-duelo-val[data-neg]{color:#c0392b;}
+[data-theme="dark"] .lect-duelo-val[data-neg]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-duelo-val[data-neg]{color:#e0616b;}
+}
+.lect-duelo-val{
+  flex:0 0 auto;
+  font-family:var(--serif-display);font-size:clamp(17px,2.4vw,23px);line-height:1.1;
+  color:var(--ink);font-variant-numeric:tabular-nums;
+}
+
+/* Serie — two lines on one axis, the shape of each institution's money
+   over time. Series A takes the product accent; series B takes a blue
+   that reads as a DIFFERENT SERIES rather than a verdict. Red is
+   deliberately not used here: it already means "a loss" everywhere else
+   in this collection (the Salto arrow, the Cotización delta, a negative
+   Duelo row), and a permanently red line would say "bad" at every point
+   including the ones where that series is winning. */
+.lect-serie{--lect-serie-a:var(--lect-accent);--lect-serie-b:#2f6fed;}
+[data-theme="dark"] .lect-serie{--lect-serie-b:#6ea8ff;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-serie{--lect-serie-b:#6ea8ff;}
+}
+.lect-serie-key{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:6px;}
+.lect-serie-name{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+}
+.lect-serie-name::before{content:"";width:16px;height:3px;flex-shrink:0;}
+.lect-serie-name[data-side="a"]::before{background:var(--lect-serie-a);}
+.lect-serie-name[data-side="b"]::before{background:var(--lect-serie-b);}
+.lect-serie-chart{display:block;width:100%;height:auto;overflow:visible;}
+.lect-serie-grid{stroke:var(--rule);stroke-width:1;}
+.lect-serie-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;}
+.lect-serie-line[data-side="a"]{stroke:var(--lect-serie-a);}
+.lect-serie-line[data-side="b"]{stroke:var(--lect-serie-b);}
+.lect-serie-area{stroke:none;}
+.lect-serie-area[data-side="a"]{fill:color-mix(in srgb,var(--lect-serie-a) 16%,transparent);}
+.lect-serie-area[data-side="b"]{fill:color-mix(in srgb,var(--lect-serie-b) 13%,transparent);}
+.lect-serie-dot{stroke:var(--paper);stroke-width:2;}
+.lect-serie-dot[data-side="a"]{fill:var(--lect-serie-a);}
+.lect-serie-dot[data-side="b"]{fill:var(--lect-serie-b);}
+.lect-serie-val{
+  font-family:var(--sans);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.lect-serie-val[data-side="a"]{fill:var(--lect-ink-accent);}
+.lect-serie-val[data-side="b"]{fill:var(--lect-serie-b);}
+.lect-serie-period{
+  font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;fill:var(--gray-txt);
+}
+
+/* ——— 2026-08-13 per-device upgrades: the computed chips and annotations.
+   Direction colors reuse the Salto/Resultados pairs (one meaning for green
+   and red across the whole collection); side colors reuse the Duelo's. ——— */
+
+/* Cronología: the last milestone is where the saga stands NOW. */
+.lect-tl-item[data-current="true"]::before{background:var(--lect-accent);}
+.lect-tl-item[data-current="true"] .lect-tl-what{color:var(--ink);font-weight:600;}
+
+/* Cifra clave: attribution chip riding the caption (evidence ladder §8). */
+.lect-pullfig-source{
+  display:inline-block;margin-left:8px;padding:1px 8px;border:1px solid var(--rule);
+  border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--gray-txt);
+}
+
+/* Jugada: the stake note — what the connection actually is. */
+.lect-jugada-note{
+  width:100%;font-size:11.5px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:rgba(240,233,220,.55);
+}
+.article-product-infinitas .lect-jugada-note{color:var(--gray-txt);}
+
+/* Salto: the computed percent-change chip. */
+.lect-salto-pct{
+  align-self:center;padding:3px 8px;border-radius:6px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.lect-salto-pct[data-dir="up"]{color:#3f7d0a;background:color-mix(in srgb,#3f7d0a 10%,transparent);}
+.lect-salto-pct[data-dir="down"]{color:#c0392b;background:color-mix(in srgb,#c0392b 10%,transparent);}
+[data-theme="dark"] .lect-salto-pct[data-dir="up"]{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);}
+[data-theme="dark"] .lect-salto-pct[data-dir="down"]{color:#e0616b;background:color-mix(in srgb,#e0616b 12%,transparent);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-salto-pct[data-dir="up"]{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);}
+  :root:not([data-theme="light"]) .lect-salto-pct[data-dir="down"]{color:#e0616b;background:color-mix(in srgb,#e0616b 12%,transparent);}
+}
+
+/* Alineación: the role line under a chip's name. */
+.lect-lineup-chip{flex-wrap:wrap;row-gap:2px;}
+.lect-lineup-role{
+  width:100%;padding-left:0;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gray-txt);
+}
+
+/* Cotización tile: the 52-week-style range track. */
+.lect-quote-range{
+  display:flex;align-items:center;gap:10px;margin-top:8px;padding:0 18px 4px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;color:var(--gray-txt);font-variant-numeric:tabular-nums;
+}
+.lect-quote-range-track{
+  position:relative;flex:1;height:4px;border-radius:2px;
+  background:color-mix(in srgb,var(--lect-accent) 22%,var(--paper-soft));
+}
+.lect-quote-range-mark{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:10px;height:10px;border-radius:50%;
+  background:var(--lect-accent);border:2px solid var(--paper);
+}
+
+/* Resultados: the delta-magnitude bar under each row. */
+.lect-res-deltabar{
+  grid-column:1 / -1;display:block;height:3px;border-radius:2px;
+  background:color-mix(in srgb,var(--gray-txt) 12%,transparent);overflow:hidden;
+}
+.lect-res-deltabar-fill{display:block;height:100%;border-radius:2px;}
+.lect-res-deltabar-fill[data-dir="up"]{background:#3f7d0a;}
+.lect-res-deltabar-fill[data-dir="down"]{background:#c0392b;}
+[data-theme="dark"] .lect-res-deltabar-fill[data-dir="up"]{background:var(--green);}
+[data-theme="dark"] .lect-res-deltabar-fill[data-dir="down"]{background:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-res-deltabar-fill[data-dir="up"]{background:var(--green);}
+  :root:not([data-theme="light"]) .lect-res-deltabar-fill[data-dir="down"]{background:#e0616b;}
+}
+
+/* Duelo: the computed per-row ratio chip, tinted by the winning side. */
+.lect-duelo-ratio{
+  display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em;
+  vertical-align:1px;
+}
+.lect-duelo-ratio[data-side="a"]{color:var(--lect-ink-accent);background:color-mix(in srgb,var(--lect-accent) 16%,transparent);}
+.lect-duelo-ratio[data-side="b"]{color:var(--gray-dark);background:color-mix(in srgb,var(--gray-txt) 14%,transparent);border:1px solid var(--rule);}
+
+/* Cadena: the per-era appreciation chip, right under its handover price
+   (the link row is a 3-col grid; the chip claims the price column). */
+.lect-cadena-step{
+  grid-column:3;justify-self:end;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.lect-cadena-step[data-dir="up"]{color:#3f7d0a;}
+.lect-cadena-step[data-dir="down"]{color:#c0392b;}
+[data-theme="dark"] .lect-cadena-step[data-dir="up"]{color:var(--green);}
+[data-theme="dark"] .lect-cadena-step[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cadena-step[data-dir="up"]{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-cadena-step[data-dir="down"]{color:#e0616b;}
+}
+
+/* Device responsive: the timeline stacks vertical on phones (spine moves
+   to the left edge), everything else already wraps. */
+@media(max-width:640px){
+  .lect-tl-line{top:14px;bottom:6px;left:5px;right:auto;width:2px;height:auto;}
+  .lect-tl-list{flex-direction:column;gap:16px;padding:0 0 0 24px;}
+  .lect-tl-item{padding-top:0;}
+  .lect-tl-item::before{top:2px;left:-24px;}
+  .lect-receipt{max-width:100%;}
+  .lect-eq-row{gap:12px 14px;}
+  /* The Serie's SVG scales to the column, so at phone width every user
+     unit shrinks by about half. Text and strokes are re-specified in
+     user units here to land back at the same on-screen size — the chart
+     keeps its shape, the labels stay readable. */
+  .lect-serie-val{font-size:21px;}
+  .lect-serie-period{font-size:19px;}
+  .lect-serie-line{stroke-width:4;}
+  .lect-serie-dot{r:6;stroke-width:3;}
+  .lect-serie-grid{stroke-width:2;}
+
+  /* The butterfly needs width to stay legible; on a phone the two sides
+     stack and the bars all grow from the left instead. */
+  .lect-duelo-head,.lect-duelo-track{grid-template-columns:1fr;gap:6px;}
+  .lect-duelo-track::before{display:none;}
+  .lect-duelo-name[data-side="b"]{flex-direction:row;}
+  .lect-duelo-half[data-side="b"]{flex-direction:row-reverse;}
+  .lect-duelo-half[data-side="a"] .lect-duelo-lane{justify-content:flex-start;}
+  .lect-duelo-label{align-self:flex-start;text-align:left;}
+}
+
+/* ——— Cotización, track form (round 5). The tile above is one moment;
+   this is the same device with a time axis, a second independently-scaled
+   track, and a threshold line.
+
+   TWO COMPLETE LAYERS, NOT ONE THAT MOVES. .lect-cot-wide is the whole arc
+   and .lect-cot-zoom is the closing window, each projected on its own by
+   buildTrack, so both are geometrically correct at rest. ArticleMotion
+   pushes from the first to the second on scroll; if it never runs, the
+   wide layer is what shows and the detail strip below still carries the
+   closing numbers as text. That is the whole reason the zoom is built as
+   a cross-fade of two truths rather than a transform on one. ——— */
+/* Track A is the quoted company, so it takes that company's own ink from
+   the brand registry (--brand-ink, set by .lect-brand above and already
+   contrast-corrected per theme); it falls back to the product accent for a
+   ticker nobody has registered. Track B keeps a blue of its own, because
+   the second track is a DIFFERENT quantity and must never read as a shade
+   of the first. Red stays unavailable here for the same reason it is in
+   Serie: it means "a loss" everywhere else in the collection. */
+.lect-cot{--cot-a:var(--brand-ink);--cot-b:#2f6fed;}
+[data-theme="dark"] .lect-cot{--cot-b:#6ea8ff;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cot{--cot-b:#6ea8ff;}
+}
+/* The same colour block the Venta deed opens with, so the two devices read
+   as one family: the asset announces itself, then the data. */
+.lect-cot-crest{
+  background:var(--brand-fill);border-bottom:4px solid var(--brand-alt);
+  padding:11px 16px 9px;margin-bottom:12px;
+}
+.lect-cot-asset{
+  display:block;font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(20px,3.2vw,30px);line-height:1;color:var(--brand-on);
+  letter-spacing:.02em;text-transform:uppercase;
+}
+.lect-cot-key{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;}
+.lect-cot-name{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+}
+.lect-cot-name::before{content:"";width:16px;height:3px;flex-shrink:0;}
+.lect-cot-name[data-side="a"]::before{background:var(--cot-a);}
+.lect-cot-name[data-side="b"]::before{background:var(--cot-b);}
+/* The stage clips the push-in so a scaling layer never bleeds over the
+   prose while it is on its way out. */
+/* The estimate disclosure. Set quiet but not hidden: it sits above the
+   chart, not under it, because a reader has to meet it before reading a
+   daily line built from four published points. */
+.lect-cot-note{
+  margin:0 0 10px;font-size:11.5px;line-height:1.45;color:var(--gray-txt);
+  border-left:2px solid var(--rule);padding-left:9px;
+}
+.lect-cot-stage{position:relative;overflow:hidden;}
+.lect-cot-chart{display:block;width:100%;height:auto;}
+/* Both layers occupy the same box. The zoom layer starts hidden and is
+   revealed by the motion; with no JS the wide layer simply stays. */
+.lect-cot-zoom{opacity:0;}
+.lect-cot-grid{stroke:var(--rule);stroke-width:1;}
+.lect-cot-area{fill:color-mix(in srgb,var(--cot-a) 14%,transparent);stroke:none;}
+.lect-cot-line{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;}
+.lect-cot-line[data-side="a"]{stroke:var(--cot-a);}
+/* Solid and a touch heavier than track A: B is the series the threshold
+   belongs to, and a dashed hairline lost the argument against a dense
+   ticker. The halo below is what buys it contrast without a second hue. */
+.lect-cot-line[data-side="b"]{stroke:var(--cot-b);stroke-width:3;}
+.lect-cot-halo{fill:none;stroke:var(--paper);stroke-width:7;stroke-linejoin:round;stroke-linecap:round;opacity:.85;}
+.lect-cot-dot{stroke:var(--paper);stroke-width:2;}
+.lect-cot-dot[data-side="a"]{fill:var(--cot-a);}
+.lect-cot-dot[data-side="b"]{fill:var(--cot-b);}
+/* Both label families sit ON the plot, which after the linked track became
+   a busy place. paint-order draws a paper-coloured stroke behind the glyphs
+   first, so a figure stays readable wherever a line runs under it without
+   needing a box or a leader. */
+.lect-cot-val{
+  font-family:var(--sans);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;
+  paint-order:stroke fill;stroke:var(--paper);stroke-width:3.5px;stroke-linejoin:round;
+}
+/* Value labels follow their own track's colour, not the product accent:
+   track A's line is the brand's ink, so its figures have to be too. */
+.lect-cot-val[data-side="a"]{fill:var(--cot-a);}
+.lect-cot-val[data-side="b"]{fill:var(--cot-b);}
+.lect-cot-tick{
+  font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;fill:var(--gray-txt);
+}
+/* The threshold is the line the story is about, so it is drawn as a stated
+   rule rather than another gridline. */
+.lect-cot-umbral{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:2 4;opacity:.55;}
+.lect-cot-umbral-txt{
+  font-family:var(--sans);font-size:11px;font-weight:800;letter-spacing:.08em;fill:var(--gray-txt);
+  paint-order:stroke fill;stroke:var(--paper);stroke-width:3.5px;stroke-linejoin:round;
+}
+/* Always visible, and the reason the device degrades gracefully: the
+   closing numbers live here as text, not only as geometry. */
+.lect-cot-detail{
+  display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;
+  margin-top:12px;padding-top:11px;border-top:1.5px solid var(--rule);
+}
+.lect-cot-detail-when{
+  font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-cot-detail-item{display:inline-flex;align-items:baseline;gap:8px;}
+.lect-cot-detail-k{font-size:12px;font-weight:700;color:var(--gray-dark);}
+.lect-cot-detail-v{
+  font-size:17px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.lect-cot-move{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;}
+.lect-cot-move[data-dir="up"]{color:#3f7d0a;}
+.lect-cot-move[data-dir="down"]{color:#c0392b;}
+[data-theme="dark"] .lect-cot-move[data-dir="up"]{color:var(--green);}
+[data-theme="dark"] .lect-cot-move[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cot-move[data-dir="up"]{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-cot-move[data-dir="down"]{color:#e0616b;}
+}
+/* Crossing the threshold is the news, so it is set as a stamp rather than
+   another figure in the row. */
+.lect-cot-broke{
+  font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--paper);background:#c0392b;padding:3px 7px;
+}
+[data-theme="dark"] .lect-cot-broke{background:#e0616b;color:var(--ink-fixed);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cot-broke{background:#e0616b;color:var(--ink-fixed);}
+}
+@media(max-width:640px){
+  .lect-cot-detail{gap:8px 14px;}
+  .lect-cot-detail-v{font-size:15px;}
+}
+
+/* ——— Round 4: the transfer-of-title devices (Venta, Cadena). These two
+   are the ONLY devices that do not wear the product accent. The asset
+   changing hands wears its own brand palette, resolved and contrast-
+   corrected server-side by lib/brand-colors.ts and handed over as eight
+   --pb-brand-* properties on the device root.
+
+   Everything below reads the four LOCAL names, never --pb-* directly, so
+   the fallback lives in exactly one place: an asset with no registered
+   palette (a rights package, a stadium, a league stake) emits no custom
+   properties at all and every rule here resolves to the house palette
+   instead. That is why there is no "unbranded" variant class.
+
+   THE FALLBACK IS PLAYBOOK'S OWN PALETTE, NOT --lect-accent (publisher
+   directive, 2026-08-12). Inheriting the product accent meant an
+   unbranded deed came out gold on La Lana, violet on Infinitas and red on
+   TFBR — three different looks for the same "no brand here" state, none
+   of them chosen, each one reading as a colour that meant something. The
+   device's argument is that the crest belongs to the ASSET; when the
+   asset has no crest the honest answer is that it belongs to Playbook, so
+   it wears the house green deliberately and looks the same on every
+   product. --green is the house graphic colour and #3f7d0a its legible
+   text counterpart on paper (the same darker green .share-btn.is-copied
+   and the default --lect-ink-accent already use); the crest's rule takes
+   --ink, so the block reads as a Playbook object rather than a tinted
+   one.
+
+   Same three-layer theme cascade the Serie uses above, and for the same
+   reason — :root and [data-theme] tie on specificity, so order decides.
+   Both themes get their own corrected values because a colour legible on
+   cream is routinely invisible on #121316 and the reverse. ——— */
+.lect-brand{
+  --brand-fill:var(--pb-brand-fill,var(--green));
+  --brand-on:var(--pb-brand-on,var(--ink-fixed));
+  --brand-ink:var(--pb-brand-ink,#3f7d0a);
+  --brand-alt:var(--pb-brand-alt,var(--ink));
+}
+[data-theme="dark"] .lect-brand{
+  --brand-fill:var(--pb-brand-fill-dark,var(--green));
+  --brand-on:var(--pb-brand-on-dark,var(--ink-fixed));
+  --brand-ink:var(--pb-brand-ink-dark,var(--green));
+  --brand-alt:var(--pb-brand-alt-dark,var(--ink));
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-brand{
+    --brand-fill:var(--pb-brand-fill-dark,var(--green));
+    --brand-on:var(--pb-brand-on-dark,var(--ink-fixed));
+    --brand-ink:var(--pb-brand-ink-dark,var(--green));
+    --brand-alt:var(--pb-brand-alt-dark,var(--ink));
+  }
+}
+
+/* Venta — the deed. A bordered instrument, not a card: the crest bar is
+   the asset's colour block, the parties sit either side of a transfer
+   arrow, and the price is the largest thing in the device because it is
+   the largest thing in the story. */
+.lect-venta-deed{border:1.5px solid var(--rule);background:var(--paper-soft);overflow:hidden;}
+.lect-venta-crest{
+  background:var(--brand-fill);border-bottom:4px solid var(--brand-alt);
+  padding:14px 18px 12px;
+}
+.lect-venta-asset{
+  display:block;font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(26px,4.4vw,40px);line-height:1;color:var(--brand-on);
+  letter-spacing:.02em;text-transform:uppercase;
+}
+.lect-venta-parties{
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;
+  padding:18px;border-bottom:1px solid var(--rule);
+}
+.lect-venta-party{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.lect-venta-party[data-side="to"]{text-align:right;}
+.lect-venta-role{
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-venta-name{font-size:15px;font-weight:700;line-height:1.3;color:var(--ink);}
+.lect-venta-arrow{
+  font-size:clamp(22px,3.4vw,30px);line-height:1;font-weight:800;color:var(--brand-ink);
+}
+.lect-venta-price{
+  display:flex;flex-direction:column;gap:6px;align-items:center;padding:20px 18px 18px;
+}
+.lect-venta-price-label{
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-venta-figure{
+  font-family:var(--serif-display);font-weight:400;font-size:clamp(40px,8.4vw,72px);
+  line-height:1;color:var(--brand-ink);font-variant-numeric:tabular-nums;letter-spacing:.01em;
+}
+.lect-venta-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:11px 18px;border-top:1px solid var(--rule);background:var(--paper);
+}
+.lect-venta-foot-label{
+  font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-venta-foot-value{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-venta-note{font-size:12px;color:var(--gray-txt);}
+.lect-venta-date{
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);
+}
+/* The multiple is computed, never authored (lib/article-devices.ts's
+   multipleBetween), and takes the same direction colours as the Salto
+   arrow and the Resultados delta — one meaning for green and red across
+   the whole collection. */
+.lect-venta-mult,.lect-cadena-mult{
+  font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em;
+}
+.lect-venta-mult[data-dir="up"],.lect-cadena-mult[data-dir="up"]{color:#3f7d0a;}
+.lect-venta-mult[data-dir="down"],.lect-cadena-mult[data-dir="down"]{color:#c0392b;}
+[data-theme="dark"] .lect-venta-mult[data-dir="up"],
+[data-theme="dark"] .lect-cadena-mult[data-dir="up"]{color:var(--green);}
+[data-theme="dark"] .lect-venta-mult[data-dir="down"],
+[data-theme="dark"] .lect-cadena-mult[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-venta-mult[data-dir="up"],
+  :root:not([data-theme="light"]) .lect-cadena-mult[data-dir="up"]{color:var(--green);}
+  :root:not([data-theme="light"]) .lect-venta-mult[data-dir="down"],
+  :root:not([data-theme="light"]) .lect-cadena-mult[data-dir="down"]{color:#e0616b;}
+}
+
+/* Cadena — the chain of title, drawn DOWN rather than across. The
+   Cronología is the horizontal one; a chain of ownership routinely spans
+   half a century in one link and fourteen months in the next, and a
+   horizontal layout can only show that by squeezing a label into 2% of
+   the width. Vertical rows are legible at any ratio, and the hold bar
+   carries the asymmetry instead. */
+.lect-cadena-panel{border:1.5px solid var(--rule);border-top:4px solid var(--brand-fill);padding:16px 18px 14px;}
+.lect-cadena-asset{
+  display:block;margin-bottom:12px;
+  font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--brand-ink);
+}
+.lect-cadena-list{
+  list-style:none;margin:0;padding:0 0 0 22px;position:relative;
+}
+/* The rail. Stops short at the bottom so the chain reads as ending at
+   the current owner rather than continuing off the panel. */
+.lect-cadena-list::before{
+  content:"";position:absolute;left:4px;top:6px;bottom:22px;width:2px;background:var(--brand-fill);
+}
+/* Grid rather than inline-block + float: the era label is authored text of
+   unknown length ("1979", "Los ochenta") and a float layout let a long one
+   run straight into the owner's name with no gap. */
+.lect-cadena-link{
+  position:relative;padding:0 0 16px;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;gap:4px 12px;
+}
+.lect-cadena-link:last-child{padding-bottom:0;}
+.lect-cadena-link::before{
+  content:"";position:absolute;left:-22px;top:4px;width:10px;height:10px;border-radius:50%;
+  background:var(--paper);border:3px solid var(--brand-fill);box-sizing:border-box;
+}
+/* The current owner is the one the story is about — filled, not hollow. */
+.lect-cadena-link[data-current="true"]::before{background:var(--brand-fill);}
+.lect-cadena-when{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--brand-ink);white-space:nowrap;
+}
+.lect-cadena-who{font-size:14px;font-weight:700;color:var(--ink);min-width:0;}
+.lect-cadena-price{
+  font-size:14px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+/* The hold bar: as long as the era lasted, scaled against the longest one
+   in the chain. Only drawn when every link carries a real year — see
+   buildChain, which omits the whole row rather than estimate a span. */
+/* Two tracks, so the bar's own width:N% is a share of the TRACK and the
+   duration label always has room beside it. A flex row with the bar at
+   width:100% overflowed the panel by exactly the label's width. */
+.lect-cadena-hold{
+  grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;gap:8px;margin-top:7px;
+}
+/* Tinted from --brand-ink, NOT --brand-fill. The fill is only guaranteed
+   to clear the graphic bar (2.2:1), so a light one — Playbook's own green,
+   Dortmund yellow — mixed down to 42% lands almost on the paper and the
+   bar carrying the device's argument becomes the faintest thing in it.
+   --brand-ink is guaranteed 4.5:1 against the page in both themes, so a
+   tint of it is visible whatever palette arrived. */
+.lect-cadena-holdbar{
+  display:block;height:6px;min-width:3px;
+  background:color-mix(in srgb,var(--brand-ink) 45%,var(--paper));
+  border-left:2px solid var(--brand-ink);box-sizing:border-box;
+}
+.lect-cadena-holdtxt{
+  font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-cadena-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin-top:14px;padding-top:11px;border-top:1px solid var(--rule);
+}
+.lect-cadena-foot-txt{
+  font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);
+}
+
+@media(max-width:640px){
+  /* The deed's three-column party row can't hold two names and an arrow
+     at this width. Stack them and turn the arrow down the page, so the
+     direction of the transfer survives the reflow. */
+  .lect-venta-parties{grid-template-columns:1fr;gap:10px;}
+  .lect-venta-party[data-side="to"]{text-align:left;}
+  .lect-venta-arrow{transform:rotate(90deg);align-self:flex-start;}
+  /* The three-column link row can't hold a long owner name and a price at
+     this width; drop the price onto its own line under the name. */
+  .lect-cadena-link{grid-template-columns:auto minmax(0,1fr);}
+  .lect-cadena-price{grid-column:2;}
+}
+
+/* ——— The roadmap eight (docs/device-roadmap.md, built 2026-08-14):
+   Contrato, Calendario, Votación, Ranking, Cascada, Perfil, Escenarios,
+   Tablero. Same system as every round before: product identity rides
+   --lect-accent / --lect-ink-accent, Perfil rides the .lect-brand vars,
+   bars animate via [data-lect-grow] (ArticleMotion) with static widths
+   as the no-JS state. ——— */
+
+/* Contrato — the pairing, the annual figure, the term drawn with "hoy". */
+.lect-contract-parties{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.lect-contract-side{font-family:var(--sans);font-weight:800;font-size:clamp(17px,2.2vw,22px);color:var(--ink);}
+.lect-contract-arrow{font-size:clamp(16px,2vw,20px);font-weight:800;color:var(--lect-ink-accent);}
+.lect-contract-amount{display:flex;align-items:baseline;gap:10px;margin:10px 0 12px;}
+.lect-contract-figure{font-family:var(--serif-display);font-size:clamp(30px,4.6vw,46px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-contract-per{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-contract-term{display:flex;align-items:center;gap:12px;}
+.lect-contract-year{font-size:11.5px;font-weight:800;color:var(--gray-txt);font-variant-numeric:tabular-nums;}
+.lect-contract-track{position:relative;flex:1;height:12px;background:var(--paper-soft);border:1px solid var(--rule);}
+.lect-contract-fill{position:absolute;inset:0;display:block;width:100%;background:var(--lect-accent);opacity:.85;}
+/* "hoy" rides above the track: the word, then a short stem down to it. */
+.lect-contract-hoy{position:absolute;bottom:100%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font-size:8.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);}
+.lect-contract-hoy i{display:block;width:2px;height:9px;margin-top:2px;background:var(--ink);}
+.lect-contract-foot{display:flex;gap:22px;flex-wrap:wrap;align-items:baseline;margin-top:12px;}
+.lect-contract-total-fig{font-size:14px;font-weight:800;color:var(--lect-ink-accent);font-variant-numeric:tabular-nums;}
+.lect-contract-clause{font-size:12.5px;color:var(--gray-txt);}
+.lect-contract-foot-label{font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gray-txt);margin-right:4px;}
+
+/* Calendario — the forward agenda: boxed dates, the next beat lit. */
+.lect-agenda-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
+.lect-agenda-item{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-top:1px solid var(--rule);}
+.lect-agenda-item:first-child{border-top:none;}
+.lect-agenda-when{flex-shrink:0;min-width:86px;padding:3px 8px;border:2px solid var(--lect-ink-accent);color:var(--lect-ink-accent);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;text-align:center;}
+.lect-agenda-item[data-next="true"] .lect-agenda-when{background:var(--lect-accent);border-color:var(--lect-accent);color:var(--ink-fixed);}
+.lect-agenda-what{font-size:14px;line-height:1.45;color:var(--ink);}
+.lect-agenda-chip{margin-left:10px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-txt);white-space:nowrap;}
+.lect-agenda-item[data-next="true"] .lect-agenda-chip{color:var(--lect-ink-accent);}
+
+/* Votación — the tally with the threshold ON the bar. Casts are
+   semantic, not a ramp: for = accent, against = the down-red the
+   Salto/Cotización pair already uses, abstention = neutral. */
+.lect-voto-motion{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);margin-bottom:12px;}
+.lect-voto-bar{position:relative;display:flex;height:16px;border:1px solid var(--rule);background:var(--paper-soft);}
+.lect-voto-seg{display:block;height:100%;}
+.lect-voto-seg[data-cast="favor"],.lect-voto-swatch[data-cast="favor"]{background:var(--lect-accent);}
+.lect-voto-seg[data-cast="contra"],.lect-voto-swatch[data-cast="contra"]{background:#c0392b;}
+.lect-voto-seg[data-cast="abst"],.lect-voto-swatch[data-cast="abst"]{background:color-mix(in srgb,var(--gray-txt) 45%,transparent);}
+[data-theme="dark"] .lect-voto-seg[data-cast="contra"],[data-theme="dark"] .lect-voto-swatch[data-cast="contra"]{background:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-voto-seg[data-cast="contra"],
+  :root:not([data-theme="light"]) .lect-voto-swatch[data-cast="contra"]{background:#e0616b;}
+}
+.lect-voto-tick{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);}
+.lect-voto-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;}
+.lect-voto-key{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--gray-txt);}
+.lect-voto-swatch{width:10px;height:10px;flex-shrink:0;}
+.lect-voto-count{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-voto-note{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-voto-verdict{padding:2px 8px;border:1.5px solid currentColor;font-size:10px;font-weight:800;letter-spacing:.14em;}
+.lect-voto-verdict[data-passed="true"]{color:var(--lect-ink-accent);}
+.lect-voto-verdict[data-passed="false"]{color:#c0392b;}
+[data-theme="dark"] .lect-voto-verdict[data-passed="false"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-voto-verdict[data-passed="false"]{color:#e0616b;}
+}
+
+/* Ranking — the league table, bars scaled to the leader. */
+.lect-rank-title{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);margin-bottom:10px;}
+.lect-rank-rows{display:flex;flex-direction:column;}
+.lect-rank-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--rule);}
+.lect-rank-row:first-child{border-top:none;}
+.lect-rank-num{font-family:var(--sans);font-weight:800;font-size:18px;color:var(--lect-ink-accent);font-variant-numeric:tabular-nums;}
+.lect-rank-main{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.lect-rank-line{display:flex;align-items:baseline;gap:10px;min-width:0;}
+.lect-rank-label{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lect-rank-move{font-size:10.5px;font-weight:800;font-variant-numeric:tabular-nums;}
+.lect-rank-move[data-dir="up"]{color:var(--lect-ink-accent);}
+.lect-rank-move[data-dir="down"]{color:#c0392b;}
+.lect-rank-move[data-dir="same"]{color:var(--gray-txt);}
+[data-theme="dark"] .lect-rank-move[data-dir="down"]{color:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-rank-move[data-dir="down"]{color:#e0616b;}
+}
+.lect-rank-track{display:block;height:6px;background:var(--paper-soft);overflow:hidden;}
+.lect-rank-bar{display:block;height:100%;background:var(--lect-accent);}
+.lect-rank-value{font-size:14px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+/* Cascada — floating waterfall bars stepping from anchor to anchor. */
+.lect-cascada-rows{display:flex;flex-direction:column;gap:10px;}
+.lect-cascada-row{display:grid;grid-template-columns:minmax(72px,auto) minmax(0,1fr) auto;gap:12px;align-items:center;}
+.lect-cascada-label{font-size:12px;font-weight:700;color:var(--gray-txt);}
+.lect-cascada-row[data-kind="anchor"] .lect-cascada-label{color:var(--ink);font-weight:800;}
+.lect-cascada-track{display:block;height:14px;background:var(--paper-soft);overflow:hidden;}
+.lect-cascada-bar{display:block;height:100%;}
+.lect-cascada-row[data-kind="anchor"] .lect-cascada-bar{background:var(--lect-accent);}
+.lect-cascada-row[data-kind="down"] .lect-cascada-bar{background:#c0392b;opacity:.75;}
+.lect-cascada-row[data-kind="up"] .lect-cascada-bar{background:color-mix(in srgb,var(--lect-accent) 65%,var(--gray-txt));}
+[data-theme="dark"] .lect-cascada-row[data-kind="down"] .lect-cascada-bar{background:#e0616b;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cascada-row[data-kind="down"] .lect-cascada-bar{background:#e0616b;}
+}
+.lect-cascada-value{font-size:13px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.lect-cascada-row[data-kind="down"] .lect-cascada-value{color:var(--gray-txt);}
+
+/* Perfil — the actor card, brand-inked via the registry. */
+.lect-perfil-card{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;border:1px solid var(--rule);border-left:3px solid var(--brand-fill,var(--lect-accent));background:var(--paper-soft);padding:18px 20px 16px;}
+.lect-perfil-mono{grid-row:span 2;width:54px;height:54px;border:2px solid var(--brand-ink,var(--lect-ink-accent));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif-display);font-size:20px;color:var(--brand-ink,var(--lect-ink-accent));}
+.lect-perfil-id{display:flex;flex-direction:column;gap:2px;align-self:center;}
+.lect-perfil-name{font-family:var(--serif-display);font-size:clamp(19px,2.4vw,24px);line-height:1.1;color:var(--ink);}
+.lect-perfil-role{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-perfil-facts{grid-column:2;display:flex;gap:8px 26px;flex-wrap:wrap;margin-top:8px;padding-top:10px;border-top:1px solid var(--rule);}
+.lect-perfil-fact{display:flex;flex-direction:column;gap:1px;}
+.lect-perfil-key{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-perfil-value{font-size:13.5px;font-weight:700;color:var(--ink);}
+
+/* Escenarios — likelihood as a fixed vocabulary, marked as Playbook's
+   own reading, never as reporting. */
+.lect-esc-subject{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);margin-bottom:10px;}
+.lect-esc-rows{display:flex;flex-direction:column;}
+.lect-esc-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:9px 0;border-top:1px solid var(--rule);}
+.lect-esc-row:first-child{border-top:none;}
+.lect-esc-outcome{font-size:14px;font-weight:700;color:var(--ink);}
+.lect-esc-meter{display:inline-flex;gap:4px;}
+.lect-esc-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--gray-txt);opacity:.5;}
+.lect-esc-dot-on{background:var(--lect-accent);border-color:var(--lect-ink-accent);opacity:1;}
+.lect-esc-word{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);min-width:70px;text-align:right;}
+.lect-esc-row[data-likelihood="probable"] .lect-esc-word{color:var(--lect-ink-accent);}
+
+/* Tablero — the KPI strip. */
+.lect-tablero-title{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);margin-bottom:12px;}
+.lect-tablero-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
+.lect-tablero-tile{display:flex;flex-direction:column;gap:4px;border:1px solid var(--rule);border-top:4px solid var(--lect-accent);background:var(--paper-soft);padding:14px 16px 12px;}
+.lect-tablero-key{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-tablero-value{font-family:var(--serif-display);font-size:clamp(22px,3vw,30px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lect-tablero-note{font-size:11px;color:var(--gray-txt);}
+
+@media(max-width:640px){
+  .lect-rank-row{gap:10px;}
+  .lect-perfil-card{grid-template-columns:1fr;}
+  .lect-perfil-mono{grid-row:auto;}
+  .lect-perfil-facts{grid-column:1;}
+  .lect-agenda-when{min-width:72px;}
+  .lect-cascada-row{grid-template-columns:64px minmax(0,1fr) auto;}
+  .lect-esc-row{grid-template-columns:minmax(0,1fr) auto;}
+  .lect-esc-word{display:none;}
+}
+
+/* ——— The Jugada strip ("Jugada:" authoring convention, round 2): the
+   story's central two-party connection set as a split-flap pairing — the
+   departures-board language carried into every product's articles. Dark
+   panel like the board (a flap panel is dark wherever it hangs), accent
+   re-inked per product below; Infinitas swaps the dark panel for its own
+   flat surface (the one product that never borrows grunge). ——— */
+.lect-jugada{
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  margin:32px 0;padding:14px 18px;background:#101210;border-radius:8px;
+  border:1px solid rgba(154,234,57,.22);
+}
+.lect-jugada-label{
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(240,233,220,.55);
+}
+.lect-jugada-conn{
+  display:inline-flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+}
+.lect-jugada-side{color:var(--green);min-height:1em;}
+.lect-jugada-arrow{color:rgba(240,233,220,.55);}
+.article-product-la-lana .lect-jugada{border-color:rgba(181,133,10,.45);}
+.article-product-la-lana .lect-jugada-side{color:#d9a53a;}
+.article-product-futbol-business-review .lect-jugada{border-color:rgba(224,31,38,.5);}
+.article-product-futbol-business-review .lect-jugada-side{color:var(--tfbr-red);}
+.article-product-infinitas .lect-jugada{
+  background:var(--paper);border:1px solid var(--src-infinitas);
+}
+.article-product-infinitas .lect-jugada-label{color:var(--gray-txt);}
+.article-product-infinitas .lect-jugada-side{color:var(--src-infinitas);}
+.article-product-infinitas .lect-jugada-arrow{color:var(--gray-txt);}
+
+/* ——— Lead-in scan marks: the "**Label:** …" house style both publish
+   skills mandate, set as product-accented margin notes — small caps,
+   tracked, the product's color. The reader skims the lead-ins like a
+   briefing. Ink default; per-product accents below. ——— */
+.lect-leadin{
+  font-size:.82em;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink);
+}
+.article-product-la-lana .lect-leadin{color:var(--src-lana);}
+.article-product-infinitas .lect-leadin{color:var(--src-infinitas);}
+.article-product-futbol-business-review .lect-leadin{color:var(--tfbr-red);}
+/* Noticias keeps ink lead-ins — the beat numbers already carry the green. */
+
+/* ——— Inline figure highlight (auto, JS-applied — see ArticleMotion):
+   a marker swipe under money/percent figures in plain prose, drawn on
+   scroll via --lect-fx. Green by default, product-tinted. mark's UA
+   background is cleared; the swipe is a background-image so it wraps
+   correctly across lines. ——— */
+mark.lect-fig{
+  background:none;color:inherit;
+  background-image:linear-gradient(color-mix(in srgb,var(--green) 55%,transparent),color-mix(in srgb,var(--green) 55%,transparent));
+  background-repeat:no-repeat;
+  background-position:0 78%;
+  background-size:calc(var(--lect-fx,1)*100%) .3em;
+  padding:0 1px;
+}
+.article-product-la-lana mark.lect-fig{background-image:linear-gradient(color-mix(in srgb,var(--src-lana) 38%,transparent),color-mix(in srgb,var(--src-lana) 38%,transparent));}
+.article-product-infinitas mark.lect-fig{background-image:linear-gradient(color-mix(in srgb,var(--src-infinitas) 32%,transparent),color-mix(in srgb,var(--src-infinitas) 32%,transparent));}
+.article-product-futbol-business-review mark.lect-fig{background-image:linear-gradient(color-mix(in srgb,var(--tfbr-red) 30%,transparent),color-mix(in srgb,var(--tfbr-red) 30%,transparent));}
+
+/* ——— "Sigue leyendo": product-identity preview cards. Each card wears
+   its product's accent at rest and flips to the product's own surface on
+   hover — a one-card preview of the hub it leads to. ——— */
+.lect-related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.lect-related-card{
+  position:relative;display:flex;flex-direction:column;gap:8px;
+  padding:14px 16px 12px;border:1px solid var(--rule);border-top:3px solid var(--rule);
+  color:inherit;background:var(--paper);
+  transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out),color var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
+}
+.lect-related-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-related-figure{font-family:var(--serif-display);font-size:26px;line-height:1;color:var(--ink);}
+.lect-related-card h3{font-family:var(--sans);font-weight:600;font-size:14px;line-height:1.35;margin:0;flex:1;}
+.lect-related-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--gray-txt);}
+.lect-related-arrow{opacity:0;transform:translateX(-6px);transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);}
+.lect-related-card:hover{transform:translateY(-3px);box-shadow:0 14px 26px rgba(0,0,0,.1);}
+.lect-related-card:hover .lect-related-arrow{opacity:1;transform:none;}
+/* Rest accents: hub identity colors (green/gold/violet/red), not the
+   sitewide --src-industry navy — the card previews the HUB. */
+.lect-related-card[data-source="noticias"]{border-top-color:var(--green);}
+.lect-related-card[data-source="la-lana"]{border-top-color:var(--src-lana);}
+.lect-related-card[data-source="infinitas"]{border-top-color:var(--src-infinitas);}
+.lect-related-card[data-source="futbol-business-review"]{border-top-color:var(--tfbr-red);}
+.lect-related-card[data-source="opinion"]{border-top-color:var(--src-opinion);}
+/* Hover skins — the product surface itself (fixed literals, same criterion
+   as the hubs: a bottle label is dark whatever the theme says). */
+.lect-related-card[data-source="noticias"]:hover{background:var(--shots-bg);color:var(--shots-white);border-color:var(--shots-bg);border-top-color:var(--pb-green);}
+.lect-related-card[data-source="noticias"]:hover .lect-related-eyebrow{color:var(--pb-green);}
+.lect-related-card[data-source="noticias"]:hover .lect-related-figure,
+.lect-related-card[data-source="noticias"]:hover .lect-related-meta{color:var(--shots-white);}
+.lect-related-card[data-source="la-lana"]:hover{background:var(--pb-paper-soft);color:var(--pb-ink);border-color:var(--pb-rule);border-top-color:var(--lana-gold);}
+.lect-related-card[data-source="la-lana"]:hover .lect-related-eyebrow{color:var(--lana-gold);}
+.lect-related-card[data-source="la-lana"]:hover .lect-related-figure,
+.lect-related-card[data-source="la-lana"]:hover .lect-related-meta{color:var(--pb-ink);}
+.lect-related-card[data-source="infinitas"]:hover{background:var(--inf-violet);color:var(--inf-white);border-color:var(--inf-violet);}
+.lect-related-card[data-source="infinitas"]:hover .lect-related-eyebrow,
+.lect-related-card[data-source="infinitas"]:hover .lect-related-figure,
+.lect-related-card[data-source="infinitas"]:hover .lect-related-meta{color:var(--inf-white);}
+.lect-related-card[data-source="futbol-business-review"]:hover{background:var(--tfbr-bg);color:var(--tfbr-white);border-color:var(--tfbr-bg);border-top-color:var(--tfbr-red);}
+.lect-related-card[data-source="futbol-business-review"]:hover .lect-related-eyebrow{color:var(--tfbr-red);}
+.lect-related-card[data-source="futbol-business-review"]:hover .lect-related-figure,
+.lect-related-card[data-source="futbol-business-review"]:hover .lect-related-meta{color:var(--tfbr-white);}
+.lect-related-card[data-source="opinion"]:hover{background:var(--paper-soft);}
+
+/* ============================================================
+   1. La Lana — the case file
+   ============================================================ */
+.article-product-la-lana h1{text-transform:uppercase;line-height:1.04;}
+
+/* Folder tab above the header sequence: expediente number + case date +
+   the rubber stamp (reused from the hub's .lana-stamp). */
+.lect-case-tab{
+  display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-bottom:16px;padding:8px 16px 7px;
+  background:var(--paper-soft);border:1px solid var(--rule);
+  border-radius:8px 8px 0 0;border-bottom:2px solid var(--src-lana);
+}
+.lect-case-number,.lect-case-date{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+}
+.lect-case-number{color:var(--ink);}
+.lect-case-date{color:var(--gray-txt);}
+/* The hub stamps assume the fixed paper surface; re-ink them for the
+   themed article page (--src-lana/--ink adapt, the green stays). */
+.article-detail .lana-stamp-abierto{color:var(--ink);}
+.article-detail .lana-stamp-archivado{color:var(--src-lana);}
+
+/* Mono byline: the dossier's file line. */
+.article-product-la-lana .article-byline{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+}
+
+/* Cover as photographic exhibit: white matte print, slightly askew,
+   captioned like evidence. The matte is a BORDER, not padding — the
+   parallax-scaled img clips at the padding box, so a border matte can
+   never be covered by the drifting photo. The print stays white on both
+   themes (a print is white). */
+.lect-exhibit .article-photo{
+  border:10px solid #fff;outline:1px solid var(--pb-rule);
+  box-shadow:0 12px 26px rgba(10,10,10,.14);transform:rotate(.6deg);
+}
+.lect-exhibit .photo-credit{margin-top:12px;}
+.lect-exhibit-label{
+  display:inline-block;margin-right:14px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--src-lana);
+}
+
+/* Evidence line instead of the generic centered hr. */
+.article-product-la-lana .article-body hr{width:100%;border-top:2px dashed var(--rule);margin:36px 0;}
+
+/* Pull figure: the green highlighter swipe the hub hero uses. */
+.article-product-la-lana .lect-pullfig-value{padding:0 8px;box-shadow:inset 0 -0.2em 0 0 var(--green);}
+
+/* Dossier foot: "siguiente expediente" folder handoff. */
+.lect-next-case{margin-top:48px;}
+.lect-next-link{display:block;color:inherit;}
+.lect-next-tab{
+  position:relative;z-index:1;display:inline-flex;align-items:baseline;gap:12px;
+  padding:7px 16px 6px;background:var(--paper-soft);border:1px solid var(--rule);border-bottom:none;
+  border-radius:8px 8px 0 0;margin-bottom:-1px;
+  transition:background var(--duration-base) var(--ease-out);
+}
+.lect-next-kicker{font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--src-lana);}
+.lect-next-number{
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-next-body{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px 20px;background:var(--paper-soft);border:1px solid var(--rule);
+  border-radius:0 10px 10px 10px;
+  transition:box-shadow var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.lect-next-title{font-family:var(--serif-display);font-size:clamp(17px,2.4vw,21px);line-height:1.2;text-transform:uppercase;}
+.lect-next-open{
+  flex-shrink:0;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  opacity:0;transform:translateX(-6px);
+  transition:opacity var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.lect-next-link:hover .lect-next-tab{background:var(--green);}
+.lect-next-link:hover .lect-next-tab .lect-next-kicker,
+.lect-next-link:hover .lect-next-tab .lect-next-number{color:var(--ink-fixed);}
+.lect-next-link:hover .lect-next-body{transform:translateY(-2px);box-shadow:0 12px 24px rgba(10,10,10,.1);}
+.lect-next-link:hover .lect-next-open{opacity:1;transform:none;}
+
+/* ============================================================
+   2. Noticias — the shot
+   ============================================================ */
+.article-product-noticias h1{
+  text-transform:uppercase;line-height:1.04;
+  border-bottom:5px solid var(--green);padding-bottom:12px;
+}
+/* The green rule under the headline replaces the byline's hairline —
+   one rule per header, not two. */
+.article-product-noticias .article-byline{border-bottom:none;padding-bottom:6px;}
+
+.lect-shot-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px;}
+.lect-day-badge{
+  display:inline-block;padding:3px 10px;border:1.5px solid var(--rule);border-radius:2px;
+  font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-shot-measure{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-txt);
+}
+.lect-shot-measure::before{content:"";width:8px;height:8px;background:var(--green);flex-shrink:0;}
+
+/* The reporting beats, numbered like pours — 01, 02, 03 — so the scan
+   rhythm the hub promises carries into the read. The counter lives on
+   .article-body and only counts TOP-LEVEL paragraphs (direct, or direct
+   inside the ad-split <div> halves): the opinion callout (<aside><p>),
+   blockquote paragraphs and figure captions never take a number.
+   #3f7d0a is the site's existing darker legible-green (see
+   .share-btn.is-copied) with the same dark-theme counterpart cascade. */
+.article-product-noticias{--lect-beat:#3f7d0a;}
+[data-theme="dark"] .article-product-noticias{--lect-beat:var(--green);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .article-product-noticias{--lect-beat:var(--green);}
+}
+.article-product-noticias .article-body{counter-reset:lect-beat;}
+.article-product-noticias .article-body > p::before,
+.article-product-noticias .article-body > div > p::before{
+  counter-increment:lect-beat;
+  content:counter(lect-beat,decimal-leading-zero);
+  display:inline-block;margin-right:10px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--lect-beat);
+  transform:translateY(-1px);
+}
+
+/* La Lana gets the same numbered beats (2026-08-07, publisher: the two
+   products were reading as two different publications side by side). The
+   selector can't be Noticias' — there, every top-level <p> IS a reporting
+   beat, so numbering all of them is correct. A La Lana body also carries
+   its cold open, `Foto: Playbook` captions and device declarations at top
+   level, and numbering those would count four photo credits as arguments.
+   So the counter follows the lead-in itself: a block is a beat when it
+   opens with one, which is exactly the rule the skill states for the
+   sections. Keeps La Lana's own accent (the label is already --src-lana;
+   the numeral matches it rather than importing Noticias' green). */
+.article-product-la-lana .article-body{counter-reset:lect-beat;}
+.article-product-la-lana .article-body > p:has(> .lect-leadin:first-child)::before,
+.article-product-la-lana .article-body > div > p:has(> .lect-leadin:first-child)::before{
+  counter-increment:lect-beat;
+  content:counter(lect-beat,decimal-leading-zero);
+  display:inline-block;margin-right:10px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--src-lana);
+  transform:translateY(-1px);
+}
+
+/* Pull figure: the hub's rotated green chip. */
+.article-product-noticias .lect-pullfig-value{
+  background:var(--green);color:var(--ink-fixed);padding:2px 14px;transform:rotate(-1.2deg);
+}
+
+/* ============================================================
+   3. Infinitas — El Marcador, clean and violet
+   ============================================================ */
+.article-product-infinitas h1{font-family:var(--sans);font-weight:800;letter-spacing:-.02em;line-height:1.08;}
+.article-product-infinitas .article-byline{border-bottom-color:var(--src-infinitas);}
+
+/* Violet duotone cover — same recipe as the hub's .infhub-duotone, on its
+   own class so the two systems never couple (the "inf-" / "infhub-" prefix
+   collision taught that lesson — and never write a literal asterisk-slash
+   inside this comment: an earlier draft did, ended the comment early and
+   the parser silently ate this whole rule). Fixed violet literals: the
+   duotone is the artwork. isolation:isolate is load-bearing: without it
+   the img's mix-blend-mode:luminosity blends against the ROOT group and
+   tints the entire themed page lavender (seen in Playwright, 2026-08-05).
+   position:relative is what keeps the ::after overlay inside the frame. */
+/* The duotone history ended here: lightened twice on owner feedback
+   (2026-08-13), then cut entirely on 2026-08-14 — the directive moved
+   from "whisper" to "no tint over content at all". Clean photo, violet
+   baseline. Keep in sync with .infhub-duotone in product-hubs.css. */
+.lect-duotone{position:relative;border-bottom:3px solid var(--src-infinitas);}
+
+.article-product-infinitas .lect-pullfig{border-color:var(--src-infinitas);}
+.article-product-infinitas .lect-pullfig-value{color:var(--src-infinitas);font-family:var(--sans);font-weight:800;letter-spacing:-.02em;}
+
+/* ============================================================
+   4. TFBR — the boardroom
+   ============================================================ */
+.article-product-futbol-business-review h1{text-transform:uppercase;line-height:1.04;}
+.article-product-futbol-business-review .tag{background:var(--tfbr-red);color:#fff;}
+.article-product-futbol-business-review .article-byline{border-bottom-color:var(--tfbr-red);}
+.article-product-futbol-business-review .article-body blockquote{border-left-color:var(--tfbr-red);}
+/* Red trend arrow on every subhead — the hub's directional language. */
+.article-product-futbol-business-review .article-body h2::before,
+.article-product-futbol-business-review .article-body h3::before{
+  content:"↗";margin-right:8px;color:var(--tfbr-red);font-weight:800;
+}
+.article-product-futbol-business-review .lect-pullfig{border-color:var(--tfbr-red);}
+.article-product-futbol-business-review .lect-pullfig-value::before{content:"↗ ";color:var(--tfbr-red);}
+
+/* The co-brand strip on the article: static (the site header owns the
+   sticky top edge here), full-bleed above <main>. */
+.lect-partner-strip{position:static;}
+
+/* ============================================================
+   Share row, redesigned (2026-08-06 — the outlined text-pills read as
+   dated). Icon-first circular actions that fill with each network's own
+   brand color on hover; the label speaks the device-label voice; the
+   copy pill keeps its text because the label IS its feedback. Base
+   .share-btn rules in article.css are fully superseded here (this file
+   imports later at equal specificity).
+   ============================================================ */
+.share-row{margin-top:34px;padding-top:20px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:16px 18px;flex-wrap:wrap;}
+.share-label{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);
+}
+.share-label::before{content:"";width:8px;height:8px;background:var(--lect-accent);flex-shrink:0;}
+.share-btns{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.share-btn.share-btn-net{
+  width:44px;height:44px;min-height:44px;padding:0;border:none;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--paper-soft);color:var(--ink);cursor:pointer;
+  transition:background var(--duration-base) var(--ease-out),color var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out);
+}
+.share-btn.share-btn-net:hover,.share-btn.share-btn-net:focus-visible{
+  color:#fff;transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.16);
+}
+/* Each network fills with its own brand color — instantly recognizable,
+   and both are dark enough for white glyphs on light and dark themes.
+   X has no color: it fills with the theme's ink (paper glyph), so it
+   stays visible on dark instead of black-on-black. */
+.share-btn.share-wa:hover,.share-btn.share-wa:focus-visible{background:#1faa53;}
+.share-btn.share-fb:hover,.share-btn.share-fb:focus-visible{background:#1877F2;}
+.share-btn.share-li:hover,.share-btn.share-li:focus-visible{background:#0A66C2;}
+.share-btn.share-x:hover,.share-btn.share-x:focus-visible{background:var(--ink);color:var(--paper);}
+.share-btn.share-copy{
+  display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;
+  border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;
+  font-family:var(--sans);font-size:12.5px;font-weight:700;
+  transition:border-color var(--duration-base) var(--ease-out),background var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out),transform var(--duration-base) var(--ease-out);
+}
+.share-btn.share-copy:hover,.share-btn.share-copy:focus-visible{border-color:var(--ink);transform:translateY(-2px);}
+/* Copied = a lit indicator, same green-fill language as the archive's
+   active filters (--green + --ink-fixed is the site's verified pair). */
+.share-btn.share-copy.is-copied,
+.share-btn.share-copy.is-copied:hover{background:var(--green);border-color:var(--green);color:var(--ink-fixed);transform:none;}
+
+/* ============================================================
+   Walled state wears the product accent too
+   ============================================================ */
+.article-product-la-lana .article-walled{border-color:var(--src-lana);}
+.article-product-noticias .article-walled{border-color:var(--green);}
+.article-product-infinitas .article-walled{border-color:var(--src-infinitas);}
+.article-product-futbol-business-review .article-walled{border-color:var(--tfbr-red);}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media(max-width:760px){
+  .lect-related-grid{grid-template-columns:1fr;}
+  .lect-next-body{flex-direction:column;align-items:flex-start;gap:10px;}
+  .lect-next-open{opacity:1;transform:none;}
+}
+@media(max-width:640px){
+  .lect-case-tab{gap:10px;padding:7px 12px 6px;}
+  .lect-pullfig-value{font-size:clamp(36px,11vw,56px);}
+  .lect-exhibit .article-photo{border-width:8px;}
+}

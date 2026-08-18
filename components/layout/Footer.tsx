@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getSiteContent } from '@/lib/data/site-content';
 import { SocialIcon } from './SocialIcon';
+import { CookiePreferencesLink } from './CookiePreferencesLink';
 
 export async function Footer() {
   const { footer } = await getSiteContent();
@@ -41,6 +42,7 @@ export async function Footer() {
       <div className="container footer-legal-row">
         <Link href="/privacidad">Aviso de Privacidad</Link>
         <Link href="/terminos">Términos y Condiciones</Link>
+        <CookiePreferencesLink />
       </div>
       <div className="container footer-copyright">{footer.copyrightText}</div>
     </footer>

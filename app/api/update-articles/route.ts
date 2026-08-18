@@ -9,7 +9,7 @@ import { revalidateTag } from 'next/cache';
 import { db } from '@/lib/db/client';
 import { articles } from '@/lib/db/schema';
 import { ARTICLES_CACHE_TAG } from '@/lib/data/articles';
-import { SPORT_OPTIONS } from '@/lib/taxonomy';
+import { SPORT_OPTIONS, validateTags, formatTagIssues } from '@/lib/taxonomy';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 // Only counts against failed-secret attempts, never against legitimate
@@ -32,24 +32,70 @@ function constantTimeEqual(a: string, b: string) {
   return timingSafeEqual(bufA, bufB);
 }
 
-function stripHtml(str: string) {
-  return (str || '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/&amp;/g, '&')
+function decodeEntities(str: string) {
+  return str
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .trim()
-    .slice(0, 300);
+    .replace(/&amp;/g, '&');
+}
+
+// Legacy's version (legacy/api/update-articles.js, ported literally in
+// Fase 4) stripped tags FIRST and decoded entities AFTERWARDS — which
+// means the decode step reconstructs exactly the markup the strip step
+// just removed. Demonstrated with the real function before changing it:
+//
+//   "&lt;script&gt;alert(document.cookie)&lt;/script&gt;"
+//     -> "<script>alert(document.cookie)</script>"
+//   "&lt;img src=x onerror=alert(1)&gt;"
+//     -> "<img src=x onerror=alert(1)>"
+//
+// That output is stored in articles.teaser, and app/(public)/articulo's
+// looksLikeHtml() branch renders teaser through dangerouslySetInnerHTML —
+// so an entity-encoded payload in a webhook item became stored HTML on a
+// public page. Reaching it needs a valid PLAYBOOK_SECRET, so this was
+// integration-trusted rather than anonymous input, but a function whose
+// only job is "make this plain text" should not be able to emit markup at
+// all, whoever calls it.
+//
+// Decode first, then strip, and repeat until the string stops changing:
+// one pass alone still lets double-encoded input ("&amp;lt;script&amp;gt;")
+// through, which the same demonstration confirmed.
+//
+// TAG_PATTERN requires a letter (or "/") right after the "<" rather than
+// matching `<[^>]*>` like legacy did. That greedier form ate everything
+// between any two angle brackets, so ordinary copy — "Precio &lt; 100 y
+// algo &gt; 50" — came out as "Precio 50". Only real tag shapes are
+// removed now, and a bare comparison operator survives as text.
+//
+// Once this loop settles, nothing matching `<letter…>` remains, which is
+// also exactly the pattern app/(public)/articulo's looksLikeHtml() tests
+// before choosing dangerouslySetInnerHTML — so a teaser produced here can
+// only ever take the escaped-text path.
+const TAG_PATTERN = /<\/?[a-zA-Z][^>]*>|<!--[\s\S]*?-->/g;
+
+function stripHtml(str: string) {
+  let out = str || '';
+  for (let i = 0; i < 3; i++) {
+    const next = decodeEntities(out).replace(TAG_PATTERN, ' ');
+    if (next === out) break;
+    out = next;
+  }
+  return out.replace(/\s+/g, ' ').trim().slice(0, 300);
 }
 
 function detectPublication(title: string) {
-  if (/industry shots/i.test(title)) return { publication: 'Noticias', source: 'industry-shots' };
-  if (/lana/i.test(title)) return { publication: 'La Lana del Mundial', source: 'la-lana' };
+  // "industry shots" in a TITLE is the newsletter's historical name and
+  // still worth matching; the machine key it maps to is 'noticias' since
+  // the 2026-08-14 source-key migration (TODO #2).
+  if (/industry shots/i.test(title)) return { publication: 'Noticias', source: 'noticias' };
+  if (/lana/i.test(title)) return { publication: 'La Lana del Deporte', source: 'la-lana' };
   if (/infinitas/i.test(title)) return { publication: 'Infinitas', source: 'infinitas' };
-  return { publication: 'Playbook', source: 'playbook' };
+  // 'playbook' as its own source was retired 2026-08-01 (folded into
+  // Noticias, see lib/constants.ts) -- anything that doesn't match a known
+  // newsletter title now defaults to Noticias instead.
+  return { publication: 'Noticias', source: 'noticias' };
 }
 
 function escapeRegExp(str: string) {
@@ -134,7 +180,17 @@ export async function POST(req: NextRequest) {
     (article.tags.sport && article.tags.sport.length) ||
     (article.tags.vertical && article.tags.vertical.length)
   );
-  const tags = hasUsableTags ? article.tags! : inferTags(article.title, excerpt);
+  const proposedTags = hasUsableTags ? article.tags! : inferTags(article.title, excerpt);
+  // Controlled-vocabulary gate (TODO #1): canonicalize case/accent
+  // variants, drop anything out of vocabulary rather than minting an
+  // unreachable tag. Dropped values are reported in the response (below)
+  // so the sender sees the arbitration instead of a silent change.
+  const { tags: validatedTags, issues: tagIssues } = validateTags({
+    scope: proposedTags.scope || [],
+    sport: proposedTags.sport || [],
+    vertical: proposedTags.vertical || [],
+  });
+  const tags = validatedTags;
 
   const values = {
     title: article.title,
@@ -174,7 +230,11 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ status: 'duplicate', url: article.url });
       }
       revalidateTag(ARTICLES_CACHE_TAG);
-      return NextResponse.json({ status: 'ok', article: inserted.title });
+      return NextResponse.json({
+        status: 'ok',
+        article: inserted.title,
+        ...(tagIssues.length ? { droppedTags: formatTagIssues(tagIssues) } : {}),
+      });
     } catch (err: unknown) {
       // Postgres unique_violation on the id primary key: derive a fresh id
       // and retry once, same fallback legacy used for a slug collision.

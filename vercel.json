@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-readers-sheet",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}

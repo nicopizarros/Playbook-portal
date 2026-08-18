@@ -1,10 +1,11 @@
 import type { Article } from '@/lib/data/articles';
 import { topicsForSection, type TaxonomyTier } from '@/lib/taxonomy';
 
-const TIER_COLUMN: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertical'> = {
+const TIER_COLUMN: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertical' | 'tagsProperty'> = {
   scope: 'tagsScope',
   sport: 'tagsSport',
   vertical: 'tagsVertical',
+  property: 'tagsProperty',
 };
 
 // Taxonomy links for cards/rows (hero, archive rows). Each tag is a real
@@ -26,11 +27,12 @@ const TIER_COLUMN: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertica
 export function TagPillRow({
   article,
 }: {
-  article: Pick<Article, 'source' | 'tagsScope' | 'tagsSport' | 'tagsVertical'>;
+  article: Pick<Article, 'source' | 'tagsScope' | 'tagsSport' | 'tagsVertical'> &
+    Partial<Pick<Article, 'tagsProperty'>>;
 }) {
   const { order } = topicsForSection(article.source);
   const entries = order.flatMap(tier =>
-    article[TIER_COLUMN[tier]].map(value => ({ tier, value })),
+    (article[TIER_COLUMN[tier]] ?? []).map(value => ({ tier, value })),
   );
   if (!entries.length) return null;
 
