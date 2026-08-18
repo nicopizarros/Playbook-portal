@@ -6,6 +6,69 @@ doesn't start with re-deriving the context.
 
 ---
 
+## 0. Coverage hubs — SHIPPED 2026-08-18, four follow-ups open
+
+`/coberturas/[slug]`, first instance `/coberturas/lfa`. A hub is **not** a
+fifth editorial product: products own a `source` and articles are born into
+one; a hub GATHERS by tag and is config + assets. `lib/hubs/types.ts` carries
+the reasoning; `scripts/scaffold-hub.ts` is the standing test (proved by
+scaffolding and removing an `nfl-mexico` hub the same day).
+
+**Open, in priority order:**
+
+1. **The LFA hub's numbers need public citations.** Every figure on the page
+   traces to a source by construction (`HubFigure` cannot be built without a
+   `HubSource`), but the expansion and capital figures cite *"Brief editorial
+   Playbook (2026-08-18)"* and render a visible **"sin cita pública"** chip.
+   That chip is the backlog, on the artefact itself. Replace the sources in
+   `lib/hubs/lfa.ts` as citations arrive. Nothing else needs to change.
+2. **Contradiction in the source brief:** Monterrey is listed both as an
+   established plaza and as a 2027 expansion market. Encoded once, as
+   established. Someone has to say which is right (second franchise? error?).
+3. **"Jalisco" is a state, not a city.** Recorded verbatim rather than
+   resolved to Guadalajara — resolving it would be inventing a fact.
+4. **`SPORT_OPTIONS` has no American-football value.** LFA coverage currently
+   falls back to `Multi-deporte / Otros`, which is honest but wrong-shaped.
+   Adding one is a taxonomy change with a backfill; not done unilaterally.
+
+**Also landed with this work (unrelated pre-existing gaps, fixed in passing):**
+
+- `SOURCE_LABELS` (`lib/constants.ts`) has **no entry for
+  `futbol-business-review`**, though 14 published rows carry it. Worked around
+  in `components/hubs/HubModules.tsx` via `PRODUCT_HUBS`; the constant itself
+  is still wrong and should be fixed at source.
+- Footer copyright contrast was **3.77:1** on the always-dark footer — the only
+  WCAG AA failure Lighthouse found on any route. Raised to `.55` alpha.
+- `app/sitemap.ts`'s tier→column ternary fell through to `tagsVertical` for any
+  unlisted tier. Fixed, and `property` is excluded from `/tema` entirely (the
+  hub is its canonical destination).
+
+---
+
+## 0b. Editorial reference tree was ORPHANED — fixed 2026-08-18
+
+`.claude/playbook-editorial/` (8 files, ~153 KB) is the single source of truth
+for every shared editorial rule, and `_GOVERNANCE.md` states both publish
+skills reference it "by symlink from their own `references/`".
+
+**Those symlinks did not exist, and neither SKILL.md referenced the tree at
+all.** The two skills were self-contained monoliths (26 KB / 25 KB) while the
+tree kept receiving rule edits as recently as this week — i.e. edits were
+landing where no drafting run would ever read them. This is precisely the
+drift `_GOVERNANCE.md` §1b was written to prevent, happening invisibly.
+
+**Fixed:** `references/` created in both skills, symlinked to all 8 shared
+files, and both SKILL.md files now point at the shared taxonomy rule.
+
+**Still open:** the two publish skills are still monoliths with their rules
+inlined. Reconnecting the links stops further drift but does not
+de-duplicate what already diverged. A real restructure (thin router +
+references, as `hub-builder` and `publish-partner-announcement` now
+demonstrate) is a separate job — and worth doing, since a 26 KB entry cost is
+paid on every run.
+
+---
+
 ## 1. News classification — RESOLVED 2026-08-14
 
 The four open questions were answered and the whole thing shipped in one

@@ -89,6 +89,35 @@ skip observation.
 those sessions, treat the log as session-local and surface observations in the
 final report so they can be carried back by hand.
 
+## Project skills that must stay available
+
+Two project-scoped skills encode workflows this project runs repeatedly.
+They live in `.claude/skills/` and are **always-on in the same sense as
+graphify and task-observer**: if either is missing from your available-skills
+list, say so in your first reply rather than improvising the workflow by hand.
+
+- **`hub-builder`** — builds a coverage hub at `/coberturas/<slug>` for an
+  external property. Owns the intake gate, the taxonomy tag + boundary
+  rule, the two-pass identity design gate, the module inventory, and the
+  QA checklist. Never hand-build a hub: `scripts/scaffold-hub.ts` is the
+  standing test that a hub is config + assets, not code.
+- **`publish-partner-announcement`** — turns an inbound partner press kit
+  into per-channel drafts. Never posts or schedules; every output is a
+  draft for human approval.
+
+Both are **thin routers over a shared reference tree**. Their
+`references/` directories symlink into `.claude/playbook-editorial/` for
+everything editorial (voice, taxonomy, images) and hold only their own
+workflow files locally. **Never fork a shared rule into a skill-local
+copy** — see `.claude/playbook-editorial/_GOVERNANCE.md` for the incident
+that rule exists to prevent.
+
+**If a symlink is broken** (`ls -la .claude/skills/*/references/`), the
+shared tree is orphaned and rule edits are landing where no run reads
+them. That is exactly what happened before 2026-08-18: the tree was being
+actively maintained while neither publish skill referenced it at all. Fix
+the links; do not work around them.
+
 ## Tooling health check
 
 Both tools above are meant to be always-on. If either is silently inactive,

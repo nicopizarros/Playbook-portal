@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Anton, Inter } from 'next/font/google';
+import { Anton, Archivo, Inter } from 'next/font/google';
 import Script from 'next/script';
 import { AnalyticsClient } from '@/components/analytics/AnalyticsClient';
 import { getFundingChoicesPublisherId } from '@/lib/adsense';
@@ -24,12 +24,40 @@ import '../styles/lectura.css';
 import '../styles/portada.css';
 import '../styles/hemeroteca.css';
 import '../styles/responsive.css';
+// Hubs (/coberturas/[slug]). hub.css is structure only; one token file per
+// hub supplies the palette — see styles/hubs/hub.css's header.
+import '../styles/hubs/hub.css';
+import '../styles/hubs/lfa.tokens.css';
 
 const anton = Anton({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-serif-display',
   display: 'swap',
+});
+
+// The hub display face. Archivo is variable on the WIDTH axis, which is
+// the whole reason it is here: field numerals are wide and flat-sided, and
+// every sports property (including the LFA's own kit) reaches for a
+// CONDENSED athletic face. Going wide is both the more grounded reading of
+// the material and the one nobody else takes.
+//
+// A third family is a real payload cost, paid on the hub route only —
+// `preload: false` keeps it off every other page's critical path. No
+// fourth "utility/mono" face was added: the data modules need tabular
+// figures, and Inter's `font-variant-numeric: tabular-nums` already
+// provides them, so a mono would have cost another download to solve a
+// problem that was already solved.
+const archivo = Archivo({
+  subsets: ['latin'],
+  // No `weight`: next/font only allows `axes` on a variable font whose
+  // weight is variable, and the wdth axis is the entire reason this face
+  // is here (see the note above). Weight stays variable too, which the
+  // hub CSS uses at 600/700.
+  axes: ['wdth'],
+  variable: '--font-display-wide',
+  display: 'swap',
+  preload: false,
 });
 
 const inter = Inter({
@@ -189,7 +217,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // wrong theme). React can't know that ahead of time during SSR, so it
     // would otherwise flag this exact, intentional mismatch as an error —
     // this is Next.js's own documented pattern for this case.
-    <html lang="es" className={`${anton.variable} ${inter.variable}`} suppressHydrationWarning>
+    <html lang="es" className={`${anton.variable} ${inter.variable} ${archivo.variable}`} suppressHydrationWarning>
       <body>
         {fundingChoicesPublisherId && (
           <>
