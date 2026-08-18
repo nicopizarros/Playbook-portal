@@ -40,6 +40,9 @@ export const LFA_HUB: Hub = {
   // rights), so the masthead carries the full commercial name rather than
   // the bare initials.
   fullName: 'Liga de Fútbol Americano Profesional',
+  tagline: 'El negocio del futbol americano en México',
+  // Real, confirmed by the publisher 2026-08-18.
+  partnership: 'Media partner exclusivo de negocio deportivo',
   thesis:
     'Una liga mexicana que acaba de tomar capital institucional extranjero, en el mercado más valioso del futbol americano fuera de Estados Unidos, mientras crece su número de franquicias a la mitad.',
   description:
@@ -50,11 +53,11 @@ export const LFA_HUB: Hub = {
     // ALWAYS rendered. The logo below is decoration layered over this, not
     // a replacement for it — see HubIdentity's legal note.
     wordmark: 'LFA',
-    // Intentionally absent until rights are confirmed. The slot exists and
-    // is a one-line config change away from being filled; until then the
-    // masthead is pure Playbook type, which is the legally safe default
-    // and, per the design plan, the better-looking one.
-    // logo: { src: '/hubs/lfa/lockup.svg', alt: 'LFA', width: 96, height: 96 },
+    // Nominative reference: the league's own shield, used to identify the
+    // property this coverage is about. Publisher's call, 2026-08-18.
+    // Swappable and optional — `wordmark` above renders either way, so
+    // removing this line degrades the masthead to type, never to a hole.
+    logo: { src: '/hubs/lfa/lfa-shield.png', alt: 'LFA México', width: 236, height: 288 },
   },
 
   tag: 'LFA',
@@ -151,13 +154,6 @@ export const LFA_HUB: Hub = {
       source: { ...BRIEF },
     },
   ],
-
-  sponsor: {
-    kicker: 'Presentado por',
-    pitch:
-      'Este espacio acompaña toda la cobertura de negocio de la LFA en Playbook: capital, expansión y patrocinios, frente a una audiencia de industria.',
-    contactUrl: '/#contacto',
-  },
 
   emptyState: {
     heading: 'La cobertura empieza aquí',

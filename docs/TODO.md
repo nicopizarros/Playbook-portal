@@ -26,7 +26,15 @@ scaffolding and removing an `nfl-mexico` hub the same day).
    301 from `/coberturas/*`. Decide deliberately; either answer is defensible,
    but the cost only goes up.
 
-1. **The LFA hub's numbers need public citations.** Every figure on the page
+1. **The LFA hub's numbers need public citations — and the page no longer
+   says so.** Every figure still traces to a source by construction
+   (`HubFigure` cannot be built without a `HubSource`), but as of 2026-08-18
+   an uncited source renders **nothing** instead of a visible "sin cita
+   pública" chip (publisher's call — the chips read as clutter). The
+   consequence: the citation backlog is now invisible on the artefact and
+   lives only here. The expansion and capital figures on `/coberturas/lfa`
+   are still uncited. Replace the sources in `lib/hubs/lfa.ts` as citations
+   arrive. Every figure on the page
    traces to a source by construction (`HubFigure` cannot be built without a
    `HubSource`), but the expansion and capital figures cite *"Brief editorial
    Playbook (2026-08-18)"* and render a visible **"sin cita pública"** chip.

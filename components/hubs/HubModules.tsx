@@ -19,10 +19,9 @@ export function HubFigures({ hub }: { hub: Hub }) {
   if (!hub.commercialState.length) return null;
   return (
     <section className="hubx-section" aria-labelledby="hubx-state">
+      <p className="hubx-kicker">El negocio</p>
       <h2 className="hubx-head" id="hubx-state">El estado comercial</h2>
-      <p className="hubx-sub">
-        Lo que hace de esta propiedad una historia de negocio. Cada cifra trae su fuente.
-      </p>
+      <p className="hubx-sub">Lo que hace de esta propiedad una historia de negocio.</p>
       <div className="hubx-figures">
         {hub.commercialState.map(figure => (
           <div className="hubx-figure" key={figure.label}>
@@ -52,6 +51,7 @@ export function HubPlazas({ hub }: { hub: Hub }) {
   const hasMarketNotes = hub.plazas.some(p => Boolean(p.marketNote));
   return (
     <section className="hubx-section" aria-labelledby="hubx-plazas">
+      <p className="hubx-kicker">El mapa</p>
       <h2 className="hubx-head" id="hubx-plazas">Las plazas</h2>
       <p className="hubx-sub">
         {hub.plazas.length - announced} plazas establecidas
@@ -96,6 +96,7 @@ export function HubSeason({ hub }: { hub: Hub }) {
   if (hub.season.length < 2) return null;
   return (
     <section className="hubx-section" aria-labelledby="hubx-season">
+      <p className="hubx-kicker">El calendario</p>
       <h2 className="hubx-head" id="hubx-season">La temporada</h2>
       <ul className="hubx-season">
         {hub.season.map(beat => (
@@ -120,12 +121,14 @@ export function HubSeason({ hub }: { hub: Hub }) {
 export function HubStream({ hub, articles }: { hub: Hub; articles: Article[] }) {
   return (
     <section className="hubx-section" aria-labelledby="hubx-stream">
-      <h2 className="hubx-head" id="hubx-stream">La cobertura</h2>
+      <p className="hubx-kicker">Noticias</p>
+      <h2 className="hubx-head" id="hubx-stream">Lo último</h2>
       {articles.length > 0 ? (
         <>
           <p className="hubx-sub">
-            {articles.length} {articles.length === 1 ? 'pieza' : 'piezas'} etiquetadas como
-            cobertura de {hub.name}.
+            {articles.length === 1
+              ? `1 pieza etiquetada como cobertura de ${hub.name}.`
+              : `${articles.length} piezas etiquetadas como cobertura de ${hub.name}.`}
           </p>
           <div className="hubx-stream">
             {articles.map(article => (
@@ -153,42 +156,13 @@ export function HubStream({ hub, articles }: { hub: Hub; articles: Article[] }) 
   );
 }
 
-/**
- * One designed inventory slot. The UNSOLD state is the one that matters:
- * it has to survive a screenshot in a sales deck, so it is built as an
- * offer rather than as a gap with "advertisement" written on it.
- */
-export function HubSponsor({ hub }: { hub: Hub }) {
-  const { sponsor } = hub;
-  return (
-    <section className="hubx-section" aria-label="Espacio comercial">
-      <div className="hubx-sponsor">
-        <span className="hubx-sponsor-kicker">
-          {sponsor.partner ? sponsor.kicker : 'Espacio disponible'}
-        </span>
-        {sponsor.partner ? (
-          <p className="hubx-sponsor-pitch">
-            <strong>{sponsor.partner.name}</strong> acompaña la cobertura de {hub.name} en Playbook.
-          </p>
-        ) : (
-          <>
-            <p className="hubx-sponsor-pitch">{sponsor.pitch}</p>
-            <Link className="btn hubx-sponsor-cta" href={sponsor.contactUrl}>
-              Hablemos
-            </Link>
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
-
 /** Cross-links to the editorial products that cover this beat. */
 export function HubCross({ hub }: { hub: Hub }) {
   if (!hub.relatedSources.length) return null;
   return (
     <section className="hubx-section" aria-labelledby="hubx-cross">
-      <h2 className="hubx-head" id="hubx-cross">Quién cubre esto</h2>
+      <p className="hubx-kicker">En Playbook</p>
+      <h2 className="hubx-head" id="hubx-cross">Dónde seguirlo</h2>
       <p className="hubx-sub">Los productos editoriales donde aparece esta cobertura.</p>
       <div className="hubx-cross">
         {hub.relatedSources.map(source => (

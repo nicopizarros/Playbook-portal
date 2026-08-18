@@ -112,20 +112,6 @@ export type HubSeasonBeat = {
   source: HubSource;
 };
 
-// --------------------------------------------------------- Sponsorship
-// One designed inventory slot. The PLACEHOLDER STATE MUST LOOK
-// INTENTIONAL — this is the state a prospective sponsor sees in a deck,
-// so it is designed as an offer, not as a gap.
-export type HubSponsorSlot = {
-  /** "Presentado por" — the label the sold state would wear. */
-  kicker: string;
-  /** The pitch shown while unsold. */
-  pitch: string;
-  contactUrl: string;
-  /** Sold state: set all three and the slot renders the partner instead. */
-  partner?: { name: string; logo?: string; url?: string };
-};
-
 // ---------------------------------------------------------- Identity
 // Configuration plus assets, never bespoke code. `accent` is the ONE token
 // file under styles/hubs/<slug>.tokens.css; `logo` is a swappable asset
@@ -163,6 +149,16 @@ export type Hub = {
    * announced. Flipping it to `true` is the whole "go live" change.
    */
   listed: boolean;
+  /** Short uppercase sub-line under the wordmark. Sets the beat in ~6 words. */
+  tagline: string;
+  /**
+   * Playbook's declared relationship to the property, rendered in the
+   * masthead. OPTIONAL, and only ever set when the relationship is real and
+   * contractual — this is a public claim about a commercial agreement, so an
+   * aspirational value here would be a misrepresentation, not marketing.
+   * Absent for any property we merely cover.
+   */
+  partnership?: string;
   /** One line: why this property warrants a permanent destination. */
   thesis: string;
   /** SEO description. */
@@ -188,7 +184,6 @@ export type Hub = {
   commercialState: HubFigure[];
   plazas: HubPlaza[];
   season: HubSeasonBeat[];
-  sponsor: HubSponsorSlot;
   /** Shown when the coverage pool is empty. An invitation, not a dead end. */
   emptyState: { heading: string; body: string };
 };

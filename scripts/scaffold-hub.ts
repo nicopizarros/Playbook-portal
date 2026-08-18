@@ -57,6 +57,9 @@ export const ${CONST}_HUB: Hub = {
   // human flips this. Never scaffold straight into the nav.
   listed: false,
   fullName: ${JSON.stringify(fullName || name)},
+  tagline: 'PENDIENTE: subtítulo corto, en mayúsculas',
+  // Only set partnership if a real commercial agreement exists.
+  // partnership: 'Media partner exclusivo de ...',
   thesis: 'PENDIENTE: en una frase, por qué esta propiedad merece un destino permanente.',
   description: 'PENDIENTE: descripción SEO, una o dos frases.',
 
@@ -78,12 +81,6 @@ export const ${CONST}_HUB: Hub = {
   commercialState: [],
   plazas: [],
   season: [],
-
-  sponsor: {
-    kicker: 'Presentado por',
-    pitch: 'PENDIENTE: qué acompaña este espacio y ante qué audiencia.',
-    contactUrl: '/#contacto',
-  },
 
   emptyState: {
     heading: 'La cobertura empieza aquí',

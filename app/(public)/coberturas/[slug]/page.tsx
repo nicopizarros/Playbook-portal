@@ -4,15 +4,25 @@ import { notFound } from 'next/navigation';
 import { HUBS, hubBySlug } from '@/lib/hubs';
 import { hubArticles } from '@/lib/hubs/pool';
 import { HubChain } from '@/components/hubs/HubChain';
-import {
-  HubCross, HubFigures, HubPlazas, HubSeason, HubSponsor, HubStream,
-} from '@/components/hubs/HubModules';
+import { HubCross, HubFigures, HubPlazas, HubSeason, HubStream } from '@/components/hubs/HubModules';
 import { SITE_URL } from '@/lib/site-url';
 
 // ONE ROUTE, EVERY HUB. Adding a coverage destination is a config entry in
 // lib/hubs/ plus a token file in styles/hubs/ — this file never changes.
-// If a future hub needs a code change here, the abstraction has failed and
-// the fix is to generalise, not to special-case.
+//
+// FIXED-COLOUR ENVIRONMENT (2026-08-18). The hub no longer rides the site
+// theme: it is a dark surface in both themes, the same posture
+// styles/product-hubs.css already documents for the four editorial product
+// hubs ("Every hub surface is a FIXED-color environment, same reasoning as
+// the footer's --ink-fixed"). The publisher's direction is that a coverage
+// destination should look like the property it covers, so the LFA hub
+// speaks the LFA's visual language — dark ground, Anton display, a green
+// kicker over each section, the flag gradient in the masthead.
+//
+// The property's mark is used as NOMINATIVE REFERENCE — it identifies what
+// this coverage is about. The "Exclusiva Playbook" eyebrow and the Playbook
+// header/footer stay prominent precisely so the page never reads as an
+// official league property.
 
 export function generateStaticParams() {
   return HUBS.map(hub => ({ slug: hub.slug }));
@@ -27,7 +37,7 @@ export async function generateMetadata({
   const hub = hubBySlug(slug);
   if (!hub) return {};
   return {
-    title: `${hub.name} — Cobertura Playbook`,
+    title: `${hub.name} — Exclusiva Playbook`,
     description: hub.description,
     alternates: { canonical: `${SITE_URL}/coberturas/${hub.slug}` },
   };
@@ -41,19 +51,17 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
   const articles = await hubArticles(hub);
 
   return (
-    // data-hub is what scopes the token file (styles/hubs/<slug>.tokens.css).
-    // The hub's palette therefore cannot escape this subtree — nothing bleeds
-    // into the header, footer or any other page's chrome.
+    // data-hub scopes the token file, so the palette cannot escape this
+    // subtree — the site header and footer are untouched on this route.
     <main className="hubx" data-hub={hub.slug} id={`hub-${hub.slug}`}>
-      <div className="container">
-        <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
-
-        <header className="hubx-masthead">
-          <p className="hubx-eyebrow">Exclusiva Playbook</p>
+      {/* ------------------------------------------------------- Masthead
+          Full-bleed flag gradient with the diagonal hatch the league uses,
+          then the lockup over it. */}
+      <header className="hubx-hero">
+        <div className="hubx-hero-wash" aria-hidden="true" />
+        <div className="container hubx-hero-inner">
+          <Link className="hubx-back" href="/">← Volver a Playbook</Link>
           <div className="hubx-lockup">
-            {/* Nominative-reference slot. Absent until rights are confirmed;
-                the wordmark below renders either way, so an unlicensed or
-                withdrawn mark degrades to type rather than to a hole. */}
             {hub.identity.logo && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -64,26 +72,39 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
                 height={hub.identity.logo.height}
               />
             )}
-            <h1 className="hubx-wordmark">{hub.identity.wordmark}</h1>
+            <div className="hubx-lockup-type">
+              <p className="hubx-eyebrow">Exclusiva Playbook</p>
+              {/* The wordmark ALWAYS renders — the mark above is layered
+                  over it, never a replacement for it. */}
+              <h1 className="hubx-wordmark">{hub.identity.wordmark}</h1>
+              <p className="hubx-tagline">{hub.tagline}</p>
+              {/* Declared relationship. Rendered only when one genuinely
+                  exists — see Hub.partnership. */}
+              {hub.partnership && (
+                <p className="hubx-partner">
+                  <span className="hubx-partner-brand">Playbook</span>
+                  <span className="hubx-partner-role">{hub.partnership}</span>
+                </p>
+              )}
+            </div>
           </div>
-          <p className="hubx-fullname">{hub.fullName}</p>
           <p className="hubx-thesis">{hub.thesis}</p>
-        </header>
+          <p className="hubx-fullname">{hub.fullName}</p>
+        </div>
+      </header>
 
-        {/* Hero as thesis: the masthead states the argument, then the
-            signature device puts the league's defining number on the table.
-            Not a stat card with a gradient. */}
+      <div className="container">
         {hub.chain && (
-          <div className="hubx-section">
+          <section className="hubx-section" aria-labelledby="hubx-chain-title">
+            <p className="hubx-kicker">La meta</p>
             <HubChain chain={hub.chain} />
-          </div>
+          </section>
         )}
 
         <HubFigures hub={hub} />
         <HubPlazas hub={hub} />
         <HubSeason hub={hub} />
         <HubStream hub={hub} articles={articles} />
-        <HubSponsor hub={hub} />
         <HubCross hub={hub} />
       </div>
     </main>

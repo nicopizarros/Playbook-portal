@@ -3,75 +3,51 @@
 
    Everything that makes /coberturas/lfa look like the LFA hub is in here.
    styles/hubs/hub.css owns STRUCTURE and speaks only in generic --hub-*
-   tokens; this file is the only place a palette value appears. Hub two is
-   a copy of this file with different values — no structural CSS, no new
-   component. That is the abstraction claim, and scripts/scaffold-hub.ts
-   proves it.
+   tokens; this file is the only place a palette value appears. Hub two is a
+   copy of this file with different values — no structural CSS, no new
+   component.
 
-   ——— The palette, and why each value is here ———
+   ——— Direction change, 2026-08-18 ———
 
-   Grounded in the material world of the sport rather than in stock sports
-   design. Deliberately NOT the LFA's own system (near-black + acid green +
-   condensed uppercase, per the press-kit graphic): cloning a property's
-   brand is the legal risk this hub is built to avoid, and it is also the
-   AI-design default the brief rules out. Both point the same way.
+   The first pass built a Playbook-adjacent identity that deliberately did
+   NOT resemble the league. The publisher's direction is the opposite: a
+   coverage destination should look like the property it covers, and
+   Playbook is the LFA's exclusive sports-business media partner, so the
+   page speaks the league's visual language directly.
 
-   --hub-plane   Graphite. The field seen from above. THE ONE DARK SURFACE.
-                 Hard cap: the signature module + the plazas table header.
-                 It must never become a page wash — that was the Infinitas
-                 mistake (a tinted overlay over the whole section), and a
-                 page-level near-black with a single accent is itself the
-                 anti-pattern. The reading surface stays --paper.
-   --hub-chalk   Yard-line white. Rules and type ON the plane only.
-   --hub-accent  Chain orange — the colour of a down marker and the chain
-                 crew's poles, the only equipment in any sport that exists
-                 to adjudicate a threshold. RESERVED for a stated target:
-                 the line to gain, and the "anunciada" plaza marker. It
-                 never decorates. If it appears anywhere that is not a
-                 threshold, that is a bug.
-   --hub-accent-ink
-                 The SAME accent, darkened for use as TEXT on the paper
-                 surface. A colour that works as a 3px marker on graphite
-                 is not the same colour that works as 11px type on cream:
-                 the marker value measured 2.6-4.0:1 as text and failed
-                 WCAG AA (caught by the Lighthouse a11y pass, 2026-08-18).
-                 Marks on the plane use --hub-accent; type on paper uses
-                 this. Never swap them.
-   --hub-hash    Hash-mark grey. Ticks, secondary labels, unreached span.
+   Sampled from site.lfa.mx rather than invented:
+     · near-black ground (#1F1F1F sections, #151515 page)
+     · Anton for display — which this site ALREADY loads as
+       --serif-display, so matching them costs no extra font payload
+     · a small acid-green kicker over every section heading
+     · an italic uppercase sub-line under the display type
+     · the flag gradient (green → red) as a masthead wash, with the
+       diagonal hatch their hero uses
 
-   Dark mode: the plane LIGHTENS (a #23262B module on a #121316 page is
-   nearly invisible) and the accent brightens for contrast against it. */
+   FIXED-COLOUR ENVIRONMENT. No light/dark variants: this surface is dark in
+   both themes, the same posture styles/product-hubs.css documents for the
+   four product hubs. That is why there are no @media or [data-theme] blocks
+   here — adding them would reintroduce the theme-dependent contrast bugs
+   that cost a round of QA on the first pass. */
 
 [data-hub='lfa'] {
-  --hub-plane: #23262B;
-  --hub-plane-edge: #34383F;
-  --hub-chalk: #F2F0EA;
-  --hub-accent: #E8590C;
-  --hub-accent-ink: #B8430A; /* 5.2:1 on --paper */
-  --hub-hash: #8C9098;
-  /* Hairline for the numbered field grid inside the plane. Alpha, not a
-     solid, so it reads as a marking ON the surface rather than a border. */
-  --hub-grid: rgba(242, 240, 234, 0.13);
-}
+  /* Ground */
+  --hub-page: #151515;
+  --hub-plane: #1F1F1F;   /* section surface, chain module, table header */
+  --hub-card: #2A2A2A;    /* cards and figure tiles */
+  --hub-edge: #383838;    /* hairlines on dark */
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) [data-hub='lfa'] {
-    --hub-plane: #2A2E34;
-    --hub-plane-edge: #3C424A;
-    --hub-accent: #FF7A2F;
-    --hub-accent-ink: #FF9455; /* 7.9:1 on the dark --paper */
-    --hub-hash: #9AA0A9;
-    --hub-grid: rgba(242, 240, 234, 0.15);
-  }
-}
+  /* Ink */
+  --hub-chalk: #FFFFFF;
+  --hub-mute: #9BA0A0;    /* secondary type — 6.6:1 on --hub-plane */
 
-/* The manual toggle wins over both layers above — same three-layer
-   cascade tokens.css documents, and in the same order. */
-[data-theme='dark'] [data-hub='lfa'] {
-  --hub-plane: #2A2E34;
-  --hub-plane-edge: #3C424A;
-  --hub-accent: #FF7A2F;
-  --hub-accent-ink: #FF9455;
-  --hub-hash: #9AA0A9;
-  --hub-grid: rgba(242, 240, 234, 0.15);
+  /* Accent — the league's kicker green. Used for kickers, the line to gain
+     and announced plazas. Bright enough to clear AA on the dark ground
+     (7.4:1 on #1F1F1F), which the shield's own darker green would not. */
+  --hub-accent: #14C24F;
+  --hub-accent-ink: #4BE07F;  /* small type on the darkest surface */
+
+  /* Flag wash, masthead only. Official Mexican flag values. */
+  --hub-flag-green: #006847;
+  --hub-flag-red: #CE1126;
 }

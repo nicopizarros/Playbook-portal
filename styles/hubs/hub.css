@@ -7,127 +7,230 @@
    Adding a hub must never mean editing this file.
 
    Prefix is hubx-, NOT hub-: styles/product-hubs.css already owns .hub,
-   .hub-back, .hub-foot, .hub-empty for the four EDITORIAL PRODUCTS, and
-   this codebase has already shipped one unreadable page by sharing a
-   prefix across two systems (see the infhub-/inf- note in that file).
-   Keep them apart.
+   .hub-back, .hub-foot and .hub-empty for the four EDITORIAL PRODUCTS, and
+   this codebase has already shipped one unreadable page by sharing a prefix
+   across two systems. Keep them apart.
 
-   CONTAINED ACCENT. The reading surface is the site's own --paper in both
-   themes. --hub-plane is capped at the signature module and the plazas
-   table header — well under a fifth of page height. No hub identity ever
-   washes a reading surface, and no hub colour leaks into global chrome. */
+   FIXED-COLOUR ENVIRONMENT: a hub is dark in both themes, same posture as
+   the product hubs. Hub colour is scoped to [data-hub] and never touches
+   the site header or footer. */
 
 .hubx {
-  --hubx-gap: clamp(2.5rem, 6vw, 4.5rem);
-  padding-bottom: 4rem;
+  --hubx-gap: clamp(2.75rem, 6vw, 4.5rem);
+  background: var(--hub-page);
+  color: var(--hub-chalk);
+  padding-bottom: clamp(3rem, 8vw, 5rem);
 }
 
-/* ---------------------------------------------------------- Masthead */
-.hubx-masthead {
-  padding: clamp(2rem, 5vw, 3.25rem) 0 clamp(1.5rem, 3vw, 2rem);
-  border-bottom: 1px solid var(--rule);
+/* ---------------------------------------------------------- Masthead
+   Full-bleed flag wash with the diagonal hatch the league's own hero uses,
+   then the lockup over it. The wash is the ONLY place the flag colours
+   appear — everywhere else the accent does the work. */
+.hubx-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--hub-edge);
+  margin-bottom: var(--hubx-gap);
 }
 
-.hubx-eyebrow {
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gray-txt);
-  margin: 0 0 0.9rem;
+.hubx-hero-wash {
+  position: absolute;
+  inset: 0;
+  background:
+    /* the hatch */
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.05) 0 1px,
+      transparent 1px 9px
+    ),
+    /* the flag, fading to the page ground so type stays readable */
+    linear-gradient(
+      100deg,
+      var(--hub-flag-green) 0%,
+      color-mix(in srgb, var(--hub-flag-green) 55%, var(--hub-page)) 26%,
+      var(--hub-page) 52%,
+      color-mix(in srgb, var(--hub-flag-red) 55%, var(--hub-page)) 80%,
+      var(--hub-flag-red) 100%
+    );
+  opacity: 0.85;
+}
+/* Vignette: keeps the wash off the type without dimming the whole band. */
+.hubx-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 62%, var(--hub-page) 100%);
+  pointer-events: none;
 }
 
-/* The lockup: property mark (nominative reference, optional and swappable)
-   beside the Playbook-set wordmark. The WORDMARK ALWAYS RENDERS — if the
-   mark is absent, withdrawn, or fails to load, the masthead degrades to
-   type rather than to a hole. */
+.hubx-hero-inner {
+  position: relative;
+  z-index: 1;
+  /* Tall on purpose. The league's own hero is a full-height band; a short
+     strip reads as a breadcrumb bar, not a masthead.
+     LONGHAND, not the `padding` shorthand: this element also carries
+     .container, and the shorthand wiped its horizontal padding — which put
+     the wordmark flush against the viewport edge on mobile and clipped the
+     "L". */
+  padding-top: clamp(1.25rem, 3vw, 2rem);
+  padding-bottom: clamp(3.5rem, 8vw, 6rem);
+  min-height: clamp(360px, 46vw, 560px);
+  display: flex;
+  flex-direction: column;
+}
+
+.hubx-back {
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--hub-mute);
+  text-decoration: none;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+.hubx-back:hover { color: var(--hub-chalk); }
+.hubx-back:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 3px; }
+
 .hubx-lockup {
   display: flex;
   align-items: center;
-  gap: clamp(0.85rem, 2vw, 1.35rem);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
   flex-wrap: wrap;
 }
 
+/* Nominative reference mark. Optional and swappable — the wordmark below
+   renders whether or not this resolves, so a removed or withdrawn mark
+   degrades to type rather than to a hole. */
 .hubx-mark {
-  width: clamp(48px, 8vw, 68px);
-  height: auto;
+  width: auto;
+  height: clamp(88px, 14vw, 168px);
   flex: none;
+  filter: drop-shadow(0 3px 14px rgba(0, 0, 0, 0.5));
 }
 
-/* Wide, not condensed. Every sports property on earth reaches for a
-   condensed athletic face — including this one. Field NUMERALS are wide,
-   flat-sided and generous, and going wide is both the more grounded
-   reading of the material world and the one nobody else takes. */
+.hubx-lockup-type { min-width: 0; }
+
+/* The league's own display face — and this site's, already loaded as
+   --serif-display, so matching them costs no extra payload. */
 .hubx-wordmark {
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700;
-  font-stretch: 125%;
-  font-size: clamp(2.75rem, 9vw, 5.25rem);
-  line-height: 0.9;
-  letter-spacing: -0.005em;
+  font-family: var(--serif-display);
+  font-weight: 400;
+  font-size: clamp(4.5rem, 17vw, 11rem);
+  line-height: 0.82;
+  letter-spacing: 0.004em;
   text-transform: uppercase;
-  margin: 0;
-  color: var(--ink);
+  color: var(--hub-chalk);
+  margin: 0.15em 0 0;
 }
 
-.hubx-fullname {
-  font-size: 0.8rem;
-  letter-spacing: 0.09em;
+.hubx-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--gray-txt);
-  margin: 0.85rem 0 0;
+  font-weight: 700;
+  color: var(--hub-accent);
+  margin: 0;
+}
+
+/* Italic uppercase sub-line, the shape the league sets under its hero. */
+.hubx-tagline {
+  font-style: italic;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: clamp(1rem, 2.6vw, 1.45rem);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: var(--hub-chalk);
+  margin: 0.7rem 0 0;
+  max-width: 24ch;
+}
+
+/* Declared relationship. Rendered only when one genuinely exists. */
+.hubx-partner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 0;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--hub-edge);
+  border-left: 3px solid var(--hub-accent);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.35);
+}
+.hubx-partner-brand {
+  font-family: var(--serif-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--hub-chalk);
+}
+.hubx-partner-role {
+  font-size: 0.68rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--hub-mute);
 }
 
 .hubx-thesis {
-  font-size: clamp(1.02rem, 2.1vw, 1.25rem);
-  line-height: 1.55;
-  max-width: 62ch;
-  margin: 1.35rem 0 0;
-  color: var(--gray-dark);
+  font-size: clamp(1rem, 2.1vw, 1.2rem);
+  line-height: 1.6;
+  max-width: 60ch;
+  margin: auto 0 0;
+  padding-top: clamp(2rem, 5vw, 3rem);
+  color: var(--hub-chalk);
+  opacity: 0.92;
 }
 
-/* ------------------------------------------------- Section furniture */
+.hubx-fullname {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hub-mute);
+  margin: 1rem 0 0;
+}
+
+/* ------------------------------------------------- Section furniture
+   Green kicker over an Anton heading — the league's own section rhythm. */
 .hubx-section { margin-top: var(--hubx-gap); }
 
-.hubx-head {
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700;
-  font-stretch: 118%;
+.hubx-kicker {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  font-size: clamp(1.05rem, 2.4vw, 1.4rem);
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  color: var(--hub-accent);
   margin: 0 0 0.35rem;
-  color: var(--ink);
+}
+
+.hubx-head {
+  font-family: var(--serif-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(1.7rem, 4.2vw, 2.6rem);
+  line-height: 0.95;
+  letter-spacing: 0.005em;
+  margin: 0 0 0.6rem;
+  color: var(--hub-chalk);
 }
 
 .hubx-sub {
   font-size: 0.92rem;
-  color: var(--gray-txt);
+  line-height: 1.55;
+  color: var(--hub-mute);
   margin: 0 0 1.5rem;
   max-width: 60ch;
 }
 
 /* ------------------------------------------------- SIGNATURE: La Cadena
-   The chain crew. In the sport, the chain spans the distance from the ball
-   to the line to gain — it measures WHAT IS LEFT, not what is done. So
-   does this: chalk bar for ground covered, visible chain links for the
-   distance still to gain, and the accent post standing on the line.
-
-   The readout leads with DISTANCE REMAINING in the property's own units.
-   Never a percentage: "67%" is the generic-progress-bar answer and tells a
-   reader nothing they can act on.
-
-   This is the one dark surface on the page. */
+   The chain crew. In the sport the chain spans the distance from the ball
+   to the line to gain — it measures WHAT IS LEFT. So does this. The readout
+   leads with distance remaining in the property's own units, never a
+   percentage. */
 .hubx-chain {
   background: var(--hub-plane);
-  color: var(--hub-chalk);
-  border-radius: 3px;
+  border: 1px solid var(--hub-edge);
+  border-radius: 6px;
   padding: clamp(1.5rem, 4vw, 2.5rem);
-  /* Yard lines: widely spaced, and fading toward the top so the surface
-     reads as a marked FIELD rather than as a spreadsheet grid. */
-  /* No background grid: an earlier pass drew yard lines at a different
-     rhythm from the unit ticks below and the two read as competing grids.
-     The ticks carry the rhythm alone — one per franchise — which is what
-     makes the chain a measurement rather than a decoration. */
 }
 
 .hubx-chain-head {
@@ -140,330 +243,206 @@
 }
 
 .hubx-chain-title {
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700;
-  font-stretch: 118%;
+  font-family: var(--serif-display);
+  font-weight: 400;
   text-transform: uppercase;
-  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-size: clamp(1.35rem, 3.4vw, 2rem);
+  line-height: 1;
   margin: 0;
   color: var(--hub-chalk);
 }
 
 .hubx-chain-horizon {
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--hub-hash);
+  color: var(--hub-mute);
 }
 
-/* The measure. Numerals sit ABOVE the track so nothing overlaps the line
-   and nothing is clipped at the edges. */
-.hubx-chain-track {
-  position: relative;
-  height: 92px;
-  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
-}
+.hubx-chain-track { position: relative; height: 96px; margin-bottom: clamp(1.75rem, 4vw, 2.5rem); }
 
 /* Ground covered — solid chalk. */
 .hubx-chain-span {
-  position: absolute;
-  left: 0;
-  bottom: 26px;
-  height: 5px;
-  width: var(--reached, 0%);
-  background: var(--hub-chalk);
+  position: absolute; left: 0; bottom: 26px; height: 5px;
+  width: var(--reached, 0%); background: var(--hub-chalk);
 }
 
-/* THE CHAIN — spans from the ball to the line to gain, i.e. the distance
-   still to cover. Drawn as links rather than as a bar: this is the one
-   element that has to read as an apparatus, not as a progress meter. */
+/* THE CHAIN — ball → line to gain, i.e. the distance still to cover. Drawn
+   as links rather than a bar: this is the one element that has to read as
+   an apparatus, not as a progress meter. */
 .hubx-chain-links {
-  position: absolute;
-  left: var(--reached, 0%);
-  right: 0;
-  bottom: 27px;
-  height: 3px;
+  position: absolute; left: var(--reached, 0%); right: 0; bottom: 27px; height: 3px;
   background-image: repeating-linear-gradient(
-    to right,
-    var(--hub-chalk) 0 9px,
-    transparent 9px 15px
-  );
-  opacity: 0.9;
+    to right, var(--hub-chalk) 0 9px, transparent 9px 15px);
+  opacity: 0.85;
 }
 
-/* Yard ticks along the baseline. */
-.hubx-chain-ticks {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 12px;
-  display: flex;
-}
-/* One tick per unit — each one is a franchise, so the chain spans a
-   countable number of them rather than an abstract percentage. */
-.hubx-chain-tick {
-  flex: 1;
-  height: 10px;
-  border-right: 1px solid var(--hub-hash);
-  opacity: 0.5;
-}
-/* Ticks past the line to gain don't exist — the field ends there. */
-.hubx-chain-tick[data-state='gained'] { opacity: 0.9; }
+.hubx-chain-ticks { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; }
+/* One tick per unit — each is a franchise, so the chain spans a countable
+   number of them rather than an abstract percentage. */
+.hubx-chain-tick { flex: 1; height: 10px; border-right: 1px solid var(--hub-mute); opacity: 0.4; }
+.hubx-chain-tick[data-state='gained'] { opacity: 0.85; }
 .hubx-chain-tick:last-child { border-right: 0; }
 
-/* The poles. Back marker is chalk; the LINE TO GAIN is the only element on
-   this page allowed to wear the accent. */
-.hubx-chain-pole {
-  position: absolute;
-  bottom: 20px;
-  height: 46px;
-  width: 3px;
-  background: var(--hub-chalk);
-}
+.hubx-chain-pole { position: absolute; bottom: 20px; height: 48px; width: 3px; background: var(--hub-chalk); }
 .hubx-chain-pole[data-role='current'] { left: var(--reached, 0%); transform: translateX(-1.5px); }
+/* The line to gain is the only element here allowed to wear the accent. */
 .hubx-chain-pole[data-role='gain'] { right: 0; width: 5px; background: var(--hub-accent); }
 
-/* The numeral each pole carries, set clear of the line. */
 .hubx-chain-pole::after {
   content: attr(data-value);
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700;
-  font-stretch: 125%;
-  font-size: clamp(1.5rem, 3.5vw, 2rem);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  color: var(--hub-chalk);
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  font-family: var(--serif-display); font-weight: 400;
+  font-size: clamp(1.75rem, 4vw, 2.4rem); line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--hub-chalk);
 }
+/* Pinned inside the module so the target numeral is never clipped. */
 .hubx-chain-pole[data-role='gain']::after {
-  color: var(--hub-accent);
-  /* Pinned inside the plane so the target numeral is never clipped by the
-     module edge — the failure the first pass shipped. */
-  left: auto;
-  right: 0;
-  transform: none;
+  color: var(--hub-accent); left: auto; right: 0; transform: none;
 }
 
-/* The readout — the sentence the device exists to produce. */
 .hubx-chain-readout {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  border-top: 1px solid var(--hub-plane-edge);
-  padding-top: clamp(1.1rem, 2.5vw, 1.5rem);
-  margin: 0;
+  display: flex; align-items: baseline; gap: 0.85rem; flex-wrap: wrap;
+  border-top: 1px solid var(--hub-edge);
+  padding-top: clamp(1.1rem, 2.5vw, 1.5rem); margin: 0;
 }
-
 .hubx-chain-remaining {
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700;
-  font-stretch: 125%;
-  font-size: clamp(2.5rem, 7vw, 3.75rem);
-  line-height: 0.9;
-  font-variant-numeric: tabular-nums;
-  color: var(--hub-accent);
+  font-family: var(--serif-display); font-weight: 400;
+  font-size: clamp(3rem, 8vw, 4.5rem); line-height: 0.85;
+  font-variant-numeric: tabular-nums; color: var(--hub-accent);
 }
-
 .hubx-chain-caption {
-  font-size: 0.98rem;
-  line-height: 1.5;
-  color: var(--hub-chalk);
-  opacity: 0.88;
-  max-width: 46ch;
+  font-size: 1rem; line-height: 1.5; color: var(--hub-chalk); opacity: 0.9; max-width: 46ch;
 }
-
-/* Provenance sits on the plane here, so it needs the plane's own muted
-   ink rather than the page's. */
-.hubx-chain .hubx-source { color: var(--hub-hash); }
 
 /* ------------------------------------------- Commercial state figures */
 .hubx-figures {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 1px;
-  background: var(--rule);
-  border: 1px solid var(--rule);
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 12px;
 }
 
 .hubx-figure {
-  background: var(--paper);
-  padding: 1.35rem 1.25rem;
+  background: var(--hub-card);
+  border: 1px solid var(--hub-edge);
+  border-radius: 6px;
+  padding: 1.4rem 1.3rem;
 }
 
 .hubx-figure-value {
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700;
-  font-stretch: 118%;
-  font-size: clamp(1.6rem, 4vw, 2.1rem);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
   display: block;
+  font-family: var(--serif-display); font-weight: 400;
+  font-size: clamp(2rem, 5vw, 2.7rem); line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--hub-chalk);
 }
 
 .hubx-figure-label {
-  display: block;
-  margin-top: 0.6rem;
-  font-size: 0.88rem;
-  line-height: 1.4;
-  color: var(--gray-dark);
+  display: block; margin-top: 0.7rem;
+  font-size: 0.88rem; line-height: 1.45; color: var(--hub-mute);
 }
 
-/* Provenance. Every number on this page carries one; a figure with no
-   public citation says so out loud rather than passing as reported. */
+/* Provenance. Renders ONLY when there is a public citation to link to —
+   see components/hubs/HubSource.tsx for why the uncited state shows
+   nothing rather than a placeholder. */
 .hubx-source {
-  display: block;
-  margin-top: 0.7rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  color: var(--gray-txt);
+  display: block; margin-top: 0.7rem;
+  font-size: 0.7rem; letter-spacing: 0.04em; color: var(--hub-mute);
 }
-.hubx-source a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-
-.hubx-unverified::after {
-  content: 'sin cita pública';
-  display: inline-block;
-  margin-left: 0.45rem;
-  padding: 0.1rem 0.4rem;
-  border: 1px solid currentColor;
-  border-radius: 2px;
-  font-size: 0.62rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.75;
-}
+.hubx-source a { color: var(--hub-accent-ink); text-decoration: underline; text-underline-offset: 2px; }
 
 /* -------------------------------------------------------- Plazas table */
-.hubx-plazas { width: 100%; border-collapse: collapse; font-size: 0.94rem; }
-
+.hubx-plazas {
+  width: 100%; border-collapse: collapse; font-size: 0.94rem;
+  background: var(--hub-plane); border: 1px solid var(--hub-edge); border-radius: 6px; overflow: hidden;
+}
 .hubx-plazas thead th {
-  background: var(--hub-plane);
-  color: var(--hub-chalk);
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700;
-  font-stretch: 112%;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-align: left;
-  padding: 0.75rem 0.9rem;
+  background: var(--hub-card); color: var(--hub-mute);
+  font-family: var(--sans); font-weight: 700;
+  text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.13em;
+  text-align: left; padding: 0.85rem 1rem;
 }
-
-.hubx-plazas tbody td {
-  padding: 0.85rem 0.9rem;
-  border-bottom: 1px solid var(--rule);
-  vertical-align: top;
-  color: var(--gray-dark);
-}
-
+.hubx-plazas tbody td,
 .hubx-plazas tbody th {
-  padding: 0.85rem 0.9rem;
-  border-bottom: 1px solid var(--rule);
-  text-align: left;
-  font-weight: 600;
-  color: var(--ink);
+  padding: 0.9rem 1rem; border-top: 1px solid var(--hub-edge); vertical-align: top; text-align: left;
 }
+.hubx-plazas tbody td { color: var(--hub-mute); }
+.hubx-plazas tbody th { font-weight: 600; color: var(--hub-chalk); }
+.hubx-plaza-region { display: block; font-weight: 400; font-size: 0.78rem; color: var(--hub-mute); }
 
-.hubx-plaza-region { display: block; font-weight: 400; font-size: 0.8rem; color: var(--gray-txt); }
+/* An announced market sits past the line to gain, so it — and only it —
+   wears the accent. Shape as well as colour: the leading rule means it is
+   distinguishable without relying on hue. */
+.hubx-plazas thead th:last-child,
+.hubx-plazas tbody td:last-child { text-align: right; }
 
-/* An announced market sits past the line to gain — so it, and only it,
-   wears the accent. Shape as well as colour: the chip carries a leading
-   rule, so it is distinguishable without relying on hue. */
 .hubx-status {
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--gray-txt);
+  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap; color: var(--hub-mute);
 }
 .hubx-status[data-status='anunciada'] {
-  /* -ink, not --hub-accent: this is 11px TYPE on the paper surface. The
-     marker value fails WCAG AA at this size. The BORDER keeps the bright
-     value — a 3px rule is not text and carries no contrast minimum. */
-  color: var(--hub-accent-ink);
-  border-left: 3px solid var(--hub-accent);
-  padding-left: 0.5rem;
-  font-weight: 600;
+  color: var(--hub-accent-ink); border-right: 3px solid var(--hub-accent);
+  padding-right: 0.55rem; font-weight: 700;
 }
 
 /* -------------------------------------------------------- Season spine */
-.hubx-season { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
-.hubx-season li { padding: 1rem 0; border-bottom: 1px solid var(--rule); display: grid; gap: 0.3rem; }
-.hubx-season-when {
-  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-txt);
+.hubx-season { list-style: none; margin: 0; padding: 0; }
+.hubx-season li {
+  padding: 1.1rem 0; border-top: 1px solid var(--hub-edge); display: grid; gap: 0.3rem;
 }
-.hubx-season-label { font-weight: 600; color: var(--ink); }
+.hubx-season-when {
+  font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--hub-accent);
+}
+.hubx-season-label { font-weight: 600; color: var(--hub-chalk); }
 
 /* ------------------------------------------------------ Coverage stream */
-.hubx-stream { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.hubx-stream { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+/* One item should not sit marooned in a third of the row. */
+.hubx-stream:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+.hubx-stream:has(> :only-child) .hubx-item-title { font-size: 1.35rem; }
 
 .hubx-item {
-  display: grid;
-  gap: 0.35rem;
-  padding: 1.15rem 0;
-  border-bottom: 1px solid var(--rule);
-  text-decoration: none;
-  color: inherit;
+  display: grid; gap: 0.5rem; align-content: start;
+  padding: 1.25rem;
+  background: var(--hub-card); border: 1px solid var(--hub-edge); border-radius: 6px;
+  text-decoration: none; color: inherit;
+  transition: border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
 }
-.hubx-item:hover .hubx-item-title { text-decoration: underline; text-underline-offset: 3px; }
-.hubx-item-title { font-weight: 600; font-size: 1.05rem; line-height: 1.35; color: var(--ink); }
-.hubx-item-meta { font-size: 0.8rem; color: var(--gray-txt); }
+.hubx-item:hover { border-color: var(--hub-accent); transform: translateY(-2px); }
+.hubx-item:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 2px; }
+.hubx-item-title { font-weight: 600; font-size: 1.06rem; line-height: 1.35; color: var(--hub-chalk); }
+.hubx-item-meta { font-size: 0.78rem; letter-spacing: 0.04em; color: var(--hub-mute); }
+@media (prefers-reduced-motion: reduce) { .hubx-item { transition: none; } .hubx-item:hover { transform: none; } }
 
-/* The empty state is an INVITATION, not a dead end — and it is the state
-   this hub ships in, so it gets designed, not defaulted. */
+/* The empty state is an INVITATION, not a dead end. */
 .hubx-empty {
-  border: 1px dashed var(--rule);
-  border-radius: 3px;
-  padding: clamp(1.75rem, 5vw, 2.75rem);
-  text-align: center;
+  border: 1px dashed var(--hub-edge); border-radius: 6px;
+  padding: clamp(1.75rem, 5vw, 2.75rem); text-align: center; background: var(--hub-plane);
 }
 .hubx-empty-head {
-  font-family: var(--font-display-wide), var(--sans);
-  font-weight: 700; font-stretch: 118%; text-transform: uppercase;
-  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
-  margin: 0 0 0.6rem; color: var(--ink);
+  font-family: var(--serif-display); font-weight: 400; text-transform: uppercase;
+  font-size: clamp(1.3rem, 3.2vw, 1.75rem); margin: 0 0 0.6rem; color: var(--hub-chalk);
 }
-.hubx-empty-body { margin: 0 auto; max-width: 46ch; color: var(--gray-txt); line-height: 1.6; }
-
-/* ----------------------------------------------------------- Sponsor
-   Unsold state is designed as an OFFER. It has to survive a screenshot in
-   a sales deck without embarrassing anyone. */
-.hubx-sponsor {
-  border: 1px solid var(--rule);
-  border-top: 3px solid var(--hub-accent);
-  border-radius: 3px;
-  padding: clamp(1.35rem, 3.5vw, 2rem);
-  display: grid;
-  gap: 0.75rem;
-  background: var(--paper-soft);
-}
-.hubx-sponsor-kicker {
-  font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray-txt);
-}
-.hubx-sponsor-pitch { margin: 0; max-width: 56ch; color: var(--gray-dark); line-height: 1.6; }
-.hubx-sponsor-cta { justify-self: start; }
+.hubx-empty-body { margin: 0 auto; max-width: 46ch; color: var(--hub-mute); line-height: 1.6; }
 
 /* ------------------------------------------------------------- Cross */
-.hubx-cross { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.hubx-cross { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.hubx-cross a {
+  display: inline-block; padding: 0.6rem 1rem;
+  border: 1px solid var(--hub-edge); border-radius: 999px;
+  font-size: 0.85rem; color: var(--hub-chalk); text-decoration: none;
+}
+.hubx-cross a:hover { border-color: var(--hub-accent); color: var(--hub-accent-ink); }
+.hubx-cross a:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 2px; }
 
 /* -------------------------------------------------------- Responsive */
 @media (max-width: 640px) {
-  .hubx-chain-track { height: 56px; }
-  .hubx-chain-pole::after { font-size: 1.15rem; }
-  /* The plazas table becomes stacked records — a 4-column table at 360px
-     is unreadable, and horizontal scroll hides the market note that is
-     the only reason the module exists. */
+  .hubx-chain-track { height: 78px; }
+  .hubx-chain-pole::after { font-size: 1.3rem; }
+  .hubx-mark { height: 64px; }
+  /* A four-column table at 360px is unreadable, and horizontal scroll hides
+     the market note that is the only reason the module exists. */
   .hubx-plazas thead { display: none; }
-  .hubx-plazas tbody tr { display: grid; gap: 0.25rem; padding: 0.9rem 0; border-bottom: 1px solid var(--rule); }
+  .hubx-plazas tbody tr { display: grid; gap: 0.3rem; padding: 0.9rem 1rem; border-top: 1px solid var(--hub-edge); }
   .hubx-plazas tbody th,
   .hubx-plazas tbody td { border: 0; padding: 0; }
-}
-
-/* -------------------------------------------------- Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .hubx-chain-span { transition: none !important; }
 }
