@@ -26,10 +26,11 @@ import { canonicalizeTag, type TaxonomyTier } from '../lib/taxonomy';
 const db = drizzle(neon(process.env.POSTGRES_URL!), { schema: { articles } });
 const FIX = process.argv.includes('--fix');
 
-const TIER_COLUMNS: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertical'> = {
+const TIER_COLUMNS: Record<TaxonomyTier, 'tagsScope' | 'tagsSport' | 'tagsVertical' | 'tagsProperty'> = {
   scope: 'tagsScope',
   sport: 'tagsSport',
   vertical: 'tagsVertical',
+  property: 'tagsProperty',
 };
 
 async function main() {
@@ -41,6 +42,7 @@ async function main() {
       tagsScope: articles.tagsScope,
       tagsSport: articles.tagsSport,
       tagsVertical: articles.tagsVertical,
+    tagsProperty: articles.tagsProperty,
     })
     .from(articles);
 
@@ -50,7 +52,7 @@ async function main() {
   let fixed = 0;
 
   for (const row of rows) {
-    const updates: Partial<Record<'tagsScope' | 'tagsSport' | 'tagsVertical', string[]>> = {};
+    const updates: Partial<Record<'tagsScope' | 'tagsSport' | 'tagsVertical' | 'tagsProperty', string[]>> = {};
     for (const tier of Object.keys(TIER_COLUMNS) as TaxonomyTier[]) {
       const column = TIER_COLUMNS[tier];
       const values = row[column] ?? [];

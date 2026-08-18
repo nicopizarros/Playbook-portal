@@ -34,6 +34,7 @@ const LIST_COLUMNS = {
   tagsScope: articles.tagsScope,
   tagsSport: articles.tagsSport,
   tagsVertical: articles.tagsVertical,
+  tagsProperty: articles.tagsProperty,
   priority: articles.priority,
   featured: articles.featured,
   mostrarAutor: articles.mostrarAutor,
@@ -140,6 +141,7 @@ export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta 
       tagsScope: articles.tagsScope,
       tagsSport: articles.tagsSport,
       tagsVertical: articles.tagsVertical,
+  tagsProperty: articles.tagsProperty,
       substackUrl: articles.substackUrl,
     })
     .from(articles)
@@ -159,6 +161,7 @@ const TAG_COLUMN: Record<TaxonomyTier, keyof Article> = {
   scope: 'tagsScope',
   sport: 'tagsSport',
   vertical: 'tagsVertical',
+  property: 'tagsProperty',
 };
 
 export async function getArticlesByTag(tier: TaxonomyTier, value: string): Promise<Article[]> {

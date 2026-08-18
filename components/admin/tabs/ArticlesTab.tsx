@@ -2,7 +2,7 @@
 
 import { rankArticles, rankScore, selectHero } from '@/lib/rank';
 import { LEAD_COUNT, LIST_COUNT, KNOWN_SOURCES, SOURCE_LABELS } from '@/lib/constants';
-import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '@/lib/taxonomy';
+import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS, PROPERTY_OPTIONS } from '@/lib/taxonomy';
 import { slugify } from '@/lib/slugify';
 import { type ArticleEntry, newArticleEntry } from '../article-entry';
 import { TextField, NumberField } from '../fields/TextField';
@@ -18,6 +18,7 @@ const COVERAGE_TIERS = [
   { key: 'tagsScope' as const, label: 'Alcance', options: SCOPE_OPTIONS as readonly string[] },
   { key: 'tagsSport' as const, label: 'Deporte', options: SPORT_OPTIONS as readonly string[] },
   { key: 'tagsVertical' as const, label: 'Vertical de negocio', options: VERTICAL_OPTIONS as readonly string[] },
+  { key: 'tagsProperty' as const, label: 'Cobertura', options: PROPERTY_OPTIONS as readonly string[] },
 ];
 
 type Props = {
@@ -197,6 +198,13 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
               <CheckboxGroupField label="Alcance" help="Nacional y/o internacional." options={SCOPE_OPTIONS} value={a.tagsScope} onChange={v => updateEntry(entry.clientKey, { tagsScope: v })} />
               <CheckboxGroupField label="Deporte" help="Puede tener más de uno." options={SPORT_OPTIONS} value={a.tagsSport} onChange={v => updateEntry(entry.clientKey, { tagsSport: v })} />
               <CheckboxGroupField label="Vertical de negocio" help="Puede tener más de uno." options={VERTICAL_OPTIONS} value={a.tagsVertical} onChange={v => updateEntry(entry.clientKey, { tagsVertical: v })} />
+              {/* Cobertura (hub tier). Deliberately last and normally
+                  empty: this is not a topic, it's the destination the
+                  piece belongs to (/coberturas/lfa). Marca solo si la
+                  pieza ES cobertura de la propiedad, no si la menciona —
+                  la regla de frontera vive en
+                  .claude/playbook-editorial/fields-and-taxonomy.md. */}
+              <CheckboxGroupField label="Cobertura" help="Solo si la pieza ES cobertura de esa propiedad, no si la menciona." options={PROPERTY_OPTIONS} value={a.tagsProperty} onChange={v => updateEntry(entry.clientKey, { tagsProperty: v })} />
               <TextField label="Fecha (AAAA-MM-DD)" help="Se usa para ordenar los artículos por fecha — lo más reciente siempre pesa." value={a.date} onChange={v => updateEntry(entry.clientKey, { date: v })} />
               <TextField label="Fecha en texto" help="Cómo se muestra la fecha en el sitio (ej. 9 jul 2026)." value={a.dateFormatted} onChange={v => updateEntry(entry.clientKey, { dateFormatted: v })} />
               <NumberField label="Tiempo de lectura (minutos)" help="Minutos de lectura, se escribe a mano — ya no se calcula solo." min={1} step={1} value={a.readingTime} onChange={v => updateEntry(entry.clientKey, { readingTime: v })} />

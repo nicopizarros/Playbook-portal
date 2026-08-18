@@ -278,6 +278,15 @@ Same shape as `publish-newsletter`'s `ArticleInput`
 (`scripts/publish-newsletter.ts`), same taxonomy (`lib/taxonomy.ts`), same
 Importancia scale. Differences from that skill:
 
+- **tagsProperty** (coverage tier, added 2026-08-18): normally `[]`. Set it
+  **only** when the piece is coverage of a property that has a Playbook hub —
+  today the vocabulary is `LFA`. This is not a topic tag: it decides whether
+  the story appears on `/coberturas/lfa`, so a wrong value puts the wrong
+  piece on a destination page. **Read the boundary rule before setting it:**
+  `references/fields-and-taxonomy.md` → "`tagsProperty` — the coverage tier".
+  It is a two-part binary test (subject + business fact), with a table of the
+  near misses that do *not* qualify. A mention is not coverage.
+
 - **author**: leave `""` unless a byline is genuinely known, same as
   `publish-newsletter`.
 - **publication** / **source**: `"Noticias"` / `"industry-shots"`. This

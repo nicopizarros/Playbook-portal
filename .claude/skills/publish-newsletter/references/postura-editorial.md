@@ -1,0 +1,1 @@
+../../../playbook-editorial/postura-editorial.md

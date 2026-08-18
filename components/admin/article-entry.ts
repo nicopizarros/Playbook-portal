@@ -30,6 +30,9 @@ function toData(a: Article) {
     tagsScope: a.tagsScope,
     tagsSport: a.tagsSport,
     tagsVertical: a.tagsVertical,
+    // ?? [] rather than a bare read: a row fetched before the
+    // tags_property migration (drizzle/0008) landed has no such field.
+    tagsProperty: a.tagsProperty ?? [],
     priority: a.priority,
     featured: a.featured,
     mostrarAutor: a.mostrarAutor,
@@ -89,6 +92,7 @@ export function newArticleEntry(): ArticleEntry {
       tagsScope: [],
       tagsSport: [],
       tagsVertical: [],
+      tagsProperty: [],
       priority: 3,
       featured: false,
       mostrarAutor: false,
@@ -115,6 +119,7 @@ export function toPreviewArticle(data: ArticleEntry['data']): Article {
     ...data,
     bodyHtml: null,
     sourceUrl: null,
+    tagsProperty: [],
     createdAt: new Date(0),
     updatedAt: new Date(0),
     updatedBy: null,

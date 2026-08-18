@@ -84,6 +84,12 @@ export const articles = pgTable(
     tagsScope: text('tags_scope').array().notNull().default([]),
     tagsSport: text('tags_sport').array().notNull().default([]),
     tagsVertical: text('tags_vertical').array().notNull().default([]),
+    // Fourth taxonomy tier, for hub coverage (lib/hubs/, lib/taxonomy.ts's
+    // PROPERTY_OPTIONS). Additive and defaulted, so the column can land
+    // BEFORE the code that reads it ships — unlike TODO #2's source-key
+    // migration, which rewrites values the deployed build matches on and
+    // therefore must land AFTER its deploy. Most articles carry none.
+    tagsProperty: text('tags_property').array().notNull().default([]),
     priority: smallint('priority').notNull().default(3),
     featured: boolean('featured').notNull().default(false),
     mostrarAutor: boolean('mostrar_autor').notNull().default(false),

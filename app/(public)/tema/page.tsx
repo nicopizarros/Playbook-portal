@@ -49,6 +49,7 @@ const TIER_LABELS: Record<TaxonomyTier, string> = {
   scope: 'Alcance',
   sport: 'Deporte',
   vertical: 'Vertical de negocio',
+  property: 'Cobertura',
 };
 
 export default async function TemaPage({ searchParams }: Props) {

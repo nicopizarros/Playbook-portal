@@ -116,6 +116,58 @@ Patrocinios, Infraestructura y Venues, Sedes y Eventos, Finanzas y Negocio,
 Private Equity e Inversiones, Mercadotecnia Deportiva, Gestión de Talento,
 Audiencias y Consumo, Fan Experience, Naming Rights`.
 
+### `tagsProperty` — the coverage tier (hubs)
+
+**Fourth tier, added 2026-08-18** (`lib/taxonomy.ts`, `PROPERTY_OPTIONS`).
+Current vocabulary: `LFA`. Array, **normally empty** — most articles carry no
+property tag at all, and that is the steady state, not a gap.
+
+This tier is not a topic. The other three describe what a piece is *about*;
+this one declares which permanent coverage destination it *belongs to*
+(`/coberturas/<slug>`). It drives a route, so it has to stay stable, and
+membership is binary rather than descriptive.
+
+**The boundary rule — apply it mechanically, do not weigh it.**
+
+Tag `LFA` if, and only if, **both** hold:
+
+1. **Subject test.** The LFA (Liga de Fútbol Americano Profesional, commercially
+   "LFA FINSUS") — the league itself, one of its franchises, its ownership, its
+   investors, its plazas, its partners, its media or its events — is the
+   **grammatical subject of the story's core claim**, not a party mentioned
+   inside someone else's story.
+2. **Business test.** The piece carries a business fact about that subject:
+   capital, ownership, expansion, sponsorship, licensing, media rights,
+   attendance, venue or governance. A match report, a roster move with no
+   commercial figure, or a result is **not** LFA coverage for our purposes.
+
+If either test fails, **do not tag it.** There is no "partial" or "adjacent"
+value; a mention is not coverage.
+
+**Explicitly out of scope** — the near misses that will actually come up:
+
+| Story | Tag `LFA`? | Why |
+|---|---|---|
+| NFL plays a regular-season game in México | **No** | Subject is the NFL's international strategy. Mexican market, different property. |
+| A brand signs the NFL for the Mexican market | **No** | NFL story. `NFL` in `tagsSport`. |
+| ONEFA / college American football in México | **No** | Different property. |
+| An LFA player signed by an NFL team | **No** by default | Subject is the NFL club's signing. Tag `LFA` **only** if the core claim is about the LFA's pipeline as a business asset. |
+| Flag football's growth in México | **No** | Different discipline. A passing mention that the LFA also runs flag tournaments does not flip it — in the 2026-08-18 backfill this exact case was the sole string match and was rejected. |
+| The LFA takes foreign investment | **Yes** | Subject ✓, business fact ✓. |
+| A brand becomes an official LFA partner | **Yes** | Subject ✓, licensing/sponsorship ✓. |
+| The LFA announces an expansion plaza | **Yes** | Subject ✓, business fact ✓. |
+
+**Tag the property tier in addition to, never instead of, the other three.**
+A tagged piece surfaces on `/coberturas/lfa`, so a wrong value is not cosmetic —
+it puts the wrong story on a destination page. Note the sport vocabulary has no
+American-football value today; `Multi-deporte / Otros` is the honest fallback
+until one is added.
+
+**Adding a property.** A new value here means a new hub. Do not invent one while
+drafting — hubs are created by the `hub-builder` skill, which owns the intake
+gate and registers the vocabulary in the same commit.
+
+
 ---
 
 ## Ranking

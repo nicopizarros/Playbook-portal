@@ -43,6 +43,8 @@ type ArticleInput = {
   tagsScope: string[];
   tagsSport: string[];
   tagsVertical: string[];
+  /** Coverage tier (hubs). Optional: a draft that omits it publishes as before. */
+  tagsProperty?: string[];
   priority: number;
   featured: boolean;
   mostrarAutor?: boolean;
@@ -127,6 +129,9 @@ async function insertOne(input: ArticleInput) {
     scope: input.tagsScope,
     sport: input.tagsSport,
     vertical: input.tagsVertical,
+    // Coverage tier (hubs). Usually absent from a draft — `?? []` so a
+    // skill run that never mentions it publishes exactly as before.
+    property: input.tagsProperty ?? [],
   });
   if (issues.length) {
     throw new Error(
@@ -134,7 +139,13 @@ async function insertOne(input: ArticleInput) {
         `Usa exactamente las opciones de lib/taxonomy.ts.`,
     );
   }
-  input = { ...input, tagsScope: tags.scope, tagsSport: tags.sport, tagsVertical: tags.vertical };
+  input = {
+    ...input,
+    tagsScope: tags.scope,
+    tagsSport: tags.sport,
+    tagsVertical: tags.vertical,
+    tagsProperty: tags.property,
+  };
 
   const bodyJson = markdownToTipTap(input.bodyMarkdown);
   const bodyHtml = generateHTML(bodyJson as JSONContent, TIPTAP_EXTENSIONS);
@@ -160,6 +171,7 @@ async function insertOne(input: ArticleInput) {
           tagsScope: input.tagsScope,
           tagsSport: input.tagsSport,
           tagsVertical: input.tagsVertical,
+          tagsProperty: input.tagsProperty ?? [],
           priority: input.priority,
           featured: input.featured,
           mostrarAutor: input.mostrarAutor === true,

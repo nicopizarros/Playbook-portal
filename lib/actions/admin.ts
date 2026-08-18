@@ -112,6 +112,8 @@ export type ArticleInput = {
   tagsScope: string[];
   tagsSport: string[];
   tagsVertical: string[];
+  /** Hub coverage tier (lib/taxonomy.ts PROPERTY_OPTIONS). Usually empty. */
+  tagsProperty: string[];
   priority: number;
   featured: boolean;
   mostrarAutor: boolean;

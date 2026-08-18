@@ -15,12 +15,35 @@ export const VERTICAL_OPTIONS = [
   'Audiencias y Consumo', 'Fan Experience', 'Naming Rights',
 ] as const;
 
-export type TaxonomyTier = 'scope' | 'sport' | 'vertical';
+// ------------------------------------------------------------- Property tier
+// FOURTH TIER, added 2026-08-18 for hubs (lib/hubs/). A hub tag is not a
+// topic tag and does not fit the three existing tiers:
+//
+//   • `scope` is Nacional/Internacional — a hub is neither.
+//   • `vertical` is a business axis (patrocinios, derechos de TV) — a hub
+//     is a property, and it is covered ACROSS every vertical.
+//   • `sport` was the tempting home, and the honest reason to reject it:
+//     that tier already mixes sports with leagues ('NFL', 'Liga MX'), so
+//     one more league would have LOOKED consistent. But a hub tag has a
+//     different job and a different lifecycle from a topic tag. It drives
+//     a ROUTE (/coberturas/lfa), it must stay stable for as long as the
+//     destination exists, and its membership is a binary editorial
+//     judgment ("is this LFA coverage?") rather than a descriptive one
+//     ("does this touch the NFL?"). Filing it under `sport` would have
+//     made "mentions the LFA" and "is LFA coverage" the same tag, which is
+//     precisely the distinction the hub depends on.
+//
+// The tier is OPTIONAL in a way the other three are not: most articles
+// carry no property tag at all, and that is the normal case, not a gap.
+export const PROPERTY_OPTIONS = ['LFA'] as const;
+
+export type TaxonomyTier = 'scope' | 'sport' | 'vertical' | 'property';
 
 export const TAXONOMY: Record<TaxonomyTier, readonly string[]> = {
   scope: SCOPE_OPTIONS,
   sport: SPORT_OPTIONS,
   vertical: VERTICAL_OPTIONS,
+  property: PROPERTY_OPTIONS,
 };
 
 // ---------------------------------------------------------------- Per-section topics
@@ -48,8 +71,11 @@ export type SectionTopics = {
   label: string;
 };
 
+// `property` leads every ordering below: when an article IS hub coverage,
+// the property is the most specific true thing about it, and the chip is
+// the reader's route into the hub.
 export const DEFAULT_TOPICS: SectionTopics = {
-  order: ['scope', 'sport', 'vertical'],
+  order: ['property', 'scope', 'sport', 'vertical'],
   label: 'Temas del artículo',
 };
 
@@ -57,18 +83,18 @@ export const SECTION_TOPICS: Record<string, SectionTopics> = {
   // Noticias is the daily business-news feed: the business vertical
   // (derechos de TV, patrocinios, M&A…) is the reason a reader clicks
   // through, the sport is context.
-  noticias: { order: ['vertical', 'sport', 'scope'], label: 'Temas de esta noticia' },
+  noticias: { order: ['property', 'vertical', 'sport', 'scope'], label: 'Temas de esta noticia' },
   // La Lana del Deporte (renamed from La Lana del Mundial once its scope
   // widened past the 2026 World Cup to sports business generally) leads
   // with scope (Nacional/Internacional) over sport, since a given edition
   // can cover football, cycling, or any other discipline.
-  'la-lana': { order: ['scope', 'vertical', 'sport'], label: 'Temas de La Lana del Deporte' },
+  'la-lana': { order: ['property', 'scope', 'vertical', 'sport'], label: 'Temas de La Lana del Deporte' },
   // Infinitas covers women's sport across disciplines: which sport it is
   // carries the most information here.
-  infinitas: { order: ['sport', 'vertical', 'scope'], label: 'Temas de Infinitas' },
+  infinitas: { order: ['property', 'sport', 'vertical', 'scope'], label: 'Temas de Infinitas' },
   // Opinión is argument-led; the business vertical is the axis an opinion
   // piece actually takes a position on.
-  opinion: { order: ['vertical', 'scope', 'sport'], label: 'Temas de esta opinión' },
+  opinion: { order: ['property', 'vertical', 'scope', 'sport'], label: 'Temas de esta opinión' },
 };
 
 export function topicsForSection(source: string): SectionTopics {
@@ -101,6 +127,7 @@ const FOLDED_OPTIONS: Record<TaxonomyTier, Map<string, string>> = {
   scope: new Map(SCOPE_OPTIONS.map(o => [fold(o), o])),
   sport: new Map(SPORT_OPTIONS.map(o => [fold(o), o])),
   vertical: new Map(VERTICAL_OPTIONS.map(o => [fold(o), o])),
+  property: new Map(PROPERTY_OPTIONS.map(o => [fold(o), o])),
 };
 
 /** The canonical option this value folds to, or null if out of vocabulary. */
@@ -134,8 +161,8 @@ function nearestOption(tier: TaxonomyTier, value: string): string | null {
   return best;
 }
 
-export function validateTags(input: Record<TaxonomyTier, string[]>): ValidatedTags {
-  const tags: Record<TaxonomyTier, string[]> = { scope: [], sport: [], vertical: [] };
+export function validateTags(input: Partial<Record<TaxonomyTier, string[]>>): ValidatedTags {
+  const tags: Record<TaxonomyTier, string[]> = { scope: [], sport: [], vertical: [], property: [] };
   const issues: TagIssue[] = [];
   for (const tier of Object.keys(tags) as TaxonomyTier[]) {
     for (const value of input[tier] ?? []) {

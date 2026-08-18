@@ -57,6 +57,13 @@
       "when": 1785753059768,
       "tag": "0007_add-user-password-hash",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787088753609,
+      "tag": "0008_hub_property_tier",
+      "breakpoints": true
     }
   ]
 }
