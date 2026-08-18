@@ -89,6 +89,25 @@ Then follow the back-link rule in `voice-and-style.md` §10: one inline link
 inside a sentence that is already stating the new fact, never a paragraph that
 narrates Playbook's own prior reporting.
 
+**C can carry a correction to the earlier piece, and that is not outcome B**
+(publisher, 2026-08-18, on the Buss family trust fight over the Lakers' last
+17.8%). The four outcomes are exclusive about *minting a second article*, not
+about leaving the archive asserting something the site itself now contradicts.
+On a story that turns over inside a day, the earlier piece's `title` and
+`excerpt` were written against a fact that has since become contested: the
+2026-08-17 brief said Jeanie Buss "deja de ser gobernadora" and hours later
+that outcome was under legal challenge. The follow-up passed C's headline test
+cleanly, and the published piece still needed the qualifier.
+
+So when the new development **contradicts or makes conditional** the claim the
+earlier article's title or excerpt makes, C ships with a minimal correction on
+that article: soften the title and excerpt to what is actually established, add
+**one plain sentence** in the body stating the new development with the inline
+link forward to the follow-up, and keep its original `date` (the same rules
+outcome B already sets, applied to the fields the new fact touched, not a fold
+of the whole story). Everything else about the earlier piece stays as
+published. `scripts/update-article.ts` is the tool, same as for B.
+
 ### D. Same event, different product, genuinely different thesis → both may run, cross-linked
 
 Infinitas asking what the Liga Femenil BBVA is building and Noticias reporting
