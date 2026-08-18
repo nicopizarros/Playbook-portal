@@ -16,6 +16,10 @@ export type ProductHub = {
   name: string;
   /** The design concept's internal name, used as the hub's editorial device. */
   concept: string;
+  /** One line, for the nav mega-menu. What the reader gets, not what it is. */
+  descriptor: string;
+  /** CSS custom property carrying this product's identity colour (tokens.css). */
+  token: string;
 };
 
 // The Futbol Business Review has NO `source` of its own yet (HANDOFF: "se
@@ -28,10 +32,27 @@ export const PRODUCT_HUBS: ProductHub[] = [
   // the machine key caught up on 2026-08-14 (TODO #2 — 'industry-shots'
   // retired, normalizeSource() in lib/constants.ts still maps unmigrated
   // rows); /industry-shots 301s to /noticias in next.config.ts.
-  { source: 'noticias', path: '/noticias', name: 'Noticias', concept: 'El Trago' },
-  { source: 'la-lana', path: '/la-lana', name: 'La Lana del Deporte', concept: 'El Expediente' },
-  { source: 'futbol-business-review', path: '/futbol-business-review', name: 'The Futbol Business Review', concept: 'La Sala de Juntas' },
-  { source: 'infinitas', path: '/infinitas', name: 'Infinitas', concept: 'El Marcador' },
+  {
+    source: 'noticias', path: '/noticias', name: 'Noticias', concept: 'El Trago',
+    descriptor: 'El negocio del deporte, todos los días en shots.',
+    token: '--src-industry',
+  },
+  {
+    source: 'la-lana', path: '/la-lana', name: 'La Lana del Deporte', concept: 'El Expediente',
+    descriptor: 'La investigación semanal: quién pone el dinero y a cambio de qué.',
+    token: '--src-lana',
+  },
+  {
+    source: 'futbol-business-review', path: '/futbol-business-review',
+    name: 'The Futbol Business Review', concept: 'La Sala de Juntas',
+    descriptor: 'El futbol como industria, para quien lo administra.',
+    token: '--src-opinion',
+  },
+  {
+    source: 'infinitas', path: '/infinitas', name: 'Infinitas', concept: 'El Marcador',
+    descriptor: 'El deporte femenil leído como lo que es: un mercado.',
+    token: '--src-infinitas',
+  },
 ];
 
 export function hubForSource(source: string): ProductHub | null {

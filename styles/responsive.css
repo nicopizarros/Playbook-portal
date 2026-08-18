@@ -52,6 +52,7 @@
      in testing instead of being quietly swallowed. */
   html{overflow-x:clip;}
   .nav-toggle{display:flex;}
+  .nav-drawer-zone{display:block;}
   .nav-drawer-cta{display:block;}
   .nav-drawer-login{display:block;}
   /* `.theme-toggle.theme-toggle-drawer`, not `.theme-toggle-drawer`: the
@@ -79,7 +80,12 @@
      this reason). */
   .reader-status{display:none;}
 
+  /* Below the drawer breakpoint the desktop zones give way to the drawer,
+     which carries the SAME three zones as labelled sections — the IA
+     survives the collapse intact rather than flattening to a link list. */
+  .nav-zones{display:none;}
   .nav-links{
+    display:flex;
     position:fixed;top:0;right:0;height:100vh;width:min(320px,86vw);
     background:var(--paper);flex-direction:column;align-items:flex-start;
     padding:96px 28px 28px;gap:2px;margin:0;

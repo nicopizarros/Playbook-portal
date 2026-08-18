@@ -38,7 +38,11 @@ header.topbar.is-scrolled .brand img{height:42px;}
 }
 [data-theme="dark"] .brand img.logo-light{display:none;}
 [data-theme="dark"] .brand img.logo-dark{display:block;}
-.nav-links{display:flex;align-items:center;gap:26px;font-size:13.5px;font-weight:500;}
+/* .nav-links is now the MOBILE DRAWER ONLY (three-zone header, 2026-08-18).
+   The desktop nav is .nav-zones below. Hidden here and switched on inside
+   the max-width:1180px block in responsive.css, which is where the drawer
+   is defined. */
+.nav-links{display:none;align-items:center;gap:26px;font-size:13.5px;font-weight:500;}
 /* Wrapper que content.js re-renderiza (ver js/content.js) — display:contents
    lo saca del árbol de layout para que sus hijos sigan siendo flex items
    directos de .nav-links, como si el div no existiera. */
@@ -197,3 +201,118 @@ header.topbar.is-scrolled .brand img{height:42px;}
 .nav-drawer-cta,
 .nav-drawer-login,
 .theme-toggle.theme-toggle-drawer{display:none;}
+
+/* ============================================================
+   THREE-ZONE HEADER (2026-08-18)
+
+   Publicaciones · Coberturas · Newsletter — three KINDS of thing, told
+   apart structurally rather than by colour (brief §2):
+
+     • Publicaciones is a WIDE two-column mega-menu of things we author.
+     • Coberturas is a NARROW menu of destinations about properties we do
+       not own, set behind a standing rule that marks the category change.
+     • Newsletter is not a menu at all: it is the filled .btn in
+       .nav-actions. An action, not a link.
+
+   No --hub-* token appears anywhere in this block. Hub identity stays
+   inside the hub's own page subtree and never touches global chrome. */
+
+.nav-zones{display:flex;align-items:center;gap:6px;}
+
+.nav-zone-rule{
+  /* --rule is a hairline tuned for large surfaces; at 1x20px on cream it
+     was invisible and did no structural work at all. --gray-txt at low
+     alpha reads as a deliberate divider without becoming a design
+     element. Paired with asymmetric margins so Coberturas also sits in
+     its own space, not just behind a line. */
+  width:1px;height:22px;background:color-mix(in srgb, var(--gray-txt) 45%, transparent);
+  margin:0 14px 0 18px;flex:none;
+}
+
+.navmenu{position:relative;}
+
+.navmenu-trigger{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;border:0;background:transparent;cursor:pointer;
+  font-family:inherit;font-size:13.5px;font-weight:500;color:var(--ink);
+  border-radius:6px;
+}
+.navmenu-trigger:hover{background:var(--paper-soft);}
+/* Visible keyboard focus is part of the quality floor, not a nicety. */
+.navmenu-trigger:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+
+.navmenu-chevron{
+  width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg) translate(-1px,-1px);
+  transition:transform var(--duration-fast) ease;
+}
+.navmenu-trigger[aria-expanded="true"] .navmenu-chevron{
+  transform:rotate(-135deg) translate(-2px,-2px);
+}
+@media(prefers-reduced-motion:reduce){
+  .navmenu-chevron{transition:none;}
+}
+
+.navmenu-panel{
+  position:absolute;top:calc(100% + 10px);left:0;z-index:70;
+  min-width:270px;padding:16px;
+  background:var(--paper);border:1px solid var(--rule);border-radius:10px;
+  box-shadow:0 12px 34px rgba(0,0,0,.12);
+  display:grid;gap:18px;
+}
+/* MUST outrank the rule above. `display:grid` beats the UA stylesheet's
+   `[hidden]{display:none}`, so without this every panel rendered open at
+   all times — the closed state simply did not exist. Keeping the `hidden`
+   attribute (rather than a class) is what takes the links out of the tab
+   order, so the attribute has to actually hide them. */
+.navmenu-panel[hidden]{display:none;}
+[data-theme="dark"] .navmenu-panel{box-shadow:0 12px 34px rgba(0,0,0,.5);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .navmenu-panel{box-shadow:0 12px 34px rgba(0,0,0,.5);}
+}
+.navmenu-panel[data-align="end"]{left:auto;right:0;}
+.navmenu-panel.is-wide{grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr);min-width:560px;}
+
+.navmenu-group{display:grid;gap:2px;align-content:start;}
+.navmenu-group-secondary{border-left:1px solid var(--rule);padding-left:16px;}
+.navmenu-panel:not(.is-wide) .navmenu-group-secondary{
+  border-left:0;padding-left:0;border-top:1px solid var(--rule);padding-top:12px;
+}
+
+.navmenu-group-head{
+  margin:0 0 8px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray-txt);font-weight:600;
+}
+
+.navmenu-item{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:8px;border-radius:7px;text-decoration:none;color:var(--ink);
+}
+a.navmenu-item:hover{background:var(--paper-soft);}
+a.navmenu-item:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;}
+
+/* The product identity chip. This is the ONE place a product colour
+   appears in the header, and it is a 3px bar beside the name — the
+   identity is legible without tinting any chrome. */
+.navmenu-chip{width:3px;align-self:stretch;min-height:34px;border-radius:2px;flex:none;}
+
+.navmenu-item-body{display:grid;gap:2px;min-width:0;}
+.navmenu-item-name{font-size:13.5px;font-weight:600;line-height:1.3;}
+.navmenu-item-desc{font-size:12px;line-height:1.4;color:var(--gray-txt);}
+
+.navmenu-item-plain{padding:6px 8px;}
+/* Declared, not linked: an "en preparación" entry must not look clickable
+   and cannot 404. */
+.navmenu-item-muted{display:grid;gap:2px;cursor:default;opacity:.72;}
+.navmenu-item-muted .navmenu-item-name{font-weight:500;}
+
+/* ---------------------------------------------------- Drawer zones */
+.nav-drawer-zone{display:none;width:100%;}
+.nav-drawer-head{
+  margin:18px 0 6px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray-txt);font-weight:600;
+}
+.nav-drawer-link{display:flex;align-items:center;gap:10px;}
+.nav-drawer-sub{color:var(--gray-txt) !important;font-size:14px !important;}
+.nav-drawer-muted{color:var(--gray-txt) !important;opacity:.75;}
+.nav-drawer-muted em{font-style:normal;font-size:11px;letter-spacing:.08em;text-transform:uppercase;}

@@ -203,4 +203,9 @@ footer{background:var(--ink-fixed);color:#fff;padding:44px 0 30px;border-top:1px
 .footer-legal-row a,.footer-legal-row .footer-cookie-prefs-link{font-size:11.5px;color:rgba(255,255,255,.55);text-decoration:underline;text-underline-offset:2px;}
 .footer-legal-row a:hover,.footer-legal-row .footer-cookie-prefs-link:hover{color:#fff;}
 .footer-cookie-prefs-link{background:none;border:none;padding:0;font-family:inherit;cursor:pointer;}
-.footer-copyright{text-align:center;font-size:11.5px;color:rgba(255,255,255,.4);margin-top:12px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12);}
+/* .55, not .4: at 11.5px on the always-dark footer, 40% white measured
+   3.77:1 against #0a0a0a — below the 4.5:1 floor, and the only WCAG AA
+   contrast failure Lighthouse finds on any route (site-wide, pre-existing;
+   surfaced by the 2026-08-18 hub accessibility pass). .55 clears it while
+   keeping the copyright visually subordinate. */
+.footer-copyright{text-align:center;font-size:11.5px;color:rgba(255,255,255,.55);margin-top:12px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12);}
