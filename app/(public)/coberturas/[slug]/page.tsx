@@ -49,7 +49,7 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
         <Link className="section-link back-link" href="/">← Volver a Playbook</Link>
 
         <header className="hubx-masthead">
-          <p className="hubx-eyebrow">Cobertura Playbook</p>
+          <p className="hubx-eyebrow">Exclusiva Playbook</p>
           <div className="hubx-lockup">
             {/* Nominative-reference slot. Absent until rights are confirmed;
                 the wordmark below renders either way, so an unlicensed or

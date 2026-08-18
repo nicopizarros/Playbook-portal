@@ -18,12 +18,10 @@ export function hubBySlug(slug: string): Hub | null {
 // what is being built is a stronger signal than a lonely single item, and
 // an un-linked entry cannot 404. Delete an entry here the moment its real
 // hub lands in HUBS above.
-export const UPCOMING_HUBS: { name: string; note: string }[] = [
-  // LFA sits here rather than in the live list while its hub is UNLISTED
-  // (see LFA_HUB.listed). The route exists and works; the nav simply does
-  // not advertise it yet. Moving it is two lines: flip `listed` to true and
-  // delete this entry.
-  { name: 'LFA', note: 'En preparación' },
-  { name: 'Mundial 2026', note: 'En preparación' },
-  { name: 'NFL México', note: 'En preparación' },
-];
+// Empty on purpose (2026-08-18). This existed so the zone would not read as
+// an empty shelf while nothing was live; with a real destination in it, naming
+// hubs that do not exist yet is a promise with nothing behind it. Add an entry
+// here only when a hub is genuinely being built — the rendering path is kept
+// so that costs one line, and declared entries are never links, so they cannot
+// 404.
+export const UPCOMING_HUBS: { name: string; note: string }[] = [];

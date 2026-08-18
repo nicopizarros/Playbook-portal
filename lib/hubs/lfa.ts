@@ -32,9 +32,8 @@ const BOLETIN = {
 export const LFA_HUB: Hub = {
   slug: 'lfa',
   name: 'LFA',
-  // Unlisted at launch (publisher directive, 2026-08-18): the route is live
-  // and reviewable, the nav advertises it as "en preparación" instead.
-  listed: false,
+  // Live in the nav (publisher directive, 2026-08-18, same day as launch).
+  listed: true,
   // The graphic supplied with the Black Clover press kit reads "LFA
   // FINSUS" throughout — the league wears its title sponsor in its own
   // commercial name. That is itself a Playbook-relevant fact (naming
