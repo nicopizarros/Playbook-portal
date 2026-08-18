@@ -128,6 +128,27 @@ gestures at five different angles lands none of them. Cross-referencing
 paraphrasing a competitor, this format just delivers that in a tighter
 shape than the old four fixed slots did.
 
+**When the primary source is a company's own press release** (a
+newsroom.company.com post, not a journalist's reporting), the risk isn't
+just paraphrasing one competitor, it's inheriting that company's own frame
+for why the news matters, which is almost never the sports-business
+reading. A press release lists what happened (a schedule, a feature, a
+partnership) in the company's own promotional voice and rarely says why a
+company made the choice it did or what it reveals about strategy, because
+that's not what press releases are for. Read past the announcement itself
+for the actual business mechanism: what did the company choose not to do
+(expand, spend more, compete harder) and what does that choice reveal
+about what it actually needs from this deal (revenue, audience, ecosystem
+lock-in, a hardware showcase, timing ahead of some other event)? That
+question, not the press release's own list of features, is what "la
+palanca de negocio más importante" should usually answer for one of these.
+It also means the cover image (Step 5) shouldn't be the press release's
+own promotional graphic or hero shot either, even when it's technically
+on-topic and properly licensed, it carries the same promotional framing
+into the piece visually. Source a genuine editorial photo of the actual
+subject instead (see the Apple/MLB Friday Night Baseball piece, which
+used a Fenway Park crowd photo instead of Apple's own marketing image).
+
 ### Structure
 
 **Headline**: state the movement plainly. Add a figure or consequence only
