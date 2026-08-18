@@ -60,6 +60,33 @@ rests on, and a copy under `public/assets/img/` cannot break when they move a
 path. Self-hosted covers only resolve once the asset is on `main`, so push it
 before the article references it.
 
+### A Wikimedia candidate is verifiable even when the file won't download
+
+(2026-08-18, on the Buss trust fight.) `upload.wikimedia.org` rate-limits shared
+egress IPs, so a session in a cloud container hits `HTTP 429 Too many requests`
+after two or three downloads while readers' browsers keep loading the same file
+normally. Left there, the crop check below and the "confirm what it depicts"
+rule become steps that quietly get skipped on exactly the images Playbook uses
+most.
+
+The Commons **API** answers both questions without the binary and is not part
+of the same limit:
+
+```
+https://commons.wikimedia.org/w/api.php?action=query&generator=search\
+  &gsrsearch=<subject>&gsrnamespace=6&gsrlimit=20\
+  &prop=imageinfo&iiprop=url|size|extmetadata&format=json
+```
+
+Each result carries `width`, `height`, `ImageDescription`, `Artist` and
+`LicenseShortName` — the ratio, the subject and the credit line, decided before
+a single byte of image is fetched. Use it to shortlist, and retry the download
+of **only the finalist** with `curl --retry 3 --retry-delay 20
+--retry-all-errors` and a User-Agent naming the site and a contact address; the
+limit is short-lived and one patient retry usually clears it. If it does not,
+the API record is enough to publish on, and the run report says the photo was
+verified from its file record rather than on screen.
+
 ### The broad search
 
 **Always, always, always search for the best and most related cover photo,
