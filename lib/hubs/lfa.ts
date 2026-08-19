@@ -40,8 +40,16 @@ const BOLETIN = {
 export const LFA_HUB: Hub = {
   slug: 'lfa',
   name: 'LFA',
-  // Live in the nav (publisher directive, 2026-08-18, same day as launch).
-  listed: true,
+  // Unlisted again (publisher directive, 2026-08-19): the joint LFA x
+  // Playbook announcement hasn't gone out yet, and the masthead's
+  // `partnership` line below already states the relationship as fact.
+  // Pulling this back to `false` drops it from the nav and the sitemap
+  // (see Hub.listed) and — via this hub's own generateMetadata — sets
+  // robots noindex, which matters here because the page was briefly
+  // listed and Google already indexed it; noindex is what gets it
+  // dropped on the next crawl. Flip back to `true` only alongside the
+  // real announcement.
+  listed: false,
   // The graphic supplied with the Black Clover press kit reads "LFA
   // FINSUS" throughout — the league wears its title sponsor in its own
   // commercial name. That is itself a Playbook-relevant fact (naming
