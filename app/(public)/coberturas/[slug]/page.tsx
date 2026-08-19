@@ -40,6 +40,12 @@ export async function generateMetadata({
     title: `${hub.name} — Exclusiva Playbook`,
     description: hub.description,
     alternates: { canonical: `${SITE_URL}/coberturas/${hub.slug}` },
+    // Mirrors Hub.listed: an unlisted hub is reviewable at its real URL
+    // (nothing internal links to it, see HeaderNav/sitemap.ts) but must
+    // not be indexable either — a hub can go from listed back to
+    // unlisted (see lib/hubs/lfa.ts, 2026-08-19) after Google already
+    // crawled it, and noindex is what gets it dropped on the next crawl.
+    robots: { index: hub.listed, follow: hub.listed },
   };
 }
 
