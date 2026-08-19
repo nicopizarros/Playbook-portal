@@ -146,8 +146,17 @@
   font-family: var(--serif-display);
   font-weight: 400;
   font-size: clamp(2.5rem, 7.5vw, 5.25rem);
-  line-height: 0.92;
-  letter-spacing: 0.004em;
+  /* 1.12, and it has to be. Anton draws uppercase accents ABOVE the cap
+     height with almost no internal clearance, so on a tight display setting
+     the acute of "MÉXICO" rose out of its own line and fused with the O of
+     "FUTBOL" on the line above — which then read as "FUTBQL". Verified by
+     bisection: 0.92 and 1.02 collide, 1.12 clears with margin.
+     ANY Spanish headline with an accented capital hits this, so it is a
+     leading bug and not a one-off piece of copy. Do NOT tighten this back
+     toward 0.9 while the display face is Anton — and if a future hub sets
+     its own display face, re-test with an accented capital before doing so. */
+  line-height: 1.12;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--hub-chalk);
   margin: clamp(1.25rem, 3vw, 2rem) 0 0;
@@ -204,7 +213,7 @@
   text-transform: uppercase;
   font-size: clamp(1.7rem, 4.2vw, 2.6rem);
   line-height: 0.95;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.015em;
   margin: 0 0 0.6rem;
   color: var(--hub-chalk);
 }
@@ -244,6 +253,7 @@
   text-transform: uppercase;
   font-size: clamp(1.35rem, 3.4vw, 2rem);
   line-height: 1;
+  letter-spacing: 0.015em;
   margin: 0;
   color: var(--hub-chalk);
 }
@@ -256,6 +266,12 @@
 }
 
 .hubx-chain-track { position: relative; height: 96px; margin-bottom: clamp(1.75rem, 4vw, 2.5rem); }
+/* Rows and map states light each other up on hover — see HubMotion. */
+.hubx-plazas tbody tr.is-linked th,
+.hubx-plazas tbody tr.is-linked td { background: rgba(0, 255, 0, 0.07); }
+.hubx-map path.is-linked { stroke: var(--hub-accent); stroke-width: 2.5; }
+.hubx-map path { transition: fill 200ms ease, stroke 200ms ease, stroke-width 200ms ease; }
+@media (prefers-reduced-motion: reduce) { .hubx-map path { transition: none; } }
 
 /* Ground covered — solid chalk. */
 .hubx-chain-span {
@@ -446,7 +462,8 @@
 }
 .hubx-empty-head {
   font-family: var(--serif-display); font-weight: 400; text-transform: uppercase;
-  font-size: clamp(1.3rem, 3.2vw, 1.75rem); margin: 0 0 0.6rem; color: var(--hub-chalk);
+  font-size: clamp(1.3rem, 3.2vw, 1.75rem); letter-spacing: 0.015em;
+  margin: 0 0 0.6rem; color: var(--hub-chalk);
 }
 .hubx-empty-body { margin: 0 auto; max-width: 46ch; color: var(--hub-mute); line-height: 1.6; }
 

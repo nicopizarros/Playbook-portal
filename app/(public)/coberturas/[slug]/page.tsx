@@ -6,6 +6,7 @@ import { hubArticles } from '@/lib/hubs/pool';
 import { HubChain } from '@/components/hubs/HubChain';
 import { HubCross, HubFigures, HubPlazas, HubSeason, HubStream } from '@/components/hubs/HubModules';
 import { SITE_URL } from '@/lib/site-url';
+import { HubMotion } from '@/components/hubs/HubMotion';
 
 // ONE ROUTE, EVERY HUB. Adding a coverage destination is a config entry in
 // lib/hubs/ plus a token file in styles/hubs/ — this file never changes.
@@ -126,6 +127,7 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
         <HubStream hub={hub} articles={articles} />
         <HubCross hub={hub} />
       </div>
+      <HubMotion />
     </main>
   );
 }

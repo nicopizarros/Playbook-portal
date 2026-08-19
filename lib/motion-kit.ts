@@ -116,7 +116,14 @@ export function countUp(scope: MotionScope, elements: Iterable<HTMLElement>): vo
     el.style.display = 'inline-block';
     el.style.minWidth = `${el.offsetWidth}px`;
     const counter = { value: 0 };
-    el.textContent = parts.pre + formatNumeric(0, numeric.decimals) + parts.post;
+    // The zero is written by the tween's first frame, NOT eagerly here.
+    // Eager zeroing was a real bug: if the ScrollTrigger never fires — the
+    // element sits just below its start line and the reader never scrolls
+    // past it, the page is too short to reach it, or the trigger is
+    // refreshed away — the element kept "0" permanently, with the true
+    // value only ever restored on unmount. Leaving the server-rendered
+    // figure in place until the animation actually starts means the failure
+    // mode is "no animation", not "wrong number".
     scope.tweens.push(
       gsap.to(counter, {
         value: numeric.value,
@@ -128,7 +135,9 @@ export function countUp(scope: MotionScope, elements: Iterable<HTMLElement>): vo
         onComplete() {
           el.textContent = finalText;
         },
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+        // 95%, not 88%: an element low inside a tall module can sit just
+        // under an 88% line and never cross it on a short scroll.
+        scrollTrigger: { trigger: el, start: 'top 95%', once: true },
       }),
     );
     scope.cleanups.push(() => {

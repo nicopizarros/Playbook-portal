@@ -73,7 +73,7 @@ export function HubPlazas({ hub }: { hub: Hub }) {
         </thead>
         <tbody>
           {hub.plazas.map(plaza => (
-            <tr key={`${plaza.city}-${plaza.status}`}>
+            <tr key={`${plaza.city}-${plaza.status}`} data-state-key={plaza.state}>
               <th scope="row">
                 {plaza.city}
                 {plaza.region && plaza.region !== plaza.city && (

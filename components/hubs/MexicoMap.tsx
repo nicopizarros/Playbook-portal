@@ -31,7 +31,7 @@ export function MexicoMap({ hub }: { hub: Hub }) {
       focusable="false"
     >
       {Object.entries(MEXICO_STATES).map(([name, d]) => (
-        <path key={name} d={d} data-state={byState.get(name) ?? 'none'} />
+        <path key={name} d={d} data-name={name} data-state={byState.get(name) ?? 'none'} />
       ))}
     </svg>
   );

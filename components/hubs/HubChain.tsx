@@ -47,7 +47,14 @@ export function HubChain({ chain }: { chain: Chain }) {
       {/* The measure is decorative markup around a sentence that is already
           in the DOM below (.hubx-chain-readout), so it is hidden from
           assistive tech rather than narrated as a pile of numbers. */}
-      <div className="hubx-chain-track" aria-hidden="true">
+      {/* One custom property on the track drives the span, the chain links
+          and the current pole, so HubMotion can animate the whole device
+          with a single tween instead of three in sync. */}
+      <div
+        className="hubx-chain-track"
+        aria-hidden="true"
+        style={{ ['--reached' as string]: reached }}
+      >
         <div className="hubx-chain-ticks">
           {Array.from({ length: Math.min(target, 24) }, (_, i) => (
             <span
@@ -57,15 +64,10 @@ export function HubChain({ chain }: { chain: Chain }) {
             />
           ))}
         </div>
-        <div className="hubx-chain-span" style={{ ['--reached' as string]: reached }} />
+        <div className="hubx-chain-span" />
         {/* The chain itself: ball → line to gain, i.e. what is LEFT. */}
-        <div className="hubx-chain-links" style={{ ['--reached' as string]: reached }} />
-        <div
-          className="hubx-chain-pole"
-          data-role="current"
-          data-value={chain.current.value}
-          style={{ ['--reached' as string]: reached }}
-        />
+        <div className="hubx-chain-links" />
+        <div className="hubx-chain-pole" data-role="current" data-value={chain.current.value} />
         <div className="hubx-chain-pole" data-role="gain" data-value={chain.target.value} />
       </div>
 
