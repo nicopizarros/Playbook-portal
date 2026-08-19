@@ -57,7 +57,24 @@ const csp = [
   `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' https://va.vercel-scripts.com" : ''} https://www.instagram.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
-  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com",
+  // GA4's collector fans out across FOUR hosts, and a wildcard entry does
+  // NOT cover the bare domain it wildcards -- `*.analytics.google.com` never
+  // matches `analytics.google.com` (CSP host-source matching requires at
+  // least one label in place of the `*`). That gap silently blocked every
+  // GA4 hit, page_view included, until 2026-08-19: the only allowed
+  // collector was www.google-analytics.com, so anything gtag routed to the
+  // other three was refused. Confirmed in a real browser against the live
+  // site, which reported /g/collect blocked on analytics.google.com,
+  // www.google.com AND stats.g.doubleclick.net.
+  //
+  // Keep every entry. They are not redundant:
+  //   www.google-analytics.com   the classic collector
+  //   *.google-analytics.com     regional endpoints (region1, region2, …)
+  //   analytics.google.com       bare host, NOT covered by the wildcard above
+  //   *.analytics.google.com     regional variants of that host
+  //   www.google.com             /g/collect when Google Signals is on
+  //   stats.g.doubleclick.net    the Signals/ads-integration collector
+  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com",
 ]
   .join('; ')
   .replace(/\s+/g, ' ')
