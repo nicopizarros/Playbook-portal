@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import { newsletterActionUrl } from '@/lib/newsletter-url';
+import { trackEvent, resolvePageProduct } from '@/lib/analytics-events';
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -22,6 +23,7 @@ export function NewsletterForm({
   emailLabel,
   buttonLabel,
   successMessage,
+  placement,
 }: {
   formClassName: string;
   action: string;
@@ -29,6 +31,8 @@ export function NewsletterForm({
   emailLabel: string;
   buttonLabel: string;
   successMessage: string;
+  /** Which surface this form sits on, for reporting. */
+  placement: 'home-sidebar' | 'mid-cta';
 }) {
   const [hasError, setHasError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -57,6 +61,16 @@ export function NewsletterForm({
       return;
     }
     setHasError(false);
+    // Fired here, on the validated submit, and NOT on the success state:
+    // this form posts to Substack in a new tab and never learns the real
+    // subscription result (see the component note above), so "signup" here
+    // means "handed off to Substack with a valid-looking address" -- the
+    // same thing the success copy claims. Naming it after what we can
+    // actually observe keeps the number honest.
+    trackEvent('newsletter_signup', {
+      placement,
+      product: resolvePageProduct(window.location.pathname),
+    });
     if (reduced || !fieldsRef.current) {
       window.setTimeout(() => setIsSuccess(true), 50);
       return;

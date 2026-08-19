@@ -3,6 +3,7 @@ import { Footer } from '@/components/layout/Footer';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { HeaderScrollEffect } from '@/components/layout/HeaderScrollEffect';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { SiteEvents } from '@/components/analytics/SiteEvents';
 import { CookieNotice } from '@/components/CookieNotice';
 import { AdSenseProvider } from '@/components/ads/AdSenseProvider';
 import { getAdSenseConfig } from '@/lib/adsense';
@@ -58,6 +59,11 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <AdSenseProvider config={adSenseConfig}>
       {gaMeasurementId && <GoogleAnalytics measurementId={gaMeasurementId} />}
+      {/* Delegated outbound-link and taxonomy-chip tracking for every
+          public page. Mounted unconditionally, not behind gaMeasurementId:
+          it also feeds Vercel Web Analytics, and trackEvent() is a silent
+          no-op when gtag isn't present (lib/analytics-events.ts). */}
+      <SiteEvents />
       {/* Was previously declared per-page, after <Header/> in the render
           tree — meaning every nav link, the search box, and the theme
           toggle all sat *before* it in tab order, so a keyboard user had to

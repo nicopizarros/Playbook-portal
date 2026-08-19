@@ -8,6 +8,7 @@ import { DeparturesBoard, type BoardRow } from '@/components/products/Departures
 import { LanaArchiveCabinet, type CabinetFolder } from '@/components/products/LanaArchiveCabinet';
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
+import { VisitBeacon } from '@/components/analytics/VisitBeacon';
 
 // La Lana del Deporte — "El Expediente" (design brief 2026-08-05, format
 // reworked same day on user feedback: the case-file idea and its devices
@@ -177,6 +178,7 @@ export default async function LaLanaHubPage() {
       {/* The Lectura motion vocabulary (count-ups, lead-photo parallax,
           staggered groups, the masthead sweep) — shared with the article
           page through lib/motion-kit.ts. */}
+      <VisitBeacon event="product_hub_visit" params={{ product: 'la-lana' }} />
       <SiteMotion />
     </main>
   );

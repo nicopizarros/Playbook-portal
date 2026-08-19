@@ -6,6 +6,7 @@ import { productHubsContent } from '@/lib/product-hubs-content';
 import { shotsFor, shotLabel, weekdayFor, extractPullFigure, MINUTES_PER_SHOT } from '@/lib/product-hubs';
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
+import { VisitBeacon } from '@/components/analytics/VisitBeacon';
 
 // Noticias — the news product's own front page (design brief 2026-08-05;
 // renamed + re-accented same day; river treatment added on the next round
@@ -206,6 +207,7 @@ export default async function NoticiasHubPage() {
       {/* The Lectura motion vocabulary (count-ups, lead-photo parallax,
           staggered groups, the masthead sweep) — shared with the article
           page through lib/motion-kit.ts. */}
+      <VisitBeacon event="product_hub_visit" params={{ product: 'noticias' }} />
       <SiteMotion />
     </main>
   );

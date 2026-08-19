@@ -81,6 +81,7 @@ export async function HomeSidebar() {
           Lo que mueve al negocio del deporte, directo a tu correo.
         </p>
         <NewsletterForm
+          placement="home-sidebar"
           formClassName="side-newsletter-form"
           action="https://playbookmedia.substack.com/"
           emailId="nl-email-side"

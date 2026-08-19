@@ -16,6 +16,9 @@ import { ShareRow } from '@/components/article/ShareRow';
 // homepage's plain list rows.
 import { EmailWall } from '@/components/article/EmailWall';
 import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBeacon';
+import { ArticleEngagement } from '@/components/article/ArticleEngagement';
+import { EmailWallBeacon } from '@/components/article/EmailWallBeacon';
+import { productForSource } from '@/lib/analytics-events';
 import { ArticleSources } from '@/components/article/ArticleSources';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { splitAfterParagraph } from '@/lib/split-after-paragraph';
@@ -526,6 +529,9 @@ export default async function ArticuloPage({ searchParams }: Props) {
                 them — and getting a reader back to the article they were
                 blocked on is the entire point of the sign-up. */}
             <EmailWall articleUrl={pathFor(meta.id)} teaser={meta.wallTeaser} />
+            {/* The wall's own funnel: how often readers hit it, per product,
+                and how often they act on it. Denominator for email_wall_cta. */}
+            <EmailWallBeacon articleId={meta.id} product={productForSource(meta.source)} />
           </article>
           {/* Shell-only devices (kicker scramble, cover parallax) — the
               walled branch has no body, so the body-level devices simply
@@ -606,6 +612,11 @@ export default async function ArticuloPage({ searchParams }: Props) {
   return (
     <>
       <ArticleAnalyticsBeacon articleId={article.id} />
+      {/* Depth/completion, and the page-product registration the site-wide
+          delegated listeners read (components/analytics/SiteEvents.tsx) --
+          /articulo's product comes from the row, not the URL. Full-access
+          branch only: the walled branch has no body to measure. */}
+      <ArticleEngagement articleId={article.id} product={productForSource(article.source)} />
 
       {partnerStrip}
       <main className="container article-page" id="articulo">

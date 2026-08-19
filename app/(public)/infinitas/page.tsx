@@ -6,6 +6,7 @@ import { productHubsContent, type HubMetric } from '@/lib/product-hubs-content';
 import { Scoreboard, type ScoreboardMetric } from '@/components/products/Scoreboard';
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
+import { VisitBeacon } from '@/components/analytics/VisitBeacon';
 
 // Infinitas — "El Marcador" (design brief 2026-08-05; violet dialed back
 // 2026-08-14 by user directive). The violet is the identity but only as
@@ -136,6 +137,7 @@ export default async function InfinitasHubPage() {
       {/* The Lectura motion vocabulary (count-ups, lead-photo parallax,
           staggered groups, the masthead sweep) — shared with the article
           page through lib/motion-kit.ts. */}
+      <VisitBeacon event="product_hub_visit" params={{ product: 'infinitas' }} />
       <SiteMotion />
     </main>
   );

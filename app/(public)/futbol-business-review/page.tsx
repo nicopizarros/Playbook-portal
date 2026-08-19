@@ -6,6 +6,7 @@ import { productHubsContent } from '@/lib/product-hubs-content';
 import { chronologicalNumber } from '@/lib/product-hubs';
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
+import { VisitBeacon } from '@/components/analytics/VisitBeacon';
 
 // The Futbol Business Review — "La Sala de Juntas". Black, not navy: a
 // market briefing a business reader consults, not a magazine they browse.
@@ -217,6 +218,7 @@ export default async function FutbolBusinessReviewHubPage() {
       {/* The Lectura motion vocabulary (count-ups, lead-photo parallax,
           staggered groups) — shared with the article page through
           lib/motion-kit.ts. */}
+      <VisitBeacon event="product_hub_visit" params={{ product: 'futbol-business-review' }} />
       <SiteMotion />
     </main>
   );

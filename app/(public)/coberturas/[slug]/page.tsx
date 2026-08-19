@@ -8,6 +8,7 @@ import { HubChain } from '@/components/hubs/HubChain';
 import { HubCross, HubFigures, HubPlazas, HubSeason, HubStream } from '@/components/hubs/HubModules';
 import { SITE_URL } from '@/lib/site-url';
 import { HubMotion } from '@/components/hubs/HubMotion';
+import { VisitBeacon } from '@/components/analytics/VisitBeacon';
 
 // An unlisted hub (Hub.listed === false) is a real access boundary, not
 // just "nothing links here" — the LFA hub was briefly listed, Google
@@ -95,6 +96,11 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
     // data-hub scopes the token file, so the palette cannot escape this
     // subtree — the site header and footer are untouched on this route.
     <main className="hubx" data-hub={hub.slug} id={`hub-${hub.slug}`}>
+      {/* Per-hub reporting: GA4's automatic page_view already has the URL,
+          but this carries the slug as a dimension so "how is LFA doing"
+          survives the route rename that docs/TODO.md §0.0 is still weighing
+          (/coberturas/* -> /exclusivas/*). */}
+      <VisitBeacon event="hub_visit" params={{ hub_slug: hub.slug, product: `hub:${hub.slug}` }} />
       {/* ------------------------------------------------------- Masthead
           Full-bleed flag gradient with the diagonal hatch the league uses,
           then the lockup over it. */}
