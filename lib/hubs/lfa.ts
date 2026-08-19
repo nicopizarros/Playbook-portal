@@ -24,6 +24,14 @@ const BRIEF: { label: string; note: string } = {
   note: 'Dato del brief interno; pendiente de cita pública antes de publicar.',
 };
 
+// The league's own brand kit, in Playbook's possession — an authoritative
+// primary source for the franchise list, the localities and the correct way
+// to name each team.
+const KIT = {
+  label: 'Brand Kit LFA 2026 (documento oficial de la liga)',
+  note: 'Documento en poder de Playbook como media partner; sin URL pública.',
+};
+
 const BOLETIN = {
   label: 'Comunicado LFA · Black Clover',
   note: 'Boletín de prensa en poder de Playbook; sin URL pública al momento de escribir.',
@@ -57,7 +65,16 @@ export const LFA_HUB: Hub = {
     // property this coverage is about. Publisher's call, 2026-08-18.
     // Swappable and optional — `wordmark` above renders either way, so
     // removing this line degrades the masthead to type, never to a hole.
-    logo: { src: '/hubs/lfa/lfa-shield.png', alt: 'LFA México', width: 236, height: 288 },
+    // Official horizontal lockup, white version, straight from the kit's
+    // LOGO LFA folder — not a re-drawn or re-coloured mark. The kit
+    // prohibits altering colours, removing the white envelope, outlining,
+    // rotating, or applying gradients/textures/3D to it.
+    logo: {
+      src: '/hubs/lfa/lfa_finsus_hrz_blanco.png',
+      alt: 'LFA México · finsus',
+      width: 1200,
+      height: 400,
+    },
   },
 
   tag: 'LFA',
@@ -121,24 +138,29 @@ export const LFA_HUB: Hub = {
   // buying here", which is the only reason this module exists instead of a
   // map. Left empty where nobody has supplied a sourced answer.
   plazas: [
-    { city: 'Chihuahua', region: 'Chihuahua', status: 'establecida', source: { ...BRIEF } },
-    { city: 'Saltillo', region: 'Coahuila', status: 'establecida', source: { ...BRIEF } },
-    { city: 'Monterrey', region: 'Nuevo León', status: 'establecida', source: { ...BRIEF } },
-    { city: 'Querétaro', region: 'Querétaro', status: 'establecida', source: { ...BRIEF } },
-    // The brief lists "Jalisco" — a state — among franchise locations.
-    // Recorded as the state, NOT resolved to Guadalajara: the league may
-    // play anywhere in it and inventing a city is inventing a fact.
-    { city: 'Jalisco', status: 'establecida', source: { ...BRIEF } },
-    { city: 'Ciudad de México', status: 'establecida', source: { ...BRIEF } },
-    { city: 'Estado de México', status: 'establecida', source: { ...BRIEF } },
-    { city: 'Puebla', region: 'Puebla', status: 'establecida', source: { ...BRIEF } },
-    // Announced expansion markets. NOTE: the brief also names Monterrey
-    // among these, but Monterrey already carries an established franchise
-    // above — either a second franchise in the plaza or an error in the
-    // brief. Not encoded twice; flagged as an open question instead.
-    { city: 'Mérida', region: 'Yucatán', status: 'anunciada', source: { ...BRIEF } },
-    { city: 'Cancún', region: 'Quintana Roo', status: 'anunciada', source: { ...BRIEF } },
-    { city: 'Tijuana', region: 'Baja California', status: 'anunciada', source: { ...BRIEF } },
+    // The seven franchises of the 2026 season, exactly as the LFA's own
+    // brand kit names them ("Esta es la manera correcta de mencionarlos").
+    // Corrects the earlier list, which came from the brief and carried
+    // eight plazas including Puebla — not a 2026 franchise.
+    { city: 'Chihuahua', region: 'Chihuahua', state: 'Chihuahua',
+      team: 'Caudillos de Chihuahua', status: 'establecida', source: { ...KIT } },
+    { city: 'Saltillo', region: 'Coahuila', state: 'Coahuila de Zaragoza',
+      team: 'Dinos de Saltillo', status: 'establecida', source: { ...KIT } },
+    { city: 'Monterrey', region: 'Nuevo León', state: 'Nuevo León',
+      team: 'Osos de Monterrey', status: 'establecida', source: { ...KIT } },
+    { city: 'Querétaro', region: 'Querétaro', state: 'Querétaro',
+      team: 'Gallos Negros de Querétaro', status: 'establecida', source: { ...KIT } },
+    { city: 'Jalisco', region: 'Jalisco', state: 'Jalisco',
+      team: 'Reyes de Jalisco', status: 'establecida', source: { ...KIT } },
+    { city: 'Ciudad de México', region: 'CDMX', state: 'Distrito Federal',
+      team: 'Mexicas de la Ciudad de México', status: 'establecida', source: { ...KIT } },
+    { city: 'Valle de México', region: 'Estado de México', state: 'México',
+      team: 'Raptors del Valle de México', status: 'establecida', source: { ...KIT } },
+    // Announced expansion markets. No team names yet — none have been
+    // named, and inventing one would be inventing a franchise.
+    { city: 'Mérida', region: 'Yucatán', state: 'Yucatán', status: 'anunciada', source: { ...BRIEF } },
+    { city: 'Cancún', region: 'Quintana Roo', state: 'Quintana Roo', status: 'anunciada', source: { ...BRIEF } },
+    { city: 'Tijuana', region: 'Baja California', state: 'Baja California', status: 'anunciada', source: { ...BRIEF } },
   ],
 
   // --------------------------------------------------------- Temporada

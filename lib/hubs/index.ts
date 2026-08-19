@@ -25,3 +25,24 @@ export function hubBySlug(slug: string): Hub | null {
 // so that costs one line, and declared entries are never links, so they cannot
 // 404.
 export const UPCOMING_HUBS: { name: string; note: string }[] = [];
+
+/**
+ * The coverage hub an article belongs to, from its `property` tags.
+ *
+ * Client-safe: config only, no data-layer imports (see lib/hubs/pool.ts for
+ * why that separation exists).
+ *
+ * Used to badge a piece by its DESTINATION rather than by the product that
+ * happened to publish it. An LFA story is filed under Noticias, but what the
+ * reader is being offered is LFA coverage — so the chip says LFA and links to
+ * /coberturas/lfa. Falls back to null for the overwhelming majority of
+ * articles, which carry no property tag at all.
+ */
+export function hubForArticle(tagsProperty?: string[] | null): Hub | null {
+  if (!tagsProperty?.length) return null;
+  return HUBS.find(h => tagsProperty.includes(h.tag)) ?? null;
+}
+
+export function hubPath(hub: Hub): string {
+  return `/coberturas/${hub.slug}`;
+}

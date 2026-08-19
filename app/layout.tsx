@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Anton, Archivo, Inter } from 'next/font/google';
+import { Anton, Archivo, Inter, Roboto } from 'next/font/google';
 import Script from 'next/script';
 import { AnalyticsClient } from '@/components/analytics/AnalyticsClient';
 import { getFundingChoicesPublisherId } from '@/lib/adsense';
@@ -56,6 +56,18 @@ const archivo = Archivo({
   // hub CSS uses at 600/700.
   axes: ['wdth'],
   variable: '--font-display-wide',
+  display: 'swap',
+  preload: false,
+});
+
+// The LFA brand kit's secondary face, for body copy on the hub. Anton (the
+// kit's primary) is already loaded above as --serif-display, so matching
+// the league costs exactly one extra family. preload:false keeps it off
+// every other route's critical path.
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['300', '400', '700', '900'],
+  variable: '--font-roboto',
   display: 'swap',
   preload: false,
 });
@@ -217,7 +229,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // wrong theme). React can't know that ahead of time during SSR, so it
     // would otherwise flag this exact, intentional mismatch as an error —
     // this is Next.js's own documented pattern for this case.
-    <html lang="es" className={`${anton.variable} ${inter.variable} ${archivo.variable}`} suppressHydrationWarning>
+    <html lang="es" className={`${anton.variable} ${inter.variable} ${archivo.variable} ${roboto.variable}`} suppressHydrationWarning>
       <body>
         {fundingChoicesPublisherId && (
           <>

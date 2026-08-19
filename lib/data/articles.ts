@@ -34,7 +34,7 @@ const LIST_COLUMNS = {
   tagsScope: articles.tagsScope,
   tagsSport: articles.tagsSport,
   tagsVertical: articles.tagsVertical,
-  tagsProperty: articles.tagsProperty,
+      tagsProperty: articles.tagsProperty,
   priority: articles.priority,
   featured: articles.featured,
   mostrarAutor: articles.mostrarAutor,
@@ -91,6 +91,8 @@ export const getArticleById = cache(async (id: string): Promise<Article | null> 
 });
 
 export type ArticleMeta = {
+  /** Coverage tier, so the kicker can badge by hub destination. */
+  tagsProperty: string[];
   id: string;
   title: string;
   excerpt: string;
@@ -141,7 +143,7 @@ export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta 
       tagsScope: articles.tagsScope,
       tagsSport: articles.tagsSport,
       tagsVertical: articles.tagsVertical,
-  tagsProperty: articles.tagsProperty,
+      tagsProperty: articles.tagsProperty,
       substackUrl: articles.substackUrl,
     })
     .from(articles)

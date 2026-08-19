@@ -1,53 +1,59 @@
 /* ============================================================
    LFA — hub token file.  ONE FILE PER HUB.
 
-   Everything that makes /coberturas/lfa look like the LFA hub is in here.
-   styles/hubs/hub.css owns STRUCTURE and speaks only in generic --hub-*
-   tokens; this file is the only place a palette value appears. Hub two is a
-   copy of this file with different values — no structural CSS, no new
-   component.
+   EVERY VALUE HERE COMES FROM THE LEAGUE'S OFFICIAL BRAND KIT
+   (Brand Kit / LFA, cobranding edition, in Playbook's possession as its
+   exclusive sports-business media partner). Earlier passes approximated
+   these from screenshots and got them wrong — notably a Mexican-flag
+   gradient that is not in the LFA system at all. Do not re-invent them.
 
-   ——— Direction change, 2026-08-18 ———
+   ——— COLOR, with the kit's own proportions ———
 
-   The first pass built a Playbook-adjacent identity that deliberately did
-   NOT resemble the league. The publisher's direction is the opposite: a
-   coverage destination should look like the property it covers, and
-   Playbook is the LFA's exclusive sports-business media partner, so the
-   page speaks the league's visual language directly.
+     CINDER  #212322  PANTONE 419C   75%  the predominant background
+     NEGRO   #000000  PANTONE Black 6C 10%
+     VERDE   #00421e  PANTONE 3537C  10%
+     V.B.    #00ff00  PANTONE 7488C   5%  "sólamente para generar llamadas
+                                          de atención y acentos visuales
+                                          muy específicos"
 
-   Sampled from site.lfa.mx rather than invented:
-     · near-black ground (#1F1F1F sections, #151515 page)
-     · Anton for display — which this site ALREADY loads as
-       --serif-display, so matching them costs no extra font payload
-     · a small acid-green kicker over every section heading
-     · an italic uppercase sub-line under the display type
-     · the flag gradient (green → red) as a masthead wash, with the
-       diagonal hatch their hero uses
+   The kit is explicit about why Cinder dominates: it keeps the league
+   neutral so the TEAMS' own colours can carry the identity. That is why
+   this hub is a Cinder page and not a green one.
 
-   FIXED-COLOUR ENVIRONMENT. No light/dark variants: this surface is dark in
-   both themes, the same posture styles/product-hubs.css documents for the
-   four product hubs. That is why there are no @media or [data-theme] blocks
-   here — adding them would reintroduce the theme-dependent contrast bugs
-   that cost a round of QA on the first pass. */
+   Verde brillante is capped at ~5% by the kit. It is used here for section
+   kickers, the line-to-gain marker and announced plazas — and nowhere
+   else. If it starts appearing as a decorative colour, that is a bug.
+
+   ——— LOGO COLOURS (for reference; never re-draw the mark) ———
+     verde oscuro #00491E · verde claro #00753A · rojo #E03C31
+     blanco #F0EEE9 (Cloud Dancer)
+
+   FIXED-COLOUR ENVIRONMENT: no light/dark variants. The kit's campaign
+   lockup may only sit on Cinder or the approved texture and explicitly
+   "NO DEBEN SER USADAS SOBRE FONDOS BLANCOS", so a theme-switching hub
+   would put the mark on an illegal background half the time. */
 
 [data-hub='lfa'] {
-  /* Ground */
-  --hub-page: #151515;
-  --hub-plane: #1F1F1F;   /* section surface, chain module, table header */
-  --hub-card: #2A2A2A;    /* cards and figure tiles */
-  --hub-edge: #383838;    /* hairlines on dark */
+  /* Ground — Cinder is the page, black is the recess. */
+  --hub-page: #212322;
+  --hub-plane: #1A1B1A;
+  --hub-card: #2A2C2B;
+  --hub-black: #000000;
+  --hub-edge: #3A3D3B;
 
-  /* Ink */
-  --hub-chalk: #FFFFFF;
-  --hub-mute: #9BA0A0;    /* secondary type — 6.6:1 on --hub-plane */
+  /* Ink. Cloud Dancer rather than pure white: it is the kit's own white. */
+  --hub-chalk: #F0EEE9;
+  --hub-mute: #9DA3A0;
 
-  /* Accent — the league's kicker green. Used for kickers, the line to gain
-     and announced plazas. Bright enough to clear AA on the dark ground
-     (7.4:1 on #1F1F1F), which the shield's own darker green would not. */
-  --hub-accent: #14C24F;
-  --hub-accent-ink: #4BE07F;  /* small type on the darkest surface */
+  /* Brand greens */
+  --hub-verde: #00421E;
+  --hub-accent: #00FF00;      /* verde brillante — accents only, ~5% */
+  --hub-accent-ink: #4DFF6A;  /* small type on Cinder; #00FF00 is harsh at 11px */
 
-  /* Flag wash, masthead only. Official Mexican flag values. */
+  /* Masthead wash only. Official Mexican flag values — NOT LFA brand
+     colours, and deliberately not used anywhere else on the page. Kept at
+     the publisher's request; permitted because the kit allows the mark
+     over colour gradients (LOGO SUIT). */
   --hub-flag-green: #006847;
   --hub-flag-red: #CE1126;
 }

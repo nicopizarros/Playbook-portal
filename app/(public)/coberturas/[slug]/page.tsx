@@ -57,37 +57,56 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
       {/* ------------------------------------------------------- Masthead
           Full-bleed flag gradient with the diagonal hatch the league uses,
           then the lockup over it. */}
+      {/* ------------------------------------------------------- Masthead
+          CO-BRANDING PER THE LEAGUE'S OWN KIT ("Asociación con otros logos
+          / marcas"): the associated mark sits LEFT and LFA sits RIGHT when
+          the VOICE is the partner's — which it is here, because this is
+          Playbook's coverage, not an LFA channel. The two are separated by
+          a rule of the same height as the LFA mark, at the distance the kit
+          defines (the width of the letters "FA" in the logo).
+
+          The kit specifies a CINDER separator, which assumes a light
+          ground; on a Cinder page that would be invisible, so the rule uses
+          the Cinder-family --hub-edge. Same intent, legible substrate.
+
+          Background is the kit's approved "Black board" texture, which is
+          also one of the only two grounds the 2026 campaign lockup is
+          permitted on ("NO DEBEN SER USADAS SOBRE FONDOS BLANCOS"). */}
       <header className="hubx-hero">
-        <div className="hubx-hero-wash" aria-hidden="true" />
         <div className="container hubx-hero-inner">
           <Link className="hubx-back" href="/">← Volver a Playbook</Link>
+
           <div className="hubx-lockup">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="hubx-lockup-mark hubx-lockup-playbook"
+              src="/assets/img/playbook-logo-dark.png"
+              alt="Playbook"
+              width={520}
+              height={121}
+            />
+            <span className="hubx-lockup-rule" aria-hidden="true" />
             {hub.identity.logo && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                className="hubx-mark"
+                className="hubx-lockup-mark hubx-lockup-property"
                 src={hub.identity.logo.src}
                 alt={hub.identity.logo.alt}
                 width={hub.identity.logo.width}
                 height={hub.identity.logo.height}
               />
             )}
-            <div className="hubx-lockup-type">
-              <p className="hubx-eyebrow">Exclusiva Playbook</p>
-              {/* The wordmark ALWAYS renders — the mark above is layered
-                  over it, never a replacement for it. */}
-              <h1 className="hubx-wordmark">{hub.identity.wordmark}</h1>
-              <p className="hubx-tagline">{hub.tagline}</p>
-              {/* Declared relationship. Rendered only when one genuinely
-                  exists — see Hub.partnership. */}
-              {hub.partnership && (
-                <p className="hubx-partner">
-                  <span className="hubx-partner-brand">Playbook</span>
-                  <span className="hubx-partner-role">{hub.partnership}</span>
-                </p>
-              )}
-            </div>
           </div>
+
+          {hub.partnership && <p className="hubx-partner">{hub.partnership}</p>}
+
+          {/* The wordmark still always renders — it is the h1, so the page
+              names its property whether or not any mark resolves. */}
+          <h1 className="hubx-wordmark">
+            <span className="hubx-wordmark-kicker">{hub.identity.wordmark}</span>
+            {hub.tagline}
+          </h1>
+
           <p className="hubx-thesis">{hub.thesis}</p>
           <p className="hubx-fullname">{hub.fullName}</p>
         </div>

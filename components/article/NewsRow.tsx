@@ -1,5 +1,6 @@
 import type { Article } from '@/lib/data/articles';
 import { TagPillRow } from './TagPillRow';
+import { hubForArticle } from '@/lib/hubs';
 
 type Heading = 'h3' | 'h4';
 
@@ -23,7 +24,12 @@ export function NewsRow({
   const href = `/articulo?id=${encodeURIComponent(article.id)}`;
   const inner = (
     <>
-      <span className={`tag-mini ${article.source}`}>{article.publication}</span>
+      {/* Hub coverage is badged by destination, matching the article
+          page's own kicker — otherwise the same piece reads "Noticias"
+          here and "LFA" there. */}
+      <span className={`tag-mini ${article.source}`}>
+        {hubForArticle(article.tagsProperty)?.name ?? article.publication}
+      </span>
       <Heading>{article.title}</Heading>
       <div className="byline">
         {article.dateFormatted} · {article.readingTime || 1} min

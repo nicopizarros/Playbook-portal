@@ -20,6 +20,11 @@
   background: var(--hub-page);
   color: var(--hub-chalk);
   padding-bottom: clamp(3rem, 8vw, 5rem);
+  /* Roboto is the kit's secondary face, for general content. Anton (its
+     primary) is --serif-display and is used on headings only, per the kit:
+     "títulos y encabezados... textos cortos que no sobrepasen las 10
+     palabras". */
+  font-family: var(--font-roboto), var(--sans);
 }
 
 /* ---------------------------------------------------------- Masthead
@@ -31,50 +36,51 @@
   overflow: hidden;
   border-bottom: 1px solid var(--hub-edge);
   margin-bottom: var(--hubx-gap);
-}
-
-.hubx-hero-wash {
-  position: absolute;
-  inset: 0;
-  background:
-    /* the hatch */
-    repeating-linear-gradient(
-      115deg,
-      rgba(255, 255, 255, 0.05) 0 1px,
-      transparent 1px 9px
-    ),
-    /* the flag, fading to the page ground so type stays readable */
+  /* Two layers: the kit's approved "Black board" texture blended over a
+     Mexican-flag gradient (publisher's call — they liked it, and the kit's
+     LOGO SUIT page explicitly permits the mark "sobre gradientes de color"
+     and over textures; the white-background prohibition applies to the
+     campaign logo+slogan lockup, which this page does not use).
+     soft-light keeps the texture's grid and grain reading while letting
+     the flag through, so the ground is textured rather than a flat wash. */
+  background-color: var(--hub-black);
+  background-image:
+    url('/hubs/lfa/board.jpg'),
     linear-gradient(
       100deg,
       var(--hub-flag-green) 0%,
-      color-mix(in srgb, var(--hub-flag-green) 55%, var(--hub-page)) 26%,
+      color-mix(in srgb, var(--hub-flag-green) 45%, var(--hub-black)) 26%,
       var(--hub-page) 52%,
-      color-mix(in srgb, var(--hub-flag-red) 55%, var(--hub-page)) 80%,
+      color-mix(in srgb, var(--hub-flag-red) 45%, var(--hub-black)) 80%,
       var(--hub-flag-red) 100%
     );
-  opacity: 0.85;
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-blend-mode: soft-light, normal;
 }
-/* Vignette: keeps the wash off the type without dimming the whole band. */
+/* Keeps type off the busiest part of the texture without dimming it flat. */
 .hubx-hero::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 62%, var(--hub-page) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.30) 0%,
+    rgba(0, 0, 0, 0.42) 55%,
+    var(--hub-page) 100%
+  );
   pointer-events: none;
 }
 
 .hubx-hero-inner {
   position: relative;
   z-index: 1;
-  /* Tall on purpose. The league's own hero is a full-height band; a short
-     strip reads as a breadcrumb bar, not a masthead.
-     LONGHAND, not the `padding` shorthand: this element also carries
-     .container, and the shorthand wiped its horizontal padding — which put
-     the wordmark flush against the viewport edge on mobile and clipped the
-     "L". */
+  /* LONGHAND: this element also carries .container, and the `padding`
+     shorthand wipes its horizontal padding — which once put the wordmark
+     flush against the viewport edge on mobile. */
   padding-top: clamp(1.25rem, 3vw, 2rem);
-  padding-bottom: clamp(3.5rem, 8vw, 6rem);
-  min-height: clamp(360px, 46vw, 560px);
+  padding-bottom: clamp(3rem, 7vw, 5rem);
   display: flex;
   flex-direction: column;
 }
@@ -85,90 +91,80 @@
   letter-spacing: 0.06em;
   color: var(--hub-mute);
   text-decoration: none;
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
 }
 .hubx-back:hover { color: var(--hub-chalk); }
 .hubx-back:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 3px; }
 
+/* ---- The co-branding lockup, per the kit's "Asociación con otros logos".
+   Partner mark LEFT, LFA RIGHT, because the voice here is Playbook's.
+   Marks are the same height; the separator matches that height and the gap
+   is the width of "FA" in the LFA logo, which at this scale is ~0.42em of
+   the mark height either side. */
 .hubx-lockup {
+  --lockup-h: clamp(30px, 4.6vw, 46px);
   display: flex;
   align-items: center;
-  gap: clamp(1rem, 2.5vw, 1.75rem);
+  gap: calc(var(--lockup-h) * 0.42);
   flex-wrap: wrap;
 }
 
-/* Nominative reference mark. Optional and swappable — the wordmark below
-   renders whether or not this resolves, so a removed or withdrawn mark
-   degrades to type rather than to a hole. */
-.hubx-mark {
+.hubx-lockup-mark {
+  height: var(--lockup-h);
   width: auto;
-  height: clamp(88px, 14vw, 168px);
   flex: none;
-  filter: drop-shadow(0 3px 14px rgba(0, 0, 0, 0.5));
+  /* Drop shadows are explicitly permitted ("uso de sombras paralelas"). */
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.55));
+}
+/* The LFA mark is a horizontal lockup with the shield plus the finsus
+   wordmark, so it reads smaller at a shared height — nudge it up to match
+   optically. Still "misma altura o menor", which the kit allows. */
+.hubx-lockup-property { height: calc(var(--lockup-h) * 1.55); }
+
+.hubx-lockup-rule {
+  width: 1px;
+  height: var(--lockup-h);
+  background: var(--hub-edge);
+  flex: none;
 }
 
-.hubx-lockup-type { min-width: 0; }
+.hubx-partner {
+  margin: clamp(1.1rem, 2.5vw, 1.6rem) 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hub-accent-ink);
+  font-weight: 700;
+}
+
 
 /* The league's own display face — and this site's, already loaded as
    --serif-display, so matching them costs no extra payload. */
+/* Campaign-style headline: Anton, uppercase, tight — the shape the league
+   sets its own "EL FUTBOL AMERICANO DE MEXICO" lockup in. */
 .hubx-wordmark {
   font-family: var(--serif-display);
   font-weight: 400;
-  font-size: clamp(4.5rem, 17vw, 11rem);
-  line-height: 0.82;
+  font-size: clamp(2.5rem, 7.5vw, 5.25rem);
+  line-height: 0.92;
   letter-spacing: 0.004em;
   text-transform: uppercase;
   color: var(--hub-chalk);
-  margin: 0.15em 0 0;
+  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+  max-width: 17ch;
 }
 
-.hubx-eyebrow {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  font-weight: 700;
+/* The property name, inside the h1 so the heading still names its subject
+   for search and for a screen reader. */
+.hubx-wordmark-kicker {
+  display: block;
+  font-family: var(--font-roboto), var(--sans);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.24em;
+  line-height: 1;
   color: var(--hub-accent);
-  margin: 0;
-}
-
-/* Italic uppercase sub-line, the shape the league sets under its hero. */
-.hubx-tagline {
-  font-style: italic;
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: clamp(1rem, 2.6vw, 1.45rem);
-  letter-spacing: 0.01em;
-  line-height: 1.2;
-  color: var(--hub-chalk);
-  margin: 0.7rem 0 0;
-  max-width: 24ch;
-}
-
-/* Declared relationship. Rendered only when one genuinely exists. */
-.hubx-partner {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin: 1rem 0 0;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid var(--hub-edge);
-  border-left: 3px solid var(--hub-accent);
-  border-radius: 3px;
-  background: rgba(0, 0, 0, 0.35);
-}
-.hubx-partner-brand {
-  font-family: var(--serif-display);
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--hub-chalk);
-}
-.hubx-partner-role {
-  font-size: 0.68rem;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: var(--hub-mute);
+  margin-bottom: 0.85rem;
 }
 
 .hubx-thesis {
@@ -350,6 +346,34 @@
 }
 .hubx-source a { color: var(--hub-accent-ink); text-decoration: underline; text-underline-offset: 2px; }
 
+/* ---------------------------------------------------------- Plazas map
+   Mexico with the covered states filled. Decorative by design: the table
+   beside it carries the same information as real markup, which is what a
+   screen reader gets. */
+.hubx-plazas-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: center;
+}
+
+.hubx-map { width: 100%; height: auto; display: block; }
+.hubx-map path {
+  fill: var(--hub-black);
+  stroke: var(--hub-edge);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+/* Established plazas in the league's own green; announced markets in the
+   bright accent, which the kit reserves for exactly this kind of specific
+   call-out. */
+.hubx-map path[data-state='establecida'] { fill: var(--hub-verde); stroke: var(--hub-accent-ink); }
+.hubx-map path[data-state='anunciada'] {
+  fill: color-mix(in srgb, var(--hub-accent) 22%, var(--hub-black));
+  stroke: var(--hub-accent);
+  stroke-dasharray: 4 3;
+}
+
 /* -------------------------------------------------------- Plazas table */
 .hubx-plazas {
   width: 100%; border-collapse: collapse; font-size: 0.94rem;
@@ -372,16 +396,18 @@
 /* An announced market sits past the line to gain, so it — and only it —
    wears the accent. Shape as well as colour: the leading rule means it is
    distinguishable without relying on hue. */
+/* Status is the last column and reads better flush right; everything else
+   stays flush left. */
 .hubx-plazas thead th:last-child,
-.hubx-plazas tbody td:last-child { text-align: right; }
+.hubx-plazas tbody td:last-child { text-align: right; white-space: nowrap; }
 
 .hubx-status {
   font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
   white-space: nowrap; color: var(--hub-mute);
 }
 .hubx-status[data-status='anunciada'] {
-  color: var(--hub-accent-ink); border-right: 3px solid var(--hub-accent);
-  padding-right: 0.55rem; font-weight: 700;
+  color: var(--hub-accent-ink); border-left: 3px solid var(--hub-accent);
+  padding-left: 0.55rem; font-weight: 700;
 }
 
 /* -------------------------------------------------------- Season spine */
@@ -435,10 +461,13 @@
 .hubx-cross a:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 2px; }
 
 /* -------------------------------------------------------- Responsive */
+@media (max-width: 900px) {
+  .hubx-plazas-wrap { grid-template-columns: minmax(0, 1fr); }
+}
+
 @media (max-width: 640px) {
   .hubx-chain-track { height: 78px; }
   .hubx-chain-pole::after { font-size: 1.3rem; }
-  .hubx-mark { height: 64px; }
   /* A four-column table at 360px is unreadable, and horizontal scroll hides
      the market note that is the only reason the module exists. */
   .hubx-plazas thead { display: none; }

@@ -19,6 +19,7 @@ import { ArticleAnalyticsBeacon } from '@/components/article/ArticleAnalyticsBea
 import { ArticleSources } from '@/components/article/ArticleSources';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { splitAfterParagraph } from '@/lib/split-after-paragraph';
+import { hubForArticle, hubPath } from '@/lib/hubs';
 import {
   hubForSource,
   extractMoneyTrailFromHtml,
@@ -357,6 +358,11 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // e.g. opinion): links the kicker chip to the product's own hub and
   // scopes the per-product template CSS on the <article>.
   const hub = hubForSource(meta.source);
+  // A piece that is hub coverage is badged by its DESTINATION, not by the
+  // product that published it: the reader is being offered LFA coverage,
+  // and /coberturas/lfa is where more of it lives. Null for almost every
+  // article, which falls through to the product badge below.
+  const coverageHub = hubForArticle(meta.tagsProperty);
 
   // BreadcrumbList mirrors the navigation the page already renders (the
   // kicker chip links to the hub): Portada → hub → article. Non-hub
@@ -444,7 +450,11 @@ export default async function ArticuloPage({ searchParams }: Props) {
         </div>
       )}
       <div className="article-kicker">
-        {hub ? (
+        {coverageHub ? (
+          <Link className="tag tag-hub-link" href={hubPath(coverageHub)}>
+            {coverageHub.name}
+          </Link>
+        ) : hub ? (
           <Link className="tag tag-hub-link" href={hub.path}>{meta.publication}</Link>
         ) : (
           <span className="tag">{meta.publication}</span>

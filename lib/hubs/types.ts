@@ -87,6 +87,12 @@ export type HubChain = {
 // behind the line, an announced expansion market sits past it.
 export type HubPlaza = {
   city: string;
+  /**
+   * State key for the map (components/hubs/MexicoMap.tsx). Must match a key
+   * in lib/hubs/mexico-map.ts — including the source data's historical
+   * "Distrito Federal" for Ciudad de México.
+   */
+  state?: string;
   /** State/entity, for disambiguation: "Nuevo León". */
   region?: string;
   /** Team name if one exists. Empty for an announced-but-unnamed market. */

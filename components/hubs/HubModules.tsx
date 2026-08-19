@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Article } from '@/lib/data/articles';
 import type { Hub } from '@/lib/hubs';
 import { PRODUCT_HUBS } from '@/lib/product-hubs';
+import { MexicoMap } from './MexicoMap';
 
 // Not lib/constants.ts's SOURCE_LABELS: that map is typed to four `Source`
 // values and has NO entry for 'futbol-business-review', even though 14
@@ -49,6 +50,8 @@ export function HubPlazas({ hub }: { hub: Hub }) {
   // sourced answer. Eleven rows of "sin dato" is not transparency, it is a
   // module that looks broken.
   const hasMarketNotes = hub.plazas.some(p => Boolean(p.marketNote));
+  const hasTeams = hub.plazas.some(p => Boolean(p.team));
+  const hasMap = hub.plazas.some(p => Boolean(p.state));
   return (
     <section className="hubx-section" aria-labelledby="hubx-plazas">
       <p className="hubx-kicker">El mapa</p>
@@ -57,12 +60,15 @@ export function HubPlazas({ hub }: { hub: Hub }) {
         {hub.plazas.length - announced} plazas establecidas
         {announced > 0 && <> y {announced} anunciadas</>}, leídas como mercados comerciales.
       </p>
+      <div className={hasMap ? 'hubx-plazas-wrap' : undefined}>
+        {hasMap && <MexicoMap hub={hub} />}
       <table className="hubx-plazas">
         <thead>
           <tr>
             <th scope="col">Plaza</th>
-            <th scope="col">Estatus</th>
+            {hasTeams && <th scope="col">Equipo</th>}
             {hasMarketNotes && <th scope="col">Qué compra un patrocinador</th>}
+            <th scope="col">Estatus</th>
           </tr>
         </thead>
         <tbody>
@@ -70,18 +76,25 @@ export function HubPlazas({ hub }: { hub: Hub }) {
             <tr key={`${plaza.city}-${plaza.status}`}>
               <th scope="row">
                 {plaza.city}
-                {plaza.region && <span className="hubx-plaza-region">{plaza.region}</span>}
+                {plaza.region && plaza.region !== plaza.city && (
+                  <span className="hubx-plaza-region">{plaza.region}</span>
+                )}
               </th>
+              {/* Cell order must match the header order above: Plaza,
+                  Equipo, Estatus. An earlier pass inserted the team cell
+                  after the status cell and the columns silently swapped. */}
+              {hasTeams && <td>{plaza.team || '—'}</td>}
+              {hasMarketNotes && <td>{plaza.marketNote || '—'}</td>}
               <td>
                 <span className="hubx-status" data-status={plaza.status}>
                   {plaza.status === 'anunciada' ? 'Anunciada' : 'Establecida'}
                 </span>
               </td>
-              {hasMarketNotes && <td>{plaza.marketNote || '—'}</td>}
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   );
 }
