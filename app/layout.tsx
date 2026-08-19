@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Anton, Archivo, Inter, Roboto } from 'next/font/google';
 import Script from 'next/script';
 import { AnalyticsClient } from '@/components/analytics/AnalyticsClient';
-import { getFundingChoicesPublisherId } from '@/lib/adsense';
+import { getAdSenseConfig, getFundingChoicesPublisherId } from '@/lib/adsense';
 import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
 
@@ -221,6 +221,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // Next.js requires beforeInteractive scripts to live there. Renders
   // nothing until ADSENSE_CLIENT_ID is set (no AdSense account exists yet).
   const fundingChoicesPublisherId = getFundingChoicesPublisherId();
+  // Google's adsbygoogle loader. ONE declaration, in the root layout, for
+  // every page on the site -- moved here 2026-08-19 from inside
+  // components/ads/AdSlot.tsx, where it was declared per-slot (next/script
+  // deduped it by src, so it never actually double-loaded, but a page with
+  // no slots never loaded it at all -- and AdSense's own verification crawl
+  // expects the tag site-wide, including on pages that carry no inventory).
+  //
+  // CONSENT NOTE, deliberate and a change from the pre-2026-08-19 contract:
+  // this loads for every visitor, not only those who opted into advertising.
+  // What gates *ad serving* is Google's Funding Choices CMP above (the
+  // Google-certified TCF v2 tag, which decides whether ad requests may go
+  // out at all) plus AdSlot's own check on lib/consent.ts, which still
+  // refuses to render an <ins> without our own opt-in. This is Google's
+  // documented arrangement: load the library everywhere, let the CMP decide
+  // what it may do. See lib/consent.ts for the site's consent model.
+  const { clientId: adSenseClientId } = getAdSenseConfig();
 
   return (
     // suppressHydrationWarning: the theme-init script below sets
@@ -256,6 +272,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="va-init" strategy="beforeInteractive">
           {VA_INIT_SCRIPT}
         </Script>
+        {adSenseClientId && (
+          <Script
+            id="adsbygoogle-loader"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseClientId}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
         {/* Official @vercel/analytics package, site-wide — replaces legacy's
             manual window.va shim + hand-written /_vercel/insights/script.js
             <script> tag. The shim above is still needed alongside it; see

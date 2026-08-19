@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Script from 'next/script';
 import { readConsent, CONSENT_EVENT } from '@/lib/consent';
 import { useAdSenseConfig } from './AdSenseProvider';
 
@@ -63,11 +62,6 @@ export function AdSlot({ slot }: { slot: AdSlotName }) {
 
   return (
     <div className={`ad-slot ad-slot--${slot}`} data-ad-slot={slot} data-ad-consent="granted">
-      <Script
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`}
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
       <ins
         className="adsbygoogle"
         style={{ display: 'block', width: '100%', height: '100%' }}

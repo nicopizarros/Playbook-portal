@@ -17,9 +17,25 @@ export type AdSenseConfig = {
   slots: Partial<Record<AdSlotName, string>>;
 };
 
+// The account's publisher ID, confirmed by the publisher 2026-08-19. Kept as
+// a DEFAULT rather than requiring the env var, because three separate things
+// need it before any ad unit exists -- the loader script in app/layout.tsx,
+// /ads.txt (app/ads.txt/route.ts), and Google's Funding Choices CMP -- and
+// all three are prerequisites for AdSense to APPROVE the site in the first
+// place. Gating them behind an env var meant approval could not even be
+// requested until someone set it in Vercel.
+//
+// Not a secret: it is visible in the rendered HTML of any live page and in
+// /ads.txt by design. ADSENSE_CLIENT_ID still overrides it, so a different
+// account (or a deliberate blackout) stays an env-var change.
+//
+// This does NOT make ads appear: each placement additionally needs its own
+// ADSENSE_SLOT_* id, and AdSlot renders nothing without one.
+const DEFAULT_CLIENT_ID = 'ca-pub-1241756908490278';
+
 export function getAdSenseConfig(): AdSenseConfig {
   return {
-    clientId: process.env.ADSENSE_CLIENT_ID || null,
+    clientId: process.env.ADSENSE_CLIENT_ID || DEFAULT_CLIENT_ID,
     slots: {
       'leaderboard-home': process.env.ADSENSE_SLOT_LEADERBOARD_HOME,
       'inline-feed': process.env.ADSENSE_SLOT_INLINE_FEED,
@@ -37,6 +53,6 @@ export function getAdSenseConfig(): AdSenseConfig {
 // account, no separate credential: once ADSENSE_CLIENT_ID is set, this is
 // derived automatically rather than needing its own env var.
 export function getFundingChoicesPublisherId(): string | null {
-  const clientId = process.env.ADSENSE_CLIENT_ID;
+  const clientId = getAdSenseConfig().clientId;
   return clientId ? clientId.replace(/^ca-/, '') : null;
 }
