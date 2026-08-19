@@ -682,7 +682,7 @@ commented list. Summary:
 | `BLOB_READ_WRITE_TOKEN` | TipTap image uploads | Pending real credential |
 | `PLAYBOOK_SECRET` | Make.com webhook auth | Was misconfigured with wrong casing (`Playbook_secret`) — needs correcting in Vercel |
 | `GA4_PROPERTY_ID`, `GA4_SERVICE_ACCOUNT_EMAIL`, `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` | "Más leídas" homepage module | Same casing bug as above |
-| `GA4_MEASUREMENT_ID` | Client-side gtag.js | Confirmed real value `G-0CG7JMK8RZ`, needs loading in Vercel |
+| `GA4_MEASUREMENT_ID` | Client-side gtag.js | Live property is **`G-KVE4HF75TF`** (rotated 2026-08-07, set in Vercel, confirmed rendering on the live site 2026-08-19). `G-0CG7JMK8RZ` is the RETIRED predecessor — this row asserted it as current until 2026-08-19 and is how it got mistaken for the live one; do not restore it. No code names either ID: `gtag('event')` follows `gtag('config')`, so repointing GA4 is only this env var. |
 | `VERCEL_ANALYTICS_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`/`_SLUG` | Admin analytics dashboard | Pending real credential |
 | ~~`ADMIN_USERS`~~ | Removed 2026-07-24 | Editor accounts come from `drizzle/0005_editorial_team_accounts.sql`; rotate with `db:reset-editor-password` |
 
