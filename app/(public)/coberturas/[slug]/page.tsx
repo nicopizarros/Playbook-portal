@@ -1,11 +1,27 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { auth } from '@/auth';
 import { HUBS, hubBySlug } from '@/lib/hubs';
 import { hubArticles } from '@/lib/hubs/pool';
 import { HubChain } from '@/components/hubs/HubChain';
 import { HubCross, HubFigures, HubPlazas, HubSeason, HubStream } from '@/components/hubs/HubModules';
 import { SITE_URL } from '@/lib/site-url';
+
+// An unlisted hub (Hub.listed === false) is a real access boundary, not
+// just "nothing links here" — the LFA hub was briefly listed, Google
+// indexed it, and the masthead states the partnership as fact, so an
+// unlisted hub must be unreachable by anyone who isn't logged in as an
+// editor, not merely undiscoverable. Same session check
+// app/admin/(protected)/layout.tsx uses; a non-editor gets the ordinary
+// 404 boundary, identical to a slug that doesn't exist, never a "this is
+// restricted" page that would itself confirm something is being hidden
+// here.
+async function assertHubViewable(hub: { listed: boolean }) {
+  if (hub.listed) return;
+  const session = await auth();
+  if (!session || session.user.role !== 'editor') notFound();
+}
 
 // ONE ROUTE, EVERY HUB. Adding a coverage destination is a config entry in
 // lib/hubs/ plus a token file in styles/hubs/ — this file never changes.
@@ -28,6 +44,15 @@ export function generateStaticParams() {
   return HUBS.map(hub => ({ slug: hub.slug }));
 }
 
+// Forced dynamic (2026-08-19): assertHubViewable/generateMetadata now read
+// the editor session on every request for an unlisted hub, which Next
+// can't reconcile with a build-time-static response — same reasoning
+// app/admin/(protected)/layout.tsx already documents for its own
+// `force-dynamic`. Applies to every hub, not only unlisted ones, since
+// this route can't know at build time which hubs will still be unlisted
+// by the time a request actually lands.
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({
   params,
 }: {
@@ -36,15 +61,23 @@ export async function generateMetadata({
   const { slug } = await params;
   const hub = hubBySlug(slug);
   if (!hub) return {};
+  // An unlisted hub is now editor-only (see assertHubViewable below), so a
+  // logged-out crawler or reader hitting this URL should see the exact
+  // metadata a nonexistent slug would — never a title/description that
+  // confirms a hidden hub exists at this address.
+  if (!hub.listed) {
+    const session = await auth();
+    if (!session || session.user.role !== 'editor') {
+      return { title: 'Página no encontrada', robots: { index: false, follow: false } };
+    }
+  }
   return {
     title: `${hub.name} — Exclusiva Playbook`,
     description: hub.description,
     alternates: { canonical: `${SITE_URL}/coberturas/${hub.slug}` },
-    // Mirrors Hub.listed: an unlisted hub is reviewable at its real URL
-    // (nothing internal links to it, see HeaderNav/sitemap.ts) but must
-    // not be indexable either — a hub can go from listed back to
-    // unlisted (see lib/hubs/lfa.ts, 2026-08-19) after Google already
-    // crawled it, and noindex is what gets it dropped on the next crawl.
+    // Mirrors Hub.listed: belt-and-suspenders alongside assertHubViewable's
+    // hard 404 — a logged-in editor viewing an unlisted hub still shouldn't
+    // have it indexable from their own session.
     robots: { index: hub.listed, follow: hub.listed },
   };
 }
@@ -53,6 +86,7 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
   const { slug } = await params;
   const hub = hubBySlug(slug);
   if (!hub) notFound();
+  await assertHubViewable(hub);
 
   const articles = await hubArticles(hub);
 

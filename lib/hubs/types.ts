@@ -142,11 +142,18 @@ export type Hub = {
   /** The property's full legal/commercial name, for the masthead rule. */
   fullName: string;
   /**
-   * Whether the hub is advertised. `false` = UNLISTED: the route works and
-   * renders, but it is absent from the header's Coberturas zone and from
-   * the sitemap, so nothing links to it and nothing crawls it. This is the
-   * launch state — the page can be reviewed at its real URL before it is
-   * announced. Flipping it to `true` is the whole "go live" change.
+   * Whether the hub is public. `false` = UNLISTED: absent from the header's
+   * Coberturas zone and from the sitemap (nothing links to it, nothing
+   * crawls it), `robots: noindex` on its own page, AND — 2026-08-19 —
+   * access-restricted: app/(public)/coberturas/[slug]/page.tsx's
+   * assertHubViewable() 404s anyone who isn't signed in with the `editor`
+   * role, the same session check app/admin/(protected)/layout.tsx uses.
+   * This started as pure obscurity (reachable by anyone with the URL) and
+   * was hardened into a real boundary after the LFA hub got indexed while
+   * briefly listed with its partnership already stated as fact — a
+   * pre-announcement hub can now be built and reviewed by editors at its
+   * real URL with nothing public-facing ever seeing it. Flipping it to
+   * `true` is the whole "go live" change.
    */
   listed: boolean;
   /** Short uppercase sub-line under the wordmark. Sets the beat in ~6 words. */
