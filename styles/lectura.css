@@ -1114,10 +1114,17 @@
 .lect-pir-tier{
   box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:2px;
   padding:11px calc(var(--pir-inset,0%) + 14px) 10px;text-align:center;
-  background:color-mix(in srgb,var(--lect-accent) var(--pir-tint,16%),var(--paper-soft));
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.10),rgba(0,0,0,.05)),
+    color-mix(in srgb,var(--lect-accent) var(--pir-tint,16%),var(--paper-soft));
   border:1px solid color-mix(in srgb,var(--lect-ink-accent) 30%,var(--rule));
   clip-path:polygon(var(--pir-inset,0%) 0,calc(100% - var(--pir-inset,0%)) 0,100% 100%,0 100%);
+  will-change:transform;
 }
+/* The apex is the claim the announcement is making, so it carries the
+   heaviest ink of the stack. */
+.lect-pir-tier:first-child{border-color:color-mix(in srgb,var(--lect-ink-accent) 62%,var(--rule));}
+.lect-pir-tier:first-child .lect-pir-name{color:var(--lect-ink-accent);}
 .lect-pir-name{font-family:var(--sans);font-weight:800;font-size:clamp(13px,1.7vw,15px);line-height:1.2;color:var(--ink);}
 .lect-pir-note{font-size:11.5px;line-height:1.3;color:var(--gray-txt);}
 .lect-pir-outside{
@@ -1133,8 +1140,8 @@
    down from the detached tier, one reaching up from the apex, neither
    arriving. Sized to be legible at a glance — a hairline here loses the
    only piece of the device that carries the argument visually. */
-.lect-pir-break{display:flex;flex-direction:column;align-items:center;gap:11px;padding:7px 0;}
-.lect-pir-break span{display:block;width:0;height:9px;border-left:2px solid color-mix(in srgb,var(--gray-txt) 70%,transparent);}
+.lect-pir-break{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0;}
+.lect-pir-break span{display:block;width:0;height:12px;border-left:2px solid var(--gray-txt);}
 @media(max-width:640px){
   .lect-rank-row{gap:10px;}
   .lect-perfil-card{grid-template-columns:1fr;}

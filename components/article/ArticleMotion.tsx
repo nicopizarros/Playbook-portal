@@ -153,25 +153,71 @@ export function ArticleMotion() {
       cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
     });
 
-    // 3b- — The Pirámide builds from the apex down, each tier widening out
-    // of the centre line. It gets its own tween rather than reusing
-    // [data-lect-grow] because that primitive grows from the LEFT edge,
-    // which would draw a pyramid leaning against a wall. The detached tier
-    // is deliberately excluded: it never joins the structure, so it never
-    // animates into it, it is simply already there above the broken
-    // connector. No-JS leaves every tier at its resting width.
-    document.querySelectorAll<HTMLElement>('.lect-pir-stack').forEach(stack => {
-      const tiers = Array.from(stack.querySelectorAll<HTMLElement>('[data-lect-seg]'));
+    // 3b- — The Pirámide builds itself, and the point of the choreography is
+    // the thing that does NOT happen. The detached tier drops in first and
+    // settles above the gap; the two connector stubs then draw toward each
+    // other and stop short, so the reader watches the link fail to close
+    // rather than reading a caption about it. Only then do the tiers widen
+    // out of the centre line, apex first, following the order the eye reads
+    // them in.
+    //
+    // Its own tween rather than [data-lect-grow] because that primitive
+    // grows from the LEFT edge, which would draw a pyramid leaning against a
+    // wall. No-JS leaves every piece at its resting position, which is the
+    // finished structure.
+    document.querySelectorAll<HTMLElement>('.lect-piramide').forEach(device => {
+      const stack = device.querySelector<HTMLElement>('.lect-pir-stack');
+      const tiers = stack ? Array.from(stack.querySelectorAll<HTMLElement>('[data-lect-seg]')) : [];
       if (!tiers.length) return;
-      gsap.set(tiers, { scaleX: 0.12, opacity: 0, transformOrigin: 'center center' });
+      const outside = device.querySelector<HTMLElement>('.lect-pir-outside');
+      const stubs = Array.from(device.querySelectorAll<HTMLElement>('.lect-pir-break span'));
+      const trigger = { trigger: device, start: 'top 86%', once: true } as const;
+
+      if (outside) {
+        gsap.set(outside, { y: -14, opacity: 0 });
+        tweens.push(
+          gsap.to(outside, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', scrollTrigger: trigger }),
+        );
+        cleanups.push(() => {
+          outside.style.removeProperty('transform');
+          outside.style.removeProperty('opacity');
+        });
+      }
+      if (stubs.length) {
+        // Each stub grows from the end it hangs off: the upper one downward
+        // from the detached tier, the lower one upward from the apex.
+        stubs.forEach((stub, i) => {
+          gsap.set(stub, { scaleY: 0, transformOrigin: i === 0 ? 'center top' : 'center bottom' });
+        });
+        tweens.push(
+          gsap.to(stubs, {
+            scaleY: 1,
+            duration: 0.32,
+            stagger: 0.1,
+            delay: 0.4,
+            ease: 'power1.out',
+            scrollTrigger: trigger,
+          }),
+        );
+        cleanups.push(() =>
+          stubs.forEach(stub => {
+            stub.style.removeProperty('transform');
+            stub.style.removeProperty('transform-origin');
+          }),
+        );
+      }
+
+      gsap.set(tiers, { scaleX: 0.12, y: 10, opacity: 0, transformOrigin: 'center center' });
       tweens.push(
         gsap.to(tiers, {
           scaleX: 1,
+          y: 0,
           opacity: 1,
           duration: 0.55,
           stagger: 0.12,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: stack, start: 'top 88%', once: true },
+          delay: outside ? 0.62 : 0,
+          ease: 'power3.out',
+          scrollTrigger: trigger,
         }),
       );
       cleanups.push(() =>

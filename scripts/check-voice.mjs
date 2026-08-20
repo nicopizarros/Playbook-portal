@@ -54,7 +54,7 @@ const TARGETS = {
 // syntax was reported as an em dash in prose. Both are false alarms that
 // cost a rewrite of text that was already correct.
 const STRUCTURAL =
-  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Venta:|Cadena:|Contrato:|Calendario:|Votación:|Ranking:|Cascada:|Perfil:|Escenarios:|Tablero:|Fuentes:|Ruta del dinero:|## )/;
+  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Venta:|Cadena:|Contrato:|Calendario:|Votación:|Ranking:|Cascada:|Perfil:|Escenarios:|Tablero:|Pirámide:|Fuentes:|Ruta del dinero:|## )/;
 
 // The negative-parallelism family, counted against one budget.
 //
