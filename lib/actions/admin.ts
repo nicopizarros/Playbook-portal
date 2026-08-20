@@ -12,6 +12,7 @@ import { SITE_CONTENT_CACHE_TAG, type SiteContentData } from '@/lib/data/site-co
 import { TIPTAP_EXTENSIONS } from '@/lib/tiptap-extensions';
 import { slugify } from '@/lib/slugify';
 import { validateTags, formatTagIssues } from '@/lib/taxonomy';
+import { notifyNewArticle } from '@/lib/slack';
 
 // Controlled-vocabulary backstop (TODO #1): the dashboard's checkbox UI
 // can only produce canonical tags, so this guards the programmatic
@@ -251,6 +252,29 @@ export async function createArticle(input: ArticleInput & { id?: string }): Prom
       });
 
       revalidateTag(ARTICLES_CACHE_TAG);
+
+      // Slack announcement. Only createArticle fires it, never saveArticle:
+      // every row this action inserts is born status='published', and an
+      // edit to an existing article is not new content. Awaited so the
+      // Server Action's runtime doesn't tear down the request mid-POST,
+      // but its result deliberately does not reach the caller — the
+      // article is saved and the dashboard should say so. A Slack outage
+      // is an integration problem, not a failed save, and surfacing it as
+      // one would train editors to re-click "guardar" on work that landed.
+      const slack = await notifyNewArticle({
+        id: inserted.id,
+        title: inserted.title,
+        excerpt: inserted.excerpt,
+        author: inserted.author,
+        publication: inserted.publication,
+        imageUrl: inserted.imageUrl,
+        origin: 'admin',
+        editor: session.user.name,
+      });
+      if (!slack.sent) {
+        console.error(`[slack] no se anunció ${inserted.id}: ${slack.reason}`);
+      }
+
       return { article: inserted };
     } catch (err: unknown) {
       // Same id-collision fallback as app/api/update-articles/route.ts: a

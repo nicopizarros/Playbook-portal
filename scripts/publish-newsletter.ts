@@ -21,6 +21,7 @@ import { articles } from '../lib/db/schema';
 import { TIPTAP_EXTENSIONS } from '../lib/tiptap-extensions';
 import { slugify } from '../lib/slugify';
 import { validateTags, formatTagIssues } from '../lib/taxonomy';
+import { notifyNewArticle } from '../lib/slack';
 
 // Uses Neon's HTTP driver (plain HTTPS, one query per request) instead of
 // lib/db/client.ts's node-postgres Pool: this script runs from environments
@@ -217,15 +218,42 @@ async function main() {
   }
 
   const results = [];
+  let slackFailures = 0;
   for (const item of items) {
     const result = await insertOne(item);
     results.push(result);
     console.log(`[publish] ${result.status}: ${result.title}${result.status === 'ok' ? ` (id=${result.id})` : ''}`);
+
+    // Slack notice per confirmed insert — this script is the third and
+    // last path that creates articles (lib/slack.ts lists all three), and
+    // for the publish skills it is the usual one. A duplicate is skipped
+    // for the same reason it is skipped in the other two: nothing new
+    // exists to announce.
+    if (result.status === 'ok') {
+      const slack = await notifyNewArticle({
+        id: result.id,
+        title: item.title,
+        excerpt: item.excerpt,
+        author: item.author,
+        publication: item.publication,
+        imageUrl: item.imageUrl,
+        origin: 'script',
+      });
+      // Printed, never thrown: the article is already committed, so a
+      // Slack problem must not abort the rest of the batch or make a
+      // successful publish look failed. It does belong in the run report
+      // the skills paste back, hence the summary count below.
+      console.log(`[publish]   slack: ${slack.sent ? 'sent' : `not sent — ${slack.reason}`}`);
+      if (!slack.sent) slackFailures++;
+    }
   }
 
   const okCount = results.filter(r => r.status === 'ok').length;
   const dupCount = results.filter(r => r.status === 'duplicate').length;
   console.log(`[publish] done: ${okCount} published, ${dupCount} duplicate/skipped, ${results.length} total`);
+  if (slackFailures) {
+    console.log(`[publish] slack: ${slackFailures} de ${okCount} sin anunciar (el artículo sí se publicó)`);
+  }
 }
 
 // Guarded so other scripts (e.g. scripts/backfill-article-standards.ts) can

@@ -512,6 +512,43 @@ links/SEO from before the migration.
   editor can never accept content the server-side renderer doesn't also
   understand.
 
+### 8.10 Slack notice on new articles — `lib/slack.ts`
+
+Posts a Block Kit message to an Incoming Webhook (`SLACK_WEBHOOK_URL`) each
+time a row is **created** in `articles`. Three call sites, which is the
+complete set of inserts into that table:
+
+| Call site | Fires when |
+|---|---|
+| `app/api/update-articles/route.ts` | After a confirmed insert. The `onConflictDoNothing` duplicate branch returns earlier, so a digest that re-posts the same `sourceUrl` never re-announces |
+| `lib/actions/admin.ts` → `createArticle` | After a confirmed insert. `saveArticle` deliberately does **not** notify — an edit is not new content |
+| `scripts/publish-newsletter.ts` | Per confirmed insert in the batch (§11) — the write-side of the `publish-newsletter` / `publish-sourced-article` skills, and easy to miss as an insert path because it talks to Neon over its own HTTP driver rather than `lib/db/client.ts`. Prints `slack: sent` / `slack: not sent — <reason>` per article plus a batch summary, so the run report the skills paste back says whether the channel was told |
+
+"Created" and "published" are the same moment here: `createArticle` always
+writes `status: 'published'`, `archiveArticle` is the only writer of
+`'draft'`, and nothing flips a row back. If a republish path is ever added,
+it needs its own decision about notifying — this module will not cover it
+for free.
+
+Design notes, all of which the regression suite pins:
+
+- **Never throws.** Returns `{ sent: false, reason }` like `lib/email.ts`.
+  By the time it runs the article is committed and the cache revalidated,
+  so a throw would report failure for work that succeeded — and, on the
+  webhook path, invite Make.com to retry an insert that already landed.
+- **Awaited, not fire-and-forget.** A floating promise dies when the
+  serverless invocation is torn down at `return`. A 4s `AbortSignal.timeout`
+  bounds the cost.
+- **Destination is pinned to `hooks.slack.com` over https.** The payload
+  carries article copy, so a mistyped or tampered env var would be an
+  exfiltration channel rather than merely a dead notification.
+- **Failure is visible, differently per path.** The webhook response gains a
+  `slackError` field (only on failure, same convention as `droppedTags`, so
+  the happy-path JSON shape legacy returned is untouched) and Make.com's run
+  log shows it. The admin path logs to the server console and says nothing
+  to the editor — a Slack outage is not a failed save, and surfacing it as
+  one would train editors to re-click "guardar" on work that landed.
+
 ## 9. Routes Map
 
 All dynamic public routes render with `export const dynamic =
@@ -657,6 +694,7 @@ flash, paired with `suppressHydrationWarning` on `<html>`.
 | `test-email-wall.mjs` | `node scripts/test-email-wall.mjs` (manual) | Playwright: burns the 3-article quota, confirms the paywall form appears |
 | `check-voice.mjs` / `test-voice-antithesis.mjs` | `node scripts/check-voice.mjs <draft.json>` | Editorial voice mirror for the publish skills (em-dash ban, antithesis cap, rhythm stats) + its regression suite |
 | `find-duplicates.mjs` / `test-duplicate-detection.mjs` | `node scripts/find-duplicates.mjs "<title>"` | Overlap check against the live archive + its regression suite |
+| `test-slack-notification.mjs` | `node --import tsx scripts/test-slack-notification.mjs` (add `--live` with `SLACK_WEBHOOK_URL` set to really post) | Regression suite for `lib/slack.ts`: mrkdwn escaping, image-accessory gate, webhook-host pin, wire format and every failure path — all offline, no Slack workspace needed |
 | `update-article.ts` | `npx tsx scripts/update-article.ts <fix.json> --dry-run` | Regenerates a published body through the same pipeline as the insert (never hand-edit `body_html`) |
 | `update-lana-board.ts` | after each La Lana publish | Pushes the edition's connections to /la-lana's departures board |
 | `build-world-map.ts` / `build-substack-backlog.mjs` / `graph-query.py` | manual | Generators: `lib/data/world-map.json`, the Substack backlog diff, and the committed knowledge-graph reader |
@@ -681,6 +719,7 @@ commented list. Summary:
 | `RESEND_API_KEY`, `EMAIL_FROM` | Reader magic-link email | **Broken in production** — `EMAIL_FROM` not set, Resend rejects the `authjs.dev` default sender domain |
 | `BLOB_READ_WRITE_TOKEN` | TipTap image uploads | Pending real credential |
 | `PLAYBOOK_SECRET` | Make.com webhook auth | Was misconfigured with wrong casing (`Playbook_secret`) — needs correcting in Vercel |
+| `SLACK_WEBHOOK_URL` | Slack notice on every newly created article (`lib/slack.ts`) | Added 2026-08-20. Optional — unset means no notice and no failure. Must be a `https://hooks.slack.com/…` Incoming Webhook; any other host is refused rather than posted to |
 | `GA4_PROPERTY_ID`, `GA4_SERVICE_ACCOUNT_EMAIL`, `GA4_SERVICE_ACCOUNT_PRIVATE_KEY` | "Más leídas" homepage module | Same casing bug as above |
 | `GA4_MEASUREMENT_ID` | Client-side gtag.js | Live property is **`G-KVE4HF75TF`** (rotated 2026-08-07, set in Vercel, confirmed rendering on the live site 2026-08-19). `G-0CG7JMK8RZ` is the RETIRED predecessor — this row asserted it as current until 2026-08-19 and is how it got mistaken for the live one; do not restore it. No code names either ID: `gtag('event')` follows `gtag('config')`, so repointing GA4 is only this env var. |
 | `VERCEL_ANALYTICS_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`/`_SLUG` | Admin analytics dashboard | Pending real credential |

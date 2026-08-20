@@ -11,6 +11,7 @@ import { articles } from '@/lib/db/schema';
 import { ARTICLES_CACHE_TAG } from '@/lib/data/articles';
 import { SPORT_OPTIONS, validateTags, formatTagIssues } from '@/lib/taxonomy';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { notifyNewArticle } from '@/lib/slack';
 
 // Only counts against failed-secret attempts, never against legitimate
 // Make.com traffic (a real digest can legitimately post several items in
@@ -230,10 +231,34 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ status: 'duplicate', url: article.url });
       }
       revalidateTag(ARTICLES_CACHE_TAG);
+
+      // Announce only a confirmed insert: the `!inserted` branch above
+      // already returned for a sourceUrl duplicate, so a digest that
+      // re-posts the same item can't re-announce it. Awaited rather than
+      // fire-and-forget because the serverless invocation is torn down as
+      // soon as this handler returns — a floating promise would be killed
+      // mid-flight. notifyNewArticle never throws and is bounded by its
+      // own timeout, so the worst case is a slightly slower 200.
+      const slack = await notifyNewArticle({
+        id: inserted.id,
+        title: inserted.title,
+        excerpt: inserted.excerpt,
+        author: inserted.author,
+        publication: inserted.publication,
+        imageUrl: inserted.imageUrl,
+        origin: 'webhook',
+      });
+
       return NextResponse.json({
         status: 'ok',
         article: inserted.title,
         ...(tagIssues.length ? { droppedTags: formatTagIssues(tagIssues) } : {}),
+        // Reported the same way droppedTags is — only when there is
+        // something to report — so the happy-path response keeps the exact
+        // shape legacy/api/update-articles.js returned, while a
+        // misconfigured or failing Slack is visible in Make.com's run log
+        // instead of vanishing into server logs nobody reads.
+        ...(slack.sent ? {} : { slackError: slack.reason }),
       });
     } catch (err: unknown) {
       // Postgres unique_violation on the id primary key: derive a fresh id

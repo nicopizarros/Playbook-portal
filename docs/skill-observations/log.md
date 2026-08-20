@@ -527,3 +527,37 @@ touching it.
 **What happened:** Following the CLAUDE.md health check, this session reported the guard hook as "not firing" because no reminder was visible in early tool results — the exact claim Observation 11 already found to be false in a prior session. Later in the same session the reminder appeared (full mode, CLI present). Whether the offline-mode reminder was genuinely absent earlier or simply not surfaced could not be determined from inside the session.
 
 **Suggested improvement:** The health check should ask for evidence stronger than "I didn't see it" before reporting the hook broken — e.g. run `.claude/hooks/graphify-guard.sh search` directly and report its stdout, which distinguishes "hook produces nothing" from "harness didn't surface it". CLAUDE.md's health-check section could name this exact probe.
+
+## 2026-08-20
+
+### Observation 16: `articles` has three insert paths and the third uses a different DB driver
+
+**Status:** OPEN
+**Date:** 2026-08-20
+**Session context:** Adding a Slack notification fired on every newly created article; needed the complete set of places a row can appear in `articles`.
+
+**Skill:** publish-newsletter / publish-sourced-article (their shared write-side), graphify
+**Type:** project-specific
+**Phase/Area:** Locating write paths before instrumenting them
+
+**Issue:** The obvious two writers — `app/api/update-articles/route.ts` (Make.com webhook) and `lib/actions/admin.ts`'s `createArticle` — are both reachable from a graph query about content creation and from a grep for `db.insert(articles)` over `app/` and `lib/`. The third, `scripts/publish-newsletter.ts`, is not: it lives under `scripts/`, and it builds its own Drizzle handle over Neon's HTTP driver (`drizzle(neon(...))`) instead of importing `lib/db/client.ts`, because Claude Code sessions only have HTTPS egress. So it shares no import edge with the other two and reads as tooling rather than as a production write path — while being the path the publish skills actually use. The module written this session shipped a comment asserting "two — and only two — places", caught only by reading §11 of `docs/ENCYCLOPEDIA.md` for an unrelated reason.
+
+**Suggested improvement:** When instrumenting anything that must fire on every write to a table, enumerate writers by the table, not by the layer: `grep -rn "insert(<table>)" --include="*.ts" .` across `app/ lib/ scripts/` at minimum, and treat a hit that constructs its own DB client as the one most likely to be missed. Worth a line in the publish skills' write-side notes: `scripts/publish-newsletter.ts` is a production write path with a production write path's obligations (cache tags, notifications, revision rows), not a dev script.
+
+**Principle:** A component that builds its own client to work around an environment constraint drops out of every dependency graph that would otherwise have found it — so enumerate by the resource being written, never by the module graph.
+
+### Observation 17: A live smoke test would have passed on all three bugs the offline suite caught
+
+**Status:** OPEN
+**Date:** 2026-08-20
+**Session context:** Same session; writing `scripts/test-slack-notification.mjs` for the new Slack module.
+
+**Skill:** verify
+**Type:** open-source
+**Phase/Area:** Choosing a verification method for an outbound integration
+
+**Issue:** The instinctive verification for "does the Slack notice work" is to set a real webhook URL and look at the channel. That check reports HTTP 200 — i.e. passes — for an unescaped `&` in a title, for a relative `imageUrl` attached as an accessory that renders as a broken tile, and for a `SLACK_WEBHOOK_URL` pointing at a non-Slack host, which posts article copy off-site and still returns 200. Mutation-testing confirmed the offline suite catches all three (each mutation produced named failures); the live POST distinguishes none of them. It also needs a Slack workspace, so it cannot run in CI or in a sandboxed session at all.
+
+**Suggested improvement:** For an outbound integration, `verify` should default to asserting on the *payload* — stub `globalThis.fetch`, capture `{url, init}`, and assert method, headers, body and destination — with the live send kept as an opt-in `--live` flag for credential confirmation only. And mutation-test the suite before trusting it: break each guard in turn and confirm a named failure, since a suite that passes against deliberately broken code is measuring nothing.
+
+**Principle:** When the failure mode is a successful request carrying wrong content, the transport's status code cannot be the test — assert on what was sent, and prove the assertion has teeth by breaking the code first.
