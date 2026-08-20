@@ -54,11 +54,28 @@ dinero`, and the `Fuentes:` line.
 
 - **Never repeat a device type in one article.** The renderer refuses the
   second one even under budget.
-- **Two pairs are mutually exclusive** and the renderer enforces those too,
-  first-declared-wins: `Venta` locks out `Jugada`, and `Cadena` locks out
-  `Cronología`. Both pairs would tell the reader the same thing twice — see
-  §2's entries for each. The loser stays visible as plain text, so a
+- **Nine pairs are mutually exclusive** and the renderer enforces those too,
+  first-declared-wins. Each pair would tell the reader the same thing twice —
+  see §2's entries for each. The loser stays visible as plain text, so a
   declaration you lose is a mistake you can see.
+
+  | Declares | Locks out | Because both are |
+  |---|---|---|
+  | `Venta` | `Jugada` | the same two parties |
+  | `Contrato` | `Jugada` | the same two parties |
+  | `Cadena` | `Cronología` | the story on a dated spine |
+  | `Calendario` | `Cronología` | the story on a dated spine |
+  | `Votación` | `Reparto` | one whole split into camps |
+  | `Ranking` | `Duelo` | actors compared on one metric |
+  | `Cascada` | `Recibo` | a total broken into its parts |
+  | `Tablero` | `Cifra clave` | the story's headline figures |
+  | `Pirámide` | `Ranking` | an ordered stack of named rows |
+
+  (Corrected 2026-08-20: this section named only the first two pairs while
+  `EXCLUSIVE_PAIRS` in `lib/article-devices.ts` had carried all of them since
+  the roadmap build on 2026-08-14. The code was right and this file was
+  stale — an author following it would have lost a device to a rule that was
+  never written down.)
 - **Order matters.** First declared in document order wins the budget, so place
   the device carrying the story's spine first.
 - **Keep at least two prose paragraphs between devices.** The renderer does not
@@ -83,7 +100,7 @@ as a `Cronología`, a fee has a `Reparto` of who gets what or a `Cifra clave` fo
 the headline number, a signing has a `Jugada` for the two sides, a schedule
 change has a `Salto`, an earnings release is a `Resultados`.
 
-**Walk all twenty-three shapes** before writing an article off as device-free,
+**Walk all twenty-four shapes** before writing an article off as device-free,
 especially on a `priority: 5` piece — exactly the story that should carry the
 richest structure. What stays strict is fabrication, not effort: never invent a
 milestone, a split, or a figure the piece doesn't already contain just to
@@ -93,7 +110,7 @@ used to be.
 
 ---
 
-## 2. The twenty-three devices
+## 2. The twenty-four devices
 
 Pick by **story shape**: a saga → `Cronología`; a breakdown → `Recibo`; a split
 → `Reparto`; a pairing → `Jugada`; one number → `Cifra clave`; an earnings
@@ -104,7 +121,8 @@ of owners → `Cadena`; **a market price dragging something else with it →
 road ahead → `Calendario`; a governance vote → `Votación`; N actors on one
 metric → `Ranking`; the path from revenue to margin → `Cascada`; one actor at
 the center → `Perfil`; explicit outcomes with Playbook's read → `Escenarios`;
-a market roundup's numbers → `Tablero`.
+a market roundup's numbers → `Tablero`; **a league system's tiers, and who is
+left outside them → `Pirámide`**.
 
 ---
 
@@ -984,6 +1002,32 @@ item is the strip's title (≤48); then 2–4 tiles, label — value (label ≤2
 value ≤20 and numeric), with an optional parenthetical note as the tile's
 caption. Every value counts up. **Mutually exclusive with `Cifra clave`.**
 
+### `Pirámide:` — the league system, and who is outside it
+
+```
+Pirámide: Liga MX (fuera) — 18 clubes, liga cerrada de franquicias · Liga Expansión MX — Cúspide de la nueva pirámide · Liga Premier — Tercer nivel · Liga TDP — Cuarto nivel · Sector Amateur — La base
+```
+
+Built to measure 2026-08-20, for the FMF's Nuevo Modelo Deportivo. A
+division structure drawn as one: 2–6 tiers, declared **apex first**, each
+`Nombre — descripción` (name ≤34, description ≤60), rendered as stacked
+trapezoids widening toward the base with the accent ramping down the stack.
+
+**The `(fuera)` tag is the device.** At most one tier may carry it, and that
+tier is drawn *above* the apex, dashed, behind a visibly severed connector,
+with its own "Fuera de la pirámide" chip. Reach for this device when a
+restructuring announcement's real content is which body the new structure
+leaves out — that fact dies in prose, where an official communiqué naming a
+national pyramid and a top division that does not belong to it reads as one
+continuous system. A declaration with no `(fuera)` renders as an ordinary
+pyramid, which is the right output when nobody is excluded.
+
+Not `Ranking` (**and mutually exclusive with it**): a ranking orders actors
+by a metric and scales its bars to the leader. A pyramid's tiers are a
+hierarchy, not a measurement, so it draws no bars — inventing a magnitude to
+scale them would be exactly the fabrication §1 bans. Two tiers is the floor:
+one tier plus an outsider is a pairing, and that is `Jugada`.
+
 ## 3. Automatic elements — nothing to author
 
 These need no syntax and never touch the budget:
@@ -1007,7 +1051,7 @@ These need no syntax and never touch the budget:
 
 Walk this for every article before publishing:
 
-1. Full twenty-three-device list walked against the story **before** concluding it
+1. Full twenty-four-device list walked against the story **before** concluding it
    gets none.
 2. Budget computed from `readingTime` **and** `priority` (+1 at `priority: 5`).
 3. No repeated device type.
@@ -1019,7 +1063,7 @@ Walk this for every article before publishing:
 7. Prose does not recite what `Resultados` or `Serie` already prints.
 8. `Cifra clave` is the story's own figure and has a caption that names the
    thing.
-9. No mutually exclusive pair declared together (`Venta`/`Jugada`,
-   `Cadena`/`Cronología`) — the second one ships as visible plain text.
+9. No mutually exclusive pair declared together — check the nine-row table in
+   §1; the second one ships as visible plain text.
 10. `Venta`/`Cadena` multiples are left to the device, not restated in prose,
     and both figures in a multiple carry the same currency.
