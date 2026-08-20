@@ -199,6 +199,24 @@ generic "esto importa para toda la industria" close, and never force a
 Mexico/LATAM angle onto a story with no genuine regional connection, an
 invented connection reads worse than having none at all.
 
+**The bar for "genuine" is a fact in the piece, not a theme the story
+happens to touch.** A Mexican or LATAM person, company, deal, or figure
+that's actually in the reporting is genuine (Juan Carlos Rodríguez in the
+FIFA Sub-15 piece, a Liga MX rights number, a Mexico City host city).
+"This general business dynamic also applies to Mexican leagues" is not,
+even when it's true, because it would be equally true of a dozen other
+stories with nothing Mexican in them at all, that's the tell. Caught in
+review 2026-08-20 on the NBA ad-revenue piece: closing on "esto es
+exactamente la pregunta que hoy se hacen las ligas y las televisoras en
+México y América Latina" for a story that never mentioned a single LATAM
+party, deal, or figure, just a generic streaming-economics lesson that
+would read the same bolted onto any rights story from any country. The
+fix was to end on the global insight itself (what the jump from
+US$10M to US$874M actually proves about streaming ad economics) and stop
+there, not reach for a region to make it feel locally relevant. If the
+piece has no Mexico/LATAM fact to point to, the Opinión's job is to nail
+the global read, not manufacture a local one.
+
 ### Material gráfico (optional, use only when it genuinely helps)
 
 Two plain-text paragraph conventions that the article page's

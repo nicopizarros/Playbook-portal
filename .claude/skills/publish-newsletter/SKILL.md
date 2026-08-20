@@ -105,10 +105,22 @@ then a separate Opinión de Playbook paragraph.
    is actually about (here, that's brand stability as a commercial asset,
    and the deal resetting the shirt-sponsorship price benchmark) and only
    reach for the Mexico/LATAM angle when the story has a genuine, specific
-   connection there, a league already active in the region, a brand with
-   real LATAM presence, a mechanic another market could actually learn
-   from. If that connection isn't real, a strong industry-wide close
-   without one beats a forced regional comparison every time.
+   connection there: a league already active in the region, a brand with
+   real LATAM presence, a Mexican or LATAM person/company/figure actually
+   in the reporting. If that connection isn't real, a strong industry-wide
+   close without one beats a forced regional comparison every time.
+
+   **Retired 2026-08-20**: this list used to also allow "a mechanic
+   another market could actually learn from" as a qualifying connection.
+   Caught in review on a story with zero LATAM facts in it (an NBA
+   ad-revenue piece, published-sourced-article's counterpart skill) where
+   that clause was exactly the loophole used to justify "esto es la
+   pregunta que hoy se hacen las ligas... en México y América Latina",
+   a lesson so generic it would fit equally well bolted onto any rights
+   story from any country, which is the actual tell for forced. A
+   transferable business lesson is not regional specificity, it's
+   applicable everywhere, which is a reason to end on the global insight
+   itself and stop there, not a reason to name a region.
 
 No exceptions to the four-paragraph structure: a "brief, no real angle"
 story still gets all four, it just stays tight and grounded rather than
