@@ -57,6 +57,22 @@ several unrelated links in one run, draft each as its own separate
 article). Confirm the publish date and the core facts (who, what, the key
 numbers) directly from the page, don't guess or carry over stale context.
 
+**Before treating a blocked link as blocked, look at what it is carrying.**
+(2026-08-20, the FMF Nuevo Modelo Deportivo run.) `x.com` status URLs return
+HTTP 402 to WebFetch, so that link reads as unfetchable and the instinct is
+to jump straight to the fallback below. But an institution posting news to X
+usually attaches its communiqué as IMAGES, and those image URLs
+(`pbs.twimg.com/media/...`, reachable with plain `curl`) are the full primary
+source: on that run the two attachments were the complete two-page press
+release, which the image reader transcribed in one pass, giving the
+announcement's own bullets, both presidents' quotes and the implementation
+date without a single secondary outlet. The syndication endpoint
+(`cdn.syndication.twimg.com/tweet-result?id=<id>&token=a`) returns the tweet
+JSON including `mediaDetails[].media_url_https`, so the sequence is: fetch
+that JSON, `curl` the images to the scratchpad, read them. The same applies
+anywhere a post, a PDF-as-image or a screenshot IS the document. Only after
+that fails is the link genuinely blocked.
+
 **When WebFetch is blocked on the primary link** (NYT/The Athletic and
 similar paywalled domains reliably return "unable to fetch"), don't just
 fall back silently to cross-referenced secondary coverage and note the
@@ -110,7 +126,39 @@ If, after genuinely trying, no other outlet has covered the story (a truly
 exclusive or very fresh item), say so explicitly rather than inventing a
 second source, and draft from the primary article alone.
 
-## Step 3: Editorial voice — NOTICIA PLAYBOOK format
+## Step 3: Pick the format tier, THEN write
+
+**The tier is a decision this step owns, and the default is not automatic.**
+(2026-08-20, same run.) This section used to open straight into NOTICIA
+PLAYBOOK as though the sourced funnel had one shape, and a story that plainly
+wanted the Deep Dive shipped as a 420-word brief until the human sent it back
+asking for depth. The two tiers live in `format-tiers.md` (§3 for the B brief,
+§3b for the Deep Dive C) and the choice is about how much verified reporting
+the story can actually support, never about how big the news feels:
+
+- **B brief, 250-500 words, `readingTime: 2`** - the story is one movement.
+  A result, a signing, a filing, a statement. Cross-referencing confirms it
+  and adds a fact or two, and past that there is nothing more to say without
+  padding.
+- **Deep Dive C, 700-1,200 words, `readingTime: 3-4`** - reach for it when
+  Steps 1 and 2 turned up a MECHANISM plus money plus precedent: the story
+  changes a structure rather than reporting an outcome, there are figures
+  behind it (a valuation, a prior deal, a split, a purchase price), Playbook
+  has published on the same running story before, and the reader would come
+  away from a brief still not knowing how the thing works. Its shape is
+  different too, not just longer: four to seven `##` sections whose subheads
+  are arguments, and a close that hands over an open tension instead of
+  summarizing.
+
+The tell that a brief is the wrong call is having to leave sourced, relevant
+numbers out to hit the word count. If Step 2 produced material the B brief has
+no room for, that is the story asking for the Deep Dive.
+
+Everything below describes the B brief. For a Deep Dive, the voice, the
+Opinion, the style rules and the device contract are all identical; only the
+length and the section architecture change (`format-tiers.md` §3b).
+
+### The NOTICIA PLAYBOOK format (tier B)
 
 (format adopted 2026-08-13, replacing a fixed four-paragraph structure
 that used to live here, see the collapsed history note above Step 1 for
