@@ -153,6 +153,36 @@ export function ArticleMotion() {
       cleanups.push(() => bars.forEach(bar => bar.style.removeProperty('transform')));
     });
 
+    // 3b- — The Pirámide builds from the apex down, each tier widening out
+    // of the centre line. It gets its own tween rather than reusing
+    // [data-lect-grow] because that primitive grows from the LEFT edge,
+    // which would draw a pyramid leaning against a wall. The detached tier
+    // is deliberately excluded: it never joins the structure, so it never
+    // animates into it, it is simply already there above the broken
+    // connector. No-JS leaves every tier at its resting width.
+    document.querySelectorAll<HTMLElement>('.lect-pir-stack').forEach(stack => {
+      const tiers = Array.from(stack.querySelectorAll<HTMLElement>('[data-lect-seg]'));
+      if (!tiers.length) return;
+      gsap.set(tiers, { scaleX: 0.12, opacity: 0, transformOrigin: 'center center' });
+      tweens.push(
+        gsap.to(tiers, {
+          scaleX: 1,
+          opacity: 1,
+          duration: 0.55,
+          stagger: 0.12,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: stack, start: 'top 88%', once: true },
+        }),
+      );
+      cleanups.push(() =>
+        tiers.forEach(tier => {
+          tier.style.removeProperty('transform');
+          tier.style.removeProperty('opacity');
+          tier.style.removeProperty('transform-origin');
+        }),
+      );
+    });
+
     // 3b0 — The Cotización track's push-in: the whole arc first, then the
     // window where the story actually happens. Scrubbed against scroll
     // rather than fired once, because the point is that the READER drives

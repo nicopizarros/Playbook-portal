@@ -3,9 +3,16 @@
 2026-08-13, from the device-by-device audit. **All eight proposals were
 built on 2026-08-14** — their entries moved into
 `dynamic-element-library.md` per this file's own rule, and what remains
-here is the coverage map: what story shape each of the twenty-three
+here is the coverage map: what story shape each of the twenty-four
 devices owns, so a drafting run — or a human — can route a story shape to
 its device in one lookup.
+
+`Pirámide` was added on 2026-08-20, built to measure for the FMF's Nuevo
+Modelo Deportivo. It is the first device that came from a story rather than
+from an audit, and it closes a blind spot none of the eight proposals below
+had spotted: **structure itself** — a division system's tiers, and which
+body the new structure leaves outside them. Syntax and limits live in
+`dynamic-element-library.md` §2, same as the roadmap eight.
 
 ## 1. What the roster covers
 
@@ -36,6 +43,7 @@ its device in one lookup.
 | One actor at the center | `Perfil` | ¿Quién es, desde cuándo, por cuánto? |
 | Explicit outcomes, Playbook's read | `Escenarios` | ¿Hacia dónde puede ir esto? |
 | A market roundup's numbers | `Tablero` | ¿Cómo cerró el mercado? |
+| A league system's tiers | `Pirámide` | ¿Quién está en la estructura, y quién no? |
 
 Blind spots the audit found (all CLOSED by the 2026-08-14 build), grouped: **the future** (every temporal device
 points backward), **recurring contracts** (a rights deal is not a sale),

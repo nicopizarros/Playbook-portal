@@ -43,6 +43,14 @@
 //   Cadena:      Lakers · 1979 — Buss — US$67.5M · 2026 — Kushner — US$12,500M
 //                → the chain of title, each era held as long as it draws
 //
+// Round 6 (2026-08-20) adds one device for the shape a restructuring
+// announcement has, where the news is which body the new structure leaves
+// out:
+//
+//   Pirámide:    Liga MX (fuera) — cerrada · Liga Expansión MX — cúspide · …
+//                → the league system, tier by tier, with the detached one
+//                  drawn above a visibly broken connector
+//
 // Both body shapes go through the same builders: the HTML transform
 // (markDevices) rewrites matching <p>s, and the plain-text path asks
 // deviceFromParagraph for the same markup. All interpolated text is
@@ -2419,6 +2427,121 @@ function buildBoard(board: Board): string {
   );
 }
 
+// ———————————————————————————————————————————————————————— Pirámide
+// `Pirámide: Liga MX (fuera) — 18 clubes, liga cerrada · Liga Expansión MX
+//  — Cúspide de la nueva pirámide · Liga Premier — Tercer nivel ·
+//  Liga TDP — Cuarto nivel · Sector Amateur — Base`
+//
+// A league system drawn as what it is: tiers stacked widest at the base,
+// each one named. The shape the collection had no way to tell. `Ranking`
+// orders N actors by a metric and scales its bars to the leader, which is
+// a different claim — a pyramid's tiers are a HIERARCHY, not a
+// measurement, and drawing them as a bar chart would invent a magnitude
+// nobody published. `Reparto` splits one whole into shares. `Cronología`
+// is time. None of them can say "these five divisions sit under each
+// other in this order".
+//
+// The `(fuera)` tag is the reason this device exists rather than a plain
+// list. A restructuring announcement's whole business content is usually
+// which body is INSIDE the new structure and which one is not, and that
+// distinction dies in prose: an official communiqué naming a national
+// pyramid and a top division that does not belong to it reads, in
+// paragraph form, like one continuous system. Marked here, the detached
+// tier is drawn above the apex with the connector visibly broken and
+// carries its own "fuera de la pirámide" chip, so the gap is the first
+// thing the eye lands on. Same convention as `Alineación`'s role tag: a
+// parenthetical after the name, optional, and a declaration without one
+// renders as an ordinary pyramid.
+//
+// Colour is never doing that work alone — the chip, the aria-label and
+// the broken connector all state it, because a reader who cannot see the
+// dashed rule still has to learn the same fact.
+type PyramidTier = { name: string; note: string };
+type Pyramid = { tiers: PyramidTier[]; outside: PyramidTier | null };
+
+// The apex is a truncated top, not a point: the top tier is a real league
+// with a name to fit, and drawing it as a spike would be a shape decision
+// overriding a legible one.
+const PIR_TOP_WIDTH = 58;
+const PIR_APEX_INSET = 11;
+// The accent ramps down the stack instead of being switched on at the
+// apex and off at the base. A fixed first/last rule left the bottom tier
+// tinted at zero, which on the light theme is the page's own colour: the
+// base stopped reading as part of the same object (caught in the render
+// pass, 2026-08-20). Computing the ramp from the tier count also means it
+// holds at any depth from two levels to six.
+const PIR_TINT_TOP = 34;
+const PIR_TINT_BASE = 9;
+
+function parsePyramid(raw: string): Pyramid | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 2 || items.length > 7) return null;
+  const tiers: PyramidTier[] = [];
+  let outside: PyramidTier | null = null;
+  for (const item of items) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    let name = kv[1].trim();
+    const note = kv[2].trim();
+    const tag = name.match(/^([\s\S]+?)\s*\(\s*fuera\s*\)$/i);
+    const detached = !!tag;
+    if (tag) name = tag[1].trim();
+    if (!name || name.length > 34 || !note || note.length > 60) return null;
+    if (detached) {
+      // Two bodies outside one pyramid is not a structure this device can
+      // draw honestly, so it declines rather than picking one.
+      if (outside) return null;
+      outside = { name, note };
+      continue;
+    }
+    tiers.push({ name, note });
+  }
+  // A pyramid needs at least two levels under each other; one tier plus an
+  // outsider is a pairing, which is what `Jugada` is for.
+  if (tiers.length < 2 || tiers.length > 6) return null;
+  return { tiers, outside };
+}
+
+function buildPyramid(pyramid: Pyramid): string {
+  const { tiers, outside } = pyramid;
+  const span = tiers.length - 1;
+  const widths = tiers.map((_, i) => PIR_TOP_WIDTH + ((100 - PIR_TOP_WIDTH) * i) / span);
+  const rows = tiers
+    .map((tier, i) => {
+      // Each row's sides are cut so its top edge meets the row above it —
+      // the silhouette is a real pyramid rather than a staircase, and the
+      // inset is derived from the widths instead of being eyeballed per
+      // tier. The label's own padding is driven off the same number
+      // (styles/lectura.css), so text can never sit under a bevel.
+      const inset = i === 0 ? PIR_APEX_INSET : ((1 - widths[i - 1] / widths[i]) / 2) * 100;
+      const tint = PIR_TINT_TOP - ((PIR_TINT_TOP - PIR_TINT_BASE) * i) / span;
+      return (
+        `<li class="lect-pir-tier" data-lect-seg style="width:${widths[i].toFixed(1)}%;--pir-inset:${inset.toFixed(2)}%;--pir-tint:${tint.toFixed(1)}%">` +
+        `<span class="lect-pir-name">${esc(tier.name)}</span>` +
+        `<span class="lect-pir-note">${esc(tier.note)}</span></li>`
+      );
+    })
+    .join('');
+  const detached = outside
+    ? `<div class="lect-pir-outside">` +
+      `<span class="lect-pir-outside-chip">Fuera de la pirámide</span>` +
+      `<span class="lect-pir-name">${esc(outside.name)}</span>` +
+      `<span class="lect-pir-note">${esc(outside.note)}</span></div>` +
+      `<div class="lect-pir-break" aria-hidden="true"><span></span><span></span></div>`
+    : '';
+  const spoken =
+    (outside ? `${outside.name}, ${outside.note}, queda fuera de la pirámide. ` : '') +
+    `Pirámide, de la cúspide a la base: ` +
+    tiers.map(t => `${t.name}, ${t.note}`).join('; ') +
+    '.';
+  return (
+    `<div class="lect-device lect-piramide" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">La pirámide</span>` +
+    detached +
+    `<ol class="lect-pir-stack">${rows}</ol></div>`
+  );
+}
+
 // ———————————————————————————————————————————————————— Dispatch tables
 // Per-article context a device may need at render time. Today that is
 // only the article's own date (Calendario computes each beat's "en N
@@ -2648,12 +2771,23 @@ const DEVICES: Device[] = [
       return parsed ? buildBoard(parsed) : null;
     },
   },
+  // Built to measure 2026-08-20 for the FMF's Nuevo Modelo Deportivo, the
+  // first story the collection met that was ABOUT a league system's shape.
+  {
+    name: 'piramide',
+    prefix: deviceTextRe('Pir[áa]mide'),
+    html: deviceHtmlRe('Pir[áa]mide'),
+    render: raw => {
+      const parsed = parsePyramid(raw);
+      return parsed ? buildPyramid(parsed) : null;
+    },
+  },
 ];
 
 // The Cifra clave and Jugada conventions live in lib/product-hubs.ts (they
 // predate this module) but count against the same budget, so the matcher
-// list here covers all twenty-three designed devices (the fifteen through
-// the 2026-08-13 audit plus the roadmap eight).
+// list here covers all twenty-four designed devices (the fifteen through
+// the 2026-08-13 audit, the roadmap eight, and `Pirámide`).
 const ALL_DEVICES: Device[] = [
   {
     name: 'cifra',
@@ -2705,6 +2839,11 @@ const EXCLUSIVE_PAIRS: [string, string][] = [
   ['ranking', 'duelo'],
   ['cascada', 'recibo'],
   ['tablero', 'cifra'],
+  // `piramide` ↔ `ranking`: both draw an ordered stack of named rows, and a
+  // story that declares its league system AND ranks those same divisions
+  // has printed the hierarchy twice. The pyramid wins on a structure
+  // story, the ranking on a metric one, and first-declared decides.
+  ['piramide', 'ranking'],
 ];
 
 function exclusiveSiblings(name: string): string[] {

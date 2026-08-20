@@ -1103,6 +1103,38 @@
 .lect-tablero-value{font-family:var(--serif-display);font-size:clamp(22px,3vw,30px);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
 .lect-tablero-note{font-size:11px;color:var(--gray-txt);}
 
+/* Pirámide — a league system drawn as one. Each tier is a centred block
+   whose sides are cut back to meet the tier above it (--pir-inset, computed
+   per row in lib/article-devices.ts), so the stack reads as a silhouette
+   instead of a staircase. The label's horizontal padding is driven off that
+   same inset, which is what keeps text off the bevel at every tier width.
+   The detached tier sits above a deliberately broken connector: two dashes
+   with a gap between them, because the gap IS the story. */
+.lect-pir-stack{display:flex;flex-direction:column;align-items:center;gap:4px;list-style:none;margin:0;padding:0;}
+.lect-pir-tier{
+  box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:11px calc(var(--pir-inset,0%) + 14px) 10px;text-align:center;
+  background:color-mix(in srgb,var(--lect-accent) var(--pir-tint,16%),var(--paper-soft));
+  border:1px solid color-mix(in srgb,var(--lect-ink-accent) 30%,var(--rule));
+  clip-path:polygon(var(--pir-inset,0%) 0,calc(100% - var(--pir-inset,0%)) 0,100% 100%,0 100%);
+}
+.lect-pir-name{font-family:var(--sans);font-weight:800;font-size:clamp(13px,1.7vw,15px);line-height:1.2;color:var(--ink);}
+.lect-pir-note{font-size:11.5px;line-height:1.3;color:var(--gray-txt);}
+.lect-pir-outside{
+  box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:2px;
+  width:72%;margin:0 auto;padding:12px 16px 11px;text-align:center;
+  background:transparent;border:1.5px dashed var(--gray-txt);
+}
+.lect-pir-outside-chip{
+  font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray-txt);margin-bottom:2px;
+}
+/* The severed connector. Two stubs with air between them: one reaching
+   down from the detached tier, one reaching up from the apex, neither
+   arriving. Sized to be legible at a glance — a hairline here loses the
+   only piece of the device that carries the argument visually. */
+.lect-pir-break{display:flex;flex-direction:column;align-items:center;gap:11px;padding:7px 0;}
+.lect-pir-break span{display:block;width:0;height:9px;border-left:2px solid color-mix(in srgb,var(--gray-txt) 70%,transparent);}
 @media(max-width:640px){
   .lect-rank-row{gap:10px;}
   .lect-perfil-card{grid-template-columns:1fr;}
@@ -1112,6 +1144,11 @@
   .lect-cascada-row{grid-template-columns:64px minmax(0,1fr) auto;}
   .lect-esc-row{grid-template-columns:minmax(0,1fr) auto;}
   .lect-esc-word{display:none;}
+  /* Narrow screens drop the silhouette rather than the words: a 54%-wide
+     apex on a phone is a two-word column. Full-width rows, no bevel, the
+     hierarchy carried by the accent ramp and the reading order. */
+  .lect-pir-tier{width:100%!important;padding-inline:14px;clip-path:none;}
+  .lect-pir-outside{width:100%;}
 }
 
 /* ——— The Jugada strip ("Jugada:" authoring convention, round 2): the
