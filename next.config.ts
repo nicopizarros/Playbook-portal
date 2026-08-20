@@ -54,7 +54,7 @@ const csp = [
   "frame-src 'self' https://www.youtube.com https://www.instagram.com https://fundingchoicesmessages.google.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google",
   "img-src 'self' https: data: blob:",
   "media-src 'self' https:",
-  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' https://va.vercel-scripts.com" : ''} https://www.instagram.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com`,
+  `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' https://va.vercel-scripts.com" : ''} https://www.instagram.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://fundingchoicesmessages.google.com`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
   // GA4's collector fans out across FOUR hosts, and a wildcard entry does
@@ -86,6 +86,13 @@ const csp = [
   // frame-src for ad rendering, so allowing the matching XHRs grants no new
   // origin any capability it did not already have.
   //   ep1/ep2.adtrafficquality.google  sodar config + its beacons
+  //
+  // sodar spans THREE directives, not one. Unblocking connect-src let
+  // getconfig/sodar succeed (200), and that success is what finally revealed
+  // the next step: ep2 serves sodar2.js, which is a SCRIPT load and was
+  // refused by script-src. Each fix in this chain is what exposes the
+  // following link, so "no violations in the console" only means the
+  // pipeline got as far as the current block -- not that it completed.
   //   googleads.g.doubleclick.net      ad requests (was frame-src only)
   //   tpc.googlesyndication.com        sodar frame host (was frame-src only)
   "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://fundingchoicesmessages.google.com",
