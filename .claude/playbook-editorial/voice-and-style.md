@@ -323,36 +323,6 @@ house style — see `format-tiers.md` for the exact strings and what the rendere
 does with each shape. Never restyle it to "Nuestra opinión" or "El análisis de
 Playbook".
 
-### When the filing brags and the number doesn't back it
-
-(Publisher, 2026-08-20, on the Enhanced Games' first quarterly results.) A
-company's own release is written to survive being read by people who will not
-check it, and the tell is almost always **in the same document**: the Enhanced
-Games' Q2 statement said the event "engaged one billion people globally" and,
-two lines later, that it drew 4 million live views, a figure the company itself
-compared to a regular-season NBA game. Put those two next to each other and the
-piece has its read; take the first at face value and the piece is a press
-release with a Playbook byline.
-
-So on any story about a challenger property, read the **result** before the
-pitch. Two questions do most of the work: did the audience actually show up at
-the scale being claimed, and did the thing the property exists to prove
-actually happen? The Enhanced Games failed both in one weekend, clean athletes
-finishing above much of the enhanced field, which is the comparison the whole
-format was built to win.
-
-The register stays a business brief, not a takedown: state the two figures, say
-which one is load-bearing, and let the gap do the arguing. What earns the
-sharper close is that the audience read is a genuine finding and not a
-preference. Fans do not turn up for a record on its own; they turn up for clean
-competition in sports they already follow, and a property betting against that
-is betting against its own distribution. Where that holds, say plainly what it
-means for the property's ceiling ("no le va a disputar nada al calendario
-olímpico en el corto plazo") rather than hedging it into nothing. That is an
-interpretation, evidence level 03, and it belongs in the Opinión where it is
-marked as Playbook's read, never smuggled into the fact movements as though the
-company had conceded it.
-
 ### On a running political story, read the alignment — don't keep score
 
 (Publisher feedback, 2026-08-10, on a FIFA-governance follow-up.) The tempting
