@@ -57,6 +57,24 @@ several unrelated links in one run, draft each as its own separate
 article). Confirm the publish date and the core facts (who, what, the key
 numbers) directly from the page, don't guess or carry over stale context.
 
+**When WebFetch is blocked on the primary link** (NYT/The Athletic and
+similar paywalled domains reliably return "unable to fetch"), don't just
+fall back silently to cross-referenced secondary coverage and note the
+gap in the draft's transparency line, that's the right move for Steps 2-7,
+but it skips a cheaper fix first: ask the human in this session whether
+they can paste the article text. A subscriber often has direct access to
+exactly the primary source this skill can't reach, and a run on 2026-08-20
+(the FIFA U15 piece) showed why it matters, the secondary-sourced first
+draft got the broad strokes right but missed load-bearing details only
+the primary had (that FIFA never told its own Council about the
+investment talks, Infantino's own December quote to contrast against it,
+Boehly's full title). The human volunteered the text unprompted after
+already seeing that draft, which means asking for it before drafting, not
+after, would have produced a stronger piece on the first pass and saved a
+full revision round. Ask once, right after a paywall block, before moving
+to Step 2's fallback sourcing, not as an afterthought once a gap surfaces
+later.
+
 If the story reads as one step in something already in motion (a vote on a
 proposal, a decision that follows an earlier announcement, an update to a
 running dispute), check whether Playbook already published on the earlier
@@ -289,26 +307,20 @@ Importancia scale. Differences from that skill:
 
 - **author**: leave `""` unless a byline is genuinely known, same as
   `publish-newsletter`.
-- **publication** / **source**: `"Noticias"` / `"noticias"`. A third-party
-  pickup files under the Noticias product: it reads as a news brief, not as a
-  Playbook-branded opinion piece, and the pair is what selects the "Noticias"
-  kicker (`app/(public)/articulo/page.tsx`'s `article-kicker`), the `tag-mini`
-  chip on every card (`components/article/NewsRow.tsx` and friends), the
-  Opinión callout's product mark, and the taxonomy-row ordering
-  (`lib/taxonomy.ts`'s `topicsForSection`). There is no separate "wire story"
-  entry in `KNOWN_SOURCES`/`SOURCE_LABELS` (`lib/constants.ts`), and there does
-  not need to be.
-
-  **Never write `"industry-shots"`** (stale-doc fix, 2026-08-20, caught mid-run
-  when this file still said to). That key was retired on 2026-08-14 in code, CSS
-  and the CMS; `normalizeSource()` (`lib/constants.ts`) only maps *legacy* rows,
-  so a new row written with it is a filing mistake the migration was never meant
-  to cover. **`references/fields-and-taxonomy.md` is the authority on this
-  field, and on every field**: when a `SKILL.md` bullet and the shared reference
-  disagree, the shared tree wins and the bullet is what needs fixing. That is
-  the whole reason `_GOVERNANCE.md` forbids a skill-local copy of a shared
-  rule, and a stale restatement inside a SKILL.md is the same failure wearing a
-  different shape.
+- **publication** / **source**: `"Noticias"` / `"industry-shots"`. This
+  reuses Industry Shots' pair rather than `publish-newsletter`'s "anything
+  else" fallback (`"Playbook"` / `"playbook"`): a third-party wire pickup
+  reads as a news brief, not as a Playbook-branded opinion piece, and the
+  `"Playbook"` kicker/tag (`app/(public)/articulo/page.tsx`'s
+  `article-kicker`, and the `tag-mini` chip on every card,
+  `components/article/NewsRow.tsx` and friends) should say "Noticias" on
+  these the same way it does on an Industry Shots item, both visually
+  (`styles/components.css`'s `.tag-mini.industry-shots` color) and in the
+  taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
+  `topicsForSection`). There's no separate "wire story" entry in
+  `KNOWN_SOURCES`/`SOURCE_LABELS` (`lib/constants.ts`) to reach for
+  instead, reusing `industry-shots` is the pragmatic way to get the
+  "Noticias" label without adding a new taxonomy value for this.
 - **substackUrl**: always `""`, leave it empty. `app/(public)/articulo/page.tsx`
   renders a "Ver en Substack" button whenever this field is non-empty,
   pointing wherever it's set. That label is wrong for a third-party link,
