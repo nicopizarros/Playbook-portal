@@ -210,6 +210,18 @@ existing `featured = true` rows** so you know what you're competing with. It's
 fine to have several `priority: 5` rows live; just don't blindly stack
 `featured: true` on top of an unrelated existing one without checking.
 
+**But `featured` is not the editorial decision, and a publish run should not
+reason about it** (publisher, 2026-08-20). `priority` is the call the newsroom
+makes; which story leads the portal is computed. `lib/rank.ts` scores every
+article as `priority × dayWeight − daysSince`, picks the hero from that score,
+and treats `featured` as a **decaying boost** on top of it, full strength for
+about a day, not a gate and not an override. So the way to make a story lead is
+to file it at the priority it actually deserves and let the ranking place it.
+Deliberating over `featured` in a run report is a sign the priority call was the
+one being avoided. Leave it `false` by default in both funnels; a human sets it
+when they want to weight today's placement, and the Breaking News override above
+is the one case a run sets it on its own.
+
 ---
 
 ## Dates
