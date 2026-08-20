@@ -272,12 +272,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="va-init" strategy="beforeInteractive">
           {VA_INIT_SCRIPT}
         </Script>
+        {/* A RAW <script>, deliberately NOT next/script -- and this one is
+            load-bearing for a reason that only shows up outside the browser.
+            next/script's afterInteractive injects the tag client-side after
+            hydration, so the SERVED HTML carried only a <link rel="preload">
+            and no <script> at all. AdSense's site-verification crawler reads
+            the raw HTML and does not execute JavaScript, so it never found
+            the snippet and verification failed with "No se pudo verificar tu
+            sitio" (2026-08-19) even though the tag was demonstrably present
+            in the live DOM and the script was loading fine for real readers.
+            Rendered as real markup it appears in the initial response, which
+            is the only place the verifier looks.
+
+            `async` keeps the original requirement intact: it does not block
+            parsing or render. React 19 hoists <script async src> into <head>
+            and dedupes by src, so this stays exactly one tag per document
+            even though the layout renders on every route. */}
         {adSenseClientId && (
-          <Script
-            id="adsbygoogle-loader"
+          <script
+            async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseClientId}`}
             crossOrigin="anonymous"
-            strategy="afterInteractive"
           />
         )}
         {/* Official @vercel/analytics package, site-wide — replaces legacy's
