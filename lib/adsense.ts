@@ -17,6 +17,49 @@ export type AdSenseConfig = {
   slots: Partial<Record<AdSlotName, string>>;
 };
 
+// How each unit must be MARKED UP, which is not a styling choice -- it is
+// dictated by the unit type chosen in the AdSense dashboard, and getting it
+// wrong renders a blank box rather than an error:
+//
+//   'display'    the ordinary responsive display unit
+//                -> data-ad-format="auto" + data-full-width-responsive
+//   'in-article' AdSense's native in-article unit
+//                -> data-ad-format="fluid" + data-ad-layout="in-article"
+//
+// inline-article was created as a genuine in-article unit (2026-08-19), so
+// it needs the fluid pair; feeding it the display attributes silently
+// produces nothing. The rest are display units.
+export type AdSlotFormat = 'display' | 'in-article';
+
+export const SLOT_FORMATS: Record<AdSlotName, AdSlotFormat> = {
+  'leaderboard-home': 'display',
+  'inline-feed': 'display',
+  'rail-home': 'display',
+  'inline-mid-editorial': 'display',
+  'inline-article': 'in-article',
+  'vertical-sponsor-infinitas': 'display',
+};
+
+// Real ad unit IDs, created in the AdSense dashboard 2026-08-19. Defaults
+// for the same reason DEFAULT_CLIENT_ID is one: they are not secret (every
+// one is visible in the rendered HTML of any page showing that unit), and
+// keeping them here means the units go live on deploy rather than waiting on
+// six Vercel env vars being set correctly across three environments.
+//
+// The ADSENSE_SLOT_* env vars still override per slot, so pulling a single
+// unit or pointing it at a replacement stays a config change.
+//
+// Two slots are deliberately absent -- rail-home and
+// vertical-sponsor-infinitas have no unit created yet. They stay collapsed
+// and render nothing, which is the designed behaviour for an unconfigured
+// slot, not a bug.
+const DEFAULT_SLOT_IDS: Partial<Record<AdSlotName, string>> = {
+  'leaderboard-home': '6390337427',
+  'inline-feed': '9159970997',
+  'inline-article': '5488319292',
+  'inline-mid-editorial': '7406392857',
+};
+
 // The account's publisher ID, confirmed by the publisher 2026-08-19. Kept as
 // a DEFAULT rather than requiring the env var, because three separate things
 // need it before any ad unit exists -- the loader script in app/layout.tsx,
@@ -37,12 +80,16 @@ export function getAdSenseConfig(): AdSenseConfig {
   return {
     clientId: process.env.ADSENSE_CLIENT_ID || DEFAULT_CLIENT_ID,
     slots: {
-      'leaderboard-home': process.env.ADSENSE_SLOT_LEADERBOARD_HOME,
-      'inline-feed': process.env.ADSENSE_SLOT_INLINE_FEED,
-      'rail-home': process.env.ADSENSE_SLOT_RAIL_HOME,
-      'inline-mid-editorial': process.env.ADSENSE_SLOT_INLINE_MID_EDITORIAL,
-      'inline-article': process.env.ADSENSE_SLOT_INLINE_ARTICLE,
-      'vertical-sponsor-infinitas': process.env.ADSENSE_SLOT_VERTICAL_SPONSOR_INFINITAS,
+      ...DEFAULT_SLOT_IDS,
+      // Env wins where set; `|| undefined` so an empty string (a var that
+      // exists in Vercel but was left blank) falls through to the default
+      // instead of blanking the slot.
+      'leaderboard-home': process.env.ADSENSE_SLOT_LEADERBOARD_HOME || DEFAULT_SLOT_IDS['leaderboard-home'],
+      'inline-feed': process.env.ADSENSE_SLOT_INLINE_FEED || DEFAULT_SLOT_IDS['inline-feed'],
+      'rail-home': process.env.ADSENSE_SLOT_RAIL_HOME || DEFAULT_SLOT_IDS['rail-home'],
+      'inline-mid-editorial': process.env.ADSENSE_SLOT_INLINE_MID_EDITORIAL || DEFAULT_SLOT_IDS['inline-mid-editorial'],
+      'inline-article': process.env.ADSENSE_SLOT_INLINE_ARTICLE || DEFAULT_SLOT_IDS['inline-article'],
+      'vertical-sponsor-infinitas': process.env.ADSENSE_SLOT_VERTICAL_SPONSOR_INFINITAS || DEFAULT_SLOT_IDS['vertical-sponsor-infinitas'],
     },
   };
 }

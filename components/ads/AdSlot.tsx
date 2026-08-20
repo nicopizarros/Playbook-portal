@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { readConsent, CONSENT_EVENT } from '@/lib/consent';
 import { useAdSenseConfig } from './AdSenseProvider';
+import { SLOT_FORMATS } from '@/lib/adsense';
 
 // Changed 2026-07-30: this used to always render a visible dashed
 // placeholder box (user request, 2026-07-22: "while we connect it to the
@@ -60,16 +61,37 @@ export function AdSlot({ slot }: { slot: AdSlotName }) {
 
   if (!canServe) return null;
 
+  // The <ins> attributes are dictated by the unit type created in AdSense,
+  // not by taste -- an in-article unit given the display attributes renders
+  // an empty box with no error anywhere. See SLOT_FORMATS in lib/adsense.ts.
+  //
+  // The style objects match Google's own snippets exactly. The previous
+  // `width:100%; height:100%` was ours, not Google's, and forcing a height
+  // on a unit whose whole job is to size itself is the documented way to get
+  // a collapsed or mis-measured ad.
+  const format = SLOT_FORMATS[slot];
+
   return (
     <div className={`ad-slot ad-slot--${slot}`} data-ad-slot={slot} data-ad-consent="granted">
-      <ins
-        className="adsbygoogle"
-        style={{ display: 'block', width: '100%', height: '100%' }}
-        data-ad-client={clientId}
-        data-ad-slot={adUnitId}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
+      {format === 'in-article' ? (
+        <ins
+          className="adsbygoogle"
+          style={{ display: 'block', textAlign: 'center' }}
+          data-ad-layout="in-article"
+          data-ad-format="fluid"
+          data-ad-client={clientId}
+          data-ad-slot={adUnitId}
+        />
+      ) : (
+        <ins
+          className="adsbygoogle"
+          style={{ display: 'block' }}
+          data-ad-client={clientId}
+          data-ad-slot={adUnitId}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      )}
     </div>
   );
 }
