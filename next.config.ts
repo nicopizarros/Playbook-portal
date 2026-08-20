@@ -51,7 +51,7 @@ const csp = [
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'self'",
-  "frame-src 'self' https://www.youtube.com https://www.instagram.com https://fundingchoicesmessages.google.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
+  "frame-src 'self' https://www.youtube.com https://www.instagram.com https://fundingchoicesmessages.google.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google",
   "img-src 'self' https: data: blob:",
   "media-src 'self' https:",
   `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' https://va.vercel-scripts.com" : ''} https://www.instagram.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com`,
@@ -74,7 +74,21 @@ const csp = [
   //   *.analytics.google.com     regional variants of that host
   //   www.google.com             /g/collect when Google Signals is on
   //   stats.g.doubleclick.net    the Signals/ads-integration collector
-  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://pagead2.googlesyndication.com https://fundingchoicesmessages.google.com",
+  //
+  // AdSense's invalid-traffic pipeline ("sodar") needs its own entries, added
+  // 2026-08-19 after ep1.adtrafficquality.google/getconfig/sodar was seen
+  // blocked on the live site. Only ep1 was observable, because the block hit
+  // the FIRST call in the chain -- getconfig -- so everything sodar would
+  // have contacted afterwards never ran. Fixing only the host you can see
+  // just moves the failure one step down, which is exactly what happened
+  // with the GA4 collectors above. The rest of the pipeline is listed here
+  // deliberately, not speculatively: all of it is already trusted in
+  // frame-src for ad rendering, so allowing the matching XHRs grants no new
+  // origin any capability it did not already have.
+  //   ep1/ep2.adtrafficquality.google  sodar config + its beacons
+  //   googleads.g.doubleclick.net      ad requests (was frame-src only)
+  //   tpc.googlesyndication.com        sodar frame host (was frame-src only)
+  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://fundingchoicesmessages.google.com",
 ]
   .join('; ')
   .replace(/\s+/g, ' ')
