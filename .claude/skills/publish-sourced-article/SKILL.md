@@ -217,41 +217,60 @@ there, not reach for a region to make it feel locally relevant. If the
 piece has no Mexico/LATAM fact to point to, the Opinión's job is to nail
 the global read, not manufacture a local one.
 
-### Material gráfico (optional, use only when it genuinely helps)
+### Material gráfico: the dynamic element library
 
-Two plain-text paragraph conventions that the article page's
-reading-enhancement layer (observed `lect-*` classes) detects and renders
-as real graphics on at least some published pieces: `Cifra clave: <valor>
-— <descripción corta>` (one pulled-out stat) and `Cronología: <hito> —
-<evento> · <hito> — <evento> · ...`, middle dot `·` between entries (a
-timeline of dated beats). Both use a literal em dash ("—") between the
-label/date and its description, the one deliberate carve-out from the
-no-em-dash rule below. Confirmed working, live, on
-`cinco-clubes-de-la-liga-de-expansion-vuelven-al-tas-contra-la-eliminacion-del-ascenso-y-descenso`
-(a 4-entry Cronología) and, briefly, on an earlier draft of the Flag
-Football piece below (a Cifra clave, and separately a 2-entry Cronología
-on the LaLiga piece, both later removed at the human reviewer's request
-for being forced rather than for a rendering problem).
+**Corrected 2026-08-21** (previously described only 2 of these as an
+"unverified convention" — read `references/dynamic-element-library.md` for
+the real, current spec; do not trust the summary below if the two ever
+disagree, the reference file is the source of truth). This is NOT a
+best-effort text pattern living outside the repo: it is a real, implemented
+parser/renderer (`lib/article-devices.ts`, `lib/product-hubs.ts` for
+`Cifra clave`/`Jugada`, `lib/article-map.ts` for `Mapa`), confirmed by
+reading the code directly, not by grepping for a guessed class name (the
+old `lect-tl`/`lect-pullfig` grep in this file's prior version was
+searching for strings that were never the actual ones; the real classes are
+`lect-timeline`, `lect-jugada`, `lect-lineup`, `lect-device`, etc.).
 
-**This isn't verified against source**: `grep -rn "lect-tl\|lect-pullfig"`
-across this entire repo, including build output, turns up nothing, so
-whatever renders these into styled graphics on the live site lives outside
-what this session can see or edit, not in `app/` or `components/` here.
-Treat the two patterns above as an observed convention, not a guaranteed
-contract: a 5-entry Cronología tried on the Flag Football piece
-(2026-08-13) rendered as plain unstyled text instead of a timeline, for a
-reason this skill couldn't diagnose from the checked-out source. After
-publishing a piece that uses either pattern, spot-check the live article
-page for the actual graphic (a stat card / timeline visual), not just that
-the raw text is present. If it didn't render, don't leave broken-looking
-plain text in an "optional graphic" shape sitting in the body, either
-retry with a smaller/simpler version (fewer entries is safer than more)
-or drop it and let the fact live in ordinary prose instead, exactly like
-any other piece of information.
+**Twenty-three devices**, picked by story shape (a saga → `Cronología`, a
+pairing → `Jugada`, an enumeration of actors → `Alineación`, one number →
+`Cifra clave`, two institutions compared → `Duelo`, and eighteen more).
+Every one is a plain paragraph on its own line in `bodyMarkdown`, no HTML:
+items separated by ` · `, key/value by ` — ` (the one deliberate em-dash
+carve-out from the no-em-dash rule below). A malformed declaration fails
+loud, rendering as plain visible text rather than breaking silently, so a
+syntax slip is always visible to a reviewer, never hidden.
 
-Never fabricate a graphic just to have one, a story with no natural stat
-or multi-beat timeline gets neither, that's what "optional" means. At most
-one of each per article.
+**The budget is real and enforced in code**, not a style suggestion:
+`deviceBudgetFor(readingTime, priority)` gives 1 device at `readingTime` ≤2,
+2 at 3-5, 3 at 6+, **plus one more whenever `priority: 5`**. Walk the full
+twenty-three-device list against the story before concluding it gets none,
+"no device fits" is the rare outcome, not the default, especially on a
+`priority: 5` piece which should carry the richest structure the format
+allows. Two pairs are mutually exclusive (`Venta`/`Jugada`,
+`Cadena`/`Cronología`, plus four more in `references/dynamic-element-library.md`
+§1) and the renderer enforces that too. Never repeat a device type in one
+article, and place each device immediately after the paragraph whose
+numbers it visualizes, with roughly two prose paragraphs between devices
+when the piece's length allows it (that spacing rule is authorial, not
+code-enforced, so a short brief packing two devices near the top is a
+reasonable trade-off, not a violation, when placement accuracy and spacing
+pull in different directions).
+
+**Every number inside a device must appear in, or be directly computable
+from, the verified reporting.** Never invent a milestone, a split or a
+figure just to manufacture a fit, that discipline stays strict even as the
+device count goes up.
+
+After publishing a piece that uses any device, spot-check the live article
+page for the actual rendered markup (`curl` the page and grep for
+`lect-jugada`, `lect-lineup`, `lect-timeline`, etc., matching the device
+used, not just that the raw declaration text is present in the body). If a
+declaration didn't render, it likely tripped one of the per-device limits in
+`references/dynamic-element-library.md` (a length cap, an item-count bound,
+an arithmetic check), re-read the declaration character by character against
+that device's spec rather than guessing, and either fix it or drop it to
+plain prose. Never fabricate a graphic just to have one, and never leave a
+broken-looking plain-text declaration sitting in the body.
 
 ### Style rules
 
