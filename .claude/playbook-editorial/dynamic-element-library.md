@@ -803,13 +803,46 @@ holdout, the one that's missing), group 3 is a mid tint. So "everyone except X"
 is written as `Grupo — resto · X — MEX` and X reads as the hole in the map,
 which is exactly the shape a "who signed and who didn't" story has.
 
-**A fourth group** (2026-08-15) takes the accent fill AND the heavy outline.
-At four groups the ramp stops being an order and becomes two variables: the
-**fill** says which side a country is on, the **outline** says it spoke in its
-own name instead of inheriting its bloc's position. Groups 1 and 3 are the two
-silent masses, group 2 is whoever broke away from group 1's side, group 4 is
-whoever said it out loud on that side. Declare them in that order and the map
-explains itself without a sentence of setup.
+**A fourth group** (2026-08-15) takes the accent side. At four groups the ramp
+stops being an order and becomes two variables: the **fill hue** says which
+side a country is on, a second visual channel says it spoke in its own name
+instead of inheriting its bloc's position. Groups 1 and 3 are the two silent
+masses, group 2 is whoever broke away from group 1's side, group 4 is whoever
+said it out loud on that side. Declare them in that order and the map explains
+itself without a sentence of setup.
+
+**Standing rule (2026-08-23, publisher design review citing Axios's and
+Datawrapper's categorical-choropleth conventions as the bar): "declared in its
+own name" is a fill PATTERN, never a border weight, and it is never a reason
+to add a new colour.** Two things went wrong on the way to this rule, in the
+same session:
+
+1. Group 4 originally reused group 1's exact fill, differing only by a 2px
+   stroke (bumped to 3px in a same-day first attempt at a fix, still an
+   outline). Both failed for the same reason: at map scale, and especially on
+   the 5.5px dots small territories fall back to, a stroke weight is not a
+   channel a reader can decode against a map that already has borders
+   everywhere — every country meets a neighbour on one. A weight comparison
+   asks the reader to consciously measure; it should not need measuring.
+2. The fix that landed instead follows the Datawrapper pattern-overlay
+   convention: keep group 4's fill the SAME solid hue as group 1 (so the
+   colour identity a reader already learned still reads at a glance, and no
+   new colour enters the key), and add a **diagonal hatch** on top of that
+   fill for "declared individually." Solid vs hatched is a texture change, a
+   reader clocks it before consciously parsing anything, where a stroke
+   weight needs side-by-side comparison to register at all. No stroke
+   override either: group 4 takes the same hairline separator every other
+   shape on the map gets.
+
+Implementation needs real markup, not a CSS rule alone — an SVG fill pattern
+is a `<pattern>` element the shape's `fill` references by `url(#id)`, so the
+hatch is defined once in `lib/article-map.ts`'s emitted `<defs>`
+(`lect-map-hatch-accent`, reading the product's own `--lect-accent` for its
+background and a theme-adaptive line colour) and applied in
+`styles/lectura.css`. **Apply this same pattern-not-outline treatment to every
+"declared in its own name" group in every map palette, present and future** —
+see `bandos` below for the two-hue version of the identical fix, plus the
+fuller rationale.
 
 **Group 1 takes the product accent, so put the side the accent should mean
 there.** On a Noticias article that accent is Playbook's green, and a reader
@@ -839,17 +872,66 @@ every published map keeps the ramp it shipped with. Its slot order is fixed:
 
 | Slot | Treatment | Means |
 |---|---|---|
-| 1 | green | camp A, position inherited from its bloc |
-| 2 | green + heavy outline | camp A, **said it in its own name** |
-| 3 | blue | camp B, inherited |
-| 4 | blue + heavy outline | camp B, **said it in its own name** |
-| 5 | flat neutral | has not taken a position |
+| 1 | solid green | camp A, position inherited from its bloc |
+| 2 | green, diagonally hatched | camp A, **said it in its own name** |
+| 3 | solid blue | camp B, inherited |
+| 4 | blue, diagonally hatched | camp B, **said it in its own name** |
+| 5 | flat mid-grey | has not taken a position |
 
-Two variables, not five arbitrary colours: **hue says which side, the outline
-says the country spoke for itself.** A reader learns it once. Both hues are
-theme-adaptive tokens, so the contrast holds in dark mode. Use it for an
-election, a vote, a split that will run for months; keep the default ramp for
-a one-sided "everyone except X".
+**Three colours doing real work, not five.** Hue says which side (green /
+blue / grey), texture says whether the country spoke for itself (solid vs.
+hatched). A reader learns it once, and unlike an outline it reads before the
+legend is even glanced at. Both side hues are theme-adaptive tokens, so the
+contrast holds in dark mode. Use `bandos` for an election, a vote, a split
+that will run for months; keep the default ramp for a one-sided "everyone
+except X".
+
+**2026-08-23, two publisher design reviews, same day, second one superseding
+the first.** The palette shipped in two different fixes before it settled:
+
+- **First pass (superseded, kept here only so nobody re-invents it):** slots
+  2 and 4 originally shared their side's exact solid fill with only a 2px
+  outline telling them apart from slots 1 and 3 — "confuso" and "poco
+  profesional" in review, because a stroke too thin to read at map scale
+  (especially on the 5.5px dots small territories render as) meant the
+  countries this palette exists to spotlight vanished into their bloc's
+  mass. The first fix tried a lighter same-hue TINT plus a heavier 3px
+  outline. That was a real improvement and shipped briefly, but a second,
+  more thorough design review (citing Axios's and Datawrapper's own
+  categorical-map conventions explicitly) went further.
+- **Current design, replacing the tint entirely:** slots 2 and 4 keep their
+  side's exact SOLID hue, unchanged from slots 1 and 3, and add a **diagonal
+  hatch pattern** on top (Datawrapper's own documented technique for a
+  second variable on a choropleth — "a pattern for a second condition
+  without losing the meaning of the primary colour"). This is a stronger
+  fix than the tint for two reasons: the colour identity a reader already
+  learned from the solid slot never changes (a tint is technically a fourth
+  and fifth colour, however closely related, and every added colour is
+  something to memorise), and solid-vs-hatched is read as a **texture
+  change**, which a reader clocks pre-attentively, where even a strong tint
+  is still a shade comparison. No stroke override anywhere in this palette
+  now — every slot, hatched or not, takes the same hairline separator every
+  other shape on the map gets, which is also what let the panel itself drop
+  from a warm beige card (`--paper-soft`) to the page's own near-white /
+  near-black (`--paper`): once colour and texture carry all the contrast,
+  the frame around the map doesn't need to work for it too.
+- **A third change landed in the same review, not a slot but worth noting:**
+  slot 5's neutral used to be `color-mix(in srgb, var(--ink) 22%,
+  var(--paper))`, which reads fine in the light theme but, because `--ink`
+  itself flips light in the dark theme, collapses toward the (now darker)
+  background instead of away from it — a country coloured "undecided" was
+  nearly invisible in dark mode. Moved to `color-mix(in srgb, var(--gray-txt)
+  55%, var(--paper))` instead: `--gray-txt` is a genuine mid-tone in BOTH
+  themes rather than a small step from one theme's own extreme, so the
+  neutral now reads as its own colour in the dark theme too, not a
+  near-match for the panel it sits on.
+
+**Do not ship a map palette, this one or a new one, where an outline or a
+tint is the only thing separating two otherwise-identical fills, and do not
+add a colour to distinguish "declared individually" from its bloc.** Every
+such slot gets the SAME hue as its bloc, hatched, full stop — that is now the
+one and only sanctioned treatment, superseding both the outline and the tint
+approaches this palette shipped with earlier the same day.
 
 Use it when the story's unit is **countries** and their split is the argument:
 signatories vs holdouts, hosts vs bidders, the markets a rights deal covers,

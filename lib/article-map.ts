@@ -52,16 +52,25 @@
 // The groups render in a fixed visual order that encodes the most common
 // shape of these stories: the FIRST group is the filled mass, the SECOND
 // is hollow with a heavy outline (the exception, the holdout, the one that
-// is missing), the third is a mid tint. So "everyone except X" is written
-// as `Grupo — resto · X — MEX`, and X reads as the hole in the map.
+// is missing — it NEEDS that outline, its fill is transparent and would
+// vanish into the background without one), the third is a mid tint. So
+// "everyone except X" is written as `Grupo — resto · X — MEX`, and X reads
+// as the hole in the map.
 //
-// A FOURTH group (2026-08-15) takes the accent fill AND the heavy
-// outline. At four groups the ramp reads as two variables rather than an
-// order: the fill says which side, the outline says the country spoke in
-// its own name instead of inheriting its bloc's position. So g1 and g3
-// are the two silent masses, g2 is whoever broke away from their own
-// side, and g4 is whoever said it out loud on the same side. Declare
-// them in that order and the map explains itself.
+// A FOURTH group (2026-08-15) takes the accent side. At four groups the
+// ramp reads as two variables rather than an order: the fill hue says
+// which side, group 4's TEXTURE says the country spoke in its own name
+// instead of inheriting its bloc's position. So g1 and g3 are the two
+// silent masses, g2 is whoever broke away from their own side, and g4 is
+// whoever said it out loud on the same side. Declare them in that order
+// and the map explains itself.
+//
+// g4's texture (2026-08-23, was a heavy black outline over g1's own fill
+// until a design review): a diagonal hatch of the SAME hue, not a border.
+// A reader has to decode a stroke weight against every other border on the
+// map; a solid-vs-hatched fill reads before the legend is even glanced at.
+// See the `bandos` palette below, which carries the identical fix for its
+// two hatch-eligible groups and is the fuller writeup of why.
 //
 // Countries too small to draw at this scale (half of Concacaf is Caribbean
 // islands) are dots rather than shapes — see the build script's comment.
@@ -404,11 +413,38 @@ export function buildMap(map: ArticleMap): string | null {
 
   const described = map.groups.map(group => `${group.label}: ${group.codes.length}`).join('. ');
 
+  // Diagonal-hatch defs (2026-08-23, publisher directive after a design
+  // review of the bandos map): "declared in its own name" used to be a
+  // heavy black outline over the SAME fill as its bloc, which read as
+  // noise rather than signal at map scale. A reader shouldn't have to
+  // decode a border weight; the Axios/Datawrapper convention this follows
+  // instead is a solid colour for the bloc and that SAME colour hatched
+  // (a pattern overlay) for whoever declared individually, so the base hue
+  // still says "which side" at a glance and the texture is the only thing
+  // that changes. Three patterns, one per hatch-eligible fill: the bandos
+  // green side, the bandos blue side, and the single-hue default ramp's
+  // own accent (whichever product's --lect-accent is active). Emitted
+  // unconditionally, they cost nothing when a given map's groups never
+  // reference them (an unused <pattern> in <defs> draws nothing).
+  const hatchDefs =
+    `<defs>` +
+    `<pattern id="lect-map-hatch-a" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">` +
+    `<rect width="7" height="7" class="lect-map-hatch-bg-a"/><line x1="0" y1="0" x2="0" y2="7" class="lect-map-hatch-line-a"/>` +
+    `</pattern>` +
+    `<pattern id="lect-map-hatch-b" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">` +
+    `<rect width="7" height="7" class="lect-map-hatch-bg-b"/><line x1="0" y1="0" x2="0" y2="7" class="lect-map-hatch-line-b"/>` +
+    `</pattern>` +
+    `<pattern id="lect-map-hatch-accent" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">` +
+    `<rect width="7" height="7" class="lect-map-hatch-bg-accent"/><line x1="0" y1="0" x2="0" y2="7" class="lect-map-hatch-line-accent"/>` +
+    `</pattern>` +
+    `</defs>`;
+
   return (
     `<figure class="lect-device lect-map reveal"${map.palette === 'default' ? '' : ` data-palette="${esc(map.palette)}"`} role="group" aria-label="Mapa. ${esc(described)}">` +
     `<span class="lect-device-label">El mapa</span>` +
     `<svg class="lect-map-svg" viewBox="0 0 ${VIEW_W} ${height.toFixed(0)}" role="img" ` +
     `aria-label="${esc(described)}" preserveAspectRatio="xMidYMid meet">` +
+    hatchDefs +
     `<g class="lect-map-shapes">${shapes.join('')}</g>` +
     // data-lect-stagger (2026-08-13): the city-state dots pop in sequence
     // (shared staggerIn primitive; gsap animates SVG children fine). The
