@@ -772,6 +772,28 @@ camps, with a legend that counts each camp for itself.
   country no other group claimed.
 - **One to five groups.**
 - An optional **PALETTE** follows the frame name: `Mapa: mundo bandos`.
+- An optional **HEADLINE and SUBHEAD** follow the frame item, pipe-delimited:
+  `Mapa: mundo bandos | Headline corto | Bajada aún más breve · Grupo1 — ... ·
+  Grupo2 — ...` (2026-08-23, editorial-hierarchy fix below). Both optional and
+  independent of each other; omit the pipes entirely and nothing changes from
+  the syntax above.
+
+**Give the map its own headline and subhead** (2026-08-23, publisher note:
+"la pieza debería poder entenderse incluso si alguien la encuentra aislada del
+resto del artículo"). "El mapa" as a kicker names the device, not what it
+shows — a reader who scrolls past the surrounding prose, or who has the
+figure quoted/shared out of context, had nothing telling them what the colours
+mean. The pipe-delimited syntax adds a short bold headline (what the map
+shows, e.g. "El mapa de la crisis de gobernanza en la FIFA") and a smaller
+muted subhead (the colour/pattern legend in one sentence, e.g. "Verde:
+respaldan a Infantino. Azul: piden su salida. Rayado: postura declarada por su
+cuenta, no por su confederación."), rendered between the "EL MAPA" kicker and
+the SVG. Write the subhead as the one sentence that would let the map stand
+alone: name what each base colour means, and what the hatch pattern means, in
+plain language, not as a restatement of the legend's own labels. Skip both for
+a map that's clearly anchored by the surrounding paragraph already (a small,
+single-camp "everyone except X" map rarely needs its own headline) rather
+than adding one as a reflex on every map.
 
 **A group may name a confederation** (2026-08-15), because that is the unit a
 governance story actually splits on, and spelling one out by hand is 41 to 55
@@ -798,10 +820,34 @@ is still drawn by the `caf`, `áfrica` and `mundo` frames and by any `resto`
 group, which is the only way it has ever come up.
 
 **The visual ramp is fixed and means the same thing on every map:** group 1 is
-the filled mass, group 2 is **hollow with a heavy outline** (the exception, the
-holdout, the one that's missing), group 3 is a mid tint. So "everyone except X"
-is written as `Grupo — resto · X — MEX` and X reads as the hole in the map,
-which is exactly the shape a "who signed and who didn't" story has.
+the filled mass, group 2 is **hollow with an outline** (the exception, the
+holdout, the one that's missing — this is the one outline the map keeps,
+because a transparent fill needs one to draw at all), group 3 is a mid tint.
+So "everyone except X" is written as `Grupo — resto · X — MEX` and X reads as
+the hole in the map, which is exactly the shape a "who signed and who didn't"
+story has.
+
+**Every line on the map is deliberately thin, and the panel has no frame at
+all** (2026-08-23, second same-day publisher review, this one about finish
+rather than logic: "queremos que se vea premium y editorial... cercano a Axios,
+Bloomberg, FT o The Economist"). Concretely, all in `styles/lectura.css`
+unless noted: country borders (`.lect-map-area`) are a .5px hairline in the
+page's own background colour — thin enough to vanish between two countries in
+the same camp, and only readable at all as the gap between different fills;
+small-territory dots (`.lect-map-dot`, `lib/article-map.ts`) dropped from
+radius 5.5 to 4.2 with a .7px stroke, since they were reading with more visual
+weight than full countries next to them, worst in the Caribbean and the
+Baltics/Gulf where several sit close enough to nearly touch; the hollow
+group-2 outline (the one exception above) thinned 2px→1.5px, the one stroke on
+the whole map that still needs to be strong enough to draw on its own; and the
+panel's `--rule` frame is gone outright, not just lightened; since the SVG
+background already equals the page's own `--paper`, a border was the only
+thing making the figure read as a boxed-in card the way a corporate slide
+does, and none of the four reference outlets frame their maps that way. The
+underlying rule for all four: **every stroke on this device should be there
+because removing it would break legibility, never as a decoration** — a
+border that isn't functionally necessary should not exist at this device's
+current design bar.
 
 **A fourth group** (2026-08-15) takes the accent side. At four groups the ramp
 stops being an order and becomes two variables: the **fill hue** says which
@@ -843,6 +889,31 @@ background and a theme-adaptive line colour) and applied in
 "declared in its own name" group in every map palette, present and future** —
 see `bandos` below for the two-hue version of the identical fix, plus the
 fuller rationale.
+
+**The hatch itself got a second, lighter pass the same day as the "no frame,
+thin lines" review above.** Datawrapper's own pattern-overlay guidance, cited
+directly in that review, is to keep an overlay pattern light enough that it
+doesn't fight the base colour — a reader's first impression should still be
+"solid green", with the hatch as confirmation on a second look, not a second
+category competing for attention. Three changes together, all in
+`styles/lectura.css` and the pattern tile in `lib/article-map.ts`: the tile
+widened 7px→10px (more air between lines), the line itself thinned 2px→1.3px
+and gained `stroke-opacity:.65` (softer, never a flat opaque line), and —
+this is the one that mattered most — **the line colour changed from a flat
+ink/paper token to that same colour `color-mix`ed with the fill's own hue**
+(`color-mix(in srgb, var(--lect-accent) 55%, var(--lect-map-hatch) 45%)`,
+`--lect-map-hatch` being just the ink-or-paper "which direction to mix"
+partner). A flat ink line laid over green is an unrelated colour interrupting
+it; a line that's 55% green itself reads as a *shade* of the same green, which
+is what "a variant within the same camp" should look like rather than "a
+different category." Also caught in the same pass: a rule that only sets
+`fill:url(#hatch)` on a group class does NOT stop that group from still
+inheriting `stroke` from a lower-specificity rule elsewhere targeting the same
+class (CSS resolves specificity per property, not per rule) — the bandos
+`.lect-map-g2`/`.lect-map-g4` hatch rules were silently still drawing the old
+heavy ink outline this whole redesign exists to remove, because they never
+reset `stroke` themselves. Any new hatch-fill rule must explicitly set
+`stroke` too, even when the intent is "just inherit the plain hairline."
 
 **Group 1 takes the product accent, so put the side the accent should mean
 there.** On a Noticias article that accent is Playbook's green, and a reader
@@ -932,6 +1003,36 @@ add a colour to distinguish "declared individually" from its bloc.** Every
 such slot gets the SAME hue as its bloc, hatched, full stop — that is now the
 one and only sanctioned treatment, superseding both the outline and the tint
 approaches this palette shipped with earlier the same day.
+
+**A second, same-day review (editorial finish, not logic — see the standing
+"every stroke should be functional, never decorative" note earlier in this
+section) tuned two more things specific to `bandos`:**
+
+- **The hatch line itself got lighter and hue-derived** — same change as the
+  default ramp's group-4 hatch above (wider tile, thinner + lower-opacity
+  line, and critically the line colour now `color-mix`es the SIDE'S OWN hue
+  into the ink/paper partner instead of using that partner flat), applied to
+  both hatch-eligible slots: `color-mix(in srgb, var(--green) 55%,
+  var(--ink-fixed) 45%)` for slot 2, `color-mix(in srgb, var(--src-industry)
+  55%, var(--paper) 45%)` for slot 4. Same CSS-specificity trap caught here
+  too: the bandos hatch rules for slots 2/4 must explicitly reset `stroke` to
+  the plain hairline, or they silently inherit the DEFAULT ramp's `.lect-map-g2`
+  ink outline from a lower-specificity rule targeting the same class name.
+- **The legend splits into two labelled rows instead of one flat run of
+  five keys** (publisher note: "menos sensación de cinco categorías
+  independientes"). `lib/article-map.ts` does this by group-index PARITY, not
+  by inventing new merged labels or counts: every solid slot (index 0, 2, 4 —
+  slots 1/3/5 above) renders under a "POSTURA" kicker, every hatched slot
+  (index 1, 3 — slots 2/4) renders under a "CÓMO LO DECLARAN" kicker, each
+  keeping its own author-written label and exact count untouched. This works
+  because the palette's declaration order is always the same alternation (bloc
+  A, declared A, bloc B, declared B, undecided) regardless of how many of the
+  five slots a given map actually uses, so index parity alone recovers the
+  colour/texture structure without any palette-specific label logic. The
+  default (non-bandos) ramp keeps its original flat single-row legend — it
+  doesn't share this alternating structure (its slot 2 is a hollow exception,
+  not a hatched variant of slot 1), so splitting it the same way would group
+  unrelated things together.
 
 Use it when the story's unit is **countries** and their split is the argument:
 signatories vs holdouts, hosts vs bidders, the markets a rights deal covers,

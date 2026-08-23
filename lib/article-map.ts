@@ -123,7 +123,14 @@ const FRAME_ALIASES: Record<string, string[]> = {
 };
 
 export type MapGroup = { label: string; codes: string[] };
-export type ArticleMap = { frame: string; groups: MapGroup[]; codes: string[]; palette: Palette };
+export type ArticleMap = {
+  frame: string;
+  groups: MapGroup[];
+  codes: string[];
+  palette: Palette;
+  headline: string | null;
+  subhead: string | null;
+};
 
 // ————————————————————————————————————————————————————————— Palettes
 // The default ramp is one hue: the product accent, its tint, and a hollow
@@ -211,7 +218,17 @@ export function parseMap(raw: string): ArticleMap | null {
     .filter(Boolean);
   if (items.length < 2) return null;
 
-  const [frameItem, ...groupItems] = items;
+  const [rawFrameItem, ...groupItems] = items;
+  // Optional headline/subhead (2026-08-23): `frame palette | Headline | Bajada`.
+  // Pipe rather than the item separator (·) so this stays entirely inside
+  // the frame item — every group after it still parses exactly as before,
+  // untouched by whether a headline is present. Both parts are optional and
+  // independent (a headline with no subhead is fine), so an older map with
+  // no `|` at all is unaffected: frameItem === rawFrameItem, headline and
+  // subhead stay null, nothing renders where they would have gone.
+  const [frameItem, rawHeadline, rawSubhead] = rawFrameItem.split('|').map(part => part.trim());
+  const headline = rawHeadline || null;
+  const subhead = rawSubhead || null;
   // The frame item may carry a palette name after the frame: "mundo bandos".
   // Only strip the last word when it actually names a palette, so a
   // multi-word frame ("america del norte") is untouched.
@@ -279,7 +296,7 @@ export function parseMap(raw: string): ArticleMap | null {
   // widening the frame to fit is the friendlier reading, and it is what
   // "auto" does anyway.
   const codes = [...new Set([...framed, ...groups.flatMap(group => group.codes)])];
-  return { frame: isAuto ? 'auto' : frameKey, groups, codes, palette };
+  return { frame: isAuto ? 'auto' : frameKey, groups, codes, palette, headline, subhead };
 }
 
 // ————————————————————————————————————————————————————————— Projection
@@ -391,8 +408,12 @@ export function buildMap(map: ArticleMap): string | null {
       );
     } else {
       const p = project(entry.c);
+      // r=4.2, down from 5.5 (2026-08-23, editorial-polish pass): island
+      // and micro-state dots were reading with more visual weight than
+      // full countries nearby, worst in the Caribbean and the Baltics/Gulf,
+      // where several sit close enough to nearly touch at the old radius.
       dots.push(
-        `<circle class="lect-map-dot ${cls}" cx="${(p.x * scale + offsetX).toFixed(1)}" cy="${(p.y * scale + offsetY).toFixed(1)}" r="5.5">${title}</circle>`,
+        `<circle class="lect-map-dot ${cls}" cx="${(p.x * scale + offsetX).toFixed(1)}" cy="${(p.y * scale + offsetY).toFixed(1)}" r="4.2">${title}</circle>`,
       );
     }
   }
@@ -401,17 +422,56 @@ export function buildMap(map: ArticleMap): string | null {
   // finding ("11 sedes contra 3"), so it gets the same count-up treatment
   // as every other computed figure — data-lect-countup on a plain integer,
   // handled by the shared primitive with zero layout shift.
-  const legend = map.groups
-    .map(
-      (group, index) =>
-        `<span class="lect-map-key lect-map-g${index + 1}">` +
-        `<span class="lect-map-swatch" aria-hidden="true"></span>` +
-        `<span class="lect-map-key-label">${esc(group.label)}</span>` +
-        `<span class="lect-map-key-count" data-lect-countup>${group.codes.length}</span></span>`,
-    )
-    .join('');
+  const keyFor = (group: MapGroup, index: number) =>
+    `<span class="lect-map-key lect-map-g${index + 1}">` +
+    `<span class="lect-map-swatch" aria-hidden="true"></span>` +
+    `<span class="lect-map-key-label">${esc(group.label)}</span>` +
+    `<span class="lect-map-key-count" data-lect-countup>${group.codes.length}</span></span>`;
+
+  // bandos legend (2026-08-23, editorial-polish pass): a flat run of five
+  // keys reads as "five independent categories" when really there are two
+  // questions — which side (colour: g1/g3 solid, g5 grey) and how it got
+  // there (texture: g2/g4 hatched). The palette's own fixed declaration
+  // order (1 bloc A, 2 declared A, 3 bloc B, 4 declared B, 5 undecided,
+  // documented in the module header above) is exactly a colour/texture
+  // alternation, so splitting on group INDEX PARITY — no new data, no
+  // guessed label — recovers that structure: every solid slot (0, 2, 4 —
+  // g1, g3, g5) under "POSTURA", every hatched slot (1, 3 — g2, g4) under
+  // "CÓMO LO DECLARAN". Each group keeps its own author-written label and
+  // exact count; nothing is merged or invented. Holds for any group count
+  // from 2 to 5 since the alternation is positional, not tied to exactly
+  // five groups being present. The default (non-bandos) ramp keeps the
+  // single flat row: it doesn't share this colour/texture structure (g2 is
+  // a hollow exception, not a hatched variant of g1).
+  const legend =
+    map.palette === 'bandos'
+      ? (() => {
+          const postura = map.groups.filter((_, i) => i % 2 === 0);
+          const declaran = map.groups.filter((_, i) => i % 2 === 1);
+          const posturaHtml = map.groups
+            .map((g, i) => (i % 2 === 0 ? keyFor(g, i) : ''))
+            .join('');
+          const declPart = map.groups
+            .map((g, i) => (i % 2 === 1 ? keyFor(g, i) : ''))
+            .join('');
+          return (
+            (postura.length
+              ? `<div class="lect-map-legend-group"><span class="lect-map-legend-kicker">Postura</span><div class="lect-map-legend-row">${posturaHtml}</div></div>`
+              : '') +
+            (declaran.length
+              ? `<div class="lect-map-legend-group"><span class="lect-map-legend-kicker">Cómo lo declaran</span><div class="lect-map-legend-row">${declPart}</div></div>`
+              : '')
+          );
+        })()
+      : map.groups.map(keyFor).join('');
 
   const described = map.groups.map(group => `${group.label}: ${group.codes.length}`).join('. ');
+  const headHtml = map.headline
+    ? `<figcaption class="lect-map-head">${esc(map.headline)}</figcaption>`
+    : '';
+  const subHtml = map.subhead
+    ? `<p class="lect-map-sub">${esc(map.subhead)}</p>`
+    : '';
 
   // Diagonal-hatch defs (2026-08-23, publisher directive after a design
   // review of the bandos map): "declared in its own name" used to be a
@@ -426,22 +486,29 @@ export function buildMap(map: ArticleMap): string | null {
   // own accent (whichever product's --lect-accent is active). Emitted
   // unconditionally, they cost nothing when a given map's groups never
   // reference them (an unused <pattern> in <defs> draws nothing).
+  // Tile widened 7→10 and the line itself thinned/lowered in opacity in
+  // CSS (2026-08-23, editorial-polish pass): a reader's first read should
+  // be the solid colour, the hatch is confirmation on a second look, not a
+  // competing signal — Datawrapper's own pattern-overlay guidance is to
+  // keep the overlay light enough that it doesn't fight the base fill.
   const hatchDefs =
     `<defs>` +
-    `<pattern id="lect-map-hatch-a" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">` +
-    `<rect width="7" height="7" class="lect-map-hatch-bg-a"/><line x1="0" y1="0" x2="0" y2="7" class="lect-map-hatch-line-a"/>` +
+    `<pattern id="lect-map-hatch-a" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">` +
+    `<rect width="10" height="10" class="lect-map-hatch-bg-a"/><line x1="0" y1="0" x2="0" y2="10" class="lect-map-hatch-line-a"/>` +
     `</pattern>` +
-    `<pattern id="lect-map-hatch-b" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">` +
-    `<rect width="7" height="7" class="lect-map-hatch-bg-b"/><line x1="0" y1="0" x2="0" y2="7" class="lect-map-hatch-line-b"/>` +
+    `<pattern id="lect-map-hatch-b" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">` +
+    `<rect width="10" height="10" class="lect-map-hatch-bg-b"/><line x1="0" y1="0" x2="0" y2="10" class="lect-map-hatch-line-b"/>` +
     `</pattern>` +
-    `<pattern id="lect-map-hatch-accent" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">` +
-    `<rect width="7" height="7" class="lect-map-hatch-bg-accent"/><line x1="0" y1="0" x2="0" y2="7" class="lect-map-hatch-line-accent"/>` +
+    `<pattern id="lect-map-hatch-accent" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">` +
+    `<rect width="10" height="10" class="lect-map-hatch-bg-accent"/><line x1="0" y1="0" x2="0" y2="10" class="lect-map-hatch-line-accent"/>` +
     `</pattern>` +
     `</defs>`;
 
   return (
     `<figure class="lect-device lect-map reveal"${map.palette === 'default' ? '' : ` data-palette="${esc(map.palette)}"`} role="group" aria-label="Mapa. ${esc(described)}">` +
     `<span class="lect-device-label">El mapa</span>` +
+    headHtml +
+    subHtml +
     `<svg class="lect-map-svg" viewBox="0 0 ${VIEW_W} ${height.toFixed(0)}" role="img" ` +
     `aria-label="${esc(described)}" preserveAspectRatio="xMidYMid meet">` +
     hatchDefs +
@@ -452,7 +519,7 @@ export function buildMap(map: ArticleMap): string | null {
     // error, markers arriving reads as data.
     `<g class="lect-map-dots" data-lect-stagger>${dots.join('')}</g>` +
     `</svg>` +
-    `<figcaption class="lect-map-legend">${legend}</figcaption>` +
+    `<div class="lect-map-legend">${legend}</div>` +
     `</figure>`
   );
 }
