@@ -395,6 +395,16 @@ export function buildMap(map: ArticleMap): string | null {
     .slice()
     .sort((a, b) => (groupOf.get(a) ?? -1) - (groupOf.get(b) ?? -1));
 
+  // bandos-only: "declared individually" needs to read as an EXCEPTION
+  // inside its bloc, not a fifth category — 2026-08-23, publisher review
+  // after the pattern-only version still read as "a country with a
+  // different texture" rather than "a country that broke from its side."
+  // g2/g4 add the OPPOSITE side's hue as a thin, clearly-visible outline
+  // (navy on a green fill, green on a navy fill) on top of the hatch, so
+  // fill=this country's own stance, outline=the stance its bloc actually
+  // took. See styles/lectura.css for the colours themselves.
+  const HALO_CLASSES = new Set(['lect-map-g2', 'lect-map-g4']);
+
   const shapes: string[] = [];
   const dots: string[] = [];
   for (const code of ordered) {
@@ -402,10 +412,18 @@ export function buildMap(map: ArticleMap): string | null {
     const index = groupOf.get(code);
     const cls = index === undefined ? 'lect-map-base' : `lect-map-g${index + 1}`;
     const title = `<title>${esc(entry.n)}</title>`;
+    const needsHalo = map.palette === 'bandos' && HALO_CLASSES.has(cls);
     if (entry.p) {
-      shapes.push(
-        `<path class="lect-map-area ${cls}" d="${pathFor(entry.p, project, scale, scale, offsetX, offsetY)}">${title}</path>`,
-      );
+      const d = pathFor(entry.p, project, scale, scale, offsetX, offsetY);
+      // A thin paper-coloured "halo" drawn first, wider than the colour
+      // outline that follows, so a sliver of it still shows on the OUTSIDE
+      // of that outline once the real shape's fill covers its inside —
+      // that sliver is the fine white separator the outline needs to stay
+      // legible against a same- or similar-toned neighbour. Same technique
+      // election-result choropleths use to keep a highlighted region's
+      // outline from fusing into whatever sits next to it.
+      if (needsHalo) shapes.push(`<path class="lect-map-halo ${cls}" d="${d}" fill="none"></path>`);
+      shapes.push(`<path class="lect-map-area ${cls}" d="${d}">${title}</path>`);
     } else {
       const p = project(entry.c);
       // r=4.2, down from 5.5 (2026-08-23, editorial-polish pass): island

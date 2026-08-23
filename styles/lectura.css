@@ -240,17 +240,60 @@
    not; against, hatched or not; undecided. The hatch is what tells the
    "declared individually" story now, not a fourth or fifth colour. */
 .lect-map[data-palette="bandos"] .lect-map-g1{fill:var(--green);}
-/* stroke reset to the plain hairline explicitly: without it, the cascade
-   falls through to the non-bandos .lect-map-g2 rule above (fill:var(--paper);
-   stroke:var(--ink)) for any property this selector doesn't itself set —
-   CSS resolves specificity PER PROPERTY, not per rule, so a rule that only
-   overrides `fill` does not stop an unrelated `stroke` from a lower-specificity
-   rule leaking through. Caught in the 2026-08-23 editorial-finish pass: g2/g4
-   were still drawing the old heavy ink outline this whole redesign exists to
-   remove, invisibly reinstated by exactly this gap. */
-.lect-map[data-palette="bandos"] .lect-map-g2{fill:url(#lect-map-hatch-a);stroke:var(--paper);stroke-width:.5;}
+/* 2026-08-23, THIRD same-day review: the hatch-only version of g2/g4 (the
+   pass right above this comment) read as "a country with a different
+   texture," not as an exception breaking from its bloc — the publisher's
+   own framing was that a reader must be able to tell at a glance that this
+   country broke with its confederation, and texture alone was one signal
+   doing a two-signal job. Fixed with genuine double-encoding: the fill
+   stays each country's OWN stance (unchanged, still the pattern-overlay
+   fix from the pass above), and the stroke becomes the OPPOSITE side's hue
+   — a green country outlined in navy, a navy country outlined in green —
+   so the outline literally shows "this is the colour its bloc is," sitting
+   directly against the fill that shows "this is what the country actually
+   did." Two real variables now instead of one: hue=own stance,
+   hatch=declared rather than inherited, outline hue=bloc it broke from.
+   stroke-width 1.7px, inside the 1.5–2px the review asked for: enough to
+   read as intentional, nothing like the old 2–3px heavy outline this
+   redesign spent two prior passes removing. The `stroke` here also still
+   does the specificity-reset job the comment below explains — without it,
+   the cascade falls through to the non-bandos .lect-map-g2 rule above
+   (fill:var(--paper); stroke:var(--ink)) for any property this selector
+   doesn't itself set, since CSS resolves specificity PER PROPERTY, not per
+   rule. */
+.lect-map[data-palette="bandos"] .lect-map-g2{fill:url(#lect-map-hatch-a);stroke:var(--src-industry);stroke-width:1.7;}
 .lect-map[data-palette="bandos"] .lect-map-g3{fill:var(--src-industry);}
-.lect-map[data-palette="bandos"] .lect-map-g4{fill:url(#lect-map-hatch-b);stroke:var(--paper);stroke-width:.5;}
+.lect-map[data-palette="bandos"] .lect-map-g4{fill:url(#lect-map-hatch-b);stroke:var(--green);stroke-width:1.7;}
+/* The halo: a wider paper-coloured stroke on an invisible (fill:none) copy
+   of the SAME path, painted first so the real shape's fill (painted next)
+   covers its inner half — only the outer sliver survives, a ~.8px ring of
+   the page's own background between the country and whatever sits next to
+   it. That sliver is what keeps the colour outline above from fusing into
+   a same-hued neighbour (a green-outlined country touching another navy
+   country, say) instead of reading as its own ring. lib/article-map.ts
+   only emits this halo path for bandos g2/g4; the dots these small
+   territories fall back to skip it (see .lect-map-dot.lect-map-g2/-g4
+   below) since a halo is imperceptible at that size and not worth the
+   extra markup. */
+/* fill:none set here in CSS, not left to the markup's own fill="none"
+   attribute: this element also carries the bandos g2/g4 class, and CSS
+   always outranks a presentation attribute for the same property
+   regardless of specificity, so the non-bandos .lect-map-g2{fill:var(--paper)}
+   rule earlier in this file would otherwise silently win. Harmless in
+   practice (the real shape painted right after fully covers it either
+   way), but relying on that coincidence is not the kind of thing to leave
+   for a future edit to trip over. */
+.lect-map-halo{fill:none;vector-effect:non-scaling-stroke;}
+.lect-map[data-palette="bandos"] .lect-map-halo.lect-map-g2,
+.lect-map[data-palette="bandos"] .lect-map-halo.lect-map-g4{
+  stroke:var(--paper);stroke-width:3.3;
+}
+/* Dots skip the halo (too small to carry one legibly) but still take the
+   same opposite-hue outline directly, slightly lighter than the area
+   stroke since a small circle reads a heavy ring more readily than a
+   large landmass does. */
+.lect-map[data-palette="bandos"] .lect-map-dot.lect-map-g2{stroke:var(--src-industry);stroke-width:1.4;}
+.lect-map[data-palette="bandos"] .lect-map-dot.lect-map-g4{stroke:var(--green);stroke-width:1.4;}
 /* Sin definir: --gray-txt rather than an --ink/--paper mix (2026-08-23).
    The mix reads fine in the light theme but collapses toward the
    background in the dark theme, since --ink flips light there too, so a
@@ -274,29 +317,40 @@
    .lect-map-hatch-line-accent above, repeated here because bandos
    hardcodes its own two hues instead of reading --lect-accent): each line
    now mixes its OWN side's hue into the ink/paper partner rather than
-   using that partner flat, thins 2px→1.3px, and drops to stroke-opacity
-   .65, so a reader's first impression is still "solid green" / "solid
-   blue" and the hatch is confirmation on a second look, not a competing
-   grid. Datawrapper's own pattern-overlay guidance is the source for
-   "keep the overlay light enough that it doesn't fight the base colour." */
+   using that partner flat, thins 2px→1.3px, so a reader's first
+   impression is still "solid green" / "solid blue" and the hatch is
+   confirmation on a second look, not a competing grid. Datawrapper's own
+   pattern-overlay guidance is the source for "keep the overlay light
+   enough that it doesn't fight the base colour."
+   Opacity nudged .65→.72 in the THIRD same-day pass (the one that also
+   added the opposite-hue outline below): once the outline became the
+   PRIMARY "this is an exception" signal, the hatch's job narrowed to
+   "confirm it, don't just imply it" — a reader should not have to squint
+   to find the stripes once the outline has already told them to look. */
 .lect-map-hatch-bg-a{fill:var(--green);}
 .lect-map-hatch-line-a{
   stroke:color-mix(in srgb,var(--green) 55%,var(--ink-fixed) 45%);
-  stroke-width:1.3;stroke-opacity:.65;
+  stroke-width:1.3;stroke-opacity:.72;
 }
 .lect-map-hatch-bg-b{fill:var(--src-industry);}
 .lect-map-hatch-line-b{
   stroke:color-mix(in srgb,var(--src-industry) 55%,var(--paper) 45%);
-  stroke-width:1.3;stroke-opacity:.65;
+  stroke-width:1.3;stroke-opacity:.72;
 }
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--green);border-color:var(--green);}
+/* Swatch borders mirror the map exactly: OPPOSITE side's hue, not the same
+   one (border-color used to equal the swatch's own fill — that stopped
+   being true the moment the map itself moved to an opposite-hue outline,
+   2026-08-23 third same-day pass). A legend a reader checks BEFORE looking
+   at the map has to teach the identical rule the map uses, or the two
+   disagree the moment they compare them. */
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{
   background:repeating-linear-gradient(
     45deg,
     var(--green) 0 3.6px,
     color-mix(in srgb,var(--green) 55%,var(--ink-fixed) 45%) 3.6px 4.4px
   );
-  border-color:var(--green);
+  border-color:var(--src-industry);border-width:1.5px;
 }
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g3 .lect-map-swatch{background:var(--src-industry);border-color:var(--src-industry);}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{
@@ -305,7 +359,7 @@
     var(--src-industry) 0 3.6px,
     color-mix(in srgb,var(--src-industry) 55%,var(--paper) 45%) 3.6px 4.4px
   );
-  border-color:var(--src-industry);
+  border-color:var(--green);border-width:1.5px;
 }
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g5 .lect-map-swatch{background:color-mix(in srgb,var(--gray-txt) 55%,var(--paper));}
 .lect-map-key-label{letter-spacing:.02em;}

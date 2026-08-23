@@ -785,13 +785,18 @@ shows — a reader who scrolls past the surrounding prose, or who has the
 figure quoted/shared out of context, had nothing telling them what the colours
 mean. The pipe-delimited syntax adds a short bold headline (what the map
 shows, e.g. "El mapa de la crisis de gobernanza en la FIFA") and a smaller
-muted subhead (the colour/pattern legend in one sentence, e.g. "Verde:
-respaldan a Infantino. Azul: piden su salida. Rayado: postura declarada por su
-cuenta, no por su confederación."), rendered between the "EL MAPA" kicker and
-the SVG. Write the subhead as the one sentence that would let the map stand
-alone: name what each base colour means, and what the hatch pattern means, in
-plain language, not as a restatement of the legend's own labels. Skip both for
-a map that's clearly anchored by the surrounding paragraph already (a small,
+muted subhead (the colour/pattern legend in one sentence, e.g., for a
+`bandos` map, "Verde: su bloque respalda a Infantino. Azul marino: su bloque
+pide su salida. Rayado con contorno en el color opuesto: el país tomó una
+postura distinta a la de su confederación."), rendered between the "EL MAPA"
+kicker and the SVG. Write the subhead as the one sentence that would let the
+map stand alone: name what each base colour means, and what the hatch
+pattern (and, for `bandos`, the opposite-hue outline) means, in plain
+language, not as a restatement of the legend's own labels — for `bandos`
+specifically, naming the outline explicitly matters, since "rayado" alone
+undersells what's actually a two-signal exception marker (see the palette's
+own section below for why one signal wasn't enough). Skip both for a map
+that's clearly anchored by the surrounding paragraph already (a small,
 single-camp "everyone except X" map rarely needs its own headline) rather
 than adding one as a reflex on every map.
 
@@ -944,49 +949,67 @@ every published map keeps the ramp it shipped with. Its slot order is fixed:
 | Slot | Treatment | Means |
 |---|---|---|
 | 1 | solid green | camp A, position inherited from its bloc |
-| 2 | green, diagonally hatched | camp A, **said it in its own name** |
+| 2 | green, hatched, **navy outline** | camp A, **said it in its own name** |
 | 3 | solid blue | camp B, inherited |
-| 4 | blue, diagonally hatched | camp B, **said it in its own name** |
+| 4 | blue, hatched, **green outline** | camp B, **said it in its own name** |
 | 5 | flat mid-grey | has not taken a position |
 
-**Three colours doing real work, not five.** Hue says which side (green /
-blue / grey), texture says whether the country spoke for itself (solid vs.
-hatched). A reader learns it once, and unlike an outline it reads before the
-legend is even glanced at. Both side hues are theme-adaptive tokens, so the
-contrast holds in dark mode. Use `bandos` for an election, a vote, a split
-that will run for months; keep the default ramp for a one-sided "everyone
-except X".
+**Three colours doing real work, not five — but slots 2 and 4 now carry TWO
+signals each, not one** (outline added 2026-08-23, third same-day pass, see
+below). Fill hue says which side a country is actually on; hatch texture says
+it declared that individually rather than inheriting it; the OUTLINE, in the
+opposite side's hue, says which bloc it broke from — a green country ringed
+in navy, a navy country ringed in green. A reader learns three things once
+(hue, texture, opposite-hue ring) and every hatched country reads as "this
+one is an exception" before the legend is glanced at, which a pattern alone
+did not quite deliver (see the third pass below for why). Both side hues are
+theme-adaptive tokens, so the contrast holds in dark mode. Use `bandos` for
+an election, a vote, a split that will run for months; keep the default ramp
+for a one-sided "everyone except X".
 
-**2026-08-23, two publisher design reviews, same day, second one superseding
-the first.** The palette shipped in two different fixes before it settled:
+**2026-08-23, THREE publisher design reviews, same day, each superseding the
+slot-2/4 treatment of the one before it — read this in order, the standing
+rule is at the end and it is the THIRD version, not the second.**
 
-- **First pass (superseded, kept here only so nobody re-invents it):** slots
-  2 and 4 originally shared their side's exact solid fill with only a 2px
-  outline telling them apart from slots 1 and 3 — "confuso" and "poco
-  profesional" in review, because a stroke too thin to read at map scale
-  (especially on the 5.5px dots small territories render as) meant the
-  countries this palette exists to spotlight vanished into their bloc's
-  mass. The first fix tried a lighter same-hue TINT plus a heavier 3px
-  outline. That was a real improvement and shipped briefly, but a second,
-  more thorough design review (citing Axios's and Datawrapper's own
-  categorical-map conventions explicitly) went further.
-- **Current design, replacing the tint entirely:** slots 2 and 4 keep their
-  side's exact SOLID hue, unchanged from slots 1 and 3, and add a **diagonal
-  hatch pattern** on top (Datawrapper's own documented technique for a
-  second variable on a choropleth — "a pattern for a second condition
-  without losing the meaning of the primary colour"). This is a stronger
-  fix than the tint for two reasons: the colour identity a reader already
-  learned from the solid slot never changes (a tint is technically a fourth
-  and fifth colour, however closely related, and every added colour is
-  something to memorise), and solid-vs-hatched is read as a **texture
-  change**, which a reader clocks pre-attentively, where even a strong tint
-  is still a shade comparison. No stroke override anywhere in this palette
-  now — every slot, hatched or not, takes the same hairline separator every
-  other shape on the map gets, which is also what let the panel itself drop
-  from a warm beige card (`--paper-soft`) to the page's own near-white /
-  near-black (`--paper`): once colour and texture carry all the contrast,
-  the frame around the map doesn't need to work for it too.
-- **A third change landed in the same review, not a slot but worth noting:**
+- **First pass (superseded):** slots 2 and 4 originally shared their side's
+  exact solid fill with only a 2px outline telling them apart from slots 1
+  and 3 — "confuso" and "poco profesional" in review, because a stroke too
+  thin to read at map scale (especially on the 5.5px dots small territories
+  render as) meant the countries this palette exists to spotlight vanished
+  into their bloc's mass. The first fix tried a lighter same-hue TINT plus a
+  heavier 3px outline, a real improvement that shipped briefly.
+- **Second pass (superseded):** a more thorough review (citing Axios's and
+  Datawrapper's own categorical-map conventions explicitly) replaced the tint
+  with a **diagonal hatch pattern** instead — slots 2/4 kept their side's
+  exact SOLID hue, unchanged from slots 1/3, hatched on top, no outline at
+  all. Stronger than the tint (no new colour to memorise, and solid-vs-hatched
+  is a texture change a reader clocks pre-attentively where a tint is still a
+  shade comparison to make), but it turned out to be A DIFFERENT PROBLEM,
+  not a smaller one: hatch-only read as *"a country with a different
+  texture,"* not as *"a country that broke from its bloc."* Texture alone
+  was one signal standing in for what the publisher's brief called a
+  two-signal job: identify the exception, AND show which bloc it broke from.
+- **Third pass (current, standing design):** puts the outline back, but
+  changed what it means. Not the OLD outline (heavy, ink-coloured, replacing
+  the fill distinction) — a THIN (1.7px) outline in the OPPOSITE side's hue,
+  on top of the still-hatched, still-own-hue fill. A green country (still
+  hatched green) now rings in navy; a navy country (still hatched navy) rings
+  in green. Three independent signals stacked instead of one: fill hue = the
+  country's own stance, hatch = declared individually rather than inherited,
+  outline hue = the bloc it broke FROM. This is genuine double-encoding
+  (the brief's own term), not a reversion to pass one — pass one's outline
+  replaced the fill's job, this one adds a role the fill and hatch don't
+  cover. Implementation detail worth keeping in mind for any future palette
+  that reuses this idea: an outline coloured to nearly match the FILL of a
+  neighbouring shape can visually fuse with it at a shared border, so every
+  hatch-eligible AREA path (not needed for the small-territory dots, too
+  small to carry it) gets a `lect-map-halo` — a wider, paper-coloured stroke
+  on an invisible duplicate of the same path, painted first, so a thin ring
+  of the page's own background survives around the outline once the real
+  shape's opaque fill covers the halo's inner half. That halo is what keeps
+  the opposite-hue outline reading as ITS OWN ring rather than melting into
+  whatever sits next to it.
+- **A separate fix landed in the same first review, not about slots 2/4:**
   slot 5's neutral used to be `color-mix(in srgb, var(--ink) 22%,
   var(--paper))`, which reads fine in the light theme but, because `--ink`
   itself flips light in the dark theme, collapses toward the (now darker)
@@ -997,16 +1020,22 @@ the first.** The palette shipped in two different fixes before it settled:
   neutral now reads as its own colour in the dark theme too, not a
   near-match for the panel it sits on.
 
-**Do not ship a map palette, this one or a new one, where an outline or a
-tint is the only thing separating two otherwise-identical fills, and do not
-add a colour to distinguish "declared individually" from its bloc.** Every
-such slot gets the SAME hue as its bloc, hatched, full stop — that is now the
-one and only sanctioned treatment, superseding both the outline and the tint
-approaches this palette shipped with earlier the same day.
+**The standing rule, superseding every earlier version of this note: a
+"declared individually" slot needs BOTH a hatch of its own fill's hue AND a
+thin (1.5–2px) outline in the opposite side's hue, with a paper-coloured halo
+under that outline on any area shape. Neither alone reads as "exception" —
+hatch alone reads as decoration, outline alone (in the old heavy, one-colour
+form) reads as a border-weight guessing game. Never ship a "declared
+individually" slot with only one of the two, and never make that outline the
+SAME hue as its own fill** — that sameness was pass one's mistake (fill and
+outline both the bloc's own colour, told apart only by weight), not the fact
+of having an outline at all, which is why pass three brings one back rather
+than contradicting pass two's reasoning for removing it.
 
-**A second, same-day review (editorial finish, not logic — see the standing
-"every stroke should be functional, never decorative" note earlier in this
-section) tuned two more things specific to `bandos`:**
+**A separate, same-day review (editorial finish, not the slot logic above —
+see the standing "every stroke should be functional, never decorative" note
+earlier in this section) tuned two more things specific to `bandos`, both
+still current under the third pass:**
 
 - **The hatch line itself got lighter and hue-derived** — same change as the
   default ramp's group-4 hatch above (wider tile, thinner + lower-opacity
@@ -1014,10 +1043,16 @@ section) tuned two more things specific to `bandos`:**
   into the ink/paper partner instead of using that partner flat), applied to
   both hatch-eligible slots: `color-mix(in srgb, var(--green) 55%,
   var(--ink-fixed) 45%)` for slot 2, `color-mix(in srgb, var(--src-industry)
-  55%, var(--paper) 45%)` for slot 4. Same CSS-specificity trap caught here
-  too: the bandos hatch rules for slots 2/4 must explicitly reset `stroke` to
-  the plain hairline, or they silently inherit the DEFAULT ramp's `.lect-map-g2`
-  ink outline from a lower-specificity rule targeting the same class name.
+  55%, var(--paper) 45%)` for slot 4. Opacity nudged up again in the third
+  pass (.65→.72) once the outline took over as the PRIMARY exception signal:
+  the hatch's job narrowed to confirming it on a second look, not making the
+  reader search for it. Same CSS-specificity trap caught twice now, once
+  here and again when the third pass added the outline: any rule that only
+  sets one property (`fill`, or later `stroke`) on `.lect-map-g2`/`-g4` under
+  `[data-palette="bandos"]` must still set every OTHER property it needs
+  explicitly, or it silently inherits whatever the DEFAULT (non-bandos)
+  `.lect-map-g2` rule set for that property, from a lower-specificity rule
+  targeting the same class name that CSS never fully "loses" to.
 - **The legend splits into two labelled rows instead of one flat run of
   five keys** (publisher note: "menos sensación de cinco categorías
   independientes"). `lib/article-map.ts` does this by group-index PARITY, not
