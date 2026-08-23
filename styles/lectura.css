@@ -101,15 +101,27 @@
 
    Declaration order for this palette: 1 bloc A, 2 declared A, 3 bloc B,
    4 declared B, 5 undecided. */
+/* 2026-08-23, legibility fix: g1/g2 and g3/g4 originally shared one exact
+   fill per side, told apart only by a 2px stroke, on the theory that FILL
+   carries "which side" and OUTLINE carries "spoke in its own name." That
+   held up in the spec but not on an actual rendered map: at map scale, and
+   especially on the 5.5px dots small territories fall back to, a 2px ring
+   reads as noise, not a signal, so the two group-2/group-4 declarations
+   this palette exists to highlight (Mexico, the Caribbean joint letter,
+   Wales, New Zealand) visually vanished into their own bloc's mass. Each
+   "declared in its own name" group now also gets a distinct, brighter tint
+   of its side's hue (same color-mix-toward-paper technique the single-hue
+   ramp's own g3 tint already uses, so it stays theme-safe) plus a heavier
+   3px outline, giving the outline two reinforcing cues instead of one. */
 .lect-map[data-palette="bandos"] .lect-map-g1{fill:var(--green);stroke:var(--paper);}
-.lect-map[data-palette="bandos"] .lect-map-g2{fill:var(--green);stroke:var(--ink);stroke-width:2;}
+.lect-map[data-palette="bandos"] .lect-map-g2{fill:color-mix(in srgb,var(--green) 78%,var(--paper) 22%);stroke:var(--ink);stroke-width:3;}
 .lect-map[data-palette="bandos"] .lect-map-g3{fill:var(--src-industry);stroke:var(--paper);}
-.lect-map[data-palette="bandos"] .lect-map-g4{fill:var(--src-industry);stroke:var(--ink);stroke-width:2;}
+.lect-map[data-palette="bandos"] .lect-map-g4{fill:color-mix(in srgb,var(--src-industry) 78%,var(--paper) 22%);stroke:var(--ink);stroke-width:3;}
 .lect-map[data-palette="bandos"] .lect-map-g5{fill:color-mix(in srgb,var(--ink) 22%,var(--paper));stroke:var(--paper);}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--green);border-color:var(--green);}
-.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--green);border:2px solid var(--ink);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{background:color-mix(in srgb,var(--green) 78%,var(--paper) 22%);border:2px solid var(--ink);}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g3 .lect-map-swatch{background:var(--src-industry);border-color:var(--src-industry);}
-.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{background:var(--src-industry);border:2px solid var(--ink);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{background:color-mix(in srgb,var(--src-industry) 78%,var(--paper) 22%);border:2px solid var(--ink);}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g5 .lect-map-swatch{background:color-mix(in srgb,var(--ink) 22%,var(--paper));}
 .lect-map-key-label{letter-spacing:.02em;}
 .lect-map-key-count{
