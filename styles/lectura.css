@@ -42,12 +42,22 @@
    flat fills with hairline borders, no relief and no graticule: this is a
    diagram that happens to be shaped like the world, not an atlas. The
    group ramp is fixed — filled mass, hollow exception, mid tint, and at
-   four groups an accent fill carrying the same heavy outline — so the
-   reader learns it once and it means the same thing on every map. ——— */
+   four groups an accent hatch for whoever declared individually — so the
+   reader learns it once and it means the same thing on every map.
+
+   2026-08-23, publisher design review (Axios/Datawrapper as reference —
+   categorical maps that read at a glance, not "colours that are merely
+   different enough"): the panel used to sit on --paper-soft, a warm
+   beige that made the whole figure read as a filled-in card rather than
+   an editorial graphic floating on the page. Dropped to --paper (the
+   page's own near-white/near-black) with the same hairline --rule frame,
+   so the map has air around it the way the reference maps do, and the
+   fills are what carries all the contrast, not a background trying to
+   set the figure apart. ——— */
 .lect-map{margin:34px 0;}
 .lect-map-svg{
   display:block;width:100%;height:auto;
-  background:var(--paper-soft);border:1px solid var(--rule);
+  background:var(--paper);border:1px solid var(--rule);
 }
 .lect-map-area{stroke:var(--paper);stroke-width:.8;vector-effect:non-scaling-stroke;}
 .lect-map-dot{stroke:var(--paper);stroke-width:1.2;vector-effect:non-scaling-stroke;}
@@ -55,19 +65,40 @@
 .lect-map-base{fill:color-mix(in srgb,var(--ink) 9%,var(--paper));}
 /* Group 1 — the mass. */
 .lect-map-g1{fill:var(--lect-accent);}
-/* Group 2 — the exception. Hollow, heavy outline: it reads as the hole. */
+/* Group 2 — the exception. Hollow, heavy outline: it reads as the hole.
+   This one keeps the heavy stroke on purpose — its fill is transparent
+   (matches the panel), so without a visible outline it would not draw at
+   all. Not the same case as g4 below, which has a real fill to hatch. */
 .lect-map-g2{fill:var(--paper);stroke:var(--ink);stroke-width:2;}
 /* Group 3 — the third camp, when a story has one. */
 .lect-map-g3{fill:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
-/* Group 4 (2026-08-15) — accent fill AND the heavy outline, which is
-   groups 1 and 2 combined on purpose. At four groups the ramp stops being
-   an arbitrary order and becomes two readable variables: the FILL says
-   which side a country is on (accent or tint), the OUTLINE says it spoke
-   in its own name rather than inheriting its bloc's position. So g1 and
-   g3 are the two silent masses, g2 is the outlier that spoke against its
-   own side, and g4 is the one that spoke WITH it. Nothing about the
-   one-to-three-group ramp changes. */
-.lect-map-g4{fill:var(--lect-accent);stroke:var(--ink);stroke-width:2;}
+/* Group 4 (2026-08-15) — the accent side, hatched (2026-08-23) instead of
+   outlined. At four groups the ramp reads as two variables rather than an
+   order: the FILL HUE says which side a country is on, the TEXTURE says
+   it spoke in its own name instead of inheriting its bloc's position. So
+   g1 and g3 are the two silent masses, g2 is the outlier that spoke
+   against its own side, and g4 is the one that spoke WITH it.
+   g4 originally reused g1's exact solid fill and relied on a 2px, later
+   3px, stroke alone to carry "same side, but declared" — a publisher
+   design review called that "poco profesional" and correctly so: a reader
+   has to consciously compare border weights against a map that already
+   has borders everywhere (every country meets its neighbour on one). The
+   Axios/Datawrapper convention this now follows instead uses the pattern
+   itself as the second variable: g1 stays a flat solid, g4 is the SAME
+   hue diagonally hatched (`lect-map-hatch-accent`, defined in
+   lib/article-map.ts's SVG <defs>, since a fill pattern needs markup a
+   plain CSS rule cannot supply). No stroke override at all, it inherits
+   the same hairline every other shape gets. See the bandos palette below
+   for the fuller rationale and the two-hue version of the same fix. */
+.lect-map-g4{fill:url(#lect-map-hatch-accent);}
+.lect-map-hatch-bg-accent{fill:var(--lect-accent);}
+/* Playbook green never theme-swaps and stays light in both themes, so its
+   hatch line is the fixed dark ink that always reads on it. Every other
+   product's accent DOES swap and trends dark-in-light/light-in-dark, so
+   --paper (which swaps the same way) is the correct line colour there —
+   see .article-product-* below, where each skin other than the Noticias
+   default overrides this one custom property. */
+.lect-map-hatch-line-accent{stroke:var(--lect-map-hatch,var(--ink-fixed));stroke-width:2;}
 .lect-map-legend{
   display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;
 }
@@ -79,7 +110,13 @@
 .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--lect-accent);border-color:var(--lect-accent);}
 .lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--paper);border:2px solid var(--ink);}
 .lect-map-key.lect-map-g3 .lect-map-swatch{background:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
-.lect-map-key.lect-map-g4 .lect-map-swatch{background:var(--lect-accent);border:2px solid var(--ink);}
+/* Legend chips are plain HTML spans, not SVG, so they cannot reference the
+   SVG <pattern> defs the map shapes use — a CSS diagonal gradient gives
+   the identical stripe by eye without needing markup of its own. */
+.lect-map-key.lect-map-g4 .lect-map-swatch{
+  background:repeating-linear-gradient(45deg,var(--lect-accent) 0 3px,var(--lect-map-hatch,var(--ink-fixed)) 3px 4px);
+  border-color:var(--lect-accent);
+}
 
 /* ——— Paleta "bandos" (2026-08-15) ———
    Opt-in via the frame item (`Mapa: mundo bandos`), so every map already
@@ -92,37 +129,80 @@
    accent is Playbook's green, which reads as the affirmative wherever it
    lands, so a single hue also hands one camp the approval colour.
 
-   Two variables, same as the four-group ramp: the FILL says which side
-   (green for one, the Noticias blue for the other, a flat neutral for
-   whoever has not chosen), the OUTLINE says the country said it in its own
-   name rather than inheriting its bloc's position. Both hues are
-   theme-adaptive tokens, so the contrast holds in the dark theme, where
-   --src-industry lifts to a light blue and the ink outline to near-white.
+   Two variables: the FILL HUE says which side (green for one, the
+   Noticias blue for the other, a flat neutral for whoever has not
+   chosen), the TEXTURE says the country said it in its own name rather
+   than inheriting its bloc's position (2026-08-23, see below — this used
+   to be an outline, not a texture). Both hues are theme-adaptive tokens,
+   so the contrast holds in the dark theme, where --src-industry lifts to
+   a light blue.
 
    Declaration order for this palette: 1 bloc A, 2 declared A, 3 bloc B,
    4 declared B, 5 undecided. */
-/* 2026-08-23, legibility fix: g1/g2 and g3/g4 originally shared one exact
-   fill per side, told apart only by a 2px stroke, on the theory that FILL
-   carries "which side" and OUTLINE carries "spoke in its own name." That
-   held up in the spec but not on an actual rendered map: at map scale, and
-   especially on the 5.5px dots small territories fall back to, a 2px ring
-   reads as noise, not a signal, so the two group-2/group-4 declarations
-   this palette exists to highlight (Mexico, the Caribbean joint letter,
-   Wales, New Zealand) visually vanished into their own bloc's mass. Each
-   "declared in its own name" group now also gets a distinct, brighter tint
-   of its side's hue (same color-mix-toward-paper technique the single-hue
-   ramp's own g3 tint already uses, so it stays theme-safe) plus a heavier
-   3px outline, giving the outline two reinforcing cues instead of one. */
-.lect-map[data-palette="bandos"] .lect-map-g1{fill:var(--green);stroke:var(--paper);}
-.lect-map[data-palette="bandos"] .lect-map-g2{fill:color-mix(in srgb,var(--green) 78%,var(--paper) 22%);stroke:var(--ink);stroke-width:3;}
-.lect-map[data-palette="bandos"] .lect-map-g3{fill:var(--src-industry);stroke:var(--paper);}
-.lect-map[data-palette="bandos"] .lect-map-g4{fill:color-mix(in srgb,var(--src-industry) 78%,var(--paper) 22%);stroke:var(--ink);stroke-width:3;}
-.lect-map[data-palette="bandos"] .lect-map-g5{fill:color-mix(in srgb,var(--ink) 22%,var(--paper));stroke:var(--paper);}
+/* 2026-08-23, publisher design review, citing Axios's and Datawrapper's
+   own categorical-choropleth conventions as the bar to match: two
+   findings, one fix each.
+
+   First, g1/g2 and g3/g4 originally shared one exact fill per side, told
+   apart only by a stroke (2px, briefly 3px). That failed on a rendered
+   map for the reason a border-weight encoding always fails: at map scale,
+   and especially on the 5.5px dots small territories fall back to, the
+   ring reads as noise, and a reader has no way to tell "thicker outline"
+   from "map got busy here" without deliberately comparing every border on
+   the page. Replaced with the Datawrapper pattern-overlay technique
+   instead: g2/g4 keep their side's exact solid hue as the pattern's own
+   background (so the colour identity a reader already learned from g1/g3
+   still reads at a glance) and add a diagonal hatch line on top
+   (`lect-map-hatch-a` / `-b`, SVG <defs> in lib/article-map.ts). Solid vs
+   hatched is a texture change, not a weight comparison, so it reads
+   before the legend does. No stroke override on g2/g4 at all now, they
+   take the same hairline separator every other shape on the map gets.
+
+   Second, five near-adjacent tones (two greens, navy, a blue-grey, and a
+   grey) asked a reader to memorise a five-way key before the map meant
+   anything. Down to three hues doing real work — green, blue, neutral
+   grey — is what Axios's own two/three-way choropleths lean on, and it is
+   the actual position count this story has: for the accent, hatched or
+   not; against, hatched or not; undecided. The hatch is what tells the
+   "declared individually" story now, not a fourth or fifth colour. */
+.lect-map[data-palette="bandos"] .lect-map-g1{fill:var(--green);}
+.lect-map[data-palette="bandos"] .lect-map-g2{fill:url(#lect-map-hatch-a);}
+.lect-map[data-palette="bandos"] .lect-map-g3{fill:var(--src-industry);}
+.lect-map[data-palette="bandos"] .lect-map-g4{fill:url(#lect-map-hatch-b);}
+/* Sin definir: --gray-txt rather than an --ink/--paper mix (2026-08-23).
+   The mix reads fine in the light theme but collapses toward the
+   background in the dark theme, since --ink flips light there too, so a
+   small ink percentage over a near-black --paper stays near-black. Moving
+   the panel itself from --paper-soft to --paper the same day (see the top
+   of this block) made that worse, not better. --gray-txt is a genuine
+   mid-tone in BOTH themes, not a small step from one end, so tinting
+   toward it instead keeps "undecided" visibly its own colour rather than
+   fading into whichever end the theme happens to be. */
+.lect-map[data-palette="bandos"] .lect-map-g5{fill:color-mix(in srgb,var(--gray-txt) 55%,var(--paper));}
+/* Hatch pattern fills: bandos always uses the fixed house green / Noticias
+   blue regardless of which product an article ships under (unlike the
+   default ramp's g4, which rides whatever --lect-accent is active), so
+   these are hardcoded rather than reading --lect-accent. Green does not
+   theme-swap and stays light in both themes, so its line is the fixed
+   dark ink; --src-industry DOES theme-swap (dark navy in light mode,
+   light blue in dark mode) and --paper swaps the same direction, so
+   pairing them keeps the line legible against the fill in both themes
+   without any conditional logic. */
+.lect-map-hatch-bg-a{fill:var(--green);}
+.lect-map-hatch-line-a{stroke:var(--ink-fixed);stroke-width:2;}
+.lect-map-hatch-bg-b{fill:var(--src-industry);}
+.lect-map-hatch-line-b{stroke:var(--paper);stroke-width:2;}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--green);border-color:var(--green);}
-.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{background:color-mix(in srgb,var(--green) 78%,var(--paper) 22%);border:2px solid var(--ink);}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{
+  background:repeating-linear-gradient(45deg,var(--green) 0 3px,var(--ink-fixed) 3px 4px);
+  border-color:var(--green);
+}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g3 .lect-map-swatch{background:var(--src-industry);border-color:var(--src-industry);}
-.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{background:color-mix(in srgb,var(--src-industry) 78%,var(--paper) 22%);border:2px solid var(--ink);}
-.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g5 .lect-map-swatch{background:color-mix(in srgb,var(--ink) 22%,var(--paper));}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{
+  background:repeating-linear-gradient(45deg,var(--src-industry) 0 3px,var(--paper) 3px 4px);
+  border-color:var(--src-industry);
+}
+.lect-map[data-palette="bandos"] .lect-map-key.lect-map-g5 .lect-map-swatch{background:color-mix(in srgb,var(--gray-txt) 55%,var(--paper));}
 .lect-map-key-label{letter-spacing:.02em;}
 .lect-map-key-count{
   font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
@@ -179,14 +259,20 @@
    .share-btn.is-copied established, flipping to --green on dark). The
    gold/violet tokens already adapt per theme; the TFBR red passes on
    both. Existing devices keep their original rules untouched. ——— */
-.article-detail{--lect-accent:var(--green);--lect-ink-accent:#3f7d0a;}
+.article-detail{--lect-accent:var(--green);--lect-ink-accent:#3f7d0a;--lect-map-hatch:var(--ink-fixed);}
 [data-theme="dark"] .article-detail{--lect-ink-accent:var(--green);}
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]) .article-detail{--lect-ink-accent:var(--green);}
 }
-.article-product-la-lana.article-detail{--lect-accent:var(--src-lana);--lect-ink-accent:var(--src-lana);}
-.article-product-infinitas.article-detail{--lect-accent:var(--src-infinitas);--lect-ink-accent:var(--src-infinitas);}
-.article-product-futbol-business-review.article-detail{--lect-accent:var(--tfbr-red);--lect-ink-accent:var(--tfbr-red);}
+/* --lect-map-hatch: the Mapa g4 hatch line colour (styles/lectura.css's
+   "El Mapa" block, above). Playbook green is the one accent that never
+   theme-swaps and stays light in both themes, so its default above is the
+   fixed dark ink. Every other product's accent DOES swap toward light in
+   the dark theme, so --paper (which swaps the same direction) keeps the
+   hatch line legible against the fill without a theme check of its own. */
+.article-product-la-lana.article-detail{--lect-accent:var(--src-lana);--lect-ink-accent:var(--src-lana);--lect-map-hatch:var(--paper);}
+.article-product-infinitas.article-detail{--lect-accent:var(--src-infinitas);--lect-ink-accent:var(--src-infinitas);--lect-map-hatch:var(--paper);}
+.article-product-futbol-business-review.article-detail{--lect-accent:var(--tfbr-red);--lect-ink-accent:var(--tfbr-red);--lect-map-hatch:var(--paper);}
 
 /* ——— The device collection (round 3): seven story-shaped elements the
    publish skills choose from — see lib/article-devices.ts for syntax.
