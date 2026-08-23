@@ -50,26 +50,51 @@
    different enough"): the panel used to sit on --paper-soft, a warm
    beige that made the whole figure read as a filled-in card rather than
    an editorial graphic floating on the page. Dropped to --paper (the
-   page's own near-white/near-black) with the same hairline --rule frame,
-   so the map has air around it the way the reference maps do, and the
-   fills are what carries all the contrast, not a background trying to
-   set the figure apart. ——— */
-.lect-map{margin:34px 0;}
+   page's own near-white/near-black), so the map has air around it the
+   way the reference maps do, and the fills are what carries all the
+   contrast, not a background trying to set the figure apart.
+
+   A SECOND, more thorough editorial-finish pass landed the same day, after
+   the first review's colour/texture fix was approved on the merits but
+   judged not yet "premium" — the note explicitly named Axios, Bloomberg,
+   FT and The Economist as the bar. Four changes, in the order a reader
+   hits them:
+     1. The visible --rule frame around the panel is gone outright (not
+        just lightened) — .lect-map-svg's background already equals the
+        page's own --paper, so a border was the only thing giving the
+        figure a "card" reading a plain editorial map doesn't have in any
+        of the reference outlets. It now floats directly on the page.
+     2. Country hairlines (.lect-map-area) thinned .8→.5 and the dot
+        stroke (.lect-map-dot) 1.2→.7 — both still the background colour,
+        which is what keeps a shared border between two same-colour
+        countries invisible while still separating different colours.
+     3. Dot radius (lib/article-map.ts) 5.5→4.2 — island/micro-state
+        markers were reading with more visual weight than the countries
+        around them, worst in the Caribbean and the Gulf/Baltics, where
+        several sit close enough to nearly touch at the old size.
+     4. .lect-map now carries more margin (34px→44px) and the legend a
+        bigger gap from the svg, so the whole figure gets the "aire
+        alrededor" an editorial map needs to not read as a boxed-in
+        corporate chart. ——— */
+.lect-map{margin:44px 0;}
 .lect-map-svg{
   display:block;width:100%;height:auto;
-  background:var(--paper);border:1px solid var(--rule);
+  background:var(--paper);
 }
-.lect-map-area{stroke:var(--paper);stroke-width:.8;vector-effect:non-scaling-stroke;}
-.lect-map-dot{stroke:var(--paper);stroke-width:1.2;vector-effect:non-scaling-stroke;}
+.lect-map-area{stroke:var(--paper);stroke-width:.5;vector-effect:non-scaling-stroke;}
+.lect-map-dot{stroke:var(--paper);stroke-width:.7;vector-effect:non-scaling-stroke;}
 /* Framed but unclaimed: context, present but never competing. */
 .lect-map-base{fill:color-mix(in srgb,var(--ink) 9%,var(--paper));}
 /* Group 1 — the mass. */
 .lect-map-g1{fill:var(--lect-accent);}
-/* Group 2 — the exception. Hollow, heavy outline: it reads as the hole.
-   This one keeps the heavy stroke on purpose — its fill is transparent
-   (matches the panel), so without a visible outline it would not draw at
-   all. Not the same case as g4 below, which has a real fill to hatch. */
-.lect-map-g2{fill:var(--paper);stroke:var(--ink);stroke-width:2;}
+/* Group 2 — the exception. Hollow, outlined: it reads as the hole. This
+   one keeps a real stroke on purpose — its fill is transparent (matches
+   the panel), so without a visible outline it would not draw at all. Not
+   the same case as g4 below, which has a real fill to hatch. Thinned
+   2px→1.5px in the 2026-08-23 editorial-finish pass along with every
+   other stroke on the map, but not removed: this is the one shape whose
+   entire visibility depends on it. */
+.lect-map-g2{fill:var(--paper);stroke:var(--ink);stroke-width:1.5;}
 /* Group 3 — the third camp, when a story has one. */
 .lect-map-g3{fill:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
 /* Group 4 (2026-08-15) — the accent side, hatched (2026-08-23) instead of
@@ -93,28 +118,77 @@
 .lect-map-g4{fill:url(#lect-map-hatch-accent);}
 .lect-map-hatch-bg-accent{fill:var(--lect-accent);}
 /* Playbook green never theme-swaps and stays light in both themes, so its
-   hatch line is the fixed dark ink that always reads on it. Every other
-   product's accent DOES swap and trends dark-in-light/light-in-dark, so
-   --paper (which swaps the same way) is the correct line colour there —
-   see .article-product-* below, where each skin other than the Noticias
-   default overrides this one custom property. */
-.lect-map-hatch-line-accent{stroke:var(--lect-map-hatch,var(--ink-fixed));stroke-width:2;}
-.lect-map-legend{
-  display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;
+   hatch line mixes toward the fixed dark ink. Every other product's
+   accent DOES swap and trends dark-in-light/light-in-dark, so mixing
+   toward --paper (which swaps the same way) instead is the correct
+   direction there — see .article-product-* below, where each skin other
+   than the Noticias default overrides this one custom property.
+   2026-08-23 editorial-finish pass: the line used to be a FLAT ink-fixed
+   or paper token, i.e. an unrelated colour laid over the fill. A reader's
+   first read should be the solid hue; the hatch is confirmation on a
+   second look, not competing for attention, so it now MIXES the fill's
+   own hue into the line (color-mix toward --lect-accent, not a stand-in
+   colour), thins 2px→1.3px, tightens spacing (pattern tile 7→10 in
+   lib/article-map.ts, so the lines sit further apart at the same width),
+   and adds stroke-opacity so it reads as a tone of the base colour, never
+   a black or white grid stamped on top of it — the Datawrapper guidance
+   this follows explicitly: keep a pattern overlay light enough that it
+   doesn't fight the colour underneath. */
+.lect-map-hatch-line-accent{
+  stroke:color-mix(in srgb,var(--lect-accent) 55%,var(--lect-map-hatch,var(--ink-fixed)) 45%);
+  stroke-width:1.3;stroke-opacity:.65;
 }
-.lect-map-key{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--gray-txt);}
+/* Headline/subhead (2026-08-23, optional authoring syntax: `frame palette |
+   Headline | Bajada`): the device should stand on its own if a reader
+   lands on it separated from the surrounding prose, so "El mapa" as a
+   kicker alone is not enough — it names the device, not what it shows.
+   Deliberately plain: a bold sans headline and a smaller muted subhead,
+   the same register the rest of the reading page's captions use, not a
+   second h2 competing with the article's own headings. Both are optional
+   and independent; a map with neither renders exactly as before. */
+.lect-map-head{
+  margin:10px 0 2px;font-size:16px;font-weight:800;line-height:1.3;color:var(--ink);
+}
+.lect-map-sub{
+  margin:0 0 18px;font-size:13px;line-height:1.4;color:var(--gray-txt);max-width:56ch;
+}
+/* flex-wrap row, not column: the DEFAULT ramp's children are plain
+   .lect-map-key spans that should wrap freely in one row, same as always.
+   bandos' two .lect-map-legend-group children get flex-basis:100% below
+   so each still forces its own line inside the same wrapping row — one
+   layout rule serves both shapes rather than branching on palette. */
+.lect-map-legend{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px 20px;}
+/* Two-tier structure for bandos (lib/article-map.ts splits by group-index
+   parity into these two rows); the default ramp never emits
+   .lect-map-legend-group and falls through to the flat .lect-map-key run
+   below unchanged. */
+.lect-map-legend-group{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;}
+.lect-map-legend-kicker{
+  font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray-txt);flex-shrink:0;min-width:108px;
+}
+.lect-map-legend-row{display:flex;flex-wrap:wrap;gap:6px 18px;}
+.lect-map-key{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--gray-txt);}
 .lect-map-swatch{
-  width:13px;height:13px;flex-shrink:0;border:1px solid var(--rule);
+  width:11px;height:11px;flex-shrink:0;border:1px solid var(--rule);border-radius:1px;
   background:color-mix(in srgb,var(--ink) 9%,var(--paper));
 }
 .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--lect-accent);border-color:var(--lect-accent);}
-.lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--paper);border:2px solid var(--ink);}
+.lect-map-key.lect-map-g2 .lect-map-swatch{background:var(--paper);border:1.5px solid var(--ink);}
 .lect-map-key.lect-map-g3 .lect-map-swatch{background:color-mix(in srgb,var(--lect-accent) 34%,var(--paper));}
 /* Legend chips are plain HTML spans, not SVG, so they cannot reference the
    SVG <pattern> defs the map shapes use — a CSS diagonal gradient gives
-   the identical stripe by eye without needing markup of its own. */
+   the identical stripe by eye without needing markup of its own. Same
+   derived-tone line colour and lighter touch as the SVG hatch (see
+   .lect-map-hatch-line-accent above): a shade of the fill, not a flat
+   ink/paper stand-in, and enough gap between stripes to stay a second
+   read rather than a first one. */
 .lect-map-key.lect-map-g4 .lect-map-swatch{
-  background:repeating-linear-gradient(45deg,var(--lect-accent) 0 3px,var(--lect-map-hatch,var(--ink-fixed)) 3px 4px);
+  background:repeating-linear-gradient(
+    45deg,
+    var(--lect-accent) 0 3.6px,
+    color-mix(in srgb,var(--lect-accent) 55%,var(--lect-map-hatch,var(--ink-fixed)) 45%) 3.6px 4.4px
+  );
   border-color:var(--lect-accent);
 }
 
@@ -166,9 +240,17 @@
    not; against, hatched or not; undecided. The hatch is what tells the
    "declared individually" story now, not a fourth or fifth colour. */
 .lect-map[data-palette="bandos"] .lect-map-g1{fill:var(--green);}
-.lect-map[data-palette="bandos"] .lect-map-g2{fill:url(#lect-map-hatch-a);}
+/* stroke reset to the plain hairline explicitly: without it, the cascade
+   falls through to the non-bandos .lect-map-g2 rule above (fill:var(--paper);
+   stroke:var(--ink)) for any property this selector doesn't itself set —
+   CSS resolves specificity PER PROPERTY, not per rule, so a rule that only
+   overrides `fill` does not stop an unrelated `stroke` from a lower-specificity
+   rule leaking through. Caught in the 2026-08-23 editorial-finish pass: g2/g4
+   were still drawing the old heavy ink outline this whole redesign exists to
+   remove, invisibly reinstated by exactly this gap. */
+.lect-map[data-palette="bandos"] .lect-map-g2{fill:url(#lect-map-hatch-a);stroke:var(--paper);stroke-width:.5;}
 .lect-map[data-palette="bandos"] .lect-map-g3{fill:var(--src-industry);}
-.lect-map[data-palette="bandos"] .lect-map-g4{fill:url(#lect-map-hatch-b);}
+.lect-map[data-palette="bandos"] .lect-map-g4{fill:url(#lect-map-hatch-b);stroke:var(--paper);stroke-width:.5;}
 /* Sin definir: --gray-txt rather than an --ink/--paper mix (2026-08-23).
    The mix reads fine in the light theme but collapses toward the
    background in the dark theme, since --ink flips light there too, so a
@@ -183,30 +265,53 @@
    blue regardless of which product an article ships under (unlike the
    default ramp's g4, which rides whatever --lect-accent is active), so
    these are hardcoded rather than reading --lect-accent. Green does not
-   theme-swap and stays light in both themes, so its line is the fixed
-   dark ink; --src-industry DOES theme-swap (dark navy in light mode,
-   light blue in dark mode) and --paper swaps the same direction, so
-   pairing them keeps the line legible against the fill in both themes
-   without any conditional logic. */
+   theme-swap and stays light in both themes, so its line mixes toward the
+   fixed dark ink; --src-industry DOES theme-swap (dark navy in light
+   mode, light blue in dark mode) and --paper swaps the same direction, so
+   mixing toward it keeps the line legible against the fill in both themes
+   without any conditional logic.
+   2026-08-23 editorial-finish pass (same rationale as
+   .lect-map-hatch-line-accent above, repeated here because bandos
+   hardcodes its own two hues instead of reading --lect-accent): each line
+   now mixes its OWN side's hue into the ink/paper partner rather than
+   using that partner flat, thins 2px→1.3px, and drops to stroke-opacity
+   .65, so a reader's first impression is still "solid green" / "solid
+   blue" and the hatch is confirmation on a second look, not a competing
+   grid. Datawrapper's own pattern-overlay guidance is the source for
+   "keep the overlay light enough that it doesn't fight the base colour." */
 .lect-map-hatch-bg-a{fill:var(--green);}
-.lect-map-hatch-line-a{stroke:var(--ink-fixed);stroke-width:2;}
+.lect-map-hatch-line-a{
+  stroke:color-mix(in srgb,var(--green) 55%,var(--ink-fixed) 45%);
+  stroke-width:1.3;stroke-opacity:.65;
+}
 .lect-map-hatch-bg-b{fill:var(--src-industry);}
-.lect-map-hatch-line-b{stroke:var(--paper);stroke-width:2;}
+.lect-map-hatch-line-b{
+  stroke:color-mix(in srgb,var(--src-industry) 55%,var(--paper) 45%);
+  stroke-width:1.3;stroke-opacity:.65;
+}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g1 .lect-map-swatch{background:var(--green);border-color:var(--green);}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g2 .lect-map-swatch{
-  background:repeating-linear-gradient(45deg,var(--green) 0 3px,var(--ink-fixed) 3px 4px);
+  background:repeating-linear-gradient(
+    45deg,
+    var(--green) 0 3.6px,
+    color-mix(in srgb,var(--green) 55%,var(--ink-fixed) 45%) 3.6px 4.4px
+  );
   border-color:var(--green);
 }
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g3 .lect-map-swatch{background:var(--src-industry);border-color:var(--src-industry);}
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g4 .lect-map-swatch{
-  background:repeating-linear-gradient(45deg,var(--src-industry) 0 3px,var(--paper) 3px 4px);
+  background:repeating-linear-gradient(
+    45deg,
+    var(--src-industry) 0 3.6px,
+    color-mix(in srgb,var(--src-industry) 55%,var(--paper) 45%) 3.6px 4.4px
+  );
   border-color:var(--src-industry);
 }
 .lect-map[data-palette="bandos"] .lect-map-key.lect-map-g5 .lect-map-swatch{background:color-mix(in srgb,var(--gray-txt) 55%,var(--paper));}
 .lect-map-key-label{letter-spacing:.02em;}
 .lect-map-key-count{
-  font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
-  font-size:13px;
+  font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;
+  font-size:12px;margin-left:1px;
 }
 
 /* ——— Fuentes: the source credit, set as the quietest thing on the page
