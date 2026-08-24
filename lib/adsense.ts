@@ -76,6 +76,28 @@ const DEFAULT_SLOT_IDS: Partial<Record<AdSlotName, string>> = {
 // ADSENSE_SLOT_* id, and AdSlot renders nothing without one.
 const DEFAULT_CLIENT_ID = 'ca-pub-1241756908490278';
 
+// ---------------------------------------------------------------- PAUSE
+// ADS ARE OFF SITE-WIDE. Publisher directive, 2026-08-24: "collapse all ad
+// spaces on the app until new notice."
+//
+// Flip this to `false` to bring every placement back exactly as it was —
+// that is the whole revert, and it is deliberately ONE line rather than six
+// env vars or six deleted call sites. The <AdSlot> tags stay in the pages
+// so the placements are still visible in the code, and every unit ID above
+// stays configured so nothing has to be re-created in the AdSense dashboard
+// when the hold lifts.
+//
+// WHAT THIS DOES NOT TOUCH, on purpose:
+//   • the adsbygoogle loader and Google's Funding Choices CMP in
+//     app/layout.tsx, and /ads.txt — those three are AdSense ACCOUNT
+//     prerequisites (the verification crawl expects the tag site-wide,
+//     including on pages with no inventory), so pulling them risks the
+//     account's standing over a temporary hold. They cost one cached script
+//     and serve no ads on their own.
+//   • the consent model in lib/consent.ts, which is a separate gate and
+//     still applies underneath this one.
+export const ADS_PAUSED = true;
+
 export function getAdSenseConfig(): AdSenseConfig {
   return {
     clientId: process.env.ADSENSE_CLIENT_ID || DEFAULT_CLIENT_ID,

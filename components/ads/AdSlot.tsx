@@ -3,8 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { readConsent, CONSENT_EVENT } from '@/lib/consent';
 import { useAdSenseConfig } from './AdSenseProvider';
-import { SLOT_FORMATS } from '@/lib/adsense';
+import { ADS_PAUSED, SLOT_FORMATS } from '@/lib/adsense';
 
+// PAUSED 2026-08-24 — ADS_PAUSED in lib/adsense.ts is `true`, so every slot
+// on the site renders null regardless of consent or configuration. This is a
+// temporary publisher hold, not a removal: the call sites and unit IDs are
+// all still in place and one line brings them back. Everything below
+// describes the behaviour that resumes when it does.
+//
 // Changed 2026-07-30: this used to always render a visible dashed
 // placeholder box (user request, 2026-07-22: "while we connect it to the
 // real ads place a placeholder so I can see it visually"). Reversed on
@@ -46,7 +52,10 @@ export function AdSlot({ slot }: { slot: AdSlotName }) {
     return () => window.removeEventListener(CONSENT_EVENT, update);
   }, []);
 
-  const canServe = consented && !!clientId && !!adUnitId;
+  // ADS_PAUSED is first, and is checked here rather than at the call sites
+  // so the pause is impossible to apply to five slots and forget the sixth.
+  // See lib/adsense.ts for what the hold does and does not cover.
+  const canServe = !ADS_PAUSED && consented && !!clientId && !!adUnitId;
 
   useEffect(() => {
     if (!canServe || pushed.current) return;
