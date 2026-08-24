@@ -40,6 +40,8 @@ export async function Footer() {
         </div>
       </div>
       <div className="container footer-legal-row">
+        <Link href="/equipo">Equipo</Link>
+        <Link href="/contacto">Contacto</Link>
         <Link href="/privacidad">Aviso de Privacidad</Link>
         <Link href="/terminos">Términos y Condiciones</Link>
         <CookiePreferencesLink />

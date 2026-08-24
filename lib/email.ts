@@ -76,3 +76,56 @@ export async function sendEditorInvitationEmail(opts: {
     return { sent: false, reason: (err as Error).message };
   }
 }
+
+// /contacto (2026-08-24, media-kit page). Same Resend client, same
+// degrade-not-throw contract as the invitation email above — there is no
+// other channel this form can fall back to (no public advertising inbox
+// exists yet, see docs behind the /equipo page build), so a misconfigured
+// RESEND_API_KEY/EMAIL_FROM/CONTACT_TO surfaces as a clear "try again later"
+// to the sender rather than a crash.
+export async function sendContactMessage(opts: {
+  name: string;
+  fromEmail: string;
+  message: string;
+}): Promise<SendResult> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM;
+  // No public inbox exists for this yet — see the /equipo page build notes.
+  // Falls back to the owner's known address rather than failing outright,
+  // but CONTACT_TO lets that move to a real shared inbox with no code change.
+  const to = process.env.CONTACT_TO || 'nicopizarros@icloud.com';
+  if (!apiKey) return { sent: false, reason: 'RESEND_API_KEY no está configurada' };
+  if (!from) return { sent: false, reason: 'EMAIL_FROM no está configurada' };
+
+  const safeName = escapeHtml(opts.name);
+  const safeEmail = escapeHtml(opts.fromEmail);
+  const safeMessage = escapeHtml(opts.message).replace(/\n/g, '<br>');
+
+  const subject = `Contacto Playbook — ${opts.name}`;
+  const text = [`De: ${opts.name} <${opts.fromEmail}>`, '', opts.message].join('\n');
+  const html = `
+    <div style="font-family:Inter,-apple-system,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#0a0a0a;">
+      <p style="font-size:13px;line-height:1.6;color:#6b6459;">Nuevo mensaje desde /contacto</p>
+      <p style="font-size:15px;line-height:1.6;"><strong>${safeName}</strong> &lt;${safeEmail}&gt;</p>
+      <p style="font-size:15px;line-height:1.6;">${safeMessage}</p>
+    </div>`;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      // reply_to so answering the notification email replies to the sender directly.
+      body: JSON.stringify({ from, to, reply_to: opts.fromEmail, subject, text, html }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      return { sent: false, reason: `Resend respondió ${res.status}${body ? `: ${body.slice(0, 200)}` : ''}` };
+    }
+    return { sent: true };
+  } catch (err) {
+    return { sent: false, reason: (err as Error).message };
+  }
+}

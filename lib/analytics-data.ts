@@ -182,6 +182,24 @@ export type AnalyticsSnapshot = {
   error: string | null;
 };
 
+/**
+ * Just the 30-day reach KPI — for the public /equipo page's stat strip.
+ * Deliberately NOT getAnalyticsSnapshot(): that does 7 parallel panels
+ * (top articles, referrers, countries, devices) built for the admin
+ * dashboard's one authenticated caller. Calling the full snapshot from a
+ * public, unauthenticated route would run all of that on every page view
+ * for one number nobody reads from it.
+ */
+export async function getReachLast30Days(): Promise<PeriodKpi> {
+  kpiSource = ga4Analytics.isConfigured() ? 'ga4' : 'vercel';
+  try {
+    return await periodKpis(isoDaysAgo(30), isoNow(), isoDaysAgo(60), isoDaysAgo(30));
+  } catch (err) {
+    console.error('[Playbook] analytics-data getReachLast30Days error:', (err as Error).message);
+    return { pageviews: null, visitors: null, deltaPageviews: null, deltaVisitors: null };
+  }
+}
+
 export async function getAnalyticsSnapshot(): Promise<AnalyticsSnapshot> {
   // Reset the source ladder per snapshot: 'ga4' when its creds exist,
   // 'vercel' when only Vercel's could answer, and safeCount overwrites to
