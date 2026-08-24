@@ -178,7 +178,13 @@ document, see Step 6), never HTML tags.
 
 ## Step 4: Fields per article
 
-- **title**: headline, in Spanish.
+- **title**: headline, in Spanish. Roughly 45-70 characters, rarely past 80,
+  and one clause, not several stacked with "y"/"mientras"/"pero" trying to
+  fit the whole story into the headline. The article page's `h1` has no
+  truncation, a long title just wraps across three or four lines of large
+  serif type in the hero exactly as written (see
+  `publish-sourced-article/SKILL.md`'s Headline section, same site-wide
+  constraint, for the caught-in-review example this rule came from).
 - **excerpt**: 1-2 sentence hook for the feed card, makes the reader want to click.
 - **teaser**: 1-3 plain sentences, no formatting. RSS description / pre-editor fallback, NOT the body.
 - **bodyMarkdown**: see Step 3. For Industry Shots/Infinitas: fact, Step 2 research, detail, then `**Opinión de Playbook:**`, always all four paragraphs. For La Lana del Deporte: the existing fact/analysis content unchanged, plus a second `**Opinión de Playbook:**` paragraph only when genuinely supportable.
