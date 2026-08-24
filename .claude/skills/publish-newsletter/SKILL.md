@@ -388,6 +388,27 @@ content (photos, banners, infographics, charts) gets carried over.
 
 ## Step 6: Publish
 
+**If the body uses a device that isn't deployed yet, the deploy comes
+first.** Devices are resolved at RENDER time, so the article row stores
+the plain `Serie: …` / `Duelo: …` paragraph and the running server turns
+it into markup. A server that predates the device has no pattern to match
+it, leaves the paragraph alone, and the live page shows the raw
+declaration as body text. That is a public-facing defect on a published
+article, and the database write is not what fixes it.
+
+So when a run adds a device to `lib/article-devices.ts` and uses it in the
+same piece, the order is: merge the code, **confirm production is actually
+serving it**, then write the row. Confirm it by fetching the live article
+and grepping its `/_next/static/css/*.css` bundles for the device's class
+(`lect-serie-line`, `lect-duelo-bar`); a green CI check only says the
+build passed, not that the deployment replaced what the CDN is serving,
+and on 2026-08-08 those two were about forty minutes apart. If the deploy
+is lagging and the piece is otherwise ready, publish the version WITHOUT
+the new declaration and add it after — a body that renders correctly is
+worth more than a complete one that doesn't. Take out any sentence that
+points at the missing element ("como se ve abajo") in that interim
+version, or it dangles.
+
 1. Write a JSON array of article objects (shape: `title, excerpt, teaser,
    bodyMarkdown, author, date, dateFormatted, publication, source, tagsScope,
    tagsSport, tagsVertical, priority, featured, mostrarAutor, readingTime,
