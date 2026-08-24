@@ -54,9 +54,16 @@ export function HubMotion() {
     countUp(scope, q<HTMLElement>('.hubx-chain-remaining, .hubx-figure-value'));
 
     // ——— Grouped reveals.
+    // The lead card is deliberately NOT in this list. Everything here
+    // fades up from a resting offset; doing that to a full-bleed
+    // photograph makes the module look like it failed to load, and the
+    // lead is the first thing under the masthead — the one place on the
+    // page where an entrance animation costs more than it buys.
     for (const [groupSel, childSel] of [
       ['.hubx-figures', '.hubx-figure'],
+      ['.hubx-side', '.hubx-item'],
       ['.hubx-stream', '.hubx-item'],
+      ['.hubx-pillars', '.hubx-pillar'],
       ['.hubx-cross', 'a'],
       ['.hubx-season', 'li'],
     ] as const) {

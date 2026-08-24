@@ -50,10 +50,55 @@
   --hub-accent: #00FF00;      /* verde brillante — accents only, ~5% */
   --hub-accent-ink: #4DFF6A;  /* small type on Cinder; #00FF00 is harsh at 11px */
 
+  /* ——— El tablero: the one LIGHT plane on the page ———
+     Adopted from the 2026-08-19 mockup, which puts the numbers on a light
+     board while everything else stays dark. It is not decoration: the hub
+     is otherwise Cinder from masthead to footer, and a page with no tonal
+     rhythm reads as one long column no matter how good the type is. The
+     board is where the reader is asked to STOP and read figures, so it gets
+     the one surface that behaves differently.
+
+     Kit-compatible: the 75% Cinder proportion is about the page's dominant
+     ground, and one band out of nine sections does not touch it. The
+     Cloud-Dancer-adjacent off-white keeps it inside the kit's own white
+     rather than introducing a second one. Nothing that the kit restricts to
+     dark grounds (the campaign lockup, the white-envelope shield) ever
+     lands here — only figures and their sources.
+
+     Verde OSCURO carries the accent on this plane, not verde brillante:
+     #00FF00 on an off-white board is illegible and would also spend the
+     kit's 5% accent budget on a surface that does not need attention drawn
+     to it. */
+  --hub-board: #EDEFEC;
+  --hub-board-ink: #161817;
+  --hub-board-mute: #5E6562;
+  --hub-board-line: #CDD2CD;
+  --hub-board-accent: #00421E;
+
   /* Masthead wash only. Official Mexican flag values — NOT LFA brand
      colours, and deliberately not used anywhere else on the page. Kept at
      the publisher's request; permitted because the kit allows the mark
-     over colour gradients (LOGO SUIT). */
+     over colour gradients (LOGO SUIT).
+
+     Since 2026-08-24 this is the FALLBACK, not the masthead: the hub now
+     leads with the league's own 2026 key art (Hub.identity.heroArt), which
+     is itself a flag gradient with a diagonal hatch — this wash was always
+     an approximation of that artwork, built before Playbook had it. It
+     still renders underneath, so a hub with no heroArt, or a heroArt that
+     404s, gets a designed masthead rather than a black rectangle. */
   --hub-flag-green: #006847;
   --hub-flag-red: #CE1126;
+  --hub-hero-wash:
+    linear-gradient(
+      100deg,
+      var(--hub-flag-green) 0%,
+      color-mix(in srgb, var(--hub-flag-green) 45%, var(--hub-black)) 26%,
+      var(--hub-page) 52%,
+      color-mix(in srgb, var(--hub-flag-red) 45%, var(--hub-black)) 80%,
+      var(--hub-flag-red) 100%
+    );
+
+  /* The kit's approved "Black board" texture. Multiplied over the key art
+     so the masthead keeps its grain instead of going flat-photographic. */
+  --hub-hero-texture: url('/hubs/lfa/board.jpg');
 }

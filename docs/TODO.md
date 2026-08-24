@@ -209,3 +209,93 @@ entry from the roadmap into `dynamic-element-library.md`, and add it to the
 harness sampler. The roadmap deliberately lives OUTSIDE
 `.claude/playbook-editorial/` so no drafting run authors an unbuilt device —
 keep it that way until the code exists.
+
+---
+
+## 5. Ads are PAUSED site-wide — one line to bring them back
+
+`ADS_PAUSED = true` in `lib/adsense.ts` (publisher directive 2026-08-24,
+"collapse all ad spaces on the app until new notice"). `AdSlot` returns
+`null` for every placement regardless of consent or configuration, so no
+`.ad-slot` wrapper is mounted anywhere and none of the reserved min-heights
+in `styles/ads.css` apply. Verified with advertising consent GRANTED on `/`,
+`/articulo`, `/infinitas`: `.ad-slot` count is 0 on all three.
+
+**To resume:** flip that one constant. Nothing else was removed — the six
+`<AdSlot>` call sites, all six unit IDs, the `SLOT_FORMATS` map and the
+`ADSENSE_SLOT_*` env overrides are untouched, so no unit has to be
+re-created in the dashboard.
+
+**Deliberately still live**, because all three are AdSense *account*
+prerequisites rather than inventory, and pulling them over a temporary hold
+risks the account's standing: the `adsbygoogle` loader and Google's Funding
+Choices CMP in `app/layout.tsx`, and `/ads.txt`.
+
+**ONE THING THE CODE CANNOT DO — needs a dashboard click.** With the loader
+live, Google's **Auto ads** can place anchor and vignette units on its own,
+with no `<AdSlot>` involved. On the checked pages it currently injects one
+zero-size probe (`<ins class="adsbygoogle adsbygoogle-noablate"
+data-ad-hi="true">`, `display:none`, `data-ad-status="unfilled"`) appended
+to `<body>` — nothing renders and nothing occupies layout, so the pause
+holds today. But that element proves Auto ads is at least probing, and if a
+campaign ever fills it the pause is no longer complete. **Turn Auto ads off
+for playbook.la in the AdSense dashboard** to make the hold airtight.
+
+---
+
+## 6. `El tablero de la FIFA` — updated 2026-08-24, two backlogs left
+
+Was stale at its 14 ago state for ten days. Now carries 34 of 210
+federations declared (was 20), **82 con Infantino / 125 pidiendo revisión /
+3 sin definir**, last movement 24 ago 2026. Fourteen entries added, each
+with a date and a source: Alemania (15 jul), Grecia and Jordania (4 ago),
+Noruega, Croacia and Albania (7 ago), Hungría (19 ago), Montenegro and
+Israel (20 ago), Gibraltar (24 ago) against; Yibuti (2 ago) and Argentina
+(7 ago) for; Rumania and República Checa (12 ago) undecided.
+
+The two-way split barely moved because almost every new declaration came
+from inside a bloc already counted on that side. Only Romania and Czechia
+changed the headline (127 → 125), by moving out of UEFA's silent count into
+`sin-definir` — which required widening that bucket's definition from
+"explicitly declined" to "declined, OR signalled doubt without declaring",
+documented in the file.
+
+Also landed: `ELECTION.vote` sharpened to `2027-03-18` with
+`venue: 'Rabat, Marruecos'` (worth naming — Morocco signed the joint letter
+backing him, so the ballot is held in a house that has already declared),
+and CAF's note now carries the contested-unanimity qualifier.
+
+### Backlog A — federations with a position but no date
+
+`since` is load-bearing: it drives `lastMovement()`, the module's own
+staleness check. These are held out until someone pins a date, not dropped:
+
+- **Países Bajos** — appears on published trackers as withdrawn, no date.
+- **Dinamarca** — its only dated statement is the 2022 OneLove
+  non-endorsement, which is a position on a different fight. Needs a 2026
+  statement before it belongs on this board.
+- Roughly a dozen African and Asian associations listed as backing him
+  (Kuwait, Sri Lanka, RD Congo, Indonesia, Níger, Nigeria, Comoras, Malaui,
+  Uganda, Gambia, Paraguay, Mongolia…), all undated on the trackers.
+
+### Backlog B — the model has no candidate axis
+
+The board is a referendum on Infantino: for, against, undecided. It cannot
+represent a second candidate, and there may be one — Montagliani is
+weighing a run, and Salman bin Ibrahim Al Khalifa, Dariusz Mioduski and
+Mattias Grafström have been named as possible alternatives. Nominations
+close **18 nov 2026** (`ELECTION.candidaciesClose`, already correct), and a
+candidacy needs five member associations to endorse it. **Revisit the data
+model after that date**, not before: until the ballot is known, a candidate
+dimension would be modelling speculation.
+
+Related: the regional bodies have threatened a **no-confidence vote** (20
+ago), which is a separate mechanism from the March ballot and is also
+unrepresentable today. Probably prose, not a board column.
+
+### One inconsistency in the archive
+
+The 21 ago article's prose says "la FIFA elige presidente con 211 votos".
+The board uses 210 because Nepal is suspended, and its header documents
+that reasoning. The board is right; the article prose is loose. Not worth
+editing a published piece over, but don't copy the 211 forward.

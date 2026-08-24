@@ -12,6 +12,7 @@ import {
   HubNewsletter,
   HubPillars,
   HubPlazas,
+  HubRail,
   HubSeason,
   HubStream,
 } from '@/components/hubs/HubModules';
@@ -99,9 +100,6 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
           (/coberturas/* -> /exclusivas/*). */}
       <VisitBeacon event="hub_visit" params={{ hub_slug: hub.slug, product: `hub:${hub.slug}` }} />
       {/* ------------------------------------------------------- Masthead
-          Full-bleed flag gradient with the diagonal hatch the league uses,
-          then the lockup over it. */}
-      {/* ------------------------------------------------------- Masthead
           CO-BRANDING PER THE LEAGUE'S OWN KIT ("Asociación con otros logos
           / marcas"): the associated mark sits LEFT and LFA sits RIGHT when
           the VOICE is the partner's — which it is here, because this is
@@ -113,48 +111,80 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
           ground; on a Cinder page that would be invisible, so the rule uses
           the Cinder-family --hub-edge. Same intent, legible substrate.
 
-          Background is the kit's approved "Black board" texture, which is
-          also one of the only two grounds the 2026 campaign lockup is
-          permitted on ("NO DEBEN SER USADAS SOBRE FONDOS BLANCOS"). */}
-      <header className="hubx-hero">
+          PHOTOGRAPHIC MASTHEAD (2026-08-24). The artwork arrives as a CSS custom
+          property rather than an <img> or a rule in hub.css, for two
+          reasons: styles/hubs/hub.css is structure-only and must never
+          learn an asset path (it used to hardcode /hubs/lfa/board.jpg,
+          which was a quiet violation of its own header), and the scrim
+          needs to composite over it in the same paint. Absent, the
+          masthead falls back to the token wash — see --hub-hero-wash. */}
+      <header
+        className="hubx-hero"
+        style={
+          hub.identity.heroArt
+            ? ({ '--hub-hero-art': `url('${hub.identity.heroArt.src}')` } as React.CSSProperties)
+            : undefined
+        }
+      >
         <div className="container hubx-hero-inner">
           <Link className="hubx-back" href="/">← Volver a Playbook</Link>
 
-          <div className="hubx-lockup">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="hubx-lockup-mark hubx-lockup-playbook"
-              src="/assets/img/playbook-logo-dark.png"
-              alt="Playbook"
-              width={520}
-              height={121}
-            />
-            <span className="hubx-lockup-rule" aria-hidden="true" />
-            {hub.identity.logo && (
-              /* eslint-disable-next-line @next/next/no-img-element */
+          <div className="hubx-hero-copy">
+            <div className="hubx-lockup">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                className="hubx-lockup-mark hubx-lockup-property"
-                src={hub.identity.logo.src}
-                alt={hub.identity.logo.alt}
-                width={hub.identity.logo.width}
-                height={hub.identity.logo.height}
+                className="hubx-lockup-mark hubx-lockup-playbook"
+                src="/assets/img/playbook-logo-dark.png"
+                alt="Playbook"
+                width={520}
+                height={121}
               />
-            )}
+              <span className="hubx-lockup-rule" aria-hidden="true" />
+              {hub.identity.logo && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  className="hubx-lockup-mark hubx-lockup-property"
+                  src={hub.identity.logo.src}
+                  alt={hub.identity.logo.alt}
+                  width={hub.identity.logo.width}
+                  height={hub.identity.logo.height}
+                />
+              )}
+            </div>
+
+            {hub.partnership && <p className="hubx-partner">{hub.partnership}</p>}
+
+            {/* The wordmark still always renders — it is the h1, so the page
+                names its property whether or not any mark resolves. */}
+            <h1 className="hubx-wordmark">
+              <span className="hubx-wordmark-kicker">{hub.identity.wordmark}</span>
+              {hub.tagline}
+            </h1>
+
+            <p className="hubx-thesis">{hub.thesis}</p>
+            <p className="hubx-fullname">{hub.fullName}</p>
+
+            {/* Two ways in, never more: the newest work, and the beats we
+                have committed to covering. Both anchor into modules that
+                are always present — the stream always renders (its empty
+                state is designed), and the pillars link only appears
+                because the rail below already proved the module exists. */}
+            <div className="hubx-hero-actions">
+              <a className="hubx-btn" data-variant="primary" href="#lo-ultimo">
+                Ver lo último ↓
+              </a>
+              {hub.pillars?.length ? (
+                <a className="hubx-btn" href="#temas">Qué estamos siguiendo</a>
+              ) : null}
+            </div>
           </div>
-
-          {hub.partnership && <p className="hubx-partner">{hub.partnership}</p>}
-
-          {/* The wordmark still always renders — it is the h1, so the page
-              names its property whether or not any mark resolves. */}
-          <h1 className="hubx-wordmark">
-            <span className="hubx-wordmark-kicker">{hub.identity.wordmark}</span>
-            {hub.tagline}
-          </h1>
-
-          <p className="hubx-thesis">{hub.thesis}</p>
-          <p className="hubx-fullname">{hub.fullName}</p>
         </div>
+        {hub.identity.heroArt?.credit && (
+          <span className="hubx-hero-credit">{hub.identity.heroArt.credit}</span>
+        )}
       </header>
+
+      <HubRail hub={hub} />
 
       <div className="container">
         {/* Content opens the page, not a corporate factsheet — same
@@ -163,13 +193,19 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
         <HubStream hub={hub} articles={articles} />
 
         {hub.chain && (
-          <section className="hubx-section" aria-labelledby="hubx-chain-title">
+          <section className="hubx-section" id="la-meta" aria-labelledby="hubx-chain-title">
             <p className="hubx-kicker">La meta</p>
             <HubChain chain={hub.chain} />
           </section>
         )}
+      </div>
 
-        <HubFigures hub={hub} />
+      {/* FULL-BLEED, so outside the container: the board is the page's one
+          light plane and the newsletter is its closing band. Both open
+          their own .container internally. */}
+      <HubFigures hub={hub} />
+
+      <div className="container">
         <HubPillars hub={hub} />
         <HubPlazas hub={hub} />
         <HubMoments hub={hub} />
@@ -177,9 +213,8 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
         <HubAccess hub={hub} />
         <HubCross hub={hub} />
       </div>
-      <div className="container">
-        <HubNewsletter hub={hub} />
-      </div>
+
+      <HubNewsletter hub={hub} />
       <HubMotion />
     </main>
   );

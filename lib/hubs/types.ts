@@ -47,6 +47,30 @@ export type HubSource = {
   note?: string;
 };
 
+// ------------------------------------------------------------- Photography
+// A hub is a DESTINATION, and a destination that is only type reads as a
+// document. Photography is what makes it read as a section — which is the
+// whole point of the 2026-08-19 mockup's own layout: it leads with an image
+// in the masthead, in the lead story and in the access module, and lets the
+// data modules stay typographic by contrast.
+//
+// CONFIG, NOT CODE. Every photographic slot below is optional and lives in
+// lib/hubs/<slug>.ts. A hub that supplies none renders the same page with
+// the type-only treatment — no component branches on a slug, and hub two
+// gets photography by adding two lines to its config file.
+//
+// `credit` is not decoration: .claude/playbook-editorial/images.md requires
+// every photo Playbook publishes to name its source, because that credit is
+// what the takedown clause in /terminos rests on. It renders as a hairline
+// caption over the image.
+export type HubImage = {
+  src: string;
+  /** Real alt text. Empty string ONLY for art that carries no information. */
+  alt: string;
+  /** "Foto: LFA", "Cortesía Global Sports Capital", … */
+  credit?: string;
+};
+
 export type HubFigure = {
   /** Display value exactly as it should read: "US$100M", "12", "8". */
   value: string;
@@ -171,6 +195,18 @@ export type HubIdentity = {
    * property's palette, do not imply partnership or licensing.
    */
   logo?: { src: string; alt: string; width: number; height: number };
+  /**
+   * Full-bleed masthead artwork, behind the lockup and the h1.
+   *
+   * Same nominative-reference posture as `logo` and the same degradation
+   * rule: absent, the masthead falls back to the token-driven wash in
+   * styles/hubs/hub.css, so removing this line loses the photograph and
+   * nothing else. The image must have a LOW-INFORMATION SIDE — the scrim
+   * that keeps the headline legible eats roughly the left 55% of it — so a
+   * centred subject is the wrong choice here even when it is the better
+   * photograph.
+   */
+  heroArt?: HubImage;
 };
 
 // ------------------------------------------------------------ The hub
@@ -236,6 +272,16 @@ export type Hub = {
   momentsClave?: HubMoment[];
   /** "Desde adentro". Optional — only what the partnership genuinely delivers today. */
   access?: HubAccessItem[];
+  /**
+   * The photograph beside "Desde adentro". A POSTER, not a claimed piece of
+   * content: it carries the access promise visually, and deliberately wears
+   * no play button and no "watch this" affordance, because no interview or
+   * video exists yet. The mockup's own version of this module invented a
+   * clip labelled "DEMO INTERNO"; shipping that would be the same
+   * fabrication the provenance rule forbids for figures, applied to content
+   * instead of a number.
+   */
+  accessPhoto?: HubImage;
   /** Shown when the coverage pool is empty. An invitation, not a dead end. */
   emptyState: { heading: string; body: string };
 };

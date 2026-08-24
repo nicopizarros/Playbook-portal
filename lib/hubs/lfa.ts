@@ -83,6 +83,28 @@ export const LFA_HUB: Hub = {
       width: 1200,
       height: 400,
     },
+    // The league's own 2026 campaign key art, supplied to Playbook with the
+    // press kit. It replaces the hand-built Mexican-flag gradient the
+    // masthead used to wear — which was an APPROXIMATION of this image, made
+    // before the real one was in hand. Using the actual artwork is both more
+    // honest and better: the flag wash, the diagonal hatch and the roster
+    // montage are the league's composition, not Playbook's guess at it.
+    //
+    // Composed for exactly this crop: the montage sits hard right and the
+    // left two-thirds are near-empty gradient, which is where the headline
+    // goes. Do not re-centre it.
+    //
+    // Same nominative-reference posture as the shield above, and the same
+    // degradation: delete this line and the masthead falls back to the
+    // token wash with nothing else changed. Note this is the league's own
+    // composed campaign image, NOT team crests lifted into Playbook's
+    // design language — the identity-design legal guardrail forbids the
+    // latter and this is not that.
+    heroArt: {
+      src: '/hubs/lfa/key-art-2026.jpg',
+      alt: '',
+      credit: 'Arte: LFA',
+    },
   },
 
   tag: 'LFA',
@@ -228,4 +250,14 @@ export const LFA_HUB: Hub = {
     { title: 'Backstage', description: 'Cómo se construyen los eventos, acuerdos y decisiones relevantes.' },
     { title: 'Contexto', description: 'No republicar comunicados: explicar qué significa cada movimiento.' },
   ],
+
+  // The poster beside "Desde adentro". Playbook already holds this frame —
+  // it is the cover of the Black Clover piece — so it is a real photograph
+  // of the property, credited, not stock. No play button and no "ver el
+  // video": there is no video. See Hub.accessPhoto.
+  accessPhoto: {
+    src: '/assets/img/lfa-reyes-accion-mayo-2026.jpg',
+    alt: 'Corredor de los Reyes de Jalisco avanza con el balón en un partido de la LFA',
+    credit: 'Foto: LFA',
+  },
 };

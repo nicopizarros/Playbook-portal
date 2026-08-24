@@ -19,7 +19,11 @@
   --hubx-gap: clamp(2.75rem, 6vw, 4.5rem);
   background: var(--hub-page);
   color: var(--hub-chalk);
-  padding-bottom: clamp(3rem, 8vw, 5rem);
+  /* No bottom padding: .hubx-newsletter is a full-bleed closing band and
+     always renders, so it IS the page's bottom edge. Padding under it left
+     a strip of page colour between the band and the site footer that read
+     as a gap rather than as breathing room. */
+  padding-bottom: 0;
   /* Roboto is the kit's secondary face, for general content. Anton (its
      primary) is --serif-display and is used on headings only, per the kit:
      "títulos y encabezados... textos cortos que no sobrepasen las 10
@@ -28,61 +32,123 @@
 }
 
 /* ---------------------------------------------------------- Masthead
-   Full-bleed flag wash with the diagonal hatch the league's own hero uses,
-   then the lockup over it. The wash is the ONLY place the flag colours
-   appear — everywhere else the accent does the work. */
+   PHOTOGRAPHIC. The single biggest change of 2026-08-24: the masthead used
+   to be a hand-built Mexican-flag gradient, which was an approximation of
+   the league's own campaign key art made before Playbook had the file. Now
+   the artwork itself sits here (Hub.identity.heroArt → the --hub-hero-art
+   custom property, set inline by the route so THIS FILE never learns an
+   asset path — see the structure-only rule at the top).
+
+   Three stacked planes, bottom to top:
+     1. --hub-hero-wash   token gradient. The fallback: a hub with no art,
+                          or an art file that 404s, still gets a designed
+                          masthead instead of a black rectangle.
+     2. --hub-hero-art    the photograph, anchored RIGHT because these
+                          compositions put their subject there and the
+                          headline needs the left.
+     3. ::after           the scrim. Horizontal, so the copy side goes to
+                          near-solid page colour while the art side stays
+                          legible, plus a bottom fade that dissolves the
+                          masthead into the page instead of ruling it off.
+
+   The horizontal scrim is why heroArt's doc comment insists on a
+   low-information left side: roughly the left half of the image is
+   deliberately not visible. */
 .hubx-hero {
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--hub-edge);
-  margin-bottom: var(--hubx-gap);
-  /* Two layers: the kit's approved "Black board" texture blended over a
-     Mexican-flag gradient (publisher's call — they liked it, and the kit's
-     LOGO SUIT page explicitly permits the mark "sobre gradientes de color"
-     and over textures; the white-background prohibition applies to the
-     campaign logo+slogan lockup, which this page does not use).
-     soft-light keeps the texture's grid and grain reading while letting
-     the flag through, so the ground is textured rather than a flat wash. */
+  min-height: clamp(430px, 60vh, 620px);
+  display: flex;
   background-color: var(--hub-black);
-  background-image:
-    url('/hubs/lfa/board.jpg'),
-    linear-gradient(
-      100deg,
-      var(--hub-flag-green) 0%,
-      color-mix(in srgb, var(--hub-flag-green) 45%, var(--hub-black)) 26%,
-      var(--hub-page) 52%,
-      color-mix(in srgb, var(--hub-flag-red) 45%, var(--hub-black)) 80%,
-      var(--hub-flag-red) 100%
-    );
-  background-size: cover, cover;
-  background-position: center, center;
-  background-repeat: no-repeat, no-repeat;
-  background-blend-mode: soft-light, normal;
 }
-/* Keeps type off the busiest part of the texture without dimming it flat. */
+
+/* Planes 1 + 2, in one paint so the blend below applies to them and not to
+   the scrim above.
+
+   ART ON TOP, TEXTURE UNDER IT — and that order is load-bearing. The first
+   pass had the board texture over the artwork on the reasoning that the
+   masthead should keep its grain; it did, and it also drained the key art
+   to a grey-green wash, because the artwork ALREADY carries the league's
+   own diagonal hatch. Two hatches multiplied is mud. Sitting underneath, an
+   opaque `cover` art layer hides the texture entirely, and the texture goes
+   back to doing the job it was added for: graining the --hub-hero-wash
+   fallback for a hub with no artwork of its own. */
+.hubx-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    var(--hub-hero-art, none),
+    var(--hub-hero-texture, none),
+    var(--hub-hero-wash, none);
+  background-size: cover, cover, cover;
+  background-position: right center, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-blend-mode: normal, soft-light, normal;
+  pointer-events: none;
+}
+
+/* Plane 3 — the scrim. Structure only: every colour is --hub-page mixed
+   with transparency, so a hub with a different ground gets a scrim that
+   matches it for free. */
 .hubx-hero::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.30) 0%,
-    rgba(0, 0, 0, 0.42) 55%,
-    var(--hub-page) 100%
-  );
+  background:
+    linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--hub-page) 96%, transparent) 0%,
+      color-mix(in srgb, var(--hub-page) 92%, transparent) 24%,
+      color-mix(in srgb, var(--hub-page) 78%, transparent) 44%,
+      color-mix(in srgb, var(--hub-page) 24%, transparent) 70%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--hub-black) 45%, transparent) 0%,
+      transparent 24%,
+      transparent 58%,
+      var(--hub-page) 100%
+    );
   pointer-events: none;
 }
 
 .hubx-hero-inner {
   position: relative;
   z-index: 1;
+  width: 100%;
   /* LONGHAND: this element also carries .container, and the `padding`
      shorthand wipes its horizontal padding — which once put the wordmark
      flush against the viewport edge on mobile. */
   padding-top: clamp(1.25rem, 3vw, 2rem);
-  padding-bottom: clamp(3rem, 7vw, 5rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
   display: flex;
   flex-direction: column;
+}
+
+/* The copy column. Capped so the art's right-hand subject is never covered
+   — the mockup's 1.06fr / .94fr split, expressed as a max-width so it
+   collapses to full bleed on mobile with no media query of its own. */
+.hubx-hero-copy {
+  margin-top: auto;
+  max-width: min(60%, 44rem);
+}
+
+/* Photo credit. images.md: every photograph Playbook publishes names its
+   source, because that credit is what /terminos' takedown clause rests on.
+   Bottom-right, out of the copy's way, deliberately quiet. */
+.hubx-hero-credit {
+  position: absolute;
+  right: clamp(0.75rem, 2vw, 1.25rem);
+  bottom: 0.6rem;
+  z-index: 2;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hub-mute);
+  opacity: 0.75;
 }
 
 .hubx-back {
@@ -193,6 +259,85 @@
   color: var(--hub-mute);
   margin: 1rem 0 0;
 }
+
+/* ---- Masthead calls to action. A coverage hub is a DESTINATION, and a
+   destination that opens with no way in reads as a poster. Two, never more:
+   the newest work, and the beats we have committed to. */
+.hubx-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: clamp(1.5rem, 3.5vw, 2.25rem);
+}
+
+.hubx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.15rem;
+  border: 1px solid var(--hub-edge);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--hub-black) 55%, transparent);
+  color: var(--hub-chalk);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+.hubx-btn:hover { border-color: var(--hub-accent); }
+.hubx-btn:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 2px; }
+/* The ONE full-strength accent surface on the page. The kit reserves verde
+   brillante for "llamadas de atención muy específicas" — a single primary
+   button is exactly that, and there is no second one. */
+.hubx-btn[data-variant='primary'] {
+  background: var(--hub-accent);
+  border-color: var(--hub-accent);
+  color: var(--hub-black);
+  font-weight: 800;
+}
+.hubx-btn[data-variant='primary']:hover {
+  background: color-mix(in srgb, var(--hub-accent) 82%, var(--hub-chalk));
+}
+@media (prefers-reduced-motion: reduce) { .hubx-btn { transition: none; } }
+
+/* ------------------------------------------------------------- Anchor rail
+   The page runs to nine modules. Without a rail the reader has to scroll to
+   discover that the plazas map or the chain exist at all, which is the one
+   real usability idea in the mockup's own sub-navigation.
+
+   Built from the modules that ACTUALLY RENDERED (see HubRail): a link to a
+   section that hid itself for want of content would be a dead anchor, and
+   every module on this page is allowed to hide. */
+.hubx-rail {
+  border-bottom: 1px solid var(--hub-edge);
+  background: var(--hub-black);
+  margin-bottom: var(--hubx-gap);
+}
+.hubx-rail-inner {
+  display: flex;
+  gap: clamp(1rem, 2.5vw, 1.9rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+.hubx-rail-inner::-webkit-scrollbar { display: none; }
+.hubx-rail a {
+  white-space: nowrap;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--hub-mute);
+  text-decoration: none;
+}
+.hubx-rail a:hover { color: var(--hub-chalk); }
+.hubx-rail a:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 3px; }
+
+/* Anchored sections must not land under the site's sticky topbar. */
+.hubx [id] { scroll-margin-top: 84px; }
 
 /* ------------------------------------------------- Section furniture
    Green kicker over an Anton heading — the league's own section rhythm. */
@@ -327,30 +472,64 @@
   font-size: 1rem; line-height: 1.5; color: var(--hub-chalk); opacity: 0.9; max-width: 46ch;
 }
 
-/* ------------------------------------------- Commercial state figures */
+/* ----------------------------------------------- EL TABLERO (light band)
+   The one light plane on the hub, and the only full-bleed module besides
+   the masthead and the newsletter. Rationale for the tonal break lives with
+   the tokens in styles/hubs/<slug>.tokens.css; what it buys structurally is
+   a stop. Everything above and below is a dark reading column; this is
+   where the page says "these are the numbers".
+
+   Hairline grid rather than separated cards: the mockup's own treatment,
+   and the right one — four figures that share a rule read as ONE board,
+   four floating cards read as four unrelated facts. */
+.hubx-board {
+  margin-top: var(--hubx-gap);
+  padding: clamp(2.5rem, 6vw, 4rem) 0;
+  background: var(--hub-board);
+  color: var(--hub-board-ink);
+}
+/* Section furniture has to be re-inked for the light plane — the kickers
+   and headings above are all tuned for Cinder. */
+.hubx-board .hubx-kicker { color: var(--hub-board-accent); }
+.hubx-board .hubx-head { color: var(--hub-board-ink); }
+.hubx-board .hubx-sub { color: var(--hub-board-mute); }
+.hubx-board .hubx-section { margin-top: 0; }
+
 .hubx-figures {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
-  gap: 12px;
+  /* 1px of grid gap showing the board line THROUGH it — one rule shared
+     between neighbours, not a border each. */
+  gap: 1px;
+  background: var(--hub-board-line);
+  border: 1px solid var(--hub-board-line);
 }
 
 .hubx-figure {
-  background: var(--hub-card);
-  border: 1px solid var(--hub-edge);
-  border-radius: 6px;
-  padding: 1.4rem 1.3rem;
+  background: var(--hub-board);
+  padding: clamp(1.3rem, 2.6vw, 1.75rem) clamp(1.1rem, 2.2vw, 1.5rem);
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .hubx-figure-value {
   display: block;
   font-family: var(--serif-display); font-weight: 400;
-  font-size: clamp(2rem, 5vw, 2.7rem); line-height: 1;
-  font-variant-numeric: tabular-nums; color: var(--hub-chalk);
+  font-size: clamp(2.1rem, 5vw, 3rem); line-height: 0.95;
+  font-variant-numeric: tabular-nums; color: var(--hub-board-ink);
 }
+/* The lead figure only. Deterministic (first child), not alternating: an
+   every-other-one accent is decoration, one highlighted number is an edit. */
+.hubx-figure:first-child .hubx-figure-value { color: var(--hub-board-accent); }
 
 .hubx-figure-label {
-  display: block; margin-top: 0.7rem;
-  font-size: 0.88rem; line-height: 1.45; color: var(--hub-mute);
+  display: block;
+  font-size: 0.76rem; font-weight: 700; line-height: 1.4;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--hub-board-ink);
 }
 
 /* Provenance. Renders ONLY when there is a public citation to link to —
@@ -361,6 +540,8 @@
   font-size: 0.7rem; letter-spacing: 0.04em; color: var(--hub-mute);
 }
 .hubx-source a { color: var(--hub-accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+.hubx-board .hubx-source { color: var(--hub-board-mute); margin-top: 0.5rem; }
+.hubx-board .hubx-source a { color: var(--hub-board-accent); }
 
 /* ---------------------------------------------------------- Plazas map
    Mexico with the covered states filled. Decorative by design: the table
@@ -371,6 +552,22 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(1.25rem, 3vw, 2.5rem);
   align-items: center;
+}
+
+/* The map's own plane. Radial rather than flat, so the filled states sit
+   in a pool of light instead of on a rectangle — the mockup's `.territory`
+   idea, kept, with real geography instead of absolutely-positioned dots. */
+.hubx-map-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  min-height: 100%;
+  border: 1px solid var(--hub-edge);
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 50% 45%, var(--hub-card), var(--hub-black) 68%);
 }
 
 .hubx-map { width: 100%; height: auto; display: block; }
@@ -436,11 +633,107 @@
 }
 .hubx-season-label { font-weight: 600; color: var(--hub-chalk); }
 
-/* ------------------------------------------------------ Coverage stream */
-.hubx-stream { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-/* One item should not sit marooned in a third of the row. */
-.hubx-stream:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
-.hubx-stream:has(> :only-child) .hubx-item-title { font-size: 1.35rem; }
+/* ------------------------------------------------------ Coverage stream
+   LEAD + RAIL + GRID, adopted from the mockup and for its reason: a hub
+   opens with CONTENT, and content that opens as a uniform grid of grey
+   boxes states that nothing on the page matters more than anything else.
+   The lead article gets the photograph and the display size; the next two
+   get the rail; everything after that falls into the flat grid below.
+
+   The split is positional, not editorial — position 1 is whatever
+   rankArticles() put first (lib/hubs/pool.ts), so the CMS decides the lead
+   by ranking a piece, not by a hub-local "featured" flag nobody would
+   remember to set. */
+.hubx-latest {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.85fr);
+  gap: 14px;
+  align-items: stretch;
+}
+/* One article is the state this hub SHIPS in. Rather than marooning it in
+   two thirds of a row beside an empty rail, it takes the full width — the
+   photograph is the module. */
+.hubx-latest[data-rail='false'] { grid-template-columns: minmax(0, 1fr); }
+
+/* ---- The lead. A photograph with the story written into its bottom edge. */
+.hubx-lead {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(330px, 40vw, 520px);
+  border: 1px solid var(--hub-edge);
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  background: var(--hub-plane);
+}
+.hubx-lead-photo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  /* Sports frames put the subject above the midline and the scrim eats the
+     bottom third, so a dead-centre crop spends the visible area on grass. */
+  object-position: center 38%;
+  transition: transform 600ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+/* Bottom-up scrim. Steep, because display type over a busy action frame
+   needs real density under it, not a tint. */
+.hubx-lead::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--hub-black) 95%, transparent) 0%,
+    color-mix(in srgb, var(--hub-black) 78%, transparent) 32%,
+    color-mix(in srgb, var(--hub-black) 22%, transparent) 68%,
+    transparent 100%
+  );
+}
+.hubx-lead-copy {
+  position: relative;
+  z-index: 1;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  max-width: 54rem;
+}
+.hubx-lead-kicker {
+  display: block;
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--hub-accent-ink);
+  margin-bottom: 0.7rem;
+}
+.hubx-lead-title {
+  font-family: var(--serif-display); font-weight: 400;
+  font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+  line-height: 1.05; letter-spacing: 0.015em;
+  text-transform: uppercase;
+  margin: 0 0 0.7rem;
+  color: var(--hub-chalk);
+}
+.hubx-lead-dek {
+  margin: 0 0 0.85rem;
+  max-width: 52ch;
+  font-size: 0.92rem; line-height: 1.5;
+  color: color-mix(in srgb, var(--hub-chalk) 82%, transparent);
+}
+.hubx-lead-meta {
+  font-size: 0.68rem; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--hub-mute);
+}
+.hubx-lead:hover .hubx-lead-photo { transform: scale(1.035); }
+.hubx-lead:hover { border-color: var(--hub-accent); }
+.hubx-lead:focus-visible { outline: 2px solid var(--hub-accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .hubx-lead-photo { transition: none; }
+  .hubx-lead:hover .hubx-lead-photo { transform: none; }
+}
+
+/* ---- The rail beside the lead. Same card as the flat grid below, just
+   stretched to share the lead's height. */
+.hubx-side { display: grid; gap: 14px; grid-auto-rows: 1fr; }
+.hubx-side .hubx-item { align-content: space-between; }
+
+.hubx-stream { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 14px; }
 
 .hubx-item {
   display: grid; gap: 0.5rem; align-content: start;
@@ -479,15 +772,53 @@
   background: var(--hub-plane);
   border: 1px solid var(--hub-edge);
   border-radius: 6px;
-  padding: 1.4rem 1.3rem;
+  padding: 1.5rem 1.4rem;
+  min-height: 215px;
+  transition: border-color var(--duration-fast) ease;
 }
+/* The radar sweep. A single hairline arc bleeding out of the bottom-right
+   corner — the module is called "radar editorial" and this is the cheapest
+   honest way to say so. Decorative, so it is drawn by a pseudo-element and
+   never enters the accessibility tree. */
+.hubx-pillar::after {
+  content: '';
+  position: absolute;
+  right: -52px; bottom: -52px;
+  width: 128px; height: 128px;
+  border: 1px solid color-mix(in srgb, var(--hub-accent) 34%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+/* A second, wider arc. One ring reads as a stray circle; two concentric
+   ones read as a sweep. */
+.hubx-pillar::before {
+  content: '';
+  position: absolute;
+  right: -96px; bottom: -96px;
+  width: 216px; height: 216px;
+  border: 1px solid color-mix(in srgb, var(--hub-accent) 16%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hubx-pillar:hover { border-color: color-mix(in srgb, var(--hub-accent) 45%, var(--hub-edge)); }
+@media (prefers-reduced-motion: reduce) { .hubx-pillar { transition: none; } }
+
+/* Pushed away from the title rather than sitting on it: the numeral is a
+   register mark for the card, not a heading. */
 .hubx-pillar-no {
   display: block;
   font-family: var(--serif-display); font-weight: 400;
-  font-size: 1.9rem; line-height: 1; color: var(--hub-edge);
-  margin-bottom: 1.5rem;
+  font-size: 2.1rem; line-height: 1; color: var(--hub-edge);
+  margin-bottom: 2.1rem;
 }
-.hubx-pillar h3 { font-size: 0.98rem; margin: 0 0 0.5rem; color: var(--hub-chalk); text-transform: uppercase; letter-spacing: 0.01em; }
+/* min-height of two lines: "Capital + ownership" wraps and "Expansión"
+   does not, and without a floor the five bodies started at three different
+   heights across the row. */
+.hubx-pillar h3 {
+  font-size: 0.98rem; line-height: 1.25; min-height: 2.5em;
+  margin: 0 0 0.5rem; color: var(--hub-chalk);
+  text-transform: uppercase; letter-spacing: 0.01em;
+}
 .hubx-pillar p { font-size: 0.85rem; line-height: 1.55; color: var(--hub-mute); margin: 0; }
 
 /* --------------------------------------------------------------- Momentos clave
@@ -524,12 +855,80 @@
   .hubx-moments { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* --------------------------------------------------------------- Desde adentro */
+/* --------------------------------------------------------------- Desde adentro
+   Photograph + list, the mockup's own split — MINUS its play button. The
+   mockup mocked up a clip labelled "DEMO INTERNO"; no such clip exists, and
+   an affordance that promises content Playbook cannot deliver is the same
+   fabrication the provenance rule forbids for numbers. So the panel is a
+   POSTER: a real, credited frame of the property carrying the access
+   promise in type, with nothing on it that looks clickable.
+
+   data-art is set by the component: no accessPhoto in the hub config and
+   the module falls back to the flat four-across list it was before. */
+.hubx-inside {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.hubx-inside[data-art='false'] { grid-template-columns: minmax(0, 1fr); }
+
+.hubx-inside-art {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(280px, 34vw, 420px);
+  border: 1px solid var(--hub-edge);
+  border-radius: 6px;
+}
+.hubx-inside-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; }
+.hubx-inside-art::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--hub-black) 92%, transparent) 0%,
+    color-mix(in srgb, var(--hub-black) 62%, transparent) 40%,
+    color-mix(in srgb, var(--hub-black) 12%, transparent) 78%,
+    transparent 100%
+  );
+}
+.hubx-inside-copy {
+  position: relative; z-index: 1;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  max-width: 40rem;
+}
+.hubx-inside-copy h3 {
+  font-family: var(--serif-display); font-weight: 400;
+  font-size: clamp(1.35rem, 2.8vw, 2rem);
+  line-height: 1.06; letter-spacing: 0.015em; text-transform: uppercase;
+  margin: 0 0 0.6rem; color: var(--hub-chalk);
+}
+.hubx-inside-copy p {
+  margin: 0; max-width: 46ch;
+  font-size: 0.88rem; line-height: 1.55;
+  color: color-mix(in srgb, var(--hub-chalk) 78%, transparent);
+}
+/* Same credit rule as the masthead — every photo names its source. */
+.hubx-inside-credit {
+  position: absolute; right: 0.85rem; bottom: 0.5rem; z-index: 2;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--hub-mute); opacity: 0.7;
+}
+
 .hubx-access {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px;
   background: var(--hub-edge); border: 1px solid var(--hub-edge); border-radius: 6px; overflow: hidden;
 }
+/* Beside the poster the list is one column — four narrow columns squeezed
+   into 40% of the row would set two-word lines. */
+.hubx-inside[data-art='true'] .hubx-access {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: stretch;
+}
 .hubx-access-item { background: var(--hub-plane); padding: 1.3rem 1.2rem; }
+.hubx-inside[data-art='true'] .hubx-access-item { display: flex; flex-direction: column; justify-content: center; }
 .hubx-access-item h3 {
   font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
   color: var(--hub-accent-ink); margin: 0 0 0.5rem;
@@ -542,17 +941,44 @@
    shared site footer, never a mid-page module (module-inventory.md). */
 .hubx-newsletter {
   margin-top: var(--hubx-gap);
-  padding: clamp(2rem, 5vw, 3rem) 0 0;
-  border-top: 1px solid var(--hub-edge);
-  display: flex; align-items: center; justify-content: space-between; gap: clamp(1.5rem, 4vw, 3rem);
-  flex-wrap: wrap;
+  /* A BAND, not a hairline. It used to be a rule with some type under it,
+     which read as a footnote — and the newsletter is the hub's only
+     conversion. Full-bleed in the kit's verde OSCURO (its 10% colour), not
+     verde brillante: the mockup closes on a full sheet of acid green, which
+     at this size would blow the kit's 5% accent budget on a single element
+     and leave nothing for the things that actually need attention. Dark
+     green carries the same "the page ends here" weight and lets the accent
+     stay on the one button inside it. */
+  padding: clamp(2.25rem, 5.5vw, 3.5rem) 0;
+  background: var(--hub-verde);
+  border-top: 1px solid color-mix(in srgb, var(--hub-accent) 30%, transparent);
 }
-.hubx-newsletter > div { max-width: 46ch; }
-.hubx-newsletter-form { display: flex; gap: 0; flex: none; }
+.hubx-newsletter-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: clamp(1.5rem, 4vw, 3rem); flex-wrap: wrap;
+}
+.hubx-newsletter-inner > div { max-width: 46ch; }
+.hubx-newsletter .hubx-head { font-size: clamp(1.8rem, 4.6vw, 3rem); }
+/* Chalk, not accent. Verde brillante on verde oscuro vibrates, and the band
+   already has exactly one job for the accent: the button. */
+.hubx-newsletter .hubx-kicker { color: color-mix(in srgb, var(--hub-chalk) 65%, transparent); }
+.hubx-newsletter .hubx-sub { color: color-mix(in srgb, var(--hub-chalk) 80%, transparent); }
+/* NewsletterForm is shared and always carries .pill-form (styles/hero.css):
+   a 999px-radius, 2px --ink border, max-width:380px capsule built for the
+   site's light chrome. On the hub's band that read as a stray white ring
+   around a pair of square-cornered controls — two shapes fighting. The hub
+   is square-cornered throughout, so the pill is unwound here rather than
+   half-overridden. --ink is also a SITE token, and letting it paint inside
+   [data-hub] is exactly the leak the token scoping exists to prevent. */
+.hubx-newsletter-form {
+  display: flex; gap: 0; flex: none;
+  border: 0; padding: 0; border-radius: 0;
+  width: auto; max-width: none;
+}
 .hubx-newsletter-form .nl-fields { display: flex; gap: 0; }
 .hubx-newsletter-form input {
-  width: 260px; background: var(--hub-card); border: 1px solid var(--hub-edge); border-left: none;
-  color: var(--hub-chalk); padding: 0.85rem 1rem; font: inherit; border-radius: 4px 0 0 4px;
+  width: 260px; background: var(--hub-black); border: 1px solid color-mix(in srgb, var(--hub-chalk) 22%, transparent); border-left: none;
+  color: var(--hub-chalk); padding: 0.9rem 1rem; font: inherit; border-radius: 4px 0 0 4px;
 }
 .hubx-newsletter-form input:focus { outline: 2px solid var(--hub-accent); outline-offset: -2px; }
 .hubx-newsletter-form button {
@@ -565,7 +991,7 @@
 @media (max-width: 640px) {
   .hubx-newsletter-form input { width: 100%; }
   .hubx-newsletter-form .nl-fields { flex-direction: column; width: 100%; }
-  .hubx-newsletter-form input { border-radius: 4px; border-left: 1px solid var(--hub-edge); margin-bottom: 0.6rem; }
+  .hubx-newsletter-form input { border-radius: 4px; border-left: 1px solid color-mix(in srgb, var(--hub-chalk) 22%, transparent); margin-bottom: 0.6rem; }
   .hubx-newsletter-form button { border-radius: 4px; width: 100%; padding: 0.85rem; }
 }
 
@@ -582,9 +1008,38 @@
 /* -------------------------------------------------------- Responsive */
 @media (max-width: 900px) {
   .hubx-plazas-wrap { grid-template-columns: minmax(0, 1fr); }
+  .hubx-map-panel { min-height: 0; }
+  /* The lead's photograph is the point of the module, so it keeps full
+     width and the rail drops beneath it rather than being squeezed. */
+  .hubx-latest,
+  .hubx-inside { grid-template-columns: minmax(0, 1fr); }
+  .hubx-inside[data-art='true'] .hubx-access { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .hubx-hero-copy { max-width: 100%; }
+  /* Below the two-column split the art no longer has a right-hand half to
+     itself, so the scrim would bury it. Anchor the subject and let the
+     bottom fade do the legibility work on its own. */
+  .hubx-hero::before { background-position: center, 76% center, center; }
+  .hubx-hero::after {
+    background:
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--hub-black) 62%, transparent) 0%,
+        color-mix(in srgb, var(--hub-page) 55%, transparent) 42%,
+        color-mix(in srgb, var(--hub-page) 88%, transparent) 74%,
+        var(--hub-page) 100%
+      );
+  }
 }
 
 @media (max-width: 640px) {
+  /* Two across, not one. Four figures stacked in a single column turn the
+     board into a 700px scroll of mostly whitespace and lose the thing the
+     module is for — reading the numbers against each other. */
+  .hubx-figures { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hubx-figure { min-height: 132px; padding: 1rem 0.9rem; gap: 0.75rem; }
+  .hubx-figure-value { font-size: clamp(1.5rem, 7vw, 2rem); }
+  .hubx-figure-label { font-size: 0.68rem; }
+
   .hubx-chain-track { height: 78px; }
   .hubx-chain-pole::after { font-size: 1.3rem; }
   /* A four-column table at 360px is unreadable, and horizontal scroll hides
