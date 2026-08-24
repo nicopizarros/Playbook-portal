@@ -172,6 +172,26 @@ used a Fenway Park crowd photo instead of Apple's own marketing image).
 **Headline**: state the movement plainly. Add a figure or consequence only
 when it genuinely raises interest, not as a reflex.
 
+**Aim for roughly 45-70 characters, rarely past 80.** The article page's `h1`
+(`styles/article.css`) has no truncation or line-clamp, it just wraps in a
+large serif display font, so a long headline doesn't get quietly shortened
+anywhere, it balloons into three or four lines dominating the hero exactly
+as written. Caught in review 2026-08-24 on the Infantino/Caribe piece,
+published at "Infantino desafía a Montagliani y reparte fondos de FIFA en
+el Caribe, mientras la coalición que lo quiere fuera se resquebraja" (129
+characters): the actual problem wasn't length in isolation, it was stacking
+three separate clauses ("desafía a Montagliani" + "reparte fondos" + "la
+coalición se resquebraja") into one sentence with "y"/"mientras", trying to
+fit the whole five-paragraph story into the headline instead of picking one.
+**Pick the single fact that most makes someone click, state that, and let
+the body carry the rest** the same way Step 3's five-questions exercise
+already picks one editorial reading over gesturing at all of them. The
+piece was shortened to "Infantino desafía a Montagliani en el Caribe" (45
+characters, one clause) after publication; the fix belongs at draft time, not
+as a follow-up edit. A genuinely two-part story (an action AND its
+consequence, both load-bearing) can still take two clauses, but that should
+be a deliberate call, not the default shape of every headline.
+
 **Opening**: start from what just happened, not from throat-clearing or
 scene-setting. The most important number or fact should land within the
 first sentence or two.
