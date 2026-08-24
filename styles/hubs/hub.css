@@ -187,12 +187,19 @@
    optically. Still "misma altura o menor", which the kit allows. */
 .hubx-lockup-property { height: calc(var(--lockup-h) * 1.55); }
 
-.hubx-lockup-rule {
-  width: 1px;
-  height: var(--lockup-h);
-  background: var(--hub-edge);
+/* The "×" that joins the two marks. Light weight, sized off the lockup's
+   own height so it reads as a join rather than as a glyph someone typed.
+   See the route's comment for why this replaced the kit's rule. */
+.hubx-lockup-x {
   flex: none;
+  font-size: calc(var(--lockup-h) * 0.62);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--hub-accent);
+  user-select: none;
 }
+
+.hubx-partner-pair { white-space: nowrap; }
 
 .hubx-partner {
   margin: clamp(1.1rem, 2.5vw, 1.6rem) 0 0;
@@ -211,7 +218,9 @@
 .hubx-wordmark {
   font-family: var(--serif-display);
   font-weight: 400;
-  font-size: clamp(2.5rem, 7.5vw, 5.25rem);
+  /* Bigger since 2026-08-24: the h1 is now a short wordmark rather than a
+     wrapping strapline, so it can carry the display size the mockup uses. */
+  font-size: clamp(2.75rem, 9vw, 6.5rem);
   /* 1.12, and it has to be. Anton draws uppercase accents ABOVE the cap
      height with almost no internal clearance, so on a tight display setting
      the acute of "MÉXICO" rose out of its own line and fused with the O of
@@ -220,44 +229,33 @@
      ANY Spanish headline with an accented capital hits this, so it is a
      leading bug and not a one-off piece of copy. Do NOT tighten this back
      toward 0.9 while the display face is Anton — and if a future hub sets
-     its own display face, re-test with an accented capital before doing so. */
+     its own display face, re-test with an accented capital before doing so.
+
+     STILL 1.12 even though this element now holds a one-line wordmark
+     rather than a three-line strapline. The collision is a property of the
+     FACE, not of the old copy: a hub whose wordmark wraps on mobile, or one
+     whose name carries an accented capital ("MÉXICO 2026"), walks straight
+     back into it. Cheap insurance on a single line, where the leading does
+     not show. */
   line-height: 1.12;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--hub-chalk);
-  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
-  max-width: 17ch;
+  margin: clamp(1rem, 2.5vw, 1.5rem) 0 0;
 }
 
-/* The property name, inside the h1 so the heading still names its subject
-   for search and for a screen reader. */
-.hubx-wordmark-kicker {
-  display: block;
-  font-family: var(--font-roboto), var(--sans);
-  font-weight: 900;
-  font-size: 0.8rem;
-  letter-spacing: 0.24em;
-  line-height: 1;
-  color: var(--hub-accent);
-  margin-bottom: 0.85rem;
-}
+/* The title-sponsor half of the wordmark. The only place the h1 wears the
+   accent, doing the same job the league's own lockup does with it. */
+.hubx-wordmark-accent { color: var(--hub-accent); }
 
 .hubx-thesis {
-  font-size: clamp(1rem, 2.1vw, 1.2rem);
-  line-height: 1.6;
-  max-width: 60ch;
-  margin: auto 0 0;
-  padding-top: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  line-height: 1.55;
+  max-width: 54ch;
+  margin: 0;
+  padding-top: clamp(1.1rem, 2.5vw, 1.6rem);
   color: var(--hub-chalk);
   opacity: 0.92;
-}
-
-.hubx-fullname {
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--hub-mute);
-  margin: 1rem 0 0;
 }
 
 /* ---- Masthead calls to action. A coverage hub is a DESTINATION, and a

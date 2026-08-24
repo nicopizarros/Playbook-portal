@@ -57,15 +57,25 @@ export const ${CONST}_HUB: Hub = {
   // human flips this. Never scaffold straight into the nav.
   listed: false,
   fullName: ${JSON.stringify(fullName || name)},
+  // The masthead eyebrow, used only when partnership below is absent,
+  // which is the normal case: most hubs cover a property Playbook has no
+  // agreement with.
   tagline: 'PENDIENTE: subtítulo corto, en mayúsculas',
-  // Only set partnership if a real commercial agreement exists.
-  // partnership: 'Media partner exclusivo de ...',
+  // Only set partnership if a real commercial agreement exists. When set it
+  // REPLACES the tagline in the eyebrow and renders as
+  // "{partnership} · Playbook × {wordmark}".
+  // partnership: 'Medio oficial de negocios',
   thesis: 'PENDIENTE: en una frase, por qué esta propiedad merece un destino permanente.',
   description: 'PENDIENTE: descripción SEO, una o dos frases.',
 
   identity: {
     tokens: '${slug}',
+    // This is the h1: a destination page's biggest type names the property.
     wordmark: ${JSON.stringify(name)},
+    // Optional second half, rendered in the accent — for a property whose
+    // commercial name carries a title sponsor ("LFA" + "FINSUS"). Omit
+    // unless that is genuinely the property's own lockup.
+    // wordmarkAccent: 'PATROCINADOR',
     // Nominative-reference slot. Leave commented until rights are
     // confirmed — the wordmark above always renders, so the masthead
     // degrades to type rather than to a hole.

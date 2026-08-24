@@ -182,8 +182,27 @@ export type HubAccessItem = {
 export type HubIdentity = {
   /** Token file stem under styles/hubs/. Loaded via the hub's data-hub. */
   tokens: string;
-  /** Wordmark text. ALWAYS rendered — the logo is decoration over it. */
+  /**
+   * Wordmark text, and the masthead's h1. ALWAYS rendered — the logo is
+   * decoration over it, never a replacement.
+   *
+   * This became the h1 on 2026-08-24 (publisher's call, matching the
+   * mockup). It used to be a small kicker above a tagline headline, which
+   * meant the biggest type on a coverage destination was a strapline rather
+   * than the name of the property the page is about. Naming the subject in
+   * the h1 is also simply the conventional answer for a destination page.
+   */
   wordmark: string;
+  /**
+   * Optional second half of the wordmark, rendered in the hub's accent.
+   *
+   * Exists because a property's commercial name and its bare name are
+   * different strings and the split is meaningful: the LFA wears its title
+   * sponsor ("LFA FINSUS"), and colouring the sponsor half is how the
+   * league sets its own lockup. Absent, the h1 is just `wordmark` and
+   * nothing else changes — a hub with no title sponsor sets nothing here.
+   */
+  wordmarkAccent?: string;
   /**
    * Nominative-reference logo slot. LEGAL GUARDRAIL: the hub's visual
    * identity is PLAYBOOK'S, built to sit adjacent to the property, never a
@@ -214,7 +233,12 @@ export type Hub = {
   slug: string;
   /** Reader-facing name. */
   name: string;
-  /** The property's full legal/commercial name, for the masthead rule. */
+  /**
+   * The property's full legal/commercial name. No longer in the masthead
+   * (2026-08-24 — the mockup's hero has no room for it and the h1 now names
+   * the property anyway), but still rendered as the description under each
+   * hub in the header's Coberturas menu (components/layout/HeaderNav.tsx).
+   */
   fullName: string;
   /**
    * Whether the hub is public. `false` = UNLISTED: absent from the header's
@@ -231,12 +255,25 @@ export type Hub = {
    * `true` is the whole "go live" change.
    */
   listed: boolean;
-  /** Short uppercase sub-line under the wordmark. Sets the beat in ~6 words. */
+  /**
+   * The masthead eyebrow, used ONLY when `partnership` is absent.
+   *
+   * A partnered hub builds its eyebrow from the relationship instead
+   * ("Medio oficial de negocios · Playbook × LFA FINSUS"), which is the
+   * more specific claim and outranks this. But `partnership` is optional by
+   * design — most hubs cover a property Playbook has no agreement with —
+   * and without this fallback those hubs would render a masthead with no
+   * eyebrow at all. Short, ~6 words, set in caps by the stylesheet.
+   */
   tagline: string;
   /**
-   * Playbook's declared relationship to the property, rendered in the
-   * masthead. OPTIONAL, and only ever set when the relationship is real and
-   * contractual — this is a public claim about a commercial agreement, so an
+   * Playbook's declared relationship to the property. When set it becomes
+   * the masthead eyebrow, composed with the co-branding pair — the page
+   * renders "{partnership} · Playbook × {wordmark}" — and it displaces
+   * `tagline` above.
+   *
+   * OPTIONAL, and only ever set when the relationship is real and
+   * contractual: this is a public claim about a commercial agreement, so an
    * aspirational value here would be a misrepresentation, not marketing.
    * Absent for any property we merely cover.
    */

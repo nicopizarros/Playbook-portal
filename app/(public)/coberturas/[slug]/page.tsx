@@ -139,7 +139,15 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
                 width={520}
                 height={121}
               />
-              <span className="hubx-lockup-rule" aria-hidden="true" />
+              {/* The kit's co-branding page specifies a RULE between the two
+                  marks. The publisher's mockup uses a multiplication sign
+                  and asked for that on 2026-08-24, so this is a deliberate
+                  departure from the kit, not an oversight: the "×" reads as
+                  a collaboration where a rule reads as a divider, and this
+                  page is Playbook's masthead, not an LFA channel. The
+                  spacing rule the kit defines (the width of "FA" in the
+                  mark) is unchanged. */}
+              <span className="hubx-lockup-x" aria-hidden="true">×</span>
               {hub.identity.logo && (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -152,17 +160,42 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
               )}
             </div>
 
-            {hub.partnership && <p className="hubx-partner">{hub.partnership}</p>}
+            {/* Eyebrow. A partnered hub states the relationship and the
+                co-branding pair, which is the more specific claim; a hub
+                Playbook merely covers falls back to its tagline, so the
+                masthead is never eyebrow-less. The pair is COMPOSED from
+                the identity rather than typed into `partnership`, so the
+                string in lib/hubs/<slug>.ts stays a claim about the
+                relationship and nothing else. */}
+            <p className="hubx-partner">
+              {hub.partnership ? (
+                <>
+                  {hub.partnership} ·{' '}
+                  {/* Held on one line: at 390px the eyebrow wraps, and
+                      without this it broke the property's own name across
+                      two lines ("LFA / FINSUS"). */}
+                  <span className="hubx-partner-pair">
+                    Playbook × {hub.identity.wordmark}
+                    {hub.identity.wordmarkAccent ? ` ${hub.identity.wordmarkAccent}` : ''}
+                  </span>
+                </>
+              ) : (
+                hub.tagline
+              )}
+            </p>
 
-            {/* The wordmark still always renders — it is the h1, so the page
-                names its property whether or not any mark resolves. */}
+            {/* The wordmark is the h1: a destination page's biggest type
+                should name the property it covers. It always renders, so
+                the page names its subject whether or not any mark resolves
+                — pull the logo and this degrades to type, never to a hole. */}
             <h1 className="hubx-wordmark">
-              <span className="hubx-wordmark-kicker">{hub.identity.wordmark}</span>
-              {hub.tagline}
+              {hub.identity.wordmark}
+              {hub.identity.wordmarkAccent && (
+                <> <span className="hubx-wordmark-accent">{hub.identity.wordmarkAccent}</span></>
+              )}
             </h1>
 
             <p className="hubx-thesis">{hub.thesis}</p>
-            <p className="hubx-fullname">{hub.fullName}</p>
 
             {/* Two ways in, never more: the newest work, and the beats we
                 have committed to covering. Both anchor into modules that

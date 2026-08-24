@@ -56,19 +56,42 @@ export const LFA_HUB: Hub = {
   // rights), so the masthead carries the full commercial name rather than
   // the bare initials.
   fullName: 'Liga de Fútbol Americano Profesional',
+  // Only a fallback here: `partnership` below is set, so it builds the
+  // eyebrow instead and this string never renders on the LFA hub. Kept
+  // because it is the right eyebrow the day the partnership line comes off.
   tagline: 'El negocio del futbol americano en México',
-  // Real, confirmed by the publisher 2026-08-18.
-  partnership: 'Media partner exclusivo de negocio deportivo',
+  // Real, confirmed by the publisher 2026-08-18. Shortened 2026-08-24 to
+  // the mockup's own wording: the masthead now reads
+  // "Medio oficial de negocios · Playbook × LFA FINSUS", where the trailing
+  // pair is composed from the lockup rather than typed into this string.
+  //
+  // NOTE FOR GO-LIVE: the mockup's internal notes said to show "medio
+  // oficial de negocios" only AFTER the joint announcement. That is the
+  // same condition `listed: false` is waiting on, so the two flip together
+  // and nothing public states the relationship before the announcement.
+  partnership: 'Medio oficial de negocios',
+  // The mockup's dek, adopted verbatim 2026-08-24 (publisher's call). The
+  // previous line led with the capital raise and the franchise expansion;
+  // both facts still carry, with sources, in La Cadena and El tablero
+  // below, so nothing was lost by making the masthead broader.
   thesis:
-    'Una liga mexicana que acaba de tomar capital institucional extranjero, en el mercado más valioso del futbol americano fuera de Estados Unidos, mientras crece su número de franquicias a la mitad.',
+    'El negocio detrás de la Liga. Patrocinios, franquicias, audiencias, medios, talento y los proyectos que están moviendo al futbol americano profesional en México.',
   description:
     'Cobertura de negocio de la LFA: capital, expansión de franquicias, plazas comerciales, patrocinios y derechos. La liga profesional de futbol americano en México, leída como industria.',
 
   identity: {
     tokens: 'lfa',
-    // ALWAYS rendered. The logo below is decoration layered over this, not
-    // a replacement for it — see HubIdentity's legal note.
+    // ALWAYS rendered, and since 2026-08-24 this IS the h1. The logo below
+    // is decoration layered over it, not a replacement — see HubIdentity's
+    // legal note.
+    //
+    // Split across two fields because the league's commercial name carries
+    // its title sponsor and the league colours that half: the kit's own
+    // lockup sets "LFA" white and "FINSUS" in the bright green. Naming
+    // rights are themselves a Playbook-relevant fact, which is why the
+    // masthead says the commercial name rather than the bare initials.
     wordmark: 'LFA',
+    wordmarkAccent: 'FINSUS',
     // Nominative reference: the league's own shield, used to identify the
     // property this coverage is about. Publisher's call, 2026-08-18.
     // Swappable and optional — `wordmark` above renders either way, so
