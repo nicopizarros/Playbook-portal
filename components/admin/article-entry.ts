@@ -120,6 +120,12 @@ export function toPreviewArticle(data: ArticleEntry['data']): Article {
     bodyHtml: null,
     sourceUrl: null,
     tagsProperty: [],
+    // Not graded: the CMS has no boleta form yet (2026-08-20 — the
+    // reclassification pass fills these from scripts/reclassify-rank.ts).
+    // Null, not 0: 0 is a real score on the 0-99 scale, "ungraded" is not.
+    score: null,
+    confirmed: null,
+    scoreBoleta: null,
     createdAt: new Date(0),
     updatedAt: new Date(0),
     updatedBy: null,

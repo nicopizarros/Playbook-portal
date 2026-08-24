@@ -90,7 +90,29 @@ export const articles = pgTable(
     // migration, which rewrites values the deployed build matches on and
     // therefore must land AFTER its deploy. Most articles carry none.
     tagsProperty: text('tags_property').array().notNull().default([]),
+    // LEGACY 1-5 star rating. Superseded 2026-08-20 by `score` below, and
+    // kept in place ON PURPOSE for the before/after review — dropping it is a
+    // separate, deliberate pass, not a side effect of the reclassification.
     priority: smallint('priority').notNull().default(3),
+    // The 0-99 boleta score (lib/rank.ts). Nullable because it means
+    // "not graded yet", which is a real and visible state: the 2026-08-20
+    // reclassification covered the last three weeks plus every legacy 5-star
+    // row (97 of 159), and everything older still sorts through rank.ts's
+    // bridgeScore() until it is graded or aged out. A zero would have been a
+    // lie — 0 is a legitimate score on this scale.
+    score: smallint('score'),
+    // The boleta's `confirmed` answer, hoisted out of score_boleta so the
+    // ranking hot path can enforce the "unconfirmed never leads" rule without
+    // loading the JSON. Null = not graded (treated as confirmed, since the
+    // pre-boleta corpus has no such distinction).
+    confirmed: boolean('confirmed'),
+    // Every answer that produced `score`, plus the scorer's own trace. This is
+    // what makes the spec's fourth promise real: "cualquier calificación se
+    // puede abrir y revisar pregunta por pregunta". Deliberately NOT in
+    // lib/data/articles.ts's LIST_COLUMNS — nothing that lists or ranks needs
+    // it, and that file's Neon transfer postmortem is the reason to keep new
+    // per-row JSON off the list query.
+    scoreBoleta: jsonb('score_boleta').$type<Record<string, unknown> | null>(),
     featured: boolean('featured').notNull().default(false),
     mostrarAutor: boolean('mostrar_autor').notNull().default(false),
     readingTime: smallint('reading_time').notNull().default(1),

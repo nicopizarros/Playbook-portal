@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Article } from '@/lib/data/articles';
-import { rankArticles, selectHero, daysSince } from '@/lib/rank';
+import { rankArticles, selectHero, daysSince, baseScore, bridgeScore } from '@/lib/rank';
 import { LIST_COUNT } from '@/lib/constants';
 
 // Homepage module "Lo que sigue importando" (design brief, 2026-08-05).
@@ -8,8 +8,9 @@ import { LIST_COUNT } from '@/lib/constants';
 // but no longer brand new falls out of view even though nothing displaced
 // its relevance. This module is that story's second window:
 //
-//   - Separate selection from the "Último en Playbook" package: starred
-//     (priority ≥ 4) or featured articles inside a rolling window.
+//   - Separate selection from the "Último en Playbook" package: important
+//     (score ≥ MIN_SCORE, the 0-99 boleta — see below) or featured
+//     articles inside a rolling window.
 //   - Excludes whatever the top rotation is currently showing in its
 //     default view (hero + 5-row list), so there are never duplicates on
 //     first paint. The client-side source filters can reshuffle the 1+5
@@ -22,7 +23,14 @@ import { LIST_COUNT } from '@/lib/constants';
 // Window: brief proposes 10–14 days; 12 until editorial confirms.
 const WINDOW_DAYS = 12;
 const ITEM_COUNT = 4;
-const MIN_PRIORITY = 4;
+// 2026-08-20: this used to gate on the legacy `priority` field directly
+// (≥4 stars), which the 0-99 boleta rewrite (lib/rank.ts) superseded.
+// baseScore() already does the right thing for both graded and
+// not-yet-graded rows (falling back to bridgeScore(priority) for the
+// latter), so bridging the old 4-star cutoff through the same function
+// keeps this module's editorial bar unchanged while pointing it at the
+// real score once an article has one.
+const MIN_SCORE = bridgeScore(4);
 
 export function StillMattersSection({ articles }: { articles: Article[] }) {
   const now = new Date();
@@ -37,15 +45,10 @@ export function StillMattersSection({ articles }: { articles: Article[] }) {
   const shown = new Set([hero, ...list].filter(Boolean).map(a => (a as Article).id));
 
   const items = articles
-    .filter(
-      a =>
-        !shown.has(a.id) &&
-        (a.featured || (a.priority ?? 0) >= MIN_PRIORITY) &&
-        daysSince(a.date, now) <= WINDOW_DAYS,
-    )
+    .filter(a => !shown.has(a.id) && (a.featured || baseScore(a) >= MIN_SCORE) && daysSince(a.date, now) <= WINDOW_DAYS)
     // Importance first, recency as the tiebreak: this module exists
     // precisely because recency alone already has a whole band above it.
-    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0) || (b.date || '').localeCompare(a.date || ''))
+    .sort((a, b) => baseScore(b) - baseScore(a) || (b.date || '').localeCompare(a.date || ''))
     .slice(0, ITEM_COUNT);
 
   // Quiet weeks (nothing starred inside the window that isn't already on

@@ -1,6 +1,6 @@
 'use client';
 
-import { rankArticles, rankScore, selectHero } from '@/lib/rank';
+import { rankArticles, selectHero, baseScore, HERO_BAND_MIN_SCORE } from '@/lib/rank';
 import { LEAD_COUNT, LIST_COUNT, KNOWN_SOURCES, SOURCE_LABELS } from '@/lib/constants';
 import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS, PROPERTY_OPTIONS } from '@/lib/taxonomy';
 import { slugify } from '@/lib/slugify';
@@ -36,25 +36,26 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
   // Display order matches the real site (rankArticles), but keyed off each
   // entry's *baseline* data rather than the live-edited `data` — sorting by
   // live values would reshuffle the list on every keystroke that touches
-  // priority/date/featured, collapsing whatever card is open mid-edit
+  // score/date/featured, collapsing whatever card is open mid-edit
   // (ArrayEditor tracks expanded state by index, see its own comment on
   // that trade-off). Baseline only changes on save, so the list stays put
   // while you type. Unsaved new articles (no baseline yet) have no rank to
   // sort by, so they stay in their existing (just-added-to-the-front) order
   // ahead of the ranked ones — same place ArrayEditor's own addItem puts
   // them.
-  const now = new Date();
+  //
+  // Sorted via rankArticles() itself (not a hand-rolled comparator) so this
+  // can never drift from the real site's order again the way it did until
+  // 2026-08-20's boleta rewrite: this used to call the legacy `rankScore`
+  // directly, which kept ordering admin entries by star + recency even
+  // after the homepage moved to the 0-99 score.
   const newOnes = entries.filter(e => !e.inBaseline);
+  const baselineOrder = rankArticles(entries.filter(e => e.inBaseline).map(e => e.baselineData!));
+  const orderIndex = new Map(baselineOrder.map((a, i) => [a.id, i]));
   const existingOnes = entries
     .filter(e => e.inBaseline)
     .slice()
-    .sort((a, b) => {
-      const as = a.baselineData!;
-      const bs = b.baselineData!;
-      const diff = rankScore(bs, now) - rankScore(as, now);
-      if (diff !== 0) return diff;
-      return (bs.date || '').localeCompare(as.date || '');
-    });
+    .sort((a, b) => (orderIndex.get(a.baselineData!.id) ?? 0) - (orderIndex.get(b.baselineData!.id) ?? 0));
   const sortedEntries = [...newOnes, ...existingOnes];
 
   // Keyed by clientKey, not array index — the list rendered below
@@ -112,7 +113,11 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
         renderItem={entry => {
           const a = entry.data;
           const otherFeatured = list.find(other => other.id !== a.id && other.featured === true);
-          const showHeroNote = Number(a.priority) === 5 || a.featured === true;
+          // 2026-08-20: was `Number(a.priority) === 5`, from before the
+          // 0-99 boleta rewrite. baseScore() is the real hero-eligibility
+          // signal now — HERO_BAND_MIN_SCORE (70) is the same "clears 70"
+          // bar rule 02 of the spec uses for the weekly hero band.
+          const showHeroNote = baseScore(a) >= HERO_BAND_MIN_SCORE || a.featured === true;
 
           return (
             <>
@@ -209,8 +214,8 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
               <TextField label="Fecha en texto" help="Cómo se muestra la fecha en el sitio (ej. 9 jul 2026)." value={a.dateFormatted} onChange={v => updateEntry(entry.clientKey, { dateFormatted: v })} />
               <NumberField label="Tiempo de lectura (minutos)" help="Minutos de lectura, se escribe a mano — ya no se calcula solo." min={1} step={1} value={a.readingTime} onChange={v => updateEntry(entry.clientKey, { readingTime: v })} />
               <StarPickerField
-                label="Importancia"
-                help="De 1 a 5 estrellas. Junto con la fecha, decide el orden: más estrellas y más reciente aparece primero."
+                label="Importancia (heredado)"
+                help="Campo del sistema de estrellas anterior. Ya no decide el orden de portada por sí solo — eso lo hace la calificación 0-99 (boleta editorial). Solo sigue pesando en artículos que todavía no tienen esa calificación asignada."
                 value={a.priority}
                 onChange={v => updateEntry(entry.clientKey, { priority: v })}
               />
@@ -218,7 +223,7 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
                 <span className="field-label">Destacado (hero)</span>
                 <span className="field-help">
                   Marca este artículo para que ocupe el puesto principal de portada durante
-                  aproximadamente un día, sin importar sus estrellas.
+                  aproximadamente un día, sin importar su calificación.
                 </span>
                 <label className="checkbox-option">
                   <input type="checkbox" checked={a.featured === true} onChange={e => updateEntry(entry.clientKey, { featured: e.target.checked })} />
@@ -228,19 +233,19 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
               {showHeroNote && (
                 <div className="admin-hero-note">
                   <strong>
-                    La portada la decide la mezcla de estrellas + fecha: 5 estrellas no garantizan el
-                    puesto si algo más reciente pesa más.{' '}
+                    La portada la decide la combinación de calificación (0-99) + fecha: una calificación alta
+                    no garantiza el puesto si algo más reciente pesa más.{' '}
                   </strong>
                   <span>
                     &quot;Destacado&quot; fuerza el puesto principal durante aproximadamente un día;
-                    después se apaga solo y el puesto vuelve a decidirse por estrellas + fecha, así
+                    después se apaga solo y el puesto vuelve a decidirse por calificación + fecha, así
                     que no hace falta desmarcarlo a mano.
                   </span>
                   {a.featured === true && otherFeatured && (
                     <div className="admin-hero-warning">
                       Ya hay otro artículo marcado como &quot;Destacado&quot;: &quot;{otherFeatured.title || 'sin título'}&quot;.
                       Solo uno de los dos se muestra como principal (el que aún conserve el impulso de
-                      &quot;Destacado&quot; o, si ya se apagó en ambos, el de mejor combinación de estrellas y fecha).
+                      &quot;Destacado&quot; o, si ya se apagó en ambos, el de mejor combinación de calificación y fecha).
                     </div>
                   )}
                 </div>

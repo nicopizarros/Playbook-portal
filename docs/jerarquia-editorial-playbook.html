@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo decide Playbook qué va arriba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tinta:#12140F;
+    --papel:#F7F8F5;
+    --panel:#EDEFE9;
+    --linea:#D6D9CF;
+    --cancha:#14603F;
+    --oro:#A9781F;
+    --gris:#6A6E63;
+    --rojo:#8C2F1E;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--papel);
+    color:var(--tinta);
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:18px;
+    line-height:1.62;
+  }
+  .wrap{max-width:840px;margin:0 auto;padding:0 24px}
+  h1,h2,h3,.eyebrow,.chip,.num,.tag,th{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--cancha);
+  }
+  header.top{border-bottom:1px solid var(--linea);padding:56px 0 40px;margin-bottom:48px}
+  h1{
+    font-size:clamp(34px,7vw,60px);
+    font-weight:800;font-stretch:118%;
+    line-height:1.02;letter-spacing:-.02em;
+    margin:18px 0 20px;
+  }
+  .dek{font-size:clamp(18px,2.4vw,22px);color:var(--gris);max-width:36em;margin:0}
+  .byline{
+    margin-top:28px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--gris);font-family:Archivo,sans-serif;font-weight:600;
+  }
+
+  section{margin:0 0 68px}
+  h2{
+    font-size:clamp(24px,3.6vw,32px);font-weight:700;font-stretch:112%;
+    line-height:1.12;letter-spacing:-.01em;margin:0 0 6px;
+  }
+  .sub{color:var(--gris);font-size:16px;margin:0 0 26px}
+  p{margin:0 0 18px}
+  .lead{font-size:20px}
+  strong{font-weight:600}
+
+  .rule{height:1px;background:var(--linea);border:0;margin:0 0 26px}
+
+  /* stat strip */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--linea);border:1px solid var(--linea);margin:30px 0}
+  .stat{background:var(--papel);padding:20px 18px}
+  .stat .n{font-family:"IBM Plex Mono",monospace;font-size:32px;font-weight:600;color:var(--cancha);display:block;line-height:1}
+  .stat .l{display:block;margin-top:8px;font-size:13px;color:var(--gris);line-height:1.35}
+
+  /* boleta */
+  .boleta{border:1px solid var(--linea);background:#fff}
+  .bhead{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    padding:16px 20px;border-bottom:1px solid var(--linea);background:var(--panel);
+  }
+  .bhead .t{font-family:Archivo,sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+  .bhead .s{font-size:12px;color:var(--gris);font-family:Archivo,sans-serif}
+  .brow{display:flex;justify-content:space-between;gap:16px;padding:13px 20px;border-bottom:1px solid var(--linea);align-items:baseline}
+  .brow:last-child{border-bottom:0}
+  .brow .q{font-size:16px}
+  .chip{
+    flex:none;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+    padding:3px 9px;border:1px solid var(--linea);border-radius:2px;background:var(--panel);white-space:nowrap;
+  }
+  .chip.pos{color:var(--cancha);border-color:rgba(20,96,63,.35)}
+  .chip.neg{color:var(--rojo);border-color:rgba(140,47,30,.3)}
+
+  /* score display */
+  .score{display:flex;align-items:center;gap:22px;margin:34px 0;flex-wrap:wrap}
+  .digit{
+    font-family:"IBM Plex Mono",monospace;font-weight:600;line-height:.86;
+    font-size:clamp(74px,15vw,124px);
+  }
+  .d-dec{color:var(--cancha)}
+  .d-uni{color:var(--oro)}
+  .score .legend{font-size:14px;color:var(--gris);max-width:19em;line-height:1.45;font-family:Archivo,sans-serif}
+  .score .legend b{display:block;font-weight:700;color:var(--tinta);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+
+  /* day table */
+  .day{width:100%;border-collapse:collapse;margin-top:8px;font-size:15px}
+  .day th{
+    text-align:left;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gris);
+    font-weight:700;padding:0 10px 10px 0;border-bottom:1px solid var(--linea);
+  }
+  .day th.r,.day td.r{text-align:right;padding-right:0}
+  .day td{padding:14px 10px 14px 0;border-bottom:1px solid var(--linea);vertical-align:top}
+  .day tr.out td{color:var(--gris)}
+  .day tr.hero td{background:rgba(20,96,63,.06)}
+  .pos{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--gris);white-space:nowrap}
+  .pts{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:19px}
+  .why{display:block;font-size:13px;color:var(--gris);margin-top:4px;line-height:1.4}
+  .tag{
+    display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    padding:2px 7px;border-radius:2px;margin-left:8px;vertical-align:2px;
+  }
+  .tag.portada{background:var(--cancha);color:#fff}
+  .tag.fuera{background:var(--panel);color:var(--gris);border:1px solid var(--linea)}
+
+  /* rules */
+  .reglas{display:grid;gap:1px;background:var(--linea);border:1px solid var(--linea)}
+  .regla{background:var(--papel);padding:22px 20px;display:grid;grid-template-columns:44px 1fr;gap:16px;align-items:start}
+  .regla .k{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--oro);padding-top:3px}
+  .regla h3{margin:0 0 6px;font-size:17px;font-weight:700}
+  .regla p{margin:0;font-size:15px;color:var(--gris)}
+
+  .quiet{border-left:2px solid var(--cancha);padding:2px 0 2px 18px;margin:26px 0;color:var(--gris);font-size:16px}
+  .quiet p{margin:0 0 10px}
+  .quiet p:last-child{margin:0}
+
+  footer{border-top:1px solid var(--linea);margin-top:20px;padding:30px 0 60px;font-size:13px;color:var(--gris);font-family:Archivo,sans-serif}
+
+  a{color:var(--cancha)}
+  :focus-visible{outline:2px solid var(--cancha);outline-offset:3px}
+
+  .reveal{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+  }
+  @media (max-width:640px){
+    body{font-size:17px}
+    .stats{grid-template-columns:1fr}
+    .day td:nth-child(2),.day th:nth-child(2){display:none}
+    .brow{flex-direction:column;gap:6px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Documento interno · Jerarquía editorial</div>
+  <h1>Cómo decide Playbook qué va arriba</h1>
+  <p class="dek">Un sistema de calificación de 0 a 99 que ordena la portada sin que nadie tenga que decidirlo a mano cada mañana.</p>
+  <div class="byline">Producto editorial · Agosto 2026</div>
+</header>
+
+<section>
+  <h2>El problema, en una línea</h2>
+  <p class="sub">La portada no puede distinguir entre notas que califican igual.</p>
+  <hr class="rule">
+  <p class="lead">Hoy cada nota recibe una calificación del 1 al 5. En agosto, tres de cada cuatro notas recibieron 4 o 5. Cuando publicamos seis notas en un día, casi todas empatan, y el orden de la portada termina decidiéndose por accidente y no por criterio.</p>
+  <p>La escala no está mal calibrada. Está agotada. Con solo cinco escalones no hay forma de decir que dos notas son importantes pero una de ellas encabeza el día.</p>
+  <div class="stats">
+    <div class="stat"><span class="n">76%</span><span class="l">de las notas de agosto recibieron la calificación más alta o la segunda</span></div>
+    <div class="stat"><span class="n">63%</span><span class="l">del archivo comparte calificación con otra nota del mismo día</span></div>
+    <div class="stat"><span class="n">24</span><span class="l">notas quedaron fuera de la portada por un desempate sin criterio</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>La boleta</h2>
+  <p class="sub">Once preguntas de sí o no. La calificación sale sola.</p>
+  <hr class="rule">
+  <p>El sistema nunca pregunta qué tan importante es una nota. Pregunta qué contiene. Para subir en la portada, una nota tiene que afirmar un hecho verificable, no despertar un entusiasmo. Esa es toda la defensa contra la inflación de calificaciones.</p>
+
+  <div class="boleta reveal">
+    <div class="bhead"><span class="t">Primero: qué reporta la nota</span><span class="s">Define la decena</span></div>
+    <div class="brow"><span class="q">Un cambio estructural, regulatorio, de gobernanza o de propiedad</span><span class="chip pos">decena 6</span></div>
+    <div class="brow"><span class="q">Una transacción con cifra revelada</span><span class="chip pos">decena 5</span></div>
+    <div class="brow"><span class="q">Un movimiento comercial sin cifra</span><span class="chip pos">decena 3</span></div>
+    <div class="brow"><span class="q">Un recuento o contexto sin desarrollo nuevo</span><span class="chip pos">decena 1</span></div>
+  </div>
+
+  <div class="quiet">
+    <p>La pregunta es sobre el hecho, no sobre qué tan conocida es la historia. Un movimiento nuevo dentro de una saga que llevamos semanas cubriendo se califica por el movimiento, no por la saga.</p>
+  </div>
+
+  <div class="boleta reveal" style="margin-top:26px">
+    <div class="bhead"><span class="t">Después: cuánto pesa</span><span class="s">Mueve la decena</span></div>
+    <div class="brow"><span class="q">Es relevante por sí misma a escala global: una propiedad mayor, una cifra de nueve dígitos, un precedente para la industria</span><span class="chip pos">+1</span></div>
+    <div class="brow"><span class="q">Es una historia de México</span><span class="chip pos">+2</span></div>
+    <div class="brow"><span class="q">Es regional de LATAM, o internacional con un efecto nombrado en la región</span><span class="chip pos">+1</span></div>
+    <div class="brow"><span class="q">Es un desarrollo nuevo en una historia mayor que ya seguimos</span><span class="chip pos">+1</span></div>
+    <div class="brow"><span class="q">No está confirmada</span><span class="chip neg">−2</span></div>
+  </div>
+
+  <div class="boleta reveal" style="margin-top:26px">
+    <div class="bhead"><span class="t">Al final: qué tan bien está hecha</span><span class="s">Define la unidad</span></div>
+    <div class="brow"><span class="q">Trae una cifra dura</span><span class="chip pos">+2</span></div>
+    <div class="brow"><span class="q">Trae datos que se pueden graficar</span><span class="chip pos">+2</span></div>
+    <div class="brow"><span class="q">Trae análisis propio de Playbook</span><span class="chip pos">+2</span></div>
+    <div class="brow"><span class="q">Toca más de un mercado</span><span class="chip pos">+2</span></div>
+    <div class="brow"><span class="q">Nombra a una marca o entidad que cubrimos de forma habitual</span><span class="chip pos">+1</span></div>
+  </div>
+
+  <div class="score reveal">
+    <div><span class="digit d-dec">8</span><span class="digit d-uni">7</span></div>
+    <div class="legend">
+      <b>La decena</b>
+      Qué tan arriba pertenece la nota. Es la decisión editorial.
+      <br><br>
+      <b>La unidad</b>
+      Cómo se ordena contra las otras notas de su mismo nivel ese día. Nunca alcanza para brincar de nivel.
+    </div>
+  </div>
+  <p>Las unidades positivas suman exactamente nueve. Por diseño, una nota bien armada llena su nivel hasta el tope pero jamás se cuela al siguiente. Eso es lo que hace que dos notas grandes del mismo día se puedan ordenar sin discutirlas.</p>
+  <div class="quiet">
+    <p>La escala usa todo su rango a propósito. Un 30 no es una nota mala: es una nota corta y correcta que informa un movimiento comercial. Lo que publicamos vive casi todo entre 30 y 80.</p>
+    <p>Los ochentas son la casa normal de una buena nota principal. Los noventas son otra cosa: exigen un cambio estructural, de peso global, sobre México. Eso pasa unas cuantas veces al año, y así debe ser.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Una nota, paso a paso</h2>
+  <p class="sub">Kevin Lamour sale de la FIFA 17 días después de criticar a Infantino</p>
+  <hr class="rule">
+  <div class="boleta">
+    <div class="bhead"><span class="t">Boleta</span><span class="s">17 ago 2026</span></div>
+    <div class="brow"><span class="q">Qué reporta: una salida en la cúpula de la FIFA, gobernanza</span><span class="chip pos">decena 6</span></div>
+    <div class="brow"><span class="q">Relevante por sí misma a escala global</span><span class="chip pos">+1</span></div>
+    <div class="brow"><span class="q">Desarrollo nuevo en una historia mayor que ya seguimos</span><span class="chip pos">+1</span></div>
+    <div class="brow"><span class="q">Sin vínculo directo con México o LATAM</span><span class="chip">+0</span></div>
+    <div class="brow"><span class="q">Análisis propio, datos graficables, toca más de un mercado, nombra a una entidad habitual</span><span class="chip pos">unidad 7</span></div>
+  </div>
+  <div class="score">
+    <div><span class="digit d-dec">8</span><span class="digit d-uni">7</span></div>
+    <div class="legend"><b>Resultado</b>Encabeza la portada del día y se lleva la franja de la semana.</div>
+  </div>
+  <p>Nótese lo que no ocurrió: nadie opinó que la nota era importante. La nota subió porque reporta un cambio de gobernanza, en una institución global, dentro de una historia que ya veníamos siguiendo. Tres hechos comprobables. Y aun así no llega a los noventas, porque no toca a México.</p>
+</section>
+
+<section>
+  <h2>Un día completo</h2>
+  <p class="sub">Ocho notas, seis lugares. Así queda la portada del 17 de agosto.</p>
+  <hr class="rule">
+  <table class="day">
+    <thead>
+      <tr><th>Nota</th><th>Lugar</th><th class="r">Puntos</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hero">
+        <td>Kevin Lamour sale de la FIFA 17 días después de criticar a Infantino<span class="why">Gobernanza global, desarrollo nuevo en una historia en curso</span></td>
+        <td class="pos">Principal</td><td class="r pts">87</td>
+      </tr>
+      <tr>
+        <td>Fox Sports México pierde a Izzi y Sky, y también el nombre<span class="why">Cambio estructural, historia de México, dos mercados</span></td>
+        <td class="pos">Portada 1</td><td class="r pts">85</td>
+      </tr>
+      <tr>
+        <td>Jeanie Buss impugna la venta del 17.8% de los Lakers<span class="why">Disputa de propiedad de una franquicia mayor, con cifra</span></td>
+        <td class="pos">Portada 2</td><td class="r pts">73</td>
+      </tr>
+      <tr>
+        <td>MLB aprueba la venta de los Padres en US$3,900 millones, récord de la liga<span class="why">Transacción con cifra revelada, precedente de liga, datos graficables</span></td>
+        <td class="pos">Portada 3</td><td class="r pts">67</td>
+      </tr>
+      <tr>
+        <td>México asegura su lugar en LA28 tras ganar el bronce del Mundial de Flag Football<span class="why">Movimiento comercial sin cifra, historia de México, datos graficables</span></td>
+        <td class="pos">Portada 4</td><td class="r pts">55</td>
+      </tr>
+      <tr>
+        <td>Mark Walter y Boehly negocian venderle a Clearlake su parte del Chelsea<span class="why">Operación de propiedad todavía en negociación, sin confirmar</span></td>
+        <td class="pos">Portada 5</td><td class="r pts">53</td>
+      </tr>
+      <tr class="out">
+        <td>LIV Golf cancela su última fecha y acumula proveedores sin cobrar<span class="why">Movimiento comercial sin cifra revelada, sin ángulo regional</span><span class="tag fuera">Al archivo</span></td>
+        <td class="pos">Fuera</td><td class="r pts">45</td>
+      </tr>
+      <tr class="out">
+        <td>Oceanía apoya a Infantino y Nueva Zelanda rompe filas<span class="why">Contexto de una historia en curso, sin desarrollo nuevo ese día</span><span class="tag fuera">Al archivo</span></td>
+        <td class="pos">Fuera</td><td class="r pts">33</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="quiet">
+    <p>Las dos notas que quedan fuera quedan fuera por una razón que se puede escribir en una línea. Hoy también quedarían fuera, pero nadie podría explicar por qué esas dos.</p>
+  </div>
+  <p>Vale la pena ver quién encabeza. Es una nota de la FIFA, sin ángulo mexicano, y aun así le gana a una nota grande de México por dos puntos. Esa es una decisión tomada a propósito: cubrimos el negocio del deporte, y una salida en la cúpula de la FIFA es negocio del deporte aunque no pase por México. El ángulo regional desempata, no vetea.</p>
+</section>
+
+<section>
+  <h2>Las tres reglas de portada</h2>
+  <p class="sub">Todo lo demás sale de la calificación.</p>
+  <hr class="rule">
+  <div class="reglas">
+    <div class="regla">
+      <span class="k">01</span>
+      <div>
+        <h3>Nada se queda arriba más de dos días</h3>
+        <p>Cada día que pasa, una nota pierde el equivalente a cincuenta puntos. La nota de 87 de hoy vale 37 mañana, así que cualquier nota nueva de 38 o más le quita el lugar. El día que no publicamos, la portada conserva el orden del día anterior.</p>
+      </div>
+    </div>
+    <div class="regla">
+      <span class="k">02</span>
+      <div>
+        <h3>Una franja ancha por semana, y solo si la merece</h3>
+        <p>El formato de ancho completo se lo lleva la nota más alta de la semana, siempre que pase de 70 puntos. Si ninguna llega, esa semana no hay franja. Es una regla que no se puede inflar: no importa cuánto suban las calificaciones, sigue siendo una por semana.</p>
+      </div>
+    </div>
+    <div class="regla">
+      <span class="k">03</span>
+      <div>
+        <h3>Lo no confirmado no encabeza</h3>
+        <p>Una operación en negociación pierde dos niveles completos. Sigue siendo visible, porque es información valiosa, pero no puede encabezar la portada por encima de algo que ya ocurrió.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>La Lana del Deporte no compite aquí</h2>
+  <p class="sub">Una investigación no se mide con la misma regla que una nota del día.</p>
+  <hr class="rule">
+  <p class="lead">Todo lo anterior califica noticias, y una noticia vale por el hecho que reporta. La Lana no reporta un hecho nuevo: explica cómo funciona el dinero detrás de uno que ya conocemos. Medida con la boleta de noticias, la investigación del Modelo FIFA sacaría treinta y tantos y se iría al archivo el lunes. Eso sería un error del sistema, no un juicio sobre la pieza.</p>
+  <p>Por eso los productos editoriales corren en su propio carril, con su propia boleta y su propio reloj.</p>
+  <p style="font-size:.86em;opacity:.75;border-left:3px solid currentColor;padding-left:.8em;margin-top:.9em">
+  <strong>Corrección, 2026-08-20.</strong> Esta boleta listaba también a <em>Infinitas</em>,
+  lo que contradecía el ejemplo del 17 de agosto de este mismo documento, donde una nota de
+  Infinitas (&laquo;México asegura su lugar en LA28&raquo;) aparece en <em>Portada 4</em>
+  calificada con la boleta de noticias. Se resolvió a favor del ejemplo: Infinitas corre por
+  defecto en el carril de noticias. La asignación de carril sigue la forma del contenido, no la
+  etiqueta del producto: un hecho reportado (fichaje, fallo, resultado) es noticia
+  independientemente del producto en el que salga. Sólo una pieza de Infinitas con profundidad
+  investigativa real, construida sobre investigación propia como las de La Lana, califica en el
+  carril editorial. Verificado contra las 12 notas de Infinitas del corpus del 2026-08-20:
+  ninguna encaja en una decena editorial.</p>
+  <div class="boleta">
+    <div class="bhead"><span class="t">Boleta de productos editoriales</span><span class="s">La Lana, The Futbol Business Review</span></div>
+    <div class="brow"><span class="q">Investigación original con documentos o cifras propias</span><span class="chip pos">decena 7</span></div>
+    <div class="brow"><span class="q">Un modelo o marco que explica cómo funciona el negocio</span><span class="chip pos">decena 5</span></div>
+    <div class="brow"><span class="q">Comentario sobre una historia ya conocida</span><span class="chip pos">decena 3</span></div>
+    <div class="brow"><span class="q">Sujeto de México o LATAM</span><span class="chip pos">+1</span></div>
+    <div class="brow"><span class="q">Datos propios, gráficos, entidad de cobertura habitual</span><span class="chip pos">unidad 0 a 9</span></div>
+  </div>
+  <div class="quiet">
+    <p>La diferencia que importa no es la calificación, es el reloj. Una noticia pierde cincuenta puntos por día. Una investigación pierde veinte. La del Mundial de FIFA sacaría 76 y seguiría siendo la pieza más visible de su sección de viernes a lunes, que es el tiempo en que la gente realmente la lee.</p>
+  </div>
+  <p>Con esto, La Lana nunca pelea un lugar contra una nota de última hora, y una nota de última hora nunca la desplaza. Cada producto ocupa su espacio y se ordena contra sus propios pares.</p>
+</section>
+
+<section>
+  <h2>Lo que deja de pasar</h2>
+  <hr class="rule">
+  <p><strong>Se acaban los empates.</strong> Dos notas grandes del mismo día ya no comparten calificación. La unidad las separa por detalle editorial, no por el orden en que se subieron.</p>
+  <p><strong>Se acaba la inflación.</strong> Para que una nota suba tiene que traer una cifra, un dato graficable, un análisis propio o un hecho de gobernanza. La convicción de quien la escribe ya no mueve la aguja.</p>
+  <p><strong>Se acaba la decisión diaria.</strong> Nadie tiene que sentarse a decidir el orden de la portada. La boleta se llena al publicar y la portada se acomoda sola, incluso los días de once notas.</p>
+  <p><strong>Se puede auditar.</strong> Cualquier calificación se puede abrir y revisar pregunta por pregunta. Si el orden de un día se ve mal, la discusión es sobre una respuesta concreta, no sobre un criterio.</p>
+</section>
+
+<footer>
+  Playbook · Sistema de jerarquía editorial · Documento de trabajo
+</footer>
+
+</div>
+<script>
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
+  },{threshold:.15});
+  els.forEach(function(e){io.observe(e)});
+})();
+</script>
+</body>
+</html>

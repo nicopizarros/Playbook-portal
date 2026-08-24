@@ -36,6 +36,8 @@ const LIST_COLUMNS = {
   tagsVertical: articles.tagsVertical,
       tagsProperty: articles.tagsProperty,
   priority: articles.priority,
+  score: articles.score,
+  confirmed: articles.confirmed,
   featured: articles.featured,
   mostrarAutor: articles.mostrarAutor,
   readingTime: articles.readingTime,
@@ -63,7 +65,11 @@ const queryPublishedArticles = unstable_cache(
     // 'noticias' everywhere downstream: hubs, filters, CSS data-source
     // hooks, taxonomy. All source filtering happens in memory on this
     // result, so no SQL query needs to know the legacy key exists.
-    return rows.map(row => ({ ...row, source: normalizeSource(row.source), bodyJson: null, bodyHtml: null }));
+    // scoreBoleta joins bodyJson/bodyHtml as a deliberate omission from
+    // LIST_COLUMNS (see above): the audit payload is only ever opened for one
+    // article at a time in the CMS, so shipping it on every list query would
+    // reintroduce exactly the per-row weight this query exists to remove.
+    return rows.map(row => ({ ...row, source: normalizeSource(row.source), bodyJson: null, bodyHtml: null, scoreBoleta: null }));
   },
   ['articles-published-list'],
   { revalidate: 60, tags: [ARTICLES_CACHE_TAG] },
