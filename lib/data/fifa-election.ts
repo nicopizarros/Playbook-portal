@@ -24,14 +24,26 @@
 //   bloque-en-contra      its confederation asked for an independent
 //                         review; it has not spoken in its own name
 //   declarada-en-contra   said so itself, against Infantino
-//   sin-definir           explicitly declined to take a position
+//   sin-definir           declined to take a position, OR signalled doubt
+//                         publicly without declaring either way
 //
 // A federation's OWN declaration always wins over its confederation's,
 // which is what puts Mexico (Concacaf asked for a review, the FMF backed
 // Infantino) and New Zealand (the OFC backed him, NZF withdrew) on the
-// opposite side from their own bloc. Only 20 of the 210 have spoken for
+// opposite side from their own bloc. Only 34 of the 210 have spoken for
 // themselves; the rest are inheriting a position, which is the single
 // most useful thing this board shows.
+//
+// UPDATED 2026-08-24. The board had stood at its 14 ago state for ten days
+// while the story kept moving: fourteen more federations had declared, and
+// the two loudest of them are FIFA Council members, not small associations.
+// The headline split barely moved (82 / 127 / 1 -> 82 / 125 / 3) BECAUSE
+// almost every new declaration came from inside a bloc already counted on
+// that side. That is the point the board exists to make: the fight is not
+// currently moving votes between camps, it is converting inherited
+// positions into declared ones, and a board that only showed the two-way
+// split would have reported "nothing happened" through the most active
+// fortnight of the campaign.
 //
 // THE UNIVERSE IS 210, NOT 211. FIFA has 211 members and Nepal's vote is
 // suspended, so 210 ballots exist. The BBC's own map of this fight counts
@@ -77,10 +89,15 @@ export type FederationStance = {
 };
 
 export const ELECTION = {
-  /** Nominations close. */
+  /** Nominations close. 23:59 CET, and a candidacy needs five member
+   *  associations to endorse it. */
   candidaciesClose: '2026-11-18',
-  /** The Congress votes. */
-  vote: '2027-03',
+  /** The 77th FIFA Congress votes. */
+  vote: '2027-03-18',
+  /** Where it votes. Worth naming: Morocco is one of the six Arab
+   *  federations that signed the joint letter backing Infantino, so the
+   *  ballot is being held in a house that has already declared. */
+  venue: 'Rabat, Marruecos',
   /** FIFA has 211 members; Nepal's vote is suspended, so 210 ballots. */
   members: 211,
   totalVotes: 210,
@@ -103,7 +120,15 @@ export const CONFEDERATIONS: ConfederationStance[] = [
     votes: 54,
     stance: 'respalda',
     since: '2026-08-07',
-    note: 'Sus 54 federaciones acordaron por unanimidad apoyar la reelección de Infantino para 2027-2031.',
+    // The single softest number on this board, and it is the second
+    // biggest. CAF's official line is unanimity; a source inside the 7 ago
+    // meeting told The Guardian that only 4 of its 21 exco members
+    // declared publicly and the rest stayed silent, and Motsepe himself
+    // said on 13 ago that Infantino's fate "must go to an election" —
+    // procedural, not an endorsement. Left as `respalda` because that IS
+    // the confederation's stated position and this column records stated
+    // positions; the qualifier belongs in the note, not in a fudged stance.
+    note: 'Su comité ejecutivo reconfirmó por unanimidad el apoyo a la reelección para 2027-2031, según la propia CAF. En esa reunión solo 4 de sus 21 miembros lo declararon en público.',
     articleId: 'concacaf-firma-contra-infantino-y-mexico-se-queda-fuera-del-comunicado-regional',
   },
   {
@@ -149,7 +174,19 @@ export const CONFEDERATIONS: ConfederationStance[] = [
 // the board is inherited from a confederation. Sources: Playbook's own
 // coverage for the confederations, Mexico and the six-federation Arab
 // letter; BBC Sport for the associations it reached directly (the UAE,
-// Bhutan, the Philippines, Grenada, St Kitts and Nevis, Saudi Arabia).
+// Bhutan, the Philippines, Grenada, St Kitts and Nevis, Saudi Arabia); for
+// the 2026-08-24 additions, each association's own statement where it
+// published one (Gibraltar), otherwise a wire report corroborated by a
+// second independent tracker.
+//
+// EVERY ENTRY NEEDS A DATE, and that is what keeps some names off this
+// list rather than editorial caution. The Netherlands and several African
+// and Asian associations appear on published trackers with a position and
+// no date attached; Denmark's only dated statement is its 2022 OneLove
+// non-endorsement, which is a position on a different fight. They are
+// listed in docs/TODO.md §6 as a dated-source backlog, not silently
+// dropped. `since` is load-bearing: it drives lastMovement(), which is the
+// module's own honesty check against going stale.
 export const FEDERATIONS: FederationStance[] = [
   // —— A favor. Todas menos las cuatro africanas rompen con su bloque.
   { code: 'MEX', name: 'México', confederation: 'concacaf', stance: 'respalda', since: '2026-08-06', note: 'Apoyó a Infantino y fue la única de las 41 federaciones de la Concacaf ausente del comunicado regional.' },
@@ -164,6 +201,8 @@ export const FEDERATIONS: FederationStance[] = [
   { code: 'PHL', name: 'Filipinas', confederation: 'afc', stance: 'respalda', since: '2026-08-11', note: 'Apoya a Infantino dentro de una AFC que firmó la carta en contra.' },
   { code: 'GRD', name: 'Granada', confederation: 'concacaf', stance: 'respalda', since: '2026-08-11', note: 'Se sumó a la postura de México dentro de la Concacaf.' },
   { code: 'KNA', name: 'San Cristóbal y Nieves', confederation: 'concacaf', stance: 'respalda', since: '2026-08-11', note: 'Se sumó a la postura de México dentro de la Concacaf.' },
+  { code: 'DJI', name: 'Yibuti', confederation: 'caf', stance: 'respalda', since: '2026-08-02', note: 'Respaldó la reelección cinco días antes de que la CAF fijara postura como bloque.' },
+  { code: 'ARG', name: 'Argentina', confederation: 'conmebol', stance: 'respalda', since: '2026-08-07', note: 'Respaldó a Infantino el mismo día que México, dentro de una Conmebol que ya lo apoyaba.' },
 
   // —— En contra. Todas dentro de la UEFA, salvo Nueva Zelanda.
   { code: 'FIN', name: 'Finlandia', confederation: 'uefa', stance: 'en-contra', since: '2026-07-30', note: 'De las primeras en quitarle el apoyo.' },
@@ -173,6 +212,21 @@ export const FEDERATIONS: FederationStance[] = [
   { code: 'SWE', name: 'Suecia', confederation: 'uefa', stance: 'en-contra', since: '2026-08-03', note: 'Su junta acordó en sesión extraordinaria oponerse a la candidatura.' },
   { code: 'IRL', name: 'Irlanda', confederation: 'uefa', stance: 'en-contra', since: '2026-08-13', note: 'La FAI retiró la carta de apoyo que había entregado este año.' },
   { code: 'NZL', name: 'Nueva Zelanda', confederation: 'ofc', stance: 'en-contra', since: '2026-08-14', note: 'Retiró su apoyo y pidió una revisión independiente, dos días después de que su confederación apoyara a Infantino.' },
+  // —— Added 2026-08-24. Nine of these eleven are UEFA, so they move from
+  // `bloque-en-contra` to `declarada-en-contra` and the two-way split does
+  // not budge. What changes is the weight of the declaration: Hungary and
+  // Montenegro are FIFA COUNCIL members, and Jordan sits inside an AFC that
+  // signed the letter but had not produced a named federation until now.
+  { code: 'DEU', name: 'Alemania', confederation: 'uefa', stance: 'en-contra', since: '2026-07-15', note: 'Declinó respaldar la reelección dos semanas antes de que se filtrara el plan de venta, es decir, por razones anteriores a la crisis.' },
+  { code: 'GRC', name: 'Grecia', confederation: 'uefa', stance: 'en-contra', since: '2026-08-04', note: 'Retiró su apoyo en la primera semana de la ola europea.' },
+  { code: 'JOR', name: 'Jordania', confederation: 'afc', stance: 'en-contra', since: '2026-08-04', note: 'El príncipe Ali bin Al Hussein acusó a la FIFA de presionar federaciones y rechazó la candidatura. Primera federación de la AFC en pronunciarse por su cuenta.' },
+  { code: 'NOR', name: 'Noruega', confederation: 'uefa', stance: 'en-contra', since: '2026-08-07', note: 'No retiró el apoyo: pidió la renuncia. Lise Klaveness dijo que la federación perdió la confianza y que no hay vuelta atrás.' },
+  { code: 'HRV', name: 'Croacia', confederation: 'uefa', stance: 'en-contra', since: '2026-08-07', note: 'Retiró su apoyo.' },
+  { code: 'ALB', name: 'Albania', confederation: 'uefa', stance: 'en-contra', since: '2026-08-07', note: 'Retiró su apoyo.' },
+  { code: 'HUN', name: 'Hungría', confederation: 'uefa', stance: 'en-contra', since: '2026-08-19', note: 'Sándor Csányi, presidente de la federación y vicepresidente de la FIFA, le retiró el apoyo por carta. Señaló la salida de Kevin Lamour como la gota que derramó el vaso.' },
+  { code: 'MNE', name: 'Montenegro', confederation: 'uefa', stance: 'en-contra', since: '2026-08-20', note: 'Dejan Savićević, presidente de la federación y miembro del Consejo de la FIFA desde 2017, citó una falta grave de comunicación y transparencia.' },
+  { code: 'ISR', name: 'Israel', confederation: 'uefa', stance: 'en-contra', since: '2026-08-20', note: 'Retiró su apoyo el mismo día que Montenegro.' },
+  { code: 'GIB', name: 'Gibraltar', confederation: 'uefa', stance: 'en-contra', since: '2026-08-24', note: 'Retiró el respaldo a la candidatura por falta de transparencia y consulta en el plan, y por las circunstancias de la salida de Kevin Lamour.' },
 
   // —— Sin definir. No es silencio: es haber declinado tomar postura.
   // Estados Unidos y Canadá NO están aquí (decisión editorial, 2026-08-15):
@@ -181,6 +235,15 @@ export const FEDERATIONS: FederationStance[] = [
   // BBC entre respaldar ese texto y pronunciarse sobre Infantino es real,
   // pero es materia de una línea de prosa, no de una casilla del mapa.
   { code: 'SAU', name: 'Arabia Saudita', confederation: 'afc', stance: 'sin-definir', since: '2026-08-11', note: 'Sede del Mundial 2034 y todavía sin postura pública. Renueva su propia dirigencia en agosto.' },
+  // These two are the reason the bucket's definition was widened above.
+  // Both signalled publicly that they may not back him without formally
+  // declaring, which is not silence and is not a position either. Leaving
+  // them inside UEFA's 55 would have counted a federation that has said out
+  // loud it is wavering as if it were still marching with its bloc, and
+  // that overstatement is exactly what this board exists to prevent. It is
+  // the only change in this pass that moves the headline: 127 -> 125.
+  { code: 'ROU', name: 'Rumania', confederation: 'uefa', stance: 'sin-definir', since: '2026-08-12', note: 'Indicó que podría no respaldar la reelección, sin declararse formalmente en contra.' },
+  { code: 'CZE', name: 'República Checa', confederation: 'uefa', stance: 'sin-definir', since: '2026-08-12', note: 'Indicó que podría no respaldar la reelección, sin declararse formalmente en contra.' },
 ];
 
 export const BUCKET_LABEL: Record<Bucket, string> = {

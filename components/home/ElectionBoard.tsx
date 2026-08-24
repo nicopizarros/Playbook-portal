@@ -65,8 +65,9 @@ export function ElectionBoard() {
     <section className="side-module side-board" aria-labelledby="side-board-title">
       <h2 className="side-title" id="side-board-title">El tablero de la FIFA</h2>
       <p className="side-board-lede">
-        Las {ELECTION.totalVotes} federaciones que votan en marzo de 2027: {tally.respalda} con
-        Infantino, {tally.enContra} pidiendo una revisión independiente.
+        Las {ELECTION.totalVotes} federaciones que votan el {shortDate(ELECTION.vote)} en{' '}
+        {ELECTION.venue}: {tally.respalda} con Infantino, {tally.enContra} pidiendo una revisión
+        independiente{tally.sinDefinir > 0 && <>, {tally.sinDefinir} sin definir</>}.
       </p>
 
       <div
