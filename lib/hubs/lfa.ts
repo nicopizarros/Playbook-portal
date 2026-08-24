@@ -190,4 +190,42 @@ export const LFA_HUB: Hub = {
     body:
       'Todavía no publicamos una pieza etiquetada como LFA. Esta página ya está lista para recibirlas: en cuanto salga la primera, aparece acá y en el archivo general.',
   },
+
+  // -------------------------------------------------------- Temas que seguimos
+  // Playbook's own coverage commitment, not a claim about the league — no
+  // HubSource needed (see HubPillar's own comment). Content and wording
+  // straight from the 2026-08-19 mockup's "radar editorial" module.
+  pillars: [
+    { title: 'Capital + ownership', description: 'Quién invierte, cómo se estructura el capital y qué cambia para la Liga y sus franquicias.' },
+    { title: 'Expansión', description: 'Nuevas plazas, propietarios, estadios, demanda local y el modelo para crecer sin diluir el producto.' },
+    { title: 'Marcas + commerce', description: 'Patrocinios, naming, licencias, merch y las categorías que todavía tienen espacio para entrar.' },
+    { title: 'Media + audiencias', description: 'TV, streaming, distribución, consumo y cómo convertir atención en hábito y valor comercial.' },
+    { title: 'Producto + talento', description: 'Profesionalización, desarrollo de jugadores, rutas internacionales y flag football como extensión del ecosistema.' },
+  ],
+
+  // ------------------------------------------------------------ Momentos clave
+  // The league's own annual shape -- generic to any pro American-football
+  // circuit (offseason/draft/kickoff/season/playoffs/championship), which is
+  // why this needs no per-item citation. Tazón México doubles as the hub's
+  // one dated beat in `season` above once a real date lands; this module is
+  // the evergreen framework, that one is the specific instance.
+  momentsClave: [
+    { label: 'Offseason', description: 'Capital, sponsors, expansión, front office.' },
+    { label: 'Draft', description: 'Talento, scouting, roster, estrategia.' },
+    { label: 'Kickoff', description: 'Producto, campañas, partners, media.', highlight: true },
+    { label: 'Temporada', description: 'Audiencias, plazas, activaciones, consumo.' },
+    { label: 'Playoffs', description: 'Demanda, inventario, storytelling comercial.' },
+    { label: 'Tazón México', description: 'Evento, sede, sponsors, hospitality, distribución.', highlight: true },
+  ],
+
+  // -------------------------------------------------------------- Desde adentro
+  // Only the access PROMISE (evergreen positioning), not a specific claimed
+  // interview or video -- the mockup's "demo" video card stays out until a
+  // real one exists; see the module's own comment in HubModules.tsx.
+  access: [
+    { title: 'Voceros', description: 'Liga, franquicias, socios e inversionistas.' },
+    { title: 'Datos', description: 'Audiencia, asistencia, consumo, patrocinios y crecimiento cuando estén disponibles.' },
+    { title: 'Backstage', description: 'Cómo se construyen los eventos, acuerdos y decisiones relevantes.' },
+    { title: 'Contexto', description: 'No republicar comunicados: explicar qué significa cada movimiento.' },
+  ],
 };

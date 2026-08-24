@@ -467,6 +467,108 @@
 }
 .hubx-empty-body { margin: 0 auto; max-width: 46ch; color: var(--hub-mute); line-height: 1.6; }
 
+/* -------------------------------------------------------- Temas que seguimos */
+.hubx-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+.hubx-pillar {
+  position: relative;
+  overflow: hidden;
+  background: var(--hub-plane);
+  border: 1px solid var(--hub-edge);
+  border-radius: 6px;
+  padding: 1.4rem 1.3rem;
+}
+.hubx-pillar-no {
+  display: block;
+  font-family: var(--serif-display); font-weight: 400;
+  font-size: 1.9rem; line-height: 1; color: var(--hub-edge);
+  margin-bottom: 1.5rem;
+}
+.hubx-pillar h3 { font-size: 0.98rem; margin: 0 0 0.5rem; color: var(--hub-chalk); text-transform: uppercase; letter-spacing: 0.01em; }
+.hubx-pillar p { font-size: 0.85rem; line-height: 1.55; color: var(--hub-mute); margin: 0; }
+
+/* --------------------------------------------------------------- Momentos clave
+   A plain ordered list under the hood (real sequence for assistive tech);
+   the connecting line and dots are decorative rail dressing on top of it. */
+.hubx-moments {
+  list-style: none; margin: clamp(1rem, 3vw, 1.5rem) 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 0 0.75rem;
+  position: relative;
+}
+.hubx-moments::before {
+  content: ''; position: absolute; left: 5%; right: 5%; top: 9px; height: 1px; background: var(--hub-edge);
+}
+.hubx-moments li { position: relative; text-align: center; padding: 0 0.35rem; }
+.hubx-moment-dot {
+  display: block; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--hub-page); border: 2px solid var(--hub-mute);
+  margin: 0 auto 1.1rem; position: relative; z-index: 1;
+}
+/* Highlight is the only place this module wears the accent — two dots at
+   most (Kickoff, Tazón México), same restraint as the plazas map. */
+.hubx-moments li.is-highlight .hubx-moment-dot {
+  background: var(--hub-accent); border-color: var(--hub-accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--hub-accent) 14%, transparent);
+}
+.hubx-moments h3 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.02em; margin: 0 0 0.4rem; color: var(--hub-chalk); }
+.hubx-moments p { font-size: 0.76rem; line-height: 1.45; color: var(--hub-mute); margin: 0; }
+
+@media (max-width: 900px) {
+  .hubx-moments { grid-template-columns: repeat(3, 1fr); row-gap: 1.75rem; }
+  .hubx-moments::before { display: none; }
+}
+@media (max-width: 480px) {
+  .hubx-moments { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* --------------------------------------------------------------- Desde adentro */
+.hubx-access {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px;
+  background: var(--hub-edge); border: 1px solid var(--hub-edge); border-radius: 6px; overflow: hidden;
+}
+.hubx-access-item { background: var(--hub-plane); padding: 1.3rem 1.2rem; }
+.hubx-access-item h3 {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--hub-accent-ink); margin: 0 0 0.5rem;
+}
+.hubx-access-item p { font-size: 0.85rem; line-height: 1.5; color: var(--hub-mute); margin: 0; }
+
+/* ---------------------------------------------------------- Newsletter band
+   The one module deliberately NOT inside .hubx-section's rhythm — this is a
+   closing band, styled like a divider between the hub's content and the
+   shared site footer, never a mid-page module (module-inventory.md). */
+.hubx-newsletter {
+  margin-top: var(--hubx-gap);
+  padding: clamp(2rem, 5vw, 3rem) 0 0;
+  border-top: 1px solid var(--hub-edge);
+  display: flex; align-items: center; justify-content: space-between; gap: clamp(1.5rem, 4vw, 3rem);
+  flex-wrap: wrap;
+}
+.hubx-newsletter > div { max-width: 46ch; }
+.hubx-newsletter-form { display: flex; gap: 0; flex: none; }
+.hubx-newsletter-form .nl-fields { display: flex; gap: 0; }
+.hubx-newsletter-form input {
+  width: 260px; background: var(--hub-card); border: 1px solid var(--hub-edge); border-left: none;
+  color: var(--hub-chalk); padding: 0.85rem 1rem; font: inherit; border-radius: 4px 0 0 4px;
+}
+.hubx-newsletter-form input:focus { outline: 2px solid var(--hub-accent); outline-offset: -2px; }
+.hubx-newsletter-form button {
+  border: 0; background: var(--hub-accent); color: var(--hub-black); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.82rem; padding: 0 1.3rem;
+  border-radius: 0 4px 4px 0; cursor: pointer;
+}
+.hubx-newsletter-form .nl-success { color: var(--hub-accent-ink); font-size: 0.85rem; margin: 0; }
+.hubx-newsletter-form .nl-error { display: block; margin-top: 0.5rem; font-size: 0.78rem; color: #ff8a80; }
+@media (max-width: 640px) {
+  .hubx-newsletter-form input { width: 100%; }
+  .hubx-newsletter-form .nl-fields { flex-direction: column; width: 100%; }
+  .hubx-newsletter-form input { border-radius: 4px; border-left: 1px solid var(--hub-edge); margin-bottom: 0.6rem; }
+  .hubx-newsletter-form button { border-radius: 4px; width: 100%; padding: 0.85rem; }
+}
+
 /* ------------------------------------------------------------- Cross */
 .hubx-cross { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .hubx-cross a {

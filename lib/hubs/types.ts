@@ -118,6 +118,39 @@ export type HubSeasonBeat = {
   source: HubSource;
 };
 
+// -------------------------------------------------------- Editorial framing
+// Three modules that describe PLAYBOOK'S OWN COVERAGE PROMISE rather than a
+// claim about the property, so — unlike HubFigure/HubPlaza/HubSeasonBeat —
+// none of these carry a HubSource. "We follow capital and ownership" is an
+// editorial commitment, not a fact that can be right or wrong.
+
+/** "Temas que seguimos" — the beats Playbook commits to covering all year. */
+export type HubPillar = {
+  title: string;
+  description: string;
+};
+
+/**
+ * "Momentos clave" — the property's own recurring annual structure (its
+ * season shape, not a specific dated event — that's HubSeasonBeat), with
+ * the business story each phase opens up. Generic sports-calendar
+ * structure (offseason, draft, playoffs…) needs no citation; a SPECIFIC
+ * date or figure inside one still would, same as everywhere else on the hub.
+ */
+export type HubMoment = {
+  label: string;
+  description: string;
+  /** Marks the 1-2 moments the hub treats as its biggest commercial beats. */
+  highlight?: boolean;
+};
+
+/** "Desde adentro" — what the partnership gets a reader that a topic page
+    can't: named access categories, not a specific claimed interview. */
+export type HubAccessItem = {
+  title: string;
+  description: string;
+};
+
 // ---------------------------------------------------------- Identity
 // Configuration plus assets, never bespoke code. `accent` is the ONE token
 // file under styles/hubs/<slug>.tokens.css; `logo` is a swappable asset
@@ -197,6 +230,12 @@ export type Hub = {
   commercialState: HubFigure[];
   plazas: HubPlaza[];
   season: HubSeasonBeat[];
+  /** "Temas que seguimos". Optional — omit rather than pad with generic beats. */
+  pillars?: HubPillar[];
+  /** "Momentos clave". Optional — the property's own annual shape, if it has one worth naming. */
+  momentsClave?: HubMoment[];
+  /** "Desde adentro". Optional — only what the partnership genuinely delivers today. */
+  access?: HubAccessItem[];
   /** Shown when the coverage pool is empty. An invitation, not a dead end. */
   emptyState: { heading: string; body: string };
 };

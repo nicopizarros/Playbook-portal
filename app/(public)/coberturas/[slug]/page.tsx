@@ -5,7 +5,17 @@ import { auth } from '@/auth';
 import { HUBS, hubBySlug } from '@/lib/hubs';
 import { hubArticles } from '@/lib/hubs/pool';
 import { HubChain } from '@/components/hubs/HubChain';
-import { HubCross, HubFigures, HubPlazas, HubSeason, HubStream } from '@/components/hubs/HubModules';
+import {
+  HubAccess,
+  HubCross,
+  HubFigures,
+  HubMoments,
+  HubNewsletter,
+  HubPillars,
+  HubPlazas,
+  HubSeason,
+  HubStream,
+} from '@/components/hubs/HubModules';
 import { SITE_URL } from '@/lib/site-url';
 import { HubMotion } from '@/components/hubs/HubMotion';
 import { VisitBeacon } from '@/components/analytics/VisitBeacon';
@@ -160,6 +170,11 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
       </header>
 
       <div className="container">
+        {/* Content opens the page, not a corporate factsheet — same
+            reasoning the 2026-08-19 mockup's own internal note gives for
+            leading with "Lo último". */}
+        <HubStream hub={hub} articles={articles} />
+
         {hub.chain && (
           <section className="hubx-section" aria-labelledby="hubx-chain-title">
             <p className="hubx-kicker">La meta</p>
@@ -168,10 +183,15 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
         )}
 
         <HubFigures hub={hub} />
+        <HubPillars hub={hub} />
         <HubPlazas hub={hub} />
+        <HubMoments hub={hub} />
         <HubSeason hub={hub} />
-        <HubStream hub={hub} articles={articles} />
+        <HubAccess hub={hub} />
         <HubCross hub={hub} />
+      </div>
+      <div className="container">
+        <HubNewsletter hub={hub} />
       </div>
       <HubMotion />
     </main>

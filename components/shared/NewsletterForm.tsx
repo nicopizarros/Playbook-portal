@@ -32,7 +32,7 @@ export function NewsletterForm({
   buttonLabel: string;
   successMessage: string;
   /** Which surface this form sits on, for reporting. */
-  placement: 'home-sidebar' | 'mid-cta';
+  placement: 'home-sidebar' | 'mid-cta' | 'hub';
 }) {
   const [hasError, setHasError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);

@@ -3,6 +3,7 @@ import type { Article } from '@/lib/data/articles';
 import type { Hub } from '@/lib/hubs';
 import { PRODUCT_HUBS } from '@/lib/product-hubs';
 import { MexicoMap } from './MexicoMap';
+import { NewsletterForm } from '@/components/shared/NewsletterForm';
 
 // Not lib/constants.ts's SOURCE_LABELS: that map is typed to four `Source`
 // values and has NO entry for 'futbol-business-review', even though 14
@@ -165,6 +166,112 @@ export function HubStream({ hub, articles }: { hub: Hub; articles: Article[] }) 
           <p className="hubx-empty-body">{hub.emptyState.body}</p>
         </div>
       )}
+    </section>
+  );
+}
+
+/**
+ * Temas que seguimos — Playbook's own coverage commitment for the year, not
+ * a claim about the property (see HubPillar's comment). Numbered so it
+ * reads as a declared list rather than a decorative grid.
+ */
+export function HubPillars({ hub }: { hub: Hub }) {
+  if (!hub.pillars?.length) return null;
+  return (
+    <section className="hubx-section" aria-labelledby="hubx-pillars">
+      <p className="hubx-kicker">Radar editorial</p>
+      <h2 className="hubx-head" id="hubx-pillars">Temas que seguimos</h2>
+      <p className="hubx-sub">Los frentes de negocio que Playbook cubre en esta propiedad todo el año.</p>
+      <div className="hubx-pillars">
+        {hub.pillars.map((pillar, i) => (
+          <div className="hubx-pillar" key={pillar.title}>
+            <span className="hubx-pillar-no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{pillar.title}</h3>
+            <p>{pillar.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Momentos clave — the property's own recurring annual shape, and the
+ * business story each phase opens up. Same "needs real content" discipline
+ * as HubSeason: fewer than two phases is not a calendar, so it hides.
+ */
+export function HubMoments({ hub }: { hub: Hub }) {
+  if (!hub.momentsClave || hub.momentsClave.length < 2) return null;
+  return (
+    <section className="hubx-section" aria-labelledby="hubx-moments">
+      <p className="hubx-kicker">El calendario del negocio</p>
+      <h2 className="hubx-head" id="hubx-moments">Momentos clave</h2>
+      <p className="hubx-sub">Cada etapa de la temporada activa una historia de negocio distinta.</p>
+      <ol className="hubx-moments">
+        {hub.momentsClave.map(moment => (
+          <li className={moment.highlight ? 'is-highlight' : undefined} key={moment.label}>
+            <span className="hubx-moment-dot" aria-hidden="true" />
+            <h3>{moment.label}</h3>
+            <p>{moment.description}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+/**
+ * Desde adentro — the access PROMISE only. A specific claimed interview or
+ * video does not exist yet, so this renders none: inventing a "demo" clip
+ * (as the mockup's own placeholder does, labelled "DEMO INTERNO") would be
+ * exactly the fabricated content section 5's provenance rule forbids for
+ * figures, applied here to a claimed piece of content instead of a number.
+ */
+export function HubAccess({ hub }: { hub: Hub }) {
+  if (!hub.access?.length) return null;
+  return (
+    <section className="hubx-section" aria-labelledby="hubx-access">
+      <p className="hubx-kicker">Acceso</p>
+      <h2 className="hubx-head" id="hubx-access">Desde adentro</h2>
+      <p className="hubx-sub">Lo que la alianza pone a disposición del lector, más allá de una cobertura temática normal.</p>
+      <div className="hubx-access">
+        {hub.access.map(item => (
+          <div className="hubx-access-item" key={item.title}>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Newsletter — per the module inventory's own rule, "Footer module only.
+ * Anywhere on the hub page" is rejected. This renders LAST, as a closing
+ * band immediately before the shared site footer, never mixed in among the
+ * content modules above. Copy is hub-name-driven rather than
+ * league-specific wording, so this stays config+assets for hub two.
+ */
+export function HubNewsletter({ hub }: { hub: Hub }) {
+  return (
+    <section className="hubx-newsletter" aria-labelledby="hubx-newsletter-title">
+      <div>
+        <p className="hubx-kicker">Playbook Newsletter</p>
+        <h2 className="hubx-head" id="hubx-newsletter-title">No te pierdas lo que viene en {hub.name}</h2>
+        <p className="hubx-sub" style={{ marginBottom: 0 }}>
+          Sigue el negocio de {hub.name} sin perderte nada. Gratis en tu correo.
+        </p>
+      </div>
+      <NewsletterForm
+        placement="hub"
+        formClassName="hubx-newsletter-form"
+        action="https://playbookmedia.substack.com/"
+        emailId={`nl-email-hub-${hub.slug}`}
+        emailLabel="Tu correo"
+        buttonLabel="Suscribirme"
+        successMessage="Te abrimos Substack para confirmar."
+      />
     </section>
   );
 }
