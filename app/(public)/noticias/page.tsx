@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getArticlesBySource, type Article } from '@/lib/data/articles';
+import { baseScore } from '@/lib/rank';
 import { getSiteContent } from '@/lib/data/site-content';
 import { productHubsContent } from '@/lib/product-hubs-content';
 import { shotsFor, shotLabel, weekdayFor, extractPullFigure, MINUTES_PER_SHOT } from '@/lib/product-hubs';
@@ -13,9 +14,9 @@ import { VisitBeacon } from '@/components/analytics/VisitBeacon';
 // of user feedback: "rn it is a boring list"). The page still rewards
 // scanning, but it now reads as a RIVER with three alternating forms
 // driven by each story's data, not a uniform list:
-//   - tier lg (priority 5): full-width feature band — photo when the
+//   - tier lg (score ≥ 70): full-width feature band — photo when the
 //     story has one, its biggest figure pulled out as a green chip.
-//   - tier md (priority 4): two-up cards, thumbnail when available.
+//   - tier md (score ≥ 55): two-up cards, thumbnail when available.
 //   - tier sm (rest): tight "shots rápidos" clusters — the dense scan
 //     rows, grouped under a green tick so density reads as a deliberate
 //     rhythm instead of the whole page's only register.
@@ -28,9 +29,27 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/noticias` },
 };
 
-function tierFor(priority: number | null): 'lg' | 'md' | 'sm' {
-  if ((priority ?? 0) >= 5) return 'lg';
-  if ((priority ?? 0) >= 4) return 'md';
+// 2026-08-25: ported off the legacy `priority` field onto the 0-99 boleta.
+// 6d517db's "stop the legacy 5-star field from driving layout" caught
+// StillMattersSection and the admin tab but missed this river, which is the
+// most visible layout decision on the site. baseScore() reads the real score
+// and falls back to bridgeScore(priority) while a row is still ungraded.
+//
+// CALIBRATED against the live corpus (135 noticias rows, 2026-08-25), not
+// carried over: reusing the old star lines (bridgeScore(5)=55, bridgeScore(4)
+// =45) looks like the conservative choice and is the opposite, because the two
+// rulers have different distributions. Graded scores run min 30 / median 66 /
+// max 99, so a 55 cutoff promoted 66 of 135 rows to the full-width band -- half
+// the page a feature, worse inflation than the 5-star field this replaces.
+// 70/55 reproduces the shape the page has today (lg 32 vs 36, md 34 vs 46) and
+// puts the band back where the boleta says it belongs: decena 7 and up.
+const TIER_LG_MIN = 70;
+const TIER_MD_MIN = 55;
+
+function tierFor(article: Article): 'lg' | 'md' | 'sm' {
+  const score = baseScore(article);
+  if (score >= TIER_LG_MIN) return 'lg';
+  if (score >= TIER_MD_MIN) return 'md';
   return 'sm';
 }
 
@@ -45,7 +64,7 @@ type NewsBlock =
 function groupRiver(articles: Article[]): NewsBlock[] {
   const blocks: NewsBlock[] = [];
   for (const article of articles) {
-    const tier = tierFor(article.priority);
+    const tier = tierFor(article);
     const prev = blocks[blocks.length - 1];
     if (tier === 'lg') {
       blocks.push({ kind: 'feature', article });
