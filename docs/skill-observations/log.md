@@ -527,3 +527,50 @@ touching it.
 **What happened:** Following the CLAUDE.md health check, this session reported the guard hook as "not firing" because no reminder was visible in early tool results — the exact claim Observation 11 already found to be false in a prior session. Later in the same session the reminder appeared (full mode, CLI present). Whether the offline-mode reminder was genuinely absent earlier or simply not surfaced could not be determined from inside the session.
 
 **Suggested improvement:** The health check should ask for evidence stronger than "I didn't see it" before reporting the hook broken — e.g. run `.claude/hooks/graphify-guard.sh search` directly and report its stdout, which distinguishes "hook produces nothing" from "harness didn't surface it". CLAUDE.md's health-check section could name this exact probe.
+
+## 2026-08-25
+
+### Observation 16: The architecture-destroying commit recurred five days after Observation 14 was ACTIONED
+
+**Status:** OPEN
+**Date:** 2026-08-25
+**Session context:** Audit of "incoherent" published articles; traced every editorial regression back to a single commit.
+**Skill:** publish-sourced-article / publish-newsletter (architecture), graphify, task-observer (collateral deletion)
+**Type:** project-specific
+**Phase/Area:** Skill editing discipline
+
+**Issue:** Commit `cf60a93` (2026-08-18) carries a message about one editorial rule (press-release framing and cover images) and in the same diff deletes all 8 shared-tree symlinks from both publish skills, deletes `ingestion.md` and `publishing-mechanics.md` from both, deletes the entire `graphify` and `task-observer` skills, and re-inflates both SKILL.md files by +465 and +508 lines. This is Observation 14's failure verbatim, five days after it was marked ACTIONED. The repair was also partial: `540a060` restored the symlinks and `ab6479a` restored task-observer, but neither restored the router text inside SKILL.md that told a run to follow those links, and neither restored the two skill-local files. Result today: `voice-and-style.md`, `format-tiers.md`, `overlap-check.md`, `postura-editorial.md` and `images.md` (86 KB, half the tree) resolve on disk and are named by nothing, and neither skill mentions `check-voice.mjs`, `find-duplicates.mjs` or the twelve-point checklist at all. 13 of the last 25 published articles fail `check-voice.mjs`.
+
+**Suggested improvement:** Observation 14's fix was a restoration, not a guard, so the same commit shape landed again unopposed. Add a mechanical check that fails a commit which (a) deletes a `references/` symlink, (b) deletes a sibling skill directory, or (c) grows a SKILL.md past ~120 lines. Restoring files is not a fix for a recurring failure mode; only a check that fires on the next occurrence is.
+
+**Principle:** A failure mode recorded and repaired is not closed until something mechanical would refuse it — restoring the artifact fixes the instance, not the mode.
+
+### Observation 17: Reconnecting a symlink does not reconnect the instruction that reads it
+
+**Status:** OPEN
+**Date:** 2026-08-25
+**Session context:** Checking whether the shared reference tree "resolved or silently failed to load" during recent publish runs.
+**Skill:** publish-sourced-article / publish-newsletter
+**Type:** open-source
+**Phase/Area:** Skill reference architecture / health checks
+
+**Issue:** CLAUDE.md's health check for the shared tree is `ls -la .claude/skills/*/references/` — "if a symlink is broken, the tree is orphaned." That check passes today: every link resolves. But the tree is orphaned anyway, because the SKILL.md text that named those files was replaced by a monolith that names two of seven. The documented probe measures the wrong half of the link: file presence, not whether anything points at it. This is why a live, maintained, fully-resolving corpus went unread for a week without any check going red.
+
+**Suggested improvement:** Make the health check bidirectional — for every file in `references/`, assert that the skill's own SKILL.md names it; report any file present-but-unreferenced as loudly as one referenced-but-missing. A one-line grep per file is enough.
+
+**Principle:** A reference is live only when both ends hold — verifying the target exists says nothing about whether anything still points at it.
+
+### Observation 18: A guard that compares magnitudes silently rejects correct work when its units are relative
+
+**Status:** OPEN
+**Date:** 2026-08-25
+**Session context:** Tracing why a declared `Ecuación` device shipped as a bare label in a published article.
+**Skill:** publish-sourced-article / publish-newsletter (`lib/article-devices.ts`, `dynamic-element-library.md`)
+**Type:** project-specific
+**Phase/Area:** Device rendering / self-checking guards
+
+**Issue:** `SCALES` in `lib/article-devices.ts` is expressed in units of millions (`millones → 1`), so `magnitudeOf()` returns a value comparable only against other scale-worded figures. `parseEquation`'s self-check treats it as an absolute evaluator and multiplies a bare figure by a scaled one: `832 × US$300,000` evaluates to 249,600,000 while the correct result `US$249.6 millones` evaluates to 249.6, so a correct equation is rejected as wrong arithmetic and degrades to plain text with no signal. Confirmed by bisection — the same equation passes when the result is written `US$249,600,000`. Live in `fifa-quiere-us-4-000-millones-por-dos-mundiales-de-estados-unidos`. No wrong chart is shipping today (a corpus scan found no comparative device mixing the two forms), but the same unit assumption sits under every bar the library draws.
+
+**Suggested improvement:** Normalise every figure to one absolute unit before the equation self-check, and add both spellings of the FIFA case as regression tests. More generally: a guard that fails closed must be tested on inputs it should *accept*, not only on ones it should reject — this one had no passing-case coverage for a mixed-scale equation.
+
+**Principle:** A validator built on a relative measure will reject valid input the moment its two operands are expressed at different scales; a fail-closed guard needs accept-case tests as much as reject-case ones.
