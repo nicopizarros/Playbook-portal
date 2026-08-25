@@ -221,6 +221,7 @@ function plainBlocksFor(
   readingTime: number | null,
   priority: number | null,
   articleDate?: string,
+  score?: number | null,
 ): PlainBlock[] {
   // Every product source gets the full device set — the four-paragraph
   // "Opinión de Playbook" standard spans Noticias, La Lana and Infinitas
@@ -237,7 +238,7 @@ function plainBlocksFor(
   // here — it owns the count, the no-repeated-type rule AND the mutually
   // exclusive pairs (Venta/Jugada, Cadena/Cronología), which a duplicated
   // counter here could not have known about.
-  const ledger = createDeviceLedger(readingTime, priority);
+  const ledger = createDeviceLedger(readingTime, priority, score);
   const blocks: PlainBlock[] = paragraphs.map((p): PlainBlock => {
     if (isProduct && OPINION_TEXT_PREFIX.test(p)) {
       return { kind: 'opinion', text: p.replace(OPINION_TEXT_PREFIX, '') };
@@ -599,10 +600,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
   // label can never double as a scan mark.
   const htmlBody =
     rawHtmlBody && hub
-      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority, { articleDate: meta.date })))
+      ? markLeadIns(markOpinionCallout(applyBodyDevices(rawHtmlBody, meta.readingTime, article.priority, { articleDate: meta.date, score: article.score })))
       : rawHtmlBody;
   const splitHtml = htmlBody ? splitAfterParagraph(htmlBody, 3) : null;
-  const blocks = plainBlocksFor(bodyParagraphs, article.source, meta.readingTime, article.priority, meta.date);
+  const blocks = plainBlocksFor(bodyParagraphs, article.source, meta.readingTime, article.priority, meta.date, article.score);
   const splitPlain = blocks.length > 3 ? [blocks.slice(0, 3), blocks.slice(3)] : null;
 
   // The "siguiente expediente" handoff already shows the next case — keep

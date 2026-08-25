@@ -2548,7 +2548,11 @@ function buildPyramid(pyramid: Pyramid): string {
 // meses" from it — computed relative to PUBLICATION, so the chip can't go
 // stale wrong). Optional everywhere: devices that don't read it ignore
 // it, and a missing date just omits the computed chips.
-export type DeviceContext = { articleDate?: string };
+export type DeviceContext = {
+  articleDate?: string;
+  /** 0-99 boleta score (lib/rank.ts). Feeds deviceBudgetFor's top-band bonus. */
+  score?: number | null;
+};
 
 type Device = {
   /** Stable type name — the budget's no-repeat key and the exclusion key. */
@@ -2861,8 +2865,12 @@ function exclusiveSiblings(name: string): string[] {
 // was fine while the only rules were "no repeats" and "stop at N" — the
 // exclusion table above is the third rule, and a third copy of it in a
 // second file is how the two paths start disagreeing about what shipped.
-export function createDeviceLedger(readingTime: number | null, priority?: number | null) {
-  let budget = deviceBudgetFor(readingTime, priority);
+export function createDeviceLedger(
+  readingTime: number | null,
+  priority?: number | null,
+  score?: number | null,
+) {
+  let budget = deviceBudgetFor(readingTime, priority, score);
   const used = new Set<string>();
   return {
     /** Claim a slot for this device type. False = leave it as plain text. */
@@ -2897,10 +2905,36 @@ export function createDeviceLedger(readingTime: number | null, priority?: number
 // within a day (rank.ts's FEATURED_BOOST_DAYS) and is about today's
 // homepage placement, not the story's lasting importance the way
 // `priority` is meant to be.
-export function deviceBudgetFor(readingTime: number | null, priority?: number | null): number {
+// 2026-08-25: the bonus now reads the 0-99 boleta score (>= 70, the same line
+// /noticias and /archivo use for their top band), with the legacy `priority`
+// leg KEPT as a compatibility shim rather than replaced.
+//
+// That is deliberate, and it is the one place in this migration where swapping
+// the field outright is wrong. Unlike ranking, this budget is not a view of the
+// article -- it is a contract with the article's BODY, and it is re-derived at
+// render time (app/(public)/articulo/page.tsx). An author who had two slots
+// wrote two devices. Take a slot away afterwards and the extra declaration does
+// not quietly vanish: it ships as a visible plain-text line, because devices
+// fail loud by design.
+//
+// Measured before changing this, over all 177 published articles: a pure
+// score >= 70 rule broke SEVEN live pages and gained exactly zero, because the
+// reclassification re-graded some old 5-star rows below 70 after their bodies
+// were already written against the larger budget. What they would have lost is
+// not decoration -- a Cronología of the ascenso/descenso timeline, a Tablero of
+// Amazon's connected-device audience, the Calendario of the FIFA election. So
+// the `priority === 5` leg stays until the `priority` column is dropped, which
+// is the pass that must also reconcile those bodies. Dropping it earlier trades
+// real reported content for a tidier predicate.
+export function deviceBudgetFor(
+  readingTime: number | null,
+  priority?: number | null,
+  score?: number | null,
+): number {
   const minutes = readingTime || 1;
   const base = minutes <= 2 ? 1 : minutes <= 5 ? 2 : 3;
-  return priority === 5 ? base + 1 : base;
+  const topBand = (typeof score === 'number' && score >= 70) || priority === 5;
+  return topBand ? base + 1 : base;
 }
 
 // HTML bodies: ONE document-order pass over all nine device patterns —
@@ -2929,7 +2963,7 @@ export function applyBodyDevices(
   }
   found.sort((a, b) => a.start - b.start);
 
-  const ledger = createDeviceLedger(readingTime, priority);
+  const ledger = createDeviceLedger(readingTime, priority, ctx?.score);
   const selected: Match[] = [];
   let cursor = -1;
   for (const match of found) {
