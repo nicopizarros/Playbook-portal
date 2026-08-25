@@ -21,6 +21,7 @@ import { articles } from '../lib/db/schema';
 import { TIPTAP_EXTENSIONS } from '../lib/tiptap-extensions';
 import { slugify } from '../lib/slugify';
 import { validateTags, formatTagIssues } from '../lib/taxonomy';
+import { scoreFromBoleta, type Boleta } from '../lib/rank';
 
 // Uses Neon's HTTP driver (plain HTTPS, one query per request) instead of
 // lib/db/client.ts's node-postgres Pool: this script runs from environments
@@ -45,7 +46,21 @@ type ArticleInput = {
   tagsVertical: string[];
   /** Coverage tier (hubs). Optional: a draft that omits it publishes as before. */
   tagsProperty?: string[];
+  /**
+   * LEGACY 1-5 star rating. Superseded for ranking by `boleta` below
+   * (lib/rank.ts, 2026-08-20), but still required: the column is NOT NULL, and
+   * deviceBudgetFor() still reads `priority === 5` for the extra device slot.
+   */
   priority: number;
+  /**
+   * The 0-99 boleta's eleven answers. Optional so existing callers keep
+   * working; when present, `score`/`confirmed`/`score_boleta` are written from
+   * scoreFromBoleta(), which is the ONLY place a score may be produced. A row
+   * published without one lands at score = null and falls back to
+   * bridgeScore(priority) — i.e. it gets ranked on the retired star system, so
+   * omit this only for a deliberate backfill.
+   */
+  boleta?: Boleta;
   featured: boolean;
   mostrarAutor?: boolean;
   readingTime: number;
@@ -173,6 +188,20 @@ async function insertOne(input: ArticleInput) {
           tagsVertical: input.tagsVertical,
           tagsProperty: input.tagsProperty ?? [],
           priority: input.priority,
+          // Never hand-typed: the score is always derived here from the stored
+          // answers, so any published score can be re-opened question by
+          // question (the spec's "se puede auditar" promise). The trace is
+          // persisted alongside the answers for exactly that review.
+          ...(input.boleta
+            ? (() => {
+                const graded = scoreFromBoleta(input.boleta!);
+                return {
+                  score: graded.score,
+                  confirmed: input.boleta!.kind === 'news' ? input.boleta!.confirmed : true,
+                  scoreBoleta: { ...input.boleta, ...graded } as Record<string, unknown>,
+                };
+              })()
+            : {}),
           featured: input.featured,
           mostrarAutor: input.mostrarAutor === true,
           readingTime: input.readingTime,
