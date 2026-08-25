@@ -25,13 +25,21 @@
 
 import { readFileSync } from 'node:fs';
 import { sql, inArray } from 'drizzle-orm';
-import { db } from '../lib/db/client';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import { articles } from '../lib/db/schema';
 import { scoreFromBoleta, trackFor, type Boleta } from '../lib/rank';
 
 const WINDOW_DAYS = 21;
 const TODAY = process.env.RECLASSIFY_TODAY || '2026-08-20';
 const BOLETAS_PATH = new URL('./data/rank-boletas.json', import.meta.url);
+
+// Neon's HTTP driver rather than lib/db/client.ts's node-postgres Pool, for the
+// same reason scripts/publish-newsletter.ts uses it: this script is run from
+// environments (Claude Code sessions, CI) whose egress permits HTTPS but not
+// the raw TCP a pg Pool needs, where the Pool version does not fail — it hangs
+// until the runner kills it. The deployed app keeps using the Pool client.
+const db = drizzle(neon(process.env.POSTGRES_URL!), { schema: { articles } });
 
 function windowStart(today: string, days: number): string {
   const d = new Date(`${today}T00:00:00Z`);
@@ -63,7 +71,23 @@ async function main() {
       priority: articles.priority,
     })
     .from(articles)
-    .where(sql`${articles.priority} = 5 or ${articles.date} >= ${from}`);
+    // 2026-08-25: scope widened from "5-star OR last three weeks" to EVERY
+    // published row. The original scope was a first-pass triage and it left 76
+    // of 172 published rows ungraded, which was not a neutral gap: an ungraded
+    // row falls back to bridgeScore(priority), so most of the corpus was still
+    // being ordered by the star field the boleta replaced, and /archivo could
+    // not be ported off `priority` at all while half its rows had no score to
+    // port to. With those 76 now graded, the boletas file is the complete
+    // ledger and this is the query that keeps it complete: any article without
+    // a boleta is a MISSING error rather than a silent fallback. The date
+    // window is retained only for the run report below.
+    //
+    // Deliberately unfiltered, drafts included. The first pass graded a draft
+    // (it was five-star, so the old scope caught it), and a draft that is
+    // graded before it goes live is the behaviour we want: publishing must not
+    // be the thing that decides whether a row has a score. Filtering to
+    // `status = 'published'` orphans exactly that row.
+    .where(sql`true`);
 
   const byId = new Map(records.map(r => [r.id, r]));
   const scoped = new Set(rows.map(r => r.id));

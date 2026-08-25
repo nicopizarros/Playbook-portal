@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getArchiveArticles, type Article } from '@/lib/data/articles';
-import { rankScore } from '@/lib/rank';
+import { shelfScore } from '@/lib/rank';
 import { KNOWN_SOURCES, SOURCE_LABELS, normalizeSource, type Source } from '@/lib/constants';
 import { SCOPE_OPTIONS, SPORT_OPTIONS, VERTICAL_OPTIONS } from '@/lib/taxonomy';
 import { NewsRow } from '@/components/article/NewsRow';
@@ -78,16 +78,25 @@ function filterHref(current: Filters, key: keyof Filters, value: string) {
 // "brand new" score (priority × ARCHIVE_TIER_DAY_WEIGHT at day 0), so a
 // tier step costs roughly one star OR about a week and a half of aging,
 // whichever the story has less of.
-const ARCHIVE_TIER_DAY_WEIGHT = 30;
+// 2026-08-25: ported off the legacy `priority` field onto the 0-99 boleta
+// (lib/rank.ts's shelfScore), once the last 76 ungraded rows were graded and
+// the tiers stopped collapsing. ARCHIVE_TIER_DAYS_PER_LEVEL is the old
+// day-weight under its true name: 30 days of aging costs one level, exactly as
+// 30 points used to cost one star, so the trade this page has always made is
+// unchanged. The cutoffs are the same ones /noticias uses for its lg and md
+// bands (70/55), which is the point -- a score should not mean one thing on
+// the news river and another in the archive. Measured over the graded corpus:
+// t5 34, t4 38, t3 35, t2 23, t1 47 (was 22/46/41/31/37 on stars).
+const ARCHIVE_TIER_DAYS_PER_LEVEL = 30;
 const TIER_THRESHOLDS: [number, 1 | 2 | 3 | 4 | 5][] = [
-  [ARCHIVE_TIER_DAY_WEIGHT * 4.5, 5],
-  [ARCHIVE_TIER_DAY_WEIGHT * 3.5, 4],
-  [ARCHIVE_TIER_DAY_WEIGHT * 2.5, 3],
-  [ARCHIVE_TIER_DAY_WEIGHT * 1.5, 2],
+  [70, 5],
+  [55, 4],
+  [45, 3],
+  [35, 2],
 ];
 
 function tierFor(article: Article, now: Date): 1 | 2 | 3 | 4 | 5 {
-  const score = rankScore(article, now, ARCHIVE_TIER_DAY_WEIGHT);
+  const score = shelfScore(article, now, ARCHIVE_TIER_DAYS_PER_LEVEL);
   for (const [minScore, tier] of TIER_THRESHOLDS) {
     if (score >= minScore) return tier;
   }

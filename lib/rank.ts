@@ -505,3 +505,27 @@ export function rankScore(article: Rankable, now: Date, dayWeight: number = PRIO
   const priority = typeof article.priority === 'number' ? article.priority : 0;
   return priority * dayWeight - daysSince(article.date, now);
 }
+
+// ------------------------------------------------- Shelf surfaces (archive)
+//
+// 2026-08-25: the port the comment above deferred, unblocked by grading the
+// last 76 ungraded rows rather than by removing the `priority` column.
+//
+// The deferral was right and the reason was DATA, not timing. Measured with 76
+// of 177 rows still ungraded, every threshold either inflated the top tier (91
+// of 177 at tier 5) or pushed 47 rows to the bottom, because an ungraded row
+// only has bridgeScore(priority) to offer and the bridge ruler and the boleta
+// ruler have different distributions. With all 178 rows graded the same
+// thresholds spread cleanly, so the collapse the old comment warned about is
+// a symptom of a half-graded corpus, not of the 0-99 ruler.
+//
+// This is deliberately NOT effectiveAgeDays(). News decays 50/day, so across a
+// months-long list that function is pure recency and quality stops separating
+// anything -- the exact failure the archive hit when it reused the homepage's
+// weight. Here the score LEADS and aging only differentiates within a level:
+// `daysPerLevel` is what one decena of aging costs, so a tier step is worth one
+// level OR that many days, whichever the story has less of. Same trade the star
+// version made, on the ruler that is now real.
+export function shelfScore(article: Rankable, now: Date, daysPerLevel: number = 30): number {
+  return baseScore(article) - (daysSince(article.date, now) * 10) / daysPerLevel;
+}
