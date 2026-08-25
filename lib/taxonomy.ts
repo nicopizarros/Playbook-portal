@@ -35,7 +35,31 @@ export const VERTICAL_OPTIONS = [
 //
 // The tier is OPTIONAL in a way the other three are not: most articles
 // carry no property tag at all, and that is the normal case, not a gap.
-export const PROPERTY_OPTIONS = ['LFA'] as const;
+//
+// `Infinitas` (publisher, 2026-08-25) widens the tier deliberately, and the
+// widening is worth naming because it cuts across the paragraph above: LFA is
+// an OUTSIDE property Playbook covers, Infinitas is Playbook's own product. It
+// is filed here anyway because what the tier really encodes is a DESTINATION —
+// a stable route whose membership is a binary editorial judgment — and
+// `/infinitas` is exactly that. What made this necessary is that the
+// destination was previously derived from `source`, which also decides the
+// ranking track (`lib/rank.ts`'s `trackFor`). Infinitas sits on the news track
+// by design (track follows content shape, not product label), so deriving the
+// hub from the same field meant one string carrying two unrelated decisions,
+// and either one moving silently changed the other. The tag makes the
+// destination independent of the track.
+//
+// Because Infinitas is a product rather than outside coverage, its tag is not
+// an editorial judgment at all: it is REQUIRED on every `source: 'infinitas'`
+// row and enforced at the write (`scripts/publish-newsletter.ts`), which is
+// what keeps tag and track from drifting apart again.
+export const PROPERTY_OPTIONS = ['LFA', 'Infinitas'] as const;
+
+/**
+ * Product sources whose `property` tag is required and derived, not judged.
+ * Maps the `source` value to the tag every row carrying it must have.
+ */
+export const REQUIRED_PROPERTY_BY_SOURCE: Record<string, string> = { infinitas: 'Infinitas' };
 
 export type TaxonomyTier = 'scope' | 'sport' | 'vertical' | 'property';
 

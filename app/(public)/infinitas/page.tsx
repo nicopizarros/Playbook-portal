@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getArticlesBySource } from '@/lib/data/articles';
+import { getArticlesByProperty } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { productHubsContent, type HubMetric } from '@/lib/product-hubs-content';
 import { Scoreboard, type ScoreboardMetric } from '@/components/products/Scoreboard';
@@ -51,7 +51,7 @@ function toScoreboardMetric(metric: HubMetric): ScoreboardMetric | null {
 }
 
 export default async function InfinitasHubPage() {
-  const [articles, content] = await Promise.all([getArticlesBySource('infinitas'), getSiteContent()]);
+  const [articles, content] = await Promise.all([getArticlesByProperty('Infinitas'), getSiteContent()]);
   const hub = productHubsContent(content.productHubs).infinitas;
   const metrics = hub.metrics.map(toScoreboardMetric).filter((m): m is ScoreboardMetric => m !== null);
   // Main story: the edition editorial pins in the CMS (Hubs tab) when it

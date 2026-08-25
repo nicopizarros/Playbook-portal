@@ -20,7 +20,8 @@ import type { JSONContent } from '@tiptap/core';
 import { articles } from '../lib/db/schema';
 import { TIPTAP_EXTENSIONS } from '../lib/tiptap-extensions';
 import { slugify } from '../lib/slugify';
-import { validateTags, formatTagIssues } from '../lib/taxonomy';
+import { validateTags, formatTagIssues, REQUIRED_PROPERTY_BY_SOURCE } from '../lib/taxonomy';
+import { buildIndex, rank } from './find-duplicates.mjs';
 
 // Uses Neon's HTTP driver (plain HTTPS, one query per request) instead of
 // lib/db/client.ts's node-postgres Pool: this script runs from environments
@@ -139,12 +140,26 @@ async function insertOne(input: ArticleInput) {
         `Usa exactamente las opciones de lib/taxonomy.ts.`,
     );
   }
+  // A product's own destination tag is derived from `source`, not judged
+  // (lib/taxonomy.ts REQUIRED_PROPERTY_BY_SOURCE). Deriving it here rather than
+  // trusting the draft is what keeps the tag and the ranking track from
+  // drifting: `source` decides the track (`lib/rank.ts`'s `trackFor`), the tag
+  // decides the destination, and until 2026-08-25 the destination was read off
+  // `source` too — one string carrying two unrelated decisions, so every
+  // Infinitas row published before the backfill had no tag at all.
+  const requiredProperty = REQUIRED_PROPERTY_BY_SOURCE[input.source ?? ''];
+  const property = [...tags.property];
+  if (requiredProperty && !property.includes(requiredProperty)) {
+    property.push(requiredProperty);
+    console.log(`[publish] "${input.title}": añadido el tag obligatorio de producto "${requiredProperty}"`);
+  }
+
   input = {
     ...input,
     tagsScope: tags.scope,
     tagsSport: tags.sport,
     tagsVertical: tags.vertical,
-    tagsProperty: tags.property,
+    tagsProperty: property,
   };
 
   const bodyJson = markdownToTipTap(input.bodyMarkdown);
@@ -200,7 +215,82 @@ async function insertOne(input: ArticleInput) {
   throw new Error('insertOne: unreachable');
 }
 
+// ————————————————————————————————————————— The overlap gate
+//
+// `articles.sourceUrl` has a unique index, so the same LINK can never be
+// published twice. It cannot see that two different links are the same STORY,
+// and on 2026-07-28 that gap published the Liga Femenil BBVA relaunch twice in
+// the same minute — once from the Noticias edition and once from Infinitas,
+// two Substack URLs, one announcement. `find-duplicates.mjs` scores that pair
+// at 58%/66% against a 45% cut, so the signal was always there; nothing ran it.
+// The overlap check was Step 0 of both skills and lived only in prose, which
+// means it was skipped exactly when a run was busy.
+//
+// So it runs here, at the write, where it cannot be skipped. Two passes,
+// because the archive alone would have missed the case above: both articles
+// were new in the same batch.
+const OVERLAP_CUT = 0.45; // find-duplicates' LIKELY — "same story unless proven otherwise"
+
+type IndexRow = { id: string; title: string; excerpt: string; teaser: string; date: string; source_url: string };
+
+export async function findOverlaps(
+  items: ArticleInput[],
+  // Archive rows to leave out of pass 1. A re-publish of an article being
+  // replaced would otherwise be blocked by the row it is replacing, and the
+  // gate's own tests need to replay a historical batch as if neither row
+  // existed yet — which is the only way to prove pass 2 fires on its own.
+  excludeIds: string[] = [],
+): Promise<Map<number, string>> {
+  const blocked = new Map<number, string>();
+  const queryOf = (a: ArticleInput) => `${a.title} ${a.excerpt || ''}`;
+  const excluded = new Set(excludeIds);
+
+  // Pass 1 — against everything already published.
+  const published = (await db
+    .select({
+      id: articles.id,
+      title: articles.title,
+      excerpt: articles.excerpt,
+      teaser: articles.teaser,
+      date: articles.date,
+      source_url: articles.sourceUrl,
+    })
+    .from(articles)) as IndexRow[];
+  const archive = buildIndex(published.filter(r => !excluded.has(r.id)));
+  for (const [i, item] of items.entries()) {
+    const [top] = rank(queryOf(item), archive, { self: item.sourceUrl });
+    if (top && top.s >= OVERLAP_CUT) {
+      blocked.set(i, `${(top.s * 100).toFixed(0)}% vs published /articulo?id=${top.d.id} — ${top.d.title}`);
+    }
+  }
+
+  // Pass 2 — against the rest of this batch. Same-run collisions are the
+  // cross-product case (one story, two editions) and the archive cannot see
+  // them, because neither row exists yet.
+  if (items.length > 1) {
+    const batch: IndexRow[] = items.map((a, i) => ({
+      id: `batch#${i}`,
+      title: a.title,
+      excerpt: a.excerpt,
+      teaser: a.teaser,
+      date: a.date,
+      source_url: a.sourceUrl ?? `batch#${i}`,
+    }));
+    const index = buildIndex(batch);
+    for (const [i, item] of items.entries()) {
+      const hits = rank(queryOf(item), index, { self: batch[i].source_url }).filter(
+        (h: { d: IndexRow; s: number }) => h.d.id !== `batch#${i}` && h.s >= OVERLAP_CUT,
+      );
+      if (hits.length && !blocked.has(i)) {
+        blocked.set(i, `${(hits[0].s * 100).toFixed(0)}% vs another article in this same batch — ${hits[0].d.title}`);
+      }
+    }
+  }
+  return blocked;
+}
+
 async function main() {
+  const allowOverlap = process.argv.includes('--allow-overlap');
   const filePath = process.argv[2];
   if (!filePath) {
     console.error('Usage: tsx scripts/publish-newsletter.ts <path-to-json-file>');
@@ -216,8 +306,22 @@ async function main() {
     return;
   }
 
+  const blocked = await findOverlaps(items);
+  if (blocked.size && !allowOverlap) {
+    for (const [i, why] of blocked) console.error(`[publish] OVERLAP  ${items[i].title}\n           ${why}`);
+    console.error(
+      `[publish] refusing to publish ${blocked.size} of ${items.length} article(s): each one already has a story ` +
+        'in the archive or in this batch. Apply the overlap protocol (Step 0, `overlap-check.md`) — ' +
+        'upgrade the existing article, fold the items together, or drop one. ' +
+        'Pass --allow-overlap only when a human has looked and decided they are genuinely different stories.',
+    );
+    process.exitCode = 1;
+    return;
+  }
+
   const results = [];
-  for (const item of items) {
+  for (const [i, item] of items.entries()) {
+    if (blocked.has(i)) console.warn(`[publish] overlap overridden by --allow-overlap: ${item.title}`);
     const result = await insertOne(item);
     results.push(result);
     console.log(`[publish] ${result.status}: ${result.title}${result.status === 'ok' ? ` (id=${result.id})` : ''}`);

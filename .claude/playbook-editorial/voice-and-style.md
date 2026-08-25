@@ -54,6 +54,21 @@ name one, you haven't found the story yet — you've found the press release.
 9. Escala y sostenibilidad
 10. Datos y capacidad de monetización
 
+**When the primary source is the company's own press release, the palanca has
+to be found against the document, not inside it.** (2026-08-18, the Apple/MLB
+Friday Night Baseball run.) A `newsroom.company.com` post lists what happened —
+a schedule, a feature, a partnership — in the company's own promotional voice,
+and it almost never says why the company made that choice or what it reveals
+about strategy, because that is not what a release is for. Inheriting its frame
+is a subtler version of paraphrasing one competitor: the facts are right and the
+reading is the company's. Ask instead **what the company chose not to do**
+(expand, spend more, compete harder) and what that choice reveals about what it
+actually needs from the deal — revenue, audience, ecosystem lock-in, a hardware
+showcase, timing ahead of something else. That question, not the release's own
+feature list, is what the palanca should answer on one of these. The same logic
+governs the cover image, which is why `images.md` excludes the release's own
+promotional graphic.
+
 The palanca is what the Opinión identifies (§7) and usually what the subhead
 or the hammer line states. A story about a broadcast deal that never gets past
 "who bought the rights" has skipped the mecanismo and the palanca both.
@@ -226,6 +241,32 @@ homepage scrape `title` + `excerpt` for it).
 Playbook titles say what happened or what is at stake. They never tease ("Lo
 que nadie te contó de…") and they never lead with the newsletter's own name.
 
+### One clause, roughly 45–70 characters
+
+(Publisher, 2026-08-24, on the Infantino/Caribe piece.) The article page's `h1`
+(`styles/article.css`) has **no truncation and no line-clamp** — it wraps in a
+large serif display face, so a long headline is never quietly shortened
+anywhere, it balloons into three or four lines and swallows the hero exactly as
+written. Aim for **45–70 characters, rarely past 80**.
+
+Length is the symptom; the disease is stacking clauses. That piece published at
+*"Infantino desafía a Montagliani y reparte fondos de FIFA en el Caribe,
+mientras la coalición que lo quiere fuera se resquebraja"* (129 characters) —
+three separate claims joined by "y" and "mientras", trying to fit the whole
+five-paragraph story into the headline. It was cut after publication to
+*"Infantino desafía a Montagliani en el Caribe"* (45 characters, one clause).
+**Pick the single fact that most makes someone click, state that, and let the
+body carry the rest** — the same discipline §1 already asks for when it says
+pick one palanca instead of gesturing at five. A genuinely two-part story (an
+action AND its consequence, both load-bearing) can still take two clauses, but
+that is a deliberate call, not the default shape.
+
+The fix belongs at draft time. A headline shortened after publication leaves
+the slug behind — `nielsen-vuelve-a-cambiar-la-medicion-pero-el-rating-ya-no-sube`
+and `infantino-desafia-a-montagliani-…-se-resquebraja` are both live rows whose
+id no longer matches their title, because the id is minted at insert and never
+migrates.
+
 ---
 
 ## 4. Openings
@@ -322,6 +363,67 @@ Opinión explains the mecanismo; it does not deliver a moraleja.
 house style — see `format-tiers.md` for the exact strings and what the renderer
 does with each shape. Never restyle it to "Nuestra opinión" or "El análisis de
 Playbook".
+
+### When an athlete's name is on the venture, the story is what they know
+
+(Publisher, 2026-08-20, on Publicis/Travis Kelce's NIL agency.) The lazy read of
+an athlete-backed company is celebrity: a famous name rented to a business that
+needed attention. That is almost never where the value sits, and writing it that
+way makes the piece a launch notice.
+
+Ask instead **what the athlete knows that the buyer cannot hire.** Someone who
+spent a career inside the sport has read contracts, agents, locker rooms and
+calendars from the side that signs them, and that judgment is the scarce input in
+any deal that has to clear a league, a school or a federation. State that as the
+palanca and the piece stops being about fame.
+
+Two things make the read concrete rather than a compliment:
+
+- **The athlete's own operating record**, when there is one. Kelce had already
+  built New Heights (2022) and licensed it to Amazon's Wondery in a three-year
+  deal reported near US$100M, so he arrives as an operator and the piece can say
+  so with a figure instead of an adjective.
+- **One proven comparable**, named and costed. Magic Johnson is the archive case:
+  4.5% of the Lakers for US$10M in 1994, then US$50M for 2.3% of the Dodgers in
+  2012, a franchise Forbes now values at US$4,800M, plus LAFC, the Sparks and a
+  Commanders stake at a US$6,050M sale. Put the entry price next to today's
+  valuation and let the reader do the division (§7's aritmética rule).
+
+The closing beat this supports is a real pattern rather than a warm sentiment:
+athletes overwhelmingly reinvest **inside** the sport when they stop playing,
+because it is the one industry where their judgment is worth money on day one.
+Say it where the reporting carries it, and skip it where the venture is genuinely
+just a licensing deal with a signature on it.
+
+### When the filing brags and the number doesn't back it
+
+(Publisher, 2026-08-20, on the Enhanced Games' first quarterly results.) A
+company's own release is written to survive being read by people who will not
+check it, and the tell is almost always **in the same document**: the Enhanced
+Games' Q2 statement said the event "engaged one billion people globally" and,
+two lines later, that it drew 4 million live views, a figure the company itself
+compared to a regular-season NBA game. Put those two next to each other and the
+piece has its read; take the first at face value and the piece is a press
+release with a Playbook byline.
+
+So on any story about a challenger property, read the **result** before the
+pitch. Two questions do most of the work: did the audience actually show up at
+the scale being claimed, and did the thing the property exists to prove
+actually happen? The Enhanced Games failed both in one weekend, clean athletes
+finishing above much of the enhanced field, which is the comparison the whole
+format was built to win.
+
+The register stays a business brief, not a takedown: state the two figures, say
+which one is load-bearing, and let the gap do the arguing. What earns the
+sharper close is that the audience read is a genuine finding and not a
+preference. Fans do not turn up for a record on its own; they turn up for clean
+competition in sports they already follow, and a property betting against that
+is betting against its own distribution. Where that holds, say plainly what it
+means for the property's ceiling ("no le va a disputar nada al calendario
+olímpico en el corto plazo") rather than hedging it into nothing. That is an
+interpretation, evidence level 03, and it belongs in the Opinión where it is
+marked as Playbook's read, never smuggled into the fact movements as though the
+company had conceded it.
 
 ### On a running political story, read the alignment — don't keep score
 
@@ -563,6 +665,19 @@ rather than a read on the news, which is the opposite of what the Opinión is
 for. In that case the real read was already in the story: brand stability as a
 commercial asset, and the deal resetting the shirt-sponsorship price benchmark.
 **A strong industry-wide close beats a forced regional comparison every time.**
+
+**The bar for "genuine" is a fact in the piece, not a theme the story happens
+to touch.** (Publisher, 2026-08-20, on the NBA ad-revenue piece.) A Mexican or
+LATAM person, company, deal or figure that is actually in the reporting is
+genuine: Juan Carlos Rodríguez in the FIFA Sub-15 piece, a Liga MX rights
+number, a Mexico City host city. *"This general business dynamic also applies to
+Mexican leagues"* is not, even when true — and the tell is that it would be
+equally true bolted onto a dozen other stories with nothing Mexican in them.
+That piece closed on *"esto es exactamente la pregunta que hoy se hacen las
+ligas y las televisoras en México y América Latina"* for a story that never
+mentioned a single LATAM party, deal or figure. The fix was to end on the global
+insight itself — what the jump from US$10M to US$874M proves about streaming ad
+economics — and stop there.
 
 **A genuine regional angle can still lose to the story's own mechanism**
 (publisher, 2026-08-12, on the record Lakers sale). The rule above is about

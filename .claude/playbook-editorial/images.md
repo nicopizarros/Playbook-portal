@@ -118,6 +118,18 @@ If the first angle or platform only turns up generic results, keep trying
 others (the company/person name, the venue, the specific event, sport + business
 angle, a different search engine or agency entirely) before settling.
 
+### A press release's own graphic is not a cover
+
+(2026-08-18, the Apple/MLB Friday Night Baseball run.) When the primary source
+is a company's own newsroom post, its hero shot or launch graphic is usually
+on-topic and properly licensed, and it is still the wrong cover: it carries the
+release's promotional framing into the piece visually, the same frame
+`voice-and-style.md` §1 tells the prose to read past. Source a genuine editorial
+photo of the actual subject instead — that run used a Fenway Park crowd photo
+rather than Apple's marketing image. This is a framing exclusion, not a rights
+one, so it applies on top of the agency exclusion below rather than instead of
+it.
+
 ### The agency exclusion
 
 **Never pull the image from an agency known to pursue unlicensed use

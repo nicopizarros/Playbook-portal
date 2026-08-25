@@ -325,7 +325,7 @@ ships green.
 
 ### Observation 10: The unreachable-source ladder has no documented bottom rung
 
-**Status:** OPEN
+**Status:** ACTIONED (2026-08-25) — the restored `ingestion.md` now defines the terminal case (every rung fails → hold the story, say so, do not draft from one outlet's framing) and adds the rule that the fallback must be visible in the published artifact, not only in the run report, which is what made "was the fallback used?" unanswerable in the 2026-08-25 audit.
 **Date:** 2026-08-11
 **Session context:** Clean-run validation; the second link (a Bloomberg story on a Tottenham share-issue deadline) was unreachable and uncorroborated
 **Skill:** publish-sourced-article (`references/ingestion.md`, "When the primary source won't load")
@@ -532,7 +532,7 @@ touching it.
 
 ### Observation 16: The architecture-destroying commit recurred five days after Observation 14 was ACTIONED
 
-**Status:** OPEN
+**Status:** ACTIONED (2026-08-25) — both `SKILL.md` files rebuilt as routers from `6986589` (58,735 B → 10,003 B combined), `ingestion.md` and `publishing-mechanics.md` restored and reconciled, and every rule the monolith had absorbed relocated into the corpus file that owns it. The *guard* half of the suggested improvement is NOT done: nothing yet fails a commit that deletes a symlink or inflates a SKILL.md, so the mode is still open even though this instance is closed — see Observation 21.
 **Date:** 2026-08-25
 **Session context:** Audit of "incoherent" published articles; traced every editorial regression back to a single commit.
 **Skill:** publish-sourced-article / publish-newsletter (architecture), graphify, task-observer (collateral deletion)
@@ -547,7 +547,7 @@ touching it.
 
 ### Observation 17: Reconnecting a symlink does not reconnect the instruction that reads it
 
-**Status:** OPEN
+**Status:** ACTIONED (2026-08-25) — all seven shared files plus `_GOVERNANCE.md` and both skill-local files are now named by both routers, verified by grep per file rather than by `ls`. The bidirectional health check itself is not yet in CLAUDE.md; that is the part still open.
 **Date:** 2026-08-25
 **Session context:** Checking whether the shared reference tree "resolved or silently failed to load" during recent publish runs.
 **Skill:** publish-sourced-article / publish-newsletter
@@ -562,7 +562,7 @@ touching it.
 
 ### Observation 18: A guard that compares magnitudes silently rejects correct work when its units are relative
 
-**Status:** OPEN
+**Status:** ACTIONED (2026-08-25) — `absoluteMagnitudeOf` added for arithmetic, `magnitudeOf` kept and documented as the relative comparator, `parseEquation`'s self-check repointed, and `mixedScaleBasis` added to the Duelo and Serie (the Cotización track is deliberately exempt: its bare interior points inherit their endpoints' unit by design). `scripts/test-device-guards.ts` covers five accept cases and two reject cases; all 178 archived articles re-render with one device gained and none lost.
 **Date:** 2026-08-25
 **Session context:** Tracing why a declared `Ecuación` device shipped as a bare label in a published article.
 **Skill:** publish-sourced-article / publish-newsletter (`lib/article-devices.ts`, `dynamic-element-library.md`)
@@ -574,3 +574,63 @@ touching it.
 **Suggested improvement:** Normalise every figure to one absolute unit before the equation self-check, and add both spellings of the FIFA case as regression tests. More generally: a guard that fails closed must be tested on inputs it should *accept*, not only on ones it should reject — this one had no passing-case coverage for a mixed-scale equation.
 
 **Principle:** A validator built on a relative measure will reject valid input the moment its two operands are expressed at different scales; a fail-closed guard needs accept-case tests as much as reject-case ones.
+
+### Observation 19: A skill that tells each run to append prose to itself has no stable size
+
+**Status:** ACTIONED (2026-08-25) — `publishing-mechanics.md`'s "Capture feedback" step, restored in both skills, now states explicitly that `SKILL.md` is not a file a lesson can land in, and names the 6–8× inflation as the reason.
+**Date:** 2026-08-25
+**Session context:** Restoring the router architecture; found the mechanism that had inflated it.
+**Skill:** publish-sourced-article / publish-newsletter
+**Type:** open-source
+**Phase/Area:** Feedback capture / skill self-modification
+
+**Issue:** The monolith's final step told every run to fold durable lessons into `SKILL.md` itself, "in the same dense-prose style as the rest of the document", and then to run `scripts/sync-skill-feedback.sh` to push it to `main` **without asking for confirmation**. The correct routing table — fold it into the file that OWNS the topic — lived in `publishing-mechanics.md`, which the same commit deleted. So the deletion did not merely remove a reference, it inverted the rule, and a skill that self-modifies on every run with no size ceiling and no review has no equilibrium: it grew 6–8× in seven days. The inflation looks like drift and is actually the documented workflow executing correctly.
+
+**Suggested improvement:** Any skill with a self-modification step must name the files a lesson may land in and exclude its own entry point. If a lesson appears to have no home, that is a signal the lesson is stated at the wrong altitude, not a licence to write prose into the router. Pair it with a size ceiling that something mechanical enforces — an instruction not to grow a file is not a constraint on a process whose every iteration grows it.
+
+**Principle:** A process that edits its own instructions needs a fixed point; without one, "capture the lesson" and "keep the entry cost low" are the same knob turned in opposite directions, and the writing side always wins.
+
+### Observation 20: A gate that lives in prose is skipped exactly when it matters
+
+**Status:** ACTIONED (2026-08-25) — the overlap check now runs inside `scripts/publish-newsletter.ts`, the insert path both funnels share, with a second pass over the batch itself; `scripts/test-overlap-gate.ts` replays the 2026-07-28 double-publish and confirms it is refused.
+**Date:** 2026-08-25
+**Session context:** Fixing the Liga Femenil BBVA double-publish found in the incoherence audit.
+**Skill:** publish-sourced-article / publish-newsletter (`overlap-check.md`, `scripts/find-duplicates.mjs`)
+**Type:** open-source
+**Phase/Area:** Step 0, the overlap check
+
+**Issue:** On 2026-07-28 the Liga Femenil BBVA relaunch was published twice in the same minute, once from the Noticias edition and once from Infinitas. The detector was not weak: `find-duplicates.mjs` scores that pair at 58%/66% against a 45% cut. It simply never ran, because Step 0 was a paragraph in a document. Two further details matter. The DB's unique index on `articles.sourceUrl` structurally cannot catch it — two different links, one story. And an archive-only check would also have missed it, because both rows were new in the same batch: the guard needs a pass over the batch against itself.
+
+**Suggested improvement:** A check that a run can skip is a suggestion. When the check is cheap, deterministic and already implemented, move it to the write path where skipping it is impossible, and give the human an explicit named override (`--allow-overlap`) rather than silence. Keep the prose — it explains the four outcomes — but stop relying on it to fire.
+
+**Principle:** Put a gate where the irreversible action happens, not where the instruction is read; the two diverge exactly under the time pressure that makes gates worth having.
+
+### Observation 21: Closing an instance is not closing a failure mode
+
+**Status:** OPEN
+**Date:** 2026-08-25
+**Session context:** Marking Observation 16 actioned, and noticing that its own principle had already been violated once.
+**Skill:** task-observer (status lifecycle) and any skill edited in response to an observation
+**Type:** process
+**Phase/Area:** Observation lifecycle / skill editing discipline
+
+**Issue:** Observation 14 was marked ACTIONED on 2026-08-13 after the architecture was restored. The identical commit shape landed again five days later, because the fix was a restoration and nothing was added that would refuse the next one. This pass has now restored the same architecture a second time, so the same trap is open: `ACTIONED` currently means "the artifact is back", and reads afterwards as "handled". Two of this session's three actioned entries (16, 17) are in exactly that position and say so in their status lines, which is a workaround, not a fix.
+
+**Suggested improvement:** Split the status. An observation describing a recurring failure mode should not reach a resolved state on a repair alone — it wants a distinct marker for "instance repaired, mode still open", so a later reader can tell the two apart without reading the whole entry. Concretely: `REPAIRED (date)` for the artifact, `ACTIONED (date)` reserved for the case where something now refuses the recurrence. For this project the missing refusal is a check that fails a commit deleting a `references/` symlink, deleting a sibling skill directory, or growing a `SKILL.md` past ~120 lines.
+
+**Principle:** A repair restores a state; only a constraint changes what is possible. An observation log that scores them the same way will keep re-learning the same lesson at full price.
+
+### Observation 22: A regression suite keyed to live data fails as the data grows, and it is right to
+
+**Status:** OPEN
+**Date:** 2026-08-25
+**Session context:** Running the full test suite during the remediation pass.
+**Skill:** publish-sourced-article / publish-newsletter (`scripts/test-duplicate-detection.mjs`)
+**Type:** project-specific
+**Phase/Area:** Verification
+
+**Issue:** `test-duplicate-detection.mjs` is at 12/13. The failing case, "FIFA/Trump follow-up, terse query", exceeds its `maxHits` bound because the archive has since published the article the query names — it now self-matches at 100% — plus two more FIFA-governance pieces. Reproduced with this pass's changes stashed, so it is environmental, not a regression. This is Observation 13 arriving: a suite keyed to the live archive degrades on every publish, and the degradation is indistinguishable at a glance from a real break, which is the expensive part. During this pass it cost a stash-and-rerun to establish that a red suite was not mine.
+
+**Suggested improvement:** Freeze the corpus the assertions run against — a committed fixture snapshot — and keep a separate, non-gating live-archive run for the recall question the fixture cannot answer. Failing that, at minimum make the bounds relative ("the true duplicate ranks first") rather than absolute counts, so publishing does not move them.
+
+**Principle:** A test whose fixture is production data measures the fixture, not the code; the first time it goes red for a reason that is not a bug, it has stopped being a regression test.

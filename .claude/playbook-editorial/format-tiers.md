@@ -57,6 +57,16 @@ these skills' prompts (see §4's website-transfer rule).
 Choosing a format is choosing what stays out: a short note doesn't need all
 the research, and a Deep Dive must not disguise itself as a two-minute read.
 
+**The tell that B is the wrong call: having to leave sourced, relevant numbers
+out to hit the word count.** (2026-08-20, the FMF Nuevo Modelo Deportivo run,
+where a story that plainly wanted C shipped as a 420-word brief and the human
+sent it back asking for depth.) If Steps 1–2 produced a mechanism *plus* money
+*plus* precedent — the story changes a structure rather than reporting an
+outcome, there are figures behind it, Playbook has published on the same
+running story before, and a reader would finish the brief still not knowing how
+the thing works — that is the story asking for C. Route it deliberately at this
+step; C is not a length the draft grows into, it has its own architecture (§3b).
+
 Two notes on how these meet what the portal already publishes:
 
 - **B's operating range on the portal has been 300–500 words.** The guide's

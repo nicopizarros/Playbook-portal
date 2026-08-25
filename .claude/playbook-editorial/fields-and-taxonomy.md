@@ -66,6 +66,18 @@ not just a filing error.**
 The old `"playbook"` source was deleted in Fase 1 (2026-08-01) — inserting it
 would create articles no filter or hub can reach.
 
+**`source: "infinitas"` also requires `tagsProperty: ["Infinitas"]`** (publisher,
+2026-08-25). It is the one property tag that is not an editorial judgment: it is
+a fact about the row, so both write paths derive it rather than trusting the
+draft (`scripts/publish-newsletter.ts`, `lib/actions/admin.ts`). The reason it
+exists at all is that `/infinitas` used to select its articles by `source`, and
+`source` is also what decides the ranking track (`lib/rank.ts`'s `trackFor`).
+Infinitas stays on the NEWS track by design — the track follows the shape of the
+content, not the product label — so one string was carrying two unrelated
+decisions and either could move the other silently. The tag makes the
+destination independent of the track. All 18 pre-existing rows were backfilled
+by `scripts/backfill-required-property-tags.ts` on 2026-08-25.
+
 `readingTime` above is the standard; a feature that genuinely runs 900–1,100
 words takes `4` (see `format-tiers.md` §2). It also drives the device budget.
 
@@ -209,6 +221,18 @@ News is the deliberate exception). Before setting it `true`, **query the DB for
 existing `featured = true` rows** so you know what you're competing with. It's
 fine to have several `priority: 5` rows live; just don't blindly stack
 `featured: true` on top of an unrelated existing one without checking.
+
+**But `featured` is not the editorial decision, and a publish run should not
+reason about it** (publisher, 2026-08-20). `priority` is the call the newsroom
+makes; which story leads the portal is computed. `lib/rank.ts` scores every
+article as `priority × dayWeight − daysSince`, picks the hero from that score,
+and treats `featured` as a **decaying boost** on top of it, full strength for
+about a day, not a gate and not an override. So the way to make a story lead is
+to file it at the priority it actually deserves and let the ranking place it.
+Deliberating over `featured` in a run report is a sign the priority call was the
+one being avoided. Leave it `false` by default in both funnels; a human sets it
+when they want to weight today's placement, and the Breaking News override above
+is the one case a run sets it on its own.
 
 ---
 

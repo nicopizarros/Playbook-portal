@@ -416,3 +416,222 @@ Deleted and never restored: `ingestion.md` (10,771 + 5,997 B),
 7. **This session's observations are session-local.** The container's
    task-observer workspace is ephemeral; the entries proposed in Phase 5.4 must
    be carried into `docs/skill-observations/log.md` by hand.
+
+---
+
+# Remediation pass — 2026-08-25 (same day)
+
+Phases 3–5 above were written as proposals. They were **applied** in a second
+pass on the same branch. What follows is that pass, in the same six phases.
+
+## Phase 1 — Audit (what the fix pass had to hold onto)
+
+Everything the first pass established, plus one finding that only surfaced
+while restoring the router: **`SKILL.md` Step 8 was the mechanism of its own
+inflation.** The monolith told every run to "edit this file … in the same
+dense-prose style as the rest of the document" and then push it straight to
+`main` via `scripts/sync-skill-feedback.sh`, unreviewed. The deleted
+`publishing-mechanics.md` had said the opposite — fold the lesson into the file
+that OWNS the topic — so deleting it did not just remove a reference, it
+inverted the rule. That is why the file grew 6–8× in a week rather than drifting
+slowly.
+
+A second, smaller conflict: the monolith instructed `source: "industry-shots"`
+(`SKILL.md:367`) while `fields-and-taxonomy.md` had retired that key on
+2026-08-14 and says never to write it into a new row. Both were live; the
+monolith won because it was the file being read.
+
+## Phase 2 — Restructure
+
+**Both `SKILL.md` files are routers again**, rebuilt from the pre-`cf60a93`
+shape at `6986589` and updated for what has shipped since (the `tagsProperty`
+tier, the third publish skill, the Deep-Dive routing tell, the cross-product
+overlap rule). Every step names the file it delegates to; nothing restates a
+rule. Both close with an explicit statement that the file is a router and that
+feedback belongs in the corpus.
+
+**`ingestion.md` and `publishing-mechanics.md` are restored** in both skills,
+from the same commit, then reconciled against the seven days of rules that
+landed inline while they were gone.
+
+## Phase 3 — Inject (where the monolith's content went)
+
+Per `_GOVERNANCE.md` §2, each rule was placed in the file that owns its topic,
+not left in a router:
+
+| Rule (and where it came from) | New home |
+|---|---|
+| Headline is one clause, 45–70 chars (`dfa3cc6`) | `voice-and-style.md` §3 |
+| Read past a press release's own frame for the palanca (`cf60a93`) | `voice-and-style.md` §1 |
+| The LATAM bar is a fact in the piece, not a theme (`f0ba75f`) | `voice-and-style.md` §9 |
+| An athlete-backed venture is about what the athlete knows (`93ea5c8`) | `voice-and-style.md` §6 — restored verbatim |
+| Read a filing's own numbers against its claims (`7e5dc73`) | `voice-and-style.md` §6 — restored verbatim |
+| `featured` is ranked, not chosen (`93ea5c8`) | `fields-and-taxonomy.md` — restored verbatim |
+| A press release's promotional graphic is not a cover (`cf60a93`) | `images.md` |
+| The tell that a B brief should have been a Deep Dive (`0277bc5`) | `format-tiers.md` §1 |
+| Ask the human for pasted text right after a paywall block (`2b45a05`) | `ingestion.md` rung 0b |
+| Mine a blocked link's attached images first (`0277bc5`) | `ingestion.md` rung 0a |
+
+The four rules marked *restored verbatim* had been written into the corpus by
+`7e5dc73`/`93ea5c8` and then **moved out of it** into the monolith by
+`3ad1dc2`/`2b45a05` — the same drift in miniature. They are back where they
+were, unedited.
+
+Two gaps were closed while the files were open:
+
+- **The unreachable-source ladder now has a bottom rung** (task-observer
+  Observation 10, OPEN since 2026-08-11): when every rung fails, the story is
+  held, not drafted from one outlet's framing. And the fallback must be visible
+  in the article, not only in the run report — which is what made "was the
+  fallback used?" unanswerable in the first pass.
+- **`ingestion.md`'s product routing now says `"noticias"`**, deferring to
+  `fields-and-taxonomy.md`, with the reason the file had it wrong recorded.
+
+## Phase 4 — Integrate (code)
+
+**`lib/article-devices.ts` — the two scale bases are now distinct.** `SCALES`
+is denominated in millions, which makes `magnitudeOf` a *relative* comparator;
+`parseEquation`'s self-check was using it as an absolute evaluator, so
+`832 × US$300,000 = US$249.6 millones` evaluated as `249,600,000` vs `249.6`
+and was rejected as bad arithmetic. Added `absoluteMagnitudeOf` (base units) and
+pointed the self-check at it. `magnitudeOf` is unchanged and now documents what
+it is for.
+
+**Re-scanned every comparative device for the same assumption**, as asked.
+`parseDuel` and `parseSeries` share one scale across rows, so a row mixing
+`US$300,000` with `US$1.7 millones` would draw a bar 176,000× too long: both now
+refuse a mixed scale basis (`mixedScaleBasis`) rather than draw it. The
+Cotización track is deliberately **not** guarded — its bare interior points
+inherit their labelled endpoints' unit by design, so a relative comparator is
+exactly right there, and guarding it would break the ticker. `denominatedOf`
+(Venta) already guards on currency. No live article mixes bases, so nothing
+changed on the site beyond the one equation that now renders.
+
+**The device/lead-in collision is closed by emphasis, not by text-sniffing.**
+In the whole archive every real declaration is a plain paragraph
+(`<p>Cronología: …`) and every collision is a bold label with prose outside it
+(`<p><strong>El calendario:</strong> Las federaciones…`). That shape is now
+refused before any parser runs. Two earlier attempts are recorded in the code
+comment because both were wrong in instructive ways: counting sentences killed
+five live devices on `St. Pauli` and `EE. UU.`, and sniffing for device grammar
+killed twenty-two.
+
+**The overlap check is a gate, not a document.** `find-duplicates.mjs` already
+scored the 2026-07-28 Liga Femenil pair at 58%/66% against a 45% cut — nothing
+ever ran it, because Step 0 lived only in prose. It now runs inside
+`scripts/publish-newsletter.ts`, the insert path both funnels share, in two
+passes: against the archive, and **against the rest of the batch**, which is the
+only pass that could have caught that case (both rows were new in the same run).
+A blocked run exits non-zero and names the collision; `--allow-overlap` is the
+documented human override.
+
+**The Infinitas tag.** `PROPERTY_OPTIONS` now carries `Infinitas` alongside
+`LFA`, with `REQUIRED_PROPERTY_BY_SOURCE` marking it as derived rather than
+judged. All 18 existing rows were backfilled; both write paths
+(`scripts/publish-newsletter.ts`, `lib/actions/admin.ts`) now derive it from
+`source`, so a run cannot omit it. `/infinitas` selects on the tag via a new
+`getArticlesByProperty`, deliberately not `getArticlesByTag` — that one
+re-ranks, and this had to be an exact swap.
+
+**One concern, stated and then set aside as asked.** `lib/taxonomy.ts`'s own
+comment defines the `property` tier as a tier for OUTSIDE properties Playbook
+covers, and hub-builder's intake gate says the same; Infinitas is Playbook's own
+product, so this widens the tier past its stated purpose. The publisher's call
+stands and it is implemented — the tier comment now records the widening and its
+reason (a destination must not be derived from the field that also decides the
+ranking track) rather than leaving the contradiction silent.
+
+## Phase 5 — Convergence check
+
+| Check | Result |
+|---|---|
+| `npx tsc --noEmit` | clean |
+| `npx eslint .` | 0 errors (10 warnings, all pre-existing in `lib/rank.ts` and `scripts/reclassify-rank.ts`) |
+| `npx next build` | succeeds, all routes including `/infinitas` |
+| `scripts/test-device-guards.ts` (new) | 15/15 |
+| `scripts/test-overlap-gate.ts` (new) | 3/3 |
+| `scripts/test-voice-antithesis.mjs` | 16/16 |
+| `scripts/test-duplicate-detection.mjs` | **12/13 — pre-existing**, see below |
+| `scripts/audit-taxonomy.ts` | 178 rows, 0 out-of-vocab (so `Infinitas` validates) |
+| All 178 articles re-rendered, before vs after | 1 device gained, **0 lost** |
+| Every shared file named by both routers | 7/7 shared + `_GOVERNANCE` + both skill-local |
+| Every `references/` symlink resolves | yes |
+| `source='infinitas'` vs `'Infinitas'` tag | 18 vs 18, 0 disagreements |
+
+**The one failing test is not from this pass.** `test-duplicate-detection.mjs`
+fails "FIFA/Trump follow-up, terse query" on a `maxHits` bound, with the same
+result when this pass's changes are stashed. It is task-observer Observation 13
+happening: the fixture is keyed to the live archive, the archive has since
+published the article the query names (it now self-matches at 100%) plus two
+more FIFA-governance pieces. Re-keying the fixture is a separate job.
+
+**Two checks could not be run here, and neither is a pass.** `_GOVERNANCE.md`
+§5 asks for both skills to be run against one comparable article each and the
+drafts diffed; that needs live fetching and a publish run, so it is left for the
+next real run of each funnel. And `/infinitas` was **not** rendered: the app's
+data layer uses `lib/db/client.ts`'s pg Pool over raw TCP, which this sandbox
+blocks (`ETIMEDOUT`), exactly as the `verify` skill documents. The build
+compiles the route and the row sets are provably identical, but nobody has
+looked at the page.
+
+The FIFA correction was applied to the live database at the `body_json` level
+and re-rendered through `generateHTML`, per the "body_html is a cache of
+body_json" rule, with a round-trip guard asserting the stored HTML matched a
+re-render before writing so the correction could not smuggle unrelated markup
+changes in with it.
+
+## Phase 6 — Accounting
+
+**Entry-token cost — back inside the band, 5.9× below the monolith:**
+
+| | `publish-sourced-article` | `publish-newsletter` | Combined |
+|---|---|---|---|
+| At `6986589` (2026-08-13 baseline) | 68 lines / 4,777 B | 54 lines / 3,504 B | 8,281 B |
+| Monolith (HEAD before this pass) | 520 lines / 30,660 B | 434 lines / 28,075 B | 58,735 B — **7.1×** |
+| Now | 79 lines / 5,670 B | 66 lines / 4,333 B | **10,003 B — 1.21×** |
+
+The 1.21× over baseline is content, not drift: the routers now also name the
+third publish skill, the `tagsProperty` tier, the Deep-Dive routing tell and the
+cross-product overlap rule, and both carry the router-not-rulebook rule that did
+not exist before.
+
+**Corpus reachability — 0 B unreachable, from 86,342 B:**
+
+| Shared file | Bytes | Named by both routers |
+|---|---|---|
+| `dynamic-element-library.md` | 68,087 | yes |
+| `voice-and-style.md` | 39,302 | yes (was **no**) |
+| `format-tiers.md` | 29,119 | yes (was **no**) |
+| `fields-and-taxonomy.md` | 14,820 | yes |
+| `images.md` | 12,940 | yes (was **no**) |
+| `overlap-check.md` | 7,174 | yes (was **no**) |
+| `postura-editorial.md` | 6,384 | yes (was **no**) |
+| `_GOVERNANCE.md` | 3,976 | yes (editing only) |
+
+**Restored and reconciled skill-local files — 34,747 B, from 0:**
+`ingestion.md` (13,853 B sourced / 5,997 B newsletter) and
+`publishing-mechanics.md` (6,869 B / 8,028 B).
+
+**Changed:** 12 files modified, 8 added. Live database: 1 article corrected, 18
+articles backfilled.
+
+### Assumptions and limits, this pass
+
+1. **`/infinitas` was not rendered.** See Phase 5. The route builds and the row
+   sets are identical; the page itself is unverified from this container.
+2. **The convergence check `_GOVERNANCE.md` §5 defines was not run in full** —
+   no draft was produced by either skill, so "zero divergence between the two
+   funnels' output" is asserted from the shared corpus, not measured.
+3. **`test-duplicate-detection.mjs` is left failing** at 12/13, pre-existing and
+   reproduced with this pass stashed.
+4. **A second article still says 211.**
+   `rebelion-en-la-fifa-piden-la-renuncia-de-infantino-…` (2026-08-04) reads
+   "106 de los 211 votos totales". It predates the 08-15 piece that established
+   210 eligible voters and 211 members is a true figure, so it was left alone —
+   editing an older article's record is an editorial call, not a correction.
+5. **The knowledge graph is stale.** `graphify update .` needs the CLI, which is
+   not installed in this session (documented degraded mode). `graph.json` still
+   reads `built_at_commit ea4bc901`.
+6. **The `property` tier now holds a Playbook product**, against its own stated
+   purpose. Implemented as directed; the contradiction is documented in the
+   tier's comment rather than left implicit.

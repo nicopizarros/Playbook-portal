@@ -11,13 +11,15 @@ import { ARTICLES_CACHE_TAG, type Article } from '@/lib/data/articles';
 import { SITE_CONTENT_CACHE_TAG, type SiteContentData } from '@/lib/data/site-content';
 import { TIPTAP_EXTENSIONS } from '@/lib/tiptap-extensions';
 import { slugify } from '@/lib/slugify';
-import { validateTags, formatTagIssues } from '@/lib/taxonomy';
+import { validateTags, formatTagIssues, REQUIRED_PROPERTY_BY_SOURCE } from '@/lib/taxonomy';
 
 // Controlled-vocabulary backstop (TODO #1): the dashboard's checkbox UI
 // can only produce canonical tags, so this guards the programmatic
 // callers of these actions — canonicalize folding variants, reject
 // anything out of lib/taxonomy.ts instead of minting an unreachable tag.
-function gateTags<T extends { tagsScope: string[]; tagsSport: string[]; tagsVertical: string[] }>(input: T): T {
+function gateTags<
+  T extends { tagsScope: string[]; tagsSport: string[]; tagsVertical: string[]; tagsProperty?: string[]; source?: string },
+>(input: T): T {
   const { tags, issues } = validateTags({
     scope: input.tagsScope,
     sport: input.tagsSport,
@@ -26,7 +28,16 @@ function gateTags<T extends { tagsScope: string[]; tagsSport: string[]; tagsVert
   if (issues.length) {
     throw new Error(`Etiquetas fuera de la taxonomía: ${formatTagIssues(issues)}`);
   }
-  return { ...input, tagsScope: tags.scope, tagsSport: tags.sport, tagsVertical: tags.vertical };
+  // A product's destination tag is derived from `source`, never typed
+  // (lib/taxonomy.ts REQUIRED_PROPERTY_BY_SOURCE). The publish scripts do the
+  // same thing at their own write; both paths need it or the invariant only
+  // holds for whichever one happened to be used.
+  const required = REQUIRED_PROPERTY_BY_SOURCE[input.source ?? ''];
+  const tagsProperty =
+    required && !(input.tagsProperty ?? []).includes(required)
+      ? [...(input.tagsProperty ?? []), required]
+      : input.tagsProperty;
+  return { ...input, tagsScope: tags.scope, tagsSport: tags.sport, tagsVertical: tags.vertical, tagsProperty };
 }
 
 async function requireEditor() {

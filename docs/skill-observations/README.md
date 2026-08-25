@@ -32,6 +32,14 @@ keeping.
 
 ## Snapshot history
 
+- **2026-08-25** — 22 entries. The incoherence audit added 16–18 (the recurrence
+  of the architecture-destroying commit, the one-ended symlink health check, the
+  relative-vs-absolute magnitude guard); the remediation pass the same day
+  actioned those three plus Observation 10, and added 19 (a skill that appends
+  to itself has no stable size), 20 (a gate in prose is skipped when it
+  matters), 21 (closing an instance is not closing a mode — OPEN) and 22 (a
+  suite keyed to live data — OPEN).
+
 - **2026-08-13** — 15 entries. Observation 14 (architecture-destroying skill
   commit, actioned by restoring the slim/reference architecture) and 15 (the
   "hook didn't fire" claim recurring, OPEN) added during the codebase-audit

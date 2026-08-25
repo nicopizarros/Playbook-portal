@@ -249,8 +249,12 @@ function parseEquation(raw: string): Equation | null {
   // A percentage term parses as its face value (20% → 20, not 0.20), so an
   // equation carrying one is not checkable by plain evaluation — skip.
   const anyPct = [...terms, result].some(t => /%/.test(t.figure));
-  const mags = terms.map(t => magnitudeOf(t.figure));
-  const resultMag = magnitudeOf(result.figure);
+  // Base units, not the SCALES table's millions: an equation routinely mixes a
+  // scale-worded result with bare terms ("832 spots × US$300,000 = US$249.6
+  // millones"), and `magnitudeOf` would put those two on different units and
+  // reject the equation for being 1e6 out. See the SCALES comment.
+  const mags = terms.map(t => absoluteMagnitudeOf(t.figure));
+  const resultMag = absoluteMagnitudeOf(result.figure);
   if (!anyPct && mags.every((m): m is number => m !== null) && resultMag !== null && resultMag !== 0) {
     let acc = mags[0];
     let checkable = true;
@@ -1135,6 +1139,26 @@ const VS_RE = /^([\s\S]+?)\s+(?:vs\.?|versus)\s+([\s\S]+)$/i;
 // Scale words, relative to "millones". Both sides of a row normally carry
 // the same unit; this only exists so a row mixing "mil millones" with
 // "millones" still scales honestly instead of comparing 20 against 10,083.
+// The scale table is denominated IN MILLIONS: `millones` is the unit, so
+// `billones` is a million of them and `K` is a thousandth. Everything that
+// compares figures against each other — the Duelo's bars, the Serie's line,
+// the Cotización track, the Venta multiple — works in that unit, which is
+// why the table looks the way it does.
+//
+// The consequence, and the reason this comment exists: a figure with NO scale
+// word falls through at ×1 and is therefore also read as millions. That is
+// correct for a comparison (a bare interior point on a ticker inherits its
+// labelled endpoints' unit, by design) and WRONG for arithmetic. Mixing the
+// two through `magnitudeOf` is what silently killed a correct `Ecuación` for
+// a week: `832 × US$300,000` evaluated to 249,600,000 while its own correct
+// result `US$249.6 millones` evaluated to 249.6, so the self-check rejected
+// the equation as bad arithmetic and the device shipped as a bare label
+// (`fifa-quiere-us-4-000-millones-por-dos-mundiales-de-estados-unidos`,
+// found in the 2026-08-25 incoherence audit).
+//
+// So there are two accessors and they are not interchangeable:
+//   magnitudeOf()          relative, in millions — for comparing figures
+//   absoluteMagnitudeOf()  base units            — for evaluating arithmetic
 const SCALES: [RegExp, number][] = [
   [/\bbillones\b/i, 1_000_000],
   [/\b(?:mil\s+millones|bn)\b/i, 1_000],
@@ -1142,11 +1166,49 @@ const SCALES: [RegExp, number][] = [
   [/K\s*$/i, 0.001],
 ];
 
+/** What one unit of the SCALES table is worth in base units. */
+const SCALE_UNIT = 1_000_000;
+
+/** Does this figure carry an explicit scale word (millones, M, bn, K…)? */
+function hasScaleWord(figure: string): boolean {
+  const parts = splitFigure(figure);
+  return !!parts && SCALES.some(([re]) => re.test(parts.post));
+}
+
+// Two figures are only comparable through `magnitudeOf` when they agree about
+// whether a scale word is in play. A device that puts "US$300,000" next to
+// "US$1.7 millones" would draw the first bar 176,000× too long — a wrong chart,
+// which the library's own rule says is worse than no chart. Only real amounts
+// count: a bare row value under a thousand ("3", "77") is a count or a
+// percentage, not a figure someone dropped the "millones" from.
+function mixedScaleBasis(figures: (string | null | undefined)[]): boolean {
+  let scaled = false;
+  let bareAmount = false;
+  for (const figure of figures) {
+    if (!figure) continue;
+    const parts = splitFigure(figure);
+    if (!parts) continue;
+    if (/%/.test(parts.post)) continue;
+    if (hasScaleWord(figure)) {
+      scaled = true;
+      continue;
+    }
+    const parsed = parseNumeric(parts.num);
+    if (parsed && Math.abs(parsed.value) >= 1_000) bareAmount = true;
+  }
+  return scaled && bareAmount;
+}
+
 // A minus sign before the figure, in any of the three characters an editor
 // might actually type (hyphen, true minus, en dash). The currency symbol is
 // allowed to sit between it and the digits: "−€46.2M".
 const NEGATIVE_RE = /^\s*[-−–]\s*[^\d]{0,4}\d/;
 
+/**
+ * RELATIVE magnitude, in millions (see the SCALES comment). Use it to compare
+ * figures against each other; never to evaluate arithmetic across figures that
+ * disagree about scale words — `absoluteMagnitudeOf` is for that.
+ */
 function magnitudeOf(figure: string): number | null {
   const parts = splitFigure(figure);
   if (!parts) return null;
@@ -1154,6 +1216,20 @@ function magnitudeOf(figure: string): number | null {
   if (!parsed) return null;
   const scale = SCALES.find(([re]) => re.test(parts.post));
   return parsed.value * (scale ? scale[1] : 1);
+}
+
+/**
+ * ABSOLUTE magnitude, in base units: "US$249.6 millones" → 249_600_000,
+ * "US$300,000" → 300_000, "832" → 832. This is the one an equation can be
+ * evaluated in, because a figure without a scale word means what it says.
+ */
+function absoluteMagnitudeOf(figure: string): number | null {
+  const parts = splitFigure(figure);
+  if (!parts) return null;
+  const parsed = parseNumeric(parts.num);
+  if (!parsed) return null;
+  const scale = SCALES.find(([re]) => re.test(parts.post));
+  return scale ? parsed.value * scale[1] * SCALE_UNIT : parsed.value;
 }
 
 // Percentages and absolute amounts cannot share a bar scale: 77% next to
@@ -1207,6 +1283,11 @@ function parseDuel(raw: string): Duel | null {
     }
     parsed.push({ label, a: valueA, b: valueB, magA: numeric ? magA : null, magB: numeric ? magB : null });
   }
+
+  // Every bar below is drawn from `magnitudeOf`, which only compares honestly
+  // when the rows agree about scale words. Fail to plain text rather than draw
+  // a row 1e6 out of proportion.
+  if (mixedScaleBasis(parsed.flatMap(r => [r.a, r.b]))) return null;
 
   // Pass 2 — one scale for the device when the units allow it, per-row only
   // as the mixed-unit fallback.
@@ -1338,6 +1419,8 @@ function parseSeries(raw: string): Series | null {
     if (magA === null || magB === null || valueA.length > 24 || valueB.length > 24) return null;
     points.push({ label, a: valueA, b: valueB, magA, magB });
   }
+  // Same guard as the Duelo: one mis-scaled point moves the whole line.
+  if (mixedScaleBasis(points.flatMap(pt => [pt.a, pt.b]))) return null;
   return { a, b, points };
 }
 
@@ -2559,6 +2642,28 @@ type Device = {
   render(raw: string, ctx?: DeviceContext): string | null;
 };
 
+// ————————————————————————————— Device declaration vs. prose lead-in
+//
+// Device prefixes are accent- and article-tolerant (`El perfil:`, `La serie:`)
+// and tolerate a `<strong>`/`**` wrapper, which is exactly the shape of the
+// house's bold prose lead-in (`voice-and-style.md` §5). Two live articles sit
+// on that collision: `**El calendario:**` in
+// `infantino-propone-vender-el-20-del-mundial-…` and `**El perfil:**` in
+// `francisco-iturbide-asume-la-presidencia-de-liga-mx-…`. Both survive only
+// because their sentences happen not to parse — a lead-in whose sentence
+// happened to be item-shaped would be silently rendered as a chart.
+//
+// What actually separates them is not the text, it is the emphasis: in the
+// archive EVERY device declaration is a plain paragraph (`<p>Cronología: …`),
+// and a lead-in is a bold LABEL with prose outside it (`<p><strong>El
+// calendario:</strong> Las federaciones…`). So the bold-label-then-prose shape
+// is refused before any parser runs, and a fully bold paragraph still declares
+// normally. Shape, not sentence-counting: an earlier attempt at counting
+// sentences killed five live devices on `St. Pauli` and `EE. UU.`, and a
+// grammar sniff killed twenty-two.
+const HTML_LEAD_IN = /^<p[^>]*>\s*<strong>[^<]*:\s*<\/strong>\s*\S/i;
+const TEXT_LEAD_IN = /^\s*\*\*[^*]*:\s*\*\*\s*\S/;
+
 function deviceHtmlRe(name: string): RegExp {
   return new RegExp(
     `<p[^>]*>\\s*(?:<strong>)?\\s*(?:La\\s+|El\\s+)?${name}:?\\s*(?:<\\/strong>)?:?\\s*([\\s\\S]*?)<\\/p>`,
@@ -2921,6 +3026,7 @@ export function applyBodyDevices(
   for (const device of ALL_DEVICES) {
     device.html.lastIndex = 0;
     for (const match of html.matchAll(device.html)) {
+      if (HTML_LEAD_IN.test(match[0])) continue; // a bold prose lead-in, not a declaration
       const markup = device.render(match[1], ctx);
       if (markup && match.index !== undefined) {
         found.push({ start: match.index, end: match.index + match[0].length, markup, name: device.name });
@@ -2959,6 +3065,7 @@ export function applyBodyDevices(
 export function deviceFromParagraph(paragraph: string, ctx?: DeviceContext): { markup: string; name: string } | null {
   for (const device of ALL_DEVICES) {
     if (device.prefix.test(paragraph)) {
+      if (TEXT_LEAD_IN.test(paragraph)) continue; // a bold prose lead-in, not a declaration
       const markup = device.render(paragraph.replace(device.prefix, ''), ctx);
       if (markup) return { markup, name: device.name };
     }

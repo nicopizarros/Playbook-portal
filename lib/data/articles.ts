@@ -233,6 +233,21 @@ export async function getArticlesBySource(source: string): Promise<Article[]> {
   return all.filter(a => a.source === source);
 }
 
+/**
+ * A product hub's pool, keyed on its `property` tag rather than on `source`.
+ *
+ * Deliberately NOT `getArticlesByTag('property', …)`: that one re-ranks, and
+ * this exists to be an exact swap for `getArticlesBySource` on a hub page —
+ * same rows, same order, one field over. `source` also decides the ranking
+ * track (`lib/rank.ts`'s `trackFor`), so a hub reading it was one string
+ * carrying two unrelated decisions; the tag separates them
+ * (`lib/taxonomy.ts` REQUIRED_PROPERTY_BY_SOURCE).
+ */
+export async function getArticlesByProperty(tag: string): Promise<Article[]> {
+  const all = await getAllArticles();
+  return all.filter(a => (a.tagsProperty || []).includes(tag));
+}
+
 // Admin-only: includes drafts (archived articles), unlike getAllArticles()
 // above which the public site uses and which filters to status='published'.
 // Not cache()-wrapped — the admin dashboard is the only caller, once per
