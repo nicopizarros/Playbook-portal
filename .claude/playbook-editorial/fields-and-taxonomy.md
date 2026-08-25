@@ -184,7 +184,53 @@ gate and registers the vocabulary in the same commit.
 
 ## Ranking
 
-**`priority`** (Importancia) — 1–5, objective scale:
+**The 0–99 boleta replaced the star system on 2026-08-20** (`lib/rank.ts`).
+This section described `priority` as *the* ranking input for four months after
+that stopped being true, and on 2026-08-25 a run followed it and nearly shipped
+five articles graded on the retired scale. Read this part first.
+
+**`boleta`** — the eleven yes/no answers that produce `score` (0–99). Set it on
+every new article. `scripts/publish-newsletter.ts` takes it on `ArticleInput`,
+calls `scoreFromBoleta()` and writes `score` / `confirmed` / `score_boleta`.
+**Omitting it is not neutral:** the row lands at `score = null` and falls back to
+`bridgeScore(priority)`, i.e. it gets ranked on the very system the boleta
+replaced. As of 2026-08-25, 14 post-cutover rows carry that defect.
+
+The number is never authored. `scoreFromBoleta()` is the only place a score may
+be produced, so what you decide are the *answers*, and the score falls out:
+
+- **decena** (tens) — what the story REPORTS. Pick exactly one `reports` level
+  (news: `structural` 6 / `transaction-with-figure` 5 / `commercial-no-figure` 3
+  / `recap` 1), then the modifiers: `globallyRelevant` +1, `mexico` +2,
+  `regional` +1, `newDevelopment` +1, and `confirmed: false` **−2 decenas** plus
+  a hard bar from the top slot. Stacked modifiers clamp at 9.
+- **unit** (ones) — how well it is made, summing to exactly 9: `hardFigure` +2,
+  `chartable` +2, `ownAnalysis` +2, `multiMarket` +2, `habitualEntity` +1.
+
+Two of the unit questions are stricter than they look, and answering them
+loosely is what the 2026-08-20 calibration pass was fixing:
+
+- **`hardFigure`** is money attached to *the fact being reported* — the price,
+  fee, loss or valuation of the thing that happened. Background, a precedent, a
+  comparison or a third party's market size does NOT count. (The same trap as
+  `Cifra clave`'s "story's own figure" rule in `dynamic-element-library.md`: a
+  2026-08-25 draft led its Cifra clave with a national betting handle, which
+  fails both rules for the same reason.)
+- **`chartable`** needs at least three values comparable on ONE axis, in
+  practice a series device (`Cronología`, `Reparto`, `Duelo`, `Recibo`,
+  `Cotización`, `Resultados`, `Comparativo`). The single-value and non-numeric
+  devices (`Cifra clave`, `Salto`, `Jugada`, `Alineación`, `Tablero`, `Mapa`)
+  do **not** qualify, and neither does a `Duelo` carrying only one row — that is
+  two values, not three.
+
+Record genuinely arguable answers in `ambiguous` and say why in `notes`; the
+whole point of storing the boleta is that a disputed running order becomes an
+argument about one answer rather than about taste.
+
+**`priority`** (Importancia) — 1–5. **Legacy.** No longer decides ranking, but
+still required: the column is `NOT NULL`, `deviceBudgetFor()` still reads
+`priority === 5` for the extra device slot, and the archive's visual tiering
+still uses it. Keep setting it honestly on the scale below until it is dropped.
 
 | | |
 |---|---|

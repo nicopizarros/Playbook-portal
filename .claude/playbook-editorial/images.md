@@ -69,6 +69,18 @@ normally. Left there, the crop check below and the "confirm what it depicts"
 rule become steps that quietly get skipped on exactly the images Playbook uses
 most.
 
+**Prefer a `/thumb/` URL over the original as the published `imageUrl`**
+(2026-08-25). A Commons original is routinely 5–7 MB, which is a bad cover for a
+1200px frame, and the site renders `imageUrl` in a plain `<img>` (arbitrary host,
+`img-src https:` in the CSP) so nothing downsizes it for you. **The thumbnailer
+only accepts a fixed set of widths**: `1280px-` works, while `1000px-`,
+`1024px-` and `800px-` all return `HTTP 400` with the body "Use thumbnail sizes
+listed on…", which reads like a broken URL and is easy to misdiagnose as the
+429 rate limit below. Build it as
+`…/commons/thumb/<h1>/<h2>/<File>.jpg/1280px-<File>.jpg`, keeping the two hash
+segments and the percent-encoding from the API's own `url`, and confirm it
+returns `200 image/jpeg` before publishing.
+
 The Commons **API** answers both questions without the binary and is not part
 of the same limit:
 
