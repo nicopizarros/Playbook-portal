@@ -364,7 +364,12 @@ Importancia scale. Differences from that skill:
 
 - **author**: leave `""` unless a byline is genuinely known, same as
   `publish-newsletter`.
-- **publication** / **source**: `"Noticias"` / `"industry-shots"`. This
+- **publication** / **source**: `"Noticias"` / `"noticias"`. **The
+  `"industry-shots"` key was retired 2026-08-14** and
+  `references/fields-and-taxonomy.md` (the shared source of truth) says never
+  to write it into a new row; this file went on naming it for another eleven
+  days, and a 2026-08-25 run caught the contradiction only by reading the
+  reference. Where the two disagree, the reference wins. This
   reuses Industry Shots' pair rather than `publish-newsletter`'s "anything
   else" fallback (`"Playbook"` / `"playbook"`): a third-party wire pickup
   reads as a news brief, not as a Playbook-branded opinion piece, and the
@@ -374,10 +379,19 @@ Importancia scale. Differences from that skill:
   these the same way it does on an Industry Shots item, both visually
   (`styles/components.css`'s `.tag-mini.industry-shots` color) and in the
   taxonomy-row ordering it drives (`lib/taxonomy.ts`'s
-  `topicsForSection`). There's no separate "wire story" entry in
-  `KNOWN_SOURCES`/`SOURCE_LABELS` (`lib/constants.ts`) to reach for
-  instead, reusing `industry-shots` is the pragmatic way to get the
-  "Noticias" label without adding a new taxonomy value for this.
+  `topicsForSection`). The CSS class survives the rename because
+  `normalizeSource()` (`lib/constants.ts`) maps the legacy key onto the
+  current one, which is exactly why writing `"noticias"` costs nothing
+  visually and why the old key kept looking harmless in this file.
+
+- **boleta** (ranking, added 2026-08-25): set it on every article. The 0–99
+  boleta replaced `priority` on 2026-08-20 and `scripts/publish-newsletter.ts`
+  now takes the eleven answers and derives `score` itself. Omitting it silently
+  ranks the piece on the retired star scale. Full rules, including the two unit
+  questions that are stricter than they read (`hardFigure`, `chartable`), live
+  in `references/fields-and-taxonomy.md` → "Ranking". Answer the questions from
+  the drafted piece, never reverse-engineer answers to reach a score you had in
+  mind, and record genuinely arguable ones in `ambiguous`.
 - **substackUrl**: always `""`, leave it empty. `app/(public)/articulo/page.tsx`
   renders a "Ver en Substack" button whenever this field is non-empty,
   pointing wherever it's set. That label is wrong for a third-party link,
