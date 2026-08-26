@@ -18,6 +18,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { generateHTML } from '@tiptap/html';
 import type { JSONContent } from '@tiptap/core';
 import { articles } from '../lib/db/schema';
+import { scoreFromBoleta, trackFor, type Boleta } from '../lib/rank';
 import { TIPTAP_EXTENSIONS } from '../lib/tiptap-extensions';
 import { slugify } from '../lib/slugify';
 import { validateTags, formatTagIssues, REQUIRED_PROPERTY_BY_SOURCE } from '../lib/taxonomy';
@@ -46,6 +47,25 @@ type ArticleInput = {
   tagsVertical: string[];
   /** Coverage tier (hubs). Optional: a draft that omits it publishes as before. */
   tagsProperty?: string[];
+  /**
+   * The 0-99 boleta (lib/rank.ts). REQUIRED, and deliberately not optional.
+   *
+   * Both publish funnels -- publish-newsletter and publish-sourced-article --
+   * come through this script, and until 2026-08-25 neither could carry a
+   * boleta at all: the field did not exist here, the insert below never wrote
+   * `score`, `confirmed` or `score_boleta`, and the ONLY writer of those three
+   * columns was the scripts/reclassify-rank.ts backfill. Both skills' step 6
+   * has been instructing runs to "set the 0-99 boleta on every article" the
+   * whole time, so the instruction was unexecutable and every published row
+   * landed at `score = null` and fell back to bridgeScore(priority) -- the
+   * retired star scale the boleta was built to replace.
+   *
+   * Optional would reproduce that failure quietly, which is the one outcome
+   * worth engineering against: a missing boleta is not a row with no score,
+   * it is a row ranked by the superseded system. Same posture as the taxonomy
+   * gate above -- fail the publish, name the fix.
+   */
+  boleta: Boleta;
   priority: number;
   featured: boolean;
   mostrarAutor?: boolean;
@@ -162,6 +182,34 @@ async function insertOne(input: ArticleInput) {
     tagsProperty: property,
   };
 
+  // ------------------------------------------------------------- Boleta
+  // The score is never authored: scoreFromBoleta() is the only place a 0-99
+  // may be produced, so what a run decides are the ANSWERS and the number
+  // falls out. That is the spec's audit promise made mechanical.
+  if (!input.boleta) {
+    throw new Error(
+      `[publish] "${input.title}": falta la boleta 0-99. Sin ella la nota entra con ` +
+        `score = null y se ordena con bridgeScore(priority), es decir con la escala de ` +
+        `estrellas retirada el 2026-08-20. Ver .claude/playbook-editorial/fields-and-taxonomy.md -> "Ranking".`,
+    );
+  }
+  // The track is decided by `source` (lib/rank.ts trackFor), never by the
+  // draft. A news boleta on a La Lana piece would score it on the wrong
+  // rubric AND the wrong clock (50/day vs 20/day), so a mismatch is a hard
+  // stop rather than a coerced value.
+  const expectedKind = trackFor(input.source) === 'editorial' ? 'editorial' : 'news';
+  if (input.boleta.kind !== expectedKind) {
+    throw new Error(
+      `[publish] "${input.title}": la boleta es "${input.boleta.kind}" pero source="${input.source}" ` +
+        `corre en el carril "${expectedKind}". El carril lo decide el source, no el draft.`,
+    );
+  }
+  const breakdown = scoreFromBoleta(input.boleta);
+  console.log(
+    `[publish] "${input.title}": score ${breakdown.score} ` +
+      `(decena ${breakdown.decena}, unidad ${breakdown.unit}) — ${breakdown.trace.join('; ')}`,
+  );
+
   const bodyJson = markdownToTipTap(input.bodyMarkdown);
   const bodyHtml = generateHTML(bodyJson as JSONContent, TIPTAP_EXTENSIONS);
   const baseId = slugify(input.title) || `articulo-${Date.now().toString(36)}`;
@@ -188,6 +236,24 @@ async function insertOne(input: ArticleInput) {
           tagsVertical: input.tagsVertical,
           tagsProperty: input.tagsProperty ?? [],
           priority: input.priority,
+          score: breakdown.score,
+          // Editorial boletas have no `confirmed` question -- an investigation
+          // is not "unconfirmed", the concept does not apply. Null, not true:
+          // the column must not claim an answer nobody was asked. Same rule
+          // as scripts/reclassify-rank.ts, so backfilled and publish-time rows
+          // are indistinguishable.
+          confirmed: input.boleta.kind === 'news' ? input.boleta.confirmed : null,
+          scoreBoleta: {
+            version: 1,
+            scoredAt: input.date,
+            kind: input.boleta.kind,
+            answers: input.boleta,
+            decena: breakdown.decena,
+            unit: breakdown.unit,
+            score: breakdown.score,
+            trace: breakdown.trace,
+            legacyPriority: input.priority,
+          },
           featured: input.featured,
           mostrarAutor: input.mostrarAutor === true,
           readingTime: input.readingTime,

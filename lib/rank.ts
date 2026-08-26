@@ -44,21 +44,26 @@ export type Track = 'news' | 'editorial';
 
 // The long-form/investigative products.
 //
-// `infinitas` IS NOT HERE, and the spec is self-contradictory about it. Its
-// editorial-boleta header lists "La Lana, Infinitas, The Futbol Business
-// Review", but its own worked example -- the 17-ago-2026 portada table --
-// places an infinitas-sourced article ("Mexico asegura su lugar en LA28")
-// at Portada 4, scored on the NEWS boleta at 55. The corpus breaks the tie:
-// all 12 infinitas articles in the 2026-08-20 reclassification are news-shaped
-// (a transfer with a fee, a production contract, a UCI ruling, a bronze medal),
-// and not one of them fits any editorial decena -- there is no original
-// investigation and no explanatory framework among them. Infinitas is a
-// women's-sport NEWS vertical, not an investigative product.
+// `infinitas` IS NOT HERE, and as of the spec's 2026-08-20 correction that is
+// no longer an interpretation -- it is what the spec says. The document used to
+// list "La Lana, Infinitas, The Futbol Business Review" on its editorial-boleta
+// header while its own worked example (the 17-ago-2026 portada table) scored an
+// infinitas article on the NEWS boleta at Portada 4. The correction resolved it
+// in favour of the example: "Infinitas corre por defecto en el carril de
+// noticias. La asignacion de carril sigue la forma del contenido, no la
+// etiqueta del producto." Verified against the corpus the same day: all 12
+// infinitas articles are news-shaped (a transfer with a fee, a production
+// contract, a UCI ruling, a bronze medal) and not one fits an editorial decena.
+//
+// So this is settled, and the reason to keep the note is the rule underneath
+// it: the LANE FOLLOWS THE SHAPE OF THE CONTENT, NOT THE PRODUCT LABEL. An
+// infinitas piece with real investigative depth would belong in the editorial
+// lane; none has appeared yet. Do not re-open this as "should Infinitas be
+// editorial?" -- the question is per-piece, not per-product.
 //
 // Scored the other way, those 12 would decay at 20/day and never compete for
 // a news slot, which would park same-day women's-sport news below three-day-old
-// men's news indefinitely. Reversing this is one string; the publisher should
-// rule on it.
+// men's news indefinitely.
 //
 // `opinion` is deliberately absent too: it is neither news nor a Playbook
 // investigation, it already has its own carousel
