@@ -194,6 +194,14 @@ every new article. `scripts/publish-newsletter.ts` (the script BOTH publish
 funnels call) takes it as a required field on `ArticleInput`, calls
 `scoreFromBoleta()` and writes `score` / `confirmed` / `score_boleta`.
 
+**The lane discriminant field is literally named `kind`, not `track` or
+`lane`** (`lib/rank.ts`'s `NewsBoleta` / `EditorialBoleta` union: `kind: 'news'`
+or `kind: 'editorial'`). This section's own prose talks about "the lane" and
+"two boletas, two clocks" without ever naming the actual key, which cost a
+2026-08-26 sourced-article run a failed publish attempt on a `track: "news"`
+draft — the script's error message names the mismatch clearly enough to fix in
+one edit, but the reference should have said it first.
+
 Omitting it is not a row with no score — it is **a row ranked by the retired
 star scale**, via `bridgeScore(priority)`. That is why the script now hard-fails
 on a missing boleta instead of publishing without one. Wiring it up was itself
