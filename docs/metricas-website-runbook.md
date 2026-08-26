@@ -187,10 +187,15 @@ POSTGRES_URL="$(grep '^POSTGRES_URL=' .env.local | cut -d= -f2- | tr -d '"')" \
 
 Eso regenera el `.xlsx` completo con los datos de la base al día.
 
-> **Importante y contraintuitivo:** regenerar **sobrescribe el archivo**, así
-> que se lleva por delante lo que hayas pegado en `Datos_GA4`. Haz el paso del
-> script **antes** de pegar los exports de GA4, no después. El orden correcto
-> es: *(1) correr el script → (2) pegar los cinco exports → (3) guardar*.
+> **El script conserva lo que ya pegaste en `Datos_GA4`.** Antes no lo hacía y
+> el orden importaba; desde el 2026-08-25 detecta las celdas pegadas y las
+> arrastra al archivo nuevo, así que puedes correrlo cuando quieras sin perder
+> los exports. Te avisa en pantalla cuántas celdas conservó.
+>
+> La única excepción: si alguien cambia la ESTRUCTURA de los bloques de
+> `Datos_GA4` (añadir o renombrar columnas), el script no puede saber a qué
+> columna corresponde cada dato viejo, así que lo dice en pantalla y arranca
+> limpio. Si ves ese aviso, vuelve a pegar los exports.
 
 ---
 

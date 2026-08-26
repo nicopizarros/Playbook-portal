@@ -14,28 +14,37 @@ one; a hub GATHERS by tag and is config + assets. `lib/hubs/types.ts` carries
 the reasoning; `scripts/scaffold-hub.ts` is the standing test (proved by
 scaffolding and removing an `nfl-mexico` hub the same day).
 
-**QA pass before sharing with the LFA (2026-08-25). Two blockers, both
-decisions rather than bugs:**
+**QA pass before sharing with the LFA (2026-08-25). Publisher ruled on the
+two open questions the same day; both are now settled, not pending:**
 
-- **The hub is not reachable from the header, and that is deliberate.**
-  `listed: false` (publisher, 2026-08-19) keeps it out of the nav and the
-  sitemap and sets `robots: noindex, nofollow` — verified all three. The URL
-  works and returns 200, so sharing the link with the league works fine; it is
-  undiscoverable, not unreachable. But it cannot be both unlisted AND reachable
-  from the three-zone header. Flipping `listed: true` also makes "medio oficial
-  de negocios" public, which the mockup's own notes said to hold until the joint
-  announcement. **Someone has to decide which of the two matters more this week.**
-- **The hub does not link to the LFA anywhere.** Verified: zero outbound links to
-  any league property. Every other external link on the page resolves (7/7 at
-  200), and all 13 internal links resolve. For a page being handed TO the league
-  this reads as an omission rather than a boundary decision. Needs a URL from
-  the league, or an explicit decision not to link out.
+- **Discoverability: leave it exactly as it is.** `listed: false` is the
+  desired state, not a temporary hold. The hub is reachable by URL (verified
+  200) and absent from the nav, the sitemap and the index (`robots: noindex,
+  nofollow` — all three verified). Publisher, 2026-08-25: *"it is not
+  accessible via the home page, but if you know the address you can access
+  it."* That is precisely what this flag does — see the a61b4f3 commit title,
+  "unlisted means undiscoverable, not unreachable". **Do not flip this to
+  `true` to "fix" the header-reachability QA item; the QA item is what is
+  wrong, and it has been struck.**
+- **Linking out to the LFA: dropped for now.** Publisher, 2026-08-25. The hub
+  deliberately carries no outbound link to any league property. Revisit only
+  if the league asks.
 
-Everything else on the QA list passed: all three referenced assets exist, alt
-text is present and correct (the masthead art is a CSS background and correctly
-decorative), the `LFA` tag exists in `PROPERTY_OPTIONS` and is applied, and the
-page holds up on mobile in both themes. `public/hubs/lfa/board.jpg` is now
-unreferenced — dead asset, safe to delete.
+**Still open — the same photograph renders twice.**
+`/assets/img/lfa-reyes-accion-mayo-2026.jpg` is both the lead story's own cover
+(it is the article's `image_url`, rendered by `HubModules.tsx:258`) and the
+hardcoded `accessPhoto` for "Desde adentro" (`lib/hubs/lfa.ts`, rendered at
+`HubModules.tsx:369`). On the page it reads as a bug rather than a motif.
+
+It cannot be fixed from what is in the repo: `public/hubs/lfa/` holds exactly
+three assets, and the only unused one — `board.jpg` — is **not a photograph**.
+It is a 1400x788 dark grey texture with a faint grid, the hand-built gradient
+the masthead wore before the league's key art replaced it (`78ef043`). Keep it
+(publisher, 2026-08-25: a photo is meant to live in that slot) but it cannot
+serve as one. **What is needed is one more real, credited LFA photograph for
+the access poster.** Until it arrives, the choice is duplicate-the-lead (today)
+or drop `accessPhoto` and let the module degrade to type. Do not substitute
+stock — `module-inventory.md` forbids exactly that.
 
 **Open, in priority order:**
 

@@ -629,7 +629,46 @@ CHARTS = [
                   "Usuarios / sesiones"), (7, 2, 16, 22)),
 ]
 
+# ------------------------------------------------- Preserve pasted GA4 data
+# Regenerating used to silently destroy whatever had been pasted into
+# Datos_GA4, because the script rewrites the whole workbook. The runbook warned
+# about the ordering, but a footgun documented is still a footgun: the person
+# refreshing the portal numbers in month 6 is not going to reread the runbook.
+#
+# So: if a workbook already exists AND its Datos_GA4 headers still match the
+# ones this script would write, the old sheet is carried over verbatim. A
+# header mismatch means GA4_BLOCKS changed, and silently keeping rows under
+# changed columns would misalign every named range — so that case warns loudly
+# and starts clean rather than guessing.
+def preserved_ga4(new_rows):
+    if not os.path.exists(OUT):
+        return None
+    try:
+        with zipfile.ZipFile(OUT) as oz:
+            old_xml = oz.read("xl/worksheets/sheet6.xml").decode("utf-8")
+    except Exception:
+        return None
+
+    def headers_of(xml):
+        return re.findall(r'<c r="[A-Z]+(\d+)" s="2" t="inlineStr"><is><t[^>]*>([^<]*)</t>', xml)
+
+    fresh_xml = sheet_xml(new_rows, None, None, None)
+    if headers_of(old_xml) != headers_of(fresh_xml):
+        print("  ! Datos_GA4 cambió de estructura — no se conservan los datos pegados.")
+        return None
+
+    # Everything this script generates carries a non-zero style (title 1,
+    # header 2, note 5, sub 6). A pasted cell is style 0 — that, not "is it
+    # non-empty", is what distinguishes the user's data from the scaffolding.
+    pasted = len(re.findall(r'<c r="[A-Z]+\d+" s="0"', old_xml))
+    if pasted == 0:
+        return None
+    print(f"  · Datos_GA4: se conservan {pasted} celdas ya pegadas.")
+    return old_xml
+
+
 os.makedirs("docs", exist_ok=True)
+GA4_PRESERVED = preserved_ga4(dg)
 charts_by_sheet = {}
 for si, cxml, anchor in CHARTS:
     charts_by_sheet.setdefault(si, []).append((cxml, anchor))
@@ -673,8 +712,11 @@ for idx, (name, rows, widths) in enumerate(SHEETS, start=1):
             f'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/'
             f'2006/relationships/drawing" Target="../drawings/drawing{dno}.xml"/></Relationships>')
 
-    zf_extra[f"xl/worksheets/sheet{idx}.xml"] = sheet_xml(
-        rows, widths, drawing_rid, freeze=None)
+    if name == "Datos_GA4" and GA4_PRESERVED:
+        zf_extra[f"xl/worksheets/sheet{idx}.xml"] = GA4_PRESERVED
+    else:
+        zf_extra[f"xl/worksheets/sheet{idx}.xml"] = sheet_xml(
+            rows, widths, drawing_rid, freeze=None)
     ct.append(f'<Override PartName="/xl/worksheets/sheet{idx}.xml" '
               f'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>')
     sheets_xml.append(f'<sheet name="{esc(name)}" sheetId="{idx}" r:id="rIdS{idx}"/>')

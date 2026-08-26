@@ -252,9 +252,11 @@ loosely is what the 2026-08-20 calibration pass was fixing:
   reason 2 of the spec's 8 worked examples miss: Buss (73→75) and Chelsea
   (53→55) are both exactly +2, and both stored boletas answer `true` where their
   own notes argue `false` (source reconstruction and exposition are not
-  Playbook analysis). Until the publisher rules, answer it as the notes do —
-  *does the piece draw a conclusion beyond the reported facts?* — not by
-  checking whether the block exists.
+  Playbook analysis). **Explicitly parked by the publisher on 2026-08-25** —
+  do not re-raise it or "fix" the two worked examples by editing the stored
+  boletas. In the meantime answer it as those notes do — *does the piece draw a
+  conclusion beyond the reported facts?* — rather than by checking whether the
+  block exists.
 - **`multiMarket`** needs named consequences in more than one national market,
   or across more than one property/league. Parties of different nationalities
   are **not** enough (the spec's Chelsea example — UK club, US funds, one asset

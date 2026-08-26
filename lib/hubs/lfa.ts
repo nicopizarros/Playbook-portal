@@ -97,15 +97,24 @@ const GLOBAL_INTELLIGENCE = {
 export const LFA_HUB: Hub = {
   slug: 'lfa',
   name: 'LFA',
-  // Unlisted again (publisher directive, 2026-08-19): the joint LFA x
-  // Playbook announcement hasn't gone out yet, and the masthead's
-  // `partnership` line below already states the relationship as fact.
-  // Pulling this back to `false` drops it from the nav and the sitemap
-  // (see Hub.listed) and — via this hub's own generateMetadata — sets
-  // robots noindex, which matters here because the page was briefly
-  // listed and Google already indexed it; noindex is what gets it
-  // dropped on the next crawl. Flip back to `true` only alongside the
-  // real announcement.
+  // Unlisted, and as of 2026-08-25 this is the SETTLED state rather than a
+  // hold. Publisher, asked directly during the pre-handover QA: the hub "is
+  // not accessible via the home page, but if you know the address you can
+  // access it." That is exactly what this flag buys — it drops the hub from
+  // the nav and the sitemap (see Hub.listed) and, via this hub's own
+  // generateMetadata, sets robots noindex, while the URL itself keeps
+  // serving 200. Undiscoverable, not unreachable (see commit a61b4f3).
+  //
+  // Originally set false on 2026-08-19 because the page had been briefly
+  // listed and Google had already indexed it; noindex is what gets it
+  // dropped on the next crawl. That reason has now been superseded by a
+  // preference, which is a stronger reason.
+  //
+  // DO NOT flip this to `true` to satisfy a QA checklist item that says the
+  // hub should be reachable from the three-zone header. That item was
+  // written before the ruling and is the thing that is wrong; it has been
+  // struck in docs/TODO.md. The announcement gating below is a SEPARATE
+  // question and still stands on its own.
   listed: false,
   // The graphic supplied with the Black Clover press kit reads "LFA
   // FINSUS" throughout — the league wears its title sponsor in its own
@@ -123,9 +132,11 @@ export const LFA_HUB: Hub = {
   // pair is composed from the lockup rather than typed into this string.
   //
   // NOTE FOR GO-LIVE: the mockup's internal notes said to show "medio
-  // oficial de negocios" only AFTER the joint announcement. That is the
-  // same condition `listed: false` is waiting on, so the two flip together
-  // and nothing public states the relationship before the announcement.
+  // oficial de negocios" only AFTER the joint announcement. This used to be
+  // described as the same condition `listed` was waiting on — it no longer
+  // is. `listed: false` is now a standing preference (see above), so the two
+  // have come apart: this line is still gated on the announcement, and
+  // nothing about discoverability releases it.
   partnership: 'Medio oficial de negocios',
   // The mockup's dek, adopted verbatim 2026-08-24 (publisher's call). The
   // previous line led with the capital raise and the franchise expansion;
