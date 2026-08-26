@@ -79,6 +79,43 @@ export type HubFigure = {
   source: HubSource;
 };
 
+// ------------------------------------------------------- La afición
+// The demand side of the board. `commercialState` says what has been
+// committed TO the property; this says what the property has to sell —
+// audience. They belong on the same plane and read as one argument, which
+// is why this renders as a second band inside the same board rather than
+// as a stats bar bolted to the end of the page.
+//
+// WHY THIS CARRIES ITS OWN `credit` INSTEAD OF LEANING ON HubSource.
+// HubSource renders NOTHING without a public URL (publisher's call,
+// 2026-08-18: uncited chips read as clutter). That default is right for
+// Playbook's own uncited knowledge — the backlog lives in docs/TODO.md.
+// It is WRONG for a licensed third-party dataset: crediting the owner of
+// the study is a condition of using it, not a citation we are still
+// chasing. A licence obligation cannot be allowed to silently render as
+// nothing because the study has no public link. So `credit` is a plain
+// string and ALWAYS renders.
+//
+// Per-figure `source` is still required on every figure (HubFigure's
+// invariant is untouched). The band shows ONE credit when every figure
+// agrees on its source label, and falls back to per-figure chips when they
+// do not — so adding a figure from a different study can never end up
+// silently sitting under the wrong attribution.
+export type HubAudience = {
+  /** Section kicker: "La afición". */
+  kicker: string;
+  heading: string;
+  /** One line saying what the reader should take from these numbers. */
+  sub?: string;
+  /** Editable data source — add figures here, never to the markup. */
+  figures: HubFigure[];
+  /**
+   * Rights/attribution line, rendered verbatim and unconditionally.
+   * "Fuente: Global Intelligence – Fan Base © Global Sponsorship Group, 2026"
+   */
+  credit: string;
+};
+
 // -------------------------------------------------------- La Cadena
 // The signature device. American football is the only sport that carries a
 // measuring apparatus onto the field to adjudicate whether progress
@@ -301,6 +338,8 @@ export type Hub = {
   backfillTerms: string[];
   chain?: HubChain;
   commercialState: HubFigure[];
+  /** "La afición". Optional — a hub with no audience data renders the board unchanged. */
+  audience?: HubAudience;
   plazas: HubPlaza[];
   season: HubSeasonBeat[];
   /** "Temas que seguimos". Optional — omit rather than pad with generic beats. */

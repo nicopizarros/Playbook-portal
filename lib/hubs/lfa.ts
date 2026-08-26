@@ -1,10 +1,10 @@
-import type { Hub } from './types';
+import type { Hub, HubPlaza } from './types';
 
 // ------------------------------------------------------------- LFA FINSUS
 // Hub #1. The commercial thesis: a domestic league that just took foreign
 // institutional capital, in the most valuable non-US market for the sport
-// on earth, while expanding its franchise count by half. Every one of
-// those is a Playbook story — none of them is a score.
+// on earth, while moving from seven franchises to a declared twelve. Every
+// one of those is a Playbook story — none of them is a score.
 //
 // PROVENANCE DISCIPLINE (section 5). Every figure below carries a source.
 // Facts that came from the publisher's brief rather than from a published
@@ -14,8 +14,10 @@ import type { Hub } from './types';
 // page, which is the point: this is a business-intelligence outlet, and an
 // uncited number is a liability, not a decoration.
 //
-// DELIBERATELY NOT ENCODED: franchise team names, venues and attendance.
-// The brief supplied eight plaza LOCATIONS but no team names, and guessing
+// DELIBERATELY NOT ENCODED: venues and attendance. The brief supplied eight
+// plaza LOCATIONS and no team names; the league's own brand kit later
+// superseded it with the correct seven, WITH names — which is why the plaza
+// list carries teams and cites the KIT. Venues remain unencoded: guessing
 // crests or venues would be inventing facts to make a module look full —
 // the exact padding section 5 forbids. `team`/`venue` stay empty until
 // someone supplies them with a source.
@@ -35,6 +37,61 @@ const KIT = {
 const BOLETIN = {
   label: 'Comunicado LFA · Black Clover',
   note: 'Boletín de prensa en poder de Playbook; sin URL pública al momento de escribir.',
+};
+
+// ----------------------------------------------------------- Plazas
+  // Framed as commercial markets. `marketNote` answers "what is a sponsor
+  // buying here", which is the only reason this module exists instead of a
+  // map. Left empty where nobody has supplied a sourced answer.
+const PLAZAS: HubPlaza[] = [
+  // The seven franchises of the 2026 season, exactly as the LFA's own
+  // brand kit names them ("Esta es la manera correcta de mencionarlos").
+  // Corrects the earlier list, which came from the brief and carried
+  // eight plazas including Puebla — not a 2026 franchise.
+  { city: 'Chihuahua', region: 'Chihuahua', state: 'Chihuahua',
+    team: 'Caudillos de Chihuahua', status: 'establecida', source: { ...KIT } },
+  { city: 'Saltillo', region: 'Coahuila', state: 'Coahuila de Zaragoza',
+    team: 'Dinos de Saltillo', status: 'establecida', source: { ...KIT } },
+  { city: 'Monterrey', region: 'Nuevo León', state: 'Nuevo León',
+    team: 'Osos de Monterrey', status: 'establecida', source: { ...KIT } },
+  { city: 'Querétaro', region: 'Querétaro', state: 'Querétaro',
+    team: 'Gallos Negros de Querétaro', status: 'establecida', source: { ...KIT } },
+  { city: 'Jalisco', region: 'Jalisco', state: 'Jalisco',
+    team: 'Reyes de Jalisco', status: 'establecida', source: { ...KIT } },
+  { city: 'Ciudad de México', region: 'CDMX', state: 'Distrito Federal',
+    team: 'Mexicas de la Ciudad de México', status: 'establecida', source: { ...KIT } },
+  { city: 'Valle de México', region: 'Estado de México', state: 'México',
+    team: 'Raptors del Valle de México', status: 'establecida', source: { ...KIT } },
+  // Announced expansion markets. No team names yet — none have been
+  // named, and inventing one would be inventing a franchise.
+  { city: 'Mérida', region: 'Yucatán', state: 'Yucatán', status: 'anunciada', source: { ...BRIEF } },
+  { city: 'Cancún', region: 'Quintana Roo', state: 'Quintana Roo', status: 'anunciada', source: { ...BRIEF } },
+  { city: 'Tijuana', region: 'Baja California', state: 'Baja California', status: 'anunciada', source: { ...BRIEF } },
+];
+
+// The current franchise count is DERIVED from the plaza list above, never
+// typed twice. It was typed twice until 2026-08-25, and the two copies
+// disagreed: the plaza list had already been corrected to the brand kit's
+// seven 2026 franchises, while La Cadena still carried the brief's original
+// eight — so the page simultaneously listed seven teams and announced it
+// had eight. Counting the list makes that class of drift unrepresentable,
+// which matters because this number is expected to move again.
+//
+// `establecida` and `anunciada` are deliberately NOT summed: an announced
+// market is a market, not a franchise, and the whole point of La Cadena is
+// the distance between what exists and what has been promised.
+const FRANQUICIAS_ESTABLECIDAS = PLAZAS.filter((p) => p.status === 'establecida').length;
+
+// The league's fan-base study, supplied to Playbook by the LFA. A LICENSED
+// third-party dataset: Global Sponsorship Group owns it, and crediting them
+// is a condition of using the numbers. That is why the band renders its
+// `credit` unconditionally instead of routing it through HubSource, which
+// hides itself when there is no public URL — see HubAudience's note. The
+// per-figure sources below still exist and still satisfy HubFigure's
+// invariant; they are simply not the thing carrying the licence.
+const GLOBAL_INTELLIGENCE = {
+  label: 'Global Intelligence – Fan Base © Global Sponsorship Group, 2026',
+  note: 'Estudio de la LFA en poder de Playbook; sin URL pública.',
 };
 
 export const LFA_HUB: Hub = {
@@ -142,17 +199,28 @@ export const LFA_HUB: Hub = {
   ],
 
   // ------------------------------------------------------------ La Cadena
-  // 8 → 12 franchises. The only fact on this page with both a current
+  // 7 → 12 franchises. The only fact on this page with both a current
   // position and a stated line to gain, which is exactly the condition the
   // device requires. If either side lost its source, the module would
   // vanish rather than render half a measurement.
+  //
+  // The geometry is fully derived in HubChain from these two numbers: the
+  // marker sits at current/target, the tick count IS target, and each tick
+  // reads gained/open from its own index. Nothing here or in hub.css encodes
+  // a proportion, so correcting the count moves the marker, the dotted run
+  // and the axis together. Verified at 7/12 on 2026-08-25.
   chain: {
     title: 'Expansión de franquicias',
     unit: ['franquicia', 'franquicias'],
     current: {
-      value: '8',
+      // Derived, not typed — see FRANQUICIAS_ESTABLECIDAS above.
+      value: String(FRANQUICIAS_ESTABLECIDAS),
       label: 'Franquicias hoy',
-      source: { ...BRIEF },
+      // The KIT, not the BRIEF: this number is now a count of the brand
+      // kit's own franchise list, so it inherits the brand kit's provenance.
+      // Sourcing it to the brief was the other half of the drift: the
+      // figure cited a document that had already been superseded.
+      source: { ...KIT },
     },
     target: {
       value: '12',
@@ -186,35 +254,48 @@ export const LFA_HUB: Hub = {
     },
   ],
 
+  // ------------------------------------------------------------ La afición
+  // The demand side of the board, sharing the light plane with the capital
+  // figures above: what has been committed TO the property, then what the
+  // property has to sell. Three figures exactly as the league supplied
+  // them — NOT rounded, NOT converted, and NOT joined into a derived ratio.
+  // "3.8 millones" is not restated as "3,800,000", and no engagement rate
+  // is computed from plays ÷ followers: the study reports three quantities
+  // and manufacturing a fourth from them would be the fabrication the
+  // provenance rule forbids, dressed up as arithmetic.
+  //
+  // Ordered as an argument rather than by magnitude: the market that could
+  // be reached, the audience the league already owns, and the evidence it
+  // behaves like a media property. More figures are expected — add them to
+  // this array and the band lays them out. The grid is auto-fit, so growing
+  // the dataset never touches layout.
+  audience: {
+    kicker: 'La afición',
+    heading: 'El tamaño de la afición',
+    sub: 'Qué compra un patrocinador cuando compra a la LFA.',
+    figures: [
+      {
+        value: '3.8 millones',
+        label: 'Aficionados al futbol americano en México',
+        source: { ...GLOBAL_INTELLIGENCE },
+      },
+      {
+        value: '+600 mil',
+        label: 'Seguidores en redes sociales de la Liga',
+        source: { ...GLOBAL_INTELLIGENCE },
+      },
+      {
+        value: '22 millones',
+        label: 'Reproducciones de video',
+        source: { ...GLOBAL_INTELLIGENCE },
+      },
+    ],
+    credit: 'Fuente: Global Intelligence – Fan Base © Global Sponsorship Group, 2026',
+  },
+
   // ----------------------------------------------------------- Plazas
-  // Framed as commercial markets. `marketNote` answers "what is a sponsor
-  // buying here", which is the only reason this module exists instead of a
-  // map. Left empty where nobody has supplied a sourced answer.
-  plazas: [
-    // The seven franchises of the 2026 season, exactly as the LFA's own
-    // brand kit names them ("Esta es la manera correcta de mencionarlos").
-    // Corrects the earlier list, which came from the brief and carried
-    // eight plazas including Puebla — not a 2026 franchise.
-    { city: 'Chihuahua', region: 'Chihuahua', state: 'Chihuahua',
-      team: 'Caudillos de Chihuahua', status: 'establecida', source: { ...KIT } },
-    { city: 'Saltillo', region: 'Coahuila', state: 'Coahuila de Zaragoza',
-      team: 'Dinos de Saltillo', status: 'establecida', source: { ...KIT } },
-    { city: 'Monterrey', region: 'Nuevo León', state: 'Nuevo León',
-      team: 'Osos de Monterrey', status: 'establecida', source: { ...KIT } },
-    { city: 'Querétaro', region: 'Querétaro', state: 'Querétaro',
-      team: 'Gallos Negros de Querétaro', status: 'establecida', source: { ...KIT } },
-    { city: 'Jalisco', region: 'Jalisco', state: 'Jalisco',
-      team: 'Reyes de Jalisco', status: 'establecida', source: { ...KIT } },
-    { city: 'Ciudad de México', region: 'CDMX', state: 'Distrito Federal',
-      team: 'Mexicas de la Ciudad de México', status: 'establecida', source: { ...KIT } },
-    { city: 'Valle de México', region: 'Estado de México', state: 'México',
-      team: 'Raptors del Valle de México', status: 'establecida', source: { ...KIT } },
-    // Announced expansion markets. No team names yet — none have been
-    // named, and inventing one would be inventing a franchise.
-    { city: 'Mérida', region: 'Yucatán', state: 'Yucatán', status: 'anunciada', source: { ...BRIEF } },
-    { city: 'Cancún', region: 'Quintana Roo', state: 'Quintana Roo', status: 'anunciada', source: { ...BRIEF } },
-    { city: 'Tijuana', region: 'Baja California', state: 'Baja California', status: 'anunciada', source: { ...BRIEF } },
-  ],
+  // Lifted to module scope so La Cadena can count it — see PLAZAS above.
+  plazas: PLAZAS,
 
   // --------------------------------------------------------- Temporada
   // Section 4: "only if the content supports it". Today it supports
