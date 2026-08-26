@@ -14,6 +14,29 @@ one; a hub GATHERS by tag and is config + assets. `lib/hubs/types.ts` carries
 the reasoning; `scripts/scaffold-hub.ts` is the standing test (proved by
 scaffolding and removing an `nfl-mexico` hub the same day).
 
+**QA pass before sharing with the LFA (2026-08-25). Two blockers, both
+decisions rather than bugs:**
+
+- **The hub is not reachable from the header, and that is deliberate.**
+  `listed: false` (publisher, 2026-08-19) keeps it out of the nav and the
+  sitemap and sets `robots: noindex, nofollow` — verified all three. The URL
+  works and returns 200, so sharing the link with the league works fine; it is
+  undiscoverable, not unreachable. But it cannot be both unlisted AND reachable
+  from the three-zone header. Flipping `listed: true` also makes "medio oficial
+  de negocios" public, which the mockup's own notes said to hold until the joint
+  announcement. **Someone has to decide which of the two matters more this week.**
+- **The hub does not link to the LFA anywhere.** Verified: zero outbound links to
+  any league property. Every other external link on the page resolves (7/7 at
+  200), and all 13 internal links resolve. For a page being handed TO the league
+  this reads as an omission rather than a boundary decision. Needs a URL from
+  the league, or an explicit decision not to link out.
+
+Everything else on the QA list passed: all three referenced assets exist, alt
+text is present and correct (the masthead art is a CSS background and correctly
+decorative), the `LFA` tag exists in `PROPERTY_OPTIONS` and is applied, and the
+page holds up on mobile in both themes. `public/hubs/lfa/board.jpg` is now
+unreferenced — dead asset, safe to delete.
+
 **Open, in priority order:**
 
 0. **Route namespace vs. nav label.** The reader-facing zone is now
@@ -32,8 +55,9 @@ scaffolding and removing an `nfl-mexico` hub the same day).
    an uncited source renders **nothing** instead of a visible "sin cita
    pública" chip (publisher's call — the chips read as clutter). The
    consequence: the citation backlog is now invisible on the artefact and
-   lives only here. The expansion and capital figures on `/coberturas/lfa`
-   are still uncited. Replace the sources in `lib/hubs/lfa.ts` as citations
+   lives only here. The capital figures on `/coberturas/lfa` are still
+   uncited; the expansion figure no longer is — as of 2026-08-25 it is a count
+   of the brand kit's own franchise list and cites the KIT. Replace the sources in `lib/hubs/lfa.ts` as citations
    arrive. Every figure on the page
    traces to a source by construction (`HubFigure` cannot be built without a
    `HubSource`), but the expansion and capital figures cite *"Brief editorial
