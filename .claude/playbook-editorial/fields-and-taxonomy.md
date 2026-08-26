@@ -190,11 +190,33 @@ that stopped being true, and on 2026-08-25 a run followed it and nearly shipped
 five articles graded on the retired scale. Read this part first.
 
 **`boleta`** — the eleven yes/no answers that produce `score` (0–99). Set it on
-every new article. `scripts/publish-newsletter.ts` takes it on `ArticleInput`,
-calls `scoreFromBoleta()` and writes `score` / `confirmed` / `score_boleta`.
-**Omitting it is not neutral:** the row lands at `score = null` and falls back to
-`bridgeScore(priority)`, i.e. it gets ranked on the very system the boleta
-replaced. As of 2026-08-25, 14 post-cutover rows carry that defect.
+every new article. `scripts/publish-newsletter.ts` (the script BOTH publish
+funnels call) takes it as a required field on `ArticleInput`, calls
+`scoreFromBoleta()` and writes `score` / `confirmed` / `score_boleta`.
+
+Omitting it is not a row with no score — it is **a row ranked by the retired
+star scale**, via `bridgeScore(priority)`. That is why the script now hard-fails
+on a missing boleta instead of publishing without one. Wiring it up was itself
+the 2026-08-25 fix: this section had instructed runs to set the boleta since the
+cutover, but `ArticleInput` had no such field and the insert wrote none of the
+three columns, so the instruction was unexecutable and every scored row in the
+database got there through the `scripts/reclassify-rank.ts` backfill.
+
+**Two boletas, two clocks — pick the lane before the answers.** The lane is
+decided by `source` (`lib/rank.ts` `trackFor`), never by the draft, and the
+script hard-fails on a mismatch:
+
+- **`editorial`** — `la-lana`, `futbol-business-review` only. Decenas:
+  `original-investigation` 7 / `framework` 5 / `commentary` 3, plus
+  `mexicoOrLatam` +1. No `confirmed` question (an investigation is not
+  "unconfirmed"; the column stays NULL). Decays **20/day**.
+- **`news`** — everything else, decays **50/day**.
+
+**Infinitas runs in the NEWS lane by default** (spec correction, 2026-08-20).
+Lane follows the shape of the content, not the product label: a reported fact
+(a signing, a ruling, a result) is news whichever product it appears in. Only an
+Infinitas piece with real investigative depth qualifies as editorial — none of
+the 12 in the 2026-08-20 corpus did.
 
 The number is never authored. `scoreFromBoleta()` is the only place a score may
 be produced, so what you decide are the *answers*, and the score falls out:
@@ -222,6 +244,22 @@ loosely is what the 2026-08-20 calibration pass was fixing:
   devices (`Cifra clave`, `Salto`, `Jugada`, `Alineación`, `Tablero`, `Mapa`)
   do **not** qualify, and neither does a `Duelo` carrying only one row — that is
   two values, not three.
+
+- **`ownAnalysis`** is the **weakest question in the rubric** — flag, do not
+  trust. Defined mechanically ("carries an explicit *Opinión de Playbook*
+  block") it fires on 92 of 97 articles, because the block is house style; it is
+  +2 for almost everything and discriminates nothing. It is also the *entire*
+  reason 2 of the spec's 8 worked examples miss: Buss (73→75) and Chelsea
+  (53→55) are both exactly +2, and both stored boletas answer `true` where their
+  own notes argue `false` (source reconstruction and exposition are not
+  Playbook analysis). Until the publisher rules, answer it as the notes do —
+  *does the piece draw a conclusion beyond the reported facts?* — not by
+  checking whether the block exists.
+- **`multiMarket`** needs named consequences in more than one national market,
+  or across more than one property/league. Parties of different nationalities
+  are **not** enough (the spec's Chelsea example — UK club, US funds, one asset
+  — is `false`; its Lamour example — FIFA plus the US federation — is `true`).
+- **`habitualEntity`** (+1) names a brand or entity Playbook covers regularly.
 
 Record genuinely arguable answers in `ambiguous` and say why in `notes`; the
 whole point of storing the boleta is that a disputed running order becomes an
@@ -269,12 +307,12 @@ fine to have several `priority: 5` rows live; just don't blindly stack
 `featured: true` on top of an unrelated existing one without checking.
 
 **But `featured` is not the editorial decision, and a publish run should not
-reason about it** (publisher, 2026-08-20). `priority` is the call the newsroom
-makes; which story leads the portal is computed. `lib/rank.ts` scores every
-article as `priority × dayWeight − daysSince`, picks the hero from that score,
-and treats `featured` as a **decaying boost** on top of it, full strength for
-about a day, not a gate and not an override. So the way to make a story lead is
-to file it at the priority it actually deserves and let the ranking place it.
+reason about it** (publisher, 2026-08-20). The boleta is the call the newsroom
+makes; which story leads the portal is computed. `lib/rank.ts` ranks on
+`score` (0–99) minus the track's decay, picks the hero from that, and treats
+`featured` as a **decaying boost** on top of it, full strength for about a day,
+not a gate and not an override. So the way to make a story lead is to answer
+the boleta honestly and let the ranking place it.
 Deliberating over `featured` in a run report is a sign the priority call was the
 one being avoided. Leave it `false` by default in both funnels; a human sets it
 when they want to weight today's placement, and the Breaking News override above

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Article } from '@/lib/data/articles';
-import type { Hub } from '@/lib/hubs';
+import type { Hub, HubFigure } from '@/lib/hubs';
 import { PRODUCT_HUBS } from '@/lib/product-hubs';
 import { MexicoMap } from './MexicoMap';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
@@ -26,27 +26,72 @@ import { HubSource } from './HubSource';
  * change of surface reads as one undifferentiated scroll however good the
  * type is. This is where the reader is asked to stop and look at figures.
  */
+function HubFigureGrid({ figures, showSources }: { figures: HubFigure[]; showSources: boolean }) {
+  return (
+    <div className="hubx-figures">
+      {figures.map(figure => (
+        <div className="hubx-figure" key={figure.label}>
+          <span className="hubx-figure-value">{figure.value}</span>
+          <div>
+            <span className="hubx-figure-label">{figure.label}</span>
+            {showSources ? <HubSource source={figure.source} /> : null}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * EL TABLERO — the board. Two bands on one light plane.
+ *
+ * `commercialState` is the supply side: what has been committed to the
+ * property. `audience` is the demand side: what it has to sell. They are
+ * one argument and share a surface, which is why the audience figures are a
+ * second band here rather than a stats strip appended to the page — a bar
+ * at the end reads as an afterthought and makes the reader do the joining.
+ *
+ * The board renders if EITHER band has content, so a hub with audience data
+ * and no commercial figures still gets a board.
+ */
 export function HubFigures({ hub }: { hub: Hub }) {
-  if (!hub.commercialState.length) return null;
+  const { audience } = hub;
+  const hasState = hub.commercialState.length > 0;
+  const hasAudience = Boolean(audience?.figures.length);
+  if (!hasState && !hasAudience) return null;
+
+  // One credit for the whole band, but ONLY when every figure genuinely
+  // shares it. The moment a figure arrives from a different study the band
+  // falls back to per-figure chips, so a number can never end up sitting
+  // silently under someone else's attribution. See HubAudience's note.
+  const audienceSourcesAgree =
+    hasAudience &&
+    new Set(audience!.figures.map(f => f.source.label)).size === 1;
+
   return (
     <div className="hubx-board" id="tablero">
       <div className="container">
-        <section className="hubx-section" aria-labelledby="hubx-state">
-          <p className="hubx-kicker">El negocio</p>
-          <h2 className="hubx-head" id="hubx-state">El estado comercial</h2>
-          <p className="hubx-sub">Lo que hace de esta propiedad una historia de negocio.</p>
-          <div className="hubx-figures">
-            {hub.commercialState.map(figure => (
-              <div className="hubx-figure" key={figure.label}>
-                <span className="hubx-figure-value">{figure.value}</span>
-                <div>
-                  <span className="hubx-figure-label">{figure.label}</span>
-                  <HubSource source={figure.source} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {hasState ? (
+          <section className="hubx-section" aria-labelledby="hubx-state">
+            <p className="hubx-kicker">El negocio</p>
+            <h2 className="hubx-head" id="hubx-state">El estado comercial</h2>
+            <p className="hubx-sub">Lo que hace de esta propiedad una historia de negocio.</p>
+            <HubFigureGrid figures={hub.commercialState} showSources />
+          </section>
+        ) : null}
+
+        {hasAudience ? (
+          <section className="hubx-section hubx-board-band" id="aficion" aria-labelledby="hubx-audience">
+            <p className="hubx-kicker">{audience!.kicker}</p>
+            <h2 className="hubx-head" id="hubx-audience">{audience!.heading}</h2>
+            {audience!.sub ? <p className="hubx-sub">{audience!.sub}</p> : null}
+            <HubFigureGrid figures={audience!.figures} showSources={!audienceSourcesAgree} />
+            {/* Unconditional, unlike HubSource: this is a licence
+                obligation to the owner of the dataset, not a citation
+                backlog marker. It renders with or without a public URL. */}
+            <p className="hubx-credit">{audience!.credit}</p>
+          </section>
+        ) : null}
       </div>
     </div>
   );
