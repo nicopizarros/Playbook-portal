@@ -248,8 +248,28 @@ recur = q("""with r as (select coalesce(reader_id::text,anon_id::text) k, count(
 toparts = q("""select a.id, count(*) from article_reads r join articles a on a.id=r.article_id
                group by 1 order by 2 desc limit 10""")
 
+# The portal counted over GA4's OWN window. Comparing lifetime portal totals
+# against 16 days of GA4 would manufacture a gap; this makes them comparable.
+GA4_FIRST_DAY = "2026-08-10"
+same_window = q(f"""select count(*), count(distinct coalesce(reader_id::text,anon_id::text))
+                    from article_reads where read_at >= '{GA4_FIRST_DAY}'""")[0]
+
 TODAY = date.today().isoformat()
 PENDIENTE = "PENDIENTE DE INSTRUMENTACIÓN"
+
+# --- GA4, when it is available -------------------------------------------
+# Produced by `npx tsx --env-file=.env.local scripts/ga4-export.ts > ga4.json`.
+# Optional on purpose: with no file the workbook still builds and Datos_GA4
+# stays a paste target, which is the mode this file shipped in before
+# credentials existed. Never invent rows if the export is missing.
+import json
+GA4_PATH = os.environ.get("GA4_JSON", "ga4.json")
+try:
+    GA4 = json.load(open(GA4_PATH, encoding="utf-8"))
+    print(f"  · GA4: export encontrado ({sum(len(v) for v in GA4.values())} filas)")
+except Exception:
+    GA4 = None
+    print("  · GA4: sin export — Datos_GA4 queda como hoja de pegado")
 
 # ============================================================== SHEET: Portal
 dp = [
@@ -346,12 +366,22 @@ GA4_BLOCKS = [
      ["Mes", "Nombre de evento", "Recuento de eventos", "Usuarios activos",
       "Sesiones con el evento"], "GA4_Newsletter"),
 ]
-dg = [[("Datos_GA4 — hoja destino. Pegar aquí el export, sin reformatear.", S_TITLE)],
-      [(f"VACÍA A PROPÓSITO. Esta máquina no tiene credenciales de GA4 "
-        f"(las cuatro claves GA4_* existen en .env.local y están en blanco), "
-        f"así que cualquier cifra aquí sería inventada. Los encabezados son los "
-        f"exactos del export de GA4 {os.environ.get('GA4_MEASUREMENT_ID','G-KVE4HF75TF')}. "
-        f"Ruta de clics por reporte: docs/metricas-website-runbook.md.", S_NOTE)], []]
+_ga4_note = (
+    (f"Rellenada automáticamente desde la API de GA4 el {TODAY} "
+     f"(scripts/ga4-export.ts). Se puede seguir pegando a mano debajo: las "
+     f"filas de la API y las pegadas son indistinguibles para las fórmulas. "
+     f"OJO CON EL RANGO: la propiedad G-KVE4HF75TF sólo tiene datos desde el "
+     f"2026-08-10, así que cualquier mes anterior sale vacío porque no existe, "
+     f"no porque falte pegarlo.")
+    if GA4 else
+    (f"VACÍA A PROPÓSITO. Esta máquina no tiene credenciales de GA4 "
+     f"(las cuatro claves GA4_* existen en .env.local y están en blanco), "
+     f"así que cualquier cifra aquí sería inventada. Los encabezados son los "
+     f"exactos del export de GA4. Ruta de clics: docs/metricas-website-runbook.md.")
+)
+dg = [[("Datos_GA4 — datos de la API de GA4." if GA4 else
+        "Datos_GA4 — hoja destino. Pegar aquí el export, sin reformatear.", S_TITLE)],
+      [(_ga4_note, S_NOTE)], []]
 ga4_ranges = {}
 for title, headers, name in GA4_BLOCKS:
     dg.append([(title, S_SUB)])
@@ -360,7 +390,33 @@ for title, headers, name in GA4_BLOCKS:
     # 36 empty rows per block: three years of monthly pasting before anyone
     # has to insert rows, which is the thing that breaks named ranges.
     ga4_ranges[name] = (hdr_row + 1, hdr_row + 36, len(headers))
-    dg += [[] for _ in range(36)]
+    # Fill from the live export when we have one. Rows land unstyled (style
+    # 0), exactly like a human paste, so the preservation logic and the
+    # named ranges treat API rows and pasted rows identically.
+    key = {"GA4_Resumen": "resumen", "GA4_Canales": "canales",
+           "GA4_Paginas": "paginas", "GA4_Dispositivos": "dispositivos",
+           "GA4_Newsletter": "eventos"}[name]
+    filled = 0
+    if GA4 and GA4.get(key):
+        for row in GA4[key][:36]:
+            vals = []
+            for i, v in enumerate(row):
+                if i == 0 and len(str(v)) == 6 and str(v).isdigit():
+                    vals.append(f"{str(v)[:4]}-{str(v)[4:]}")  # 202608 -> 2026-08
+                else:
+                    try:
+                        vals.append(round(float(v), 4) if "." in str(v) else int(v))
+                    except (ValueError, TypeError):
+                        vals.append(v)
+            # GA4_Resumen has a "Usuarios recurrentes" column the API does not
+            # return: it is activeUsers - newUsers. Computed as a FORMULA over
+            # the two cells beside it, not as a literal, so it stays auditable.
+            if name == "GA4_Resumen" and len(vals) >= 3:
+                r = hdr_row + 1 + filled
+                vals = vals[:3] + [f"=IFERROR(B{r}-C{r},\"\")"] + vals[3:]
+            dg.append(vals)
+            filled += 1
+    dg += [[] for _ in range(36 - filled)]
     dg.append([])
 
 # ============================================================ SHEET: Resumen
@@ -395,17 +451,43 @@ for name, total, last, prev in KPIS:
                f"=IF(N(E{n})>0,\"▲ sube\",IF(N(E{n})<0,\"▼ baja\",\"= igual\"))"])
 kpi_last = len(rs)
 
+_g = (GA4 or {}).get("resumen", [[None]*7])[0]
 rs += [[],
-       [("RECURRENCIA Y RECIRCULACIÓN — las dos métricas ancla del área", S_SUB)],
+       [("LAS DOS FUENTES NO COINCIDEN — leer esto antes que cualquier cifra", S_SUB)],
+       [("Fuente", S_HEAD), ("Usuarios", S_HEAD), ("Vistas / lecturas", S_HEAD), ("Qué cuenta", S_HEAD)],
+       ["GA4 (desde el 2026-08-10)",
+        int(_g[1]) if _g and _g[1] else "",
+        int(_g[4]) if _g and _g[4] else "",
+        "Navegadores reales que ejecutaron JavaScript."],
+       ["Portal, misma ventana",
+        int(same_window[1]), int(same_window[0]),
+        "Peticiones al servidor, con o sin JavaScript."],
+       ["Diferencia",
+        f"=IFERROR(B{len(rs)+5}/B{len(rs)+4},\"\")", "",
+        "Veces que el contador propio supera a GA4."],
+       [("POR QUÉ NO COINCIDEN, y por qué importa. lib/bots.ts filtra sólo 14 "
+         "user-agents (googlebot, bingbot, facebookexternalhit…). No incluye "
+         "GPTBot, ClaudeBot, CCBot, PerplexityBot, Bytespider, AhrefsBot ni el "
+         "resto. Un crawler fuera de esa lista pasa el filtro, recibe una cookie "
+         "anónima, no la persiste, y en la siguiente petición se cuenta como un "
+         "lector NUEVO. En los datos se ve exactamente así: lecturas ≈ lectores "
+         "todos los días, es decir una sola lectura por identidad.", S_NOTE)],
+       [("CONSECUENCIA: 'lecturas por lector' y '% de recurrencia' NO miden "
+         "recirculación hoy. Miden cuánto tráfico automatizado se está contando "
+         "como lectores. Se quedan abajo como diagnóstico, NO como KPI, y no "
+         "deben presentarse a dirección hasta arreglar el filtro de bots.", S_NOTE)],
+       [],
+       [("DIAGNÓSTICO — no son KPI todavía", S_SUB)],
        [("Métrica", S_HEAD), ("Valor", S_HEAD), ("Lectura", S_HEAD)],
-       ["Lecturas por lector",
+       ["Lecturas por lector (propio)",
         f"=IFERROR(SUM(Datos_Portal!B{reads_first}:B{reads_last})/SUM(Datos_Portal!C{reads_first}:C{reads_last}),\"\")",
-        "Proxy de recirculación. 1.00 = nadie lee una segunda nota."],
-       ["% de lectores recurrentes",
+        "Pegado a 1.00 porque casi cada lectura estrena identidad. Síntoma, no hallazgo."],
+       ["% de lectores recurrentes (propio)",
         (f"=IFERROR(Datos_Portal!B{recur_row}/Datos_Portal!A{recur_row},\"\")", S_PCT),
-        "Lectores con más de una lectura registrada."],
-       [("Ambas salen de article_reads, no de GA4: son dato de primera parte y "
-         "no dependen de consentimiento de cookies de terceros.", S_NOTE)],
+        "Mismo problema: el denominador está inflado por bots."],
+       ["% de usuarios nuevos (GA4)",
+        (f"=IFERROR(INDEX(GA4_Resumen_Nuevos,1)/INDEX(GA4_Resumen_Usuarios,1),\"\")", S_PCT),
+        "GA4 tampoco puede medir recurrencia aún: lleva 16 días, así que casi todos son nuevos por construcción."],
        [],
        [("LO QUE FALTA INSTRUMENTAR", S_SUB)],
        [("Métrica", S_HEAD), ("Estado", S_HEAD), ("Qué falta", S_HEAD)],
@@ -587,6 +669,7 @@ gr = ga4_ranges["GA4_Resumen"]; gd = ga4_ranges["GA4_Dispositivos"]
 DEFINED = {
     "GA4_Resumen_Mes":       f"Datos_GA4!$A${gr[0]}:$A${gr[1]}",
     "GA4_Resumen_Usuarios":  f"Datos_GA4!$B${gr[0]}:$B${gr[1]}",
+    "GA4_Resumen_Nuevos":    f"Datos_GA4!$C${gr[0]}:$C${gr[1]}",
     "GA4_Resumen_Sesiones":  f"Datos_GA4!$E${gr[0]}:$E${gr[1]}",
     "GA4_Resumen_Vistas":    f"Datos_GA4!$F${gr[0]}:$F${gr[1]}",
     "GA4_Disp_Categoria":    f"Datos_GA4!$B${gd[0]}:$B${gd[1]}",
@@ -641,6 +724,13 @@ CHARTS = [
 # changed columns would misalign every named range — so that case warns loudly
 # and starts clean rather than guessing.
 def preserved_ga4(new_rows):
+    # Preservation exists for HUMAN pastes, in the mode where there is no API
+    # export. Once an export exists it must win: the API rows are written with
+    # style 0 too, so preserving them would pin the sheet to whatever the first
+    # successful export happened to contain and silently ignore fresher data.
+    # Refreshing is the whole point of having credentials.
+    if GA4:
+        return None
     if not os.path.exists(OUT):
         return None
     try:

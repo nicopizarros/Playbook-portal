@@ -6,6 +6,48 @@ doesn't start with re-deriving the context.
 
 ---
 
+## 00. El contador de lectores propios cuenta bots — bloquea dos métricas ancla
+
+Encontrado el 2026-08-25 al conectar GA4 y poder comparar contra una fuente
+independiente por primera vez. Misma ventana (2026-08-10 → 08-25):
+
+|                        | Usuarios | Vistas |
+|------------------------|----------|--------|
+| GA4 (requiere JS)      | 677      | 2,032  |
+| `article_reads`        | 9,067    | 9,304  |
+
+Trece veces. La causa es `lib/bots.ts`: una lista de **catorce** user-agents
+literales (`googlebot`, `bingbot`, `facebookexternalhit`…) contra la que se hace
+`ua.includes(bot)`. No cubre GPTBot, ClaudeBot, CCBot, PerplexityBot, Bytespider,
+Amazonbot, AhrefsBot, SemrushBot, DataForSeoBot, YandexBot, Baiduspider ni el
+resto del long tail.
+
+El camino del fallo está en `lib/metering.ts` `resolveEntitlement()`: el chequeo
+de bot ocurre ANTES de acuñar la identidad anónima, así que un crawler que no
+está en la lista recibe cookie, no la persiste, y en la siguiente petición entra
+como lector nuevo. La firma en los datos es inconfundible — lecturas ≈ lectores
+todos los días (446/439, 663/661, 692/663), una lectura por identidad.
+
+**Consecuencia:** `lecturas por lector` (1.03) y `% de recurrencia` (1.23 %) no
+miden comportamiento, miden tráfico automatizado. Estaban a punto de irse a un
+memo de dirección como hallazgo de producto ("el archivo no recircula"); se
+corrigieron a tiempo y en el dashboard quedaron reclasificados como diagnóstico.
+
+**Qué hay que hacer**, en orden de valor:
+
+1. Reemplazar la lista por una detección real. Lo mínimo digno es ampliarla con
+   los crawlers de IA y las suites SEO; lo correcto es no depender del UA —
+   marcar la lectura sólo cuando el cliente demuestra ser un navegador (un ping
+   desde JS, por ejemplo), que es justo lo que hace que GA4 no tenga este
+   problema.
+2. No borrar el histórico: quedará sesgado, pero es la única serie que existe
+   antes del 2026-08-10. Marcar la fecha del arreglo y comparar contra GA4.
+3. Revisar si el quota de artículos gratis (`FREE_ARTICLES_PER_MONTH`) está
+   afectado. Si cada bot estrena identidad, nunca topa el muro — eso es benigno.
+   Lo que habría que confirmar es que ningún humano esté siendo contado de más.
+
+---
+
 ## 0. Coverage hubs — SHIPPED 2026-08-18, four follow-ups open
 
 `/coberturas/[slug]`, first instance `/coberturas/lfa`. A hub is **not** a

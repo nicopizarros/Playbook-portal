@@ -1,6 +1,26 @@
 # Runbook — Métricas del website de Playbook
 
-Cómo llenar `docs/metricas-website-playbook.xlsx` cada mes.
+Cómo actualizar `docs/metricas-website-playbook.xlsx` cada mes.
+
+> ## ⚡ Desde el 2026-08-25 esto es un comando, no 15 minutos de clics
+>
+> Las credenciales de GA4 ya están en `.env.local`, así que el dashboard se
+> llena solo. Desde la raíz del repo:
+>
+> ```bash
+> npx tsx --env-file=.env.local scripts/ga4-export.ts > ga4.json
+> POSTGRES_URL="$(grep '^POSTGRES_URL=' .env.local | cut -d= -f2- | tr -d '"')" \
+>   python3 scripts/build-metrics-dashboard.py
+> ```
+>
+> Eso baja los cinco reportes de GA4, consulta la base del portal y regenera el
+> archivo completo. **El resto de este documento es el procedimiento manual**,
+> que sigue siendo válido y es el que hay que usar si las credenciales fallan,
+> caducan o alguien necesita un reporte que el script no baja.
+>
+> **Ojo con el rango de fechas:** la propiedad `G-KVE4HF75TF` sólo tiene datos
+> **desde el 2026-08-10** (se rotó el 7 de agosto). Cualquier mes anterior sale
+> vacío porque no existe, no porque falte pegarlo. No lo rellenes a mano.
 
 Está escrito para alguien que **nunca ha abierto Google Analytics**. Si algo en
 la pantalla no coincide con lo que dice aquí, lee la sección
@@ -27,6 +47,12 @@ El archivo tiene nueve hojas. Sólo vas a tocar **una**.
 
 Todo lo demás se recalcula solo. **No escribas un número a mano fuera de
 `Datos_GA4`**: si lo haces, la próxima regeneración lo borra.
+
+**Y una advertencia sobre `Datos_GA4` desde que hay credenciales:** cuando
+existe `ga4.json`, el script **reescribe** esa hoja con los datos de la API.
+Conserva pegados a mano sólo cuando NO hay export — que es el modo manual de
+abajo. Si necesitas pegar algo que la API no baja (por ejemplo el total de
+suscriptores de Substack), va en la hoja `Newsletter`, no aquí.
 
 ---
 

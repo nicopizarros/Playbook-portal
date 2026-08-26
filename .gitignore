@@ -60,3 +60,6 @@ graphify-out/cache/last_query_stamp
 # Any .env.local backup, however suffixed — .env.local alone does not match these
 .env.local.*
 !.env.local.example
+
+# GA4 export produced by scripts/ga4-export.ts — regenerate, do not commit
+ga4.json
