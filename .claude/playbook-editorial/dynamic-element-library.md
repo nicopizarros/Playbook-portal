@@ -54,11 +54,15 @@ dinero`, and the `Fuentes:` line.
 
 - **Never repeat a device type in one article.** The renderer refuses the
   second one even under budget.
-- **Two pairs are mutually exclusive** and the renderer enforces those too,
-  first-declared-wins: `Venta` locks out `Jugada`, and `Cadena` locks out
-  `Cronología`. Both pairs would tell the reader the same thing twice — see
-  §2's entries for each. The loser stays visible as plain text, so a
-  declaration you lose is a mistake you can see.
+- **Several pairs are mutually exclusive** and the renderer enforces those
+  too, first-declared-wins: `Venta` locks out `Jugada`, `Cadena` locks out
+  `Cronología`, `Contrato` locks out `Jugada`, `Calendario` locks out
+  `Cronología`, `Votación` locks out `Reparto`, `Ranking` locks out `Duelo`,
+  `Cascada` locks out `Recibo`, `Tablero` locks out `Cifra clave`, `Pirámide`
+  locks out `Ranking`, **`Control` locks out both `Venta` and `Jugada`**, and
+  **`Precedentes` locks out `Cadena`**. Each pair would tell the reader the
+  same thing twice — see §2's entries. The loser stays visible as plain text,
+  so a declaration you lose is a mistake you can see.
 - **Order matters.** First declared in document order wins the budget, so place
   the device carrying the story's spine first.
 - **Keep at least two prose paragraphs between devices.** The renderer does not
@@ -83,7 +87,7 @@ as a `Cronología`, a fee has a `Reparto` of who gets what or a `Cifra clave` fo
 the headline number, a signing has a `Jugada` for the two sides, a schedule
 change has a `Salto`, an earnings release is a `Resultados`.
 
-**Walk all twenty-three shapes** before writing an article off as device-free,
+**Walk all twenty-nine shapes** before writing an article off as device-free,
 especially on a `priority: 5` piece — exactly the story that should carry the
 richest structure. What stays strict is fabrication, not effort: never invent a
 milestone, a split, or a figure the piece doesn't already contain just to
@@ -93,7 +97,7 @@ used to be.
 
 ---
 
-## 2. The twenty-three devices
+## 2. The twenty-nine devices
 
 Pick by **story shape**: a saga → `Cronología`; a breakdown → `Recibo`; a split
 → `Reparto`; a pairing → `Jugada`; one number → `Cifra clave`; an earnings
@@ -104,7 +108,44 @@ of owners → `Cadena`; **a market price dragging something else with it →
 road ahead → `Calendario`; a governance vote → `Votación`; N actors on one
 metric → `Ranking`; the path from revenue to margin → `Cascada`; one actor at
 the center → `Perfil`; explicit outcomes with Playbook's read → `Escenarios`;
-a market roundup's numbers → `Tablero`.
+a market roundup's numbers → `Tablero`; a league system's tiers → `Pirámide`;
+**a transfer with no disclosed price → `Control`**; what a deal covers and
+excludes → `Alcance`; what still has to happen → `Condiciones`; who else
+already did this → `Precedentes`; a claim against its own measurement →
+`Contraste`.
+
+### The low-figure five, and why they exist (2026-08-27)
+
+The five at the end of that list were added off a **usage audit**, not off a
+story, and knowing that is what makes them get used. Measured across 182
+published articles: 137 declarations, of which `Cronología` 29, `Cifra clave`
+28 and `Jugada` 26. Three shapes carrying **60% of the whole collection**,
+while `Contrato`, `Votación` and `Cascada` had never fired once.
+
+The cause is evidentiary, not editorial. `Jugada` needs two NAMES and
+`Cronología` needs two DATES, and they were the only two devices a story with
+no disclosed figures could satisfy — everything else wants 3+ comparable
+values on one axis or an exact rare shape. This beat runs on undisclosed
+terms constantly, so every such story funnelled into the same two shapes. The
+batch that triggered the audit is the proof: five drafts, five declarations,
+all `Jugada` or `Cronología` — including an **acquisition** that could not use
+`Venta` because nobody published a price, and a **sponsorship** that could not
+use `Contrato` because nobody published a term.
+
+So when a story has no figures, the question is no longer "Jugada or
+Cronología". It is:
+
+| The story is really about | Device |
+|---|---|
+| Something changed hands, terms undisclosed | `Control` |
+| Where a deal's boundary sits | `Alcance` |
+| What still has to be true for this to be real | `Condiciones` |
+| Others who already did this | `Precedentes` |
+| What a party claims vs. what it measured | `Contraste` |
+
+Reach for `Jugada` only when the relationship **itself** is the whole news and
+none of the five fits — and for `Cronología` only when the dated spine is
+**this** story's own causal history.
 
 ---
 
@@ -1202,6 +1243,153 @@ item is the strip's title (≤48); then 2–4 tiles, label — value (label ≤2
 value ≤20 and numeric), with an optional parenthetical note as the tile's
 caption. Every value counts up. **Mutually exclusive with `Cifra clave`.**
 
+### `Pirámide:` — the league system
+
+```
+Pirámide: Liga MX (fuera) — cerrada · Liga Expansión MX — cúspide · Liga Premier — tercer nivel · Liga TDP — cuarto nivel
+```
+
+(Built 2026-08-20 for the FMF's Nuevo Modelo Deportivo; **undocumented here
+until 2026-08-27**, which is why it went unused — a device the drafting
+skills cannot see does not exist.) Tiers stacked widest at the base, each
+named. 2–7 tiers, `nombre — nota`. A `(fuera)` tag on one tier draws it
+**above the apex with the connector visibly broken** plus its own "fuera de
+la pirámide" chip — which is the reason the device exists, because a
+restructuring's whole business content is usually which body the new
+structure leaves out, and that dies in prose. `Ranking` orders actors by a
+measured metric; a pyramid's tiers are a hierarchy, and drawing them as
+bars would invent a magnitude nobody published. **Mutually exclusive with
+`Ranking`.**
+
+---
+
+### `Control:` — the transfer with no price
+
+```
+Control: EverPass Media · De — NFL 32 Equity y RedBird · A — DAZN · Incluye — derechos comerciales de Sunday Ticket · Términos — no revelados
+```
+
+**The device for an acquisition whose terms were not disclosed**, which in
+this beat is most of them. `Venta` is the deed and its `Precio` row is
+required, correctly — a sale device with its central number missing is not a
+deed. But the reflex fallback was `Jugada`, which prints the two names and
+drops **what moved**, the one fact an acquisition story exists to state.
+
+So the centre of this device is the asset line, not a figure: where the deed
+sets the price in display type, this sets what changed hands.
+
+- First item is the **asset** (≤48, no ` — `, run through the brand registry
+  like `Venta`, ≤32 after resolution).
+- `De` and `A` are **required** (≤48 each); `Incluye` (≤72), `Términos`
+  (≤32) and `Fecha` (≤24) are optional.
+- **A `Precio` row rejects the whole declaration.** That is the nudge, not a
+  bug: a transfer with a price is a `Venta`.
+- `Términos` defaults to a printed "No revelados" chip rather than an empty
+  space — a reader looking for the price is told it wasn't disclosed instead
+  of wondering whether the piece forgot it.
+- Wears the asset's own palette, same registry as `Venta` and `Cadena`.
+- **Mutually exclusive with `Venta` AND `Jugada`.**
+
+### `Alcance:` — what it covers and what it doesn't
+
+```
+Alcance: Sunday Ticket comercial · Incluye — bares y restaurantes · Incluye — plataforma multipantalla · Fuera — hogares (YouTube TV) · Fuera — mercados internacionales
+```
+
+The boundary a rights story actually turns on: which windows, which
+territories, which venues, and the half that always gets lost, which ones
+stay with somebody else. In prose that costs a paragraph and still reads as
+a hedge.
+
+- First item is the subject (≤52, no ` — `); then 2–6 rows labelled
+  `Incluye` / `Dentro` / `Cubre` or `Fuera` / `Excluye`, values ≤60.
+- **At least one of each, or it rejects.** A scope listing only what is
+  included is an `Alineación` with extra steps — the exclusions are the
+  reporting, since anyone can repeat what a release claims.
+- The two columns are **equal width by construction**. Membership here is
+  binary and drawing one side bigger would invent a magnitude; that is
+  `Reparto`'s job, not this one.
+
+### `Condiciones:` — what still has to be true
+
+```
+Condiciones: Patrocinio The Athletic-Kalshi · Aval de The New York Times Company — pendiente · Litigio estatal resuelto — en disputa · Acuerdo firmado — pendiente
+```
+
+For the large share of this beat reported at the "en pláticas / pendiente de
+aprobación / sujeto a cierre" stage. The collection had nothing for it, so
+the shape was either left in prose or bent into a `Cronología`, which dates
+things that have no dates yet and so asserts a schedule nobody published.
+
+- First item is the subject (≤64, no ` — `); then 2–5 rows,
+  `condición — estado`, condition ≤64.
+- **The state vocabulary is FIXED: `cumplida` · `pendiente` · `en disputa`.**
+  Nothing else parses. Same reasoning as `Escenarios`' likelihoods: an
+  invented percentage is exactly the fake precision the aritmética rule bans,
+  and three honest states carry the whole distinction.
+- The "N de M cumplidas" tally is **computed**, so the count and the boxes
+  cannot disagree. Don't restate it in the prose.
+- It is also where a `confirmed: false` boleta becomes **visible**. An
+  unconfirmed story otherwise reads as confident prose with a quiet database
+  flag; one whose device says two of four conditions are still pending has
+  told the reader what it actually knows.
+
+### `Precedentes:` — who already did this, and how it went
+
+```
+Precedentes: Ligas que eliminaron su juego de estrellas · NHL — lo cambió por un torneo de países · MLB — lo mantiene con rating a la baja · NBA — tres cambios de formato en diez años
+```
+
+`Cronología`'s most common misuse in the archive is a set of comparables
+forced onto a dated spine: the piece has three precedents worth naming, the
+only list-shaped device available is the timeline, so dates get attached and
+the reader is shown a chronology of unrelated events as though one led to the
+next.
+
+**The test that decides between them:** a `Cronología` is ONE story's own
+history and its order is causal, which is why its last milestone renders
+highlighted as "where this stands now". A `Precedentes` is N DIFFERENT
+actors' separate cases and the order is editorial, strongest comparable
+first — so no spine is drawn and nothing is highlighted as terminal, because
+there is no sequence to assert.
+
+- First item is the pattern (≤64, no ` — `); then 2–5 rows, `actor — qué
+  pasó`, actor ≤28 after brand resolution, outcome ≤72.
+- Each actor resolves against the registry on **`Alineación`'s** terms, not
+  `Venta`'s: a known league or club wears its colour, an unregistered name
+  keeps the product accent instead of falling to the house palette, so a
+  mixed row of institutions and countries stays readable.
+- **Mutually exclusive with `Cadena`** (a chain of title already IS one
+  asset's precedents, drawn with its handovers priced). Deliberately **not**
+  exclusive with `Cronología` — a story's own history and other actors'
+  cases are different claims, and a Deep Dive with the slots may carry both.
+
+### `Contraste:` — the claim against the measurement
+
+```
+Contraste: Enhanced Games, Q2 2026 · Dice — involucró a mil millones de personas · Midió — 4 millones de vistas en vivo · Fuente — su propio reporte trimestral
+```
+
+`voice-and-style.md` §6's standing rule ("when the filing brags and the
+number doesn't back it") given a shape. The tell is almost always inside one
+document, two lines apart, and the gap between them is the piece's whole
+read.
+
+- First item is the subject (≤52, no ` — `); `Dice` / `Afirma` / `Promete`
+  and `Midió` / `Mide` / `Real` are **both required** (≤90 each); `Fuente`
+  is optional (≤48).
+- **Both halves or nothing.** A claim alone is a pull quote; a measurement
+  alone is a `Cifra clave`.
+- Both sides carry **equal type weight** and the claim is never struck
+  through, greyed or marked false. Both are level-01 reported facts, so this
+  carries no "Lectura de Playbook" mark — nothing is being inferred, and the
+  device states the two figures and lets the gap argue, exactly as the rule
+  asks the prose to.
+- **Fill `Fuente` whenever it exists.** A device putting a party's own words
+  next to a number that undercuts them is an accusation, and an accusation
+  with no provenance on its face is the one thing this device must never
+  ship as.
+
 ## 3. Automatic elements — nothing to author
 
 These need no syntax and never touch the budget:
@@ -1225,8 +1413,11 @@ These need no syntax and never touch the budget:
 
 Walk this for every article before publishing:
 
-1. Full twenty-three-device list walked against the story **before** concluding it
-   gets none.
+1. Full twenty-nine-device list walked against the story **before** concluding it
+   gets none. On a story with no disclosed figures, check the low-figure five
+   (`Control`, `Alcance`, `Condiciones`, `Precedentes`, `Contraste`) BEFORE
+   defaulting to `Jugada` or `Cronología` — that default is what the 2026-08-27
+   audit found carrying 60% of the collection.
 2. Budget computed from `readingTime` **and** `priority` (+1 at `priority: 5`).
 3. No repeated device type.
 4. Devices in document order, spine first, ≥2 prose paragraphs between them.

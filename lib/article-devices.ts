@@ -2625,6 +2625,468 @@ function buildPyramid(pyramid: Pyramid): string {
   );
 }
 
+// ——————————————————————————————————————————————————— Round 7 (2026-08-27)
+//
+// Five devices built off a usage audit, not off a story. Measured across
+// 182 published articles: 137 device declarations, of which `Cronología`
+// 29, `Cifra clave` 28 and `Jugada` 26 — three shapes carrying 60% of the
+// collection, while `Contrato`, `Votación` and `Cascada` had never fired
+// once.
+//
+// The cause is an evidentiary one, not a taste one. `Jugada` needs two
+// NAMES and `Cronología` needs two DATES, and those are the only two
+// devices in the collection that a story with no disclosed figures can
+// satisfy — everything else wants 3+ comparable values on one axis
+// (`Duelo`, `Serie`, `Reparto`, `Recibo`) or an exact rare shape (`Venta`
+// REQUIRES `Precio`; `Contrato` REQUIRES `Monto` and `Plazo`). This beat
+// runs on undisclosed terms constantly, so every such story funnelled into
+// the same two shapes. The batch that triggered the audit is the clean
+// proof: five drafts, five declarations, all of them `Jugada` or
+// `Cronología` — including an ACQUISITION (DAZN/EverPass) that could not
+// use `Venta` because nobody published a price, and a sponsorship
+// (Athletic/Kalshi) that could not use `Contrato` because nobody published
+// a term.
+//
+// So these five are deliberately LOW-FIGURE. Each one takes a job the
+// overloaded two were absorbing badly:
+//
+//   Control:     the change of hands with no price — `Venta` minus the
+//                deed's central number, which is the actual news shape
+//                when terms are undisclosed
+//   Alcance:     what a deal covers and what it explicitly does NOT —
+//                the boundary a rights story turns on
+//   Condiciones: what still has to be true for this to be real — the
+//                "en pláticas / pendiente de aprobación" volume that was
+//                getting a fake timeline or nothing
+//   Precedentes: who else already did this and how it went — a PATTERN,
+//                which `Cronología` was being bent into because a dated
+//                spine was the only list-shaped device available
+//   Contraste:   what a party claims against what the same document
+//                measures — voice-and-style.md §6's own rule, made visual
+//
+// Two of them enforce a both-sides rule (`Alcance` needs an inside AND an
+// outside, `Contraste` needs a claim AND a measurement) because a
+// one-sided declaration is a list wearing a boundary's clothes, and the
+// whole point of each is the gap.
+
+// ———————————————————————————————————————————————————————————— Control
+// `Control: EverPass Media · De — NFL 32 Equity y RedBird · A — DAZN ·
+//  Incluye — derechos comerciales de Sunday Ticket · Términos — no revelados`
+//
+// The transfer of title when nobody published a price. `Venta` is the
+// deed and its `Precio` row is required, correctly: a sale device with no
+// price is a sale device with its middle cut out. But most acquisitions in
+// this beat close on undisclosed terms, and the reflex fallback was
+// `Jugada`, which prints the two names and drops WHAT MOVED — the one
+// fact an acquisition story exists to state.
+//
+// So the centre of this device is the asset line, not a figure: where the
+// deed puts the price in display type, this puts what changed hands. The
+// `Términos` row is optional and defaults to an explicit "no revelados"
+// chip rather than an empty space, because a reader looking for a price
+// should be told it wasn't disclosed instead of being left to wonder
+// whether the piece forgot it.
+//
+// A `Precio` row is not in the label vocabulary, so declaring one rejects
+// the whole device — which is the intended nudge: a transfer with a price
+// is a `Venta`, and there is exactly one right device per shape. It wears
+// the asset's own palette for the same reason `Venta` and `Cadena` do.
+type Control = {
+  asset: string;
+  brandStyle: string;
+  from: string;
+  to: string;
+  includes: string;
+  terms: string;
+  date: string;
+};
+
+const CONTROL_LABELS: Record<string, 'from' | 'to' | 'includes' | 'terms' | 'date'> = {
+  de: 'from',
+  a: 'to',
+  incluye: 'includes',
+  'que incluye': 'includes',
+  terminos: 'terms',
+  fecha: 'date',
+};
+
+function parseControl(raw: string): Control | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 6) return null;
+  const asset = items[0].trim();
+  if (!asset || asset.length > 48 || KV_RE.test(asset)) return null;
+
+  const fields: Partial<Record<'from' | 'to' | 'includes' | 'terms' | 'date', string>> = {};
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const key = CONTROL_LABELS[normalizeLabel(kv[1])];
+    if (!key || fields[key] !== undefined) return null;
+    const value = kv[2].trim();
+    if (!value) return null;
+    fields[key] = value;
+  }
+
+  const { from, to, includes = '', terms = '', date = '' } = fields;
+  if (!from || !to) return null;
+  if (from.length > 48 || to.length > 48) return null;
+  if (includes.length > 72 || terms.length > 32 || date.length > 24) return null;
+
+  const { label, palette } = resolveBrand(asset);
+  if (!label || label.length > 32) return null;
+
+  return { asset: label, brandStyle: brandStyleAttr(palette), from, to, includes, terms, date };
+}
+
+function buildControl(control: Control): string {
+  const style = control.brandStyle ? ` style="${control.brandStyle}"` : '';
+  const terms = control.terms || 'No revelados';
+  const spoken =
+    `Cambio de control de ${control.asset}, de ${control.from} a ${control.to}` +
+    (control.includes ? `. Incluye ${control.includes}` : '') +
+    `. Términos: ${terms}`;
+
+  const footParts: string[] = [
+    `<span class="lect-control-terms"><span class="lect-control-foot-label">Términos</span> ` +
+      `<span class="lect-control-foot-value">${esc(terms)}</span></span>`,
+  ];
+  if (control.date) footParts.push(`<span class="lect-control-date">${esc(control.date)}</span>`);
+
+  return (
+    `<div class="lect-device lect-brand lect-control" role="note" aria-label="${esc(spoken)}"${style}>` +
+    `<span class="lect-device-label">El cambio de control</span>` +
+    `<div class="lect-control-deed">` +
+    `<div class="lect-control-crest"><span class="lect-control-asset">${esc(control.asset)}</span></div>` +
+    `<div class="lect-control-parties" data-lect-stagger>` +
+    `<span class="lect-control-party" data-side="from">` +
+    `<span class="lect-control-role">De</span>` +
+    `<span class="lect-control-name">${esc(control.from)}</span></span>` +
+    `<span class="lect-control-arrow" aria-hidden="true">→</span>` +
+    `<span class="lect-control-party" data-side="to">` +
+    `<span class="lect-control-role">A</span>` +
+    `<span class="lect-control-name">${esc(control.to)}</span></span>` +
+    `</div>` +
+    (control.includes
+      ? `<div class="lect-control-object">` +
+        `<span class="lect-control-object-label">Qué cambia de manos</span>` +
+        `<span class="lect-control-object-value">${esc(control.includes)}</span></div>`
+      : '') +
+    `<div class="lect-control-foot">${footParts.join('')}</div>` +
+    `</div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————————— Alcance
+// `Alcance: Sunday Ticket comercial · Incluye — bares y restaurantes ·
+//  Incluye — plataforma multipantalla · Fuera — hogares (YouTube TV) ·
+//  Fuera — mercados internacionales`
+//
+// What a deal covers and what it deliberately does not. Media rights is
+// the densest beat in the catalog and the question a rights story actually
+// turns on is the boundary, not the pairing: which windows, which
+// territories, which venues, and — the half that gets lost — which ones
+// stay with somebody else. In prose that distinction routinely costs a
+// whole paragraph and still reads as a hedge.
+//
+// The both-sides rule is the device: at least one `Incluye` AND at least
+// one `Fuera`, or it rejects. A scope declaration listing only what is
+// included is an `Alineación` with extra steps, and the exclusions are the
+// reporting — anyone can list what a press release claims.
+//
+// No magnitude is drawn and none is implied. `Reparto` splits one whole
+// into measured shares; this is a binary membership with no sizes, so the
+// two columns are equal-weight by construction and a four-item side never
+// reads as "bigger" than a one-item side.
+type ScopeRow = { text: string; inside: boolean };
+type Scope = { subject: string; rows: ScopeRow[] };
+
+const SCOPE_LABELS: Record<string, boolean> = {
+  incluye: true,
+  dentro: true,
+  cubre: true,
+  fuera: false,
+  excluye: false,
+  'no incluye': false,
+};
+
+function parseScope(raw: string): Scope | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 7) return null;
+  const subject = items[0].trim();
+  if (!subject || subject.length > 52 || KV_RE.test(subject)) return null;
+
+  const rows: ScopeRow[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const inside = SCOPE_LABELS[normalizeLabel(kv[1])];
+    if (inside === undefined) return null;
+    const text = kv[2].trim();
+    if (!text || text.length > 60) return null;
+    rows.push({ text, inside });
+  }
+  // The boundary rule: a scope with no outside is not a scope.
+  if (!rows.some(r => r.inside) || !rows.some(r => !r.inside)) return null;
+  return { subject, rows };
+}
+
+function buildScope(scope: Scope): string {
+  const column = (inside: boolean) => {
+    const rows = scope.rows.filter(r => r.inside === inside);
+    const items = rows
+      .map(
+        r =>
+          `<li class="lect-alc-item"><span class="lect-alc-mark" aria-hidden="true"></span>` +
+          `<span class="lect-alc-text">${esc(r.text)}</span></li>`,
+      )
+      .join('');
+    return (
+      `<div class="lect-alc-col" data-side="${inside ? 'in' : 'out'}">` +
+      `<span class="lect-alc-head">${inside ? 'Incluye' : 'Queda fuera'}</span>` +
+      `<ul class="lect-alc-list" data-lect-stagger>${items}</ul></div>`
+    );
+  };
+  const side = (inside: boolean) =>
+    scope.rows
+      .filter(r => r.inside === inside)
+      .map(r => r.text)
+      .join(', ');
+  const spoken = `Alcance de ${scope.subject}. Incluye: ${side(true)}. Queda fuera: ${side(false)}`;
+  return (
+    `<div class="lect-device lect-alcance" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">El alcance</span>` +
+    `<span class="lect-alc-subject">${esc(scope.subject)}</span>` +
+    `<div class="lect-alc-cols">${column(true)}${column(false)}</div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Condiciones
+// `Condiciones: Patrocinio The Athletic-Kalshi · Aval de The New York
+//  Times Company — pendiente · Litigio estatal resuelto — en disputa ·
+//  Acuerdo firmado — pendiente`
+//
+// What still has to be true for the announced thing to become real. A
+// large share of this beat is reported at the "in talks / pending
+// approval / subject to closing" stage, and the collection had nothing for
+// it: the shape was either left in prose or bent into a `Cronología`,
+// which dates things that do not have dates yet and so asserts a schedule
+// nobody published.
+//
+// The state vocabulary is FIXED — `cumplida`, `pendiente`, `en disputa` —
+// for the same reason `Escenarios` refuses authored percentages: a
+// probability invented to look precise is exactly what the aritmética rule
+// bans, and three honest states carry the whole distinction between "done",
+// "not yet" and "actively contested".
+//
+// It also gives the boleta's `confirmed: false` somewhere to be visible.
+// An unconfirmed story currently reads as confident prose with a quiet
+// database flag; a story whose own device says two of four conditions are
+// still pending has told the reader what it actually knows.
+type Condition = { text: string; state: 'cumplida' | 'pendiente' | 'en disputa' };
+type Conditions = { subject: string; rows: Condition[] };
+
+const CONDITION_STATES: Record<string, Condition['state']> = {
+  cumplida: 'cumplida',
+  cumplido: 'cumplida',
+  lista: 'cumplida',
+  si: 'cumplida',
+  pendiente: 'pendiente',
+  no: 'pendiente',
+  'en disputa': 'en disputa',
+  disputa: 'en disputa',
+  impugnada: 'en disputa',
+};
+
+function parseConditions(raw: string): Conditions | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 6) return null;
+  const subject = items[0].trim();
+  if (!subject || subject.length > 64 || KV_RE.test(subject)) return null;
+
+  const rows: Condition[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const state = CONDITION_STATES[normalizeLabel(kv[2])];
+    const text = kv[1].trim();
+    if (!state || !text || text.length > 64) return null;
+    rows.push({ text, state });
+  }
+  return { subject, rows };
+}
+
+function buildConditions(conditions: Conditions): string {
+  const done = conditions.rows.filter(r => r.state === 'cumplida').length;
+  const total = conditions.rows.length;
+  const rows = conditions.rows
+    .map(
+      row =>
+        `<div class="lect-cond-row" data-state="${esc(row.state)}" data-lect-seg>` +
+        `<span class="lect-cond-box" aria-hidden="true"></span>` +
+        `<span class="lect-cond-text">${esc(row.text)}</span>` +
+        `<span class="lect-cond-state">${esc(row.state)}</span></div>`,
+    )
+    .join('');
+  const spoken =
+    `Condiciones para ${conditions.subject}: ${done} de ${total} cumplidas. ` +
+    conditions.rows.map(r => `${r.text}, ${r.state}`).join('; ');
+  return (
+    `<div class="lect-device lect-cond" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">Lo que falta</span>` +
+    `<span class="lect-cond-subject">${esc(conditions.subject)}</span>` +
+    `<span class="lect-cond-tally">${done} de ${total} cumplidas</span>` +
+    `<div class="lect-cond-rows">${rows}</div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Precedentes
+// `Precedentes: Ligas que eliminaron su juego de estrellas · NHL — lo
+//  cambió por un torneo de países · MLB — lo mantiene con rating a la baja
+//  · NBA — tres cambios de formato en diez años`
+//
+// N other actors who already did this, and how it went. `Cronología`'s
+// most common misuse in the archive is a set of comparables forced onto a
+// dated spine: the piece has three precedents worth naming, the only
+// list-shaped device available is the timeline, so dates get attached and
+// the reader is shown a chronology of unrelated events as though one led
+// to the next.
+//
+// The distinction that decides between them: a `Cronología` is ONE story's
+// own history and its order is causal, which is why its last milestone
+// renders as "where this stands now". A `Precedentes` is N DIFFERENT
+// actors' separate cases and the order is editorial — strongest comparable
+// first — so nothing here is highlighted as a terminal state and no spine
+// is drawn between the rows, because there is no sequence to assert.
+//
+// Each actor resolves against the brand registry on `Alineación`'s terms,
+// not `Venta`'s: a known league or club wears its own colour, an
+// unregistered name keeps the product accent rather than falling to the
+// house palette, so a mixed row of institutions and countries stays
+// readable instead of half-branded.
+type Precedent = { who: string; brandStyle: string; what: string };
+
+function parsePrecedents(raw: string): { subject: string; rows: Precedent[] } | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 6) return null;
+  const subject = items[0].trim();
+  if (!subject || subject.length > 64 || KV_RE.test(subject)) return null;
+
+  const rows: Precedent[] = [];
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const rawWho = kv[1].trim();
+    const what = kv[2].trim();
+    if (!rawWho || !what || what.length > 72) return null;
+    const { label, palette } = resolveBrand(rawWho);
+    if (!label || label.length > 28) return null;
+    rows.push({ who: label, brandStyle: brandStyleAttr(palette), what });
+  }
+  return { subject, rows };
+}
+
+function buildPrecedents(prec: { subject: string; rows: Precedent[] }): string {
+  const rows = prec.rows
+    .map(row => {
+      const style = row.brandStyle ? ` style="${row.brandStyle}"` : '';
+      const branded = row.brandStyle ? ' lect-brand' : '';
+      return (
+        `<div class="lect-prec-row${branded}" data-lect-seg${style}>` +
+        `<span class="lect-prec-who">${esc(row.who)}</span>` +
+        `<span class="lect-prec-what">${esc(row.what)}</span></div>`
+      );
+    })
+    .join('');
+  const spoken = `Precedentes, ${prec.subject}: ${prec.rows.map(r => `${r.who}, ${r.what}`).join('; ')}`;
+  return (
+    `<div class="lect-device lect-prec" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">Los precedentes</span>` +
+    `<span class="lect-prec-subject">${esc(prec.subject)}</span>` +
+    `<div class="lect-prec-rows">${rows}</div></div>`
+  );
+}
+
+// ———————————————————————————————————————————————————————— Contraste
+// `Contraste: Enhanced Games, Q2 2026 · Dice — involucró a mil millones de
+//  personas · Midió — 4 millones de vistas en vivo · Fuente — su propio
+//  reporte trimestral`
+//
+// What a party claims, against what the same document measures. This is
+// voice-and-style.md §6's own standing rule ("when the filing brags and
+// the number doesn't back it") given a shape: the tell is almost always
+// inside one source, two lines apart, and the piece's whole read is the
+// gap between them.
+//
+// Both sides are level-01 reported facts, so this carries no "Lectura de
+// Playbook" mark the way `Escenarios` does — nothing here is being
+// inferred, the juxtaposition is the reporting. For the same reason the
+// claim is never struck through, greyed out or marked false: the device
+// states both figures at equal weight and lets the reader do the work,
+// which is exactly what the rule asks the prose to do.
+//
+// The optional `Fuente` row matters more here than anywhere else in the
+// collection. A device that puts a party's own words next to a number that
+// undercuts them is an accusation, and an accusation with no provenance
+// visible on it is the one thing this device must never ship as.
+type Contrast = { subject: string; claim: string; measured: string; source: string };
+
+const CONTRAST_LABELS: Record<string, 'claim' | 'measured' | 'source'> = {
+  dice: 'claim',
+  afirma: 'claim',
+  promete: 'claim',
+  midio: 'measured',
+  mide: 'measured',
+  real: 'measured',
+  fuente: 'source',
+};
+
+function parseContrast(raw: string): Contrast | null {
+  const items = stripTags(raw).split(ITEM_SEP);
+  if (items.length < 3 || items.length > 4) return null;
+  const subject = items[0].trim();
+  if (!subject || subject.length > 52 || KV_RE.test(subject)) return null;
+
+  const fields: Partial<Record<'claim' | 'measured' | 'source', string>> = {};
+  for (const item of items.slice(1)) {
+    const kv = item.match(KV_RE);
+    if (!kv) return null;
+    const key = CONTRAST_LABELS[normalizeLabel(kv[1])];
+    if (!key || fields[key] !== undefined) return null;
+    const value = kv[2].trim();
+    if (!value) return null;
+    fields[key] = value;
+  }
+
+  const { claim, measured, source = '' } = fields;
+  // Both sides required: one alone is a quote or a figure, not a contrast.
+  if (!claim || !measured) return null;
+  if (claim.length > 90 || measured.length > 90 || source.length > 48) return null;
+  return { subject, claim, measured, source };
+}
+
+function buildContrast(contrast: Contrast): string {
+  const spoken =
+    `Contraste, ${contrast.subject}. Dice: ${contrast.claim}. Midió: ${contrast.measured}` +
+    (contrast.source ? `. Fuente: ${contrast.source}` : '');
+  return (
+    `<div class="lect-device lect-contraste" role="note" aria-label="${esc(spoken)}">` +
+    `<span class="lect-device-label">El contraste</span>` +
+    `<span class="lect-contraste-subject">${esc(contrast.subject)}</span>` +
+    `<div class="lect-contraste-pair" data-lect-stagger>` +
+    `<div class="lect-contraste-side" data-side="claim">` +
+    `<span class="lect-contraste-role">Dice</span>` +
+    `<span class="lect-contraste-text">${esc(contrast.claim)}</span></div>` +
+    `<div class="lect-contraste-side" data-side="measured">` +
+    `<span class="lect-contraste-role">Midió</span>` +
+    `<span class="lect-contraste-text">${esc(contrast.measured)}</span></div>` +
+    `</div>` +
+    (contrast.source
+      ? `<span class="lect-contraste-source">Fuente: ${esc(contrast.source)}</span>`
+      : '') +
+    `</div>`
+  );
+}
+
 // ———————————————————————————————————————————————————— Dispatch tables
 // Per-article context a device may need at render time. Today that is
 // only the article's own date (Calendario computes each beat's "en N
@@ -2887,6 +3349,52 @@ const DEVICES: Device[] = [
       return parsed ? buildPyramid(parsed) : null;
     },
   },
+  // Round 7 (2026-08-27), the five low-figure shapes from the usage audit.
+  {
+    name: 'control',
+    prefix: deviceTextRe('Control'),
+    html: deviceHtmlRe('Control'),
+    render: raw => {
+      const parsed = parseControl(raw);
+      return parsed ? buildControl(parsed) : null;
+    },
+  },
+  {
+    name: 'alcance',
+    prefix: deviceTextRe('Alcance'),
+    html: deviceHtmlRe('Alcance'),
+    render: raw => {
+      const parsed = parseScope(raw);
+      return parsed ? buildScope(parsed) : null;
+    },
+  },
+  {
+    name: 'condiciones',
+    prefix: deviceTextRe('Condiciones'),
+    html: deviceHtmlRe('Condiciones'),
+    render: raw => {
+      const parsed = parseConditions(raw);
+      return parsed ? buildConditions(parsed) : null;
+    },
+  },
+  {
+    name: 'precedentes',
+    prefix: deviceTextRe('Precedentes'),
+    html: deviceHtmlRe('Precedentes'),
+    render: raw => {
+      const parsed = parsePrecedents(raw);
+      return parsed ? buildPrecedents(parsed) : null;
+    },
+  },
+  {
+    name: 'contraste',
+    prefix: deviceTextRe('Contraste'),
+    html: deviceHtmlRe('Contraste'),
+    render: raw => {
+      const parsed = parseContrast(raw);
+      return parsed ? buildContrast(parsed) : null;
+    },
+  },
 ];
 
 // The Cifra clave and Jugada conventions live in lib/product-hubs.ts (they
@@ -2949,6 +3457,21 @@ const EXCLUSIVE_PAIRS: [string, string][] = [
   // has printed the hierarchy twice. The pyramid wins on a structure
   // story, the ranking on a metric one, and first-declared decides.
   ['piramide', 'ranking'],
+  // Round 7. `control` claims BOTH of `venta`'s pairs, because it is the
+  // same transfer told without the price: a story running the deed and the
+  // change-of-control side by side has drawn one transaction twice, and a
+  // `Jugada` next to either is the same two names a third time.
+  ['control', 'venta'],
+  ['control', 'jugada'],
+  // `precedentes` ↔ `cadena`: a chain of title IS a set of precedents for
+  // one asset, already drawn with its handovers priced. Running both puts
+  // the same succession on the page as a chain and as a list.
+  ['precedentes', 'cadena'],
+  // Deliberately NOT exclusive with `cronologia`: a story's own dated
+  // history and other actors' separate cases are different claims, and a
+  // Deep Dive that has earned both slots may legitimately carry both. The
+  // relief this device provides comes from being the RIGHT shape for a
+  // pattern, not from locking the timeline out.
 ];
 
 function exclusiveSiblings(name: string): string[] {

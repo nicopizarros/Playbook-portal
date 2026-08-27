@@ -81,6 +81,113 @@ const CASES: Case[] = [
     render: true,
     why: 'the live Perfil — must not be caught by the lead-in guard',
   },
+
+  // ——— Round 7 (2026-08-27): the five low-figure devices.
+  //
+  // Every one of these is FAIL-CLOSED (an unknown label or a missing
+  // required half degrades the whole declaration to plain text), so each
+  // gets accept coverage as well as reject coverage — the lesson this file
+  // was created for.
+
+  // Control: the transfer with no price.
+  {
+    text: 'Control: EverPass Media · De — NFL 32 Equity y RedBird · A — DAZN · Incluye — derechos comerciales de Sunday Ticket · Términos — no revelados',
+    render: true,
+    why: 'the live DAZN/EverPass case: the shape that had no device before this',
+  },
+  {
+    text: 'Control: EverPass Media · De — RedBird · A — DAZN',
+    render: true,
+    why: 'De and A alone are enough; Incluye/Términos/Fecha are optional',
+  },
+  {
+    text: 'Control: EverPass Media · De — RedBird · A — DAZN · Precio — US$1,000M',
+    render: false,
+    why: 'a transfer WITH a price is a Venta — Precio is not in this vocabulary',
+  },
+  { text: 'Control: EverPass Media · De — RedBird', render: false, why: 'A is required — half a transfer is not one' },
+
+  // Alcance: the boundary, which needs both sides.
+  {
+    text: 'Alcance: Sunday Ticket comercial · Incluye — bares y restaurantes · Fuera — hogares (YouTube TV)',
+    render: true,
+    why: 'one row each side is the minimum real boundary',
+  },
+  {
+    text: 'Alcance: Sunday Ticket comercial · Incluye — bares · Incluye — restaurantes · Incluye — hoteles',
+    render: false,
+    why: 'no outside: a scope with nothing excluded is an Alineación, not a boundary',
+  },
+  {
+    text: 'Alcance: Sunday Ticket comercial · Fuera — hogares · Fuera — internacional',
+    render: false,
+    why: 'no inside: the mirror of the same rule',
+  },
+
+  // Condiciones: fixed state vocabulary, like Escenarios' likelihoods.
+  {
+    text: 'Condiciones: Patrocinio The Athletic-Kalshi · Aval de The New York Times Company — pendiente · Litigio estatal resuelto — en disputa',
+    render: true,
+    why: 'the live Kalshi case: two real states',
+  },
+  {
+    text: 'Condiciones: Patrocinio X · Aval del consejo — probable · Firma — pendiente',
+    render: false,
+    why: '"probable" is Escenarios vocabulary — a likelihood is not a condition state',
+  },
+  {
+    text: 'Condiciones: Patrocinio X · Aval del consejo — 60%',
+    render: false,
+    why: 'an authored percentage is exactly the fake precision the fixed vocabulary bans',
+  },
+
+  // Precedentes: N actors, no dates, no spine.
+  {
+    text: 'Precedentes: Ligas que eliminaron su juego de estrellas · NHL — lo cambió por un torneo de países · MLB — lo mantiene con rating a la baja',
+    render: true,
+    why: 'the pattern shape Cronología was being bent into',
+  },
+  {
+    text: 'Precedentes: Ligas que cambiaron de formato · NHL — lo cambió por un torneo de países',
+    render: false,
+    why: 'one precedent is an example, not a pattern — two rows minimum',
+  },
+
+  // Contraste: both halves required, and it is an accusation without them.
+  {
+    text: 'Contraste: Enhanced Games, Q2 2026 · Dice — involucró a mil millones de personas · Midió — 4 millones de vistas en vivo',
+    render: true,
+    why: "voice-and-style.md §6's own worked example",
+  },
+  {
+    text: 'Contraste: Enhanced Games, Q2 2026 · Dice — involucró a mil millones de personas · Midió — 4 millones de vistas en vivo · Fuente — su reporte trimestral',
+    render: true,
+    why: 'the optional Fuente row, which this device wants more than any other',
+  },
+  {
+    text: 'Contraste: Enhanced Games · Dice — involucró a mil millones de personas',
+    render: false,
+    why: 'a claim with nothing measured against it is a pull quote, not a contrast',
+  },
+  {
+    text: 'Contraste: Enhanced Games · Midió — 4 millones de vistas · Fuente — su reporte',
+    render: false,
+    why: 'a measurement with no claim is a Cifra clave',
+  },
+
+  // The lead-in boundary, re-checked for the new prefixes. `**El control:**`
+  // and `**El alcance:**` are plausible bold prose lead-ins (voice-and-style
+  // §5) and must never be parsed as declarations.
+  {
+    text: '**El control:** la liga conserva la última palabra sobre el calendario y no la cede en el acuerdo.',
+    render: false,
+    why: 'bold label then prose — a lead-in, not a Control declaration',
+  },
+  {
+    text: '**El alcance:** el paquete cubre mucho más de lo que el comunicado sugiere a primera vista.',
+    render: false,
+    why: 'same guard for Alcance',
+  },
 ];
 
 let failed = 0;

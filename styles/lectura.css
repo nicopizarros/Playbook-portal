@@ -1789,3 +1789,151 @@ mark.lect-fig{
   .lect-pullfig-value{font-size:clamp(36px,11vw,56px);}
   .lect-exhibit .article-photo{border-width:8px;}
 }
+
+/* ——— Round 7 (2026-08-27): the five low-figure devices. Built off a usage
+   audit rather than a story — `Cronología`, `Cifra clave` and `Jugada` were
+   carrying 60% of all declarations because they were the only shapes a
+   story with no disclosed figures could satisfy. Syntax and the full
+   rationale live in lib/article-devices.ts. ——— */
+
+/* Control — the deed with no price. Deliberately the same instrument as
+   Venta (bordered, crest bar in the asset's colour, parties either side of
+   a transfer arrow) so the two read as one family, with ONE substitution:
+   where the deed sets the price in display type, this sets what actually
+   changed hands, because that is the fact the story has. The terms chip is
+   never blank — an undisclosed price is stated, not left as a gap. */
+.lect-control-deed{border:1.5px solid var(--rule);background:var(--paper-soft);overflow:hidden;}
+.lect-control-crest{background:var(--brand-fill);border-bottom:4px solid var(--brand-alt);padding:14px 18px 12px;}
+.lect-control-asset{
+  display:block;font-family:var(--serif-display);font-weight:400;
+  font-size:clamp(26px,4.4vw,40px);line-height:1;color:var(--brand-on);
+  letter-spacing:.02em;text-transform:uppercase;
+}
+.lect-control-parties{
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;
+  padding:18px;border-bottom:1px solid var(--rule);
+}
+.lect-control-party{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.lect-control-party[data-side="to"]{text-align:right;}
+.lect-control-role{font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-control-name{font-size:15px;font-weight:700;line-height:1.3;color:var(--ink);}
+.lect-control-arrow{font-size:clamp(22px,3.4vw,30px);line-height:1;font-weight:800;color:var(--brand-ink);}
+.lect-control-object{display:flex;flex-direction:column;gap:7px;padding:20px 18px 18px;text-align:center;}
+.lect-control-object-label{font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-control-object-value{
+  font-family:var(--serif-display);font-weight:400;font-size:clamp(20px,3.4vw,30px);
+  line-height:1.15;color:var(--brand-ink);letter-spacing:.01em;
+}
+.lect-control-foot{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
+  padding:11px 18px;border-top:1px solid var(--rule);background:var(--paper);
+}
+.lect-control-foot-label{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-control-foot-value{font-size:13px;font-weight:700;color:var(--ink);}
+.lect-control-date{margin-left:auto;font-size:12px;color:var(--gray-txt);}
+
+/* Alcance — the boundary. Two equal columns, never weighted: membership
+   here is binary and drawing one side wider would invent a magnitude
+   nobody published. The mark shape carries the in/out distinction on its
+   own (filled square vs. hollow, plus its own column heading), so colour
+   is never the only signal. */
+.lect-alc-subject{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);margin-bottom:14px;}
+.lect-alc-cols{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);background:var(--paper-soft);}
+.lect-alc-col{padding:14px 16px 16px;min-width:0;}
+.lect-alc-col[data-side="out"]{border-left:1px solid var(--rule);}
+.lect-alc-head{
+  display:block;font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gray-txt);padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid var(--rule);
+}
+.lect-alc-col[data-side="in"] .lect-alc-head{color:var(--lect-ink-accent);}
+.lect-alc-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+.lect-alc-item{display:flex;gap:9px;align-items:flex-start;}
+.lect-alc-mark{width:9px;height:9px;margin-top:5px;flex-shrink:0;}
+.lect-alc-col[data-side="in"] .lect-alc-mark{background:var(--lect-accent);}
+.lect-alc-col[data-side="out"] .lect-alc-mark{border:1.5px dashed var(--gray-txt);opacity:.75;}
+.lect-alc-text{font-size:13.5px;line-height:1.42;color:var(--ink);}
+.lect-alc-col[data-side="out"] .lect-alc-text{color:var(--gray-txt);}
+
+/* Condiciones — what still has to be true. A checklist, with the tally
+   computed from the rows so the count and the boxes cannot disagree. The
+   three states are told apart by box treatment AND by their own printed
+   word, because "en disputa" is the one a reader must not miss. */
+.lect-cond-subject{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);}
+.lect-cond-tally{
+  display:block;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray-txt);margin:6px 0 12px;
+}
+.lect-cond-rows{display:flex;flex-direction:column;border-top:1px solid var(--rule);}
+.lect-cond-row{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;
+  padding:11px 0;border-bottom:1px solid var(--rule);
+}
+.lect-cond-box{width:14px;height:14px;border:1.5px solid var(--gray-txt);flex-shrink:0;position:relative;}
+.lect-cond-row[data-state="cumplida"] .lect-cond-box{background:var(--lect-accent);border-color:var(--lect-ink-accent);}
+.lect-cond-row[data-state="cumplida"] .lect-cond-box::after{
+  content:"";position:absolute;left:3.5px;top:.5px;width:4px;height:8px;
+  border:solid var(--ink-fixed);border-width:0 2px 2px 0;transform:rotate(45deg);
+}
+.lect-cond-row[data-state="en disputa"] .lect-cond-box{
+  border-color:#b3261e;
+  background:repeating-linear-gradient(45deg,transparent 0 3px,color-mix(in srgb,#b3261e 55%,transparent) 3px 4.6px);
+}
+.lect-cond-text{font-size:14px;line-height:1.4;color:var(--ink);}
+.lect-cond-row[data-state="pendiente"] .lect-cond-text{color:var(--gray-txt);}
+.lect-cond-state{
+  font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gray-txt);white-space:nowrap;
+}
+.lect-cond-row[data-state="cumplida"] .lect-cond-state{color:var(--lect-ink-accent);}
+.lect-cond-row[data-state="en disputa"] .lect-cond-state{color:#b3261e;}
+[data-theme="dark"] .lect-cond-row[data-state="en disputa"] .lect-cond-state{color:#f2857c;}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .lect-cond-row[data-state="en disputa"] .lect-cond-state{color:#f2857c;}
+}
+
+/* Precedentes — other actors' separate cases. Deliberately NO spine and no
+   terminal highlight, the two things Cronología uses to assert a sequence:
+   these rows are parallel, not causal, so the design must not imply one
+   led to the next. Each actor keeps its own registered colour on the rule
+   at its left; an unregistered name falls back to the product accent. */
+.lect-prec-subject{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);margin-bottom:12px;}
+.lect-prec-rows{display:flex;flex-direction:column;gap:10px;}
+.lect-prec-row{
+  display:grid;grid-template-columns:minmax(88px,auto) minmax(0,1fr);gap:14px;align-items:baseline;
+  padding:11px 14px;background:var(--paper-soft);border-left:4px solid var(--lect-accent);
+}
+.lect-prec-row.lect-brand{border-left-color:var(--brand-fill);}
+.lect-prec-who{
+  font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--lect-ink-accent);
+}
+.lect-prec-row.lect-brand .lect-prec-who{color:var(--brand-ink);}
+.lect-prec-what{font-size:13.5px;line-height:1.45;color:var(--ink);}
+
+/* Contraste — the claim against the measurement. Both sides carry equal
+   type weight and neither is struck through or greyed: the device states
+   two sourced facts and lets the gap argue, exactly as voice-and-style.md
+   §6 asks the prose to. The measured side takes the accent rule because it
+   is the load-bearing one, not because the claim is false. */
+.lect-contraste-subject{display:block;font-family:var(--sans);font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink);margin-bottom:12px;}
+.lect-contraste-pair{display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);background:var(--paper-soft);}
+.lect-contraste-side{display:flex;flex-direction:column;gap:7px;padding:15px 18px;}
+.lect-contraste-side[data-side="measured"]{border-top:1px solid var(--rule);border-left:4px solid var(--lect-accent);}
+.lect-contraste-role{font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-txt);}
+.lect-contraste-side[data-side="measured"] .lect-contraste-role{color:var(--lect-ink-accent);}
+.lect-contraste-text{
+  font-family:var(--serif-display);font-weight:400;font-size:clamp(17px,2.6vw,23px);
+  line-height:1.25;color:var(--ink);
+}
+.lect-contraste-source{display:block;margin-top:9px;font-size:11px;color:var(--gray-txt);}
+
+@media(max-width:640px){
+  .lect-control-parties{grid-template-columns:1fr;gap:10px;}
+  .lect-control-party[data-side="to"]{text-align:left;}
+  .lect-control-arrow{transform:rotate(90deg);justify-self:start;}
+  .lect-alc-cols{grid-template-columns:1fr;}
+  .lect-alc-col[data-side="out"]{border-left:none;border-top:1px solid var(--rule);}
+  .lect-cond-row{grid-template-columns:auto minmax(0,1fr);row-gap:4px;}
+  .lect-cond-state{grid-column:2;justify-self:start;}
+  .lect-prec-row{grid-template-columns:1fr;gap:5px;}
+}

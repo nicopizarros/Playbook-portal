@@ -30,9 +30,14 @@ export const SAMPLES: SampleDef[] = [
   { name: 'Venta', group: 'Mercado y propiedad', note: 'la escritura del traspaso', syntax: 'Venta: Lakers · Precio — US$12,500M · De — Mark Walter · A — Josh Kushner y Bob Iger · Anterior — US$10,000M (2025) · Fecha — Agosto 2026' },
   { name: 'Cadena', group: 'Mercado y propiedad', note: 'la cadena de dueños', syntax: 'Cadena: Lakers · 1979 — Jerry Buss — US$67.5M · 2025 — Mark Walter — US$10,000M · 2026 — Kushner y Iger — US$12,500M' },
   { name: 'Contrato', group: 'Mercado y propiedad', note: 'el term sheet, con "hoy" sobre el plazo', syntax: 'Contrato: Apple TV ↔ MLS · Monto — US$250M por año · Plazo — 2023 a 2032 · Cláusula — salida mutua en 2028' },
+  { name: 'Control', group: 'Mercado y propiedad', note: 'el traspaso sin precio revelado', syntax: 'Control: EverPass Media · De — NFL 32 Equity y RedBird · A — DAZN · Incluye — derechos comerciales de Sunday Ticket · Términos — no revelados' },
+  { name: 'Alcance', group: 'Mercado y propiedad', note: 'qué cubre y qué deja fuera', syntax: 'Alcance: Sunday Ticket comercial · Incluye — bares y restaurantes · Incluye — plataforma multipantalla · Fuera — hogares (YouTube TV) · Fuera — mercados internacionales' },
   // — Interpretación y geografía
   { name: 'Mapa', group: 'Interpretación y geografía', note: 'los bandos, en geografía real', syntax: 'Mapa: Concacaf · En el comunicado — resto · Sin firmar — MEX' },
   { name: 'Escenarios', group: 'Interpretación y geografía', note: 'lectura de Playbook, vocabulario fijo', syntax: 'Escenarios: Los derechos de la Liga MX · Renueva con Televisa — probable · Se parte en paquetes — posible · Streaming puro — lejano' },
+  { name: 'Condiciones', group: 'Interpretación y geografía', note: 'lo que falta para que sea real, vocabulario fijo', syntax: 'Condiciones: Patrocinio The Athletic-Kalshi · Aval de The New York Times Company — pendiente · Litigio estatal resuelto — en disputa · Acuerdo firmado — pendiente' },
+  { name: 'Precedentes', group: 'Interpretación y geografía', note: 'quién ya hizo esto y cómo le fue', syntax: 'Precedentes: Ligas que eliminaron su juego de estrellas · NHL — lo cambió por un torneo de países · MLB — lo mantiene con rating a la baja · NBA — tres cambios de formato en diez años' },
+  { name: 'Contraste', group: 'Interpretación y geografía', note: 'lo que dice contra lo que mide', syntax: 'Contraste: Enhanced Games, Q2 2026 · Dice — involucró a mil millones de personas · Midió — 4 millones de vistas en vivo · Fuente — su propio reporte trimestral' },
 ];
 
 // A lead-in paragraph so the automatic elements (scan mark, count-up,
