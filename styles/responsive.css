@@ -84,6 +84,10 @@
      which carries the SAME three zones as labelled sections — the IA
      survives the collapse intact rather than flattening to a link list. */
   .nav-zones{display:none;}
+  /* El menú de Nosotros vive en .nav-actions, que NO se oculta acá — así
+     que hay que apagarlo a mano. Abajo de 1180px su lugar es la zona de
+     acordeón del drawer. */
+  .nav-actions .navmenu{display:none;}
   .nav-links{
     display:flex;
     position:fixed;top:0;right:0;height:100vh;width:min(320px,86vw);
@@ -163,6 +167,18 @@
   .social-row{gap:10px;}
 }
 
+/* ——— Chips de tema en movil (ronda 2) ———
+   Dos columnas con el glifo ARRIBA de la etiqueta, celda de 76px. Tres
+   columnas horizontales dejan la celda en 110px y "Derechos de TV" se
+   parte en tres lineas. El glifo sube a 21px nominales: a 15px, sobre una
+   celda del doble de ancho, se pierde en el aire.
+   Umbral propio del componente — la ronda 2 no mueve los 920/1180 que el
+   sitio ya tiene. */
+@media(max-width:640px){
+  .topic-directory{grid-template-columns:repeat(2,1fr);}
+  .topic-directory a{--tema-icon-size:21px;flex-direction:column;gap:7px;min-height:76px;padding:14px 10px;}
+}
+
 /* ——— Desktop header, compact tier (1181-1319px) ———
    Moving the drawer breakpoint to 1180px fixed 1024px but left a band
    immediately above it still broken: swept every width from 900px to
@@ -221,6 +237,9 @@
 }
 
 @media(max-width:520px){
+  /* Con el copy ocupando el ancho completo, un CTA empujado a la derecha
+     por margin-left:auto queda colgado solo en su renglón. */
+  .source-exit-cta{margin-left:0;width:100%;}
   .brand img{height:32px;}
   header.topbar.is-scrolled .brand img{height:32px;}
   .nav-search input{width:48px;}

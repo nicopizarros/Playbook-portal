@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { TemaIcon, TEMA_ICON_BY_TOPIC } from '@/components/icons/tema';
 
 // Homepage entry point into the archive (Fase 7 UX), from the v23
 // prototype's topic-directory pattern: a bordered six-column grid of topic
@@ -14,6 +15,8 @@ const TOPICS: { label: string; href: string }[] = [
   { label: 'NFL', href: '/archivo?sport=NFL' },
   { label: 'NBA', href: '/archivo?sport=NBA' },
   { label: 'Béisbol', href: '/archivo?sport=B%C3%A9isbol' },
+  // F1 renders label-only for now: its glyph carries the Formula 1
+  // wordmark and is withheld pending a redraw (see components/icons/tema).
   { label: 'F1', href: '/archivo?sport=F1' },
   { label: 'Derechos de TV', href: '/archivo?vertical=Derechos%20de%20TV%20y%20Streaming' },
   { label: 'Patrocinios', href: '/archivo?vertical=Patrocinios' },
@@ -37,7 +40,13 @@ export function TopicDirectory() {
       <nav className="topic-directory reveal" aria-label="Temas del archivo">
         {TOPICS.map(t => (
           <Link key={t.label} href={t.href}>
-            {t.label}
+            {/* Icon first in source order AND in the box: it sits left of
+                the label on desktop and above it on mobile, both from the
+                same markup (styles/sections.css). Decorative — the label
+                is the accessible name, so the glyph is aria-hidden and a
+                topic with no glyph simply renders the label alone. */}
+            <TemaIcon name={TEMA_ICON_BY_TOPIC[t.label]} />
+            <span className="topic-directory-label">{t.label}</span>
           </Link>
         ))}
       </nav>
