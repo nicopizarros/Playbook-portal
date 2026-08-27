@@ -287,7 +287,7 @@ export const LFA_HUB: Hub = {
     figures: [
       {
         value: '3.8 millones',
-        label: 'Aficionados al futbol americano en México',
+        label: 'Afición potencial al futbol americano en México (cifra estimada)',
         source: { ...GLOBAL_INTELLIGENCE },
       },
       {
