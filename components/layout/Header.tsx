@@ -28,6 +28,10 @@ export async function Header() {
           ctaUrl={nav.ctaUrl}
           searchArticles={searchArticles}
           readerEmail={readerEmail ?? null}
+          /* The "Alcance" column of the Nosotros panel. Same three figures
+             the homepage's StatsSection shows, from the same CMS row —
+             one source, two surfaces. */
+          reach={content.statsSection.stats}
         />
       </div>
       <Ticker articles={articles} />

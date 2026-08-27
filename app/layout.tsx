@@ -23,6 +23,7 @@ import '../styles/product-hubs.css';
 // product-hubs.css on purpose — these layer per-product skins over it):
 import '../styles/lectura.css';
 import '../styles/portada.css';
+import '../styles/nosotros.css';
 import '../styles/hemeroteca.css';
 import '../styles/responsive.css';
 // Hubs (/coberturas/[slug]). hub.css is structure only; one token file per

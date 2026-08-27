@@ -7,35 +7,81 @@ import { SiteEvents } from '@/components/analytics/SiteEvents';
 import { CookieNotice } from '@/components/CookieNotice';
 import { AdSenseProvider } from '@/components/ads/AdSenseProvider';
 import { getAdSenseConfig } from '@/lib/adsense';
+import { getSiteContent } from '@/lib/data/site-content';
+import { safeUrl } from '@/lib/safe-url';
 import { jsonLdScript } from '@/lib/json-ld';
 import { SITE_URL } from '@/lib/site-url';
 
 // Site-wide entities, once per public page (2026-08-14 SEO block, crawl-
 // only): the Organization crawlers attach every NewsArticle's publisher
 // reference to, and the WebSite that names the publication and its
-// language. sameAs points at the newsletter — the publication's other
-// living surface. Static objects, so they serialize once at module load.
-const SITE_JSON_LD = jsonLdScript([
-  {
-    '@context': 'https://schema.org',
-    '@type': 'NewsMediaOrganization',
-    '@id': `${SITE_URL}#organization`,
-    name: 'Playbook',
-    url: SITE_URL,
-    logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/img/playbook-logo.webp` },
-    sameAs: ['https://playbookmedia.substack.com'],
-    knowsLanguage: 'es-MX',
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    '@id': `${SITE_URL}#website`,
-    name: 'Playbook — El negocio del deporte',
-    url: SITE_URL,
-    inLanguage: 'es-MX',
-    publisher: { '@id': `${SITE_URL}#organization` },
-  },
-]);
+// language.
+//
+// Widened in round 1 (2026-08-27). The block used to declare only name,
+// url, logo, ONE sameAs and knowsLanguage; it now also carries the
+// descriptor, every social profile, and the two links Google actually
+// looks for on a news publisher — `masthead` (who runs it) and
+// `publishingPrinciples` (the rules it publishes by). This is where search
+// engines want the description, which is why the round-1 recommendation to
+// delete the homepage's visible "Acerca de" block was REVERTED but this
+// half was kept: the JSON-LD now SUPPLEMENTS that block instead of
+// replacing it.
+//
+// `sameAs` is built from the CMS's own footer social links rather than a
+// hardcoded list, so a profile added in the admin panel lands in the
+// structured data without a deploy — and so the two can never disagree.
+// The newsletter is unioned in because it is the publication's other
+// living surface and does not live in that list.
+//
+// NOT declared: `foundingDate`. The founding year is one of the eleven
+// open [BRACKET] gaps (docs/TODO.md); an invented year in structured data
+// is worse than an absent field.
+const NEWSLETTER_URL = 'https://playbookmedia.substack.com';
+
+const ORG_DESCRIPTION =
+  'Playbook es la casa editorial que cubre el negocio del deporte en México y Latinoamérica: ' +
+  'el capital, los derechos, las marcas, los datos y la relación con el aficionado.';
+
+// Dedupe on a NORMALISED key, not on the raw string: the CMS stores the
+// newsletter as "…substack.com/" and the constant below has no trailing
+// slash, so a plain Set emitted the same profile twice. Output keeps each
+// URL's original form — only the comparison is normalised.
+function dedupeUrls(urls: string[]): string[] {
+  const seen = new Set<string>();
+  return urls.filter(url => {
+    const key = url.toLowerCase().replace(/\/+$/, '');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function siteJsonLd(socialUrls: string[]) {
+  return jsonLdScript([
+    {
+      '@context': 'https://schema.org',
+      '@type': 'NewsMediaOrganization',
+      '@id': `${SITE_URL}#organization`,
+      name: 'Playbook',
+      url: SITE_URL,
+      description: ORG_DESCRIPTION,
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/img/playbook-logo.webp` },
+      sameAs: dedupeUrls([...socialUrls, NEWSLETTER_URL]),
+      masthead: `${SITE_URL}/equipo`,
+      publishingPrinciples: `${SITE_URL}/estandares`,
+      knowsLanguage: 'es-MX',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}#website`,
+      name: 'Playbook — El negocio del deporte',
+      url: SITE_URL,
+      inLanguage: 'es-MX',
+      publisher: { '@id': `${SITE_URL}#organization` },
+    },
+  ]);
+}
 
 // Every public page reads live Postgres data (articles, site_content) that
 // changes outside of a deploy — the Make.com webhook and (Phase 4) the
@@ -46,7 +92,7 @@ const SITE_JSON_LD = jsonLdScript([
 // segment covers every route nested under app/(public)/.
 export const dynamic = 'force-dynamic';
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   // Same "public routes only, never /admin" scoping legacy/js/analytics.js
   // had — editors aren't the audience being measured. GA4_MEASUREMENT_ID
   // is a public client-side ID, not a secret, but it's still only read
@@ -55,6 +101,14 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   // var naming scheme to keep in sync with what's already set in Vercel.
   const gaMeasurementId = process.env.GA4_MEASUREMENT_ID;
   const adSenseConfig = getAdSenseConfig();
+
+  // safeUrl drops anything that isn't a real http(s) URL, so a half-typed
+  // entry in the CMS can never emit a broken sameAs.
+  const content = await getSiteContent();
+  const socialUrls = content.footer.socialLinks
+    .map(link => safeUrl(link.url))
+    .filter(url => /^https?:\/\//i.test(url));
+  const siteLd = siteJsonLd(socialUrls);
 
   return (
     <AdSenseProvider config={adSenseConfig}>
@@ -79,7 +133,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <ScrollReveal />
       <HeaderScrollEffect />
       <CookieNotice />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: SITE_JSON_LD }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteLd }} />
     </AdSenseProvider>
   );
 }

@@ -301,6 +301,39 @@ a.navmenu-item:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;}
 .navmenu-item-desc{font-size:12px;line-height:1.4;color:var(--gray-txt);}
 
 .navmenu-item-plain{padding:6px 8px;}
+
+/* ——— El panel de "Nosotros" (ronda 1) ———
+   Tres columnas de 660px alineadas al borde derecho del trigger. Mismo
+   radio, mismo borde, misma sombra y mismo top:calc(100% + 10px) que
+   cualquier otro panel: es el primitivo, no un segundo patrón. */
+.navmenu-panel.is-nosotros{
+  width:660px;padding:18px;
+  grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr) minmax(0,.62fr);gap:22px;
+}
+/* La regla de arriba aplana los grupos secundarios de cualquier panel que
+   no sea .is-wide; este SÍ es multicolumna, así que recupera su filo. */
+.navmenu-panel.is-nosotros .navmenu-group-secondary{
+  border-left:1px solid var(--rule);border-top:0;padding-left:18px;padding-top:0;
+}
+.navmenu-panel.is-nosotros .navmenu-group{gap:2px;}
+.navmenu-panel.is-nosotros .navmenu-group-head{margin-bottom:10px;}
+.nos-panel-anchor{
+  margin:0 0 12px;font-family:var(--serif-display);font-weight:400;font-size:21px;
+  line-height:1.14;color:var(--ink);text-wrap:pretty;
+}
+.nos-panel-dek{margin:0 0 12px;font-size:12px;line-height:1.5;color:var(--gray-txt);max-width:30ch;}
+.nos-panel-cta{
+  justify-self:start;font-size:13.5px;font-weight:700;color:var(--ink);
+  border-bottom:2px solid var(--green);padding-bottom:2px;
+}
+.nos-panel-cta:hover{border-bottom-color:var(--ink);}
+.nos-panel-link{display:block;padding:7px 8px;font-size:13.5px;font-weight:600;line-height:1.3;}
+.nos-panel-stat{display:block;padding:10px 0;border-top:1px solid var(--rule);}
+.nos-panel-stat b{
+  display:block;font-family:var(--serif-display);font-weight:400;font-size:26px;
+  line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.nos-panel-stat span{display:block;margin-top:4px;font-size:11.5px;line-height:1.4;color:var(--gray-txt);}
 /* Declared, not linked: an "en preparación" entry must not look clickable
    and cannot 404. */
 .navmenu-item-muted{display:grid;gap:2px;cursor:default;opacity:.72;}
@@ -316,3 +349,31 @@ a.navmenu-item:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;}
 .nav-drawer-sub{color:var(--gray-txt) !important;font-size:14px !important;}
 .nav-drawer-muted{color:var(--gray-txt) !important;opacity:.75;}
 .nav-drawer-muted em{font-style:normal;font-size:11px;letter-spacing:.08em;text-transform:uppercase;}
+
+/* ——— Nosotros en el drawer: acordeón, no un segundo patrón ———
+   Tap, nunca hover. Área táctil mínima de 48px en el disparador y 46px en
+   cada enlace. */
+.nav-drawer-acc{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;min-height:48px;padding:14px 0;
+  border:0;border-bottom:1px solid var(--rule);background:transparent;
+  font-family:inherit;font-size:15.5px;font-weight:600;color:var(--ink);
+  cursor:pointer;text-align:left;
+}
+.nav-drawer-acc:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+.nav-drawer-acc[aria-expanded="true"] .navmenu-chevron{transform:rotate(-135deg) translate(-2px,-2px);}
+.nav-drawer-acc-panel{
+  display:grid;gap:14px;width:100%;padding:16px 0 6px;border-bottom:1px solid var(--rule);
+}
+/* Igual que .navmenu-panel: display:grid gana sobre el [hidden]{display:none}
+   del user-agent, así que el estado cerrado necesita decirlo. */
+.nav-drawer-acc-panel[hidden]{display:none;}
+.nav-drawer-anchor{
+  margin:0;font-family:var(--serif-display);font-weight:400;font-size:18px;
+  line-height:1.16;color:var(--ink);
+}
+.nav-drawer-acc-links{display:grid;}
+.nav-drawer-acc-link{
+  display:flex;align-items:center;width:100%;min-height:46px;
+  font-size:14px;color:var(--gray-txt);
+}

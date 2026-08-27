@@ -9,6 +9,7 @@ import { NavMenu } from './NavMenu';
 import type { NavLink } from '@/lib/data/site-content';
 import { PRODUCT_HUBS } from '@/lib/product-hubs';
 import { HUBS, UPCOMING_HUBS } from '@/lib/hubs';
+import { NOSOTROS_LINKS } from '@/lib/data/leadership';
 import { gsap } from '@/lib/gsap';
 
 // ---------------------------------------------------------------- Zones
@@ -52,14 +53,21 @@ export function HeaderNav({
   ctaUrl,
   searchArticles,
   readerEmail,
+  reach,
 }: {
   links: NavLink[];
   ctaLabel: string;
   ctaUrl: string;
   searchArticles: SearchableArticle[];
   readerEmail: string | null;
+  reach: { value: string; label: string }[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  // The drawer's Nosotros accordion. Open by default: it is the last zone
+  // in the drawer, so nothing is pushed off-screen by it, and a reader who
+  // opened the menu looking for "quiénes son" should not have to find a
+  // second control.
+  const [aboutOpen, setAboutOpen] = useState(true);
   const drawerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
@@ -236,6 +244,34 @@ export function HeaderNav({
             ))}
           </section>
 
+          {/* Below 1180px the drawer already exists with labelled zones, so
+              Nosotros joins it as a FOURTH zone with an accordion rather
+              than as a second navigation pattern. Tap only — no hover
+              anywhere in here. */}
+          <section className="nav-drawer-zone">
+            <h2 className="nav-drawer-head">Nosotros</h2>
+            <button
+              type="button"
+              className="nav-drawer-acc"
+              aria-expanded={aboutOpen}
+              aria-controls="nav-drawer-nosotros"
+              onClick={() => setAboutOpen(v => !v)}
+            >
+              Conocer Playbook
+              <span className="navmenu-chevron" aria-hidden="true" />
+            </button>
+            <div className="nav-drawer-acc-panel" id="nav-drawer-nosotros" hidden={!aboutOpen}>
+              <p className="nav-drawer-anchor">Tú ves el partido. Nosotros vemos el negocio.</p>
+              <div className="nav-drawer-acc-links">
+                {NOSOTROS_LINKS.map(link => (
+                  <Link className="nav-drawer-acc-link" key={link.href} href={link.href} onClick={close}>
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+
           <section className="nav-drawer-zone">
             <h2 className="nav-drawer-head">Newsletter</h2>
             <a
@@ -270,6 +306,52 @@ export function HeaderNav({
           </Link>
         )}
         <SearchBox articles={searchArticles} />
+
+        {/* ZONE 4 (round 1). "Nosotros" is INSTITUTIONAL, so it belongs in
+            the utility cluster and not beside the editorial zones — the
+            same split the standing rule already draws: left is what the
+            reader consumes, right is actions and state. Aligned to the
+            trigger's right edge so a 660px panel cannot overhang the
+            viewport at the compact tier. The alternative placement (a
+            fourth editorial item) is designed and kept in reserve if
+            Alianzas ever needs colder traffic than the utility cluster
+            gives it. */}
+        <NavMenu label="Nosotros" align="end" panelClassName="is-nosotros">
+          <div className="navmenu-group">
+            <p className="navmenu-group-head">Nosotros</p>
+            <p className="nos-panel-anchor">
+              Tú ves el partido.
+              <br />
+              Nosotros vemos el negocio.
+            </p>
+            <p className="nos-panel-dek">
+              Quién reporta el negocio del deporte en México y Latinoamérica, y con qué reglas.
+            </p>
+            <Link className="nos-panel-cta" href="/nosotros">
+              Conocer Playbook
+            </Link>
+          </div>
+          <div className="navmenu-group navmenu-group-secondary">
+            <p className="navmenu-group-head">Institucional</p>
+            {NOSOTROS_LINKS.map(link => (
+              <Link className="navmenu-item navmenu-item-plain nos-panel-link" key={link.href} href={link.href}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          {reach.length > 0 && (
+            <div className="navmenu-group navmenu-group-secondary">
+              <p className="navmenu-group-head">Alcance</p>
+              {reach.map((stat, i) => (
+                <span className="nos-panel-stat" key={i}>
+                  <b>{stat.value}</b>
+                  <span>{stat.label}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </NavMenu>
+
         <ThemeToggle variant="desktop" />
         {/* Zone 3. A filled button, not a nav link — the one conversion
             entry point in the header. */}
