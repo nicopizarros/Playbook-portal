@@ -374,3 +374,106 @@ The 21 ago article's prose says "la FIFA elige presidente con 211 votos".
 The board uses 210 because Nepal is suspended, and its header documents
 that reasoning. The board is right; the article prose is loose. Not worth
 editing a published piece over, but don't copy the 211 forward.
+
+---
+
+## 7. Diseño rondas 1 y 2 — CÓDIGO ENVIADO 2026-08-27, once huecos de copy y ocho decisiones abiertas
+
+Las dos rondas de diseño para `playbook.la` están construidas. Lo que sigue
+abierto **no es código**: es copy que sólo el cliente tiene y decisiones que
+sólo el publisher puede tomar. Cada hueco se resolvió omitiendo, nunca
+inventando ni imprimiendo el corchete — una maqueta puede mostrar
+`[ORGANIZACIÓN]`, una página publicada no.
+
+### 7a. Los once huecos `[BRACKET]` (Handoff Spec.dc.html §7)
+
+Se llenan en una sola pasada. Dónde vive cada uno hoy:
+
+| # | Hueco | Dónde va | Estado en el código |
+|---|---|---|---|
+| 01 | `[AÑO]` de fundación | Hero de `/nosotros` ("Desde [AÑO]") y `foundingDate` del JSON-LD | La ficha del hero **no se renderiza** y `foundingDate` **no se declara**. Un año inventado en structured data es peor que un campo ausente. |
+| 02 | `[AÑO]` horizonte | Visión, `/nosotros#mision` | La frase se publica sin el año: "Que la conversación… se dé con datos públicos, comparables y verificables". Se lee bien y es cierta. |
+| 03 | `[ORGANIZACIÓN]` ×4 | Bios de liderazgo | Frase completa omitida en las cuatro bios (`lib/data/leadership.ts`). |
+| 04 | `[LOGRO CONCRETO CON CIFRA]` ×4 | Bios de liderazgo | Igual: iba en la misma frase que 03. Sin cifra la bio no hace su trabajo. |
+| 05 | `[TEMAS]` | Bio de Aldo Sales | Omitido; se conservó "conduce la franquicia de video de la casa", que sí es cierto. |
+| 06 | `[MEDIO O INSTITUCIÓN]` | Bios, quién ha citado su trabajo | Opcional, no se agregó. Es la línea que más pesa de las cuatro. |
+| 07 | `[Antes: cargo, organización]` ×4 | Línea de credencial de cada tarjeta | `credential: null`. La tarjeta simplemente no imprime esa línea. |
+| 08 | `[USUARIO]` ×4 | Handles de LinkedIn | No hay enlaces de LinkedIn en las tarjetas. |
+| 09 | `[RETRATO 4:5]` ×3 | Guillermo, Evelyn, María José | Las cuatro tarjetas caen al **monograma**, que es un estado DISEÑADO ("hueco sin retrato"), no una imagen rota. Aldo tampoco tiene retrato en el repo: el archivo del diseño (`uploads/portraits-…jpg`) no está en `public/` ni en Blob. |
+| 10 | `[NÚMERO] suscriptores` | Cuarta cifra de Alcance | No se incluyó, por decisión del propio diseño: sin dato real, tres cifras leen mejor que cuatro con un hueco. |
+| 11 | Nombre de Dirección editorial | Liderazgo | Ver 7c.2. |
+
+Las tres cifras de Alcance **sí** son reales: salen de `site_content`
+(`statsSection.stats`), la misma fila que alimenta la portada. Un cambio en el
+CMS se refleja en `/nosotros` y en el panel del header sin tocar código.
+
+### 7b. `/estandares` está publicada en su versión mínima honesta
+
+El diseño no la maquetó ("No diseñada en esta entrega") pero dos cosas ya
+apuntaban ahí — el enlace de `/nosotros` y `publishingPrinciples` del JSON-LD —
+así que la ruta tenía que existir o las dos 404eaban. Lo que hay es: las cuatro
+reglas aprobadas en extenso, más hechos que ya son ciertos del sitio
+(correcciones por `/contacto`, etiquetado de lo comercial, masthead en
+`/equipo`). **No inventa política.** El documento largo — política de
+correcciones, escalera de fuentes, conflictos de interés — necesita un dueño
+editorial que lo escriba y lo firme, y ese dueño es justo la vacante de 7c.2.
+
+### 7c. Decisiones que necesitan al cliente, no al desarrollador
+
+1. **El wordmark de Formula 1 en `f1.svg`.** Va como calado en el sidepod, es
+   marca registrada de Formula One Licensing BV, y llega como silueta rellena
+   mientras los otros diez son línea. **El chip de F1 se envía sin icono**,
+   aplicando la regla del propio cliente. El componente ya está dibujado y
+   medido en `components/icons/tema/`: reactivarlo es una línea en
+   `TEMA_ICON_BY_TOPIC` cuando el ilustrador lo redibuje.
+2. **Falta un nombre para Dirección editorial.** Guillermo Mejía carga hoy
+   dirección editorial e inteligencia de negocio. Si eso es permanente,
+   `/estandares` ya tiene firmante; si no, es una vacante.
+3. **`audiencias.svg` se empasta abajo de 24px.** Rayos, corazón, tres figuras
+   y manos finas. A 15px se nota, y se confirmó en captura. Es el único glifo
+   que conviene simplificar al mismo conteo de trazos que los otros.
+4. **Dónde viven los chips de "Explora por tema".** Se recomendaron en
+   `/archivo` porque el filtro por fuente se mudaba allá; con 3b elegida la
+   portada conserva su filtro, así que hay que decidirlo por intención de
+   búsqueda. Hoy siguen en la portada. El estado "seleccionado" del chip está
+   escrito en `styles/sections.css` y **inerte** hasta que se decida.
+5. **TFBR no tiene `source`.** Por eso no tiene chip en la tira de la portada
+   ni banda de salida. Decidir si editorial acuña `futbol-business-review` o si
+   el hub sigue siendo una portada que manda a Substack.
+6. **Siguen abiertas dos puertas a La Lana.** Con 3b la banda de salida hace la
+   duplicación explícita en vez de resolverla. 3a (las pestañas convertidas en
+   navegación) está diseñada y lista si se quiere cerrar.
+7. **Cuántos expedientes caben en el cajón.** Nueve hoy, quince funcionan;
+   arriba de veinte la pila deja de ser legible. Hay que decidir si se pagina
+   por año o si el cajón muestra los últimos N y manda el resto al archivo.
+   **No está diseñado.**
+8. **El bloque "Acerca de Playbook" de la portada se queda** (decisión del
+   publisher, 2026-08-27) pero **hay que reescribirlo** para que deje de
+   repetir el descriptor del footer doscientos píxeles abajo. Ese copy vive en
+   el CMS (`site_content.aboutSection.body`), no en el código: es una edición,
+   no un deploy.
+
+### 7d. Tres cosas que el código dejó anotadas y valen una decisión
+
+1. **El 301 de La Lana rompe el filtro "Sección" del archivo para ese
+   producto.** `/archivo?source=la-lana` ahora 301ea al hub (en
+   `middleware.ts`), que es exactamente lo que pedía la consolidación — pero el
+   archivo tiene una consola de filtros de cuatro tiers, y elegir "La Lana del
+   Deporte" en ella ahora saca al lector de la página. Los cruces
+   (`?source=la-lana&sport=NFL`) se respetan a propósito. Si eso molesta, la
+   salida es quitar `la-lana` de las opciones de ese tier, no revertir el 301.
+2. **La escalera de archivados es invisible.** La geometría de la ronda 2 pone
+   los expedientes ya leídos en `Y = 60 + |d|·10` con tope de 200px, anclados a
+   `top:40%` — o sea entre y≈420 y y≈560 en una pantalla de 900px. La carpeta
+   abierta ocupa de 347 a 621 y está en Z +130, así que los tapa por completo.
+   Medido, no estimado. El tratamiento de "lomo" (`is-spine`, paso de 10px,
+   número a 9px) está implementado y correcto, pero hoy no se ve nada: la
+   lámina del cajón empieza en y≈773 y el tope de 200px nunca llega ahí. Para
+   que los lomos asomen sobre el filo hace falta mover el mueble hacia arriba o
+   ampliar el rango de Y — las dos son decisiones de diseño, no de código.
+3. **`.btn` es la cuarta ficha rellena en `--ink-fixed`.** La regla de la ronda
+   2 se aplicó a las tres fichas que nombra el diseño (`.filter-btn.active`, el
+   CTA de la banda de salida, el chip de tema seleccionado). El botón primario
+   tiene el mismo problema sobre `--paper` oscuro y **no** se tocó: es el
+   control más usado del sitio y ampliarle la regla sin que nadie lo pida es
+   más riesgo que beneficio. Vale la decisión.
