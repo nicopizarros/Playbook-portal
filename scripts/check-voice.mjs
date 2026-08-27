@@ -53,8 +53,16 @@ const TARGETS = {
 // dragged the median, and the ` — ` that is the devices' own key/value
 // syntax was reported as an em dash in prose. Both are false alarms that
 // cost a rewrite of text that was already correct.
+//
+// It happened again, identically, on 2026-08-27 with the round-7 five
+// (Control, Alcance, Condiciones, Precedentes, Contraste): three drafts
+// that had passed clean came back flagged for a prose em dash the moment
+// their Jugada was rerouted to a new device. Same false alarm, same cause,
+// eleven days apart — so treat updating this list as PART of adding a
+// device, not as follow-up work. The failure is quiet in the wrong
+// direction: it pushes an editor to "fix" correct syntax.
 const STRUCTURAL =
-  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Venta:|Cadena:|Contrato:|Calendario:|Votación:|Ranking:|Cascada:|Perfil:|Escenarios:|Tablero:|Pirámide:|Fuentes:|Ruta del dinero:|## )/;
+  /^(!\[|Foto: Playbook$|Cifra clave:|Jugada:|Cronología:|Recibo:|Ecuación:|Salto:|Reparto:|Alineación:|Cotización:|Resultados:|Duelo:|Serie:|Mapa:|Venta:|Cadena:|Contrato:|Calendario:|Votación:|Ranking:|Cascada:|Perfil:|Escenarios:|Tablero:|Pirámide:|Control:|Alcance:|Condiciones:|Precedentes:|Contraste:|Fuentes:|Ruta del dinero:|## )/;
 
 // The negative-parallelism family, counted against one budget.
 //
