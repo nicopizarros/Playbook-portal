@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Article } from '@/lib/data/articles';
 import type { Hub, HubFigure } from '@/lib/hubs';
-import { PRODUCT_HUBS } from '@/lib/product-hubs';
+import { PRODUCT_HUBS, hubForSource } from '@/lib/product-hubs';
 import { MexicoMap } from './MexicoMap';
 import { NewsletterForm } from '@/components/shared/NewsletterForm';
 
@@ -466,8 +466,18 @@ export function HubCross({ hub }: { hub: Hub }) {
       <h2 className="hubx-head" id="hubx-cross">Dónde seguirlo</h2>
       <p className="hubx-sub">Los productos editoriales donde aparece esta cobertura.</p>
       <div className="hubx-cross">
+        {/* Todo punto de entrada a un producto resuelve al hub del producto
+            (consolidación de La Lana, ronda 2 §3c). Antes esto mandaba
+            siempre a la lista filtrada del archivo; con `la-lana` entre los
+            relatedSources de LFA eso ahora sería un salto extra por el 301
+            de next.config.ts. Un producto sin hub — TFBR, que todavía no
+            tiene `source` propio — conserva la lista filtrada. */}
         {hub.relatedSources.map(source => (
-          <Link className="section-link" key={source} href={`/archivo?source=${source}`}>
+          <Link
+            className="section-link"
+            key={source}
+            href={hubForSource(source)?.path ?? `/archivo?source=${source}`}
+          >
             {sourceLabel(source)} →
           </Link>
         ))}

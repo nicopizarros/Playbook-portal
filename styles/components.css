@@ -54,6 +54,18 @@
 /* Ficha fija (--ink-fixed): el estado activo siempre es negro con texto
    blanco, mismo criterio que .btn primario. */
 .filter-btn.active{background:var(--ink-fixed);border-color:var(--ink-fixed);color:#fff;}
+/* …pero sobre el --paper oscuro (#121316) ese relleno mide 1.07:1 y el
+   chip se queda sin forma: el texto blanco flota y el estado activo acaba
+   leyéndose MENOS presente que los inactivos, que sí traen su filo de
+   1.5px. La contraparte es la que el sistema ya usa para este mismo caso
+   (.analysis-card.featured en sections.css): un filo interior de 1px en
+   --rule. Se conserva el relleno — es identidad de marca. NO cambiar el
+   color. Regla general: cualquier ficha rellena en --ink-fixed sobre una
+   superficie oscura necesita este filo. */
+[data-theme="dark"] .filter-btn.active{box-shadow:inset 0 0 0 1px var(--rule);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .filter-btn.active{box-shadow:inset 0 0 0 1px var(--rule);}
+}
 @keyframes filterPop{0%{transform:scale(.95);}100%{transform:scale(1);}}
 .filter-btn.active{animation:filterPop var(--duration-base) var(--ease-out);}
 

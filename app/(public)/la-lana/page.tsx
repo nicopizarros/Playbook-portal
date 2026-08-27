@@ -170,8 +170,13 @@ export default async function LaLanaHubPage() {
         />
 
         <div className="hub-foot">
-          <Link className="section-link hub-foot-link" href="/archivo?source=la-lana">
-            Ver La Lana del Deporte en el archivo general →
+          {/* Apuntaba a /archivo?source=la-lana. Con la consolidación de la
+              ronda 2 esa lista 301ea de vuelta acá (next.config.ts), o sea
+              que el enlace mandaba al lector al hub que ya estaba leyendo.
+              El destino honesto es el archivo general: lo que ofrece este
+              enlace es SALIR del producto, no volver a filtrarlo. */}
+          <Link className="section-link hub-foot-link" href="/archivo">
+            Ver el archivo general de Playbook →
           </Link>
         </div>
       </div>

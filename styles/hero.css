@@ -2,6 +2,45 @@
 .news-section{padding-top:28px;}
 .source-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
 
+/* ——— La banda de salida al hub (consolidación de La Lana, lectura 3b) ———
+   components/home/NewsGrid.tsx la renderiza SÓLO mientras hay una fuente
+   activa. Superficie temática, no fija: --paper-soft, --rule y el token
+   del producto siguen el toggle de tema. El filo izquierdo de 3px es el
+   mismo recurso que .product ya usa en sections.css — el color entra por
+   --source-exit-accent, que el componente resuelve al token del producto
+   activo, para que esta hoja no conozca ningún producto por nombre.
+   Pegada a los chips que la provocaron (16px) y separada del paquete
+   (20px): la banda pertenece al control, no al contenido. */
+.source-filter:has(+ .source-exit){margin-bottom:16px;}
+.source-exit{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin:0 0 20px;padding:14px 16px;
+  background:var(--paper-soft);border:1px solid var(--rule);
+  border-left:3px solid var(--source-exit-accent,var(--ink));
+}
+.source-exit-copy{display:grid;gap:2px;margin:0;}
+.source-exit-title{font-size:13.5px;font-weight:700;line-height:1.3;color:var(--ink);}
+.source-exit-note{font-size:12px;line-height:1.4;color:var(--gray-txt);}
+/* Ficha fija en --ink-fixed, igual que .btn y .filter-btn.active. Sobre
+   el --paper-soft oscuro (#1a1c20) eso mide 1.16:1 y la píldora pierde
+   su forma, así que en oscuro lleva el filo interior de --rule — la misma
+   contraparte que ya usa .analysis-card.featured en sections.css. Se
+   conserva el relleno: es identidad de marca. NO cambiar el color. */
+.source-exit-cta{
+  /* gap, no espacio en el markup: en un contenedor flex el nodo de texto
+     entre la etiqueta y la flecha se descarta y quedaba "La Lana→". */
+  margin-left:auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:40px;padding:0 18px;border-radius:999px;
+  background:var(--ink-fixed);border:1px solid var(--ink-fixed);color:#fff;
+  font-size:12.5px;font-weight:600;white-space:nowrap;
+  transition:opacity var(--duration-fast) ease;
+}
+.source-exit-cta:hover{opacity:.86;}
+[data-theme="dark"] .source-exit-cta{box-shadow:inset 0 0 0 1px var(--rule);}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .source-exit-cta{box-shadow:inset 0 0 0 1px var(--rule);}
+}
+
 /* Paquete compacto de noticias (Fase 7 UX, segunda pasada): hero + lista
    de 5 + rail de 300px en UNA banda de tres columnas. El conteo 1+5 es
    un compromiso negociado con el lado comercial (bloque de texto corto

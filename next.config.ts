@@ -17,6 +17,15 @@ const legacyHtmlRedirects = [
   { source: '/industry-shots', destination: '/noticias' },
 ];
 
+// -------------------------------------------------- Consolidación de La Lana
+// El 301 de /archivo?source=la-lana al hub NO vive acá, vive en
+// middleware.ts. No es preferencia: los redirects de next.config reenvían
+// SIEMPRE el query string al destino, así que /archivo?source=la-lana
+// aterrizaba en /la-lana?source=la-lana — verificado en dev contra las dos
+// formas de `destination` ('/la-lana' y '/la-lana?'), idéntico resultado.
+// El middleware es el único punto del pipeline donde la URL de destino es
+// nuestra. Ver la nota completa allá.
+
 // Real external origins this site actually loads, verified against source
 // (not guessed) before writing the CSP below:
 //  - img-src is deliberately `https: data: blob:`, not a fixed allowlist —
