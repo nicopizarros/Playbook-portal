@@ -42,6 +42,26 @@
   --pb-gray:#6b6459;
   --pb-green:#9aea39;
   --lana-gold:#94690a;
+  /* ——— La lámina del archivero (ronda 2) ———
+     Único agregado de las dos rondas. Van como gradientes COMPLETOS y no
+     como colores sueltos a propósito: son once grises repartidos en cuatro
+     superficies, y nombrar cada paso por separado deja al que implementa
+     reconstruyendo las paradas a mano.
+     Grises CÁLIDOS, derivados de --pb-rule y --pb-gray, no un acero azul:
+     el mueble tiene que pertenecerle al papel del hub. Sin contraparte
+     oscura, igual que el resto de este bloque. */
+  /* rieles laterales del mueble, 30px de ancho. El riel derecho usa el
+     mismo token con la dirección invertida (270deg). */
+  --lana-steel-rail:linear-gradient(90deg,#a8a49c 0%,#d3cfc6 58%,#c0bcb3 100%);
+  /* filo superior del cajón, 15px de alto */
+  --lana-steel-lip:linear-gradient(180deg,#dedad1 0%,#c6c2b9 55%,#a5a199 100%);
+  /* frente del cajón, 112px de alto */
+  --lana-steel-face:linear-gradient(180deg,#e2ded6 0%,#d3cfc6 15%,
+                                          #c7c3ba 52%,#dbd7ce 84%,#b2aea6 100%);
+  /* brillo del tirador, encima del borde de 2px en --pb-ink */
+  --lana-steel-sheen:linear-gradient(180deg,rgba(255,255,255,.55),rgba(10,10,10,.10));
+  /* portaetiqueta embutido — color plano, no gradiente */
+  --lana-steel-recess:#9b978f;
   --shots-bg:#101310;
   --shots-bg-soft:#171b16;
   --shots-white:#eef2ea;
@@ -247,7 +267,13 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
   font-family:var(--serif-display);font-weight:400;font-size:21px;text-transform:uppercase;
   letter-spacing:.03em;margin:0 0 20px;padding-bottom:12px;border-bottom:2px solid var(--pb-ink);
 }
-.lana-archive-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 22px;}
+/* Una <ol> real con los N <a href> en orden de lectura: la animación del
+   archivero es capa de presentación sobre ESTA lista, no una copia de
+   ella. Corra o no, los expedientes existen para el crawler y el lector de
+   pantalla. El <li> es la celda de la grilla; el enlace la llena. */
+.lana-archive-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 22px;list-style:none;margin:0;padding:0;}
+.lana-cab-folder{display:block;min-width:0;}
+.lana-cab-folder>.lana-folder-card{display:block;height:100%;}
 .lana-folder-card{transition:transform var(--duration-base) var(--ease-out);}
 .lana-folder-card:hover{transform:translateY(-4px);}
 .lana-folder-card:hover .lana-folder-tab{background:var(--pb-green);}
@@ -266,57 +292,165 @@ a.lana-board-row:hover .lana-board-conexion{color:#fff;}
 }
 .lana-folder-card:hover .lana-folder-open{opacity:1;transform:none;}
 
-/* ——— El Archivero en movimiento (2026-08-14) ———
-   Scroll-driven cabinet, components/products/LanaArchiveCabinet.tsx. The
-   BASE state of this markup is the plain folder grid above — everything
-   cabinet-shaped is gated behind .is-cabinet, which only JS adds (desktop,
-   motion allowed), so no-JS and reduced-motion readers get the grid with
-   zero layout shift. Fixed light palette like the rest of the hub: a
-   drawer is furniture, it does not invert with the theme. */
+/* ——— El Archivero (reescrito en la ronda 2, 2026-08-27) ———
+   components/products/LanaArchiveCabinet.tsx. El estado BASE de este
+   markup es la grilla plana de arriba; todo lo que tiene forma de cajón
+   está detrás de .is-cabinet, que sólo agrega el JS (>=900px y con
+   movimiento permitido). Sin JS y con prefers-reduced-motion el lector
+   recibe la grilla completa y cero layout shift.
+
+   Paleta fija como el resto del hub: un mueble es mueble, no se invierte
+   con el toggle. NO hay contraparte oscura acá. */
 .lana-cabinet .lana-cab-excerpt{display:block;font-size:13.5px;line-height:1.55;color:var(--pb-gray);}
 .lana-cabinet .lana-cab-reading{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--pb-gray);}
 .lana-cabinet .lana-cab-folder .lana-pull-figure{font-size:clamp(30px,3.4vw,44px);margin:0;}
-/* Grid mode keeps the compact card: the cabinet-only extras stay hidden. */
+/* En modo grilla la ficha se queda compacta: los extras del cajón no salen. */
 .lana-cabinet:not(.is-cabinet) .lana-cab-extra{display:none;}
 .lana-cabinet:not(.is-cabinet) .lana-cabinet-drawer,
+.lana-cabinet:not(.is-cabinet) .lana-cabinet-index-rail,
 .lana-cabinet:not(.is-cabinet) .lana-cabinet-progress{display:none;}
 
-/* Cabinet mode: tall runway, sticky 100vh stage, folders stacked above a
-   CSS-drawn drawer they get pulled out of (GSAP scrubs transform/opacity
-   only, so the whole thing stays on the compositor). */
-.lana-cabinet.is-cabinet .lana-cabinet-stage{position:sticky;top:0;height:100vh;overflow:hidden;}
-/* top clears the sticky header + ticker (~110px) so the active folder's
-   tab never hides under them. */
-.lana-cabinet.is-cabinet .lana-cabinet-folders{display:block;position:absolute;left:50%;top:clamp(120px,15vh,180px);transform:translateX(-50%);width:min(640px,92%);}
-.lana-cabinet.is-cabinet .lana-cab-folder{position:absolute;left:0;right:0;top:0;will-change:transform,opacity;}
+/* ——— El escenario, y por qué no vuelve el hueco en blanco ———
+   El runway da TODA la distancia de scroll (N x 60 + 100 vh, puesto
+   inline por el componente) y el escenario mide exactamente una pantalla.
+   Las carpetas son position:absolute: ninguna reserva altura propia. El
+   hueco de la primera versión era justamente eso — altura reservada por
+   items que ya estaban fuera del flujo. Márgenes 0 en las dos costuras. */
+.lana-cabinet.is-cabinet .lana-cabinet-runway{position:relative;margin:0;}
+.lana-cabinet.is-cabinet .lana-cabinet-stage{
+  position:sticky;top:0;height:100vh;margin:0;overflow:hidden;
+  perspective:1200px;perspective-origin:50% 52%;
+}
+/* preserve-3d va ACÁ y no en el escenario: un elemento con overflow
+   distinto de visible fuerza transform-style:flat, así que el escenario
+   —que necesita el overflow:hidden— no puede sostener el contexto 3D. La
+   <ol> no recorta nada, no lleva transform propia, y con preserve-3d sus
+   carpetas quedan en el mismo espacio 3D que la lámina del cajón. De eso
+   depende que lo archivado (Z -20) entre por DETRÁS del metal. */
+.lana-cabinet.is-cabinet .lana-cabinet-folders{
+  display:block;position:absolute;inset:0;margin:0;padding:0;
+  transform-style:preserve-3d;
+}
+/* Anclada por el borde SUPERIOR. Centrada, el cuerpo de 200px crece hacia
+   arriba y se come la tira de pestañas. */
+.lana-cabinet.is-cabinet .lana-cab-folder{
+  position:absolute;top:40%;left:50%;width:min(640px,92%);
+  transform-origin:50% 0;will-change:transform;
+}
+.lana-cabinet.is-cabinet .lana-cab-folder .lana-folder-card{transition:none;}
+.lana-cabinet.is-cabinet .lana-cab-folder .lana-folder-card:hover{transform:none;}
+.lana-cabinet.is-cabinet .lana-cab-folder .lana-folder-card:hover .lana-folder-tab{background:var(--pb-paper-soft);}
+.lana-cabinet.is-cabinet .lana-cab-folder.is-open .lana-folder-card:hover .lana-folder-tab{background:var(--pb-green);}
+
+/* Corte de pestaña: dos posiciones que no comparten columna. Con tres al
+   26% se traslapaban 38% del ancho y la vecina tapaba el centro. */
+.lana-cabinet.is-cabinet .lana-folder-tab{
+  display:flex;justify-content:space-between;align-items:baseline;
+  width:46%;margin-left:0;
+}
+.lana-cabinet.is-cabinet .lana-cab-folder:nth-child(even) .lana-folder-tab{margin-left:50%;}
+/* Lomo de archivada: con d < -0.5 la pestaña se adelgaza al alto del
+   escalón y esconde fecha y cuerpo. Catorce pestañas completas a 10px de
+   paso se sepultan entre ellas. */
+.lana-cabinet.is-cabinet .lana-cab-folder.is-spine .lana-folder-tab{padding:1px 14px 0;}
+.lana-cabinet.is-cabinet .lana-cab-folder.is-spine .lana-case-number{font-size:9px;letter-spacing:.12em;}
+.lana-cabinet.is-cabinet .lana-cab-folder.is-spine .lana-case-date{display:none;}
+
+/* El alto del cuerpo abierto tiene que ser DETERMINISTA: --folder-ease lo
+   escribe el componente en cada frame, y el padding escala con él para que
+   a ease 0 el cuerpo desaparezca de verdad (con box-sizing:border-box un
+   padding fijo dejaría 50px de caja aunque el height diga 0). */
 .lana-cabinet.is-cabinet .lana-cab-folder .lana-folder-body{
-  min-height:0;gap:14px;padding:26px 28px 24px;border-radius:0 10px 10px 10px;
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;
+  height:calc(var(--folder-ease,0) * 200px);
+  padding:calc(var(--folder-ease,0) * 26px) 28px calc(var(--folder-ease,0) * 24px);
+  gap:calc(var(--folder-ease,0) * 14px);
+  border-radius:0 10px 10px 10px;
   box-shadow:0 24px 50px rgba(10,10,10,.18);
 }
 .lana-cabinet.is-cabinet .lana-cab-folder h3{font-size:clamp(20px,2.2vw,26px);flex:none;}
-/* Tabs staggered across the folder top like real files in a drawer. */
-.lana-cabinet.is-cabinet .lana-cab-folder:nth-child(3n+2) .lana-folder-tab{margin-left:26%;}
-.lana-cabinet.is-cabinet .lana-cab-folder:nth-child(3n) .lana-folder-tab{margin-left:52%;}
-.lana-cabinet.is-cabinet .lana-cab-folder:hover{transform:none;}
+/* Sin el clamp, un dek más largo se pasa 16px y esconde justo la cifra y
+   el enlace de abrir. */
+.lana-cabinet.is-cabinet .lana-cab-excerpt{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.lana-cabinet.is-cabinet .lana-cab-folder .lana-folder-open{opacity:1;transform:none;}
 
+/* Placa de progreso: reusa los valores que ya tenía. */
+/* top despeja el header sticky + el ticker (~105px medidos): con el 76px
+   que traía, la placa se dibujaba ENCIMA del ticker — el escenario es
+   sticky con z-index auto, así que no crea contexto de apilamiento y el
+   960 de la placa compite en la raíz contra el 50 del header y gana. Misma
+   expresión que ya usaba el contenedor de carpetas para este mismo motivo. */
 .lana-cabinet-progress{
-  position:absolute;top:76px;right:0;margin:0;z-index:6;
+  position:absolute;top:clamp(120px,15vh,180px);right:0;margin:0;z-index:960;
   font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--pb-gray);
   border:1px solid var(--pb-rule);background:var(--pb-paper-soft);padding:6px 12px;
 }
-.lana-cabinet.is-cabinet .lana-cabinet-drawer{position:absolute;left:50%;transform:translateX(-50%);bottom:5vh;width:min(760px,96%);z-index:5;}
+
+/* Rail de posición. Operable, no sólo indicador: es el mismo "salta el
+   índice" de una pestaña, concentrado, para quien viene a rasgar y no a
+   leer. La marca es un ::before para que el botón pueda tener un blanco de
+   toque mucho mayor que los 13x1px que se ven. */
+.lana-cabinet.is-cabinet .lana-cabinet-index-rail{
+  position:absolute;left:24px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:2px;z-index:960;
+}
+.lana-cabinet-mark{
+  position:relative;display:block;width:34px;height:20px;
+  background:none;border:0;padding:0;cursor:pointer;
+}
+.lana-cabinet-mark::before{
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:13px;height:1px;background:var(--pb-rule);
+  transition:width var(--duration-fast) ease,height var(--duration-fast) ease,background var(--duration-fast) ease;
+}
+.lana-cabinet-mark:hover::before{background:var(--pb-gray);}
+.lana-cabinet-mark[aria-current]::before{width:24px;height:2px;background:var(--pb-ink);}
+
+/* ——— El mueble ———
+   Sin transform en ninguna parte de este bloque salvo el espejo del riel
+   derecho: la lámina tiene que quedarse en Z 0 para que lo archivado en
+   Z -20 se archive por detrás de ella. Centrado con margin-inline y no con
+   translateX justamente para no meter una transform de más en el
+   contexto 3D. */
+.lana-cabinet.is-cabinet .lana-cabinet-drawer{
+  position:absolute;left:0;right:0;bottom:0;margin-inline:auto;
+  width:min(760px,96%);padding:0 30px;z-index:950;
+}
+.lana-cabinet-steel-rail{position:absolute;top:0;bottom:0;width:30px;background:var(--lana-steel-rail);}
+.lana-cabinet-steel-rail-l{left:0;border-right:1px solid rgba(10,10,10,.14);border-radius:6px 0 0 0;}
+/* Mismo token, dirección invertida (los 270deg del spec) — espejo en vez
+   de un segundo gradiente, para que los once grises vivan en un solo lado. */
+.lana-cabinet-steel-rail-r{right:0;transform:scaleX(-1);border-right:1px solid rgba(10,10,10,.14);border-radius:6px 0 0 0;}
+.lana-cabinet-lip{
+  display:block;height:15px;background:var(--lana-steel-lip);
+  border-bottom:1px solid rgba(10,10,10,.26);border-radius:6px 6px 0 0;
+}
 .lana-cabinet.is-cabinet .lana-cabinet-drawer-face{
   position:relative;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
-  background:linear-gradient(180deg,#f4efe4,#e7e0d0);border:1px solid var(--pb-rule);border-radius:6px;
+  background:var(--lana-steel-face);border:1px solid var(--pb-rule);border-radius:6px;
   box-shadow:0 -16px 34px rgba(10,10,10,.10),inset 0 1px 0 rgba(255,255,255,.8);
 }
-/* The dark slot the folders come out of. */
+/* La ranura oscura por la que entran y salen los expedientes. */
 .lana-cabinet.is-cabinet .lana-cabinet-drawer-face::before{
   content:"";position:absolute;top:-12px;left:10px;right:10px;height:12px;
   border-radius:4px 4px 0 0;background:linear-gradient(180deg,rgba(10,10,10,.42),rgba(10,10,10,.16));
 }
-.lana-cabinet-plate{border:1px solid var(--pb-rule);background:#fff;padding:5px 16px;font-size:10.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--pb-ink);}
-.lana-cabinet-handle{display:block;width:130px;height:14px;border:2px solid var(--pb-ink);border-radius:8px;opacity:.7;}
+/* Portaetiqueta embutido: color plano, con el filo interior que le da la
+   profundidad del rebaje. */
+.lana-cabinet-recess{
+  display:inline-block;padding:3px;border-radius:3px;background:var(--lana-steel-recess);
+  box-shadow:inset 0 1px 2px rgba(10,10,10,.45),0 1px 0 rgba(255,255,255,.5);
+}
+.lana-cabinet-plate{
+  display:block;border:1px solid var(--pb-rule);background:#fff;padding:5px 16px;
+  font-size:10.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--pb-ink);
+}
+.lana-cabinet-handle{
+  display:block;width:130px;height:14px;border:2px solid var(--pb-ink);border-radius:8px;opacity:.7;
+  background:var(--lana-steel-sheen);
+}
 
 .hub-lana .hub-foot-link{font-size:12.5px;}
 
