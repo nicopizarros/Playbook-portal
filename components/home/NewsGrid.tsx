@@ -176,7 +176,22 @@ export function NewsGrid({ articles, sidebar }: { articles: Article[]; sidebar?:
   const news = articles.filter(a => a.source !== 'opinion' || a.featured);
   const pool = activeSource === 'all' ? news : news.filter(a => a.source === activeSource);
   const filtered = rankArticles(pool);
-  const hero = selectHero(filtered);
+  // selectHero EXCLUDES editorial products outright — "el hero es un slot de
+  // noticias, y La Lana nunca pelea un lugar contra una nota de última hora".
+  // That rule is right for the mixed pool, and wrong the moment the reader
+  // filters down to La Lana: there is no nota de última hora left to lose to,
+  // so the rule's premise is gone and selectHero returns null. The package
+  // then rendered 0+5 instead of 1+5 — the lead story simply vanished, and
+  // only for that one chip (Noticias and Infinitas run on the news track).
+  //
+  // The fallback is the top of `filtered`, which rankArticles has ALREADY
+  // ordered by the editorial clock (20 pts/day, not 50), so "the highest
+  // ranked expediente leads" needs no second ranking pass. For 'all' and for
+  // any news-track filter selectHero still wins, so nothing about the default
+  // homepage changes. Fixed at the caller and not in selectHero on purpose:
+  // the other four call sites all hand it a mixed pool, where the exclusion is
+  // exactly what they want.
+  const hero = selectHero(filtered) ?? filtered[0] ?? null;
   const list = filtered.filter(a => a !== hero).slice(0, LIST_COUNT);
   const overflow = Math.max(0, filtered.length - LEAD_COUNT - LIST_COUNT);
 
