@@ -177,6 +177,19 @@ renders as a small attribution chip — `Cifra clave: US$250M — lo que pide LI
 (Bloomberg)` — which is the designed home for that attribution (≤32 chars,
 optional).
 
+**When the prose does the arithmetic out loud, the beat goes FIRST.** (Publisher,
+2026-08-27, on the UEFA/Infantino filing.) `voice-and-style.md` §7 asks a long
+piece to walk its math in front of the reader, and this device's
+never-restate-the-figure rule pulls the other way: a paragraph explaining how
+US$4,200 millones for about a fifth of a company implies a US$20,000 millones
+valuation has to say the first number to do the walk at all. Declaring the
+`Cifra clave` **before** that paragraph resolves it — the beat states the number,
+and the prose points back at it ("ese pago compraba alrededor del 21%…") instead
+of repeating it. The placement rule (immediately after the paragraph whose
+numbers it visualizes) still holds everywhere else; this is the one shape where
+the device leads and the paragraph follows, because the arithmetic is what the
+beat is being used to set up.
+
 **The homepage reads this beat.** "La cifra del día" (sidebar) picks the top
 ranked story with a figure and PREFERS its declared Cifra clave over anything
 scraped from title/excerpt. Declaring the beat is how you control what number
