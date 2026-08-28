@@ -21,6 +21,21 @@ It scores the candidate against everything published and prints `MISMA
 HISTORIA` (treat as a duplicate until proven otherwise) or `revisar` (open it
 before drafting). No hits means clear.
 
+**Query the story's CLAIM, not its colour.** (2026-08-28, the ESPN NFL-sedes
+run.) The script scores on shared entities, so a query built from a story's
+most vivid specifics buries the article it should have found. That run asked
+"ejecutivos de la NFL evalúan Londres, Ciudad de México, Toronto y Berlín" —
+four city names, all of them shared with unrelated pieces — and the top hit
+came back at 23% on a Fanatics story, while the actual precursor, Playbook's
+own piece on Goodell guaranteeing teams outside the US eleven days earlier,
+never appeared. It surfaced only because a separate `priority`-precedent query
+listed NFL rows by title. So run the check on the protagonist plus the core
+claim ("Goodell / franquicia de la NFL fuera de Estados Unidos"), and on a
+story that reads like a follow-up, **also query the DB by the protagonist
+entity alone** before concluding nothing exists. A missed precursor does not
+just cost a backlink: it lets a piece re-argue a read the site already
+published, which is outcome A wearing outcome C's clothes.
+
 The check doubles as the **follow-up detector**. When it surfaces an earlier
 piece on the same running story, the new piece becomes a follow-up rather than
 a fresh explainer that re-establishes everything from scratch — which changes
