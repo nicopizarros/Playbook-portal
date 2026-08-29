@@ -100,8 +100,13 @@ export function caseStatus(article: Article, now: Date = new Date()): 'abierto' 
 // wins. Returns null when the copy simply has no figure — the hero then
 // falls back to the case number, which is always available.
 const FIGURE_PATTERNS: RegExp[] = [
-  // Currency amounts: €3M, US$1,200 millones, $500 mdd, MX$80 mdp…
-  /(?:€|US\$|USD\s?|MX\$|\$)\s?[\d][\d.,]*\s?(?:mil\s+millones|millones|billones|mdd|mdp|[MBK])?(?:\s?\/\s?a[nñ]o)?/i,
+  // Currency amounts: €3M, US$1,200 millones, $500 mdd, MX$80 mdp, R$22 millones…
+  // R$ (real brasileño) added 2026-08-29: without it as its own prefix, the
+  // bare `\$` alternative matched starting at the "$", silently truncating
+  // "R$22 millones" to "$22 millones" on the homepage's "cifra del día" —
+  // a real Brazilian figure read as an unlabelled (and much larger-looking)
+  // one on a Mexico-framed headline.
+  /(?:€|US\$|USD\s?|MX\$|R\$|\$)\s?[\d][\d.,]*\s?(?:mil\s+millones|millones|billones|mdd|mdp|[MBK])?(?:\s?\/\s?a[nñ]o)?/i,
   // Percentages: 22%, 3.5 %
   /\d[\d.,]*\s?%/,
   // Big counts with a scale word: 91,553 asistentes / 2 millones…
