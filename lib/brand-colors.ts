@@ -266,6 +266,13 @@ const BRAND_TABLE: (BrandPalette & { keys: string[] })[] = [
   // pongas realmente los colores correspondientes." América's characteristic
   // amarillo/crema now leads as `primary` (the navy was leading before).
   // Santos Laguna is renamed to Santos, its own preferred short name.
+  //
+  // Puebla corrected 2026-08-29: the publisher flagged the shirt as "azul
+  // clarito" against this registry's #0057A0, a mid-tone blue. Verified via
+  // clubpuebla.com's own current-kit spec (mirrored in Wikipedia's club
+  // infobox): the 2025-26 sock colour is #00C4F3, a bright sky blue, and the
+  // third kit runs an even lighter #94D4E9 — the shirt itself is white with a
+  // blue diagonal stripe (La Franja), so the sock hex is the club's real blue.
   { keys: ['america', 'clubamerica'], name: 'América', primary: '#FFD200', secondary: '#0A1E4D' },
   { keys: ['atlante'], name: 'Atlante', primary: '#0A3B7A', secondary: '#8C1D40' },
   { keys: ['atlas'], name: 'Atlas', primary: '#A6192E', secondary: '#000000' },
@@ -277,7 +284,7 @@ const BRAND_TABLE: (BrandPalette & { keys: string[] })[] = [
   { keys: ['monterrey', 'rayados'], name: 'Monterrey', primary: '#0A2472', secondary: '#FFFFFF' },
   { keys: ['necaxa'], name: 'Necaxa', primary: '#D4213D', secondary: '#FFFFFF' },
   { keys: ['pachuca'], name: 'Pachuca', primary: '#003876', secondary: '#FFFFFF' },
-  { keys: ['puebla', 'clubpuebla'], name: 'Puebla', primary: '#0057A0', secondary: '#FFFFFF' },
+  { keys: ['puebla', 'clubpuebla'], name: 'Puebla', primary: '#00C4F3', secondary: '#FFFFFF' },
   { keys: ['pumas', 'pumasunam', 'unam'], name: 'Pumas', primary: '#00205B', secondary: '#FFB81C' },
   { keys: ['queretaro', 'gallosblancos'], name: 'Querétaro', primary: '#122B4F', secondary: '#000000' },
   { keys: ['santos', 'santoslaguna'], name: 'Santos', primary: '#4EBE6B', secondary: '#FFFFFF' },
