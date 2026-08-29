@@ -251,18 +251,36 @@ const BRAND_TABLE: (BrandPalette & { keys: string[] })[] = [
   { keys: ['mets', 'newyorkmets'], name: 'Mets', primary: '#002D72', secondary: '#FF5910' },
 
   // Liga MX
+  //
+  // Corrected and completed 2026-08-29 (publisher review of the streaming-guide
+  // Liga MX grid): six of the eleven original rows collapsed into just three
+  // literal hex values (Tigres === Pumas' navy, Cruz Azul === Monterrey's blue,
+  // and Chivas === Toluca === Necaxa === Atlas' red), which reads as one crest
+  // repeated in six colours instead of six identities. Tigres was also backwards
+  // — its own #FFB81C gold sat in `secondary` while the shared navy led, when gold
+  // is the club's dominant, recognisable colour. Every row below is now a
+  // distinct hex, and the six clubs this registry never covered (Atlante,
+  // Atlético San Luis, FC Juárez, Puebla, Querétaro, Tijuana) are added rather
+  // than left to the neutral-accent fallback, since all eighteen Apertura 2026
+  // clubs needed to read apart on one grid.
   { keys: ['america', 'clubamerica'], name: 'América', primary: '#12284C', secondary: '#FFE800' },
+  { keys: ['atlante'], name: 'Atlante', primary: '#0B3D7A', secondary: '#7B1E3A' },
+  { keys: ['atlas'], name: 'Atlas', primary: '#A6192E', secondary: '#000000' },
+  { keys: ['atleticosanluis', 'sanluis'], name: 'Atlético San Luis', primary: '#1B2A4A', secondary: '#E4032E' },
   { keys: ['chivas', 'guadalajara', 'clubdeportivoguadalajara'], name: 'Chivas', primary: '#C8102E', secondary: '#002F6C' },
-  { keys: ['cruzazul'], name: 'Cruz Azul', primary: '#003DA5', secondary: '#FFFFFF' },
-  { keys: ['pumas', 'pumasunam', 'unam'], name: 'Pumas', primary: '#00205B', secondary: '#FFB81C' },
-  { keys: ['tigres', 'tigresuanl', 'uanl'], name: 'Tigres', primary: '#00205B', secondary: '#FFB81C' },
-  { keys: ['monterrey', 'rayados'], name: 'Monterrey', primary: '#003DA5', secondary: '#FFFFFF' },
-  { keys: ['toluca'], name: 'Toluca', primary: '#C8102E', secondary: '#FFFFFF' },
-  { keys: ['santos', 'santoslaguna'], name: 'Santos Laguna', primary: '#009639', secondary: '#FFFFFF' },
-  { keys: ['leon', 'clubleon'], name: 'León', primary: '#009639', secondary: '#FFFFFF' },
+  { keys: ['cruzazul'], name: 'Cruz Azul', primary: '#0F52A0', secondary: '#FFFFFF' },
+  { keys: ['fcjuarez', 'juarez', 'bravos'], name: 'FC Juárez', primary: '#00843D', secondary: '#000000' },
+  { keys: ['leon', 'clubleon'], name: 'León', primary: '#046A38', secondary: '#FFFFFF' },
+  { keys: ['monterrey', 'rayados'], name: 'Monterrey', primary: '#002B5C', secondary: '#FFFFFF' },
+  { keys: ['necaxa'], name: 'Necaxa', primary: '#E4572E', secondary: '#FFFFFF' },
   { keys: ['pachuca'], name: 'Pachuca', primary: '#002F6C', secondary: '#FFFFFF' },
-  { keys: ['necaxa'], name: 'Necaxa', primary: '#C8102E', secondary: '#FFFFFF' },
-  { keys: ['atlas'], name: 'Atlas', primary: '#C8102E', secondary: '#000000' },
+  { keys: ['puebla', 'clubpuebla'], name: 'Puebla', primary: '#0093D0', secondary: '#1B3668' },
+  { keys: ['pumas', 'pumasunam', 'unam'], name: 'Pumas', primary: '#00205B', secondary: '#FFB81C' },
+  { keys: ['queretaro', 'gallosblancos'], name: 'Querétaro', primary: '#0C2340', secondary: '#000000' },
+  { keys: ['santos', 'santoslaguna'], name: 'Santos Laguna', primary: '#6F263D', secondary: '#009639' },
+  { keys: ['tigres', 'tigresuanl', 'uanl'], name: 'Tigres', primary: '#FFB81C', secondary: '#00205B' },
+  { keys: ['tijuana', 'xolos', 'clubtijuana'], name: 'Tijuana', primary: '#8C1B24', secondary: '#000000' },
+  { keys: ['toluca'], name: 'Toluca', primary: '#7A1F2B', secondary: '#000000' },
 
   // LaLiga
   { keys: ['realmadrid', 'madrid'], name: 'Real Madrid', primary: '#00529F', secondary: '#FEBE10' },
