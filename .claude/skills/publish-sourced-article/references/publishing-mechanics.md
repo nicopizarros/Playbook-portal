@@ -65,6 +65,30 @@ Report the overlap-check outcomes in the same breath (`overlap-check.md`), and
 say in one line anything you couldn't satisfy: no findable cover photo, no
 other outlet covering the story, a fact that couldn't be confirmed.
 
+### A same-second verification curl can show a false negative
+
+(2026-08-31, on the Messi retirement run.) `applyBodyDevices` runs at RENDER
+time, not at publish time (`format-tiers.md` §6), so verifying a device
+declaration means fetching the live article page after publishing, not just
+trusting the insert succeeded. But the very first fetch immediately after
+`publish-newsletter.ts` returns can catch a transient miss: on that run, two
+devices (`Cronología`, `Precedentes`) both rendered as literal, unstyled
+`<p>Cronología: …</p>` text on the first curl, which reads exactly like a
+malformed declaration (`dynamic-element-library.md` §1's "renders as inert
+plain text" failure mode) and is easy to chase as one. Re-fetching the same
+URL roughly a minute later, nothing else changed, showed both devices
+rendered correctly. Importing `applyBodyDevices` directly and running it
+against the stored `body_html` also succeeded on the first try, which is
+what actually proves the declaration itself was never the problem: a
+same-second live-page fetch can lag the row's own write and briefly serve
+the pre-transform HTML.
+
+**Before concluding a device failed to parse, re-fetch the live URL once
+more** (or reproduce the render locally by importing `applyBodyDevices` /
+`extractSourcesFromHtml` against the stored `body_html`, which is unaffected
+by any request-level lag) rather than immediately rewriting the declaration.
+Only trust a "malformed" verdict that survives a second, later check.
+
 ### Fixing a published body
 
 Never hand-edit stored `body_html` — it is a cache of `body_json`. Run the
