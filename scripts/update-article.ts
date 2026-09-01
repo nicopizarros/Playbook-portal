@@ -56,6 +56,20 @@ type Entry = {
   readingTime?: number;
   imageUrl?: string;
   imageCredit?: string;
+  // Added 2026-09-01: six publish-sourced-article rows shipped with `source`
+  // set to the credited news outlet ("Reuters", "Chelsea FC", ...) instead
+  // of the Playbook product key (`fields-and-taxonomy.md`'s
+  // publication/source table -- "noticias" for the Noticias product). That
+  // silently zeroed out `hubForSource()` in the article page
+  // (`lib/product-hubs.ts`), which gates the ENTIRE `applyBodyDevices()`
+  // call: no hub match means every declared device (Cronología, Alineación,
+  // Cifra clave, ...) renders as inert plain text, not just the malformed
+  // ones. Both fields are plain text columns with no derived state to
+  // recompute, unlike `boleta`/score (see the 2026-08-31 log entry on why
+  // those still aren't here), so adding them is a safe, direct patch path
+  // rather than a one-off script.
+  source?: string;
+  publication?: string;
 };
 
 // `date` is deliberately absent: the archive's chronology is a record, not a
@@ -71,6 +85,8 @@ const COLUMNS = {
   readingTime: articles.readingTime,
   imageUrl: articles.imageUrl,
   imageCredit: articles.imageCredit,
+  source: articles.source,
+  publication: articles.publication,
 } as const;
 
 async function resolveId(entry: Entry): Promise<string | null> {
