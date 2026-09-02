@@ -98,11 +98,35 @@ function legacyArticleRedirect(request: NextRequest): URL | null {
 function nonCanonicalHostRedirect(request: NextRequest): URL | null {
   if (process.env.VERCEL_ENV !== 'production') return null;
 
-  const canonicalHost = process.env.SITE_URL ? new URL(process.env.SITE_URL).host : null;
-  // Sin SITE_URL configurado no hay contra qué comparar. Fallar abierto:
-  // servir el sitio en un host de más es un problema de SEO, un loop de
-  // redirects lo deja completamente caído.
-  if (!canonicalHost) return null;
+  // Misma resolución que lib/site-url.ts, MENOS su fallback hardcodeado.
+  //
+  // La primera versión de esto leía sólo SITE_URL y se desplegó inerte: en
+  // producción SITE_URL no está seteada — el host canónico sale de
+  // VERCEL_PROJECT_PRODUCTION_URL, que es de dónde los canonicals ya sacaban
+  // www.playbook.la. Verificado después del deploy del 2026-09-02: el alias
+  // seguía devolviendo 200 en vez de 308.
+  //
+  // El fallback de lib/site-url.ts (playbook-portal-phi.vercel.app) queda
+  // deliberadamente afuera: si se colara acá, el host canónico sería el
+  // alias y estaríamos redirigiendo www.playbook.la HACIA el duplicado —
+  // exactamente al revés de lo que este redirect existe para hacer.
+  const canonicalOrigin =
+    process.env.SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : null);
+  // Sin nada configurado no hay contra qué comparar. Fallar abierto: servir
+  // el sitio en un host de más es un problema de SEO, un loop de redirects
+  // lo deja completamente caído.
+  if (!canonicalOrigin) return null;
+
+  let canonicalHost: string;
+  try {
+    canonicalHost = new URL(canonicalOrigin).host;
+  } catch {
+    // Valor mal formado en la env var: mismo criterio, fallar abierto.
+    return null;
+  }
 
   const host = request.headers.get('host');
   if (!host || host === canonicalHost) return null;
