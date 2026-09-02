@@ -210,6 +210,24 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
                   la regla de frontera vive en
                   .claude/playbook-editorial/fields-and-taxonomy.md. */}
               <CheckboxGroupField label="Cobertura" help="Solo si la pieza ES cobertura de esa propiedad, no si la menciona." options={PROPERTY_OPTIONS} value={a.tagsProperty} onChange={v => updateEntry(entry.clientKey, { tagsProperty: v })} />
+              <div className="field">
+                <span className="field-label">Visibilidad</span>
+                <span className="field-help">
+                  Desmarcado, el artículo sigue publicado y resuelve en su URL real
+                  (/articulo/…) para verlo y revisarlo, pero desaparece de Noticias, del
+                  archivo, del buscador, de cualquier cobertura que lo reúna por etiqueta,
+                  del sitemap.xml y lleva noindex. Vuelve a marcarlo cuando quieras hacerlo
+                  público — es el mismo mecanismo que usan las coberturas no listadas.
+                </span>
+                <label className="checkbox-option">
+                  <input
+                    type="checkbox"
+                    checked={a.listed === true}
+                    onChange={e => updateEntry(entry.clientKey, { listed: e.target.checked })}
+                  />
+                  <span>Listado (visible y descubrible en el sitio)</span>
+                </label>
+              </div>
               <TextField label="Fecha (AAAA-MM-DD)" help="Se usa para ordenar los artículos por fecha — lo más reciente siempre pesa." value={a.date} onChange={v => updateEntry(entry.clientKey, { date: v })} />
               <TextField label="Fecha en texto" help="Cómo se muestra la fecha en el sitio (ej. 9 jul 2026)." value={a.dateFormatted} onChange={v => updateEntry(entry.clientKey, { dateFormatted: v })} />
               <NumberField label="Tiempo de lectura (minutos)" help="Minutos de lectura, se escribe a mano — ya no se calcula solo." min={1} step={1} value={a.readingTime} onChange={v => updateEntry(entry.clientKey, { readingTime: v })} />

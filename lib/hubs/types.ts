@@ -278,18 +278,21 @@ export type Hub = {
    */
   fullName: string;
   /**
-   * Whether the hub is public. `false` = UNLISTED: absent from the header's
-   * Coberturas zone and from the sitemap (nothing links to it, nothing
-   * crawls it), `robots: noindex` on its own page, AND — 2026-08-19 —
-   * access-restricted: app/(public)/coberturas/[slug]/page.tsx's
-   * assertHubViewable() 404s anyone who isn't signed in with the `editor`
-   * role, the same session check app/admin/(protected)/layout.tsx uses.
-   * This started as pure obscurity (reachable by anyone with the URL) and
-   * was hardened into a real boundary after the LFA hub got indexed while
-   * briefly listed with its partnership already stated as fact — a
-   * pre-announcement hub can now be built and reviewed by editors at its
-   * real URL with nothing public-facing ever seeing it. Flipping it to
-   * `true` is the whole "go live" change.
+   * Whether the hub is public. `false` = UNLISTED, i.e. undiscoverable, not
+   * unreachable: absent from the header's Coberturas zone and from the
+   * sitemap (nothing links to it, nothing crawls it), and `robots: noindex,
+   * nofollow` on its own page — but the route carries no access gate, so
+   * anyone with the direct URL can open it, logged in or not
+   * (app/(public)/coberturas/[slug]/page.tsx, publisher's explicit call,
+   * 2026-08-24). An editor-only hard-404 briefly sat in front of this route
+   * (2026-08-19 → 2026-08-24, added after the LFA hub got indexed while
+   * briefly `listed: true` with its partnership already stated as fact) but
+   * was traded away for "share the link with whoever needs to see it before
+   * the announcement, without making them log in first" — noindex plus
+   * staying out of nav/sitemap is what actually prevents the DISCOVERY leak
+   * that incident was. Flipping this to `true` is the whole "go live"
+   * change. See articles.listed (lib/db/schema.ts) for the same mechanism
+   * one level down, on an individual article rather than the hub.
    */
   listed: boolean;
   /**

@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 import { db } from '../db/client';
 import { articles } from '../db/schema';
@@ -47,6 +47,7 @@ const LIST_COLUMNS = {
   imageUrl: articles.imageUrl,
   imageCredit: articles.imageCredit,
   status: articles.status,
+  listed: articles.listed,
   createdAt: articles.createdAt,
   updatedAt: articles.updatedAt,
   updatedBy: articles.updatedBy,
@@ -59,7 +60,17 @@ const LIST_COLUMNS = {
 // fetch re-ran this query from scratch, with nothing shared between them.
 const queryPublishedArticles = unstable_cache(
   async () => {
-    const rows = await db.select(LIST_COLUMNS).from(articles).where(eq(articles.status, 'published'));
+    // listed=false (Article's counterpart to Hub.listed, schema.ts) is the
+    // same "undiscoverable, not unreachable" flag: this is the ONE function
+    // every listing, hub pool, the archive, search and the sitemap read
+    // (see getAllArticles below), so filtering it out here is what makes an
+    // unlisted article vanish from all of them at once. getArticleById and
+    // getArticleMetaById deliberately carry no such filter — the article
+    // must still resolve at its own URL.
+    const rows = await db
+      .select(LIST_COLUMNS)
+      .from(articles)
+      .where(and(eq(articles.status, 'published'), eq(articles.listed, true)));
     // normalizeSource here — the single data boundary every public reader
     // goes through — so rows still carrying the legacy 'industry-shots'
     // key (until scripts/migrate-source-noticias.ts runs) file under
@@ -106,6 +117,8 @@ export type ArticleMeta = {
   wallTeaser: string | null;
   imageUrl: string;
   imageCredit: string | null;
+  /** See schema.ts articles.listed — gates the article page's robots meta. */
+  listed: boolean;
   dateFormatted: string;
   date: string;
   readingTime: number;
@@ -140,6 +153,7 @@ export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta 
       wallTeaser: articles.wallTeaser,
       imageUrl: articles.imageUrl,
       imageCredit: articles.imageCredit,
+      listed: articles.listed,
       dateFormatted: articles.dateFormatted,
       date: articles.date,
       readingTime: articles.readingTime,

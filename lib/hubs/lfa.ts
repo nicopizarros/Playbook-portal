@@ -366,13 +366,16 @@ export const LFA_HUB: Hub = {
     { title: 'Contexto', description: 'No republicar comunicados: explicar qué significa cada movimiento.' },
   ],
 
-  // The poster beside "Desde adentro". Playbook already holds this frame —
-  // it is the cover of the Black Clover piece — so it is a real photograph
-  // of the property, credited, not stock. No play button and no "ver el
-  // video": there is no video. See Hub.accessPhoto.
-  accessPhoto: {
-    src: '/assets/img/lfa-reyes-accion-mayo-2026.jpg',
-    alt: 'Corredor de los Reyes de Jalisco avanza con el balón en un partido de la LFA',
-    credit: 'Foto: LFA',
-  },
+  // NO accessPhoto (2026-09-02, resolves the bug docs/TODO.md flagged as
+  // "still open" on 2026-08-25). `/assets/img/lfa-reyes-accion-mayo-2026.jpg`
+  // was set here AND is a published article's own cover — the same
+  // photograph rendered twice on one page, which reads as a bug, not a
+  // motif. `public/hubs/lfa/` holds no second real photograph: `board.jpg`
+  // is a texture, not a photo, and stock is forbidden here (module-inventory.md)
+  // — so duplicating the lead was the only option left in the repo, and the
+  // TODO's own resolution was to drop the field rather than keep
+  // duplicating it. HubAccess degrades to type-only without it — see its
+  // `data-art={Boolean(photo)}` branch in HubModules.tsx — so "Desde
+  // adentro" still renders, just without the poster. Set accessPhoto again
+  // the day a real, credited, distinct LFA photograph exists for this slot.
 };

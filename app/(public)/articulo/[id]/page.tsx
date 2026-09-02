@@ -133,7 +133,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: article.title,
     description,
     alternates: { canonical: canonicalUrl },
-    robots: { index: true, follow: true },
+    // The actual anti-discovery mechanism for an unlisted article — same
+    // posture as the hub's own generateMetadata (coberturas/[slug]/page.tsx):
+    // real, reachable content that must never be indexed or followed into
+    // while listed=false. See schema.ts articles.listed.
+    robots: { index: article.listed, follow: article.listed },
     // siteName/locale restated from OG_DEFAULTS on purpose: declaring
     // `openGraph` at all replaces the root layout's object wholesale rather
     // than merging into it, so without this an article card loses
