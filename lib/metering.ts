@@ -5,7 +5,7 @@ import { db } from './db/client';
 import { anonReaders, articleReads } from './db/schema';
 import { isBotUserAgent } from './bots';
 import { ANON_COOKIE_NAME, verifyAnonCookie } from './anon-cookie';
-import { FREE_ARTICLES_PER_MONTH } from './constants';
+import { FREE_ARTICLES_PER_MONTH, METERING_ENABLED } from './constants';
 
 export type Entitlement =
   | { kind: 'full'; reason: 'reader' | 'editor' | 'bot' | 'quota' }
@@ -77,6 +77,16 @@ async function getOrCreateAnonReaderId(): Promise<string | null> {
 // (also no DB read), then the anonymous-quota path (the only branch that
 // touches article_reads/anon_readers).
 export async function resolveEntitlement(articleId: string): Promise<Entitlement> {
+  // The wall is sidelined (see METERING_ENABLED in lib/constants.ts). Return
+  // before the session lookup and before any DB work: with nobody being
+  // metered there is no read to log and no quota to count, so this also
+  // drops two queries per article view.
+  //
+  // 'quota' rather than a new reason: every existing caller already treats
+  // it as "full access, nothing owed", and inventing a reason string would
+  // mean touching each of them for no behavioural difference.
+  if (!METERING_ENABLED) return { kind: 'full', reason: 'quota' };
+
   const session = await auth();
 
   if (session?.user?.role === 'editor') {

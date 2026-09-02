@@ -44,6 +44,7 @@ import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
 import { articlePath, articleUrl } from '@/lib/article-url';
 import { authorDisplayName } from '@/lib/author-name';
+import { METERING_ENABLED } from '@/lib/constants';
 
 // The slug arrives as a path segment now, not as `?id=`. Next has already
 // percent-decoded it by the time it reaches us, so ids with accents or
@@ -331,12 +332,13 @@ export default async function ArticuloPage({ params }: Props) {
   // SEO block (2026-08-14 upgrade, all of it invisible): keywords from the
   // taxonomy the article is already filed under, a real Person author when
   // the byline is actually shown, the canonical url on the entity itself,
-  // and — the important one — PAYWALL markup. The site meters articles
-  // (3 free reads/month, lib/metering.ts) while serving crawlers the full
-  // body (bots are metering-exempt), which is precisely the situation
-  // Google's flexible-sampling guidance says to declare with
-  // isAccessibleForFree + hasPart, or risk it being read as cloaking. The
-  // cssSelector names the element the wall hides (.article-body).
+  // and — when the wall is on — PAYWALL markup. Metering (3 free reads/month,
+  // lib/metering.ts) serves crawlers the full body while readers past quota
+  // get less, which is precisely the situation Google's flexible-sampling
+  // guidance says to declare with isAccessibleForFree + hasPart, or risk it
+  // being read as cloaking; the cssSelector names the element the wall hides
+  // (.article-body). The wall is currently SIDELINED, so that markup is
+  // conditional now — see the spread below and METERING_ENABLED.
   const keywords = [...meta.tagsVertical, ...meta.tagsSport, ...meta.tagsScope];
   const jsonLdBase = {
     '@context': 'https://schema.org',
@@ -357,12 +359,22 @@ export default async function ArticuloPage({ params }: Props) {
     inLanguage: 'es-MX',
     url: canonicalUrl,
     ...(keywords.length ? { keywords: keywords.join(', ') } : {}),
-    isAccessibleForFree: false,
-    hasPart: {
-      '@type': 'WebPageElement',
-      isAccessibleForFree: false,
-      cssSelector: '.article-body',
-    },
+    // Flexible-sampling markup, but only while there is actually something
+    // to sample. With the wall sidelined (METERING_ENABLED, lib/constants.ts)
+    // every reader gets the full body, so declaring the article paywalled
+    // would be a false statement in schema — and a needless one, since the
+    // whole point of these two fields is to explain a crawler/reader gap
+    // that no longer exists. Flipping the flag back on restores both.
+    ...(METERING_ENABLED
+      ? {
+          isAccessibleForFree: false,
+          hasPart: {
+            '@type': 'WebPageElement',
+            isAccessibleForFree: false,
+            cssSelector: '.article-body',
+          },
+        }
+      : { isAccessibleForFree: true }),
     // Both of these point at the ONE Playbook entity — the
     // NewsMediaOrganization defined in app/(public)/layout.tsx:63-73, which
     // carries sameAs, masthead and publishingPrinciples. Before 2026-09-02

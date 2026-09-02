@@ -297,6 +297,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             crossOrigin="anonymous"
           />
         )}
+        {/* Ahrefs Web Analytics. A RAW <script async src>, for the same
+            reason as the AdSense tag above: Ahrefs verifies the install by
+            reading the served HTML, and next/script's afterInteractive
+            injects client-side after hydration, so the tag would be absent
+            from the initial response and verification would fail exactly the
+            way AdSense's did on 2026-08-19.
+
+            The data-key is a public site identifier, not a secret — it ships
+            to every visitor in the page source by design, so it is inlined
+            here rather than read from an env var. React 19 hoists
+            <script async src> into <head> and dedupes by src, so this stays
+            one tag per document across every route. */}
+        <script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="GSYZnHX0pHLiKtxJxYtFyg"
+          async
+        />
         {/* Official @vercel/analytics package, site-wide — replaces legacy's
             manual window.va shim + hand-written /_vercel/insights/script.js
             <script> tag. The shim above is still needed alongside it; see

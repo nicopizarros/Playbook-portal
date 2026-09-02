@@ -46,3 +46,23 @@ export const SOURCE_LABELS: Record<Source, string> = {
 // non-bot) visitor before the email wall (see lib/metering.ts). Decided with
 // the user during planning.
 export const FREE_ARTICLES_PER_MONTH = 3;
+
+// Master switch for the email wall above. OFF as of 2026-09-02: the SEO
+// review's position is that metering a publisher with Playbook's current
+// authority costs more traffic than the email captures are worth, so the
+// wall is sidelined rather than tuned.
+//
+// Deliberately env-driven and default-off, not deleted. Everything the wall
+// needs — the quota logic in lib/metering.ts, the anon cookie minted in
+// middleware.ts, the article_reads table, the EmailWall component — stays in
+// place and keeps working. Turning it back on is `METERING_ENABLED=true` in
+// the Vercel project, no deploy of code required.
+//
+// NOTE: this switch is load-bearing for structured data, not just for the
+// reader. The article page declares Google's flexible-sampling markup
+// (isAccessibleForFree: false + hasPart) to explain why crawlers see more
+// than metered readers do. With the wall off, nobody is restricted, and
+// declaring content paywalled when it is free is a false statement in
+// schema — so app/(public)/articulo/[id]/page.tsx reads this flag too and
+// flips that markup. Do not change one without the other.
+export const METERING_ENABLED = process.env.METERING_ENABLED === 'true';
