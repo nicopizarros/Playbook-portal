@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { ThemeToggle } from '../theme/ThemeToggle';
-import { SearchBox, type SearchableArticle } from './SearchBox';
+import { SearchBox } from './SearchBox';
 import { NavMenu } from './NavMenu';
 import type { NavLink } from '@/lib/data/site-content';
 import { PRODUCT_HUBS } from '@/lib/product-hubs';
@@ -51,14 +51,12 @@ export function HeaderNav({
   links,
   ctaLabel,
   ctaUrl,
-  searchArticles,
   readerEmail,
   reach,
 }: {
   links: NavLink[];
   ctaLabel: string;
   ctaUrl: string;
-  searchArticles: SearchableArticle[];
   readerEmail: string | null;
   reach: { value: string; label: string }[];
 }) {
@@ -305,7 +303,7 @@ export function HeaderNav({
             Iniciar sesión
           </Link>
         )}
-        <SearchBox articles={searchArticles} />
+        <SearchBox />
 
         {/* ZONE 4 (round 1). "Nosotros" is INSTITUTIONAL, so it belongs in
             the utility cluster and not beside the editorial zones — the

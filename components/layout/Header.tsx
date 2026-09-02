@@ -10,14 +10,6 @@ export async function Header() {
   const { nav } = content;
   const readerEmail = session?.user?.role === 'reader' ? session.user.email : null;
 
-  const searchArticles = articles.map(a => ({
-    id: a.id,
-    title: a.title,
-    excerpt: a.excerpt,
-    publication: a.publication,
-    source: a.source,
-  }));
-
   return (
     <header className="topbar">
       <div className="container nav">
@@ -26,7 +18,6 @@ export async function Header() {
           links={nav.links}
           ctaLabel={nav.ctaLabel}
           ctaUrl={nav.ctaUrl}
-          searchArticles={searchArticles}
           readerEmail={readerEmail ?? null}
           /* The "Alcance" column of the Nosotros panel. Same three figures
              the homepage's StatsSection shows, from the same CMS row —
