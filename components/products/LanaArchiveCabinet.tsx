@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { articlePath } from '@/lib/article-url';
 
 // ============================================================ El Archivero
 // La Lana's signature module: the back catalog as an actual filing cabinet
@@ -302,7 +303,7 @@ export function LanaArchiveCabinet({ folders }: { folders: CabinetFolder[] }) {
               >
                 <Link
                   className="lana-folder lana-folder-card"
-                  href={`/articulo?id=${encodeURIComponent(folder.id)}`}
+                  href={articlePath(folder.id)}
                   /* Tabbing through the list pulls each file to the front,
                      so focus can never land on something invisible. */
                   onFocus={() => goTo(index)}

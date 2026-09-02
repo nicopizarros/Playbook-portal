@@ -97,7 +97,7 @@ export function HubsTab({ data, onChange }: Props) {
               />
               <TextField
                 label="Enlace (opcional)"
-                help="URL del expediente (/articulo?id=…) para que la fila sea clickeable."
+                help="URL del expediente (/articulo/…) para que la fila sea clickeable."
                 value={item.url}
                 onChange={v => update({ url: v })}
               />

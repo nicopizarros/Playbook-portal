@@ -37,7 +37,7 @@ export type LanaBoardRow = {
   /** Status cell, e.g. "Abierto" / "En curso" / "Archivado" — anything
       containing "abierto"/"curso" blinks like a boarding call. */
   estado: string;
-  /** Optional link (an /articulo?id=… URL) — the row becomes clickable. */
+  /** Optional link (an /articulo/… URL) — the row becomes clickable. */
   url: string;
 };
 

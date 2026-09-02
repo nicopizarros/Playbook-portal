@@ -42,19 +42,31 @@ import { ShotProgress } from '@/components/products/ShotProgress';
 import { jsonLdScript } from '@/lib/json-ld';
 import { DEFAULT_OG_IMAGE, OG_DEFAULTS } from '@/lib/og-image';
 import { SITE_URL } from '@/lib/site-url';
+import { articlePath, articleUrl } from '@/lib/article-url';
+import { authorDisplayName } from '@/lib/author-name';
 
-type Props = { searchParams: Promise<{ id?: string }> };
+// The slug arrives as a path segment now, not as `?id=`. Next has already
+// percent-decoded it by the time it reaches us, so ids with accents or
+// slashes round-trip correctly without a decodeURIComponent here.
+type Props = { params: Promise<{ id: string }> };
 
 function canonicalUrlFor(id: string) {
-  return `${SITE_URL}${pathFor(id)}`;
+  return articleUrl(SITE_URL, id);
 }
 
 // Same article, as a site-relative path. Used for anything that has to
 // work against the origin the reader is actually on rather than the
 // canonical one — see EmailWall's redirectTo below.
 function pathFor(id: string) {
-  return `/articulo?id=${encodeURIComponent(id)}`;
+  return articlePath(id);
 }
+
+// A JSON-LD reference to the site-wide Playbook entity. The full node —
+// NewsMediaOrganization with sameAs, masthead, publishingPrinciples — is
+// emitted once per page by app/(public)/layout.tsx:63-73, so every article
+// on the site resolves to that single organization rather than minting an
+// anonymous look-alike of its own.
+const PLAYBOOK_ORG_REF = { '@id': `${SITE_URL}#organization` };
 
 // The byline's default behavior wraps the whole author string in one
 // internal `/autor?nombre=` link (a house-staff author archive page).
@@ -70,7 +82,10 @@ function pathFor(id: string) {
 function renderAuthorByline(author: string) {
   const linkPattern = /\[(.+?)\]\((\S+?)\)/g;
   if (!linkPattern.test(author)) {
-    return <Link href={`/autor?nombre=${encodeURIComponent(author)}`}>{author}</Link>;
+    // The clean name in the URL, the raw string as the visible text — they
+    // are identical for a plain byline, and for anything else the URL must
+    // match what /autor canonicalises to and what the sitemap publishes.
+    return <Link href={`/autor?nombre=${encodeURIComponent(authorDisplayName(author))}`}>{author}</Link>;
   }
   linkPattern.lastIndex = 0;
   const nodes: React.ReactNode[] = [];
@@ -93,8 +108,8 @@ function renderAuthorByline(author: string) {
 // Uses getArticleMetaById exclusively — metadata (og:description etc.)
 // only ever needs excerpt/image, never the body, for every entitlement
 // branch alike, same as legacy behavior.
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { id } = await searchParams;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   const article = id ? await getArticleMetaById(id) : null;
 
   if (!article) {
@@ -102,12 +117,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   const canonicalUrl = canonicalUrlFor(article.id);
-  // Fallback is the 1200×630 site card, not the logo file this used to
-  // point at: playbook-logo.webp is a ~180×44 wordmark, which every social
-  // network either letterboxes into a mostly-empty box or rejects outright
-  // for being under its minimum. An article with no cover photo is common
-  // here (most Noticias rows have imageUrl empty — checked against
-  // the real table), so this is the *usual* card, not an edge case.
+  // Fallback is the 1200×630 site card, not the logo file this used to point
+  // at: playbook-logo.webp is a 640×158 wordmark (measured, not guessed — an
+  // earlier version of this comment said "~180×44", which is its CSS display
+  // size in the header, not the asset). At 4:1 every social network either
+  // letterboxes it into a mostly-empty box or rejects it. An article with no
+  // cover photo is common here (most Noticias rows have imageUrl empty —
+  // checked against the real table), so this is the *usual* card, not an
+  // edge case.
   const image = article.imageUrl || `${SITE_URL}${DEFAULT_OG_IMAGE.url}`;
   const description = article.excerpt || '';
 
@@ -291,8 +308,8 @@ function PlainBlockView({ block }: { block: PlainBlock }) {
   return <p>{block.text}</p>;
 }
 
-export default async function ArticuloPage({ searchParams }: Props) {
-  const { id } = await searchParams;
+export default async function ArticuloPage({ params }: Props) {
+  const { id } = await params;
   const meta = id ? await getArticleMetaById(id) : null;
 
   // Legacy served a soft 404 here (200 status, noindex, inline "no
@@ -330,7 +347,10 @@ export default async function ArticuloPage({ searchParams }: Props) {
     // tag is part of the page's response like everything else, so it's
     // subject to the same "no body to an unentitled reader" rule.
     articleBody: meta.excerpt,
-    image: [meta.imageUrl || `${SITE_URL}/assets/img/playbook-logo.webp`],
+    // The 1200x630 site card, never the wordmark: Google's Article guidance
+    // is explicit that the image should be relevant to the article rather
+    // than a logo, and an article with no cover photo is common here.
+    image: [meta.imageUrl || `${SITE_URL}${DEFAULT_OG_IMAGE.url}`],
     datePublished: meta.date || undefined,
     dateModified: meta.date || undefined,
     articleSection: meta.publication || undefined,
@@ -343,11 +363,41 @@ export default async function ArticuloPage({ searchParams }: Props) {
       isAccessibleForFree: false,
       cssSelector: '.article-body',
     },
+    // Both of these point at the ONE Playbook entity — the
+    // NewsMediaOrganization defined in app/(public)/layout.tsx:63-73, which
+    // carries sameAs, masthead and publishingPrinciples. Before 2026-09-02
+    // each article inlined its own anonymous `{'@type':'Organization',
+    // name:'Playbook'}` for publisher and worksFor, so a page emitted three
+    // disconnected Playbook nodes and Google had no reason to treat any of
+    // them as the same publisher it saw on the next article. Referencing by
+    // @id consolidates ~211 articles onto one entity.
     author:
       showAuthor && meta.author
-        ? { '@type': 'Person', name: meta.author, worksFor: { '@type': 'Organization', name: 'Playbook' } }
-        : { '@type': 'Organization', name: meta.publication || 'Playbook' },
+        ? {
+            '@type': 'Person',
+            name: authorDisplayName(meta.author),
+            // The author's own archive page. It exists, it is indexable
+            // when the author has articles, and /equipo already builds this
+            // exact URL for its Person nodes — the article was the one
+            // surface that named an author without ever linking to them.
+            url: `${SITE_URL}/autor?nombre=${encodeURIComponent(authorDisplayName(meta.author))}`,
+            worksFor: PLAYBOOK_ORG_REF,
+          }
+        // No byline shown: Playbook itself is the author. This used to emit
+        // `{Organization, name: meta.publication}` — i.e. the *section*
+        // name, so every unbylined story was authored by "Noticias" or "La
+        // Lana del Deporte", entities that do not exist and accrue nothing.
+        //
+        // Restated inline for the same reason as publisher below: a bare
+        // {'@id'} only resolves if the parser merges this script tag with the
+        // layout's, and Google's Article guidance wants author.name populated.
+        : { ...PLAYBOOK_ORG_REF, '@type': 'Organization', name: 'Playbook' },
     publisher: {
+      ...PLAYBOOK_ORG_REF,
+      // Restated alongside the @id rather than left to the reference alone:
+      // Google's Article guidance asks for publisher name + logo directly,
+      // and a parser that does not resolve @id references still gets a
+      // complete publisher instead of a bare pointer.
       '@type': 'Organization',
       name: 'Playbook',
       logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/img/playbook-logo.webp` },
@@ -684,7 +734,7 @@ export default async function ArticuloPage({ searchParams }: Props) {
           <section className="lect-next-case" aria-label="Siguiente expediente">
             <Link
               className="lect-next-link reveal"
-              href={`/articulo?id=${encodeURIComponent(lanaShell.next.article.id)}`}
+              href={articlePath(lanaShell.next.article.id)}
             >
               <span className="lect-next-tab">
                 <span className="lect-next-kicker">Siguiente expediente</span>

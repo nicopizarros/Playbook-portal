@@ -48,7 +48,9 @@ export const editorInvitations = pgTable('editor_invitations', {
 
 // ---------------------------------------------------------------- Articles
 // id is the legacy slug (articles.json's `id` field) — preserved verbatim
-// so /articulo?id=... URLs never change across the migration.
+// so article URLs never change across the migration. (The URL *shape*
+// moved to /articulo/<id> on 2026-09-02 — see lib/article-url.ts — but the
+// slug itself is still this column, verbatim.)
 
 export const articles = pgTable(
   'articles',

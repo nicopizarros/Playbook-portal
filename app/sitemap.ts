@@ -6,6 +6,8 @@ import { TAXONOMY, type TaxonomyTier } from '@/lib/taxonomy';
 import { PRODUCT_HUBS } from '@/lib/product-hubs';
 import { HUBS } from '@/lib/hubs';
 import { SITE_URL } from '@/lib/site-url';
+import { articleUrl } from '@/lib/article-url';
+import { authorDisplayName, isIndexableAuthorName } from '@/lib/author-name';
 
 // Originally set to `revalidate = 3600` (ISR) to match legacy/api/sitemap.js's
 // Cache-Control: public, max-age=3600 without a DB round-trip on every
@@ -80,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   articles.forEach(a => {
     entries.push({
-      url: `${SITE_URL}/articulo?id=${encodeURIComponent(a.id)}`,
+      url: articleUrl(SITE_URL, a.id),
       lastModified: isValidDate(a.date) ? new Date(a.date) : undefined,
       ...TIERS.article,
     });
@@ -93,7 +95,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const authorDates = new Map<string, string[]>();
   articles.forEach(a => {
     if (!a.author || !shouldShowAuthor(a, content.siteSettings.mostrarAutorGlobal)) return;
-    authorDates.set(a.author, [...(authorDates.get(a.author) || []), a.date]);
+    // The clean display name, never the raw column: the one author page this
+    // site actually generated was being published with unrendered markdown in
+    // the URL (see lib/author-name.ts). An unindexable name is dropped rather
+    // than published, so the sitemap never advertises a page that /autor will
+    // serve as noindex.
+    const name = authorDisplayName(a.author);
+    if (!isIndexableAuthorName(name)) return;
+    authorDates.set(name, [...(authorDates.get(name) || []), a.date]);
   });
   authorDates.forEach((dates, name) => {
     entries.push({

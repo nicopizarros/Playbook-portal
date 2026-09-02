@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { getReaderAccountSummary } from '@/lib/data/reader-account';
 import { AccountSignInPrompt } from '@/components/account/AccountSignInPrompt';
 import { DeleteAccountButton } from '@/components/account/DeleteAccountButton';
+import { articlePath } from '@/lib/article-url';
 
 export const metadata: Metadata = {
   title: 'Mi cuenta',
@@ -57,7 +58,7 @@ export default async function CuentaPage() {
         <ul>
           {summary.recentReads.map(r => (
             <li key={`${r.articleId}-${r.readAt.toISOString()}`}>
-              <Link href={`/articulo?id=${r.articleId}`}>{r.title}</Link>
+              <Link href={articlePath(r.articleId)}>{r.title}</Link>
               {' — '}
               {dateFormatter.format(r.readAt)}
             </li>

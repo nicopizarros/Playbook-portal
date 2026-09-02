@@ -5,6 +5,7 @@ import { AdSlot } from '@/components/ads/AdSlot';
 import { getAllArticles, getArticleById } from '@/lib/data/articles';
 import { rankArticles, selectHero } from '@/lib/rank';
 import { extractPullFigure, extractCifraFromBody } from '@/lib/product-hubs';
+import { articlePath } from '@/lib/article-url';
 
 // Right rail of the homepage news package (Fase 7 UX). Server component:
 // MostReadSection needs GA4 data access. Rendered by
@@ -93,7 +94,7 @@ export async function HomeSidebar() {
       {cifra && (
         <section className="side-module side-cifra" aria-labelledby="side-cifra-title">
           <h2 className="side-title" id="side-cifra-title">La cifra del día</h2>
-          <a className="side-cifra-card" href={`/articulo?id=${encodeURIComponent(cifra.id)}`}>
+          <a className="side-cifra-card" href={articlePath(cifra.id)}>
             <DailyFigure figure={cifra.figure} />
             {cifra.caption && <span className="side-cifra-caption">{cifra.caption}</span>}
             <span className="side-cifra-story">{cifra.title}</span>

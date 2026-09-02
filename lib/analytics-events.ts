@@ -165,8 +165,8 @@ const PATH_PRODUCTS: ReadonlyArray<readonly [string, ProductKey]> = [
  * Product for the routes whose path alone identifies them -- the four
  * product hubs and any /coberturas/<slug>. Returns null for everything
  * else (the homepage, /archivo, /tema, and /articulo, whose product
- * depends on the article rather than the URL: articles all live at
- * /articulo?id=...).
+ * depends on the article rather than the URL: an /articulo/<slug> path
+ * names the article, not its product).
  */
 export function productForPath(pathname: string): ProductKey | null {
   const hub = /^\/coberturas\/([^/?#]+)/.exec(pathname);

@@ -1,5 +1,6 @@
 import type { Article } from '@/lib/data/articles';
 import { hubForSource, extractPullFigure } from '@/lib/product-hubs';
+import { articlePath } from '@/lib/article-url';
 
 // La Lectura's "Sigue leyendo" card (article redesign, 2026-08-05) —
 // replaces the plain NewsRow list at the article foot. Each card previews
@@ -16,7 +17,7 @@ export function RelatedCard({ article }: { article: Article }) {
     <a
       className="lect-related-card reveal"
       data-source={article.source}
-      href={`/articulo?id=${encodeURIComponent(article.id)}`}
+      href={articlePath(article.id)}
     >
       <span className="lect-related-eyebrow">
         {hub ? `${hub.concept} · ${article.publication}` : article.publication}

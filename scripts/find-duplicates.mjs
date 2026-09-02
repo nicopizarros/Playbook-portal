@@ -317,7 +317,7 @@ async function main() {
       console.log(
         `   ${(s * 100).toFixed(0).padStart(3)}%  ${verdict.padEnd(14)} ${d.date}  ${d.source.padEnd(22)} ${d.title.slice(0, 58)}`,
       );
-      console.log(`        /articulo?id=${d.id}`);
+      console.log(`        /articulo/${d.id}`);
       if (why) console.log(`        ${why}`);
     }
     // Never let a cap read as "that was everything".

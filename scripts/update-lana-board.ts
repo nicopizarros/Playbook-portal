@@ -31,6 +31,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { siteContent, contentRevisions, articles } from '../lib/db/schema';
 import { productHubsContent, type LanaBoardRow, type ProductHubsContent } from '../lib/product-hubs-content';
 import { CASE_OPEN_DAYS } from '../lib/product-hubs';
+import { articlePath } from '@/lib/article-url';
 
 export const MAX_CURATED_ROWS = 6;
 
@@ -64,7 +65,7 @@ function buildRow(conexion: string, article: CaseRow, all: CaseRow[], now: Date)
     conexion: conexion.trim(),
     expediente: `EXP. ${String(index + 1).padStart(3, '0')}`,
     estado: abierto ? 'Abierto' : 'Archivado',
-    url: `/articulo?id=${encodeURIComponent(article.id)}`,
+    url: articlePath(article.id),
   };
 }
 

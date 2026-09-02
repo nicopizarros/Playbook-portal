@@ -1,4 +1,5 @@
 import type { Article } from '@/lib/data/articles';
+import { articlePath } from '@/lib/article-url';
 
 // The bottom of the archive's 5-tier rating hierarchy (★1 and ★2, see
 // archivo/page.tsx's tierFor/groupRiver) — a single-line, text-only row.
@@ -13,7 +14,7 @@ export function ArchiveLineRow({ article, tier }: { article: Article; tier: 1 | 
     <a
       className={`archive-line-row tier-${tier} reveal`}
       data-source={article.source}
-      href={`/articulo?id=${encodeURIComponent(article.id)}`}
+      href={articlePath(article.id)}
     >
       <span className={`tag-mini ${article.source}`}>{article.publication}</span>
       <span className="archive-line-title">{article.title}</span>

@@ -7,6 +7,7 @@ import { chronologicalNumber } from '@/lib/product-hubs';
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
 import { VisitBeacon } from '@/components/analytics/VisitBeacon';
+import { articlePath } from '@/lib/article-url';
 
 // The Futbol Business Review — "La Sala de Juntas". Black, not navy: a
 // market briefing a business reader consults, not a magazine they browse.
@@ -98,7 +99,7 @@ export default async function FutbolBusinessReviewHubPage() {
             <div className="tfbr-cover-body">
               <div className="tfbr-cover-copy">
                 <h2 className="tfbr-cover-title">
-                  <Link href={`/articulo?id=${encodeURIComponent(headliner.id)}`}>
+                  <Link href={articlePath(headliner.id)}>
                     {headliner.title}
                   </Link>
                 </h2>
@@ -109,7 +110,7 @@ export default async function FutbolBusinessReviewHubPage() {
                 </p>
                 <Link
                   className="btn tfbr-cover-btn"
-                  href={`/articulo?id=${encodeURIComponent(headliner.id)}`}
+                  href={articlePath(headliner.id)}
                 >
                   Abrir el reporte <TrendArrow direction="right" />
                 </Link>
@@ -167,7 +168,7 @@ export default async function FutbolBusinessReviewHubPage() {
               {rest.map(article => (
                 <Link
                   className="tfbr-memo reveal"
-                  href={`/articulo?id=${encodeURIComponent(article.id)}`}
+                  href={articlePath(article.id)}
                   key={article.id}
                 >
                   <span className="tfbr-memo-tab">

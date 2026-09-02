@@ -16,7 +16,7 @@ const ids = [
   'liga-mx-sin-ascenso-descenso',
 ];
 for (const id of ids) {
-  await page.goto(`${BASE}/articulo?id=${id}`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/articulo/${encodeURIComponent(id)}`, { waitUntil: 'networkidle' });
 }
 
 const wallVisible = await page.locator('.email-wall-form').count();

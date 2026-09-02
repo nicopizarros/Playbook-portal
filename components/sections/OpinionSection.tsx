@@ -3,6 +3,7 @@ import type { OpinionCard, SiteContentData } from '@/lib/data/site-content';
 import type { Article } from '@/lib/data/articles';
 import { safeUrl } from '@/lib/safe-url';
 import { rankArticles } from '@/lib/rank';
+import { articlePath } from '@/lib/article-url';
 
 // Fase 7 UX: restyled to the v24 prototype's analysis-grid/analysis-card
 // pattern (docs/playbook-portal-v24-medio-consulta(1).html) — cards share
@@ -130,7 +131,7 @@ export function OpinionSection({
               masthead={article.publication}
               title={article.title}
               excerpt={article.excerpt}
-              href={`/articulo?id=${encodeURIComponent(article.id)}`}
+              href={articlePath(article.id)}
               external={false}
               featured={i === 0}
             />

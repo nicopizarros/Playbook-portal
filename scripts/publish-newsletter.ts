@@ -326,7 +326,7 @@ export async function findOverlaps(
   for (const [i, item] of items.entries()) {
     const [top] = rank(queryOf(item), archive, { self: item.sourceUrl });
     if (top && top.s >= OVERLAP_CUT) {
-      blocked.set(i, `${(top.s * 100).toFixed(0)}% vs published /articulo?id=${top.d.id} — ${top.d.title}`);
+      blocked.set(i, `${(top.s * 100).toFixed(0)}% vs published /articulo/${top.d.id} — ${top.d.title}`);
     }
   }
 

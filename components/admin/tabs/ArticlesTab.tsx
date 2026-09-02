@@ -133,7 +133,7 @@ export function ArticlesTab({ entries, onChange, onRemove }: Props) {
               />
               <TextField
                 label="ID (para el enlace del artículo)"
-                help="Se genera solo a partir del título si lo dejas vacío. Debe ser único — se usa en la URL del artículo (/articulo?id=...)."
+                help="Se genera solo a partir del título si lo dejas vacío. Debe ser único — se usa en la URL del artículo (/articulo/...)."
                 value={a.id}
                 onChange={v => updateEntry(entry.clientKey, { id: v })}
               />

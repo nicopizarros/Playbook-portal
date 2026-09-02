@@ -7,6 +7,7 @@ import { Scoreboard, type ScoreboardMetric } from '@/components/products/Scorebo
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
 import { VisitBeacon } from '@/components/analytics/VisitBeacon';
+import { articlePath } from '@/lib/article-url';
 
 // Infinitas — "El Marcador" (design brief 2026-08-05; violet dialed back
 // 2026-08-14 by user directive). The violet is the identity but only as
@@ -82,7 +83,7 @@ export default async function InfinitasHubPage() {
 
         {lead ? (
           <section className="infhub-lead" aria-label="Historia principal">
-            <Link className="infhub-lead-card" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
+            <Link className="infhub-lead-card" href={articlePath(lead.id)}>
               {lead.imageUrl && (
                 <span className="infhub-duotone">
                   {/* Editor-supplied URL, arbitrary host — see
@@ -110,7 +111,7 @@ export default async function InfinitasHubPage() {
             {rest.map(article => (
               <Link
                 className="infhub-card"
-                href={`/articulo?id=${encodeURIComponent(article.id)}`}
+                href={articlePath(article.id)}
                 key={article.id}
               >
                 {article.imageUrl && (

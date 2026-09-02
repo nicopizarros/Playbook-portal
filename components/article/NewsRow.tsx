@@ -1,6 +1,7 @@
 import type { Article } from '@/lib/data/articles';
 import { TagPillRow } from './TagPillRow';
 import { hubForArticle } from '@/lib/hubs';
+import { articlePath } from '@/lib/article-url';
 
 type Heading = 'h3' | 'h4';
 
@@ -21,7 +22,7 @@ export function NewsRow({
   withTagPills?: boolean;
 }) {
   const Heading = heading;
-  const href = `/articulo?id=${encodeURIComponent(article.id)}`;
+  const href = articlePath(article.id);
   const inner = (
     <>
       {/* Hub coverage is badged by destination, matching the article

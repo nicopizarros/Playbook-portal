@@ -1,4 +1,5 @@
 import { getMostReadArticles } from '@/lib/most-read';
+import { articlePath } from '@/lib/article-url';
 
 // "Más leídas" — the homepage top 5, fed by GA4 when configured and by
 // the site's own metering log otherwise (see lib/most-read.ts). Renders
@@ -29,7 +30,7 @@ export async function MostReadSection() {
       <ol className="mr-list">
         {items.map(({ article, count }, i) => (
           <li key={article.id} className={`mr-item reveal${i === 0 ? ' mr-top' : ''}`}>
-            <a className="mr-link" href={`/articulo?id=${encodeURIComponent(article.id)}`}>
+            <a className="mr-link" href={articlePath(article.id)}>
               <span className="mr-rank" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
               <span className="mr-body">
                 <h3 className="mr-title">{article.title}</h3>

@@ -1,6 +1,7 @@
 import type { Article } from '@/lib/data/articles';
 import { TagPillRow } from './TagPillRow';
 import { SplitHeadline } from '@/components/home/SplitHeadline';
+import { articlePath } from '@/lib/article-url';
 
 // Ported from legacy/js/articles.js's leadTemplate(). `.lead-story` is a
 // <div>, NOT an <a> — `.card-link` wraps just the navigable content and is
@@ -23,7 +24,7 @@ import { SplitHeadline } from '@/components/home/SplitHeadline';
 export function LeadStory({ article }: { article: Article }) {
   return (
     <div className="lead-story reveal" data-source={article.source}>
-      <a className="card-link" href={`/articulo?id=${encodeURIComponent(article.id)}`}>
+      <a className="card-link" href={articlePath(article.id)}>
         {article.imageUrl ? (
           <div className="lead-photo">
             {/* Editor-supplied URL, arbitrary host -- see

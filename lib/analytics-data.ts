@@ -10,6 +10,7 @@ import * as vercelAnalytics from './vercel-analytics';
 import * as ga4Analytics from './ga4-analytics';
 import * as firstParty from './first-party-analytics';
 import { getAllArticlesForAdmin } from './data/articles';
+import { articlePath } from '@/lib/article-url';
 
 // Which source actually answered — the UI words its numbers differently
 // for the metering log ("lecturas"/"lectores", see AnalyticsView) than
@@ -135,7 +136,7 @@ async function topArticlesPanel(): Promise<TopArticlesPanel> {
       return {
         id,
         title: article ? article.title : id || 'Desconocido',
-        url: `/articulo?id=${encodeURIComponent(id)}`,
+        url: articlePath(id),
         publication: article ? article.publication : null,
         count: Number(row.count) || 0,
       };

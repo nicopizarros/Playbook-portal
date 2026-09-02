@@ -7,6 +7,7 @@ import { shotsFor, shotLabel, weekdayFor, extractPullFigure, MINUTES_PER_SHOT } 
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
 import { VisitBeacon } from '@/components/analytics/VisitBeacon';
+import { articlePath } from '@/lib/article-url';
 
 // Noticias — the news product's own front page (design brief 2026-08-05;
 // renamed + re-accented same day; river treatment added on the next round
@@ -90,7 +91,7 @@ function Measure({ article, glyphs = 1 }: { article: Article; glyphs?: number })
 }
 
 function articleHref(article: Article) {
-  return `/articulo?id=${encodeURIComponent(article.id)}`;
+  return articlePath(article.id);
 }
 
 export default async function NoticiasHubPage() {

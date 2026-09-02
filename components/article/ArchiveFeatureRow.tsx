@@ -1,5 +1,6 @@
 import type { Article } from '@/lib/data/articles';
 import { TagPillRow } from './TagPillRow';
+import { articlePath } from '@/lib/article-url';
 
 // The Lista view's periodic "featured" row — a smaller LeadStory laid into
 // the list rhythm, giving it photography and size hierarchy it otherwise
@@ -18,7 +19,7 @@ export function ArchiveFeatureRow({
 }) {
   return (
     <div className="archive-feature-row reveal" data-source={article.source}>
-      <a className="card-link" href={`/articulo?id=${encodeURIComponent(article.id)}`}>
+      <a className="card-link" href={articlePath(article.id)}>
         {article.imageUrl ? (
           <div className="archive-feature-photo">
             {/* eslint-disable-next-line @next/next/no-img-element */}

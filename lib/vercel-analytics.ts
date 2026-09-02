@@ -55,9 +55,17 @@ export async function aggregateVisits(params: {
   return (Array.isArray(json.data) ? json.data : []) as Record<string, unknown>[];
 }
 
-// requestPath strips query strings (confirmed in Vercel's own docs), so
-// grouping by it can't distinguish individual articles — they all live at
-// /articulo?id=... Real per-article counts need a custom event fired with
+// requestPath strips query strings (confirmed in Vercel's own docs), which
+// is why grouping by it could not distinguish individual articles while they
+// all lived at /articulo?id=... — the id was in the part being stripped.
+//
+// Since 2026-09-02 articles live at /articulo/<slug> (lib/article-url.ts), so
+// the id is now IN the path and this limitation may no longer apply. Verify
+// against the real API before relying on it: Vercel may still report the
+// route pattern (/articulo/[id]) rather than the resolved path, which would
+// collapse the articles exactly as before. Until that is checked, treat the
+// custom-event path below as the supported one.
+// Real per-article counts need a custom event fired with
 // the article id (see components/article — not yet instrumented; see the
 // "gap" note in this checkpoint's HANDOFF.md entry). Custom events also
 // require the "Custom Events" permission (Vercel Pro/Enterprise) — a plan

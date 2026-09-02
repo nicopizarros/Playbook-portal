@@ -1,4 +1,5 @@
 import type { Article } from '@/lib/data/articles';
+import { articlePath } from '@/lib/article-url';
 
 // Square-ish card for two of the five rating tiers the archive's
 // "Cuadrícula" river uses (see archivo/page.tsx's tierFor/groupRiver) —
@@ -19,7 +20,7 @@ export function ArchiveGridCard({
   size?: 'sm' | 'md';
   priority?: boolean;
 }) {
-  const href = `/articulo?id=${encodeURIComponent(article.id)}`;
+  const href = articlePath(article.id);
 
   return (
     <a className={`archive-grid-card tier-${size} reveal`} data-source={article.source} href={href}>

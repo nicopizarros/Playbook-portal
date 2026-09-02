@@ -9,6 +9,7 @@ import { LanaArchiveCabinet, type CabinetFolder } from '@/components/products/La
 import { SITE_URL } from '@/lib/site-url';
 import { SiteMotion } from '@/components/SiteMotion';
 import { VisitBeacon } from '@/components/analytics/VisitBeacon';
+import { articlePath } from '@/lib/article-url';
 
 // La Lana del Deporte — "El Expediente" (design brief 2026-08-05, format
 // reworked same day on user feedback: the case-file idea and its devices
@@ -77,7 +78,7 @@ export default async function LaLanaHubPage() {
       conexion: stops.join(' → '),
       expediente: `EXP. ${caseNumber(full, articles)}`,
       estado: caseStatus(full, now) === 'abierto' ? 'Abierto' : 'Archivado',
-      url: `/articulo?id=${encodeURIComponent(full.id)}`,
+      url: articlePath(full.id),
     });
   }
   // Auto rows first, then curated, deduped on the connection text (an
@@ -126,13 +127,13 @@ export default async function LaLanaHubPage() {
                   return figure ? <p className="lana-pull-figure">{figure}</p> : null;
                 })()}
                 <h2>
-                  <Link href={`/articulo?id=${encodeURIComponent(lead.id)}`}>{lead.title}</Link>
+                  <Link href={articlePath(lead.id)}>{lead.title}</Link>
                 </h2>
                 <p className="lana-case-excerpt">{lead.excerpt}</p>
                 <div className="lana-case-fileline">
                   <span>Lectura: {lead.readingTime || 1} min</span>
                 </div>
-                <Link className="btn lana-open-btn" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
+                <Link className="btn lana-open-btn" href={articlePath(lead.id)}>
                   Abrir el expediente
                 </Link>
               </div>

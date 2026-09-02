@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Article } from '@/lib/data/articles';
 import { rankArticles, selectHero, daysSince, baseScore, bridgeScore } from '@/lib/rank';
 import { LIST_COUNT } from '@/lib/constants';
+import { articlePath } from '@/lib/article-url';
 
 // Homepage module "Lo que sigue importando" (design brief, 2026-08-05).
 // The main rotation ranks by recency, so a story that's still important
@@ -67,7 +68,7 @@ export function StillMattersSection({ articles }: { articles: Article[] }) {
           <Link
             className="still-matters-card reveal"
             data-source={article.source}
-            href={`/articulo?id=${encodeURIComponent(article.id)}`}
+            href={articlePath(article.id)}
             key={article.id}
           >
             <span className="still-matters-kicker">Sigue siendo noticia</span>

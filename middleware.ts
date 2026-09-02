@@ -49,11 +49,81 @@ function retiredListRedirect(request: NextRequest): URL | null {
   return new URL(RETIRED_SOURCE_LIST.hub, request.nextUrl.origin);
 }
 
+// ------------------------------------- URLs limpias de artículo (2026-09-02)
+// `/articulo?id=<slug>` pasó a ser `/articulo/<slug>`. El motivo: de las 243
+// URLs del sitemap, 237 eran query strings — 211 artículos y 25 temas — y
+// Google las estaba tratando como parámetros de UNA página en vez de como
+// artículos distintos. `articles.id` (lib/db/schema.ts:56) ya era un slug
+// legible acuñado por lib/slugify.ts, así que el cambio fue de ruteo: ni
+// migración de datos ni columna nueva.
+//
+// Este redirect NO se retira nunca. Todo lo que apunta a Playbook hoy —
+// backlinks, envíos de Substack, y los 55 cross-links que viven dentro del
+// cuerpo de los artículos en Postgres (docs/2026-08-25-incoherence-audit.md)
+// — usa la forma vieja. Retirarlo convierte cada uno de esos enlaces en 404.
+//
+// Por qué acá y no en next.config.ts: exactamente la misma razón que el
+// bloque de arriba. Los redirects de next.config reenvían siempre el query
+// string, así que `/articulo?id=X` aterrizaría en `/articulo/X?id=X`. El
+// middleware es el único punto donde el destino se construye desde cero.
+//
+// 301 y no 308 como el redirect de arriba: son equivalentes para Google,
+// pero éste es el que van a buscar las herramientas de auditoría y el que
+// lee cualquiera revisando el fix. La diferencia real (308 preserva el
+// método) no aplica: una URL de artículo sólo se pide por GET.
+function legacyArticleRedirect(request: NextRequest): URL | null {
+  if (request.nextUrl.pathname !== '/articulo') return null;
+  const id = request.nextUrl.searchParams.get('id');
+  // `/articulo` pelado (sin id) no se redirige: cae al catch-all y recibe el
+  // 404 branded, que es lo que siempre fue — nunca hubo una página ahí.
+  if (!id) return null;
+  // Desde cero, sin heredar searchParams: arrastrar `?id=` al destino
+  // duplicaría la URL canónica justo después de haberla limpiado.
+  return new URL(`/articulo/${encodeURIComponent(id)}`, request.nextUrl.origin);
+}
+
+// ------------------------------------------- Un solo host (2026-09-02)
+// El deployment de producción responde en DOS hosts: www.playbook.la y el
+// alias playbook-portal-phi.vercel.app. Verificado — el alias devuelve 200
+// con el sitio completo y un robots.txt que dice `Allow: /`. Es una copia
+// entera del sitio en un dominio que no es nuestro.
+//
+// Los canonicals ya apuntan a playbook.la, así que Google probablemente
+// consolide igual, pero "probablemente" no es una razón para dejar un
+// duplicado servido. Un 308 lo cierra.
+//
+// Sólo corre en producción. En preview cada deployment tiene su propio host
+// *.vercel.app y redirigirlo a producción haría imposible revisar un cambio
+// antes de publicarlo — que es exactamente para lo que existen los previews.
+function nonCanonicalHostRedirect(request: NextRequest): URL | null {
+  if (process.env.VERCEL_ENV !== 'production') return null;
+
+  const canonicalHost = process.env.SITE_URL ? new URL(process.env.SITE_URL).host : null;
+  // Sin SITE_URL configurado no hay contra qué comparar. Fallar abierto:
+  // servir el sitio en un host de más es un problema de SEO, un loop de
+  // redirects lo deja completamente caído.
+  if (!canonicalHost) return null;
+
+  const host = request.headers.get('host');
+  if (!host || host === canonicalHost) return null;
+
+  const target = new URL(request.nextUrl.pathname + request.nextUrl.search, `https://${canonicalHost}`);
+  return target;
+}
+
 export async function middleware(request: NextRequest) {
+  // Primero de todo: si estamos en el host equivocado, nada más de lo que
+  // sigue importa — la cookie anónima se acuña en el host bueno.
+  const canonicalHost = nonCanonicalHostRedirect(request);
+  if (canonicalHost) return NextResponse.redirect(canonicalHost, 308);
+
   // Antes del try: es lectura pura de la URL, no puede lanzar, y el lector
   // recogerá su cookie anónima en el request al hub.
   const retired = retiredListRedirect(request);
   if (retired) return NextResponse.redirect(retired, 308);
+
+  const legacyArticle = legacyArticleRedirect(request);
+  if (legacyArticle) return NextResponse.redirect(legacyArticle, 301);
 
   // Fails open on any error (e.g. AUTH_SECRET missing in this environment —
   // signAnonId/verifyAnonCookie both throw in that case) instead of letting

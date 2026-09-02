@@ -15,6 +15,7 @@ function sourceLabel(source: string): string {
   return PRODUCT_HUBS.find(h => h.source === source)?.name ?? source;
 }
 import { HubSource } from './HubSource';
+import { articlePath } from '@/lib/article-url';
 
 /**
  * El tablero — the numbers that make the case, on the hub's one LIGHT
@@ -203,7 +204,7 @@ function articleMeta(article: Article): string {
 /** The card used for every article that is not the lead. */
 function HubItem({ article }: { article: Article }) {
   return (
-    <Link className="hubx-item" href={`/articulo?id=${encodeURIComponent(article.id)}`}>
+    <Link className="hubx-item" href={articlePath(article.id)}>
       <span className="hubx-item-title">{article.title}</span>
       <span className="hubx-item-meta">{articleMeta(article)}</span>
     </Link>
@@ -252,7 +253,7 @@ export function HubStream({ hub, articles }: { hub: Hub; articles: Article[] }) 
               : `${articles.length} piezas etiquetadas como cobertura de ${hub.name}.`}
           </p>
           <div className="hubx-latest" data-rail={rail.length > 0}>
-            <Link className="hubx-lead" href={`/articulo?id=${encodeURIComponent(lead.id)}`}>
+            <Link className="hubx-lead" href={articlePath(lead.id)}>
               {lead.imageUrl && (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img className="hubx-lead-photo" src={lead.imageUrl} alt="" loading="lazy" />
