@@ -6,6 +6,7 @@ import { articles } from '../db/schema';
 import { rankArticles, selectHero } from '../rank';
 import { LEAD_COUNT, LIST_COUNT, normalizeSource } from '../constants';
 import type { TaxonomyTier } from '../taxonomy';
+import { authorDisplayName } from '@/lib/author-name';
 
 export type Article = typeof articles.$inferSelect;
 
@@ -158,10 +159,16 @@ export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta 
   return row ? { ...row, source: normalizeSource(row.source) } : null;
 });
 
+// Matched on the DISPLAY name, not the raw column, so an author whose byline
+// carries markdown links resolves the same whether the incoming `name` is the
+// clean form (what the site links to and the sitemap publishes now) or the raw
+// stored string (what old URLs and any existing backlinks still carry).
+// See lib/author-name.ts for why the column is not a clean name.
 export async function getArticlesByAuthor(name: string): Promise<Article[]> {
   const all = await getAllArticles();
+  const target = authorDisplayName(name);
   return all
-    .filter(a => a.author === name)
+    .filter(a => authorDisplayName(a.author) === target)
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 }
 
