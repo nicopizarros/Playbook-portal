@@ -28,6 +28,28 @@ substitution depend on who is running it, so it is written down here.
 does load.** Work down this ladder and stop at the first rung that gives you
 the facts:
 
+0. **A WebFetch failure is not proof the primary is blocked — it is proof
+   WebFetch failed.** (2026-08-27 on bbc.com, 2026-08-28 on espn.com.) Two
+   cheap retries clear most of them and both have now paid for themselves:
+
+   - **`curl` with a real browser User-Agent.** BBC returns "unable to fetch"
+     to WebFetch and `HTTP 200` with the whole page to
+     `curl -A '<Chrome UA>'`. The article body then lives in the page's own
+     embedded JSON — `window.__INITIAL_DATA__` on BBC, `__NEXT_DATA__` or a
+     JSON-LD block elsewhere — not in the visible markup, so parse the JSON
+     rather than scraping `<p>` tags.
+   - **The outlet's own content API.** ESPN answers `202` with an empty body
+     to both WebFetch and curl (AWS WAF), and serves the complete story,
+     byline, publish date and image credits from
+     `now.core.api.espn.com/v1/sports/news/<the id in the URL>`. Most large
+     outlets run something equivalent to feed their own apps; the article id
+     is already in the URL you were handed.
+
+   Only when both fail is the link actually blocked, and then the ladder
+   below starts. Skipping this step costs the human a request for text the
+   session could have fetched itself, which is exactly what 0b is for and
+   exactly what it should not be spent on.
+
 0a. **Look at what the blocked link is carrying before treating it as blocked.**
    (2026-08-20, the FMF Nuevo Modelo Deportivo run.) `x.com` status URLs return
    HTTP 402 to WebFetch, so the link reads as unfetchable — but an institution

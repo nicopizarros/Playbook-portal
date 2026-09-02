@@ -34,6 +34,31 @@ combined ask reliably loses detail:
    gets carried into the relevant article's body, in that same order, never
    skipped and never used as the cover.
 
+### For a La Lana ingest, WebFetch cannot satisfy the verbatim contract
+
+(2026-08-28, the casas-de-apuestas edition.) WebFetch answers a prompt about a
+page through a small model, so what comes back is a faithful *summary* — and
+`format-tiers.md` §4 requires a La Lana edition to ship word-for-word, down to
+the typos. Those two facts are incompatible, and the four-pass ask above does
+not fix it: four summaries are still four summaries.
+
+Pull the post's own stored HTML instead. Substack embeds the whole post in the
+page as `window._preloads = JSON.parse("…")`; parse that, take the object
+carrying `body_html`, and read `title`, `subtitle`, `post_date` and
+`publishedBylines` off the same object rather than guessing them. Walking that
+HTML block by block (`<p>`, `<h3>`, `<li>`, `<figure>`) gives the paragraphs,
+the subheads, the promise-block bullets, the author's own bold and links, and
+every `substackcdn.com` image src in document order — which is also everything
+`images.md` §2's carry-over rule needs. Do the extraction with a script, never
+by retyping: the value of the verbatim contract is that no sentence passes
+through a paraphrase, and a hand-copied paragraph has already broken it.
+
+Two things that extraction reliably gets wrong if you are not watching: a
+naive `</p>` replace silently welds consecutive paragraphs into run-on blocks,
+and the Opinión's bullets can collapse into the preceding text — count the
+`<li>` elements against the rendered output before trusting it (that edition
+had six: three promise-block questions and three Opinión bullets).
+
 Then run the **overlap check** (`overlap-check.md`) on every item before
 drafting anything.
 
