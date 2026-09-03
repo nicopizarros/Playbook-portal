@@ -7,6 +7,7 @@ import { rankArticles, selectHero } from '../rank';
 import { LEAD_COUNT, LIST_COUNT, normalizeSource } from '../constants';
 import type { TaxonomyTier } from '../taxonomy';
 import { authorDisplayName } from '@/lib/author-name';
+import { HUBS } from '../hubs';
 
 export type Article = typeof articles.$inferSelect;
 
@@ -100,6 +101,26 @@ export const getAllArticles = cache(async (): Promise<Article[]> => {
   return rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 });
 
+// An unlisted hub (Hub.listed — lib/hubs/types.ts, e.g. LFA_HUB) is
+// "undiscoverable, not unreachable": the hub page itself keeps serving at
+// its own URL, but nothing else on the site should surface the articles
+// GATHERED into it (they're filed under a regular product's `source`, so
+// they'd otherwise ride along in every general listing right next to it).
+// `getAllArticles` stays the raw published+listed(article) pool that
+// lib/hubs/pool.ts and getArticlesBySource/getArticlesByProperty read from
+// — that's what keeps the hub page itself populated. Every OTHER public
+// surface (homepage, archive, ticker, most-read, search, sitemap, feed,
+// related articles, team page) should read this instead.
+function isInUnlistedHub(article: Pick<Article, 'tagsProperty'>): boolean {
+  const tags = article.tagsProperty || [];
+  return HUBS.some(hub => !hub.listed && tags.includes(hub.tag));
+}
+
+export const getPublicArticles = cache(async (): Promise<Article[]> => {
+  const all = await getAllArticles();
+  return all.filter(a => !isInUnlistedHub(a));
+});
+
 // cache()-wrapped so a request that reads the full article (body included)
 // after already resolving it another way within the same render doesn't
 // issue the same by-id lookup twice.
@@ -179,7 +200,7 @@ export const getArticleMetaById = cache(async (id: string): Promise<ArticleMeta 
 // stored string (what old URLs and any existing backlinks still carry).
 // See lib/author-name.ts for why the column is not a clean name.
 export async function getArticlesByAuthor(name: string): Promise<Article[]> {
-  const all = await getAllArticles();
+  const all = await getPublicArticles();
   const target = authorDisplayName(name);
   return all
     .filter(a => authorDisplayName(a.author) === target)
@@ -194,7 +215,7 @@ const TAG_COLUMN: Record<TaxonomyTier, keyof Article> = {
 };
 
 export async function getArticlesByTag(tier: TaxonomyTier, value: string): Promise<Article[]> {
-  const all = await getAllArticles();
+  const all = await getPublicArticles();
   const column = TAG_COLUMN[tier];
   const ranked = rankArticles(all.filter(a => (a[column] as string[]).includes(value)));
   return ranked;
@@ -213,7 +234,7 @@ export type ArchiveFilters = {
 // archive" matches reality regardless of which filters are active — then
 // filters are applied on top of that overflow set.
 export async function getArchiveArticles(filters: ArchiveFilters): Promise<Article[]> {
-  const all = await getAllArticles();
+  const all = await getPublicArticles();
   // Mirrors NewsGrid's own pool exactly: the homepage news band excludes
   // source='opinion' (those have their own live section further down the
   // page), so the "what is already on the homepage" subtraction has to

@@ -11,7 +11,7 @@
 //      no entry here still renders — with a "perfil pendiente" state — since
 //      excluding a real contributor because nobody filled in their bio yet
 //      would be worse than showing an honest gap.
-import { getAllArticles } from './articles';
+import { getPublicArticles } from './articles';
 import { db } from '../db/client';
 import { users } from '../db/schema';
 import { sql } from 'drizzle-orm';
@@ -39,7 +39,7 @@ export type TeamMember = {
 
 /** Every byline that has actually published, real counts, sorted alphabetically (no profile data to rank by yet). */
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const articles = await getAllArticles();
+  const articles = await getPublicArticles();
   const byAuthor = new Map<string, { count: number; mostRecent: string }>();
   for (const a of articles) {
     const name = (a.author || '').trim();

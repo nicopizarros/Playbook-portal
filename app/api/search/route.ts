@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllArticles } from '@/lib/data/articles';
+import { getPublicArticles } from '@/lib/data/articles';
 
 // Backs the header search box.
 //
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   if (!raw) return NextResponse.json({ results: [] });
 
   const q = normalize(raw.slice(0, MAX_QUERY_LENGTH));
-  const articles = await getAllArticles();
+  const articles = await getPublicArticles();
 
   const results = articles
     .filter(
