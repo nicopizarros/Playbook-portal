@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { auth } from '@/auth';
 import { getPublicArticles, getArticleById, getArticleMetaById, getArticlesBySource, type Article } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { relatedArticles, shouldShowAuthor } from '@/lib/related-articles';
@@ -133,10 +134,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: article.title,
     description,
     alternates: { canonical: canonicalUrl },
-    // The actual anti-discovery mechanism for an unlisted article — same
-    // posture as the hub's own generateMetadata (coberturas/[slug]/page.tsx):
-    // real, reachable content that must never be indexed or followed into
-    // while listed=false. See schema.ts articles.listed.
+    // Noindex while unlisted, same posture as the hub's own generateMetadata
+    // (coberturas/[slug]/page.tsx). Since 2026-09-02 this is belt-and-suspenders
+    // rather than the only protection: the editor-only session check above
+    // (`if (!meta.listed)`) is what actually keeps an unlisted article off
+    // the public internet; this just keeps a crawler that somehow still saw
+    // it from indexing it. See schema.ts articles.listed.
     robots: { index: article.listed, follow: article.listed },
     // siteName/locale restated from OG_DEFAULTS on purpose: declaring
     // `openGraph` at all replaces the root layout's object wholesale rather
@@ -324,6 +327,18 @@ export default async function ArticuloPage({ params }: Props) {
   // known SEO antipattern — and Next's notFound() reuses the same branded
   // not-found page this migration needs anyway (see app/not-found.tsx).
   if (!meta) notFound();
+
+  // `listed: false` (schema.ts articles.listed) previously only drove the
+  // robots meta below (noindex) — the page itself still served the article
+  // to anyone with the URL. Reinstated 2026-09-02, same gate and same
+  // reasoning as Hub.listed (lib/hubs/types.ts): an unlisted article is
+  // editor-only, not merely uncrawled, because "undiscoverable but still
+  // fetchable" is not what unlisting an article is for when it is holding
+  // back something like a not-yet-public partnership announcement.
+  if (!meta.listed) {
+    const session = await auth();
+    if (!session || session.user.role !== 'editor') notFound();
+  }
 
   // Fetched unconditionally (cheap, single-row, React-cached) rather than
   // only in the full-access branch below: the site-wide "show author"

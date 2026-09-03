@@ -281,10 +281,11 @@ export type Hub = {
    * Whether the hub is public. `false` = UNLISTED: absent from the header's
    * Coberturas zone and from the sitemap (nothing links to it, nothing
    * crawls it), `robots: noindex` on its own page, AND — reinstated
-   * 2026-09-02, first added 2026-08-19, traded away 2026-08-24 (in favour of
-   * "share the link with whoever needs to see it before the announcement,
-   * without making them log in first") and put back after the same class of
-   * leak recurred — access-restricted: the inline session check in
+   * 2026-09-02 on a direct operator instruction to take the hub non-public,
+   * first added 2026-08-19, traded away 2026-08-24 in favour of "share the
+   * link with whoever needs to see it before the announcement, without
+   * making them log in first" — access-restricted again: the inline session
+   * check in
    * app/(public)/coberturas/[slug]/page.tsx's `HubPage` 404s anyone who
    * isn't signed in with the `editor` role, the same check
    * app/admin/(protected)/layout.tsx uses. (There is no separate
