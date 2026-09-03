@@ -281,17 +281,23 @@ export type Hub = {
    * Whether the hub is public. `false` = UNLISTED: absent from the header's
    * Coberturas zone and from the sitemap (nothing links to it, nothing
    * crawls it), `robots: noindex` on its own page, AND — reinstated
-   * 2026-09-02, first added 2026-08-19, traded away 2026-08-24 and put back
-   * after the same class of leak recurred — access-restricted: the inline
-   * session check in app/(public)/coberturas/[slug]/page.tsx's `HubPage`
-   * 404s anyone who isn't signed in with the `editor` role, the same check
+   * 2026-09-02, first added 2026-08-19, traded away 2026-08-24 (in favour of
+   * "share the link with whoever needs to see it before the announcement,
+   * without making them log in first") and put back after the same class of
+   * leak recurred — access-restricted: the inline session check in
+   * app/(public)/coberturas/[slug]/page.tsx's `HubPage` 404s anyone who
+   * isn't signed in with the `editor` role, the same check
    * app/admin/(protected)/layout.tsx uses. (There is no separate
    * `assertHubViewable()` helper — read the check directly in that file
    * before trusting a description of it, this one included.) A
    * pre-announcement hub can be built and reviewed by editors at its real
    * URL with nothing public-facing ever seeing it. Flipping it to `true` is
    * the whole "go live" change, and the gate above only applies while this
-   * is `false` — a listed hub is public by definition.
+   * is `false` — a listed hub is public by definition. See
+   * `articles.listed` (lib/db/schema.ts) for the article-level counterpart —
+   * that one currently drops an unlisted article from every listing but,
+   * unlike this flag as of 2026-09-02, still serves its own `/articulo/<id>`
+   * page with no session check.
    */
   listed: boolean;
   /**

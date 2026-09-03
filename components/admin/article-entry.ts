@@ -41,6 +41,7 @@ function toData(a: Article) {
     imageUrl: a.imageUrl,
     imageCredit: a.imageCredit ?? '',
     status: a.status,
+    listed: a.listed,
   };
 }
 
@@ -101,6 +102,7 @@ export function newArticleEntry(): ArticleEntry {
       imageUrl: '',
       imageCredit: '',
       status: 'published',
+      listed: true,
     },
   };
 }

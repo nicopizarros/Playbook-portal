@@ -3,7 +3,7 @@ import { unstable_cache } from 'next/cache';
 import { db } from './db/client';
 import { articleReads } from './db/schema';
 import { topArticleIds } from './ga4';
-import { getAllArticles, type Article } from './data/articles';
+import { getPublicArticles, type Article } from './data/articles';
 
 // Backs components/home/MostReadSection.tsx ("Más leídas", the homepage
 // top 5). Two data sources, in order of preference (2026-08-06 — until
@@ -55,7 +55,7 @@ export async function getMostReadArticles(): Promise<MostReadItem[] | null> {
   }
   if (!ranked.length) return null;
 
-  const pool = await getAllArticles();
+  const pool = await getPublicArticles();
   const byId = new Map(pool.map(a => [a.id, a]));
   return ranked
     .map(r => {

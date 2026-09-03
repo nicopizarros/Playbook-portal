@@ -132,6 +132,8 @@ export type ArticleInput = {
   substackUrl: string;
   imageUrl: string;
   imageCredit: string;
+  /** See schema.ts articles.listed — the per-article counterpart to Hub.listed. */
+  listed: boolean;
 };
 
 export type SaveArticleResult = { conflict: true } | { conflict: false; article: Article };
@@ -185,6 +187,7 @@ export async function saveArticle(
       substackUrl: input.substackUrl,
       imageUrl: input.imageUrl,
       imageCredit: input.imageCredit || null,
+      listed: input.listed,
       updatedAt: new Date(),
       updatedBy: session.user.id,
     })
@@ -249,6 +252,7 @@ export async function createArticle(input: ArticleInput & { id?: string }): Prom
           substackUrl: input.substackUrl,
           imageUrl: input.imageUrl,
           imageCredit: input.imageCredit || null,
+          listed: input.listed,
           status: 'published',
           updatedAt: new Date(),
           updatedBy: session.user.id,

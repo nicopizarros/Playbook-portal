@@ -72,21 +72,18 @@ two open questions the same day; both are now settled, not pending:**
   deliberately carries no outbound link to any league property. Revisit only
   if the league asks.
 
-**Still open — the same photograph renders twice.**
-`/assets/img/lfa-reyes-accion-mayo-2026.jpg` is both the lead story's own cover
-(it is the article's `image_url`, rendered by `HubModules.tsx:258`) and the
+**RESOLVED 2026-09-02 — the same photograph no longer renders twice.**
+`/assets/img/lfa-reyes-accion-mayo-2026.jpg` was both the lead story's own
+cover (the article's `image_url`, rendered by `HubModules.tsx:258`) and the
 hardcoded `accessPhoto` for "Desde adentro" (`lib/hubs/lfa.ts`, rendered at
-`HubModules.tsx:369`). On the page it reads as a bug rather than a motif.
-
-It cannot be fixed from what is in the repo: `public/hubs/lfa/` holds exactly
-three assets, and the only unused one — `board.jpg` — is **not a photograph**.
-It is a 1400x788 dark grey texture with a faint grid, the hand-built gradient
-the masthead wore before the league's key art replaced it (`78ef043`). Keep it
-(publisher, 2026-08-25: a photo is meant to live in that slot) but it cannot
-serve as one. **What is needed is one more real, credited LFA photograph for
-the access poster.** Until it arrives, the choice is duplicate-the-lead (today)
-or drop `accessPhoto` and let the module degrade to type. Do not substitute
-stock — `module-inventory.md` forbids exactly that.
+`HubModules.tsx:369`). `public/hubs/lfa/` still holds no second real
+photograph — `board.jpg` is a texture, not a photo, and stock is still
+forbidden (`module-inventory.md`) — so of the two options this note left open,
+`accessPhoto` was dropped from `lib/hubs/lfa.ts` rather than keep duplicating
+the lead. `HubAccess` degrades to type-only without it (its own
+`data-art={Boolean(photo)}` branch, unchanged). **Still needed: one more real,
+credited LFA photograph**, distinct from the lead, for this slot — set
+`accessPhoto` again the day one exists.
 
 **Open, in priority order:**
 

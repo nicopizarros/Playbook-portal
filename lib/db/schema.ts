@@ -133,6 +133,19 @@ export const articles = pgTable(
     // "Foto: Jane Doe / Unsplash"). Null/empty means no credit to show.
     imageCredit: text('image_credit'),
     status: text('status', { enum: ['published', 'draft'] }).notNull().default('published'),
+    // Article-level counterpart to Hub.listed (lib/hubs/types.ts): `false`
+    // means UNDISCOVERABLE, not unreachable. The article still resolves at
+    // its real /articulo/<id> URL (getArticleById/getArticleMetaById carry
+    // no filter on this column, by design), but drops out of getAllArticles
+    // — and therefore every listing, hub pool, the archive, search and the
+    // sitemap, all of which read that one function — and the article page
+    // sets `robots: noindex, nofollow`. Same two-part mechanism as the hub's
+    // own flag, one level down: a hub can be unlisted while carrying listed
+    // articles, and a listed hub can carry an unlisted article held back for
+    // its own reason (an embargo, a pre-announcement preview link). Defaults
+    // to true so every existing and ordinarily-created row stays exactly as
+    // visible as before this column existed.
+    listed: boolean('listed').notNull().default(true),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     updatedBy: uuid('updated_by').references(() => editors.id, { onDelete: 'set null' }),

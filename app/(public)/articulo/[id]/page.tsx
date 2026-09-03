@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAllArticles, getArticleById, getArticleMetaById, getArticlesBySource, type Article } from '@/lib/data/articles';
+import { getPublicArticles, getArticleById, getArticleMetaById, getArticlesBySource, type Article } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { relatedArticles, shouldShowAuthor } from '@/lib/related-articles';
 import { resolveEntitlement } from '@/lib/metering';
@@ -133,7 +133,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: article.title,
     description,
     alternates: { canonical: canonicalUrl },
-    robots: { index: true, follow: true },
+    // The actual anti-discovery mechanism for an unlisted article — same
+    // posture as the hub's own generateMetadata (coberturas/[slug]/page.tsx):
+    // real, reachable content that must never be indexed or followed into
+    // while listed=false. See schema.ts articles.listed.
+    robots: { index: article.listed, follow: article.listed },
     // siteName/locale restated from OG_DEFAULTS on purpose: declaring
     // `openGraph` at all replaces the root layout's object wholesale rather
     // than merging into it, so without this an article card loses
@@ -613,7 +617,7 @@ export default async function ArticuloPage({ params }: Props) {
   // confirmed this reader is allowed to see it. Reuses `header`/`showAuthor`
   // computed above from `meta` — `article` is a superset of the same row,
   // so there's nothing to recompute for those fields.
-  const [article, pool] = await Promise.all([getArticleById(meta.id), getAllArticles()]);
+  const [article, pool] = await Promise.all([getArticleById(meta.id), getPublicArticles()]);
   if (!article) notFound();
 
   // Fase 4's TipTap editor starts populating bodyJson/bodyHtml for
