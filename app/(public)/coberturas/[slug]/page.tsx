@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { auth } from '@/auth';
 import { HUBS, hubBySlug } from '@/lib/hubs';
 import { hubArticles } from '@/lib/hubs/pool';
 import { HubChain } from '@/components/hubs/HubChain';
@@ -20,22 +21,23 @@ import { SITE_URL } from '@/lib/site-url';
 import { HubMotion } from '@/components/hubs/HubMotion';
 import { VisitBeacon } from '@/components/analytics/VisitBeacon';
 
-// An unlisted hub (Hub.listed === false) means UNDISCOVERABLE, not
-// unreachable: absent from the nav's Coberturas zone (HeaderNav.tsx) and
-// from the sitemap (app/sitemap.ts), and `robots: noindex,nofollow` below
-// — but the route itself has no access gate. Anyone with the direct URL
-// can open it, logged in or not.
+// An unlisted hub (Hub.listed === false) is absent from the nav's
+// Coberturas zone (HeaderNav.tsx) and from the sitemap (app/sitemap.ts),
+// and carries `robots: noindex,nofollow` below.
 //
-// 2026-08-24, publisher's explicit call: deliberately looser than the
-// editor-only hard-404 this route carried between 2026-08-19 and today.
-// That gate existed because the hub was briefly `listed: true` and Google
-// indexed it while its masthead already stated the partnership as fact —
-// i.e. the actual incident was a DISCOVERY leak (nav + sitemap + a real
-// index), not someone guessing the URL. `robots: noindex` plus staying out
-// of nav/sitemap is what prevents that from recurring; the editor-only
-// gate was defense-in-depth on top of it, traded away now for "share the
-// link with whoever needs to see it before the announcement, without
-// making them log in first."
+// 2026-08-24, publisher's explicit call: the route itself dropped its
+// editor-only hard-404 (carried 2026-08-19 through that date) in favour of
+// "share the link with whoever needs to see it before the announcement,
+// without making them log in first" — `robots: noindex` plus staying out
+// of nav/sitemap was judged enough on its own.
+//
+// REINSTATED, standing rule as of 2026-09-02: the editor-only gate is back
+// (see the session check in HubPage below), restoring exactly the
+// 2026-08-19-through-2026-08-24 posture. Reason: undiscoverable-but-fetchable
+// is not the same guarantee as actually non-public, and this hub has already
+// leaked once before via the weaker version of this same trade-off (the
+// 2026-08-19 incident this whole comment describes). Do not trade the gate
+// away again without an explicit publisher call, the way 2026-08-24 was.
 //
 // ONE ROUTE, EVERY HUB. Adding a coverage destination is a config entry in
 // lib/hubs/ plus a token file in styles/hubs/ — this file never changes.
@@ -87,6 +89,14 @@ export default async function HubPage({ params }: { params: Promise<{ slug: stri
   const { slug } = await params;
   const hub = hubBySlug(slug);
   if (!hub) notFound();
+
+  // Editor-only while unlisted (see the comment above the imports). A
+  // listed hub has already cleared for a public audience by definition, so
+  // the gate only applies to the unlisted state, not to `listed` forever.
+  if (!hub.listed) {
+    const session = await auth();
+    if (!session || session.user.role !== 'editor') notFound();
+  }
 
   const articles = await hubArticles(hub);
 

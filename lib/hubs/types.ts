@@ -280,16 +280,18 @@ export type Hub = {
   /**
    * Whether the hub is public. `false` = UNLISTED: absent from the header's
    * Coberturas zone and from the sitemap (nothing links to it, nothing
-   * crawls it), `robots: noindex` on its own page, AND — 2026-08-19 —
-   * access-restricted: app/(public)/coberturas/[slug]/page.tsx's
-   * assertHubViewable() 404s anyone who isn't signed in with the `editor`
-   * role, the same session check app/admin/(protected)/layout.tsx uses.
-   * This started as pure obscurity (reachable by anyone with the URL) and
-   * was hardened into a real boundary after the LFA hub got indexed while
-   * briefly listed with its partnership already stated as fact — a
-   * pre-announcement hub can now be built and reviewed by editors at its
-   * real URL with nothing public-facing ever seeing it. Flipping it to
-   * `true` is the whole "go live" change.
+   * crawls it), `robots: noindex` on its own page, AND — reinstated
+   * 2026-09-02, first added 2026-08-19, traded away 2026-08-24 and put back
+   * after the same class of leak recurred — access-restricted: the inline
+   * session check in app/(public)/coberturas/[slug]/page.tsx's `HubPage`
+   * 404s anyone who isn't signed in with the `editor` role, the same check
+   * app/admin/(protected)/layout.tsx uses. (There is no separate
+   * `assertHubViewable()` helper — read the check directly in that file
+   * before trusting a description of it, this one included.) A
+   * pre-announcement hub can be built and reviewed by editors at its real
+   * URL with nothing public-facing ever seeing it. Flipping it to `true` is
+   * the whole "go live" change, and the gate above only applies while this
+   * is `false` — a listed hub is public by definition.
    */
   listed: boolean;
   /**
