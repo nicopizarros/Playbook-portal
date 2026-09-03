@@ -1,4 +1,4 @@
-import { getAllArticles } from '@/lib/data/articles';
+import { getPublicArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { shouldShowAuthor } from '@/lib/related-articles';
 import { TAXONOMY, type TaxonomyTier } from '@/lib/taxonomy';
@@ -43,7 +43,7 @@ function parseTopicFromQuery(url: URL) {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const topic = parseTopicFromQuery(url);
-  const [articles, content] = await Promise.all([getAllArticles(), getSiteContent()]);
+  const [articles, content] = await Promise.all([getPublicArticles(), getSiteContent()]);
   const mostrarAutorGlobal = content.siteSettings.mostrarAutorGlobal;
 
   const pool = topic

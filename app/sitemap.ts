@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getAllArticles } from '@/lib/data/articles';
+import { getPublicArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { shouldShowAuthor } from '@/lib/related-articles';
 import { TAXONOMY, type TaxonomyTier } from '@/lib/taxonomy';
@@ -44,7 +44,7 @@ function mostRecentDate(dates: string[]): Date | undefined {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articles, content] = await Promise.all([getAllArticles(), getSiteContent()]);
+  const [articles, content] = await Promise.all([getPublicArticles(), getSiteContent()]);
   const entries: MetadataRoute.Sitemap = [];
 
   const latestArticleDate = mostRecentDate(articles.map(a => a.date));

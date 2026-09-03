@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAllArticles, getArticleById, getArticleMetaById, getArticlesBySource, type Article } from '@/lib/data/articles';
+import { getPublicArticles, getArticleById, getArticleMetaById, getArticlesBySource, type Article } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { relatedArticles, shouldShowAuthor } from '@/lib/related-articles';
 import { resolveEntitlement } from '@/lib/metering';
@@ -617,7 +617,7 @@ export default async function ArticuloPage({ params }: Props) {
   // confirmed this reader is allowed to see it. Reuses `header`/`showAuthor`
   // computed above from `meta` — `article` is a superset of the same row,
   // so there's nothing to recompute for those fields.
-  const [article, pool] = await Promise.all([getArticleById(meta.id), getAllArticles()]);
+  const [article, pool] = await Promise.all([getArticleById(meta.id), getPublicArticles()]);
   if (!article) notFound();
 
   // Fase 4's TipTap editor starts populating bodyJson/bodyHtml for

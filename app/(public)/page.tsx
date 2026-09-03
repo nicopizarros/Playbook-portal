@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getAllArticles } from '@/lib/data/articles';
+import { getPublicArticles } from '@/lib/data/articles';
 import { getSiteContent } from '@/lib/data/site-content';
 import { NewsGrid } from '@/components/home/NewsGrid';
 import { HomeChoreography } from '@/components/home/HomeChoreography';
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [articles, content] = await Promise.all([getAllArticles(), getSiteContent()]);
+  const [articles, content] = await Promise.all([getPublicArticles(), getSiteContent()]);
 
   return (
     <>
@@ -75,7 +75,7 @@ export default async function HomePage() {
       </main>
 
       <AdSlot slot="leaderboard-home" />
-      {/* `articles` is the same React-cached getAllArticles() result the
+      {/* `articles` is the same React-cached getPublicArticles() result the
           news package above already uses — the opinion section derives its
           cards from the source='opinion' subset (see that component), so
           no extra query. */}

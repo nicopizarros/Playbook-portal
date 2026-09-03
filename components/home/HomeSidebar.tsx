@@ -2,7 +2,7 @@ import { NewsletterForm } from '@/components/shared/NewsletterForm';
 import { DailyFigure } from './DailyFigure';
 import { ElectionBoard } from './ElectionBoard';
 import { AdSlot } from '@/components/ads/AdSlot';
-import { getAllArticles, getArticleById } from '@/lib/data/articles';
+import { getPublicArticles, getArticleById } from '@/lib/data/articles';
 import { rankArticles, selectHero } from '@/lib/rank';
 import { extractPullFigure, extractCifraFromBody } from '@/lib/product-hubs';
 import { articlePath } from '@/lib/article-url';
@@ -38,7 +38,7 @@ import { articlePath } from '@/lib/article-url';
 //   and left a page-tall hole) — it's now the full-width band under the
 //   news package (see app/(public)/page.tsx), and the ad closes the rail.
 export async function HomeSidebar() {
-  const articles = await getAllArticles();
+  const articles = await getPublicArticles();
   const ranked = rankArticles(articles.filter(a => a.source !== 'opinion' || a.featured));
   const hero = selectHero(ranked);
   let cifra: { figure: string; caption?: string; id: string; title: string } | null = null;

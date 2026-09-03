@@ -1,12 +1,12 @@
 import { auth } from '@/auth';
 import { getSiteContent } from '@/lib/data/site-content';
-import { getAllArticles } from '@/lib/data/articles';
+import { getPublicArticles } from '@/lib/data/articles';
 import { BrandLink } from './BrandLink';
 import { HeaderNav } from './HeaderNav';
 import { Ticker } from './Ticker';
 
 export async function Header() {
-  const [content, articles, session] = await Promise.all([getSiteContent(), getAllArticles(), auth()]);
+  const [content, articles, session] = await Promise.all([getSiteContent(), getPublicArticles(), auth()]);
   const { nav } = content;
   const readerEmail = session?.user?.role === 'reader' ? session.user.email : null;
 
