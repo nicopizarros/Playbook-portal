@@ -89,6 +89,33 @@ more** (or reproduce the render locally by importing `applyBodyDevices` /
 by any request-level lag) rather than immediately rewriting the declaration.
 Only trust a "malformed" verdict that survives a second, later check.
 
+### A fixed device can silently evict a second one
+
+(2026-09-01, NFL Australia/México run.) A live-page check after publishing
+caught `Alcance` rendering as literal `<p>Alcance: …</p>` text: two of its four
+rows exceeded the 60-character value limit (`dynamic-element-library.md`'s
+`Alcance` section), so the whole declaration failed to parse. Shortening those
+two rows and re-running `update-article.ts` fixed `Alcance` — and made
+`Cronología`, declared later in the same body, start rendering as *its own*
+literal unstyled text, because `Alcance` had never been consuming a budget
+slot while malformed. The device budget (`dynamic-element-library.md` §1) is
+enforced at render time on whatever currently parses, not on what the author
+intended, so **fixing one over-budget declaration can push a different,
+previously-fine declaration out of the same fixed budget**, and the site will
+show it exactly like a fresh mistake.
+
+Two things follow. First, check every declared device's own character limits
+(row/value/label lengths, item counts) against `dynamic-element-library.md`
+**before** publishing, not just after — this is a five-minute count-the-string
+check that would have caught the `Alcance` rows on the first pass. Second,
+after fixing any device-rendering issue on a published article, **re-fetch the
+live page again and re-check every declared device**, not just the one just
+fixed — a body carrying more devices than its budget allows is one edit away
+from a different device losing the slot it happened to hold. When a body
+genuinely has more good devices than its budget, the fix is to cut one
+deliberately (fold its facts into prose, as with `Cronología` here) rather than
+leave it as a plain-text device declaration for a reader to see literally.
+
 ### Fixing a published body
 
 Never hand-edit stored `body_html` — it is a cache of `body_json`. Run the
