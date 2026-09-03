@@ -73,6 +73,23 @@ the facts:
    revision round. **Ask once, right after the block, before drafting** — not as
    an afterthought once a gap surfaces.
 
+0c. **A successful WebFetch can still fabricate a specific detail.** (2026-09-01,
+   the NFL Australia/México run.) A syndicated copy of a Reuters wire loaded
+   fine (`HTTP 200`, full text), and WebFetch's own summary of it still
+   reported the first Melbourne game as "Friday, September 5" — a date that
+   does not exist for that year on that weekday. Three independent primary
+   pages (NFL.com, the Rams' own site, the 49ers' own site) all agreed on
+   "Friday, September 11", and a one-line day-of-week check
+   (`python3 -c "import datetime; print(datetime.date(2026,9,5).strftime('%A'))"`)
+   showed September 5, 2026 is a Saturday, not a Friday, confirming the
+   summary had invented the day, not misread it. A `200` status only proves
+   the page loaded; it says nothing about whether the model's summary of that
+   page stayed faithful to it. **Sanity-check any date, count or name that
+   feeds a headline figure, a device, or the lede** against either a second
+   source or a cheap mechanical check (day-of-week for a date, a sum for a
+   count) before trusting it — this costs one command and catches exactly the
+   kind of error a reader would catch first.
+
 1. **A syndicated copy of the same wire on a reachable host.** A Reuters story
    runs verbatim on dozens of local radio and regional news sites; those serve
    automated fetches normally. This is the closest thing to the primary and
@@ -185,6 +202,27 @@ with a homepage link or an editorial outlet.**
 
 The editorial outlets read above do their job by being read. They do **not** go
 on the line, unless one of them broke the story exclusively.
+
+### When the human excludes a source from the credit line
+
+(2026-09-01/02, three separate runs in one session: Hard Rock/Miami GP, MLB
+attendance, Inter de Limeira.) The human sometimes hands over a link with an
+instruction like *"no uses a 2Playbook como fuente"* — the aggregator that
+tipped off the story is not to be credited. This is not a new rule, it is the
+existing exclusivity test (`format-tiers.md` §6, `voice-and-style.md` §8: only
+a source that broke the fact belongs on `Fuentes:`, an editorial outlet that
+merely carried it does not) **triggered by explicit instruction instead of by
+the skill's own judgment**. Treat the excluded link exactly like any other
+non-primary editorial outlet: fetch it for facts and verification same as any
+cross-reference, then route the credit to the actual issuer (the company's own
+press release, the league's own site, the government's own statement) or to
+whichever independent outlet's own original reporting the piece is really
+built on. Nothing about the drafting process changes — only which name(s) can
+appear on the last line. Worked each time by finding the real primary
+(PR Newswire for Hard Rock, Front Office Sports' own analysis for MLB, Inside
+World Football's original interview for Inter de Limeira) and never needed to
+be re-derived from principle, but it also was not written down anywhere until
+now, so a future run had no faster path than reasoning it out cold.
 
 ### Research the Mexico/LATAM angle here, not at drafting time
 
